@@ -1,3 +1,20 @@
 <resources>
+
+    <!-- general -->
     <string name="app_name">opensrp-child</string>
+    <string name="saving_dialog_title">Saving…</string>
+    <string name="no_unique_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
+    <string name="error_unable_to_start_form">An error occurred when starting the form</string>
+    <string name="no_matching_record_found_on_this_device">No matching record found on this device.</string>
+
+    <!-- menu -->
+    <string name="add_member">Add Member</string>
+    <string name="sort">Sort</string>
+    <string name="home">Home</string>
+    <string name="add_child">Add child</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="job_aids">Job Aids</string>
+
+    <!-- warning -->
+    <string name="any_changes_you_make">Any changes you have made will be lost</string>
 </resources>
