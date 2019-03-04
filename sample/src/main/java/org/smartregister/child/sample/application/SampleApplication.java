@@ -11,6 +11,7 @@ import org.smartregister.child.activity.ChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.activity.ChildProfileActivity;
+import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
 import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
 import org.smartregister.child.sample.util.SampleConstants;
@@ -49,7 +50,7 @@ public class SampleApplication extends DrishtiApplication {
         context.updateCommonFtsObject(createCommonFtsObject());
 
         //Initialize Modules
-        CoreLibrary.init(context);
+        CoreLibrary.init(context, new SampleSyncConfiguration());
         GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());

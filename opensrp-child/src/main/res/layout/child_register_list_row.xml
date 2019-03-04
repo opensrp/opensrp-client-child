@@ -1,114 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/register_columns"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:background="#eeeeee"
+    android:orientation="horizontal"
+    android:weightSum="10">
 
     <LinearLayout
-        android:id="@+id/patient_column"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="@dimen/register_list_top_bottom_margin"
-        android:layout_marginEnd="@dimen/register_list_item_margin"
-        android:layout_marginLeft="@dimen/register_list_item_margin"
-        android:layout_marginRight="@dimen/register_list_item_margin"
-        android:layout_marginStart="@dimen/register_list_item_margin"
-        android:layout_marginTop="@dimen/register_list_top_bottom_margin"
-        android:layout_toLeftOf="@+id/due_button_wrapper"
-        android:layout_toStartOf="@+id/due_button_wrapper"
+        android:id="@+id/child_profile_info_layout"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="1dp"
+        android:layout_weight="4.4"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/child_profilepic"
+            android:layout_width="@dimen/client_profile_pic_width"
+            android:layout_height="@dimen/client_profile_pic_height"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:paddingLeft="2dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/child_name"
+                style="@style/CustomFontTextViewStyle.ClientList.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Child Name"
+                android:textColor="@color/client_list_grey"
+                android:textSize="18sp" />
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
+                    android:id="@+id/child_mothername"
+                    style="@style/CustomFontTextViewStyle.ClientList.Light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="Mother Name"
+                    android:textColor="@color/client_list_grey"
+                    android:textSize="14sp" />
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
+                    android:id="@+id/child_age"
+                    style="@style/CustomFontTextViewStyle.ClientList.Light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:text="Age"
+                    android:textColor="@color/client_list_grey"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="1dp"
+        android:layout_weight="1.8"
+        android:background="#ffffff"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
-            android:id="@+id/patient_name"
-            style="@style/CustomFontTextViewStyle.ClientList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:paddingLeft="0dp"
-            android:paddingStart="0dp"
-            android:singleLine="true"
-            android:text="Patient Name"
-            android:textColor="@color/text_black"
-            android:textSize="@dimen/register_list_title_size" />
-
-        <org.smartregister.view.customcontrols.CustomFontTextView
-            android:id="@+id/village_town"
+            android:id="@+id/child_zeir_id"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="0dp"
-            android:paddingStart="0dp"
-            android:paddingTop="@dimen/register_list_top_bottom_padding"
-            android:text="Lavington #445"
-            android:textColor="@color/light_grey_text"
-            android:textSize="@dimen/register_list_desc_size"
-            android:textStyle="bold" />
+            android:text="ZEIR ID"
+            android:textColor="@color/client_list_grey"
+            android:textSize="18sp" />
 
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/child_card_number"
+            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Card Number"
+            android:textColor="@color/client_list_grey"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/due_button_wrapper"
-        android:layout_width="@dimen/register_list_item_width"
-        android:layout_height="@dimen/register_list_item_height"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:background="@drawable/grey_left_border"
-        android:paddingBottom="@dimen/register_list_top_bottom_padding"
-        android:paddingEnd="@dimen/register_list_item_padding"
-        android:paddingLeft="@dimen/register_list_item_padding"
-        android:paddingRight="@dimen/register_list_item_padding"
-        android:paddingStart="@dimen/register_list_item_padding"
-        android:paddingTop="@dimen/register_list_top_bottom_padding">
 
-        <Button
-            android:id="@+id/due_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:adjustViewBounds="true"
-            android:background="@drawable/due_contact"
-            android:elevation="@dimen/register_list_elevation"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="1dp"
+        android:layout_weight="1.7"
+        android:background="#ffffff">
+
+        <LinearLayout
+            android:id="@+id/record_weight"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="5dp"
+            android:background="@drawable/record_weight_bg"
             android:gravity="center"
-            android:hapticFeedbackEnabled="true"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:stateListAnimator="@drawable/button"
-            android:text="Home Visit"
-            android:textAllCaps="false"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:textColor="@color/vaccine_blue_bg_st"
-            android:textSize="@dimen/register_list_due_size"
-            android:typeface="normal" />
+            android:orientation="horizontal">
 
+            <ImageView
+                android:id="@+id/record_weight_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="3dp"
+                android:src="@drawable/ic_action_check"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/record_weight_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/record_weight_with_nl"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/text_black"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/member_icon_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="@dimen/register_list_member_icon_margin"
-        android:layout_marginRight="@dimen/register_list_member_icon_margin"
-        android:layout_toLeftOf="@+id/due_button_wrapper"
-        android:layout_toStartOf="@+id/due_button_wrapper"
-        android:orientation="horizontal"
-        android:paddingBottom="@dimen/register_list_top_bottom_padding">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:background="#ffffff"
+        android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_boy_child" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_girl_child" />
+        <LinearLayout
+            android:id="@+id/record_vaccination"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="5dp"
+            android:background="@drawable/due_vaccine_red_bg"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/record_vaccination_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dp"
+                android:src="@drawable/ic_action_check"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/record_vaccination_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/record_weight_with_nl"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/status_bar_text_almost_white"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
 
     </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>

@@ -30,7 +30,7 @@ public class ChildFormActivity extends JsonFormActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        enableOnCloseDialog = getIntent().getBooleanExtra(Constants.WizardFormActivity.EnableOnCloseDialog, true);
+        enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
 
         try {
             JSONObject form = new JSONObject(currentJsonState());

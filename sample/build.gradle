@@ -45,7 +45,20 @@ android {
         }
 
         debug {
+            buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
+            buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
+            buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '2'
             buildConfigField "int", "DATABASE_VERSION", '1'
+            buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
+            buildConfigField "boolean", "TIME_CHECK", "false"
+            buildConfigField "int", "DATA_SYNC_DURATION_MINUTES", '2'
+            buildConfigField "int", "VACCINE_SYNC_PROCESSING_MINUTES", '2'
+            buildConfigField "int", "IMAGE_UPLOAD_MINUTES", '7'
+            buildConfigField "int", "PULL_UNIQUE_IDS_MINUTES", '10'
+            buildConfigField "int", "VIEW_SYNC_CONFIGURATIONS_MINUTES", '2'
+            buildConfigField "int", "CLIENT_SETTINGS_SYNC_MINUTES", '2'
+            buildConfigField "boolean", "IS_SYNC_SETTINGS", "false"
+            buildConfigField "int", "MAX_SYNC_RETRIES", '3'
         }
     }
 
@@ -82,7 +95,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.github.johnkil.print', module: 'print'
         exclude group: 'org.apache.httpcomponents', module: 'httpmime'
-        exclude group: 'com.github.ybq',module: 'Android-SpinKit'
+        exclude group: 'com.github.ybq', module: 'Android-SpinKit'
         exclude group: 'com.android.support', module: 'design'
     }
 

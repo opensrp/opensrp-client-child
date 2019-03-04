@@ -41,6 +41,13 @@ public class Constants extends AllConstants {
         public static final String DEFAULT = "default";
         public static final String PHOTO = "photo";
         public static final String TYPE = "type";
+        public static final String VACCINE = "vaccine";
+        public static final String ALERT = "alert";
+        public static final String WEEK = "week";
+        public static final String MONTH = "month";
+        public static final String DAY = "day";
+        public static final String DATE = "date";
+        public static final String CHILD = "child";
     }
 
     public static final class INTENT_KEY {
@@ -55,12 +62,11 @@ public class Constants extends AllConstants {
         public static final int TRUE = 1;
     }
 
-    public static class WizardFormActivity {
+    public static class FormActivity {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }
     public static final class EntityType {
 
-        public static final String CHILD = "child";
     }
 
     public static final class EC_CHILD_TABLE {
