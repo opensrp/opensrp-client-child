@@ -42,30 +42,47 @@ public class BaseChildRegisterFragmentModel implements ChildRegisterFragmentCont
     }
 
     @Override
-    public String countSelect(String tableName, String mainCondition) {
+    public String countSelect(String tableName, String mainCondition, String parentTableName) {
         SmartRegisterQueryBuilder countQueryBuilder = new SmartRegisterQueryBuilder();
         countQueryBuilder.SelectInitiateMainTableCounts(tableName);
+        countQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         return countQueryBuilder.mainCondition(mainCondition);
     }
 
     @Override
-    public String mainSelect(String tableName, String mainCondition) {
+    public String mainSelect(String tableName, String mainCondition, String parentTableName) {
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName, mainColumns(tableName));
+        queryBUilder.SelectInitiateMainTable(tableName, mainColumns(tableName, parentTableName));
+        queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         return queryBUilder.mainCondition(mainCondition);
     }
 
-    protected String[] mainColumns(String tableName) {
+    protected String[] mainColumns(String tableName, String parentTableName) {
         String[] columns = new String[]{
-                tableName + ".relationalid",
-                tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
-                tableName + "." + DBConstants.KEY.BASE_ENTITY_ID,
+
+                tableName + "." + DBConstants.KEY.RELATIONALID,
+                tableName + "." + DBConstants.KEY.DETAILS,
+                tableName + "." + DBConstants.KEY.ZEIR_ID,
+                tableName + "." + DBConstants.KEY.RELATIONAL_ID,
                 tableName + "." + DBConstants.KEY.FIRST_NAME,
                 tableName + "." + DBConstants.KEY.LAST_NAME,
-                tableName + "." + DBConstants.KEY.UNIQUE_ID,
-                tableName + "." + DBConstants.KEY.VILLAGE_TOWN,
-                tableName + "." + DBConstants.KEY.FAMILY_HEAD,
-                tableName + "." + DBConstants.KEY.PRIMARY_CAREGIVER
+                tableName + "." + DBConstants.KEY.GENDER,
+                parentTableName + "." + DBConstants.KEY.FIRST_NAME + " as mother_first_name",
+                parentTableName + "." + DBConstants.KEY.LAST_NAME + " as mother_last_name",
+                parentTableName + "." + DBConstants.KEY.DOB + " as mother_dob",
+                parentTableName + "." + DBConstants.KEY.NRC_NUMBER + " as mother_nrc_number",
+                tableName + "." + DBConstants.KEY.FATHER_NAME,
+                tableName + "." + DBConstants.KEY.DOB,
+                tableName + "." + DBConstants.KEY.EPI_CARD_NUMBER,
+                tableName + "." + DBConstants.KEY.CONTACT_PHONE_NUMBER,
+                tableName + "." + DBConstants.KEY.PMTCT_STATUS,
+                tableName + "." + DBConstants.KEY.PROVIDER_UC,
+                tableName + "." + DBConstants.KEY.PROVIDER_TOWN,
+                tableName + "." + DBConstants.KEY.PROVIDER_ID,
+                tableName + "." + DBConstants.KEY.PROVIDER_LOCATION_ID,
+                tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
+                tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
+                tableName + "." + DBConstants.KEY.INACTIVE,
         };
         return columns;
     }

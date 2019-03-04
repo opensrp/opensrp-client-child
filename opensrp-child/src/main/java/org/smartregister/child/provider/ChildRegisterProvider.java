@@ -87,7 +87,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(patientName));
 
-        String villageTown = Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.VILLAGE_TOWN, true);
+        String villageTown = Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.ID, true);
         fillValue((viewHolder.villageTown), villageTown);
 
         View patient = viewHolder.patientColumn;

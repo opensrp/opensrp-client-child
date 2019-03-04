@@ -26,6 +26,8 @@ public class ChildMetadata {
 
         public final String tableName;
 
+        public final String parentTablenName;
+
         public final String registerEventType;
 
         public final String updateEventType;
@@ -37,9 +39,10 @@ public class ChildMetadata {
         public final String outOfCatchmentFormName;
 
 
-        public ChildRegister(String formName, String tableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
+        public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
             this.formName = formName;
             this.tableName = tableName;
+            this.parentTablenName = parentTableName;
             this.registerEventType = registerEventType;
             this.updateEventType = updateEventType;
             this.config = config;
@@ -48,8 +51,8 @@ public class ChildMetadata {
         }
     }
 
-    public void updateChildRegister(String formName, String tableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
-        this.childRegister = new ChildRegister(formName, tableName, registerEventType, updateEventType, config, childCareGiverRelationKey, outOfCatchmentFormName);
+    public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
+        this.childRegister = new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType, config, childCareGiverRelationKey, outOfCatchmentFormName);
     }
 
     public class ChildActivityRegister {

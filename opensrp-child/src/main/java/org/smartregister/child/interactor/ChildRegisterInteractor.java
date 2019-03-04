@@ -1,20 +1,29 @@
 package org.smartregister.child.interactor;
 
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.clientandeventmodel.Client;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -94,7 +103,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, boolean isEditMode) {
-        jsonString.toLowerCase();/*
+        jsonString.toLowerCase();
         try {
 
             for (int i = 0; i < childEventClientList.size(); i++) {
@@ -119,7 +128,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 if (isEditMode) {
                     // Unassign current OPENSRP ID
                     if (baseClient != null) {
-                        String newOpenSRPId = baseClient.getIdentifier(Constants.KEY.UNIQUE_ID).replace("-", "");
+                        String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
                         String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_OPENSRP_ID).replace("-", "");
                         if (!newOpenSRPId.equals(currentOpenSRPId)) {
                             //OPENSRP ID was changed
@@ -129,7 +138,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
                 } else {
                     if (baseClient != null) {
-                        String opensrpId = baseClient.getIdentifier(Constants.KEY.UNIQUE_ID);
+                        String opensrpId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID);
 
                         //mark OPENSRP ID as used
                         getUniqueIdRepository().close(opensrpId);
@@ -156,7 +165,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
-        }*/
+        }
     }
 
     @Override

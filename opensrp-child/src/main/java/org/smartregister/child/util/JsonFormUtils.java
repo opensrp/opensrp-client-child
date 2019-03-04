@@ -114,9 +114,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 entityId = entityId.replace("-", "");
             } else {
-                JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
+                JSONArray fields = form.getJSONObject(JsonFormUtils.STEP1).getJSONArray(JsonFormUtils.FIELDS);
                 for (int i = 0; i < fields.length(); i++) {
-                    if (fields.getJSONObject(i).getString("key").equals("ZEIR_ID")) {
+                    if (fields.getJSONObject(i).getString(JsonFormUtils.KEY).equals(JsonFormUtils.ZEIR_ID)) {
                         fields.getJSONObject(i).put(READ_ONLY, false);
                         break;
                     }

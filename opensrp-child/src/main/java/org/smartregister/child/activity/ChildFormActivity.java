@@ -57,9 +57,9 @@ public class ChildFormActivity extends JsonFormActivity {
     }
 
     protected void initializeFormFragmentCore() {
-        ChildFormFragment familyWizardFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
+        ChildFormFragment childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
         getSupportFragmentManager().beginTransaction()
-                .add(com.vijay.jsonwizard.R.id.container, familyWizardFormFragment).commit();
+                .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
     }
 
     @Override

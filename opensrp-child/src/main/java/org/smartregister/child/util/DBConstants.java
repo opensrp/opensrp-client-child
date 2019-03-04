@@ -15,26 +15,34 @@ public class DBConstants {
         public static final String DOD = "dod";
         public static final String GENDER = "gender";
         public static final String UNIQUE_ID = "unique_id";
+        public static final String ZEIR_ID = "zeir_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String CONTACT_STATUS = "contact_status";
         public static final String VILLAGE_TOWN = "village_town";
-        public static final String FAMILY_HEAD = "child_head";
-        public static final String PRIMARY_CAREGIVER = "primary_caregiver";
-        public static final String QUATER_CLAN = "quarter_clan";
         public static final String STREET = "street";
         public static final String LANDMARK = "landmark";
         public static final String GPS = "gps";
-        public static final String FAMILY_SOURCE_INCOME = "fam_source_income";
         public static final String PHONE_NUMBER = "phone_number";
         public static final String OTHER_PHONE_NUMBER = "other_phone_number";
-        public static final String HIGHEST_EDU_LEVEL = "highest_edu_level";
         public static final String DATE_REMOVED = "date_removed";
-        public static final String DATE_LAST_HOME_VISIT = "last_home_visit";
-        public static final String DATE_VISIT_NOT_DONE = "visit_not_done";
-
+        public static final String FATHER_NAME = "father_name";
+        public static final String NRC_NUMBER = "nrc_number";
+        public static final String DETAILS = "details";
+        public static final String RELATIONALID = "relationalid";
+        public static final String EPI_CARD_NUMBER = "epi_card_number";
+        public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+        public static final String PMTCT_STATUS = "pmtct_status";
+        public static final String PROVIDER_UC = "provider_uc";
+        public static final String PROVIDER_TOWN = "provider_town";
+        public static final String PROVIDER_ID = "provider_id";
+        public static final String PROVIDER_LOCATION_ID = "provider_location_id";
+        public static final String CLIENT_REG_DATE = "client_reg_date";
+        public static final String INACTIVE = "inactive";
+        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String OBJECT_ID = "object_id";
         public static final String OBJECT_RELATIONAL_ID = "object_relational_id";
-
         public static final String ENTITY_TYPE = "entity_type";
+        public static final String MOTHER_FIRST_NAME = "mother_first_name";
+        public static final String MOTHER_LAST_NAME = "mother_last_name";
     }
 }

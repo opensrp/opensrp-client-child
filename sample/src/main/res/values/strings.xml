@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">opensrp-client-child</string>
+    <string name="app_name">opensrp-child-sample</string>
     <string name="action_settings">Settings</string>
     <string name="children">Children</string>
 </resources>

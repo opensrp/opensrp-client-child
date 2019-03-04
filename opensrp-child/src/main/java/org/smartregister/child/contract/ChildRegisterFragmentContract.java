@@ -42,9 +42,9 @@ public interface ChildRegisterFragmentContract {
 
         Set<org.smartregister.configurableviews.model.View> getRegisterActiveColumns(String viewConfigurationIdentifier);
 
-        String countSelect(String tableName, String mainCondition);
+        String countSelect(String tableName, String mainCondition,  String parenTTableName);
 
-        String mainSelect(String tableName, String mainCondition);
+        String mainSelect(String tableName, String mainCondition, String parentTableName);
 
         String getFilterText(List<Field> filterList, String filter);
 

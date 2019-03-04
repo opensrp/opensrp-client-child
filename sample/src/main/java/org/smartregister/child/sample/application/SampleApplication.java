@@ -6,22 +6,29 @@ import com.evernote.android.job.JobManager;
 
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.activity.ChildFormActivity;
-import org.smartregister.child.sample.activity.ChildProfileActivity;
-import org.smartregister.commonregistry.CommonFtsObject;
-import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.activity.ChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.sample.BuildConfig;
+import org.smartregister.child.sample.activity.ChildProfileActivity;
 import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
 import org.smartregister.child.sample.util.SampleConstants;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.configurableviews.ConfigurableViewsLibrary;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.DrishtiApplication;
-import org.smartregister.child.sample.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +50,8 @@ public class SampleApplication extends DrishtiApplication {
 
         //Initialize Modules
         CoreLibrary.init(context);
+        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 
@@ -102,23 +111,38 @@ public class SampleApplication extends DrishtiApplication {
 
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.BASE_ENTITY_ID, DBConstants.KEY.VILLAGE_TOWN, DBConstants.KEY.FIRST_NAME,
-                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.UNIQUE_ID};
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
+                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER};
         }
         return null;
     }
 
     private static String[] getFtsSortFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.LAST_INTERACTED_WITH, DBConstants.KEY.DATE_REMOVED};
+            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD);
+            List<String> names = new ArrayList<>();
+            names.add(DBConstants.KEY.FIRST_NAME);
+            names.add(DBConstants.KEY.DOB);
+            names.add(DBConstants.KEY.ZEIR_ID);
+            names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
+            names.add(DBConstants.KEY.INACTIVE);
+            names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
+            names.add(DBConstants.KEY.DOD);
+            names.add(DBConstants.KEY.DATE_REMOVED);
+
+            for (VaccineRepo.Vaccine vaccine : vaccines) {
+                names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.display()));
+            }
+
+            return names.toArray(new String[names.size()]);
         }
         return null;
     }
 
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(ChildFormActivity.class, ChildProfileActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.FAMILY_REGISTER, SampleConstants.RELATIONSHIP.PRIMARY_CAREGIVER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
-         return metadata;
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.PRIMARY_CAREGIVER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
+        return metadata;
     }
 
     private void sampleUniqueIds() {
@@ -138,4 +162,19 @@ public class SampleApplication extends DrishtiApplication {
         return ids;
     }
 
+    public WeightRepository weightRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightRepository();
+    }
+
+    public Context context() {
+        return context;
+    }
+
+    public VaccineRepository vaccineRepository() {
+        return ImmunizationLibrary.getInstance().vaccineRepository();
+    }
+
+    public ZScoreRepository zScoreRepository() {
+        return GrowthMonitoringLibrary.getInstance().zScoreRepository();
+    }
 }

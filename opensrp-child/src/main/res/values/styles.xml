@@ -7,7 +7,7 @@
     <style name="ChildTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="colorAccent">@color/accent</item>
     </style>
 
@@ -41,15 +41,19 @@
     <style name="ChildTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:textColorSecondary">#FFFFFF</item>
         <item name="android:actionMenuTextColor">#FFFFFF</item>
         <item name="actionMenuTextColor">#FFFFFF</item>
     </style>
 
     <style name="ChildTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="ChildTheme.DarkAppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowContentOverlay">@null</item>
+        <!--below line used to change the color of home(back) button color-->
+        <item name="colorControlNormal">@android:color/black</item>
+    </style>
 
     <style name="ChildTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
