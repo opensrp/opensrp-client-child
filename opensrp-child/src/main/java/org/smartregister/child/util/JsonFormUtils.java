@@ -1,7 +1,10 @@
 package org.smartregister.child.util;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.common.reflect.TypeToken;
@@ -15,21 +18,28 @@ import org.json.JSONObject;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.clientandeventmodel.Obs;
+import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
@@ -43,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -75,6 +86,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String encounterType = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
 
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
@@ -325,7 +337,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         }
     }
-/*
+
     public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext,
                                           String jsonString, String providerId, String locationId, String entityId) {
 
@@ -360,7 +372,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     .withEventType(encounterType)
                     .withLocationId(locationId)
                     .withProviderId(providerId)
-                    .withEntityType(Constants.EntityType.CHILD)
+                    .withEntityType(Constants.CHILD_TYPE)
                     .withFormSubmissionId(generateRandomUUIDString())
                     .withDateCreated(new Date());
 
@@ -423,25 +435,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         .withEventType(JsonFormUtils.encounterType)
                         .withLocationId(locationId)
                         .withProviderId(providerId)
-                        .withEntityType(PathConstants.EntityType.CHILD)
+                        .withEntityType(Constants.CHILD_TYPE)
                         .withFormSubmissionId(generateRandomUUIDString())
                         .withDateCreated(new Date());
-                JsonFormUtils.addMetaData(context, updateChildDetailsEvent, new Date());
+
+                addMetaData(context, updateChildDetailsEvent, new Date());
+
                 JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
 
                 db.addEvent(entityId, eventJsonUpdateChildEvent); //Add event to flag server update
 
                 //Update REGISTER and FTS Tables
-                String tableName = PathConstants.CHILD_TABLE_NAME;
+                String tableName = Constants.CHILD_TABLE_NAME;
                 AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
-                    values.put(PathConstants.EC_CHILD_TABLE.DOD, PathConstants.DEFAULT_DATE_STRING);
+                    values.put(DBConstants.KEY.DOD, Constants.DEFAULT_DATE_STRING);
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
-                    // Update coverage reports
-                    CoverageDropoutIntentService.unregister(context, entityId);
                 }
             }
 
@@ -450,7 +462,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-*/
 
     public static ChildEventClient processChildUpdateForm(AllSharedPreferences allSharedPreferences, String jsonString) {
 
@@ -491,90 +502,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    /*
-            public static ChildEventClient processChildHeadRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String childBaseEntityId) {
-
-                try {
-                    Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString, STEP2);
-
-                    if (!registrationFormParams.getLeft()) {
-                        return null;
-                    }
-
-                    JSONObject jsonForm = registrationFormParams.getMiddle();
-                    JSONArray fields = registrationFormParams.getRight();
-
-                    String entityId = getString(jsonForm, ENTITY_ID);
-                    if (StringUtils.isBlank(entityId)) {
-                        entityId = generateRandomUUIDString();
-                    }
-
-                    lastInteractedWith(fields);
-
-                    dobUnknownUpdateFromAge(fields);
-
-                    Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag(allSharedPreferences), entityId);
-                    baseClient.addRelationship(Utils.metadata().childMemberRegister.childRelationKey, childBaseEntityId);
-
-                    Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag(allSharedPreferences), entityId, Utils.metadata().childMemberRegister.registerEventType, Utils.metadata().childMemberRegister.tableName);
-
-                    JsonFormUtils.tagSyncMetadata(allSharedPreferences, baseEvent);// tag docs
-
-                    return new ChildEventClient(baseClient, baseEvent);
-                } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                    return null;
-                }
-            }
-
-            public static ChildEventClient processChildUpdateForm(AllSharedPreferences allSharedPreferences, String jsonString, String childBaseEntityId) {
-                return processChildForm(allSharedPreferences, jsonString, childBaseEntityId, Utils.metadata().childRegister.updateEventType);
-            }
-
-            public static ChildEventClient processChildMemberUpdateRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String childBaseEntityId) {
-                return processChildForm(allSharedPreferences, jsonString, childBaseEntityId, Utils.metadata().childMemberRegister.updateEventType);
-            }
-
-            public static ChildEventClient processChildMemberRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String childBaseEntityId) {
-                return processChildForm(allSharedPreferences, jsonString, childBaseEntityId, Utils.metadata().childMemberRegister.registerEventType);
-            }
-
-            private static ChildEventClient processChildForm(AllSharedPreferences allSharedPreferences, String jsonString, String childBaseEntityId, String encounterType) {
-                try {
-                    Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
-
-                    if (!registrationFormParams.getLeft()) {
-                        return null;
-                    }
-
-                    JSONObject jsonForm = registrationFormParams.getMiddle();
-                    JSONArray fields = registrationFormParams.getRight();
-
-                    String entityId = getString(jsonForm, ENTITY_ID);
-                    if (StringUtils.isBlank(entityId)) {
-                        entityId = generateRandomUUIDString();
-                    }
-
-                    lastInteractedWith(fields);
-
-                    dobUnknownUpdateFromAge(fields);
-
-                    Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag(allSharedPreferences), entityId);
-                    if (baseClient != null && !baseClient.getBaseEntityId().equals(childBaseEntityId)) {
-                        baseClient.addRelationship(Utils.metadata().childMemberRegister.childRelationKey, childBaseEntityId);
-                    }
-
-                    Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag(allSharedPreferences), entityId, encounterType, Utils.metadata().childMemberRegister.tableName);
-
-                    JsonFormUtils.tagSyncMetadata(allSharedPreferences, baseEvent);// tag docs
-
-                    return new ChildEventClient(baseClient, baseEvent);
-                } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                    return null;
-                }
-            }
-    */
     public static void mergeAndSaveClient(ECSyncHelper ecUpdater, Client baseClient) throws Exception {
         JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
 
@@ -851,7 +778,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return getFieldValue(fields, key);
 
     }
-    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String familyBaseEntityId ,ChildEventClient base) {
+
+    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String familyBaseEntityId, ChildEventClient base) {
 
         try {
             android.content.Context context = CoreLibrary.getInstance().context().applicationContext();
@@ -985,6 +913,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Log.e(TAG, e.toString(), e);
         }
     }
+
     private static Client createSubformClient(Context context, JSONArray fields, Client parent, String bindType, String relationalId) throws ParseException {
 
         if (StringUtils.isBlank(bindType)) {
@@ -1054,4 +983,45 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return c;
     }
 
+    public static Event addMetaData(Context context, Event event, Date start) throws JSONException {
+        Map<String, String> metaFields = new HashMap<>();
+        metaFields.put("deviceid", "163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        metaFields.put("end", "163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        metaFields.put("start", "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        Calendar calendar = Calendar.getInstance();
+
+        String end = DATE_TIME_FORMAT.format(calendar.getTime());
+
+        Obs obs = new Obs();
+        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        obs.setValue(DATE_TIME_FORMAT.format(start));
+        obs.setFieldType("concept");
+        obs.setFieldDataType("start");
+        event.addObs(obs);
+
+
+        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        obs.setValue(end);
+        obs.setFieldDataType("end");
+        event.addObs(obs);
+
+        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        @SuppressLint("MissingPermission") String deviceId = mTelephonyManager.getSimSerialNumber(); //Aready handded by native form
+
+        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        obs.setValue(deviceId);
+        obs.setFieldDataType("deviceid");
+        event.addObs(obs);
+        return event;
+    }
+
+
+    public static void saveOutOfAreaService(Context context, org.smartregister.Context openSrpContext,
+                                            String jsonString, WeightRepository weightRepository, VaccineRepository vaccineRepository) {
+        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(context,
+                openSrpContext, jsonString, weightRepository, vaccineRepository);
+
+        org.smartregister.util.Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
+    }
 }

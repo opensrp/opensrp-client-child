@@ -7,6 +7,7 @@ import org.smartregister.AllConstants;
  */
 public class Constants extends AllConstants {
     public static final String CHILD_TABLE_NAME = "ec_child";
+    public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
 
