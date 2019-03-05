@@ -486,11 +486,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag(allSharedPreferences), entityId);
 
-            // Default child values
-            baseClient.setLastName("Child");
-            baseClient.setBirthdate(new Date(0));
-            baseClient.setGender("Male");
-
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag(allSharedPreferences), entityId, Utils.metadata().childRegister.registerEventType, Utils.metadata().childRegister.tableName);
 
             JsonFormUtils.tagSyncMetadata(allSharedPreferences, baseEvent);// tag docs
@@ -815,6 +810,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } else {
                 if (StringUtils.isNotBlank(subBindType)) {
                     subformClient = createSubformClient(context, fields, baseClient, subBindType, null);
+                    subformClient.setGender(Constants.GENDER.FEMALE);
                 }
 
                 if (subformClient != null && baseEvent != null) {
