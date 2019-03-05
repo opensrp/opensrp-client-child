@@ -2,6 +2,7 @@ package org.smartregister.child.domain;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
+import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.view.activity.BaseProfileActivity;
 
 /**
@@ -9,14 +10,16 @@ import org.smartregister.view.activity.BaseProfileActivity;
  */
 public class ChildMetadata {
     public final Class childFormActivity;
+    public final Class childImmunizationActivity;
     public final Class profileActivity;
     public final boolean formWizardValidateRequiredFieldsBefore;
 
     public ChildRegister childRegister;
 
-    public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity, Class<? extends BaseProfileActivity> profileActivity, boolean formWizardValidateRequiredFieldsBefore) {
+    public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity, Class<? extends BaseProfileActivity> profileActivity, Class<? extends BaseChildImmunizationActivity> childImmunizationActivity, boolean formWizardValidateRequiredFieldsBefore) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
+        this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
     }
 

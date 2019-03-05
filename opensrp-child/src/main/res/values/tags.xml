@@ -1,3 +1,4 @@
 <resources>
     <item name="VIEW_ID" type="id" />
+    <item name="record_action" type="id" />
 </resources>

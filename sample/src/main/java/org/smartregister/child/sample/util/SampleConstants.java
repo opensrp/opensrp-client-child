@@ -25,7 +25,7 @@ public class SampleConstants {
     }
 
     public static class RELATIONSHIP {
-        public static final String PRIMARY_CAREGIVER = "primary_caregiver";
+        public static final String MOTHER = "mother";
 
     }
 

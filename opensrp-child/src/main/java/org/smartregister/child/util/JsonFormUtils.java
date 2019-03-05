@@ -12,8 +12,10 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
@@ -40,11 +42,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -846,4 +851,207 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return getFieldValue(fields, key);
 
     }
+    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String familyBaseEntityId ,ChildEventClient base) {
+
+        try {
+            android.content.Context context = CoreLibrary.getInstance().context().applicationContext();
+            String subBindType = "mother";
+            Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
+
+            if (!registrationFormParams.getLeft()) {
+                return null;
+            }
+
+            Client baseClient = base.getClient();
+            Event baseEvent = base.getEvent();
+
+            JSONObject jsonForm = registrationFormParams.getMiddle();
+            JSONArray fields = registrationFormParams.getRight();
+
+            JSONObject metadata = getJSONObject(jsonForm, METADATA);
+
+            JSONObject lookUpJSONObject = getJSONObject(metadata, "look_up");
+            String lookUpEntityId = "";
+            String lookUpBaseEntityId = "";
+            if (lookUpJSONObject != null) {
+                lookUpEntityId = getString(lookUpJSONObject, "entity_id");
+                lookUpBaseEntityId = getString(lookUpJSONObject, "value");
+            }
+
+            Client subformClient = null;
+            Event subformEvent = null;
+
+            if ("mother".equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
+                Client motherClient = new Client(lookUpBaseEntityId);
+                addRelationship(context, motherClient, baseClient);
+            } else {
+                if (StringUtils.isNotBlank(subBindType)) {
+                    subformClient = createSubformClient(context, fields, baseClient, subBindType, null);
+                }
+
+                if (subformClient != null && baseEvent != null) {
+                    JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
+                    if (subBindTypeJson != null) {
+                        String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
+                        if (StringUtils.isNotBlank(subBindTypeEncounter)) {
+                            subformEvent = JsonFormUtils.createSubFormEvent(null, metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, subBindType);
+                        }
+                    }
+                }
+            }
+
+            lastInteractedWith(fields);
+
+            dobUnknownUpdateFromAge(fields);
+
+
+            JsonFormUtils.tagSyncMetadata(allSharedPreferences, subformEvent);// tag docs
+
+            return new ChildEventClient(subformClient, subformEvent);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            return null;
+        }
+    }
+
+    private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String bindType) {
+
+
+        Event e = (Event) new Event()
+                .withBaseEntityId(entityId)//should be different for main and subform
+                .withEventDate(parent.getEventDate())
+                .withEventType(encounterType)
+                .withEntityType(bindType)
+                .withFormSubmissionId(generateRandomUUIDString())
+                .withDateCreated(new Date());
+
+        if (fields != null && fields.length() != 0)
+            for (int i = 0; i < fields.length(); i++) {
+                JSONObject jsonObject = getJSONObject(fields, i);
+                String value = getString(jsonObject, VALUE);
+                if (StringUtils.isNotBlank(value)) {
+                    addObservation(e, jsonObject);
+                }
+            }
+
+        if (metadata != null) {
+            Iterator<?> keys = metadata.keys();
+
+            while (keys.hasNext()) {
+                String key = (String) keys.next();
+                JSONObject jsonObject = getJSONObject(metadata, key);
+                String value = getString(jsonObject, VALUE);
+                if (StringUtils.isNotBlank(value)) {
+                    String entityVal = getString(jsonObject, OPENMRS_ENTITY);
+                    if (entityVal != null) {
+                        if (entityVal.equals(CONCEPT)) {
+                            addToJSONObject(jsonObject, KEY, key);
+                            addObservation(e, jsonObject);
+                        } else if (entityVal.equals(ENCOUNTER)) {
+                            String entityIdVal = getString(jsonObject, OPENMRS_ENTITY_ID);
+                            if (entityIdVal.equals(FormEntityConstants.Encounter.encounter_date.name())) {
+                                Date eDate = formatDate(value, false);
+                                if (eDate != null) {
+                                    e.setEventDate(eDate);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return e;
+
+    }
+
+    private static void addRelationship(Context context, Client parent, Client child) {
+        try {
+            String relationships = AssetHandler.readFileFromAssetsFolder(FormUtils.ecClientRelationships, context);
+            JSONArray jsonArray = null;
+
+            jsonArray = new JSONArray(relationships);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject rObject = jsonArray.getJSONObject(i);
+                if (rObject.has("field") && getString(rObject, "field").equals(ENTITY_ID)) {
+                    child.addRelationship(rObject.getString("client_relationship"), parent.getBaseEntityId());
+                } /* else {
+                    //TODO how to add other kind of relationships
+                  } */
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.toString(), e);
+        }
+    }
+    private static Client createSubformClient(Context context, JSONArray fields, Client parent, String bindType, String relationalId) throws ParseException {
+
+        if (StringUtils.isBlank(bindType)) {
+            return null;
+        }
+
+        String entityId = relationalId == null ? generateRandomUUIDString() : relationalId;
+        String firstName = getSubFormFieldValue(fields, FormEntityConstants.Person.first_name, bindType);
+        String gender = getSubFormFieldValue(fields, FormEntityConstants.Person.gender, bindType);
+        String bb = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
+
+        Map<String, String> idents = extractIdentifiers(fields, bindType);
+        String parentIdentifier = parent.getIdentifier(ZEIR_ID);
+        if (StringUtils.isNotBlank(parentIdentifier)) {
+            String identifier = parentIdentifier.concat("_").concat(bindType);
+            idents.put(M_ZEIR_ID, identifier);
+        }
+
+        String middleName = getSubFormFieldValue(fields, FormEntityConstants.Person.middle_name, bindType);
+        String lastName = getSubFormFieldValue(fields, FormEntityConstants.Person.last_name, bindType);
+        Date birthdate = formatDate(bb, true);
+        String dd = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
+        Date deathdate = formatDate(dd, true);
+        String aproxbd = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
+        Boolean birthdateApprox = false;
+        if (!StringUtils.isEmpty(aproxbd) && NumberUtils.isNumber(aproxbd)) {
+            int bde = 0;
+            try {
+                bde = Integer.parseInt(aproxbd);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString(), e);
+            }
+            birthdateApprox = bde > 0;
+        }
+        String aproxdd = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate_estimated, bindType);
+        Boolean deathdateApprox = false;
+        if (!StringUtils.isEmpty(aproxdd) && NumberUtils.isNumber(aproxdd)) {
+            int dde = 0;
+            try {
+                dde = Integer.parseInt(aproxdd);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString(), e);
+            }
+            deathdateApprox = dde > 0;
+        }
+
+        List<Address> addresses = new ArrayList<>(extractAddresses(fields, bindType).values());
+
+        Client c = (Client) new Client(entityId)
+                .withFirstName(firstName)
+                .withMiddleName(middleName)
+                .withLastName(lastName)
+                .withBirthdate(birthdate, birthdateApprox)
+                .withDeathdate(deathdate, deathdateApprox)
+                .withGender(gender).withDateCreated(new Date());
+
+        c.withAddresses(addresses)
+                .withAttributes(extractAttributes(fields, bindType))
+                .withIdentifiers(idents);
+
+        if (addresses.isEmpty()) {
+            c.withAddresses(parent.getAddresses());
+        }
+
+        addRelationship(context, c, parent);
+
+        return c;
+    }
+
 }

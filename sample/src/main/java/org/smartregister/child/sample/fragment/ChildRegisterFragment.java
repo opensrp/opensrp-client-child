@@ -2,7 +2,11 @@ package org.smartregister.child.sample.fragment;
 
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.model.BaseChildRegisterFragmentModel;
+import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.sample.presenter.ChildRegisterFragmentPresenter;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.service.AlertService;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.HashMap;
@@ -32,6 +36,21 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     @Override
     public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
         //do nothing
+    }
+
+    @Override
+    protected WeightRepository getWeightRepository(){
+       return SampleApplication.getInstance().weightRepository();
+    }
+
+    @Override
+    protected VaccineRepository getVaccineRepository(){
+        return SampleApplication.getInstance().vaccineRepository();
+    }
+
+    @Override
+    protected AlertService getAlertService(){
+        return SampleApplication.getInstance().context().alertService();
     }
 
 }

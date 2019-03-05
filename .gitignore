@@ -8,7 +8,7 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/misc.xml
-
+jacoco.exec
 .DS_Store
 /build
 /captures

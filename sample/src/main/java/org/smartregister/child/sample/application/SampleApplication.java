@@ -10,6 +10,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.ChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
+import org.smartregister.child.sample.activity.ChildImmunizationActivity;
 import org.smartregister.child.sample.activity.ChildProfileActivity;
 import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
 import org.smartregister.child.sample.job.SampleJobCreator;
@@ -24,6 +25,7 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.location.helper.LocationHelper;
@@ -56,15 +58,16 @@ public class SampleApplication extends DrishtiApplication {
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 
+        initRepositories();
+
         SyncStatusBroadcastReceiver.init(this);
         LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
 
 
         //Auto login by default
-        String password = "pwd";
         context.session().start(context.session().lengthInMilliseconds());
-        context.configuration().getDrishtiApplication().setPassword(password);
-        context.session().setPassword(password);
+        context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
+        context.session().setPassword(SampleRepository.PASSWORD);
 
 
         //init Job Manager
@@ -94,6 +97,11 @@ public class SampleApplication extends DrishtiApplication {
         return repository;
     }
 
+    private void initRepositories() {
+        weightRepository();
+        vaccineRepository();
+        zScoreRepository();
+    }
 
     public static CommonFtsObject createCommonFtsObject() {
         if (commonFtsObject == null) {
@@ -141,8 +149,8 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private ChildMetadata getMetadata() {
-        ChildMetadata metadata = new ChildMetadata(ChildFormActivity.class, ChildProfileActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.PRIMARY_CAREGIVER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
+        ChildMetadata metadata = new ChildMetadata(ChildFormActivity.class, ChildProfileActivity.class, ChildImmunizationActivity.class, true);
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         return metadata;
     }
 
@@ -155,8 +163,8 @@ public class SampleApplication extends DrishtiApplication {
         List<String> ids = new ArrayList<>();
         Random r = new Random();
 
-        for (int i = 0; i < size; i++) {
-            Integer randomInt = r.nextInt(1000) + 1;
+        for (int i = 10; i < size; i++) {
+            Integer randomInt = r.nextInt(10000) + 1;
             ids.add(randomInt.toString());
         }
 
@@ -178,4 +186,10 @@ public class SampleApplication extends DrishtiApplication {
     public ZScoreRepository zScoreRepository() {
         return GrowthMonitoringLibrary.getInstance().zScoreRepository();
     }
+
+
+    public RecurringServiceTypeRepository recurringServiceTypeRepository() {
+        return ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
+    }
+
 }

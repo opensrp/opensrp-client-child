@@ -13,7 +13,6 @@ public class BaseViewRecordUpdateWrapper {
     private View convertView;
     private String inactive;
     private SmartRegisterClient client;
-    private Cursor cursor;
 
     private String lostToFollowUp;
 
@@ -47,13 +46,5 @@ public class BaseViewRecordUpdateWrapper {
 
     public void setClient(SmartRegisterClient client) {
         this.client = client;
-    }
-
-    public Cursor getCursor() {
-        return cursor;
-    }
-
-    public void setCursor(Cursor cursor) {
-        this.cursor = cursor;
     }
 }

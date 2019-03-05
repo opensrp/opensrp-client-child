@@ -7,6 +7,7 @@ import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.FormUtils;
@@ -56,18 +57,17 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         }
 
         childEventClientList.add(childEventClient);
-/*
-        ChildEventClient childHeadEventClient = JsonFormUtils.processChildHeadRegistrationForm(Utils.context().allSharedPreferences(), jsonString, childEventClient.getClient().getBaseEntityId());
+
+        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(Utils.context().allSharedPreferences(), jsonString, childEventClient.getClient().getBaseEntityId(),childEventClient);
         if (childHeadEventClient == null) {
             return childEventClientList;
         }
 
-        // Update the child head and primary caregiver
+        // Update the child mother
         Client childClient = childEventClient.getClient();
-        childClient.addRelationship(Utils.metadata().childRegister.childHeadRelationKey, childHeadEventClient.getClient().getBaseEntityId());
         childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
 
-        childEventClientList.add(childHeadEventClient);*/
+        childEventClientList.add(childHeadEventClient);
         return childEventClientList;
     }
 

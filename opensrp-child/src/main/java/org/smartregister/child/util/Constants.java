@@ -6,7 +6,9 @@ import org.smartregister.AllConstants;
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Constants extends AllConstants {
+    public static final String CHILD_TABLE_NAME = "ec_child";
 
+    public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
 
     public static class JSON_FORM_KEY {
         public static final String ENTITY_ID = "entity_id";
@@ -52,6 +54,8 @@ public class Constants extends AllConstants {
 
     public static final class INTENT_KEY {
         public static final String JSON = "json";
+        public static final String BASE_ENTITY_ID = "base_entity_id";
+        public static final String RECORD_ACTION = "record_action";
     }
 
     public static class ENTITY {
@@ -65,6 +69,7 @@ public class Constants extends AllConstants {
     public static class FormActivity {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }
+
     public static final class EntityType {
 
     }

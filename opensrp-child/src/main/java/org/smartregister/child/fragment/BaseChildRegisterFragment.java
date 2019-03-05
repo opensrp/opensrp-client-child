@@ -8,10 +8,16 @@ import android.widget.TextView;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
+import org.smartregister.child.domain.RegisterClickables;
+import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.provider.ChildRegisterProvider;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.service.AlertService;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.customcontrols.FontVariant;
@@ -30,7 +36,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
-        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), commonRepository(), visibleColumns, registerActionHandler, paginationViewHandler);
+
+        RepositoryHolder repositoryHolder = new RepositoryHolder();
+        repositoryHolder.setCommonRepository(commonRepository());
+        repositoryHolder.setVaccineRepository(getVaccineRepository());
+        repositoryHolder.setWeightRepository(getWeightRepository());
+
+
+        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, getAlertService());
         clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
         clientAdapter.setCurrentlimit(20);
         clientsView.setAdapter(clientAdapter);
@@ -131,17 +144,62 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             return;
         }
 
-        if (view.getTag() != null && view.getTag(R.id.VIEW_ID) == CLICK_VIEW_NORMAL) {
-            goToPatientDetailActivity((CommonPersonObjectClient) view.getTag(), false);
-        } else if (view.getTag() != null && view.getTag(R.id.VIEW_ID) == CLICK_VIEW_DOSAGE_STATUS) {
-            goToPatientDetailActivity((CommonPersonObjectClient) view.getTag(), true);
+        if (view.getTag() != null && view.getTag(R.id.record_action) != null) {
+            goToChildImmunizationActivity((CommonPersonObjectClient) view.getTag(), (Constants.RECORD_ACTION) view.getTag(R.id.record_action));
         }
+
+        //starto
+        CommonPersonObjectClient client = null;
+        if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
+            client = (CommonPersonObjectClient) view.getTag();
+        }
+        RegisterClickables registerClickables = new RegisterClickables();
+/*
+        switch (view.getId()) {
+            case R.id.child_profile_info_layout:
+
+                ChildImmunizationActivity.launchActivity(getActivity(), client, null);
+                break;
+            case R.id.record_weight:
+                registerClickables.setRecordWeight(true);
+                ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                break;
+
+            case R.id.record_vaccination:
+                registerClickables.setRecordAll(true);
+                ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                break;
+            case R.id.filter_selection:
+                toggleFilterSelection();
+                break;
+
+            case R.id.global_search:
+                ((ChildSmartRegisterActivity) getActivity()).startAdvancedSearch();
+                break;
+
+            case R.id.scan_qr_code:
+                ((ChildSmartRegisterActivity) getActivity()).startQrCodeScanner();
+                break;
+            default:
+                break;
+        }*/
+
     }
 
-    private void goToPatientDetailActivity(CommonPersonObjectClient patient, boolean goToDuePage) {
+    private void goToChildDetailActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION record_action) {
 
         Intent intent = new Intent(getActivity(), Utils.metadata().profileActivity);
-        // intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
+        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
+        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, record_action);
+
+        startActivity(intent);
+    }
+
+    private void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION record_action) {
+
+        Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
+        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
+        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, record_action);
 
         startActivity(intent);
     }
@@ -150,4 +208,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     public ChildRegisterFragmentContract.Presenter presenter() {
         return (ChildRegisterFragmentContract.Presenter) presenter;
     }
+
+    protected abstract WeightRepository getWeightRepository();
+
+    protected abstract VaccineRepository getVaccineRepository();
+
+    protected abstract AlertService getAlertService();
 }
