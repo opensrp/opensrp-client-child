@@ -1,6 +1,7 @@
 package org.smartregister.child.contract;
 
 import org.json.JSONArray;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.ViewConfiguration;
@@ -19,6 +20,8 @@ public interface ChildRegisterFragmentContract {
     interface View extends BaseRegisterFragmentContract.View {
 
         void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns);
+
+        void recalculatePagination(AdvancedMatrixCursor matrixCursor);
 
         ChildRegisterFragmentContract.Presenter presenter();
 

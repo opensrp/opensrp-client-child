@@ -38,19 +38,4 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
         //do nothing
     }
 
-    @Override
-    protected WeightRepository getWeightRepository(){
-       return SampleApplication.getInstance().weightRepository();
-    }
-
-    @Override
-    protected VaccineRepository getVaccineRepository(){
-        return SampleApplication.getInstance().vaccineRepository();
-    }
-
-    @Override
-    protected AlertService getAlertService(){
-        return SampleApplication.getInstance().context().alertService();
-    }
-
 }

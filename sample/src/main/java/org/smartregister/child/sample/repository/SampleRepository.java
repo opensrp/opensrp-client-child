@@ -10,6 +10,7 @@ import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.repository.ConfigurableViewsRepository;
 import org.smartregister.domain.db.Column;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -148,7 +149,7 @@ public class SampleRepository extends Repository {
             newlyAddedFields.add("inactive");
             newlyAddedFields.add("lost_to_follow_up");
 
-            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Constants.CHILD_TABLE_NAME, newlyAddedFields);
+            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName, newlyAddedFields);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion2 " + Log.getStackTraceString(e));
         }
@@ -227,13 +228,13 @@ public class SampleRepository extends Repository {
     private void upgradeToVersion8ReportDeceased(SQLiteDatabase database) {
         try {
 
-            String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Constants.CHILD_TABLE_NAME + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
+            String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Utils.metadata().childRegister.tableName + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
             database.execSQL(ALTER_ADD_DEATHDATE_COLUMN);
 
             ArrayList<String> newlyAddedFields = new ArrayList<>();
             newlyAddedFields.add(DBConstants.KEY.DOD);
 
-            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Constants.CHILD_TABLE_NAME, newlyAddedFields);
+            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName, newlyAddedFields);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion8ReportDeceased " + e.getMessage());
         }

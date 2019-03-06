@@ -29,7 +29,7 @@ public class ChildMetadata {
 
         public final String tableName;
 
-        public final String parentTablenName;
+        public final String motherTableName;
 
         public final String registerEventType;
 
@@ -45,7 +45,7 @@ public class ChildMetadata {
         public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
             this.formName = formName;
             this.tableName = tableName;
-            this.parentTablenName = parentTableName;
+            this.motherTableName = parentTableName;
             this.registerEventType = registerEventType;
             this.updateEventType = updateEventType;
             this.config = config;

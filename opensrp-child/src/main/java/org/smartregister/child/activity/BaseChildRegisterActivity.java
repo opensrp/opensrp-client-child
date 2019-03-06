@@ -16,7 +16,10 @@ import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.helper.BottomNavigationHelper;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.service.AlertService;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.Arrays;
@@ -113,5 +116,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
 
-    protected abstract String getRegistrationForm();
+    public abstract String getRegistrationForm();
+
+    public abstract WeightRepository getWeightRepository();
+
+    public abstract VaccineRepository getVaccineRepository();
+
+    public abstract AlertService getAlertService();
 }

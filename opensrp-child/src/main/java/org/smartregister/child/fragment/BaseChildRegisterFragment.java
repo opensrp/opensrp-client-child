@@ -1,6 +1,12 @@
 package org.smartregister.child.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -8,45 +14,57 @@ import android.widget.TextView;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
+import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.service.AlertService;
+import org.smartregister.domain.FetchStatus;
+import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.customcontrols.FontVariant;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View {
+public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
+        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver
+        .SyncStatusListener {
 
-    public static final String CLICK_VIEW_NORMAL = "click_view_normal";
-    public static final String CLICK_VIEW_DOSAGE_STATUS = "click_view_dosage_status";
+    private static final String TAG = BaseChildRegisterFragment.class.getCanonicalName();
 
     @Override
-    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    protected void initializePresenter() {
+        if (getActivity() == null) {
+            return;
+        }
 
-        RepositoryHolder repositoryHolder = new RepositoryHolder();
-        repositoryHolder.setCommonRepository(commonRepository());
-        repositoryHolder.setVaccineRepository(getVaccineRepository());
-        repositoryHolder.setWeightRepository(getWeightRepository());
+        String viewConfigurationIdentifier = ((BaseRegisterActivity) getActivity()).getViewIdentifiers().get(0);
+        // presenter = new ChildBaseChildRegisterFragmentPresenter(this, viewConfigurationIdentifier);
+    }
 
+    @Override
+    protected String getMainCondition() {
+        return DBQueryHelper.getHomePatientRegisterCondition();
+    }
 
-        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, getAlertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
-        clientAdapter.setCurrentlimit(20);
-        clientsView.setAdapter(clientAdapter);
+    @Override
+    protected String getDefaultSortQuery() {
+        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC";
     }
 
     @Override
@@ -56,7 +74,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         // Update top left icon
         qrCodeScanImageView = view.findViewById(R.id.scanQrCode);
         if (qrCodeScanImageView != null) {
-            qrCodeScanImageView.setVisibility(View.GONE);
+            //qrCodeScanImageView.setVisibility(View.GONE);
         }
 
         // Update Search bar
@@ -88,42 +106,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         }
     }
 
+
+    @SuppressLint("NewApi")
     @Override
-    protected String getMainCondition() {
-        return null;
+    public void showNotFoundPopup(String whoAncId) {
+        NoMatchDialogFragment
+                .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, whoAncId);
     }
 
-    @Override
-    protected String getDefaultSortQuery() {
-        return null;
-    }
-
-    @Override
-    protected void refreshSyncProgressSpinner() {
-        super.refreshSyncProgressSpinner();
-        if (syncButton != null) {
-            syncButton.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void startRegistration() {
-        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
-    }
-
-
-    @Override
-    public void showNotFoundPopup(String uniqueId) {
-        if (getActivity() == null) {
-            return;
-        }
-        NoMatchDialogFragment.launchDialog((BaseRegisterActivity) getActivity(), DIALOG_TAG, uniqueId);
-    }
-
-    @Override
-    protected void initializePresenter() {
-
-    }
 
     @Override
     public void setUniqueID(String s) {
@@ -132,9 +122,82 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         }
     }
 
-    @Override
-    public void setAdvancedSearchFormData(HashMap<String, String> hashMap) {
 
+    @Override
+
+    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
+        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+        if (baseRegisterActivity != null) {
+            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
+                    .findFragmentByPosition(BaseRegisterActivity
+                            .ADVANCED_SEARCH_POSITION);
+            ((AdvancedSearchFragment) currentFragment).setSearchFormData(formData);
+        }
+    }
+
+    @Override
+    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+
+        RepositoryHolder repositoryHolder = new RepositoryHolder();
+        repositoryHolder.setCommonRepository(commonRepository());
+        repositoryHolder.setVaccineRepository(((BaseChildRegisterActivity) getActivity()).getVaccineRepository());
+        repositoryHolder.setWeightRepository(((BaseChildRegisterActivity) getActivity()).getWeightRepository());
+
+
+        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
+        clientAdapter.setCurrentlimit(20);
+        clientsView.setAdapter(clientAdapter);
+    }
+
+
+    @Override
+    protected void startRegistration() {
+        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
+    }
+
+
+    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
+        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
+    }
+
+    @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        // do we need to post progress?
+    }
+
+    @Override
+    public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
+        clientAdapter.setTotalcount(matrixCursor.getCount());
+        Log.v("total count here", "" + clientAdapter.getTotalcount());
+        clientAdapter.setCurrentlimit(20);
+        if (clientAdapter.getTotalcount() > 0) {
+            clientAdapter.setCurrentlimit(clientAdapter.getTotalcount());
+        }
+        clientAdapter.setCurrentoffset(0);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        final AdvancedMatrixCursor matrixCursor = ((BaseChildRegisterFragmentPresenter) presenter).getMatrixCursor();
+        if (!globalQrSearch || matrixCursor == null) {
+            return super.onCreateLoader(id, args);
+        } else {
+            globalQrSearch = false;
+            switch (id) {
+                case LOADER_ID:
+                    // Returns a new CursorLoader
+                    return new CursorLoader(getActivity()) {
+                        @Override
+                        public Cursor loadInBackground() {
+                            return matrixCursor;
+                        }
+                    };
+                default:
+                    // An invalid id was passed in
+                    return null;
+            }
+        }
     }
 
     @Override
@@ -146,6 +209,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
         if (view.getTag() != null && view.getTag(R.id.record_action) != null) {
             goToChildImmunizationActivity((CommonPersonObjectClient) view.getTag(), (Constants.RECORD_ACTION) view.getTag(R.id.record_action));
+            // TODO Move to catchment
+        } else if (view.getId() == R.id.filter_text_view) {
+            ((BaseChildRegisterActivity) getActivity()).switchToFragment(BaseRegisterActivity.SORT_FILTER_POSITION);
         }
 
         //starto
@@ -186,20 +252,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
     }
 
-    private void goToChildDetailActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION record_action) {
-
-        Intent intent = new Intent(getActivity(), Utils.metadata().profileActivity);
-        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
-        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, record_action);
-
-        startActivity(intent);
-    }
-
     private void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION record_action) {
 
         Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
         intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
         intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, record_action);
+        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS,patient);
 
         startActivity(intent);
     }
@@ -208,10 +266,4 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     public ChildRegisterFragmentContract.Presenter presenter() {
         return (ChildRegisterFragmentContract.Presenter) presenter;
     }
-
-    protected abstract WeightRepository getWeightRepository();
-
-    protected abstract VaccineRepository getVaccineRepository();
-
-    protected abstract AlertService getAlertService();
 }

@@ -1,11 +1,15 @@
 package org.smartregister.child.util;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.util.Pair;
+import android.widget.Toast;
 
 import com.google.common.reflect.TypeToken;
 
@@ -17,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
+import org.smartregister.child.activity.ChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
@@ -36,6 +42,8 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -62,6 +70,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.smartregister.child.util.MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -446,7 +456,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 db.addEvent(entityId, eventJsonUpdateChildEvent); //Add event to flag server update
 
                 //Update REGISTER and FTS Tables
-                String tableName = Constants.CHILD_TABLE_NAME;
+                String tableName = Utils.metadata().childRegister.tableName;
                 AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
@@ -497,16 +507,16 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void mergeAndSaveClient(ECSyncHelper ecUpdater, Client baseClient) throws Exception {
+    public static void mergeAndSaveClient(ECSyncHelper ecSyncHelper, Client baseClient) throws Exception {
         JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
 
-        JSONObject originalClientJsonObject = ecUpdater.getClient(baseClient.getBaseEntityId());
+        JSONObject originalClientJsonObject = ChildLibrary.getInstance().getEcSyncHelper().getClient(baseClient.getBaseEntityId());
 
         JSONObject mergedJson = org.smartregister.util.JsonFormUtils.merge(originalClientJsonObject, updatedClientJson);
 
         //TODO Save edit log ?
 
-        ecUpdater.addClient(baseClient.getBaseEntityId(), mergedJson);
+        ChildLibrary.getInstance().getEcSyncHelper().addClient(baseClient.getBaseEntityId(), mergedJson);
     }
 
     public static void saveImage(String providerId, String entityId, String imageLocation) {
@@ -1019,5 +1029,340 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 openSrpContext, jsonString, weightRepository, vaccineRepository);
 
         org.smartregister.util.Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
+    }
+
+    public static boolean processMoveToCatchment(android.content.Context context, AllSharedPreferences allSharedPreferences, JSONObject jsonObject) {
+
+        try {
+            int eventsCount = jsonObject.has("no_of_events") ? jsonObject.getInt("no_of_events") : 0;
+            if (eventsCount == 0) {
+                return false;
+            }
+
+            JSONArray events = jsonObject.has("events") ? jsonObject.getJSONArray("events") : new JSONArray();
+            JSONArray clients = jsonObject.has("clients") ? jsonObject.getJSONArray("clients") : new JSONArray();
+
+            ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
+
+            final String HOME_FACILITY = "Home_Facility";
+
+            String toProviderId = allSharedPreferences.fetchRegisteredANM();
+
+            String toLocationId = allSharedPreferences
+                    .fetchDefaultLocalityId(toProviderId);
+
+            List<Pair<Event, JSONObject>> eventList = new ArrayList<>();
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject jsonEvent = events.getJSONObject(i);
+                Event event = ChildLibrary.getInstance().getEcSyncHelper().convert(jsonEvent, Event.class);
+                if (event == null) {
+                    continue;
+                }
+
+                // Skip previous move to catchment events
+                if (MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
+                    continue;
+                }
+
+                if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(0, Pair.create(event, jsonEvent));
+                } else if (!eventList.isEmpty() && Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(1, Pair.create(event, jsonEvent));
+                } else {
+                    eventList.add(Pair.create(event, jsonEvent));
+                }
+
+            }
+
+            for (Pair<Event, JSONObject> pair : eventList) {
+                Event event = pair.first;
+                JSONObject jsonEvent = pair.second;
+
+                String fromLocationId = null;
+                if (Utils.metadata().childRegister.registerEventType.equals(event.getEventType())) {
+                    // Update home facility
+                    for (Obs obs : event.getObs()) {
+                        if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
+                            fromLocationId = obs.getValue().toString();
+                            List<Object> values = new ArrayList<>();
+                            values.add(toLocationId);
+                            obs.setValues(values);
+                        }
+                    }
+
+                }
+
+
+                if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+
+                    //Create move to catchment event;
+                    org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+                    if (moveToCatchmentEvent != null) {
+                        JSONObject moveToCatchmentJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
+                        if (moveToCatchmentJsonEvent != null) {
+                            ChildLibrary.getInstance().getEcSyncHelper().addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                        }
+                    }
+                }
+
+                // Update providerId, locationId and Save unsynced event
+                event.setProviderId(toProviderId);
+                event.setLocationId(toLocationId);
+                event.setVersion(System.currentTimeMillis());
+                JSONObject updatedJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
+                jsonEvent = JsonFormUtils.merge(jsonEvent, updatedJsonEvent);
+
+                ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
+            }
+
+            long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
+            Date lastSyncDate = new Date(lastSyncTimeStamp);
+            ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+
+            return true;
+        } catch (Exception e) {
+            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+        }
+
+        return false;
+    }
+
+    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
+
+        try {
+
+            //Same location/provider, no need to move
+            if (toLocationId.equals(fromLocationId) || referenceEvent.getProviderId().equals(toProviderId)) {
+                return null;
+            }
+
+            final String FORM_SUBMISSION_FIELD = "formsubmissionField";
+            final String DATA_TYPE = "text";
+
+            Event event = (Event) new Event()
+                    .withBaseEntityId(referenceEvent.getBaseEntityId())
+                    .withEventDate(new Date())
+                    .withEventType(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT)
+                    .withLocationId(fromLocationId)
+                    .withProviderId(referenceEvent.getProviderId())
+                    .withEntityType("child")
+                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
+                    .withDateCreated(new Date());
+
+
+            String formSubmissionField = "From_ProviderId";
+            List<Object> vall = new ArrayList<>();
+            vall.add(referenceEvent.getProviderId());
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField,
+                    "", vall, new ArrayList<>(), null, formSubmissionField));
+
+            formSubmissionField = "From_LocationId";
+            vall = new ArrayList<>();
+            vall.add(fromLocationId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField,
+                    "", vall, new ArrayList<>(), null, formSubmissionField));
+
+            formSubmissionField = "To_ProviderId";
+            vall = new ArrayList<>();
+            vall.add(toProviderId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField,
+                    "", vall, new ArrayList<>(), null, formSubmissionField));
+
+            formSubmissionField = "To_LocationId";
+            vall = new ArrayList<>();
+            vall.add(toLocationId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField,
+                    "", vall, new ArrayList<>(), null, formSubmissionField));
+
+            addMetaData(context, event, new Date());
+
+            JsonFormUtils.tagSyncMetadata(Utils.context().allSharedPreferences(), event);
+            return event;
+
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            return null;
+        }
+    }
+
+
+    //TO DO Remove
+    //DEPRECATED
+
+    /**
+     * Starts an instance of JsonFormActivity with the provided form details
+     *
+     * @param context                     The activity form is being launched from
+     * @param jsonFormActivityRequestCode The request code to be used to launch {@link PathJsonFormActivity}
+     * @param formName                    The name of the form to launch
+     * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
+     * @param currentLocationId           OpenMRS id for the current device's location
+     * @throws Exception
+     */
+    public static void startForm(Activity context,
+                                 int jsonFormActivityRequestCode,
+                                 String formName, String uniqueId,
+                                 String currentLocationId) throws Exception {
+        Intent intent = new Intent(context, ChildFormActivity.class);
+
+        String entityId = uniqueId;
+        JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
+        if (form != null) {
+            form.getJSONObject("metadata").put("encounter_location", currentLocationId);
+
+            if ("child_enrollment".equals(formName)) {
+                if (StringUtils.isBlank(entityId)) {
+                    UniqueIdRepository uniqueIdRepo = CoreLibrary.getInstance().context().getUniqueIdRepository();
+                    entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
+                    if (entityId.isEmpty()) {
+                        Toast.makeText(context, context.getString(R.string.no_openmrs_id), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                if (StringUtils.isNotBlank(entityId)) {
+                    entityId = entityId.replace("-", "");
+                }
+
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form);
+
+                // Inject zeir id into the form
+                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
+                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    if (jsonObject.getString(JsonFormUtils.KEY)
+                            .equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
+                        jsonObject.remove(JsonFormUtils.VALUE);
+                        jsonObject.put(JsonFormUtils.VALUE, entityId);
+                    }
+                }
+            } else if ("out_of_catchment_service".equals(formName)) {
+                if (StringUtils.isNotBlank(entityId)) {
+                    entityId = entityId.replace("-", "");
+                } else {
+                    JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
+                    for (int i = 0; i < fields.length(); i++) {
+                        if (fields.getJSONObject(i).getString("key").equals("ZEIR_ID")) {
+                            fields.getJSONObject(i).put(READ_ONLY, false);
+                            break;
+                        }
+                    }
+                }
+
+                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
+                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    if (jsonObject.getString(JsonFormUtils.KEY)
+                            .equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
+                        jsonObject.remove(JsonFormUtils.VALUE);
+                        jsonObject.put(JsonFormUtils.VALUE, entityId);
+                    }
+                }
+
+                JsonFormUtils.addAddAvailableVaccines(context, form);
+            } else {
+                Log.w(TAG, "Unsupported form requested for launch " + formName);
+            }
+
+            intent.putExtra("json", form.toString());
+            Log.d(TAG, "form is " + form.toString());
+            context.startActivityForResult(intent, jsonFormActivityRequestCode);
+        }
+    }
+
+    public static void createBCGScarEvent(Context context, String baseEntityId, String providerId, String locationId) {
+
+        try {
+
+            Event event = (Event) new Event()
+                    .withBaseEntityId(baseEntityId)
+                    .withEventDate(new Date())
+                    .withEventType(BCG_SCAR_EVENT)
+                    .withLocationId(locationId)
+                    .withProviderId(providerId)
+                    .withEntityType("child")
+                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
+                    .withDateCreated(new Date());
+
+
+            final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            final String YES_CONCEPT = "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+            List<Object> values = new ArrayList<>();
+            values.add(YES_CONCEPT);
+
+            List<Object> humanReadableValues = new ArrayList<>();
+            humanReadableValues.add("Yes");
+
+            event.addObs(new Obs(CONCEPT, "select one", BCG_SCAR_CONCEPT, "", values, humanReadableValues, null, "bcg_scar"));
+
+            JSONObject eventJson = new JSONObject(gson.toJson(event));
+            if (eventJson != null) {
+                ECSyncHelper.getInstance(context).addEvent(baseEntityId, eventJson);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+
+    public static Map<String, String> updateClientAttribute(android.content.Context context, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws Exception {
+
+        org.smartregister.Context openSRPContext = CoreLibrary.getInstance().context();
+
+        Date date = new Date();
+        EventClientRepository db = openSRPContext.getEventClientRepository();
+
+        JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
+        JSONObject attributes = client.getJSONObject(JsonFormUtils.attributes);
+        attributes.put(attributeName, attributeValue);
+        client.remove(JsonFormUtils.attributes);
+        client.put(JsonFormUtils.attributes, attributes);
+        db.addorUpdateClient(childDetails.entityId(), client);
+
+
+        DetailsRepository detailsRepository = openSRPContext.detailsRepository();
+        detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
+        ContentValues contentValues = new ContentValues();
+        //Add the base_entity_id
+        contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
+        db.getWritableDatabase().update(Utils.metadata().childRegister.tableName, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
+
+        AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
+        String locationName = allSharedPreferences.fetchCurrentLocality();
+        if (StringUtils.isBlank(locationName)) {
+            locationName = LocationHelper.getInstance().getDefaultLocation();
+        }
+
+        Event event = (Event) new Event()
+                .withBaseEntityId(childDetails.entityId())
+                .withEventDate(new Date())
+                .withEventType(JsonFormUtils.encounterType)
+                .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
+                .withProviderId(allSharedPreferences.fetchRegisteredANM())
+                .withEntityType(Constants.CHILD_TYPE)
+                .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
+                .withDateCreated(new Date());
+
+        JsonFormUtils.addMetaData(context, event, date);
+        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
+        db.addEvent(childDetails.entityId(), eventJson);
+        long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
+        Date lastSyncDate = new Date(lastSyncTimeStamp);
+        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(ECSyncHelper.getInstance(context).getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+        allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+
+        //update details
+        Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        if (childDetails.getColumnmaps().containsKey(attributeName)) {
+            childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+        }
+        Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+        return detailsMap;
     }
 }

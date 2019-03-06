@@ -2,6 +2,8 @@ package org.smartregister.child.presenter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.fragment.AdvancedSearchFragment;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
@@ -26,6 +28,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     protected Set<org.smartregister.configurableviews.model.View> visibleColumns = new TreeSet<>();
     protected String viewConfigurationIdentifier;
+    private AdvancedMatrixCursor advancedMatrixCursor;
 
     public BaseChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model, String viewConfigurationIdentifier) {
         this.viewReference = new WeakReference<>(view);
@@ -54,7 +57,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     @Override
     public void initializeQueries(String mainCondition) {
         String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = Utils.metadata().childRegister.parentTablenName;
+        String parentTableName = Utils.metadata().childRegister.motherTableName;
 
         String countSelect = model.countSelect(tableName, mainCondition, parentTableName);
         String mainSelect = model.mainSelect(tableName, mainCondition, parentTableName);
@@ -102,5 +105,13 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     @Override
     public String getMainCondition() {
         return String.format(" %s is null ", DBConstants.KEY.DATE_REMOVED);
+    }
+
+    public void setMatrixCursor(AdvancedMatrixCursor matrixCursor) {
+        this.advancedMatrixCursor = matrixCursor;
+    }
+
+    public AdvancedMatrixCursor getMatrixCursor() {
+        return advancedMatrixCursor;
     }
 }

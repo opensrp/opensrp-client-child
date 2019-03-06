@@ -25,6 +25,7 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
@@ -41,6 +42,8 @@ public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
 
     private static CommonFtsObject commonFtsObject;
+
+    private boolean lastModified;
 
     @Override
     public void onCreate() {
@@ -192,4 +195,15 @@ public class SampleApplication extends DrishtiApplication {
         return ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
     }
 
+    public RecurringServiceRecordRepository recurringServiceRecordRepository() {
+        return ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
+    }
+
+    public boolean isLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(boolean lastModified) {
+        this.lastModified = lastModified;
+    }
 }

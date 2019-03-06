@@ -213,18 +213,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
 
-    private void attachPatientOnclickListener(View view, SmartRegisterClient client) {
-        view.setOnClickListener(onClickListener);
-        view.setTag(client);
-        view.setTag(R.id.VIEW_ID, BaseChildRegisterFragment.CLICK_VIEW_NORMAL);
-    }
-
-    private void attachDosageOnclickListener(View view, SmartRegisterClient client) {
-        view.setOnClickListener(onClickListener);
-        view.setTag(client);
-        view.setTag(R.id.VIEW_ID, BaseChildRegisterFragment.CLICK_VIEW_DOSAGE_STATUS);
-    }
-
     @Override
     public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption, FilterOption searchFilter, SortOption sortOption) {
         return null;
@@ -285,7 +273,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     // Inner classes
     ////////////////////////////////////////////////////////////////
 
-    public class RegisterViewHolder extends RecyclerView.ViewHolder {
+    public static class RegisterViewHolder extends RecyclerView.ViewHolder {
         public TextView patientName;
         public TextView childOpensrpID;
         public TextView childMotherName;

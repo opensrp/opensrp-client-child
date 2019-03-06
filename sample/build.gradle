@@ -97,6 +97,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpmime'
         exclude group: 'com.github.ybq', module: 'Android-SpinKit'
         exclude group: 'com.android.support', module: 'design'
+        exclude group: 'net.zetetic', module: 'android-database-sqlcipher'
     }
 
     implementation('org.smartregister:opensrp-client-native-form:1.4.9-SNAPSHOT@aar') {
@@ -140,6 +141,9 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
 
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+
+    implementation 'com.android.support:leanback-v17:28.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

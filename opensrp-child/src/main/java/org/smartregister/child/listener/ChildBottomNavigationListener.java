@@ -26,6 +26,10 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
             baseRegisterActivity.switchToBaseFragment();
         } else if (item.getItemId() == R.id.action_scan_qr) {
             baseRegisterActivity.startQrCodeScanner();
+        }if (item.getItemId() == R.id.action_child) {
+            baseRegisterActivity.switchToBaseFragment();
+        } else if (item.getItemId() == R.id.action_search) {
+            baseRegisterActivity.switchToFragment(1);
         }
 
         return true;

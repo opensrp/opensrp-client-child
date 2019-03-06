@@ -1,4 +1,11 @@
 <resources>
     <item name="VIEW_ID" type="id" />
     <item name="record_action" type="id" />
+    <item name="item_data" type="id" />
+    <item name="stock_detail_holder" type="id" />
+    <item name="client_details_tag" type="id" />
+    <item name="vaccine_stock_used_tag" type="id" />
+    <item name="vaccine_stock_wasted_tag" type="id" />
+    <item name="vaccine_group_parent_id" type="id" />
+    <item name="vaccine_group_vaccine_data" type="id" />
 </resources>

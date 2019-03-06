@@ -6,7 +6,6 @@ import org.smartregister.AllConstants;
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Constants extends AllConstants {
-    public static final String CHILD_TABLE_NAME = "ec_child";
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
@@ -51,12 +50,16 @@ public class Constants extends AllConstants {
         public static final String DAY = "day";
         public static final String DATE = "date";
         public static final String CHILD = "child";
+        public static final String PMTCT_STATUS = "pmtct_status";
+        public static final String LOCATION_NAME = "location_name";
+        public static final String BIRTH_WEIGHT = "Birth_Weight";
     }
 
     public static final class INTENT_KEY {
         public static final String JSON = "json";
         public static final String BASE_ENTITY_ID = "base_entity_id";
         public static final String RECORD_ACTION = "record_action";
+        public static final String EXTRA_CHILD_DETAILS = "child_details";
     }
 
     public static class ENTITY {
@@ -93,4 +96,27 @@ public class Constants extends AllConstants {
         public static final String FEMALE = "female";
         public static final String TRANSGENDER = "transgender";
     }
+
+    //Temporary to move implementation
+    public static final class EventType {
+
+        public static final String AEFI = "AEFI";
+        public static final String BITRH_REGISTRATION = "Birth Registration";
+        public static final String UPDATE_BITRH_REGISTRATION = "Update Birth Registration";
+        public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
+        public static final String DEATH = "Death";
+        public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
+        public static final String VACCINATION = "Vaccination";
+    }
+
+    public static final class CONCEPT {
+        public final static String VACCINE_DATE = "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    }
+
+    public static final class CHILD_STATUS {
+        public static final String INACTIVE = "inactive";
+        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+
+    }
+
 }

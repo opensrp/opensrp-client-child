@@ -1,0 +1,60 @@
+package org.smartregister.child.listener;
+
+import android.app.Activity;
+import android.support.design.widget.NavigationView;
+import android.view.MenuItem;
+
+import org.smartregister.child.toolbar.BaseToolbar;
+
+
+/**
+ * Created by samuelgithengi on 2/14/18.
+ */
+
+public class NavigationItemListener extends BaseListener implements NavigationView.OnNavigationItemSelectedListener {
+
+    public NavigationItemListener(Activity context) {
+        super(context);
+    }
+
+    public NavigationItemListener(Activity context, BaseToolbar toolbar) {
+        super(context, toolbar);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        // Handle navigation view item clicks here.
+
+        int id = menuItem.getItemId();
+
+        /*
+
+        if (id == R.id.nav_register) {
+            if (context instanceof SecuredActivity)
+                ((SecuredActivity) context).startFormActivity(CHILD_ENROLLMENT, null, null);
+            else
+                startJsonForm(CHILD_ENROLLMENT, null);
+        } else if (id == R.id.nav_record_vaccination_out_catchment) {
+            if (context instanceof SecuredActivity)
+                ((SecuredActivity) context).startFormActivity(OUT_OF_CATCHMENT, null, null);
+            else
+                startJsonForm(OUT_OF_CATCHMENT, null);
+        } else if (id == R.id.stock) {
+            Intent intent = new Intent(context, PathStockActivity.class);
+            context.startActivity(intent);
+        } else if (id == R.id.nav_sync) {
+            ServiceTools.startSyncService(context.getApplicationContext());
+        } else if (id == R.id.nav_hia2) {
+            Intent intent = new Intent(context, HIA2ReportsActivity.class);
+            context.startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) context.findViewById(R.id.drawer_layout);
+
+        drawer.closeDrawer(GravityCompat.START);
+
+        */
+        return true;
+    }
+
+}
