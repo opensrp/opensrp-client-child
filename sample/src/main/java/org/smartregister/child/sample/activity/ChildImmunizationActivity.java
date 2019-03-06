@@ -1,15 +1,21 @@
 package org.smartregister.child.sample.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
+import org.smartregister.child.util.Constants;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.location.helper.LocationHelper;
 
 public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
 
@@ -75,5 +81,17 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public void onRegistrationSaved(boolean isEdit) {
 
+    }
+
+    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
+
+        Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.KEY.LOCATION_NAME, LocationHelper.getInstance().getOpenMrsLocationId(getCurrentLocation()));
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        intent.putExtras(bundle);
+
+        fromContext.startActivity(intent);
     }
 }

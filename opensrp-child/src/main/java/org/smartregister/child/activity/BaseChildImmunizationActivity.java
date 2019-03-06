@@ -868,18 +868,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         fromContext.startActivity(intent);
     }
 
-    private void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-        Utils.showToast(this, "Launching the tabbed detail activity");
-
-     /*   Intent intent = new Intent(fromContext, Constants.CHILD_STATUS.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.KEY.LOCATION_NAME, LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
-        bundle.putSerializable(EXTRA_CHILD_DETAILS, childDetails);
-        bundle.putSerializable(EXTRA_REGISTER_CLICKABLES, registerClickables);
-        intent.putExtras(bundle);
-
-        fromContext.startActivity(intent);*/
-    }
+    public abstract void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables);
 
     private String updateActivityTitle() {
         String name = "";
@@ -2013,6 +2002,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
+    public String getCurrentLocation() {
+        return toolbar.getCurrentLocation();
+    }
 
     public abstract WeightRepository getWeightRepository();
 

@@ -1194,7 +1194,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * Starts an instance of JsonFormActivity with the provided form details
      *
      * @param context                     The activity form is being launched from
-     * @param jsonFormActivityRequestCode The request code to be used to launch {@link PathJsonFormActivity}
+     * @param jsonFormActivityRequestCode The request code to be used to launch {@link ChildFormFormActivity}
      * @param formName                    The name of the form to launch
      * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location

@@ -2,10 +2,14 @@ package org.smartregister.child.util;
 
 import org.smartregister.AllConstants;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Constants extends AllConstants {
+
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
