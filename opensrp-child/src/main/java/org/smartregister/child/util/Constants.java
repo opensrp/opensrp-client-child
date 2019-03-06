@@ -60,6 +60,7 @@ public class Constants extends AllConstants {
         public static final String BASE_ENTITY_ID = "base_entity_id";
         public static final String RECORD_ACTION = "record_action";
         public static final String EXTRA_CHILD_DETAILS = "child_details";
+        public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     }
 
     public static class ENTITY {

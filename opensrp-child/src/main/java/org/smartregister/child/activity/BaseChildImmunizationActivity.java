@@ -115,8 +115,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener {
 
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
-    private static final String EXTRA_CHILD_DETAILS = "child_details";
-    private static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private ArrayList<VaccineGroup> vaccineGroups;
@@ -182,12 +180,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
-            Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
+            Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
             }
 
-            serializable = extras.getSerializable(EXTRA_REGISTER_CLICKABLES);
+            serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
             if (serializable != null && serializable instanceof RegisterClickables) {
                 registerClickables = (RegisterClickables) serializable;
             }
@@ -203,14 +201,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(EXTRA_CHILD_DETAILS, childDetails);
+        outState.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        Serializable serializable = savedInstanceState.getSerializable(EXTRA_CHILD_DETAILS);
+        Serializable serializable = savedInstanceState.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
         if (serializable != null && serializable instanceof CommonPersonObjectClient) {
             childDetails = (CommonPersonObjectClient) serializable;
         }
@@ -231,6 +229,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             serviceGroups = null;
         }
         updateViews();
+
     }
 
     private boolean isDataOk() {
@@ -862,8 +861,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, BaseChildImmunizationActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(EXTRA_CHILD_DETAILS, childDetails);
-        bundle.putSerializable(EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
         intent.putExtras(bundle);
 
         fromContext.startActivity(intent);

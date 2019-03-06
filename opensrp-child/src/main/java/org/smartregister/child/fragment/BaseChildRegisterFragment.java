@@ -252,12 +252,18 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     }
 
-    private void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION record_action) {
+    private void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION recordAction) {
 
         Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
         intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
-        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, record_action);
-        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS,patient);
+        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, recordAction);
+        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, patient);
+
+        RegisterClickables registerClickables = new RegisterClickables();
+        registerClickables.setRecordWeight(recordAction.equals(Constants.RECORD_ACTION.WEIGHT));
+        registerClickables.setRecordAll(recordAction.equals(Constants.RECORD_ACTION.VACCINATION));
+
+        intent.putExtra(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
 
         startActivity(intent);
     }

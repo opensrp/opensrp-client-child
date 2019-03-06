@@ -17,7 +17,6 @@ import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
-import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.task.VaccinationAsyncTask;
 import org.smartregister.child.task.WeightAsyncTask;
 import org.smartregister.child.util.Constants;
