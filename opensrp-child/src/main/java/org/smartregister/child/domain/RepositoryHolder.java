@@ -2,6 +2,8 @@ package org.smartregister.child.domain;
 
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 
 /**
@@ -12,6 +14,24 @@ public class RepositoryHolder {
     private CommonRepository commonRepository;
     private VaccineRepository vaccineRepository;
     private WeightRepository weightRepository;
+    private RecurringServiceRecordRepository recurringServiceRecordRepository;
+    private RecurringServiceTypeRepository recurringServiceTypeRepository;
+
+    public RecurringServiceRecordRepository getRecurringServiceRecordRepository() {
+        return recurringServiceRecordRepository;
+    }
+
+    public void setRecurringServiceRecordRepository(RecurringServiceRecordRepository recurringServiceRecordRepository) {
+        this.recurringServiceRecordRepository = recurringServiceRecordRepository;
+    }
+
+    public RecurringServiceTypeRepository getRecurringServiceTypeRepository() {
+        return recurringServiceTypeRepository;
+    }
+
+    public void setRecurringServiceTypeRepository(RecurringServiceTypeRepository recurringServiceTypeRepository) {
+        this.recurringServiceTypeRepository = recurringServiceTypeRepository;
+    }
 
     public CommonRepository getCommonRepository() {
         return commonRepository;

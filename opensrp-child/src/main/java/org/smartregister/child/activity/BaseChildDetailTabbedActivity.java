@@ -116,11 +116,11 @@ import static org.smartregister.util.Utils.getValue;
 
 public abstract class BaseChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener, WeightActionListener, StatusChangeListener, ServiceActionListener {
 
-    private Menu overflow;
+    protected Menu overflow;
     private ChildDetailsToolbar detailtoolbar;
     private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private TextView saveButton;
+    protected ViewPager viewPager;
+    protected TextView saveButton;
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static Gender gender;
@@ -139,7 +139,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     // Data
     private CommonPersonObjectClient childDetails;
-    private Map<String, String> detailsMap;
+    protected Map<String, String> detailsMap;
     ////////////////////////////////////////////////
 
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
@@ -323,13 +323,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
       return   super.onOptionsItemSelected(item);
     }
 
-    private boolean launchAdverseEventForm() {
+    protected boolean launchAdverseEventForm() {
         LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask();
         task.execute();
         return true;
     }
 
-    private String getmetaDataForEditForm() {
+    protected String getmetaDataForEditForm() {
         try {
             JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("child_enrollment");
             LocationPickerView lpv = new LocationPickerView(getApplicationContext());
@@ -529,7 +529,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return "";
     }
 
-    private void startFormActivity(String formName, String entityId, String metaData) {
+    protected void startFormActivity(String formName, String entityId, String metaData) {
 
         Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
 
@@ -1062,7 +1062,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private String getReportDeceasedMetadata() {
+    protected String getReportDeceasedMetadata() {
         try {
             JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("report_deceased");
             if (form != null) {
@@ -1198,7 +1198,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         NONE, EDIT_WEIGHT, EDIT_VACCINE, EDIT_SERVICE
     }
 
-    private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
+    public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private STATUS status;
         private boolean fromUpdateStatus = false;
@@ -1207,7 +1207,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             this.status = STATUS.NONE;
         }
 
-        private LoadAsyncTask(STATUS status) {
+        public LoadAsyncTask(STATUS status) {
             this.status = status;
         }
 

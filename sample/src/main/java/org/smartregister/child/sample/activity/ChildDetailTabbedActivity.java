@@ -1,14 +1,20 @@
 package org.smartregister.child.sample.activity;
 
+import android.app.FragmentTransaction;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
+import org.smartregister.child.fragment.StatusEditDialogFragment;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.application.SampleApplication;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.util.Utils;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -17,14 +23,13 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-/*
         switch (item.getItemId()) {
-            case org.smartregister.child.R.id.registration_data:
+            case R.id.registration_data:
                 String formmetadata = getmetaDataForEditForm();
-                startFormActivity("child_enrollment", childDetails.entityId(), formmetadata);
+                startFormActivity("child_enrollment", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), formmetadata);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
-            case org.smartregister.child.R.id.immunization_data:
+            case R.id.immunization_data:
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
@@ -35,7 +40,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 }
                 return true;
 
-            case org.smartregister.child.R.id.recurring_services_data:
+            case R.id.recurring_services_data:
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
@@ -45,7 +50,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     overflow.getItem(i).setVisible(false);
                 }
                 return true;
-            case org.smartregister.child.R.id.weight_data:
+            case R.id.weight_data:
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
@@ -56,11 +61,11 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 }
                 return true;
 
-            case org.smartregister.child.R.id.report_deceased:
+            case R.id.report_deceased:
                 String reportDeceasedMetadata = getReportDeceasedMetadata();
-                startFormActivity("report_deceased", childDetails.entityId(), reportDeceasedMetadata);
+                startFormActivity("report_deceased", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), reportDeceasedMetadata);
                 return true;
-            case org.smartregister.child.R.id.change_status:
+            case R.id.change_status:
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
                 android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
                 if (prev != null) {
@@ -68,16 +73,14 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 }
                 StatusEditDialogFragment.newInstance(detailsMap).show(ft, DIALOG_TAG);
                 return true;
-            case org.smartregister.child.R.id.report_adverse_event:
+            case R.id.report_adverse_event:
                 return launchAdverseEventForm();
 
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-}
-        */
-        return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
