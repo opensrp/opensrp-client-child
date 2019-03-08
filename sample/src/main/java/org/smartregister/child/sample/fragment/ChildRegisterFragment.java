@@ -83,6 +83,10 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
             case R.id.scan_qr_code:
                 ((ChildRegisterActivity) getActivity()).startQrCodeScanner();
                 break;
+
+            case R.id.back_button:
+                getActivity();
+                break;
             default:
                 break;
         }

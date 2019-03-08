@@ -45,7 +45,6 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
-import org.smartregister.view.customcontrols.FontVariant;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.ArrayList;
@@ -140,9 +139,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
         if (titleView != null) {
-            titleView.setVisibility(View.VISIBLE);
-            titleView.setText(getString(R.string.header_children));
-            titleView.setFontVariant(FontVariant.REGULAR);
+            titleView.setVisibility(View.GONE);
         }
 
         filterSection = view.findViewById(R.id.filter_selection);
@@ -170,23 +167,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
 
         TextView nameInitials = view.findViewById(R.id.name_inits);
-        LinearLayout btnBackToHome =  view.findViewById(R.id.btn_back_to_home);
+        nameInitials.setVisibility(View.GONE);
+        LinearLayout btnBackToHome = view.findViewById(R.id.btn_back_to_home);
         btnBackToHome.setOnClickListener(this);
-        ImageView backButton =  view.findViewById(R.id.back_button);
-        backButton.setVisibility(View.GONE);
+        ImageView backButton = view.findViewById(R.id.back_button);
+        backButton.setVisibility(View.VISIBLE);
+        backButton.setImageResource(R.drawable.ic_action_menu);
+        backButton.setOnClickListener(this);
 
-        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-        String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
-        if (!preferredName.isEmpty()) {
-            String[] preferredNameArray = preferredName.split(" ");
-            String initials = "";
-            if (preferredNameArray.length > 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0)) + String.valueOf(preferredNameArray[1].charAt(0));
-            } else if (preferredNameArray.length == 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0));
-            }
-            nameInitials.setText(initials);
-        }
 
         View globalSearchButton = view.findViewById(R.id.global_search);
         globalSearchButton.setOnClickListener(this);
