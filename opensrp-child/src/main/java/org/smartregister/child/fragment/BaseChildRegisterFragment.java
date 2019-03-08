@@ -2,13 +2,21 @@ package org.smartregister.child.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.smartregister.child.R;
@@ -26,13 +34,21 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.domain.AlertStatus;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.util.VaccinateActionUtils;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.customcontrols.FontVariant;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -43,18 +59,19 @@ import java.util.Set;
  */
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver
-        .SyncStatusListener {
+        .SyncStatusListener, View.OnClickListener {
 
-    private static final String TAG = BaseChildRegisterFragment.class.getCanonicalName();
+    private static String DOD_MAIN_CONDITION = " ( " + DBConstants.KEY.DOD + " is NULL OR " + DBConstants.KEY.DOD + " = '' ) ";
+    private TextView filterCount;
+    private View filterSection;
+    private int dueOverdueCount = 0;
+    private LocationPickerView clinicSelection;
 
     @Override
     protected void initializePresenter() {
         if (getActivity() == null) {
             return;
         }
-
-        String viewConfigurationIdentifier = ((BaseRegisterActivity) getActivity()).getViewIdentifiers().get(0);
-        // presenter = new ChildBaseChildRegisterFragmentPresenter(this, viewConfigurationIdentifier);
     }
 
     @Override
@@ -68,28 +85,51 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        View view = inflater.inflate(R.layout.smart_register_activity_customized, container, false);
+        mView = view;
+        onInitialization();
+        setupViews(view);
+        onResumption();
+        return view;
+    }
+
+    @Override
+    protected void onResumption() {
+        super.onResumption();
+
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        }
+        updateSearchView();
+
+        updateLocationText();
+
+        if (filterMode()) {
+            toggleFilterSelection();
+        }
+    }
+
+
+    private boolean filterMode() {
+        return filterSection != null && filterSection.getTag() != null;
+    }
+
+    @Override
     public void setupViews(View view) {
         super.setupViews(view);
+        view.findViewById(R.id.btn_report_month).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
         // Update top left icon
-        qrCodeScanImageView = view.findViewById(R.id.scanQrCode);
+        FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
         if (qrCodeScanImageView != null) {
-            //qrCodeScanImageView.setVisibility(View.GONE);
-        }
-
-        // Update Search bar
-        View searchBarLayout = view.findViewById(R.id.search_bar_layout);
-        searchBarLayout.setBackgroundResource(R.color.customAppThemeBlue);
-
-        if (getSearchView() != null) {
-            getSearchView().setBackgroundResource(R.color.white);
-            getSearchView().setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_search, 0, 0, 0);
-        }
-
-        // Update sort filter
-        TextView filterView = view.findViewById(R.id.filter_text_view);
-        if (filterView != null) {
-            filterView.setText(getString(R.string.sort));
+            qrCodeScanImageView.setOnClickListener(this);
         }
 
         // Update title name
@@ -104,8 +144,153 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             titleView.setText(getString(R.string.header_children));
             titleView.setFontVariant(FontVariant.REGULAR);
         }
+
+        filterSection = view.findViewById(R.id.filter_selection);
+        filterSection.setOnClickListener(this);
+
+        filterCount = view.findViewById(R.id.filter_count);
+        filterCount.setVisibility(View.GONE);
+        filterCount.setClickable(false);
+        filterCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view.isClickable()) {
+                    filterSection.performClick();
+                }
+            }
+        });
+
+        clinicSelection = view.findViewById(R.id.clinic_selection);
+        clinicSelection.init();
+
+
+        clientsView.setVisibility(View.VISIBLE);
+        clientsProgressView.setVisibility(View.INVISIBLE);
+        setServiceModeViewDrawableRight(null);
+
+
+        TextView nameInitials = view.findViewById(R.id.name_inits);
+        LinearLayout btnBackToHome =  view.findViewById(R.id.btn_back_to_home);
+        btnBackToHome.setOnClickListener(this);
+        ImageView backButton =  view.findViewById(R.id.back_button);
+        backButton.setVisibility(View.GONE);
+
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+        String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
+        if (!preferredName.isEmpty()) {
+            String[] preferredNameArray = preferredName.split(" ");
+            String initials = "";
+            if (preferredNameArray.length > 1) {
+                initials = String.valueOf(preferredNameArray[0].charAt(0)) + String.valueOf(preferredNameArray[1].charAt(0));
+            } else if (preferredNameArray.length == 1) {
+                initials = String.valueOf(preferredNameArray[0].charAt(0));
+            }
+            nameInitials.setText(initials);
+        }
+
+        View globalSearchButton = view.findViewById(R.id.global_search);
+        globalSearchButton.setOnClickListener(this);
+
+
     }
 
+
+    protected void toggleFilterSelection() {
+        if (filterSection != null) {
+            String tagString = "PRESSED";
+            if (filterSection.getTag() == null) {
+                filter("", "", filterSelectionCondition(false), false);
+                filterSection.setTag(tagString);
+                filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
+            } else if (filterSection.getTag().toString().equals(tagString)) {
+                updateSortAndFilter(null, null);
+                filterSection.setTag(null);
+                filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
+            }
+        }
+    }
+
+    private String filterSelectionCondition(boolean urgentOnly) {
+        final String AND = " AND ";
+        final String OR = " OR ";
+        final String IS_NULL_OR = " IS NULL OR ";
+        final String TRUE = "'true'";
+
+        String mainCondition = DOD_MAIN_CONDITION +
+                AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
+                AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
+                AND + " ( ";
+        ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
+
+        vaccines.remove(VaccineRepo.Vaccine.bcg2);
+        vaccines.remove(VaccineRepo.Vaccine.ipv);
+        vaccines.remove(VaccineRepo.Vaccine.opv0);
+        vaccines.remove(VaccineRepo.Vaccine.opv4);
+        vaccines.remove(VaccineRepo.Vaccine.measles1);
+        vaccines.remove(VaccineRepo.Vaccine.mr1);
+        vaccines.remove(VaccineRepo.Vaccine.measles2);
+        vaccines.remove(VaccineRepo.Vaccine.mr2);
+
+        final String URGENT = "'" + AlertStatus.urgent.value() + "'";
+        final String NORMAL = "'" + AlertStatus.normal.value() + "'";
+        final String COMPLETE = "'" + AlertStatus.complete.value() + "'";
+
+
+        for (int i = 0; i < vaccines.size(); i++) {
+            VaccineRepo.Vaccine vaccine = vaccines.get(i);
+            if (i == vaccines.size() - 1) {
+                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + " ";
+            } else {
+                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + OR;
+            }
+        }
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + URGENT +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
+
+        if (urgentOnly) {
+            return mainCondition + " ) ";
+        }
+
+        mainCondition += OR;
+        for (int i = 0; i < vaccines.size(); i++) {
+            VaccineRepo.Vaccine vaccine = vaccines.get(i);
+            if (i == vaccines.size() - 1) {
+                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + " ";
+            } else {
+                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + OR;
+            }
+        }
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
+
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
+        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + NORMAL +
+                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
+
+        return mainCondition + " ) ";
+    }
 
     @SuppressLint("NewApi")
     @Override
@@ -131,7 +316,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             android.support.v4.app.Fragment currentFragment = baseRegisterActivity
                     .findFragmentByPosition(BaseRegisterActivity
                             .ADVANCED_SEARCH_POSITION);
-            ((AdvancedSearchFragment) currentFragment).setSearchFormData(formData);
+            ((BaseAdvancedSearchFragment) currentFragment).setSearchFormData(formData);
         }
     }
 
@@ -207,52 +392,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             return;
         }
 
-        if (view.getTag() != null && view.getTag(R.id.record_action) != null) {
-            goToChildImmunizationActivity((CommonPersonObjectClient) view.getTag(), (Constants.RECORD_ACTION) view.getTag(R.id.record_action));
-            // TODO Move to catchment
-        } else if (view.getId() == R.id.filter_text_view) {
-            ((BaseChildRegisterActivity) getActivity()).switchToFragment(BaseRegisterActivity.SORT_FILTER_POSITION);
-        }
-
-        //starto
-        CommonPersonObjectClient client = null;
-        if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-            client = (CommonPersonObjectClient) view.getTag();
-        }
-        RegisterClickables registerClickables = new RegisterClickables();
-/*
-        switch (view.getId()) {
-            case R.id.child_profile_info_layout:
-
-                ChildImmunizationActivity.launchActivity(getActivity(), client, null);
-                break;
-            case R.id.record_weight:
-                registerClickables.setRecordWeight(true);
-                ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                break;
-
-            case R.id.record_vaccination:
-                registerClickables.setRecordAll(true);
-                ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                break;
-            case R.id.filter_selection:
-                toggleFilterSelection();
-                break;
-
-            case R.id.global_search:
-                ((ChildSmartRegisterActivity) getActivity()).startAdvancedSearch();
-                break;
-
-            case R.id.scan_qr_code:
-                ((ChildSmartRegisterActivity) getActivity()).startQrCodeScanner();
-                break;
-            default:
-                break;
-        }*/
-
     }
 
-    private void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION recordAction) {
+    protected void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION recordAction) {
 
         Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
         intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
@@ -268,8 +410,83 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         startActivity(intent);
     }
 
+
+    protected void updateLocationText() {
+        if (clinicSelection != null) {
+            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
+                    clinicSelection.getSelectedItem()));
+            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
+            context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+        }
+    }
+
+
     @Override
     public ChildRegisterFragmentContract.Presenter presenter() {
         return (ChildRegisterFragmentContract.Presenter) presenter;
+    }
+
+    private int count(String mainConditionString) {
+
+        int count = 0;
+
+        Cursor c = null;
+
+        try {
+            SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(countSelect);
+            String query = "";
+            if (isValidFilterForFts(commonRepository())) {
+                String sql = sqb.countQueryFts(tablename, "", mainConditionString, "");
+                Log.i(getClass().getName(), query);
+
+                count = commonRepository().countSearchIds(sql);
+            } else {
+                sqb.addCondition(filters);
+                query = sqb.orderbyCondition(Sortqueries);
+                query = sqb.Endquery(query);
+
+                Log.i(getClass().getName(), query);
+                c = commonRepository().rawCustomQueryForAdapter(query);
+                c.moveToFirst();
+                count = c.getInt(0);
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.toString(), e);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+        return count;
+    }
+
+    private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
+        @Override
+        protected Pair<Integer, Integer> doInBackground(Void... params) {
+            int overdueCount = count(filterSelectionCondition(true));
+
+            dueOverdueCount = count(filterSelectionCondition(false));
+            return Pair.create(overdueCount, dueOverdueCount);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<Integer, Integer> pair) {
+            super.onPostExecute(pair);
+            int overDue = pair.first;
+            dueOverdueCount = pair.second;
+
+            if (filterCount != null) {
+                if (overDue > 0) {
+                    filterCount.setText(String.valueOf(overDue));
+                    filterCount.setVisibility(View.VISIBLE);
+                    filterCount.setClickable(true);
+                } else {
+                    filterCount.setVisibility(View.GONE);
+                    filterCount.setClickable(false);
+                }
+            }
+
+            ((BaseChildRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(overDue);
+        }
     }
 }

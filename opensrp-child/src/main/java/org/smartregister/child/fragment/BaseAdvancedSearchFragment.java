@@ -58,7 +58,6 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.view.LocationPickerView;
-import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -76,8 +75,8 @@ import static org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAd
 import static org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAdapterFragment.totalcount;
 
 
-public class AdvancedSearchFragment extends BaseChildRegisterFragment implements ChildRegisterFragmentContract.View {
-    private static final String TAG = AdvancedSearchFragment.class.getCanonicalName();
+public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment implements ChildRegisterFragmentContract.View {
+    private static final String TAG = BaseAdvancedSearchFragment.class.getCanonicalName();
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
     private RadioButton outsideInside;
     private RadioButton myCatchment;
@@ -144,13 +143,13 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
         View view = inflater.inflate(R.layout.smart_register_activity_advanced_search, container, false);
         setupViews(view);
         onResumption();
+        initListMode();//To Remove
         return view;
     }
 
     @Override
-    protected void initializePresenter() {
+    protected abstract void initializePresenter();
 
-    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -195,18 +194,6 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
         final View filterSection = view.findViewById(R.id.filter_selection);
         filterSection.setOnClickListener(clientActionHandler);
 
-        filterCount = view.findViewById(R.id.filter_count);
-        filterCount.setVisibility(View.GONE);
-        if (overdueCount > 0) {
-            updateFilterCount(overdueCount);
-        }
-        filterCount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                filterSection.performClick();
-            }
-        });
-
         if (titleLabelView != null) {
             titleLabelView.setText(getString(R.string.advanced_search));
         }
@@ -214,12 +201,10 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
         View nameInitials = view.findViewById(R.id.name_inits);
         nameInitials.setVisibility(View.GONE);
 
-        ImageView backButton = (ImageView) view.findViewById(R.id.back_button);
+        ImageView backButton = view.findViewById(R.id.back_button);
         backButton.setVisibility(View.VISIBLE);
 
         populateFormViews(view);
-
-        initializeProgressDialog();
     }
 
     @Override
@@ -235,6 +220,7 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
         Button search = view.findViewById(R.id.search);
+        search.setOnClickListener(this);
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
@@ -604,6 +590,9 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
             searchCriteria.setVisibility(View.VISIBLE);
         }
 
+
+        initListMode();
+
         if (outOfArea) {
             globalSearch();
         } else {
@@ -638,7 +627,6 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
     }
 
     private void localSearch() {
-        initListMode();
 
         countExecute();
 
@@ -648,8 +636,6 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
     }
 
     private void globalSearch() {
-
-        initListMode();
 
         if (editMap.containsKey(START_DATE) || editMap.containsKey(END_DATE)) {
 
@@ -753,7 +739,7 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
             switchViews(false);
             return true;
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -1208,6 +1194,10 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
 
     @Override
     public void showProgressView() {
+        if (progressDialog == null) {
+
+            initializeProgressDialog();
+        }
         progressDialog.setTitle(getString(R.string.searching_dialog_title));
         progressDialog.setMessage(getString(R.string.searching_dialog_message));
         progressDialog.show();
@@ -1367,7 +1357,7 @@ public class AdvancedSearchFragment extends BaseChildRegisterFragment implements
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
         super.recalculatePagination(matrixCursor);
-       // updateMatchingResults(clientAdapter.getTotalcount());
+        // updateMatchingResults(clientAdapter.getTotalcount());
     }
 
     @Override

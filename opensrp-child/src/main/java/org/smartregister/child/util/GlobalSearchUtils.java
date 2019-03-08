@@ -9,7 +9,7 @@ import org.json.JSONArray;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
-import org.smartregister.child.fragment.AdvancedSearchFragment;
+import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.domain.Response;
 import org.smartregister.event.Listener;
 
@@ -64,8 +64,8 @@ public class GlobalSearchUtils {
                 String key = entry.getKey();
                 String value = entry.getValue();
 
-                if (key.contains(AdvancedSearchFragment.ACTIVE) && !key.contains(AdvancedSearchFragment.INACTIVE)) {
-                    key = AdvancedSearchFragment.INACTIVE;
+                if (key.contains(BaseAdvancedSearchFragment.ACTIVE) && !key.contains(BaseAdvancedSearchFragment.INACTIVE)) {
+                    key = BaseAdvancedSearchFragment.INACTIVE;
                     boolean v = !Boolean.valueOf(value);
                     value = Boolean.toString(v);
                 }

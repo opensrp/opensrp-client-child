@@ -34,7 +34,7 @@
     <string name="child_details_title"> Child Details</string>
     <string name="stock_title"> Stock Control</string>
     <string name="vaccination_summary"> Vaccination Summary</string>
-    <string name="search_hint">Search Register</string>
+    <string name="search_hint">Search name or ID</string>
     <string name="birthdate">DOB</string>
     <string name="age">Age</string>
     <string name="uc">UC</string>

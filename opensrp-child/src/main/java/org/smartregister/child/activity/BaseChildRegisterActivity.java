@@ -2,6 +2,7 @@ package org.smartregister.child.activity;
 
 import android.content.Intent;
 import android.support.design.bottomnavigation.LabelVisibilityMode;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
@@ -19,8 +21,8 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.view.activity.BaseRegisterActivity;
+import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +57,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         intent.putExtra(Constants.INTENT_KEY.JSON, jsonForm.toString());
 
         Form form = new Form();
-       // form.setName(getString(R.string.add_child));
+        // form.setName(getString(R.string.add_child));
         //form.setActionBarBackground(R.color.child_actionbar);
         //form.setNavigationBackground(R.color.child_navigation);
         //form.setHomeAsUpIndicator(R.mipmap.ic_arrow_forward);
@@ -115,6 +117,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         return (ChildRegisterContract.Presenter) presenter;
     }
 
+    @Override
+    protected Fragment[] getOtherFragments() {
+
+        return null;
+    }
 
     public abstract String getRegistrationForm();
 
@@ -122,5 +129,33 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     public abstract VaccineRepository getVaccineRepository();
 
-    public abstract AlertService getAlertService();
+
+    public void updateAdvancedSearchFilterCount(int count) {
+        BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
+        if (advancedSearchFragment != null) {
+            advancedSearchFragment.updateFilterCount(count);
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = findFragmentByPosition(currentPage);
+        if (fragment instanceof BaseAdvancedSearchFragment) {
+            ((BaseAdvancedSearchFragment) fragment).onBackPressed();
+            return;
+        } else if (fragment instanceof BaseRegisterFragment) {
+            setSelectedBottomBarMenuItem(org.smartregister.R.id.action_clients);
+            BaseRegisterFragment registerFragment = (BaseRegisterFragment) fragment;
+            if (registerFragment.onBackPressed()) {
+                return;
+            }
+        }
+        if (currentPage == 0) {
+            super.onBackPressed();
+        } else {
+            switchToBaseFragment();
+            setSelectedBottomBarMenuItem(org.smartregister.R.id.action_clients);
+        }
+    }
 }

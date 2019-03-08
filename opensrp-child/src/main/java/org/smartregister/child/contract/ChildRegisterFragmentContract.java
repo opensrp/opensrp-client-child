@@ -9,6 +9,7 @@ import org.smartregister.domain.Response;
 import org.smartregister.view.contract.BaseRegisterFragmentContract;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,6 +53,10 @@ public interface ChildRegisterFragmentContract {
         String getFilterText(List<Field> filterList, String filter);
 
         String getSortText(Field sortField);
+
+        Map<String, String> createEditMap(String ancId);
+
+        AdvancedMatrixCursor createMatrixCursor(Response<String> response);
 
         JSONArray getJsonArray(Response<String> response);
 

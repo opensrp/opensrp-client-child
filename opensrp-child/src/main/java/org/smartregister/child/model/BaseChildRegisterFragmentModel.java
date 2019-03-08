@@ -5,6 +5,7 @@ import android.util.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.ConfigHelper;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
@@ -19,6 +20,7 @@ import org.smartregister.domain.ResponseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -112,6 +114,16 @@ public class BaseChildRegisterFragmentModel implements ChildRegisterFragmentCont
             }
         }
         return sortText;
+    }
+
+    @Override
+    public Map<String, String> createEditMap(String ancId) {
+        return null;
+    }
+
+    @Override
+    public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
+        return null;
     }
 
     @Override

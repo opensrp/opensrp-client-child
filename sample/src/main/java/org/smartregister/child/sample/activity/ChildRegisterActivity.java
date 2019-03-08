@@ -1,6 +1,7 @@
 package org.smartregister.child.sample.activity;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.MenuItem;
 
 import org.smartregister.child.R;
@@ -8,11 +9,11 @@ import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.presenter.BaseChildRegisterPresenter;
 import org.smartregister.child.sample.application.SampleApplication;
+import org.smartregister.child.sample.fragment.AdvancedSearchFragment;
 import org.smartregister.child.sample.fragment.ChildRegisterFragment;
 import org.smartregister.child.sample.util.SampleConstants;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
@@ -23,13 +24,18 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     }
 
     @Override
-    protected BaseRegisterFragment getRegisterFragment() {
-        return new ChildRegisterFragment();
+    protected Fragment[] getOtherFragments() {
+        ADVANCED_SEARCH_POSITION = 1;
+
+        Fragment[] fragments = new Fragment[1];
+        fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
+
+        return fragments;
     }
 
     @Override
-    protected Fragment[] getOtherFragments() {
-        return new Fragment[0];
+    protected BaseRegisterFragment getRegisterFragment() {
+        return new ChildRegisterFragment();
     }
 
     @Override
@@ -49,6 +55,15 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
         bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
     }
 
+    public void startAdvancedSearch() {
+        try {
+            mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+    }
+
     @Override
     public WeightRepository getWeightRepository() {
         return SampleApplication.getInstance().weightRepository();
@@ -57,11 +72,6 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     @Override
     public VaccineRepository getVaccineRepository() {
         return SampleApplication.getInstance().vaccineRepository();
-    }
-
-    @Override
-    public AlertService getAlertService() {
-        return SampleApplication.getInstance().context().alertService();
     }
 
 }

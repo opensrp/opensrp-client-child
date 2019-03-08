@@ -3,7 +3,6 @@ package org.smartregister.child.presenter;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.fragment.AdvancedSearchFragment;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;

@@ -7,6 +7,6 @@ package org.smartregister.child.util;
 public class DBQueryHelper {
 
     public static final String getHomePatientRegisterCondition() {
-        return DBConstants.KEY.DATE_REMOVED + " IS NULL ";
+        return Utils.metadata().childRegister.tableName+"."+ DBConstants.KEY.DATE_REMOVED + " IS NULL ";
     }
 }
