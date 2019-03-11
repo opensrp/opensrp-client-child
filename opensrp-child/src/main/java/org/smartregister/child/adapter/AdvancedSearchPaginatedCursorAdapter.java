@@ -7,14 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
-import org.smartregister.child.provider.ChildRegisterProvider;
-import org.smartregister.commonregistry.CommonPersonObject;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewCursorAdapter;
 
@@ -63,12 +58,12 @@ public class AdvancedSearchPaginatedCursorAdapter extends RecyclerViewCursorAdap
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Cursor cursor) {
-
+/*
 
         CommonPersonObject personinlist = commonRepository.readAllcommonforCursorAdapter(cursor);
         CommonPersonObjectClient pClient = new CommonPersonObjectClient(personinlist.getCaseId(), personinlist.getDetails(), personinlist.getDetails().get("FWHOHFNAME"));
         pClient.setColumnmaps(personinlist.getColumnmaps());
-      //  listItemProvider.getView(cursor, pClient, viewHolder.itemView);
+        listItemProvider.getView(cursor, pClient, ((ChildRegisterProvider.RegisterViewHolder)viewHolder));*/
 
     }
 
@@ -81,10 +76,9 @@ public class AdvancedSearchPaginatedCursorAdapter extends RecyclerViewCursorAdap
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view =((Activity) context).getLayoutInflater().inflate(R.layout.advanced_search_section, viewGroup, false);
-        return new  ViewHolder(view);
+        View view = ((Activity) context).getLayoutInflater().inflate(R.layout.advanced_search_section, viewGroup, false);
+        return new ViewHolder(view);
     }
-
 
 
     // stores and recycles views as they are scrolled off screen
