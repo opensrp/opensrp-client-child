@@ -140,22 +140,21 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     public void onBackPressed() {
-        Fragment fragment = findFragmentByPosition(currentPage);
-        if (fragment instanceof BaseAdvancedSearchFragment) {
-            ((BaseAdvancedSearchFragment) fragment).onBackPressed();
-            return;
-        } else if (fragment instanceof BaseRegisterFragment) {
-            setSelectedBottomBarMenuItem(org.smartregister.R.id.action_clients);
-            BaseRegisterFragment registerFragment = (BaseRegisterFragment) fragment;
-            if (registerFragment.onBackPressed()) {
-                return;
-            }
-        }
         if (currentPage == 0) {
             super.onBackPressed();
         } else {
             switchToBaseFragment();
             setSelectedBottomBarMenuItem(org.smartregister.R.id.action_clients);
+        }
+    }
+
+    public void filterSelection() {
+        if (currentPage != 0) {
+            switchToBaseFragment();
+            BaseRegisterFragment registerFragment = (BaseRegisterFragment) findFragmentByPosition(0);
+            if (registerFragment != null && registerFragment instanceof BaseChildRegisterFragment) {
+                ((BaseChildRegisterFragment) registerFragment).triggerFilterSelection();
+            }
         }
     }
 }

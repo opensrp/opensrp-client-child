@@ -43,7 +43,6 @@ import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.adapter.AdvancedSearchPaginatedCursorAdapter;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
 import org.smartregister.child.util.Constants;
@@ -52,7 +51,6 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.MoveToMyCatchmentUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.event.Listener;
@@ -77,7 +75,6 @@ import static org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAd
 
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment implements ChildRegisterFragmentContract.View {
     private static final String TAG = BaseAdvancedSearchFragment.class.getCanonicalName();
-    private final ClientActionHandler clientActionHandler = new ClientActionHandler();
     private RadioButton outsideInside;
     private RadioButton myCatchment;
     private CheckBox active;
@@ -144,6 +141,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setupViews(view);
         onResumption();
         initListMode();//To Remove
+
         return view;
     }
 
@@ -189,10 +187,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
         ImageButton imageButton = view.findViewById(R.id.global_search);
         imageButton.setBackgroundColor(getResources().getColor(R.color.transparent_dark_blue));
-        imageButton.setOnClickListener(clientActionHandler);
+        imageButton.setOnClickListener(this);
 
         final View filterSection = view.findViewById(R.id.filter_selection);
-        filterSection.setOnClickListener(clientActionHandler);
+        filterSection.setOnClickListener(this);
 
         if (titleLabelView != null) {
             titleLabelView.setText(getString(R.string.advanced_search));
@@ -201,8 +199,13 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         View nameInitials = view.findViewById(R.id.name_inits);
         nameInitials.setVisibility(View.GONE);
 
-        ImageView backButton = view.findViewById(R.id.back_button);
+        View backButton = view.findViewById(R.id.back_btn_layout);
         backButton.setVisibility(View.VISIBLE);
+        backButton.setOnClickListener(this);
+
+        ImageView goBack = backButton.findViewById(R.id.back_button);
+        goBack.setImageDrawable(getResources().getDrawable(R.drawable.ic_back));
+        goBack.setOnClickListener(this);
 
         populateFormViews(view);
     }
@@ -327,7 +330,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         startDate = view.findViewById(R.id.start_date);
         endDate = view.findViewById(R.id.end_date);
 
-        search.setOnClickListener(clientActionHandler);
+        search.setOnClickListener(this);
 
         setDatePicker(startDate);
         setDatePicker(endDate);
@@ -387,7 +390,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void search(final View view) {
+    protected void search(final View view) {
         Log.i(getClass().getName(), "Hiding Keyboard " + DateTime.now().toString());
 
         Utils.hideKeyboard(getActivity());
@@ -739,7 +742,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             switchViews(false);
             return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -1012,7 +1015,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         ((BaseChildRegisterActivity) getActivity()).switchToBaseFragment();
     }
 
-    private void moveToMyCatchmentArea(final List<String> ids) {
+    protected void moveToMyCatchmentArea(final List<String> ids) {
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
                 .setTitle(R.string.move_to_catchment_confirm_dialog_title)
@@ -1221,57 +1224,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         dialog.show();
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
-    private class ClientActionHandler implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            CommonPersonObjectClient client = null;
-            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-                client = (CommonPersonObjectClient) view.getTag();
-            }
-            RegisterClickables registerClickables = new RegisterClickables();/*
-            switch (view.getId()) {
-                case R.id.global_search:
-                    goBack();
-                    break;
-                case R.id.filter_selection:
-                    ((ChildSmartRegisterActivity) getActivity()).filterSelection();
-                    break;
-                case R.id.search_layout:
-                case R.id.search:
-                    search(view);
-                    break;
-                case R.id.child_profile_info_layout:
-                    ChildImmunizationActivity.launchActivity(getActivity(), client, null);
-                    break;
-                case R.id.record_weight:
-                    if (client == null && view.getTag() != null && view.getTag() instanceof String) {
-                        String zeirId = view.getTag().toString();
-                        ((ChildSmartRegisterActivity) getActivity()).startFormActivity("out_of_catchment_service", zeirId, null);
-                    } else {
-                        registerClickables.setRecordWeight(true);
-                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    }
-                    break;
-
-                case R.id.record_vaccination:
-                    if (client != null) {
-                        registerClickables.setRecordAll(true);
-                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    }
-                    break;
-                case R.id.move_to_catchment:
-                    if (client == null && view.getTag() != null && view.getTag() instanceof List) {
-                        @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
-                        moveToMyCatchmentArea(ids);
-                    }
-                    break;
-            }*/
-        }
-    }
 
     private class DatePickerListener implements View.OnClickListener {
         private final EditText editText;

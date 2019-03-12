@@ -477,4 +477,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             ((BaseChildRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(overDue);
         }
     }
+
+    public void triggerFilterSelection() {
+        if (filterSection != null && !filterMode()) {
+            filterSection.performClick();
+        }
+    }
 }
