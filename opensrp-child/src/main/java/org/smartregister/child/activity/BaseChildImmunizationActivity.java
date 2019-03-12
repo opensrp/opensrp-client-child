@@ -167,7 +167,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BaseChildImmunizationActivity.this, BaseChildRegisterActivity.class);
+                Intent intent = new Intent(getActivity(), BaseChildRegisterActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -196,6 +196,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         toolbar.init(this);
         setLastModified(false);
+    }
+
+    private Activity getActivity() {
+        return this;
     }
 
     @Override
@@ -240,7 +244,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         findViewById(R.id.profile_name_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchDetailActivity(BaseChildImmunizationActivity.this, childDetails, null);
+                launchDetailActivity(getActivity(), childDetails, null);
             }
         });
 
@@ -859,7 +863,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-        Intent intent = new Intent(fromContext, BaseChildImmunizationActivity.class);
+        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
@@ -1363,7 +1367,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
                 String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
-                JsonFormUtils.createBCGScarEvent(BaseChildImmunizationActivity.this, childDetails.entityId(), providerId, locationId);
+                JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
             default:
@@ -1685,8 +1689,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(List<Weight> allWeights) {
             super.onPostExecute(allWeights);
             hideProgressDialog();
-            FragmentTransaction ft = BaseChildImmunizationActivity.this.getFragmentManager().beginTransaction();
-            Fragment prev = BaseChildImmunizationActivity.this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+            FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
+            Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
             if (prev != null) {
                 ft.remove(prev);
             }
@@ -1856,8 +1860,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             Collections.reverse(ids);
 
-            SiblingPicturesGroup siblingPicturesGroup = BaseChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
-            siblingPicturesGroup.setSiblingBaseEntityIds(BaseChildImmunizationActivity.this, ids);
+            SiblingPicturesGroup siblingPicturesGroup = getActivity().findViewById(R.id.sibling_pictures);
+            siblingPicturesGroup.setSiblingBaseEntityIds((BaseActivity) getActivity(), ids);
         }
     }
 

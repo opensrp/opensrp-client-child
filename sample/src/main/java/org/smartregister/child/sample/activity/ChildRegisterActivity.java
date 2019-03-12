@@ -52,7 +52,7 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
             clients.setTitle(getString(R.string.header_children));
         }
 
-        bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
+        //bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
     }
 
     public void startAdvancedSearch() {

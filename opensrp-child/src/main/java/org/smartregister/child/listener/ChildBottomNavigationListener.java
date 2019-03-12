@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.listener.BottomNavigationListener;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
@@ -25,8 +26,9 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
         if (item.getItemId() == R.id.action_child) {
             baseRegisterActivity.switchToBaseFragment();
         } else if (item.getItemId() == R.id.action_scan_qr) {
-            baseRegisterActivity.startQrCodeScanner();
-        }if (item.getItemId() == R.id.action_child) {
+            ((BaseChildRegisterActivity) baseRegisterActivity).startNearexScanner();
+        }
+        if (item.getItemId() == R.id.action_child) {
             baseRegisterActivity.switchToBaseFragment();
         } else if (item.getItemId() == R.id.action_search) {
             baseRegisterActivity.switchToFragment(1);

@@ -11,7 +11,7 @@
     <string name="sort">Sort</string>
     <string name="home">Home</string>
     <string name="add_child">Add child</string>
-    <string name="scan_qr">Scan QR</string>
+    <string name="nearex">Nearex Scan</string>
     <string name="job_aids">Job Aids</string>
 
     <!-- warning -->
@@ -130,7 +130,7 @@
     <string name="mark_as_not_lost_to_followup">Mark as not lost to followup</string>
     <string name="report_deceased">Report deceased</string>
     <string name="report_adverse_event">Report adverse event</string>
-    <string name="syncing">Syncing...</string>
+    <string name="syncing">Syncing&#8230;</string>
     <string name="sync_failed">Sync failed</string>
     <string name="retry">Retry</string>
     <string name="sync_complete">Sync complete</string>
@@ -257,4 +257,10 @@
     <string name="status_text">Status: %1$s</string>
     <string name="him">him</string>
     <string name="her">her</string>
+
+
+    <string name="start_nearex_scan">Starting Nearex NFC scan&#8230;</string>
+    <string name="register_card">Register Card</string>
+    <string name="registering_card">Registering Nearex NFC Card for %1$s</string>
+
 </resources>

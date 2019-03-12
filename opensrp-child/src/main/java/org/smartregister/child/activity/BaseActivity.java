@@ -20,7 +20,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -68,8 +67,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
-import static org.smartregister.util.Log.logError;
 
 /**
  * Base activity class for all other PATH activity classes. Implements:
@@ -281,7 +278,6 @@ toggle.syncState();
     protected void onResume() {
         super.onResume();
         registerSyncStatusBroadcastReceiver();
-        initViews();
     }
 
     @Override
@@ -312,78 +308,13 @@ toggle.syncState();
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
     }
 
-    private void initViews() {/*
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DrishtiApplication application = (DrishtiApplication) getApplication();
-                application.logoutCurrentUser();
-                finish();
-            }
-        });
-
-        ImageButton cancelButton = (ImageButton) navigationView.findViewById(R.id.cancel_b);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DrawerLayout drawer = (DrawerLayout) BaseActivity.this.findViewById(getDrawerLayoutId());
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
-                }
-            }
-        });
-
-        TextView initialsTV = (TextView) navigationView.findViewById(R.id.initials_tv);
-        initialsTV.setText(getLoggedInUserInitials());
-
-        try {
-            String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-                    getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
-            nameTV.setText(preferredName);
-
-
-        } catch (Exception e) {
-            logError("Error on initView : Getting Preferences: Getting Initials");
-        }
-        refreshSyncStatusViews(null);
-        initializeCustomNavbarLIsteners();*/
-    }
-
-    protected String getLoggedInUserInitials() {
-
-        try {
-
-            String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-                    getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (!TextUtils.isEmpty(preferredName)) {
-                String[] initialsArray = preferredName.split(" ");
-                String initials = "";
-                if (initialsArray.length > 0) {
-                    initials = initialsArray[0].substring(0, 1);
-                    if (initialsArray.length > 1) {
-                        initials = initials + initialsArray[1].substring(0, 1);
-                    }
-                }
-
-                return initials.toUpperCase();
-            }
-
-        } catch (Exception e) {
-            logError("Error on initView : Getting Preferences: Getting Initials");
-        }
-
-        return null;
-    }
 
     public boolean onNavigationItemSelected(MenuItem item) {
         //  return navigationItemListener.onNavigationItemSelected(item);

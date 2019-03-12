@@ -172,7 +172,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
 
-        saveButton = (TextView) detailtoolbar.findViewById(R.id.save);
+        saveButton =detailtoolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -320,7 +320,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-      return   super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     protected boolean launchAdverseEventForm() {
@@ -600,7 +600,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         params.setMargins(55, params.topMargin, params.rightMargin, params.bottomMargin);
         notificationIcon.setLayoutParams(params);
 
-        TextView notificationMessage = (TextView) notificationsLayout.findViewById(R.id.noti_message);
+        TextView notificationMessage =notificationsLayout.findViewById(R.id.noti_message);
         notificationMessage.setText(childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name") + " marked as deceased");
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
@@ -658,13 +658,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     @Override
     protected Class onBackActivity() {
-        return BaseChildImmunizationActivity.class;
+        return Utils.metadata().childImmunizationActivity;
     }
 
     private void profileWidget() {
-        TextView profilename = (TextView) findViewById(R.id.name);
-        TextView profileZeirID = (TextView) findViewById(R.id.idforclient);
-        TextView profileage = (TextView) findViewById(R.id.ageforclient);
+        TextView profilename =findViewById(R.id.name);
+        TextView profileZeirID =findViewById(R.id.idforclient);
+        TextView profileage =findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
         String dobString = "";
@@ -732,6 +732,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
+        overflow.findItem(R.id.register_card).setEnabled(true);
     }
 
     private String updateActivityTitle() {

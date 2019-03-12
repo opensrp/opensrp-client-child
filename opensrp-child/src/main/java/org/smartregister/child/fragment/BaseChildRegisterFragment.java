@@ -170,10 +170,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         nameInitials.setVisibility(View.GONE);
         LinearLayout btnBackToHome = view.findViewById(R.id.btn_back_to_home);
         btnBackToHome.setOnClickListener(this);
-        ImageView backButton = view.findViewById(R.id.back_button);
-        backButton.setVisibility(View.VISIBLE);
-        backButton.setImageResource(R.drawable.ic_action_menu);
-        backButton.setOnClickListener(this);
+        syncButton = view.findViewById(R.id.back_button);
+        syncButton.setVisibility(View.VISIBLE);
+        syncButton.setImageResource(R.drawable.ic_action_menu);
+        syncButton.setOnClickListener(this);
 
 
         View globalSearchButton = view.findViewById(R.id.global_search);

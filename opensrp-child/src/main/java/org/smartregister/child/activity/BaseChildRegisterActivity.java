@@ -1,5 +1,6 @@
 package org.smartregister.child.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.support.design.bottomnavigation.LabelVisibilityMode;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,8 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.util.PermissionUtils;
+import org.smartregister.view.activity.BarcodeScanActivity;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
@@ -105,6 +108,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);
 
         }
+    }
+
+    public void startNearexScanner() {
+
+        Utils.showToast(this,this.getResources().getString(R.string.start_nearex_scan));
     }
 
     @Override
