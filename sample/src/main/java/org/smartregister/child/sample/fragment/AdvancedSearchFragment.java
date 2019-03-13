@@ -30,22 +30,25 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment implement
 
     @Override
     public void switchViews(boolean showList) {
-
+        super.switchViews(showList);
     }
 
     @Override
     public void updateSearchCriteria(String searchCriteriaString) {
-
+        if (searchCriteria != null) {
+            searchCriteria.setText(searchCriteriaString);
+            searchCriteria.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public String filterAndSortQuery() {
-        return null;
+        return super.filterandSortQuery();
     }
 
     @Override
     public Cursor getRawCustomQueryForAdapter(String query) {
-        return null;
+        return commonRepository().rawCustomQueryForAdapter(query);
     }
 
     @Override

@@ -74,63 +74,63 @@ import static org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAd
 
 
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment implements ChildRegisterFragmentContract.View {
-    private static final String TAG = BaseAdvancedSearchFragment.class.getCanonicalName();
-    private RadioButton outsideInside;
-    private RadioButton myCatchment;
-    private CheckBox active;
-    private CheckBox inactive;
-    private CheckBox lostToFollowUp;
-    private MaterialEditText zeirId;
-    private MaterialEditText firstName;
-    private MaterialEditText lastName;
-    private MaterialEditText motherGuardianName;
-    private MaterialEditText motherGuardianNrc;
-    private MaterialEditText motherGuardianPhoneNumber;
-    private EditText startDate;
-    private EditText endDate;
+    protected static final String TAG = BaseAdvancedSearchFragment.class.getCanonicalName();
+    protected RadioButton outsideInside;
+    protected RadioButton myCatchment;
+    protected CheckBox active;
+    protected CheckBox inactive;
+    protected CheckBox lostToFollowUp;
+    protected MaterialEditText zeirId;
+    protected MaterialEditText firstName;
+    protected MaterialEditText lastName;
+    protected MaterialEditText motherGuardianName;
+    protected MaterialEditText motherGuardianNrc;
+    protected MaterialEditText motherGuardianPhoneNumber;
+    protected EditText startDate;
+    protected EditText endDate;
 
-    private TextView searchCriteria;
-    private TextView matchingResults;
-    private View listViewLayout;
-    private View advancedSearchForm;
+    protected TextView searchCriteria;
+    protected TextView matchingResults;
+    protected View listViewLayout;
+    protected View advancedSearchForm;
 
-    private TextView filterCount;
+    protected TextView filterCount;
 
-    private ProgressDialog progressDialog;
-    private LocationPickerView clinicSelection;
+    protected ProgressDialog progressDialog;
+    protected LocationPickerView clinicSelection;
 
-    //private List<Integer> editedList = new ArrayList<>();
-    private final Map<String, String> editMap = new HashMap<>();
-    private boolean listMode = false;
-    private int overdueCount = 0;
-    private boolean outOfArea = false;
-    private AdvancedMatrixCursor matrixCursor;
+    //protected List<Integer> editedList = new ArrayList<>();
+    protected final Map<String, String> editMap = new HashMap<>();
+    protected boolean listMode = false;
+    protected int overdueCount = 0;
+    protected boolean outOfArea = false;
+    protected AdvancedMatrixCursor matrixCursor;
 
     public static final String ACTIVE = "active";
     public static final String INACTIVE = "inactive";
-    private static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+    protected static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
 
-    private static final String ZEIR_ID = "zeir_id";
-    private static final String FIRST_NAME = "first_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String NRC_NUMBER = "nrc_number";
+    protected static final String ZEIR_ID = "zeir_id";
+    protected static final String FIRST_NAME = "first_name";
+    protected static final String LAST_NAME = "last_name";
+    protected static final String NRC_NUMBER = "nrc_number";
 
-    private static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
-    private static final String BIRTH_DATE = "birth_date";
+    protected static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+    protected static final String BIRTH_DATE = "birth_date";
 
-    private static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
-    private static final String MOTHER_GUARDIAN_FIRST_NAME = "mother_first_name";
-    private static final String MOTHER_GUARDIAN_LAST_NAME = "mother_last_name";
-    private static final String MOTHER_GUARDIAN_NRC_NUMBER = "mother_nrc_number";
-    private static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_contact_phone_number";
-    private static final String START_DATE = "start_date";
-    private static final String END_DATE = "end_date";
+    protected static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
+    protected static final String MOTHER_GUARDIAN_FIRST_NAME = "mother_first_name";
+    protected static final String MOTHER_GUARDIAN_LAST_NAME = "mother_last_name";
+    protected static final String MOTHER_GUARDIAN_NRC_NUMBER = "mother_nrc_number";
+    protected static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_contact_phone_number";
+    protected static final String START_DATE = "start_date";
+    protected static final String END_DATE = "end_date";
 
-    private AdvancedSearchPaginatedCursorAdapter clientAdapter;
+    protected AdvancedSearchPaginatedCursorAdapter clientAdapter;
 
-    private BroadcastReceiver connectionChangeReciever;
-    private boolean registeredConnectionChangeReceiver = false;
-    private HashMap<String, String> searchFormData = new HashMap<>();
+    protected BroadcastReceiver connectionChangeReciever;
+    protected boolean registeredConnectionChangeReceiver = false;
+    protected HashMap<String, String> searchFormData = new HashMap<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -219,7 +219,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
     }
 
-    private void populateFormViews(View view) {
+    protected void populateFormViews(View view) {
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
         Button search = view.findViewById(R.id.search);
@@ -338,7 +338,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         resetForm();
     }
 
-    private void resetForm() {
+    protected void resetForm() {
         clearSearchCriteria();
 
         active.setChecked(true);
@@ -356,12 +356,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         endDate.setText("");
     }
 
-    private void clearSearchCriteria() {
+    protected void clearSearchCriteria() {
         searchCriteria.setVisibility(View.GONE);
         searchCriteria.setText("");
     }
 
-    private void updateSeachLimits() {
+    protected void updateSeachLimits() {
         if (Utils.isConnectedToNetwork(getActivity())) {
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
@@ -403,7 +403,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         }
 
         String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = "ec_mother";
+        String parentTableName = Utils.metadata().childRegister.motherTableName;
 
         editMap.clear();
 
@@ -606,7 +606,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void initListMode() {
+    protected void initListMode() {
         switchViews(true);
 
         String tableName = Utils.metadata().childRegister.tableName;
@@ -629,7 +629,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void localSearch() {
+    protected void localSearch() {
 
         countExecute();
 
@@ -638,7 +638,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         super.filterandSortInInitializeQueries();
     }
 
-    private void globalSearch() {
+    protected void globalSearch() {
 
         if (editMap.containsKey(START_DATE) || editMap.containsKey(END_DATE)) {
 
@@ -694,7 +694,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         }
     }
 
-    private String filterandSortQuery() {
+    protected String filterandSortQuery() {
         String tableName = getTablename();
         String parentTableName = Utils.metadata().childRegister.motherTableName;
 
@@ -730,7 +730,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         return queryBUilder.Endquery(queryBUilder.addlimitandOffset(query, currentlimit, currentoffset));
     }
 
-    private String sortByStatus() {
+    protected String sortByStatus() {
         return " CASE WHEN " + Utils.metadata().childRegister.tableName + ".inactive  != 'true' is null and " + Utils.metadata().childRegister.tableName + ".lost_to_follow_up != 'true' THEN 1 "
                 + " WHEN " + Utils.metadata().childRegister.tableName + ".inactive = 'true' THEN 2 "
                 + " WHEN " + Utils.metadata().childRegister.tableName + ".lost_to_follow_up = 'true' THEN 3 END ";
@@ -754,7 +754,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         }
     }
 
-    private String getMainConditionString(String tableName) {
+    protected String getMainConditionString(String tableName) {
 
         final String parentTableName = Utils.metadata().childRegister.motherTableName;
 
@@ -844,7 +844,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void switchViews(boolean showList) {
+    protected void switchViews(boolean showList) {
         if (showList) {
             advancedSearchForm.setVisibility(View.GONE);
             listViewLayout.setVisibility(View.VISIBLE);
@@ -863,11 +863,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
 
-    private void setDatePicker(final EditText editText) {
+    protected void setDatePicker(final EditText editText) {
         editText.setOnClickListener(new DatePickerListener(editText, true));
     }
 
-    private String removeLastComma(String str) {
+    protected String removeLastComma(String str) {
         String s;
         if (str != null && str.length() > 0 && str.charAt(str.length() - 1) == ',') {
             s = str.substring(0, str.length() - 1);
@@ -917,7 +917,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         clientAdapter.swapCursor(null);
     }
 
-    private boolean hasSearchParams() {
+    protected boolean hasSearchParams() {
         boolean hasSearchParams = false;
         if (inactive.isChecked()) {
             hasSearchParams = true;
@@ -959,7 +959,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         overdueCount = count;
     }
 
-    private String getJsonString(JSONObject jsonObject, String field) {
+    protected String getJsonString(JSONObject jsonObject, String field) {
         try {
             if (jsonObject != null && jsonObject.has(field)) {
                 String string = jsonObject.getString(field);
@@ -976,7 +976,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private JSONObject getJsonObject(JSONObject jsonObject, String field) {
+    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
         try {
             if (jsonObject != null && jsonObject.has(field)) {
                 return jsonObject.getJSONObject(field);
@@ -988,7 +988,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private JSONObject getJsonObject(JSONArray jsonArray, int position) {
+    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
         try {
             if (jsonArray != null && jsonArray.length() > 0) {
                 return jsonArray.getJSONObject(position);
@@ -1004,13 +1004,13 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         return this.zeirId;
     }
 
-    private void updateMatchingResults(int count) {
+    protected void updateMatchingResults(int count) {
         if (matchingResults != null) {
             matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
         }
     }
 
-    private void refreshAndSwitchToBaseRegister() {
+    protected void refreshAndSwitchToBaseRegister() {
         ((BaseChildRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
         ((BaseChildRegisterActivity) getActivity()).switchToBaseFragment();
     }
@@ -1033,11 +1033,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         dialog.show();
     }
 
-    private String bold(String textToBold) {
+    protected String bold(String textToBold) {
         return "<b>" + textToBold + "</b>";
     }
 
-    private final Listener<JSONArray> listener = new Listener<JSONArray>() {
+    protected final Listener<JSONArray> listener = new Listener<JSONArray>() {
         public void onEvent(final JSONArray jsonArray) {
 
 
@@ -1175,7 +1175,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     };
 
 
-    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
+    protected final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
         public void onEvent(final JSONObject jsonObject) {
             if (jsonObject != null) {
                 if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
@@ -1190,7 +1190,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         }
     };
 
-    private void initializeProgressDialog() {
+    protected void initializeProgressDialog() {
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
     }
@@ -1211,7 +1211,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         progressDialog.hide();
     }
 
-    private void showMessageDialog(String message) {
+    protected void showMessageDialog(String message) {
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.validation_error))
                 .setMessage(message)
@@ -1225,11 +1225,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
 
-    private class DatePickerListener implements View.OnClickListener {
-        private final EditText editText;
-        private boolean maxDateToday = false;
+    protected class DatePickerListener implements View.OnClickListener {
+        protected final EditText editText;
+        protected boolean maxDateToday = false;
 
-        private DatePickerListener(EditText editText, boolean maxDateToday) {
+        protected DatePickerListener(EditText editText, boolean maxDateToday) {
             this.editText = editText;
             this.maxDateToday = maxDateToday;
         }

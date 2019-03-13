@@ -54,7 +54,7 @@
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort">ZEIR ID </string>
+    <string name="id_sort">OPENSRP ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -113,11 +113,11 @@
     <string name="neutral_sex_id">his or her</string>
     <string name="female_sex_id">her</string>
     <string name="male_sex_id">his</string>
-    <string name="label_zeir">ZEIR</string>
+    <string name="label_zeir">OPENSRP</string>
     <string name="label_immunization_records">IMMUNISATION &amp; SERVICES</string>
     <string name="str_search_hint">Search name or ID</string>
     <string name="scan_qr_code">Scan QR code</string>
-    <string name="zeir">ZEIR</string>
+    <string name="zeir">OPENSRP</string>
     <string name="select_location">Select Location</string>
     <string name="no_openmrs_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
     <string name="edit_registration_data">Edit registration data</string>
@@ -158,8 +158,8 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id">ZEIR ID</string>
-    <string name="zeir_id_hint">ZEIR ID number</string>
+    <string name="zeir_id">OPENSRP ID</string>
+    <string name="zeir_id_hint">OPENSRP ID number</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
     <string name="last_name">Last Name</string>
