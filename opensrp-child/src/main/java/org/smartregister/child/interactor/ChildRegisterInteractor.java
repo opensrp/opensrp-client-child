@@ -103,7 +103,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, boolean isEditMode) {
-        jsonString.toLowerCase();
         try {
 
             for (int i = 0; i < childEventClientList.size(); i++) {

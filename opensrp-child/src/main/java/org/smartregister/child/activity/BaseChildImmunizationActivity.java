@@ -167,10 +167,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), BaseChildRegisterActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
+                goToRegisterPage();
             }
         });
         toolbar.setOnLocationChangeListener(this);
@@ -198,9 +195,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         setLastModified(false);
     }
 
-    private Activity getActivity() {
-        return this;
-    }
+    protected abstract Activity getActivity();
+    protected abstract void goToRegisterPage();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

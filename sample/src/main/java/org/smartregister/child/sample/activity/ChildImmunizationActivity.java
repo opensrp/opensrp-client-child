@@ -1,5 +1,6 @@
 package org.smartregister.child.sample.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -76,6 +77,21 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public void onNoUniqueId() {
 
+    }
+
+    @Override
+    protected Activity getActivity() {
+        return this;
+
+    }
+
+    @Override
+    protected void goToRegisterPage() {
+
+        Intent intent = new Intent(this, ChildRegisterActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     @Override

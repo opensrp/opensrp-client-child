@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.opensrp.api.constants.Gender;
 import org.smartregister.CoreLibrary;
@@ -33,7 +32,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
     private final BaseActivity baseActivity;
     private final DetailsRepository detailsRepository;
     private final View itemView;
-    
+
     private ImageView profilePhoto;
     private TextView initials;
 
@@ -46,8 +45,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
     }
 
     private void init() {
-        profilePhoto =  itemView.findViewById(R.id.profile_photo);
-        initials =  itemView.findViewById(R.id.initials);
+        profilePhoto = itemView.findViewById(R.id.profile_photo);
+        initials = itemView.findViewById(R.id.initials);
     }
 
     @Override
