@@ -19,6 +19,9 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textAlignment="center"
-        android:textSize="21sp" />
+        android:textSize="21sp"
+        android:paddingStart="10dp"
+        android:layout_marginEnd="5dp"
+        android:paddingEnd="10dp" />
 
 </LinearLayout>

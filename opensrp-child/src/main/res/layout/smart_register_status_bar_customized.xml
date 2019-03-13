@@ -15,7 +15,10 @@
         android:layout_marginRight="7dp"
         android:layout_weight="1"
         android:background="@drawable/search_edit_text_bg"
-        android:paddingLeft="15dp">
+        android:paddingLeft="15dp"
+        android:paddingStart="15dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginStart="15dp">
 
         <EditText
             android:id="@+id/edt_search"
@@ -29,7 +32,8 @@
             android:layout_toLeftOf="@+id/btn_search_cancel"
             android:textColor="@color/light_grey"
             android:textColorHint="@color/light_grey"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_toStartOf="@+id/btn_search_cancel" />
 
         <ImageButton
             android:id="@+id/btn_search_cancel"
@@ -38,7 +42,8 @@
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_cross"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
 
@@ -50,7 +55,9 @@
         android:layout_marginLeft="7dp"
         android:layout_marginRight="15dp"
         android:layout_weight="1"
-        android:background="@drawable/scan_qr_code_bg">
+        android:background="@drawable/scan_qr_code_bg"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="7dp">
 
         <TextView
             style="?android:attr/buttonStyle"
@@ -68,7 +75,8 @@
             android:text="@string/nearex"
             android:textAllCaps="false"
             android:textColor="@color/light_grey"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:drawableStart="@mipmap/ic_action_barcode_2" />
     </FrameLayout>
 
 

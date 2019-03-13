@@ -9,7 +9,9 @@
     android:background="@android:color/white"
     android:elevation="3dp"
     android:orientation="horizontal"
-    android:visibility="gone">
+    android:visibility="gone"
+    android:layout_marginEnd="50dp"
+    android:layout_marginStart="50dp">
 
     <ImageView
         android:id="@+id/noti_icon"
@@ -18,14 +20,16 @@
         android:layout_gravity="center"
         android:layout_marginLeft="10dp"
         android:layout_weight="5"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:layout_marginStart="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingLeft="15dp">
+        android:paddingLeft="15dp"
+        android:paddingStart="15dp">
 
         <TextView
             android:id="@+id/noti_message"
@@ -37,7 +41,8 @@
             android:paddingBottom="15dp"
             android:paddingRight="15dp"
             android:paddingTop="15dp"
-            android:textSize="@dimen/noti_message_text_size" />
+            android:textSize="@dimen/noti_message_text_size"
+            android:paddingEnd="15dp" />
 
         <View
             android:layout_width="match_parent"
@@ -59,7 +64,10 @@
                 android:paddingRight="0dp"
                 android:singleLine="true"
                 android:textColor="@color/primary"
-                android:textSize="@dimen/noti_button_text_size" />
+                android:textSize="@dimen/noti_button_text_size"
+                android:paddingEnd="0dp"
+                android:paddingStart="0dp"
+                android:layout_marginEnd="30dp" />
 
             <Button
                 android:id="@+id/noti_negative_button"
@@ -72,7 +80,11 @@
                 android:paddingRight="0dp"
                 android:singleLine="true"
                 android:textColor="@color/primary"
-                android:textSize="@dimen/noti_button_text_size" />
+                android:textSize="@dimen/noti_button_text_size"
+                android:paddingEnd="0dp"
+                android:paddingStart="0dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp" />
 
         </LinearLayout>
 

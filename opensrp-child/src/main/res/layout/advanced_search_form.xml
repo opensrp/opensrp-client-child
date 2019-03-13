@@ -19,7 +19,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 style="@style/CustomFontTextViewStyle.ClientList"
@@ -29,7 +31,8 @@
                 android:paddingLeft="0dp"
                 android:text="@string/search_limits"
                 android:textColor="@color/client_list_grey"
-                android:textSize="@dimen/advanced_search_label_size" />
+                android:textSize="@dimen/advanced_search_label_size"
+                android:paddingStart="0dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,7 +46,8 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginRight="1.5dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:layout_marginEnd="1.5dp">
 
                     <com.vijay.jsonwizard.customviews.RadioButton
                         android:id="@+id/out_and_inside"
@@ -51,13 +55,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true" />
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@id/out_and_inside"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_toEndOf="@id/out_and_inside">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -84,7 +90,8 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="1.5dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:layout_marginStart="1.5dp">
 
                     <com.vijay.jsonwizard.customviews.RadioButton
                         android:id="@+id/my_catchment"
@@ -92,7 +99,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true" />
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -102,7 +110,8 @@
                         android:maxLines="2"
                         android:text="@string/my_catchment_area"
                         android:textColor="@color/client_list_grey"
-                        android:textSize="@dimen/advanced_search_label_size" />
+                        android:textSize="@dimen/advanced_search_label_size"
+                        android:layout_toEndOf="@id/my_catchment" />
                 </RelativeLayout>
             </LinearLayout>
 
@@ -115,7 +124,8 @@
                 android:paddingLeft="0dp"
                 android:text="@string/client_status"
                 android:textColor="@color/client_list_grey"
-                android:textSize="@dimen/advanced_search_label_size" />
+                android:textSize="@dimen/advanced_search_label_size"
+                android:paddingStart="0dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -138,7 +148,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true" />
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -148,7 +159,8 @@
                         android:gravity="center_vertical"
                         android:text="@string/active"
                         android:textColor="@color/client_list_grey"
-                        android:textSize="@dimen/advanced_search_label_size" />
+                        android:textSize="@dimen/advanced_search_label_size"
+                        android:layout_toEndOf="@id/active" />
 
                 </RelativeLayout>
 
@@ -164,7 +176,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true" />
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -174,7 +187,8 @@
                         android:gravity="center_vertical"
                         android:text="@string/inactive"
                         android:textColor="@color/client_list_grey"
-                        android:textSize="@dimen/advanced_search_label_size" />
+                        android:textSize="@dimen/advanced_search_label_size"
+                        android:layout_toEndOf="@id/inactive" />
 
                 </RelativeLayout>
 
@@ -189,7 +203,8 @@
                         style="@style/Material.Drawable.CheckBox.AdvancedSearch"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_alignParentLeft="true" />
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -199,7 +214,8 @@
                         android:gravity="center_vertical"
                         android:text="@string/lost_to_follow_up"
                         android:textColor="@color/client_list_grey"
-                        android:textSize="@dimen/advanced_search_label_size" />
+                        android:textSize="@dimen/advanced_search_label_size"
+                        android:layout_toEndOf="@id/lost_to_follow_up" />
 
                 </RelativeLayout>
             </LinearLayout>
@@ -246,7 +262,8 @@
                     app:met_floatingLabelText="@string/first_name"
                     app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
                     app:met_primaryColor="@color/light_blue"
-                    app:met_singleLineEllipsis="true" />
+                    app:met_singleLineEllipsis="true"
+                    android:paddingStart="@dimen/advanced_search_label_padding" />
             </LinearLayout>
 
             <LinearLayout
@@ -269,7 +286,8 @@
                     app:met_floatingLabelText="@string/last_name"
                     app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
                     app:met_primaryColor="@color/light_blue"
-                    app:met_singleLineEllipsis="true" />
+                    app:met_singleLineEllipsis="true"
+                    android:paddingStart="@dimen/advanced_search_label_padding" />
             </LinearLayout>
 
             <LinearLayout
@@ -292,7 +310,8 @@
                     app:met_floatingLabelText="@string/mother_guardian_name"
                     app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
                     app:met_primaryColor="@color/light_blue"
-                    app:met_singleLineEllipsis="true" />
+                    app:met_singleLineEllipsis="true"
+                    android:paddingStart="@dimen/advanced_search_label_padding" />
             </LinearLayout>
 
             <LinearLayout
@@ -315,7 +334,8 @@
                     app:met_floatingLabelText="@string/mother_guardian_nrc"
                     app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
                     app:met_primaryColor="@color/light_blue"
-                    app:met_singleLineEllipsis="true" />
+                    app:met_singleLineEllipsis="true"
+                    android:paddingStart="@dimen/advanced_search_label_padding" />
             </LinearLayout>
 
             <LinearLayout
@@ -338,7 +358,8 @@
                     app:met_floatingLabelText="@string/mother_guardian_phone_number"
                     app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
                     app:met_primaryColor="@color/light_blue"
-                    app:met_singleLineEllipsis="true" />
+                    app:met_singleLineEllipsis="true"
+                    android:paddingStart="@dimen/advanced_search_label_padding" />
             </LinearLayout>
 
             <LinearLayout
@@ -354,7 +375,8 @@
                     android:text="@string/date_birth_range"
                     android:textAppearance="?android:textAppearanceSmall"
                     android:textColor="@color/light_blue"
-                    android:textSize="@dimen/advanced_search_text_size" />
+                    android:textSize="@dimen/advanced_search_text_size"
+                    android:paddingStart="5dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -427,7 +449,9 @@
             android:textAllCaps="false"
             android:textAppearance="?android:textAppearanceSmall"
             android:textColor="@color/white"
-            android:textSize="28sp" />
+            android:textSize="28sp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" />
     </LinearLayout>
 
 

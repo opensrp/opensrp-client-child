@@ -14,7 +14,8 @@
         android:layout_marginRight="1dp"
         android:layout_weight="4.4"
         android:background="#ffffff"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginEnd="1dp">
 
         <ImageView
             android:id="@+id/child_profilepic"
@@ -25,7 +26,8 @@
             android:paddingLeft="2dp"
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:paddingStart="2dp" />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -34,7 +36,8 @@
             android:layout_marginTop="1dp"
             android:layout_marginBottom="1dp"
             android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginStart="5dp">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/child_name"
@@ -58,7 +61,8 @@
                     android:layout_alignParentLeft="true"
                     android:text="Mother Name"
                     android:textColor="@color/client_list_grey"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:layout_alignParentStart="true" />
 
                 <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/child_age"
@@ -69,7 +73,9 @@
                     android:layout_marginRight="5dp"
                     android:text="Age"
                     android:textColor="@color/client_list_grey"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_alignParentEnd="true" />
             </RelativeLayout>
 
         </LinearLayout>
@@ -83,7 +89,8 @@
         android:layout_weight="1.8"
         android:background="#ffffff"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginEnd="1dp">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_zeir_id"
@@ -110,7 +117,8 @@
         android:layout_height="match_parent"
         android:layout_marginRight="1dp"
         android:layout_weight="1.7"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        android:layout_marginEnd="1dp">
 
         <LinearLayout
             android:id="@+id/record_weight"
@@ -127,7 +135,8 @@
                 android:layout_height="wrap_content"
                 android:paddingRight="3dp"
                 android:src="@drawable/ic_action_check"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:paddingEnd="3dp" />
 
             <TextView
                 android:id="@+id/record_weight_text"
@@ -167,7 +176,8 @@
                 android:layout_height="wrap_content"
                 android:paddingRight="5dp"
                 android:src="@drawable/ic_action_check"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:paddingEnd="5dp" />
 
             <TextView
                 android:id="@+id/record_vaccination_text"

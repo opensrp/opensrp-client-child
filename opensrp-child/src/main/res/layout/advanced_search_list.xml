@@ -12,7 +12,9 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="20dp"
         android:background="@color/white"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/search_criteria"

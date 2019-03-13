@@ -18,6 +18,8 @@
         android:layout_marginRight ="@dimen/abc_text_size_title_material"
         android:text="@string/bcg_scar_reminder_question"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:layout_marginEnd="@dimen/abc_text_size_title_material"
+        android:layout_marginStart="@dimen/abc_text_size_title_material" />
 
 </LinearLayout>

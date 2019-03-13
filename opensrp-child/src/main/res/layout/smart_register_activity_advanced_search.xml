@@ -16,7 +16,9 @@
         android:layout_marginLeft="@dimen/list_view_margin_left_and_right"
         android:layout_marginRight="@dimen/list_view_margin_left_and_right"
         android:orientation="horizontal"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/list_view_margin_left_and_right"
+        android:layout_marginStart="@dimen/list_view_margin_left_and_right" />
 
     <LinearLayout
         android:id="@+id/clients_header_layout"
@@ -26,7 +28,9 @@
         android:layout_marginRight="@dimen/list_view_margin_left_and_right"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_marginStart="@dimen/list_view_margin_left_and_right"
+        android:layout_marginEnd="@dimen/list_view_margin_left_and_right" />
 
     <LinearLayout
         android:id="@+id/clients_lower_header_layout"
@@ -35,7 +39,9 @@
         android:layout_marginLeft="@dimen/list_view_margin_left_and_right"
         android:layout_marginRight="@dimen/list_view_margin_left_and_right"
         android:orientation="horizontal"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/list_view_margin_left_and_right"
+        android:layout_marginStart="@dimen/list_view_margin_left_and_right" />
 
     <ImageView
         android:layout_width="match_parent"

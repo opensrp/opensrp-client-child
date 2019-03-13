@@ -52,7 +52,8 @@
                         android:id="@+id/active_check"
                         android:src="@drawable/ic_checked"
                         android:scaleType="fitXY"
-                        android:layout_marginLeft="5dp" />
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginStart="5dp" />
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -94,7 +95,8 @@
                         android:id="@+id/inactive_check"
                         android:src="@drawable/ic_checked"
                         android:scaleType="fitXY"
-                        android:layout_marginLeft="5dp" />
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginStart="5dp" />
 
                     <LinearLayout
                         android:orientation="vertical"
@@ -136,7 +138,8 @@
                         android:id="@+id/lost_to_followup_check"
                         android:src="@drawable/ic_checked"
                         android:scaleType="fitXY"
-                        android:layout_marginLeft="5dp" />
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginStart="5dp" />
 
                     <LinearLayout
                         android:orientation="vertical"

@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_marginLeft="-10dp"
-            android:background="@color/actionbar">
+            android:background="@color/actionbar"
+            android:layout_marginStart="-10dp">
 
             <include layout="@layout/tool_bar" />
 

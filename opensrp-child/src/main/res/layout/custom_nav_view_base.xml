@@ -42,7 +42,9 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
                 android:paddingTop="5dp"
-                android:src="@drawable/ic_action_add" />
+                android:src="@drawable/ic_action_add"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="15dp" />
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/add_child_text_view"
@@ -72,7 +74,9 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/ic_action_out_catchment" />
+                android:src="@drawable/ic_action_out_catchment"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="15dp" />
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/outofareatextview"
@@ -102,7 +106,9 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/ic_action_sync" />
+                android:src="@drawable/ic_action_sync"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="5dp" />
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/nav_synctextview"
@@ -141,7 +147,8 @@
                         android:paddingBottom="10dp"
                         android:paddingRight="10dp"
                         android:paddingTop="10dp"
-                        android:src="@drawable/zeir_big" />
+                        android:src="@drawable/zeir_big"
+                        android:paddingEnd="10dp" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/child_registertextview"
@@ -170,7 +177,8 @@
                         android:paddingBottom="10dp"
                         android:paddingRight="10dp"
                         android:paddingTop="10dp"
-                        android:src="@drawable/hia_big" />
+                        android:src="@drawable/hia_big"
+                        android:paddingEnd="10dp" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/hia2_reports_text_view"
@@ -199,7 +207,8 @@
                         android:paddingBottom="10dp"
                         android:paddingRight="10dp"
                         android:paddingTop="10dp"
-                        android:src="@drawable/coverage_big" />
+                        android:src="@drawable/coverage_big"
+                        android:paddingEnd="10dp" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/coverage_reports_text_view"
@@ -228,7 +237,8 @@
                         android:paddingBottom="10dp"
                         android:paddingRight="10dp"
                         android:paddingTop="10dp"
-                        android:src="@drawable/dropout_big" />
+                        android:src="@drawable/dropout_big"
+                        android:paddingEnd="10dp" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/dropout_text_view"
@@ -260,7 +270,10 @@
                         android:paddingBottom="10dp"
                         android:paddingRight="10dp"
                         android:paddingTop="10dp"
-                        android:src="@drawable/flag_st" />
+                        android:src="@drawable/flag_st"
+                        android:layout_marginEnd="5dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginStart="7dp" />
 
                     <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/stock_control_text_view"

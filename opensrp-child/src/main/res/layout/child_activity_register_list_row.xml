@@ -61,7 +61,8 @@
             android:paddingTop="@dimen/register_last_visit_top_margin"
             android:text="Completed on 10 July 2018"
             android:textColor="@color/light_grey_text"
-            android:textSize="@dimen/register_list_desc_size" />
+            android:textSize="@dimen/register_list_desc_size"
+            android:paddingStart="0dp" />
     </LinearLayout>
 
 </RelativeLayout>
