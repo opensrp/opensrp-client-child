@@ -141,7 +141,7 @@ public class AdvancedSearchPresenter extends ChildRegisterFragmentPresenter
         } else {
             return matrixCursor;
         }*/
-        return null;
+        return matrixCursor;
     }
 
 

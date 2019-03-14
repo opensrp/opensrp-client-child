@@ -64,12 +64,6 @@ public class GlobalSearchUtils {
                 String key = entry.getKey();
                 String value = entry.getValue();
 
-                if (key.contains(BaseAdvancedSearchFragment.ACTIVE) && !key.contains(BaseAdvancedSearchFragment.INACTIVE)) {
-                    key = BaseAdvancedSearchFragment.INACTIVE;
-                    boolean v = !Boolean.valueOf(value);
-                    value = Boolean.toString(v);
-                }
-
                 if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
                     value = urlEncode(value);
                     String param = key.trim() + "=" + value.trim();
