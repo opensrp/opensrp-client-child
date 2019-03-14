@@ -1489,6 +1489,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
                 VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
             }
 
             List<Vaccine> vaccineList = new ArrayList<>();
