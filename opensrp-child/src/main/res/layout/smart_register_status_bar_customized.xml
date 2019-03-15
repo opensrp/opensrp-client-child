@@ -57,7 +57,8 @@
         android:layout_weight="1"
         android:background="@drawable/scan_qr_code_bg"
         android:layout_marginEnd="15dp"
-        android:layout_marginStart="7dp">
+        android:layout_marginStart="7dp"
+        android:visibility="gone">
 
         <TextView
             style="?android:attr/buttonStyle"

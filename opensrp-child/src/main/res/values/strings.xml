@@ -11,7 +11,7 @@
     <string name="sort">Sort</string>
     <string name="home">Home</string>
     <string name="add_child">Add child</string>
-    <string name="nearex">Nearex Scan</string>
+    <string name="nearex"> Scan Card</string>
     <string name="job_aids">Job Aids</string>
 
     <!-- warning -->
@@ -261,6 +261,6 @@
 
     <string name="start_nearex_scan">Starting Nearex NFC scan&#8230;</string>
     <string name="register_card">Register Card</string>
-    <string name="registering_card">Registering Nearex NFC Card for %1$s</string>
+    <string name="registering_card">Registering Card for %1$s</string>
 
 </resources>

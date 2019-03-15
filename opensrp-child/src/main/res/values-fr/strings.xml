@@ -11,7 +11,7 @@
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
     <string name="add_child">Ajouter enfant</string>
-    <string name="scan_qr">Scanner QR</string>
+    <string name="nearex"> Scanner Carte</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
@@ -258,5 +258,5 @@
 
     <string name="start_nearex_scan">Lancer le Nearex NFC scan&#8230;</string>
     <string name="register_card">Carte d\'enregistrement</string>
-    <string name="registering_card">Enregistrement de la carte Nearex NFC pour %1$s </string>
+    <string name="registering_card">Enregistrement de la carte pour %1$s </string>
 </resources>
