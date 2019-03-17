@@ -286,5 +286,6 @@
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="health_details">détails sur la santé</string>
     <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
+    <string name="vaccine_group_birth_name">Naissance</string>
 
 </resources>

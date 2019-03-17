@@ -110,7 +110,6 @@ public class ChildUnderFiveFragment extends Fragment {
     public void loadWeightView(List<Weight> weightList, boolean editWeightMode) {
         boolean showWeight = curWeightMode == null || !curWeightMode.equals(editWeightMode);
         if (fragmentContainer != null && showWeight) {
-            createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
             createWeightLayout(weightList, fragmentContainer, editWeightMode);
             curWeightMode = editWeightMode;
         }
