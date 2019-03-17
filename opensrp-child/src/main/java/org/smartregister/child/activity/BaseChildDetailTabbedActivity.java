@@ -769,8 +769,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        adapter.addFragment(childDataFragment, "Registration Data");
-        adapter.addFragment(childUnderFiveFragment, "Under Five History");
+        adapter.addFragment(childDataFragment, getString(R.string.registration_data));
+        adapter.addFragment(childUnderFiveFragment, getString(R.string.under_five_history));
         viewPager.setAdapter(adapter);
     }
 

@@ -1,0 +1,10 @@
+[main]
+host = https://www.transifex.com
+
+[opensrp-client-child.strings-xml]
+file_filter = locale/<lang>/home/manu/dev/openSRP/opensrp-client-repos/opensrp-client-child/opensrp-child/src/main/res/values/strings.xml
+minimum_perc = 0
+source_file = strings.xml
+source_lang = en
+type = ANDROID
+
