@@ -285,4 +285,7 @@
     <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
     <string name="landmark">Point de repère</string>
+    <string name="vaccine_group_birth_name">Naissance</string>
+
+
 </resources>
