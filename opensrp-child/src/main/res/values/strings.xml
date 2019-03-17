@@ -263,4 +263,29 @@
     <string name="register_card">Register Card</string>
     <string name="registering_card">Registering Nearex NFC Card for %1$s</string>
 
+
+    <string name="registration_data">Registration Data</string>
+    <string name="under_five_history">Under Five History</string>
+    <string name="child_home_health_facility">Childs home health facility</string>
+    <string name="child_opensrp_id">Childs IZ ID</string>
+    <string name="child_register_card_number">Childs register card number</string>
+    <string name="sex">Sex</string>
+    <string name="child_dob">Childs DOB</string>
+    <string name="child_age">Age</string>
+    <string name="date_first_seen">Date first seen</string>
+    <string name="birth_weight">Birth weight</string>
+    <string name="mother_first_name">Mother/guardian first name</string>
+    <string name="mother_second_name">Mother/guardian last name</string>
+    <string name="mother_guardian_dob">Mother/guardian DOB</string>
+    <string name="father_guardian_full_name">Father/guardian full name</string>
+    <string name="father_guardian_date_birth">Father/guardian full name</string>
+    <string name="father_guardian_phone_number">Father_Guardian_Phone_Number</string>
+    <string name="place_of_birth">Place of birth</string>
+    <string name="health_facility_the_child_was_in">Health facility the child was in</string>
+    <string name="other_birth_facility">Other Birth Facility</string>
+    <string name="child_residential_area">Childs residential area</string>
+    <string name="other_residential_area">Other Residential Area</string>
+    <string name="home_address">Home address</string>
+    <string name="landmark">Landmark</string>
+
 </resources>
