@@ -69,32 +69,33 @@ public class ChildRegistrationDataFragment extends Fragment {
     public void loadData(Map<String, String> detailsMap) {
         if (fragmentView != null) {
 
-            CustomFontTextView tvChildsHomeHealthFacility = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_home_health_facility);
-            CustomFontTextView tvChildsZeirID = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_zeir_id);
-            CustomFontTextView tvChildsRegisterCardNumber = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_register_card_number);
-            CustomFontTextView tvChildsFirstName = (CustomFontTextView) fragmentView.findViewById(R.id.value_first_name);
-            CustomFontTextView tvChildsLastName = (CustomFontTextView) fragmentView.findViewById(R.id.value_last_name);
-            CustomFontTextView tvChildsSex = (CustomFontTextView) fragmentView.findViewById(R.id.value_sex);
-            CustomFontTextView tvChildsDOB = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_dob);
-            CustomFontTextView tvChildsAge = (CustomFontTextView) fragmentView.findViewById(R.id.value_age);
-            CustomFontTextView tvChildDateFirstSeen = (CustomFontTextView) fragmentView.findViewById(R.id.value_date_first_seen);
-            CustomFontTextView tvChildsBirthWeight = (CustomFontTextView) fragmentView.findViewById(R.id.value_birth_weight);
-            CustomFontTextView tvMotherFirstName = (CustomFontTextView) fragmentView.findViewById(R.id.value_mother_guardian_first_name);
-            CustomFontTextView tvMotherLastName = (CustomFontTextView) fragmentView.findViewById(R.id.value_mother_guardian_last_name);
-            CustomFontTextView tvMotherDOB = (CustomFontTextView) fragmentView.findViewById(R.id.value_mother_guardian_dob);
-            CustomFontTextView tvMotherPhoneNumber = (CustomFontTextView) fragmentView.findViewById(R.id.value_mother_guardian_phone_number);
-            CustomFontTextView tvFatherFullName = (CustomFontTextView) fragmentView.findViewById(R.id.value_father_guardian_full_name);
-            CustomFontTextView tvFatherNRCNo = (CustomFontTextView) fragmentView.findViewById(R.id.value_father_guardian_nrc_number);
-            CustomFontTextView tvChildsPlaceOfBirth = (CustomFontTextView) fragmentView.findViewById(R.id.value_place_of_birth);
-            CustomFontTextView tvChildsBirthHealthFacility = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_birth_health_facility);
-            CustomFontTextView tvChildsOtherBirthFacility = (CustomFontTextView) fragmentView.findViewById(R.id.value_other_birth_facility);
-            CustomFontTextView tvChildsResidentialArea = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_residential_area);
-            CustomFontTextView tvChildsOtherResidentialArea = (CustomFontTextView) fragmentView.findViewById(R.id.value_other_childs_residential_area);
-            CustomFontTextView tvChildsHomeAddress = (CustomFontTextView) fragmentView.findViewById(R.id.value_home_address);
-            CustomFontTextView tvLandmark = (CustomFontTextView) fragmentView.findViewById(R.id.value_landmark);
+            CustomFontTextView tvChildsHomeHealthFacility = fragmentView.findViewById(R.id.value_childs_home_health_facility);
+            CustomFontTextView tvChildsZeirID = fragmentView.findViewById(R.id.value_childs_zeir_id);
+            CustomFontTextView tvChildsRegisterCardNumber = fragmentView.findViewById(R.id.value_childs_register_card_number);
+            CustomFontTextView tvChildsFirstName = fragmentView.findViewById(R.id.value_first_name);
+            CustomFontTextView tvChildsLastName = fragmentView.findViewById(R.id.value_last_name);
+            CustomFontTextView tvChildsSex = fragmentView.findViewById(R.id.value_sex);
+            CustomFontTextView tvChildsDOB = fragmentView.findViewById(R.id.value_childs_dob);
+            CustomFontTextView tvChildsAge = fragmentView.findViewById(R.id.value_age);
+            CustomFontTextView tvChildDateFirstSeen = fragmentView.findViewById(R.id.value_date_first_seen);
+            CustomFontTextView tvChildsBirthWeight = fragmentView.findViewById(R.id.value_birth_weight);
+            CustomFontTextView tvMotherFirstName = fragmentView.findViewById(R.id.value_mother_guardian_first_name);
+            CustomFontTextView tvMotherLastName = fragmentView.findViewById(R.id.value_mother_guardian_last_name);
+            CustomFontTextView tvMotherDOB = fragmentView.findViewById(R.id.value_mother_guardian_dob);
+            CustomFontTextView tvMotherPhoneNumber = fragmentView.findViewById(R.id.value_mother_guardian_phone_number);
+            CustomFontTextView tvFatherPhoneNumber = fragmentView.findViewById(R.id.father_guardian_phone_number);
+            CustomFontTextView tvFatherFullName = fragmentView.findViewById(R.id.value_father_guardian_full_name);
+            CustomFontTextView tvFatherDOB = fragmentView.findViewById(R.id.value_father_guardian_nrc_number);
+            CustomFontTextView tvChildsPlaceOfBirth = fragmentView.findViewById(R.id.value_place_of_birth);
+            CustomFontTextView tvChildsBirthHealthFacility = fragmentView.findViewById(R.id.value_childs_birth_health_facility);
+            CustomFontTextView tvChildsOtherBirthFacility = fragmentView.findViewById(R.id.value_other_birth_facility);
+            CustomFontTextView tvChildsResidentialArea = fragmentView.findViewById(R.id.value_childs_residential_area);
+            CustomFontTextView tvChildsOtherResidentialArea = fragmentView.findViewById(R.id.value_other_childs_residential_area);
+            CustomFontTextView tvChildsHomeAddress = fragmentView.findViewById(R.id.value_home_address);
+            CustomFontTextView tvLandmark = fragmentView.findViewById(R.id.value_landmark);
 
-            TableRow tableRowChildsOtherBirthFacility = (TableRow) fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
-            TableRow tableRowChildsOtherResidentialArea = (TableRow) fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
+            TableRow tableRowChildsOtherBirthFacility = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
+            TableRow tableRowChildsOtherResidentialArea = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
             Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
 
@@ -147,8 +148,17 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvMotherDOB.setText(motherDobString);
             tvMotherPhoneNumber.setText(Utils.getValue(detailsMap, "Mother_Guardian_Number", true));
-            tvFatherFullName.setText(Utils.getValue(detailsMap, "Father_Guardian_Name", true));
-            tvFatherNRCNo.setText(Utils.getValue(detailsMap, "Father_NRC_Number", true));
+
+            String fatherName = Utils.getValue(detailsMap, "Father_Guardian_First_Name", true);
+            String fatherNameLast = Utils.getValue(detailsMap, "Father_Guardian_Last_Name", true);
+            fatherNameLast = !TextUtils.isEmpty(fatherNameLast) ? "" : fatherNameLast;
+
+            tvFatherFullName.setText(fatherName + " " + fatherNameLast);
+
+
+            tvFatherPhoneNumber.setText(Utils.getValue(detailsMap, "Father_Guardian_Number", true));
+
+            tvFatherDOB.setText(Utils.getValue(detailsMap, "Father_Guardian_Date_Birth", true));
 
             String placeOfBirthChoice = Utils.getValue(detailsMap, "Place_Birth", true);
             if (placeOfBirthChoice.equalsIgnoreCase("1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")) {

@@ -183,9 +183,9 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
-        TableRow tableRow = (TableRow) fragmentContainer.findViewById(R.id.tablerowcontainer);
-        TextView label = (TextView) tableRow.findViewById(R.id.label);
-        TextView value = (TextView) tableRow.findViewById(R.id.value);
+        TableRow tableRow = fragmentContainer.findViewById(R.id.tablerowcontainer);
+        TextView label = tableRow.findViewById(R.id.label);
+        TextView value = tableRow.findViewById(R.id.value);
 
         label.setText(labelString);
         value.setText(valueString);

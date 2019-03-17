@@ -50,8 +50,8 @@
     },
     "encounter_location": "",
     "look_up": {
-        "entity_id":"",
-        "value":""
+      "entity_id": "",
+      "value": ""
     }
   },
   "step1": {
@@ -73,11 +73,11 @@
         "openmrs_data_type": "text",
         "type": "edit_text",
         "hint": "Child's home health facility *",
-        "tree": [],
         "v_required": {
           "value": true,
           "err": "Please enter the child's home facility"
-        },"value":"Ruaka Health Center"
+        },
+        "value": "Ruaka Health Center"
       },
       {
         "key": "ZEIR_ID",

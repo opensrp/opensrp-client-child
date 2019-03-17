@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
@@ -319,7 +320,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     private boolean show() {
 
-        return !ChildRegisterProvider.class.equals(this.getClass()) /*|| !allSharedPreferences.fetchIsSyncInitial()*/ || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context().allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
 
     }
 

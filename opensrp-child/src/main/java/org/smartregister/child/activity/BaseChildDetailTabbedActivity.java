@@ -688,7 +688,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileZeirID.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
+        profileZeirID.setText(String.format("%s: %s", "ID", childId));
         profilename.setText(name);
         updateGenderViews();
         Gender gender = Gender.UNKNOWN;
@@ -741,13 +741,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             name = getValue(childDetails.getColumnmaps(), "first_name", true)
                     + " " + getValue(childDetails.getColumnmaps(), "last_name", true);
         }
-        return String.format("%s's %s", name, "Health Details");
+        return String.format("%s's %s", name, getString(R.string.health_details));
     }
 
     private void updateProfilePicture(Gender gender) {
         BaseChildDetailTabbedActivity.gender = gender;
         if (isDataOk()) {
-            ImageView profileImageIV = (ImageView) findViewById(R.id.profile_image_iv);
+            ImageView profileImageIV = findViewById(R.id.profile_image_iv);
 
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally

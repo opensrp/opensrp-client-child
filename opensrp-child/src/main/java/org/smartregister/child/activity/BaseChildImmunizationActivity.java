@@ -196,6 +196,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     protected abstract Activity getActivity();
+
     protected abstract void goToRegisterPage();
 
     @Override
@@ -345,7 +346,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         int[] selectedColor = super.updateGenderViews(gender);
 
         String identifier = getString(R.string.neutral_sex_id);
-        int toolbarResource = 0;
+        int toolbarResource = R.drawable.vertical_separator_neutral;
         if (gender.equals(Gender.FEMALE)) {
             toolbarResource = R.drawable.vertical_separator_female;
             identifier = getString(R.string.female_sex_id);
@@ -355,9 +356,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
         toolbar.updateSeparatorView(toolbarResource);
 
-        TextView childSiblingsTV = (TextView) findViewById(R.id.child_siblings_tv);
+        TextView childSiblingsTV =  findViewById(R.id.child_siblings_tv);
         childSiblingsTV.setText(
-                String.format(getString(R.string.child_siblings), identifier).toUpperCase());
+                String.format(getString(R.string.child_siblings), "").toUpperCase());
         updateProfilePicture(gender);
 
         return selectedColor;
@@ -438,8 +439,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             serviceGroups.add(curGroup);
         } else {
             for (ServiceGroup serviceGroup : serviceGroups) {
-                serviceGroup.setChildActive(isChildActive);
-                serviceGroup.updateChildsActiveStatus();
+                try {
+                    serviceGroup.setChildActive(isChildActive);
+                    serviceGroup.updateChildsActiveStatus();
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
             }
         }
 
@@ -510,8 +515,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         } else {
             for (VaccineGroup vaccineGroup : vaccineGroups) {
-                vaccineGroup.setChildActive(isChildActive);
-                vaccineGroup.updateChildsActiveStatus();
+                try {
+                    vaccineGroup.setChildActive(isChildActive);
+                    vaccineGroup.updateChildsActiveStatus();
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
             }
         }
 
@@ -704,7 +713,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         updateRecordWeightViews(weightWrapper, isActive);
 
-        ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
+        ImageButton growthChartButton = findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -909,35 +918,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     @Override
     public void onWeightTaken(WeightWrapper tag) {
         if (tag != null) {
-            final WeightRepository weightRepository = getWeightRepository();
-            Weight weight = new Weight();
-            if (tag.getDbKey() != null) {
-                weight = weightRepository.find(tag.getDbKey());
-            }
-            weight.setBaseEntityId(childDetails.entityId());
-            weight.setKg(tag.getWeight());
-            weight.setDate(tag.getUpdatedWeightDate().toDate());
-            weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            weight.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
 
-            Gender gender = Gender.UNKNOWN;
             String genderString = Utils.getValue(childDetails, DBConstants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
+            tag.setGender(genderString);
 
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
-            Date dob = Utils.dobStringToDate(dobString);
 
-            if (dob != null && gender != Gender.UNKNOWN) {
-                weightRepository.add(dob, gender, weight);
-            } else {
-                weightRepository.add(weight);
-            }
 
-            tag.setDbKey(weight.getId());
+            Utils.recordWeight(getWeightRepository(), tag, dobString);
+
             updateRecordWeightViews(tag, isActiveStatus(childDetails));
             setLastModified(true);
         }

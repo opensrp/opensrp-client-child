@@ -86,7 +86,7 @@ android {
 }
 
 dependencies {
-    implementation('org.smartregister:opensrp-client-core:1.6.13-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:workshop2@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -100,7 +100,7 @@ dependencies {
         exclude group: 'net.zetetic', module: 'android-database-sqlcipher'
     }
 
-    implementation('org.smartregister:opensrp-client-native-form:1.5.4-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-native-form:workshop@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'appcompat-v7'
@@ -108,14 +108,14 @@ dependencies {
         exclude group: 'com.android.support', module: 'design'
     }
 
-    implementation('org.smartregister:opensrp-client-configurable-views:1.1.2-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-configurable-views:workshop@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'design'
     }
-    implementation('org.smartregister:opensrp-client-immunization:1.4.7-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-immunization:workshop3@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -123,7 +123,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.2-DEMO-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:workshop@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'com.android.support', module: 'design'

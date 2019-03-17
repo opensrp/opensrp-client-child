@@ -545,7 +545,7 @@ toggle.syncState();
                 parentTableName + ".last_name as mother_last_name",
                 parentTableName + ".dob as mother_dob",
                 parentTableName + ".nrc_number as mother_nrc_number",
-                tableName + ".father_name",
+                tableName + "."+DBConstants.KEY.FATHER_FIRST_NAME,
                 tableName + ".dob",
                 tableName + ".epi_card_number",
                 tableName + ".contact_phone_number",

@@ -1,10 +1,12 @@
 package org.smartregister.child.interactor;
 
 import android.support.annotation.VisibleForTesting;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -16,10 +18,14 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
+import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 
@@ -116,8 +122,19 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         JsonFormUtils.mergeAndSaveClient(getSyncHelper(), baseClient);
                     } else {
                         getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
+
+                        WeightWrapper weightParams = new WeightWrapper();
+                        weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
+                        String weight = JsonFormUtils.getFieldValue(jsonString,JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
+                        weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
+                        weightParams.setUpdatedWeightDate(new DateTime(), true);
+                        weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+
+                        Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.name()));
+
                     }
                 }
+
 
                 if (baseEvent != null) {
                     JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));

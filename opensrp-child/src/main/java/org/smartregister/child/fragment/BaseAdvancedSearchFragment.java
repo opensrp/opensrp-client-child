@@ -46,6 +46,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.GlobalSearchUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.MoveToMyCatchmentUtils;
@@ -709,7 +710,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 tableName + ".gender",
                 parentTableName + ".first_name as mother_first_name",
                 parentTableName + ".last_name as mother_last_name",
-                tableName + ".father_name",
+                tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
                 tableName + ".dob",
                 tableName + ".epi_card_number",
                 tableName + ".contact_phone_number",

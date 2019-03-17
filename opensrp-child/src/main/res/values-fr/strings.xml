@@ -260,9 +260,8 @@
     <string name="register_card">Carte d\'enregistrement</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s </string>
 
-
-    <string name="registration_data">Registration Data</string>
-    <string name="under_five_history">Under Five History</string>
+    <string name="registration_data">Données d\'inscription</string>
+    <string name="under_five_history">Moins de cinq ans d\'histoire</string>
     <string name="child_home_health_facility">Structure sanitaire</string>
     <string name="child_opensrp_id">Notez ce numéro sur le carnet de santé de l\'enfant</string>
     <string name="child_register_card_number">No Ordre de registre de vaccine de lenfant</string>
@@ -276,12 +275,16 @@
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
     <string name="father_guardian_full_name">Prénom père</string>
     <string name="father_guardian_date_birth">Date de naissance de la père</string>
-    <string name="father_guardian_phone_number">Prénom père</string>
+    <string name="father_guardian_phone_number">Numéro de téléphone du père/personne</string>
     <string name="place_of_birth">Lieu de naissance</string>
-    <string name="health_facility_the_child_was_in">Structure sanitaire</string>
+    <string name="health_facility_the_child_was_in">Structure sanitaire de l\'enfant était en</string>
     <string name="other_birth_facility">Autre Structure sanitaire</string>
     <string name="child_residential_area">Commune</string>
     <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
     <string name="landmark">Point de repère</string>
+    <string name="neutral_sex_id">lui ou elle</string>
+    <string name="health_details">détails sur la santé</string>
+    <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
+
 </resources>

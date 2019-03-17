@@ -1,11 +1,8 @@
 package org.smartregister.child.util;
 
-import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.text.Html;
 import android.text.InputType;
-import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -15,23 +12,18 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.json.JSONObject;
+import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
-import org.smartregister.clientandeventmodel.Event;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.location.helper.LocationHelper;
-import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.DetailsRepository;
-import org.smartregister.repository.EventClientRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -330,4 +322,33 @@ public class Utils extends org.smartregister.util.Utils {
         return collection == null || collection.isEmpty();
     }
 
+    public static void recordWeight(WeightRepository weightRepository, WeightWrapper tag, String dobString) {
+
+        Weight weight = new Weight();
+        if (tag.getDbKey() != null) {
+            weight = weightRepository.find(tag.getDbKey());
+        }
+        weight.setBaseEntityId(tag.getId());
+        weight.setKg(tag.getWeight());
+        weight.setDate(tag.getUpdatedWeightDate().toDate());
+        weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+
+        Gender gender = Gender.UNKNOWN;
+        String genderString = tag.getGender();
+        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            gender = Gender.FEMALE;
+        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            gender = Gender.MALE;
+        }
+
+        Date dob = Utils.dobStringToDate(dobString);
+
+        if (dob != null && gender != Gender.UNKNOWN) {
+            weightRepository.add(dob, gender, weight);
+        } else {
+            weightRepository.add(weight);
+        }
+
+        tag.setDbKey(weight.getId());
+    }
 }
