@@ -111,11 +111,11 @@
     <string name="child_siblings">%s frères et sœurs</string>
     <string name="female_sex_id">elle</string>
     <string name="male_sex_id">lui</string>
-    <string name="label_zeir">ZEIR</string>
+    <string name="label_zeir">ID</string>
     <string name="label_immunization_records">SERVICES D\'IMMUNISATION &amp; </string>
     <string name="str_search_hint">Rechercher nom ou ID</string>
     <string name="scan_qr_code">Scanner le code QR</string>
-    <string name="zeir">ZEIR</string>
+    <string name="zeir">ID</string>
     <string name="select_location">Selectionner le site</string>
     <string name="no_openmrs_id">Aucune Id unique retrouvées. Cliquez sur la touche sync pour en obtenir plus de Ids. Si l\'erreur se reproduit contactez l\'administrateur du système.</string>
     <string name="edit_registration_data">Réviser les données d\'enregistrement</string>
