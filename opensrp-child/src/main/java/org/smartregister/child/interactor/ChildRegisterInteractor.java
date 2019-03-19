@@ -145,7 +145,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     // Unassign current OPENSRP ID
                     if (baseClient != null) {
                         String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
-                        String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_OPENSRP_ID).replace("-", "");
+                        String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
                         if (!newOpenSRPId.equals(currentOpenSRPId)) {
                             //OPENSRP ID was changed
                             getUniqueIdRepository().open(currentOpenSRPId);

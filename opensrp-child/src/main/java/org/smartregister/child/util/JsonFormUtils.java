@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
 import com.google.common.reflect.TypeToken;
+import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -492,6 +494,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 entityId = generateRandomUUIDString();
             }
 
+            processGender(fields);//multi language to re visit
+
+            processLocationFields(fields);
+
             lastInteractedWith(fields);
 
             dobUnknownUpdateFromAge(fields);
@@ -717,6 +723,37 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
+    protected static void processGender(JSONArray fields) {
+        try {
+//TO DO Will need re-architecting later to support more languages, perhaps update the selector widget
+
+            JSONObject genderObject = getFieldJSONObject(fields, "Sex");
+            String genderValue = "";
+
+            String rawGender = genderObject.getString(JsonFormConstants.VALUE);
+            char rawGenderChar = !TextUtils.isEmpty(rawGender) ? rawGender.charAt(0) : ' ';
+            switch (rawGenderChar) {
+                case 'm':
+                case 'M':
+                    genderValue = "Male";
+                    break;
+
+                case 'f':
+                case 'F':
+                    genderValue = "Female";
+                    break;
+
+                default:
+                    break;
+
+            }
+
+            genderObject.put(Constants.KEY.VALUE, genderValue);
+        } catch (JSONException e) {
+            Log.e(TAG, "", e);
+        }
+    }
+
     protected static void dobUnknownUpdateFromAge(JSONArray fields) {
         try {
             JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
@@ -743,6 +780,23 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         } catch (JSONException e) {
             Log.e(TAG, "", e);
+        }
+    }
+
+    protected static void processLocationFields(JSONArray fields) throws JSONException {
+        for (int i = 0; i < fields.length(); i++) {
+            if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) && fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE))
+                try {
+                    String rawValue = fields.getJSONObject(i).getString(JsonFormConstants.VALUE);
+                    JSONArray valueArray = new JSONArray(rawValue);
+                    if (valueArray.length() > 0) {
+                        String lastLocationName = valueArray.getString(valueArray.length() - 1);
+                        String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
+                        fields.getJSONObject(i).put(JsonFormConstants.VALUE, lastLocationId);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, Log.getStackTraceString(e));
+                }
         }
     }
 

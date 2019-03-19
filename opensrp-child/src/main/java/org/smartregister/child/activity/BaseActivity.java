@@ -3,14 +3,12 @@ package org.smartregister.child.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
@@ -60,7 +58,6 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.job.SyncServiceJob;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.helper.ECSyncHelper;
 
 import java.util.ArrayList;
@@ -545,7 +542,7 @@ toggle.syncState();
                 parentTableName + ".last_name as mother_last_name",
                 parentTableName + ".dob as mother_dob",
                 parentTableName + ".nrc_number as mother_nrc_number",
-                tableName + "."+DBConstants.KEY.FATHER_FIRST_NAME,
+                tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
                 tableName + ".dob",
                 tableName + ".epi_card_number",
                 tableName + ".contact_phone_number",
@@ -622,9 +619,6 @@ toggle.syncState();
         if (resultCode == RESULT_OK) {
             String jsonString = data.getStringExtra("json");
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
             saveForm(jsonString, false);
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -634,9 +628,6 @@ toggle.syncState();
     public void saveForm(String jsonString, boolean isEditMode) {
 
         try {
-
-            showProgressDialog();
-            progressDialog.setTitle(R.string.saving_dialog_title);
 
             List<ChildEventClient> childEventClientList = model.processRegistration(jsonString);
             if (childEventClientList == null || childEventClientList.isEmpty()) {

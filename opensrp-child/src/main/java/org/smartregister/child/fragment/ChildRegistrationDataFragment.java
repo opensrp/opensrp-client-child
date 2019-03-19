@@ -147,16 +147,25 @@ public class ChildRegistrationDataFragment extends Fragment {
             }
 
             tvMotherDOB.setText(motherDobString);
-            tvMotherPhoneNumber.setText(Utils.getValue(detailsMap, "Mother_Guardian_Number", true));
+            if (detailsMap.containsKey("Mother_Guardian_Phone_Number")) {
+                tvMotherPhoneNumber.setText(Utils.getValue(detailsMap, "Mother_Guardian_Phone_Number", true));
+            } else {
+                tvMotherPhoneNumber.setText(Utils.getValue(detailsMap, "Mother_Guardian_Number", true));
+            }
 
             String fatherName = Utils.getValue(detailsMap, "Father_Guardian_First_Name", true);
             String fatherNameLast = Utils.getValue(detailsMap, "Father_Guardian_Last_Name", true);
-            fatherNameLast = !TextUtils.isEmpty(fatherNameLast) ? "" : fatherNameLast;
+            fatherNameLast = !TextUtils.isEmpty(fatherNameLast) ? fatherNameLast : "";
 
             tvFatherFullName.setText(fatherName + " " + fatherNameLast);
 
 
-            tvFatherPhoneNumber.setText(Utils.getValue(detailsMap, "Father_Guardian_Number", true));
+            if (detailsMap.containsKey("Father_Guardian_Phone_Number")) {
+                tvFatherPhoneNumber.setText(Utils.getValue(detailsMap, "Father_Guardian_Phone_Number", true));
+            } else {
+
+                tvFatherPhoneNumber.setText(Utils.getValue(detailsMap, "Father_Guardian_Number", true));
+            }
 
             tvFatherDOB.setText(Utils.getValue(detailsMap, "Father_Guardian_Date_Birth", true));
 
@@ -170,7 +179,8 @@ public class ChildRegistrationDataFragment extends Fragment {
             }
 
             tvChildsPlaceOfBirth.setText(placeOfBirthChoice);
-            String childsBirthHealthFacility = Utils.getValue(detailsMap, "Birth_Facility_Name", false);
+            String childsBirthHealthFacility = Utils.getValue(detailsMap, "Home_Facility", false);
+            childsBirthHealthFacility = TextUtils.isEmpty(childsBirthHealthFacility) ? Utils.getValue(detailsMap, "isPlace_Birth", false) : childsBirthHealthFacility;
             tvChildsBirthHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsBirthHealthFacility)));
 
             if (LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsBirthHealthFacility)).equalsIgnoreCase("other")) {

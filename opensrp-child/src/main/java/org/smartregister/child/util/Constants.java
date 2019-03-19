@@ -57,6 +57,9 @@ public class Constants extends AllConstants {
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String LOCATION_NAME = "location_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
+        public static final String LOOK_UP = "look_up";
+        public static final String ENTITY_ID = "entity_id";
+        public static final String MOTHER = "mother";
     }
 
     public static final class INTENT_KEY {

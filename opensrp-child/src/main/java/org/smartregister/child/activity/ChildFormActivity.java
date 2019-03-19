@@ -9,6 +9,8 @@ import android.util.Log;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
@@ -18,6 +20,7 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 
 import java.util.List;
+
 /**
  * Created by ndegwamartin on 01/03/2019.
  */
@@ -25,6 +28,7 @@ public class ChildFormActivity extends JsonFormActivity {
     private String TAG = ChildFormActivity.class.getCanonicalName();
 
     private boolean enableOnCloseDialog = true;
+    ChildFormFragment childFormFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,7 @@ public class ChildFormActivity extends JsonFormActivity {
     }
 
     protected void initializeFormFragmentCore() {
-        ChildFormFragment childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
+        childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
         getSupportFragmentManager().beginTransaction()
                 .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
     }
@@ -122,6 +126,49 @@ public class ChildFormActivity extends JsonFormActivity {
         } else {
             ChildFormActivity.this.finish();
         }
+    }
+
+    public boolean checkIfBalanceNegative() {
+        boolean balancecheck = true;
+        String balancestring = childFormFragment.getRelevantTextViewString("Balance");
+
+        if (balancestring.contains("New balance") && StringUtils.isNumeric(balancestring)) {
+            int balance = Integer.parseInt(balancestring.replace("New balance:", "").trim());
+            if (balance < 0) {
+                balancecheck = false;
+            }
+        }
+
+        return balancecheck;
+    }
+
+    public boolean checkIfAtLeastOneServiceGiven() {
+        JSONObject object = getStep("step1");
+        try {
+            if (object.getString("title").contains("Record out of catchment area service")) {
+                JSONArray fields = object.getJSONArray("fields");
+                for (int i = 0; i < fields.length(); i++) {
+                    JSONObject vaccineGroup = fields.getJSONObject(i);
+                    if (vaccineGroup.has("key") && vaccineGroup.has("is_vaccine_group")) {
+                        if (vaccineGroup.getBoolean("is_vaccine_group") && vaccineGroup.has("options")) {
+                            JSONArray vaccineOptions = vaccineGroup.getJSONArray("options");
+                            for (int j = 0; j < vaccineOptions.length(); j++) {
+                                JSONObject vaccineOption = vaccineOptions.getJSONObject(j);
+                                if (vaccineOption.has("value") && vaccineOption.getBoolean("value")) {
+                                    return true;
+                                }
+                            }
+                        }
+                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg") && vaccineGroup.has("value") && vaccineGroup.getString("value").length() > 0) {
+                        return true;
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }
 

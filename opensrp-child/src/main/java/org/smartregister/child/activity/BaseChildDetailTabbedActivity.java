@@ -172,7 +172,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
 
-        saveButton =detailtoolbar.findViewById(R.id.save);
+        saveButton = detailtoolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,6 +338,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.entityId());
+                form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
                 form.put(JsonFormUtils.RELATIONAL_ID, childDetails.getColumnmaps().get("relational_id"));
                 form.put(JsonFormUtils.CURRENT_ZEIR_ID, getValue(childDetails.getColumnmaps(), "zeir_id", true).replace("-", ""));
 
@@ -399,17 +400,49 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_NRC")) {
                         jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_nrc_number", true));
                     }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Number")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Mother_Guardian_Number", true));
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Phone_Number")) {
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Mother_Guardian_Phone_Number", true));
                     }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Name")) {
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Tetanus_History")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Mother_Tetanus_History", true));
+                    }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Tetanus_Protection")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Birth_Tetanus_Protection", true));
+                    }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_First_Name")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_First_Name", true));
+                    }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Last_Name")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Last_Name", true));
+                    }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Date_Birth")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Date_Birth", true));
+                    }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Name")) {//zeir
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Name", true));
                     }
+
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_NRC")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_NRC_Number", true));
                     }
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Phone_Number")) {
+                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Phone_Number", true));
+                    }
+
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("First_Health_Facility_Contact")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                         String dateString = getValue(detailsMap, "First_Health_Facility_Contact", false);
@@ -551,7 +584,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION)) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask();
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
@@ -596,7 +629,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         params.setMargins(55, params.topMargin, params.rightMargin, params.bottomMargin);
         notificationIcon.setLayoutParams(params);
 
-        TextView notificationMessage =notificationsLayout.findViewById(R.id.noti_message);
+        TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
         notificationMessage.setText(childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name") + " marked as deceased");
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
@@ -658,9 +691,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private void profileWidget() {
-        TextView profilename =findViewById(R.id.name);
-        TextView profileZeirID =findViewById(R.id.idforclient);
-        TextView profileage =findViewById(R.id.ageforclient);
+        TextView profilename = findViewById(R.id.name);
+        TextView profileZeirID = findViewById(R.id.idforclient);
+        TextView profileage = findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
         String dobString = "";
@@ -1331,11 +1364,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         @Override
         protected Map<String, String> doInBackground(Void... params) {
-            AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
-            //  JsonFormUtils.editsave(ChildDetailTabbedActivity.this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
 
-            childDataFragment.childDetails = childDetails;
+            saveForm(jsonString, true);
+
             childDetails = getChildDetails(childDetails.entityId());
+            childDataFragment.childDetails = childDetails;//use updated ones
 
             if (childDetails != null) {
                 DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();

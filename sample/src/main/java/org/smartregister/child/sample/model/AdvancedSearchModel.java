@@ -18,7 +18,7 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
     public static final String GLOBAL_IDENTIFIER = "identifier";
     public static final String ANC_ID = "ANC_ID";
     public static final String EDD_ATTR = "edd";
-    public static final String PHONE_NUMBER = "phone_number";
+    public static final String PHONE_NUMBER = "contact_phone_number";
     public static final String ALT_CONTACT_NAME = "alt_name";
     public static final String FIRST_NAME = "First name:";
     public static final String LAST_NAME = "Last name:";
@@ -50,7 +50,7 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
             editMap.put(isLocal ? DBConstants.KEY.DOB : GLOBAL_BIRTH_DATE, dob);
         }
         if (StringUtils.isNotBlank(phoneNumber)) {
-            editMap.put(isLocal ? DBConstants.KEY.PHONE_NUMBER : PHONE_NUMBER, phoneNumber);
+            editMap.put(isLocal ? DBConstants.KEY.CONTACT_PHONE_NUMBER : PHONE_NUMBER, phoneNumber);
         }
         if (StringUtils.isNotBlank(alternateContact)) {
          //   editMap.put(isLocal ? DBConstants.KEY.ALT_NAME : ALT_CONTACT_NAME, alternateContact);

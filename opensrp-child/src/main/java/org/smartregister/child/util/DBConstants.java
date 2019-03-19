@@ -22,8 +22,6 @@ public class DBConstants {
         public static final String STREET = "street";
         public static final String LANDMARK = "landmark";
         public static final String GPS = "gps";
-        public static final String PHONE_NUMBER = "phone_number";
-        public static final String OTHER_PHONE_NUMBER = "other_phone_number";
         public static final String DATE_REMOVED = "date_removed";
         public static final String FATHER_FIRST_NAME = "father_first_name";
         public static final String NRC_NUMBER = "nrc_number";
