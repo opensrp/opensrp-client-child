@@ -569,6 +569,8 @@ toggle.syncState();
             client.setColumnmaps(person.getColumnmaps());
         }
 
+        cursor.close();
+
         return client;
     }
 

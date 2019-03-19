@@ -503,6 +503,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             dobUnknownUpdateFromAge(fields);
 
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag(allSharedPreferences), entityId);
+            baseClient.setRelationalBaseEntityId(getString(jsonForm, DBConstants.KEY.RELATIONAL_ID));//mama
 
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag(allSharedPreferences), entityId, Utils.metadata().childRegister.registerEventType, Utils.metadata().childRegister.tableName);
 
@@ -840,7 +841,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String familyBaseEntityId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String relationalId, ChildEventClient base) {
 
         try {
             android.content.Context context = CoreLibrary.getInstance().context().applicationContext();
@@ -860,22 +861,24 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             JSONObject metadata = getJSONObject(jsonForm, METADATA);
 
             JSONObject lookUpJSONObject = getJSONObject(metadata, "look_up");
-            String lookUpEntityId = "";
-            String lookUpBaseEntityId = "";
+            String lookUpEntityId = null;
+            String lookUpBaseEntityId = null;
             if (lookUpJSONObject != null) {
                 lookUpEntityId = getString(lookUpJSONObject, "entity_id");
-                lookUpBaseEntityId = getString(lookUpJSONObject, "value");
+                lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
             }
 
             Client subformClient = null;
             Event subformEvent = null;
 
-            if ("mother".equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
+            if (Constants.KEY.MOTHER.equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
                 Client motherClient = new Client(lookUpBaseEntityId);
                 addRelationship(context, motherClient, baseClient);
             } else {
                 if (StringUtils.isNotBlank(subBindType)) {
-                    subformClient = createSubformClient(context, fields, baseClient, subBindType, null);
+
+                    String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
+                    subformClient = createSubformClient(context, fields, baseClient, subBindType, motherBaseEntityId);
                     subformClient.setGender(Constants.GENDER.FEMALE);
                 }
 
@@ -982,7 +985,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return null;
         }
 
-        String entityId = relationalId == null ? generateRandomUUIDString() : relationalId;
+        String entityId = TextUtils.isEmpty(relationalId) ? generateRandomUUIDString() : relationalId;
         String firstName = getSubFormFieldValue(fields, FormEntityConstants.Person.first_name, bindType);
         String gender = getSubFormFieldValue(fields, FormEntityConstants.Person.gender, bindType);
         String bb = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);

@@ -48,12 +48,12 @@ public class StatusEditDialogFragment extends DialogFragment {
                              Bundle savedInstanceState) {
 
         ViewGroup dialogView = (ViewGroup) inflater.inflate(R.layout.status_edit_dialog_view, container, false);
-        LinearLayout activeLayout = (LinearLayout) dialogView.findViewById(R.id.activelayout);
-        LinearLayout inactiveLayout = (LinearLayout) dialogView.findViewById(R.id.inactivelayout);
-        LinearLayout lostToFollowUpLayout = (LinearLayout) dialogView.findViewById(R.id.losttofollowuplayout);
-        final ImageView activeImageView = (ImageView) dialogView.findViewById(R.id.active_check);
-        final ImageView inactiveImageView = (ImageView) dialogView.findViewById(R.id.inactive_check);
-        final ImageView lostToFollowUpImageView = (ImageView) dialogView.findViewById(R.id.lost_to_followup_check);
+        LinearLayout activeLayout =  dialogView.findViewById(R.id.activelayout);
+        LinearLayout inactiveLayout =  dialogView.findViewById(R.id.inactivelayout);
+        LinearLayout lostToFollowUpLayout = dialogView.findViewById(R.id.losttofollowuplayout);
+        final ImageView activeImageView = dialogView.findViewById(R.id.active_check);
+        final ImageView inactiveImageView =  dialogView.findViewById(R.id.inactive_check);
+        final ImageView lostToFollowUpImageView =  dialogView.findViewById(R.id.lost_to_followup_check);
 
         activeImageView.setVisibility(View.INVISIBLE);
         inactiveImageView.setVisibility(View.INVISIBLE);

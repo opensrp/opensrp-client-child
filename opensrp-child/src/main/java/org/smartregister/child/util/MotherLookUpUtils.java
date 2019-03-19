@@ -149,6 +149,7 @@ public class MotherLookUpUtils {
                 DBConstants.KEY.DOB,
                 DBConstants.KEY.NRC_NUMBER,
                 DBConstants.KEY.CONTACT_PHONE_NUMBER,
+                DBConstants.KEY.TETANUS_HISTORY,
                 DBConstants.KEY.BASE_ENTITY_ID}
 
         );

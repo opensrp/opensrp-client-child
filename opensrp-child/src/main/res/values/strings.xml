@@ -122,8 +122,8 @@
     <string name="edit_immunization_data">Réviser les données sur l\'immunisation</string>
     <string name="edit_recurring_services_data">Réviser les données sur les services récurrents</string>
     <string name="record_bcg_2">Enregistrer BCG 2 (en l\'absence d\'une cicatrice)</string>
-    <string name="mark_inactive">Marquer inactive</string>
-    <string name="mark_active">Marquer active</string>
+    <string name="mark_inactive">Marquer inactif</string>
+    <string name="mark_active">Marquer actif</string>
     <string name="mark_as_lost_to_followup">Marquer perdu au suivi</string>
     <string name="mark_as_not_lost_to_followup">Marquer non-perdu au suivi</string>
     <string name="report_deceased">Rapporter un décès</string>
@@ -151,8 +151,8 @@
     <string name="my_catchment_area">Uniquement ma zone sanitaire</string>
     <string name="search_limits">Rechercher limites</string>
     <string name="client_status">État des clients</string>
-    <string name="active">Active</string>
-    <string name="inactive">Inactive</string>
+    <string name="active">Actif</string>
+    <string name="inactive">Inactif</string>
     <string name="lost_to_follow_up">Perdu au suivi</string>
     <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
     <string name="status">état</string>
@@ -291,6 +291,11 @@
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
 
+
+    <string name="child_status">Statut d\'enfant</string>
+    <string name="notifications_on">Notifications allumer.</string>
+    <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps</string>
+    <string name="notifications_off_child_cannot_be_located">Notifications désactivées. L\'enfant ne peut pas être trouvé</string>
 
 
 

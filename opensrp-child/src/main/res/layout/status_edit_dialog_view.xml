@@ -33,7 +33,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="5dp"
-                    android:text="Child Status"
+                    android:text="@string/child_status"
                     android:textColor="@color/black"
                     android:textSize="26sp"
                     android:textStyle="bold"
@@ -66,7 +66,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="5dp"
-                            android:text="Active"
+                            android:text="@string/active"
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:password="false" />
@@ -75,7 +75,7 @@
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Notifications on."
+                            android:text="@string/notifications_on"
                             android:textColor="@color/client_list_grey"
                             android:textSize="22sp" />
                     </LinearLayout>
@@ -109,7 +109,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="5dp"
-                            android:text="Inactive"
+                            android:text="@string/inactive"
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:password="false" />
@@ -118,7 +118,7 @@
                             style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Notifications off. Child away for a period of time."
+                            android:text="@string/notifications_off"
                             android:singleLine="false"
                             android:textColor="@color/client_list_grey"
                             android:textSize="22sp" />
@@ -161,7 +161,7 @@
                             style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Notifications off. Child cannot be located or contacted."
+                            android:text="@string/notifications_off_child_cannot_be_located"
                             android:singleLine="false"
                             android:textColor="@color/client_list_grey"
                             android:textSize="22sp" />

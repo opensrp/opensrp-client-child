@@ -345,7 +345,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 //Add the location id
                 form.getJSONObject("metadata").put("encounter_location", LocationHelper.getInstance().getOpenMrsLocationId(location_name));
 
-                Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
                 //inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
                 JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
@@ -761,7 +760,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
-        overflow.findItem(R.id.register_card).setEnabled(true);
     }
 
     private String updateActivityTitle() {

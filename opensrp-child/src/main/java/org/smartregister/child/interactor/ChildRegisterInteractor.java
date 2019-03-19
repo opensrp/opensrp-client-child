@@ -119,13 +119,17 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 if (baseClient != null) {
                     JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
                     if (isEditMode) {
-                        JsonFormUtils.mergeAndSaveClient(getSyncHelper(), baseClient);
+                        try {
+                            JsonFormUtils.mergeAndSaveClient(getSyncHelper(), baseClient);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
+                        }
                     } else {
                         getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
                         WeightWrapper weightParams = new WeightWrapper();
                         weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-                        String weight = JsonFormUtils.getFieldValue(jsonString,JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
+                        String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
                         weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
                         weightParams.setUpdatedWeightDate(new DateTime(), true);
                         weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
@@ -144,11 +148,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 if (isEditMode) {
                     // Unassign current OPENSRP ID
                     if (baseClient != null) {
-                        String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
-                        String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
-                        if (!newOpenSRPId.equals(currentOpenSRPId)) {
-                            //OPENSRP ID was changed
-                            getUniqueIdRepository().open(currentOpenSRPId);
+                        try {
+                            String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
+                            String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
+                            if (!newOpenSRPId.equals(currentOpenSRPId)) {
+                                //OPENSRP ID was changed
+                                getUniqueIdRepository().open(currentOpenSRPId);
+                            }
+                        } catch (Exception e) {//might crash if M_ZEIR
+                            Log.e(TAG, e.getMessage());
                         }
                     }
 

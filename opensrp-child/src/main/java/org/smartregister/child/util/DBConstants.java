@@ -43,5 +43,6 @@ public class DBConstants {
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
+        public static final String TETANUS_HISTORY = "tetanus_history";
     }
 }

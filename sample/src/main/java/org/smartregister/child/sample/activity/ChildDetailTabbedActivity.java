@@ -75,9 +75,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
-            case R.id.register_card:
-                Utils.showShortToast(this, getResources().getString(R.string.registering_card, detailsMap.get(DBConstants.KEY.FIRST_NAME) + " " + detailsMap.get(DBConstants.KEY.LAST_NAME)));
-                return true;
 
             default:
                 // If we got here, the user's action was not recognized.
