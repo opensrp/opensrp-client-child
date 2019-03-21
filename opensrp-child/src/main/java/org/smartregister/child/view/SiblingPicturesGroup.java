@@ -45,7 +45,7 @@ public class SiblingPicturesGroup extends LinearLayout {
     private void init(Context context) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.view_sibling_group, this, true);
-        siblingsGV = (HorizontalGridView) findViewById(R.id.siblings_gv);
+        siblingsGV = findViewById(R.id.siblings_gv);
         siblingsGV.setRowHeight(context.getResources().getDimensionPixelSize(R.dimen.sibling_profile_pic_height));
     }
 

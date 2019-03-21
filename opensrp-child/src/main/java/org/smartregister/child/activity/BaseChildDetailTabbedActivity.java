@@ -619,7 +619,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         View notificationsLayout = inflater.inflate(R.layout.notification_base, null);
         notificationsLayout.setVisibility(View.VISIBLE);
 
-        ImageView notificationIcon = (ImageView) notificationsLayout.findViewById(R.id.noti_icon);
+        ImageView notificationIcon = notificationsLayout.findViewById(R.id.noti_icon);
         notificationIcon.setTag("confirm_deceased_icon");
         notificationIcon.setImageResource(R.drawable.ic_deceased);
         notificationIcon.getLayoutParams().height = 165;
@@ -629,11 +629,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name") + " marked as deceased");
+        notificationMessage.setText(getString(R.string.marked_as_deceased, childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name")));
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
-        Button positiveButton = (Button) notificationsLayout.findViewById(R.id.noti_positive_button);
+        Button positiveButton =  notificationsLayout.findViewById(R.id.noti_positive_button);
         positiveButton.setVisibility(View.VISIBLE);
         positiveButton.setText(getResources().getString(R.string.undo));
         positiveButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
@@ -646,7 +646,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         });
 
-        Button negativeButton = (Button) notificationsLayout.findViewById(R.id.noti_negative_button);
+        Button negativeButton =  notificationsLayout.findViewById(R.id.noti_negative_button);
         negativeButton.setVisibility(View.VISIBLE);
         negativeButton.setText(getResources().getString(R.string.confirm_button_label));
         negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
