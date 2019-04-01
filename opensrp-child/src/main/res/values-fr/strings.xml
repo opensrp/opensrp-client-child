@@ -291,12 +291,13 @@
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
 
+
     <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications allumer.</string>
     <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps</string>
     <string name="notifications_off_child_cannot_be_located">Notifications désactivées. L\'enfant ne peut pas être trouvé</string>
-    <string name="marked_as_deceased">%1$s marqué comme décédé</string>
 
+    <string name="marked_as_deceased">%1$s marqué comme décédé</string>
 
 
 </resources>
