@@ -23,7 +23,7 @@ public class DBConstants {
         public static final String LANDMARK = "landmark";
         public static final String GPS = "gps";
         public static final String DATE_REMOVED = "date_removed";
-        public static final String FATHER_FIRST_NAME = "father_first_name";
+        public static final String FATHER_FIRST_NAME = "father_name";
         public static final String NRC_NUMBER = "nrc_number";
         public static final String DETAILS = "details";
         public static final String RELATIONALID = "relationalid";

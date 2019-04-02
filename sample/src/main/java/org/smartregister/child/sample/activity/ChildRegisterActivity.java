@@ -30,7 +30,7 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
         Fragment[] fragments = new Fragment[1];
         fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
 
-        return new Fragment[]{};
+        return fragments;
     }
 
     @Override

@@ -140,7 +140,7 @@ public class SampleApplication extends DrishtiApplication {
             names.add(DBConstants.KEY.INACTIVE);
             names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
             names.add(DBConstants.KEY.DOD);
-            names.add(tableName + "." + DBConstants.KEY.DATE_REMOVED);
+            names.add(DBConstants.KEY.DATE_REMOVED);
 
             for (VaccineRepo.Vaccine vaccine : vaccines) {
                 names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.display()));
