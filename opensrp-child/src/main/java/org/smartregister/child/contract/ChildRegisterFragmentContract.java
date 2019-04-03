@@ -54,7 +54,7 @@ public interface ChildRegisterFragmentContract {
 
         String getSortText(Field sortField);
 
-        Map<String, String> createEditMap(String ancId);
+        Map<String, String> createEditMap(String opensrpID);
 
         AdvancedMatrixCursor createMatrixCursor(Response<String> response);
 

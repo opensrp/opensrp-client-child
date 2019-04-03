@@ -1,6 +1,7 @@
 package org.smartregister.child.presenter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.DBConstants;
@@ -75,7 +76,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     @Override
     public void updateSortAndFilter(List<Field> filterList, Field sortField) {
-        String filterText = model.getFilterText(filterList, getView().getString(org.smartregister.R.string.filter));
+        String filterText = model.getFilterText(filterList, getView().getString(R.string.filter));
         String sortText = model.getSortText(sortField);
 
         getView().updateFilterAndFilterStatus(filterText, sortText);

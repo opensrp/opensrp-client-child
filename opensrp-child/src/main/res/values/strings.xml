@@ -299,5 +299,7 @@
 
     <string name="marked_as_deceased">%1$s marqué comme décédé</string>
 
+    <string name="search_results">Résultats de la recherche</string>
+    <string name="qr_code_label">Le code QR</string>
 
 </resources>

@@ -31,8 +31,8 @@ public class NoMatchDialogFragment extends DialogFragment {
     }
 
     @Nullable
-    public static NoMatchDialogFragment launchDialog(BaseRegisterActivity activity, String dialogTag, String whoAncId) {
-        NoMatchDialogFragment noMatchDialogFragment = new NoMatchDialogFragment(activity, whoAncId);
+    public static NoMatchDialogFragment launchDialog(BaseRegisterActivity activity, String dialogTag, String opensrpID) {
+        NoMatchDialogFragment noMatchDialogFragment = new NoMatchDialogFragment(activity, opensrpID);
         if (activity != null) {
             FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
             Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);

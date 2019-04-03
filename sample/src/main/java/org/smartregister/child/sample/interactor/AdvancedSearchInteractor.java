@@ -35,7 +35,7 @@ public class AdvancedSearchInteractor implements AdvancedSearchContract.Interact
 
     @Override
     public void search(final Map<String, String> editMap, final AdvancedSearchContract.InteractorCallBack callBack,
-                       final String ancId) {
+                       final String opensrpID) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -44,7 +44,7 @@ public class AdvancedSearchInteractor implements AdvancedSearchContract.Interact
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override
                     public void run() {
-                        callBack.onResultsFound(response, ancId);
+                        callBack.onResultsFound(response, opensrpID);
                     }
                 });
             }
@@ -55,6 +55,7 @@ public class AdvancedSearchInteractor implements AdvancedSearchContract.Interact
 
     private Response<String> globalSearch(Map<String, String> map) {
         String baseUrl = getDristhiConfiguration().dristhiBaseURL();
+        baseUrl = "https://zeir-demo.smartregister.org/opensrp-zeir/"; //To Remove
         String paramString = "";
         if (!map.isEmpty()) {
             for (Map.Entry<String, String> entry : map.entrySet()) {

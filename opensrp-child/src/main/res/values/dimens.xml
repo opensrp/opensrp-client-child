@@ -155,6 +155,10 @@
 
     <dimen name="navigation_icon_size">24dp</dimen>
     <dimen name="dialog_list_padding_vertical">8dp</dimen>
-
+    <dimen name="advanced_search_toolbar_padding">20dp</dimen>
+    <dimen name="advanced_search_toolbar_drawable_padding">10dp</dimen>
+    <dimen name="advanced_search_toolbar_text_size">20sp</dimen>
+    <dimen name="advanced_search_button_padding">20dp</dimen>
+    <dimen name="advanced_search_text_padding">5dp</dimen>
 
 </resources>

@@ -10,7 +10,7 @@ import java.util.Map;
 public interface AdvancedSearchContract {
 
     interface Presenter extends ChildRegisterFragmentContract.Presenter {
-        void search(String firstName, String lastName, String ancId, String edd, String dob, String phoneNumber,
+        void search(String firstName, String lastName, String opensrpID, String edd, String dob, String phoneNumber,
                     String alternateContact, boolean isLocal);
     }
 
@@ -26,10 +26,10 @@ public interface AdvancedSearchContract {
 
     interface Model extends ChildRegisterFragmentContract.Model {
 
-        Map<String, String> createEditMap(String firstName, String lastName, String ancId, String edd, String dob,
+        Map<String, String> createEditMap(String firstName, String lastName, String opensrpID, String edd, String dob,
                                           String phoneNumber, String alternateContact, boolean isLocal);
 
-        String createSearchString(String firstName, String lastName, String ancId, String edd, String dob,
+        String createSearchString(String firstName, String lastName, String opensrpID, String edd, String dob,
                                   String phoneNumber, String alternateContact);
 
         String getMainConditionString(Map<String, String> editMap);
@@ -38,10 +38,10 @@ public interface AdvancedSearchContract {
 
 
     interface Interactor {
-        void search(Map<String, String> editMap, InteractorCallBack callBack, String ancId);
+        void search(Map<String, String> editMap, InteractorCallBack callBack, String opensrpID);
     }
 
     interface InteractorCallBack {
-        void onResultsFound(Response<String> response, String ancId);
+        void onResultsFound(Response<String> response, String opensrpID);
     }
 }

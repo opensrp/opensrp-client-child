@@ -93,7 +93,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     public void getFooterView(RecyclerView.ViewHolder viewHolder, int currentPageCount, int totalPageCount, boolean hasNext, boolean hasPrevious) {
         FooterViewHolder footerViewHolder = (FooterViewHolder) viewHolder;
         footerViewHolder.pageInfoView.setText(
-                MessageFormat.format(context.getString(org.smartregister.R.string.str_page_info), currentPageCount,
+                MessageFormat.format(context.getString(R.string.str_page_info), currentPageCount,
                         totalPageCount));
 
         footerViewHolder.nextPageView.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
@@ -200,7 +200,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         if (entityId != null && show()) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-            profilePic.setTag(org.smartregister.R.id.entity_id, entityId);
+            profilePic.setTag(R.id.entity_id, entityId);
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
         }
 
@@ -333,9 +333,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         public FooterViewHolder(View view) {
             super(view);
 
-            nextPageView = view.findViewById(org.smartregister.R.id.btn_next_page);
-            previousPageView = view.findViewById(org.smartregister.R.id.btn_previous_page);
-            pageInfoView = view.findViewById(org.smartregister.R.id.txt_page_info);
+            nextPageView = view.findViewById(R.id.btn_next_page);
+            previousPageView = view.findViewById(R.id.btn_previous_page);
+            pageInfoView = view.findViewById(R.id.txt_page_info);
         }
     }
 

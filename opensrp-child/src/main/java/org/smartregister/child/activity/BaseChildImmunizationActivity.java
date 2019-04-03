@@ -279,11 +279,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateProfilePicture(Gender gender) {
         if (isDataOk()) {
-            ImageView profileImageIV = (ImageView) findViewById(R.id.profile_image_iv);
+            ImageView profileImageIV = findViewById(R.id.profile_image_iv);
 
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-                profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
+                profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
             }
@@ -298,9 +298,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             childId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false);
         }
 
-        TextView nameTV = (TextView) findViewById(R.id.name_tv);
+        TextView nameTV =   findViewById(R.id.name_tv);
         nameTV.setText(name);
-        TextView childIdTV = (TextView) findViewById(R.id.child_id_tv);
+        TextView childIdTV = findViewById(R.id.child_id_tv);
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
 
         Utils.startAsyncTask(new GetSiblingsTask(), null);
@@ -322,9 +322,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
         }
-        TextView dobTV = (TextView) findViewById(R.id.dob_tv);
+        TextView dobTV =  findViewById(R.id.dob_tv);
         dobTV.setText(String.format("%s: %s", getString(R.string.birthdate), formattedDob));
-        TextView ageTV = (TextView) findViewById(R.id.age_tv);
+        TextView ageTV =  findViewById(R.id.age_tv);
         ageTV.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
     }
 
@@ -727,7 +727,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
-        TextView recordWeightText = (TextView) findViewById(R.id.record_weight_text);
+        TextView recordWeightText =  findViewById(R.id.record_weight_text);
         recordWeightText.setText(R.string.record_weight);
         if (!isActive) {
             recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
@@ -1053,7 +1053,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                         public void onFinishedLoadingVaccineWrappers() {
                             ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
                             if (!vaccineWrappers.isEmpty()) {
-                                final TextView recordAllTV = (TextView) vaccineGroup.findViewById(R.id.record_all_tv);
+                                final TextView recordAllTV =  vaccineGroup.findViewById(R.id.record_all_tv);
                                 recordAllTV.post(new Runnable() {
                                     @Override
                                     public void run() {

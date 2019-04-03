@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
-import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
@@ -88,7 +87,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     protected void registerBottomNavigation() {
 
         bottomNavigationHelper = new BottomNavigationHelper();
-        bottomNavigationView = findViewById(org.smartregister.R.id.bottom_navigation);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         if (bottomNavigationView != null) {
             bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
@@ -136,10 +135,12 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
 
     public void updateAdvancedSearchFilterCount(int count) {
-        BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
+       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
         if (advancedSearchFragment != null) {
             advancedSearchFragment.updateFilterCount(count);
-        }
+        }*/
+
+        //To remove comment
     }
 
 
@@ -149,7 +150,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             super.onBackPressed();
         } else {
             switchToBaseFragment();
-            setSelectedBottomBarMenuItem(org.smartregister.R.id.action_clients);
+            setSelectedBottomBarMenuItem(R.id.action_clients);
         }
     }
 

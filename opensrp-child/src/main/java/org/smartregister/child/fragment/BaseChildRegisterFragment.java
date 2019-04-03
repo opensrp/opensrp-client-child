@@ -122,63 +122,65 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
-        view.findViewById(R.id.btn_report_month).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
+        CustomFontTextView buttonReportMonth = view.findViewById(R.id.btn_report_month);
+        if (buttonReportMonth != null) {
+            buttonReportMonth.setVisibility(View.INVISIBLE);
+            view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
-        // Update top left icon
-        FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
-        if (qrCodeScanImageView != null) {
-            qrCodeScanImageView.setOnClickListener(this);
-        }
-
-        // Update title name
-        ImageView logo = view.findViewById(R.id.opensrp_logo_image_view);
-        if (logo != null) {
-            logo.setVisibility(View.GONE);
-        }
-
-        CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
-        if (titleView != null) {
-            titleView.setVisibility(View.GONE);
-        }
-
-        filterSection = view.findViewById(R.id.filter_selection);
-        filterSection.setOnClickListener(this);
-
-        filterCount = view.findViewById(R.id.filter_count);
-        filterCount.setVisibility(View.GONE);
-        filterCount.setClickable(false);
-        filterCount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view.isClickable()) {
-                    filterSection.performClick();
-                }
+            // Update top left icon
+            FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
+            if (qrCodeScanImageView != null) {
+                qrCodeScanImageView.setOnClickListener(this);
             }
-        });
 
-        clinicSelection = view.findViewById(R.id.clinic_selection);
-        clinicSelection.init();
+            // Update title name
+            ImageView logo = view.findViewById(R.id.opensrp_logo_image_view);
+            if (logo != null) {
+                logo.setVisibility(View.GONE);
+            }
+
+            CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
+            if (titleView != null) {
+                titleView.setVisibility(View.GONE);
+            }
+
+            filterSection = view.findViewById(R.id.filter_selection);
+            filterSection.setOnClickListener(this);
+
+            filterCount = view.findViewById(R.id.filter_count);
+            filterCount.setVisibility(View.GONE);
+            filterCount.setClickable(false);
+            filterCount.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view.isClickable()) {
+                        filterSection.performClick();
+                    }
+                }
+            });
+
+            clinicSelection = view.findViewById(R.id.clinic_selection);
+            clinicSelection.init();
 
 
-        clientsView.setVisibility(View.VISIBLE);
-        clientsProgressView.setVisibility(View.INVISIBLE);
-        setServiceModeViewDrawableRight(null);
+            clientsView.setVisibility(View.VISIBLE);
+            clientsProgressView.setVisibility(View.INVISIBLE);
+            setServiceModeViewDrawableRight(null);
 
 
-        TextView nameInitials = view.findViewById(R.id.name_inits);
-        nameInitials.setVisibility(View.GONE);
-        LinearLayout btnBackToHome = view.findViewById(R.id.btn_back_to_home);
-        btnBackToHome.setOnClickListener(this);
-        syncButton = view.findViewById(R.id.back_button);
-        syncButton.setVisibility(View.VISIBLE);
-        syncButton.setImageResource(R.drawable.ic_action_menu);
-        syncButton.setOnClickListener(this);
+            TextView nameInitials = view.findViewById(R.id.name_inits);
+            nameInitials.setVisibility(View.GONE);
+            LinearLayout btnBackToHome = view.findViewById(R.id.btn_back_to_home);
+            btnBackToHome.setOnClickListener(this);
+            syncButton = view.findViewById(R.id.back_button);
+            syncButton.setVisibility(View.VISIBLE);
+            syncButton.setImageResource(R.drawable.ic_action_menu);
+            syncButton.setOnClickListener(this);
 
 
-        View globalSearchButton = view.findViewById(R.id.global_search);
-        globalSearchButton.setOnClickListener(this);
-
+            View globalSearchButton = view.findViewById(R.id.global_search);
+            globalSearchButton.setOnClickListener(this);
+        }
 
     }
 
@@ -282,9 +284,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @SuppressLint("NewApi")
     @Override
-    public void showNotFoundPopup(String whoAncId) {
+    public void showNotFoundPopup(String opensrpID) {
         NoMatchDialogFragment
-                .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, whoAncId);
+                .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, opensrpID);
     }
 
 

@@ -29,10 +29,10 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
     public static final String ALTERNATE_CONTACT_NAME = "Alternate contact name:";
     public static final String LIKE = "Like";
     public static final String AND = "AND";
-    
-    
+
+
     @Override
-    public Map<String, String> createEditMap(String firstName, String lastName, String ancId, String edd, String dob, String phoneNumber, String alternateContact, boolean isLocal) {
+    public Map<String, String> createEditMap(String firstName, String lastName, String opensrpID, String edd, String dob, String phoneNumber, String alternateContact, boolean isLocal) {
         Map<String, String> editMap = new LinkedHashMap<>();
         if (StringUtils.isNotBlank(firstName)) {
             editMap.put(isLocal ? DBConstants.KEY.FIRST_NAME : GLOBAL_FIRST_NAME, firstName);
@@ -40,8 +40,8 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
         if (StringUtils.isNotBlank(lastName)) {
             editMap.put(isLocal ? DBConstants.KEY.LAST_NAME : GLOBAL_LAST_NAME, lastName);
         }
-        if (StringUtils.isNotBlank(ancId)) {
-            editMap.put(isLocal ? DBConstants.KEY.ZEIR_ID : GLOBAL_IDENTIFIER, isLocal ? ancId : ANC_ID + ":" + ancId);
+        if (StringUtils.isNotBlank(opensrpID)) {
+            editMap.put(isLocal ? DBConstants.KEY.ZEIR_ID : GLOBAL_IDENTIFIER, isLocal ? opensrpID : ANC_ID + ":" + opensrpID);
         }
         if (StringUtils.isNotBlank(edd)) {
             //editMap.put(isLocal ? DBConstants.KEY.EDD : GLOBAL_ATTRIBUTE, isLocal ? edd : EDD_ATTR + ":" + edd);
@@ -53,13 +53,13 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
             editMap.put(isLocal ? DBConstants.KEY.CONTACT_PHONE_NUMBER : PHONE_NUMBER, phoneNumber);
         }
         if (StringUtils.isNotBlank(alternateContact)) {
-         //   editMap.put(isLocal ? DBConstants.KEY.ALT_NAME : ALT_CONTACT_NAME, alternateContact);
+            //   editMap.put(isLocal ? DBConstants.KEY.ALT_NAME : ALT_CONTACT_NAME, alternateContact);
         }
         return editMap;
     }
 
     @Override
-    public String createSearchString(String firstName, String lastName, String ancId, String edd, String dob, String phoneNumber, String alternateContact) {
+    public String createSearchString(String firstName, String lastName, String opensrpID, String edd, String dob, String phoneNumber, String alternateContact) {
         String searchCriteria = "";
 
         if (StringUtils.isNotBlank(firstName)) {
@@ -68,8 +68,8 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
         if (StringUtils.isNotBlank(lastName)) {
             searchCriteria += " " + LAST_NAME + " " + lastName + ";";
         }
-        if (StringUtils.isNotBlank(ancId)) {
-            searchCriteria += " " + SEARCH_TERM_ANC_ID + " " + ancId + ";";
+        if (StringUtils.isNotBlank(opensrpID)) {
+            searchCriteria += " " + SEARCH_TERM_ANC_ID + " " + opensrpID + ";";
         }
         if (StringUtils.isNotBlank(edd)) {
             searchCriteria += " " + EDD + " " + edd + ";";
@@ -95,7 +95,7 @@ public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implemen
         }
 
         for (Map.Entry<String, String> entry : editMap.entrySet()) {
-            String key = entry.getKey();
+            String key = "ec_child." + entry.getKey();
             String value = entry.getValue();
             if (StringUtils.isBlank(mainConditionString)) {
                 mainConditionString += " " + key + " " + LIKE + " '%" + value + "%'";
