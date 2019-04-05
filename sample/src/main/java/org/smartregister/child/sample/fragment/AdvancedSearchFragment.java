@@ -26,6 +26,7 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
@@ -45,6 +46,7 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class AdvancedSearchFragment extends ChildRegisterFragment
@@ -85,6 +87,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
     protected EditText endDate;
 
     private Button qrCodeButton;
+    private Map<String, View> advancedFormSearchableFields = new HashMap<>();
 
     @Override
     protected void initializePresenter() {
@@ -142,12 +145,14 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
     protected void onViewClicked(View view) {
         if (view.getId() == R.id.search) {
             search();
+        } else if (view.getId() == R.id.advanced_form_search_btn) {
+            search();
+        } else if (view.getId() == R.id.back_button) {
+            switchViews(false);
         } /*else if (view.getId() == R.id.undo_button) {
             ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
             ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
             ((BaseRegisterActivity) getActivity()).setSearchTerm("");
-        } else if (view.getId() == R.id.back_button) {
-            switchViews(false);
         } else if ((view.getId() == R.id.patient_column || view.getId() == R.id.profile) && view.getTag() != null) {
             Utils.navigateToProfile(getActivity(), (HashMap<String, String>) ((CommonPersonObjectClient) view.getTag()).getColumnmaps());
         } else if (view.getId() == R.id.sync) {
@@ -163,14 +168,35 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
 
         listViewLayout = view.findViewById(R.id.advanced_search_list);
         listViewLayout.setVisibility(View.GONE);
+
         advancedSearchForm = view.findViewById(R.id.advanced_search_form);
         backButton = view.findViewById(R.id.back_button);
         backButton.setOnClickListener(registerActionHandler);
-        searchButton = view.findViewById(R.id.search);
-        searchButton.setOnClickListener(this);
 
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
+        search = view.findViewById(R.id.search);
+        searchButton = view.findViewById(R.id.advanced_form_search_btn);
+        outsideInside = view.findViewById(R.id.out_and_inside);
+        myCatchment = view.findViewById(R.id.my_catchment);
+
+        firstName = view.findViewById(R.id.first_name);
+        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
+
+        lastName = view.findViewById(R.id.last_name);
+        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
+
+        zeirId = view.findViewById(R.id.zeir_id);
+        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, zeirId);
+
+        motherGuardianName = view.findViewById(R.id.mother_guardian_name);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
+
+        motherGuardianNrc = view.findViewById(R.id.mother_guardian_nrc);
+        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
+
+        motherGuardianPhoneNumber = view.findViewById(R.id.mother_guardian_phone_number);
+        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
 
         populateFormViews(view);
 
@@ -193,12 +219,15 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
     }
 
     private void populateFormViews(View view) {
-        search = view.findViewById(R.id.search);
         search.setEnabled(false);
         search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        search.setOnClickListener(registerActionHandler);
 
-        outsideInside = view.findViewById(R.id.out_and_inside);
-        myCatchment = view.findViewById(R.id.my_catchment);
+
+        searchButton.setEnabled(false);
+        searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        searchButton.setOnClickListener(registerActionHandler);
+
 
         outsideInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -241,24 +270,21 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
         });
 
 
-        firstName = view.findViewById(R.id.first_name);
         firstName.addTextChangedListener(advancedSearchTextwatcher);
 
-        lastName = view.findViewById(R.id.last_name);
         lastName.addTextChangedListener(advancedSearchTextwatcher);
 
 
-        zeirId = view.findViewById(org.smartregister.child.R.id.zeir_id);
-        firstName = view.findViewById(org.smartregister.child.R.id.first_name);
-        lastName = view.findViewById(org.smartregister.child.R.id.last_name);
-        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
-        motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
-        motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
+        zeirId.addTextChangedListener(advancedSearchTextwatcher);
 
-        startDate = view.findViewById(org.smartregister.child.R.id.start_date);
-        endDate = view.findViewById(org.smartregister.child.R.id.end_date);
+        motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
 
-        search.setOnClickListener(this);
+        motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
+
+        motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
+
+        startDate = view.findViewById(R.id.start_date);
+        endDate = view.findViewById(R.id.end_date);
 
         setDatePicker(startDate);
         setDatePicker(endDate);
@@ -279,8 +305,8 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
         });
 
 
-        outsideInside = view.findViewById(org.smartregister.child.R.id.out_and_inside);
-        myCatchment = view.findViewById(org.smartregister.child.R.id.my_catchment);
+        outsideInside = view.findViewById(R.id.out_and_inside);
+        myCatchment = view.findViewById(R.id.my_catchment);
 
         outsideInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -307,7 +333,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
         });
 
 
-        View mycatchmentLayout = view.findViewById(org.smartregister.child.R.id.my_catchment_layout);
+        View mycatchmentLayout = view.findViewById(R.id.my_catchment_layout);
         mycatchmentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -315,7 +341,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
             }
         });
 
-        active = view.findViewById(org.smartregister.child.R.id.active);
+        active = view.findViewById(R.id.active);
         active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -324,7 +350,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
                 }
             }
         });
-        inactive = view.findViewById(org.smartregister.child.R.id.inactive);
+        inactive = view.findViewById(R.id.inactive);
         inactive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -333,7 +359,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
                 }
             }
         });
-        lostToFollowUp = view.findViewById(org.smartregister.child.R.id.lost_to_follow_up);
+        lostToFollowUp = view.findViewById(R.id.lost_to_follow_up);
         lostToFollowUp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -343,7 +369,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
             }
         });
 
-        final View activeLayout = view.findViewById(org.smartregister.child.R.id.active_layout);
+        final View activeLayout = view.findViewById(R.id.active_layout);
         activeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -351,7 +377,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
             }
         });
 
-        final View inactiveLayout = view.findViewById(org.smartregister.child.R.id.inactive_layout);
+        final View inactiveLayout = view.findViewById(R.id.inactive_layout);
         inactiveLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -359,7 +385,7 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
             }
         });
 
-        final View lostToFollowUpLayout = view.findViewById(org.smartregister.child.R.id.lost_to_follow_up_layout);
+        final View lostToFollowUpLayout = view.findViewById(R.id.lost_to_follow_up_layout);
         lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -374,6 +400,10 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
         if (searchFormData.size() > 0) {
             firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
             lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
+            motherGuardianName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
+            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
+            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
+            zeirId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
         }
     }
 
@@ -381,19 +411,27 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
         HashMap<String, String> fields = new HashMap<>();
         fields.put(DBConstants.KEY.FIRST_NAME, firstName.getText().toString());
         fields.put(DBConstants.KEY.LAST_NAME, lastName.getText().toString());
+        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName.getText().toString());
+        fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
+        fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
+        fields.put(DBConstants.KEY.ZEIR_ID, zeirId.getText().toString());
         return fields;
     }
 
-
     private void checkTextFields() {
-        if (!TextUtils.isEmpty(firstName.getText()) || !TextUtils
-                .isEmpty(lastName.getText())) {
+        if (!TextUtils.isEmpty(firstName.getText()) || !TextUtils.isEmpty(lastName.getText()) || !TextUtils.isEmpty(motherGuardianName.getText()) || !TextUtils.isEmpty(motherGuardianNrc.getText()) || !TextUtils.isEmpty(motherGuardianPhoneNumber.getText()) || !TextUtils.isEmpty(zeirId.getText())) {
             search.setEnabled(true);
             search.setTextColor(getResources().getColor(R.color.white));
-            search.setOnClickListener(registerActionHandler);
+
+
+            searchButton.setEnabled(true);
+            searchButton.setTextColor(getResources().getColor(R.color.white));
         } else {
             search.setEnabled(false);
             search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+
+            searchButton.setEnabled(false);
+            searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
         }
     }
 
@@ -463,9 +501,23 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
     private void resetForm() {
         clearSearchCriteria();
         clearMatchingResults();
+        clearFormFields();
+    }
 
+    private void clearFormFields() {
+        active.setChecked(true);
+        inactive.setChecked(false);
+        lostToFollowUp.setChecked(false);
+
+        zeirId.setText("");
         firstName.setText("");
         lastName.setText("");
+        motherGuardianName.setText("");
+        motherGuardianNrc.setText("");
+        motherGuardianPhoneNumber.setText("");
+
+        startDate.setText("");
+        endDate.setText("");
     }
 
     private void clearSearchCriteria() {
@@ -520,16 +572,60 @@ public class AdvancedSearchFragment extends ChildRegisterFragment
 
     private void search() {
 
-        String fn = firstName.getText().toString();
-        String ln = lastName.getText().toString();
-
         if (myCatchment.isChecked()) {
             isLocal = true;
         } else if (outsideInside.isChecked()) {
             isLocal = false;
         }
 
-        ((AdvancedSearchContract.Presenter) presenter).search(fn, ln, "", "", "", "", "", isLocal);
+
+        ((AdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
+    }
+
+    public Map<String, String> getSearchMap() {
+
+        Map<String, String> searchParams = new HashMap<>();
+
+        String fn = firstName.getText().toString();
+        String ln = lastName.getText().toString();
+
+
+        String motherGuardianNameString = motherGuardianName.getText().toString();
+
+        String motherGuardianNrcString = motherGuardianNrc.getText().toString();
+
+        String motherGuardianPhoneNumberString = motherGuardianPhoneNumber.getText().toString();
+
+        String zeir = zeirId.getText().toString();
+
+
+        if (StringUtils.isNotBlank(motherGuardianNameString)) {
+            searchParams.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianNameString);
+        }
+
+        if (StringUtils.isNotBlank(motherGuardianNrcString)) {
+
+            searchParams.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrcString);
+        }
+
+        if (StringUtils.isNotBlank(motherGuardianPhoneNumberString)) {
+            searchParams.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumberString);
+        }
+
+
+        if (!TextUtils.isEmpty(fn)) {
+            searchParams.put(DBConstants.KEY.FIRST_NAME, fn);
+        }
+
+        if (!TextUtils.isEmpty(ln)) {
+            searchParams.put(DBConstants.KEY.LAST_NAME, ln);
+        }
+
+        if (!TextUtils.isEmpty(zeir)) {
+            searchParams.put(DBConstants.KEY.ZEIR_ID, zeir);
+        }
+
+        return searchParams;
     }
 
     @Override

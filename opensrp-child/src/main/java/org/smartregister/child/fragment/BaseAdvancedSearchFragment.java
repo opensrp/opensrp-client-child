@@ -224,7 +224,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
         Button search = view.findViewById(R.id.search);
-        search.setOnClickListener(this);
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);

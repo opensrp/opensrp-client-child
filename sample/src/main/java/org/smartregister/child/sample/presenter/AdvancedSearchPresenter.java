@@ -32,18 +32,15 @@ public class AdvancedSearchPresenter extends ChildRegisterFragmentPresenter
         model = new AdvancedSearchModel();
     }
 
-    public void search(String firstName, String lastName, String opensrpID, String edd, String dob, String phoneNumber,
-                       String alternateContact, boolean isLocal) {
-        String searchCriteria = model
-                .createSearchString(firstName, lastName, opensrpID, edd, dob, phoneNumber, alternateContact);
+    public void search(Map<String, String> searchMap, boolean isLocal) {
+        String searchCriteria = model.createSearchString(searchMap);
         if (StringUtils.isBlank(searchCriteria)) {
             return;
         }
 
         getView().updateSearchCriteria(searchCriteria);
 
-        Map<String, String> editMap = model
-                .createEditMap(firstName, lastName, opensrpID, edd, dob, phoneNumber, alternateContact, isLocal);
+        Map<String, String> editMap = model.createEditMap(searchMap, isLocal);
         if (editMap == null || editMap.isEmpty()) {
             return;
         }
@@ -61,13 +58,12 @@ public class AdvancedSearchPresenter extends ChildRegisterFragmentPresenter
             getView().showProgressView();
             getView().switchViews(true);
             if (editMap.size() > 0) {
-                Map<String, String> localMap = model
-                        .createEditMap(firstName, lastName, opensrpID, edd, dob, phoneNumber, alternateContact, true);
+                Map<String, String> localMap = model.createEditMap(searchMap, true);
                 if (localMap != null && !localMap.isEmpty()) {
                     localQueryInitialize(localMap);
                 }
             }
-            interactor.search(editMap, this, opensrpID);
+            interactor.search(editMap, this, searchMap.get(DBConstants.KEY.ZEIR_ID));
 
         }
     }
