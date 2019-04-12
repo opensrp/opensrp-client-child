@@ -8,12 +8,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
-import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.util.DBConstants;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
-import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.util.Utils;
 
 /**
@@ -97,25 +92,4 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     public void onRegistrationSaved(boolean isEdit) {
 
     }
-
-    @Override
-    public WeightRepository getWeightRepository() {
-        return SampleApplication.getInstance().weightRepository();
-    }
-
-    @Override
-    public VaccineRepository getVaccineRepository() {
-        return SampleApplication.getInstance().vaccineRepository();
-    }
-
-    @Override
-    public RecurringServiceTypeRepository getRecurringServiceTypeRepository() {
-        return SampleApplication.getInstance().recurringServiceTypeRepository();
-    }
-
-    @Override
-    public RecurringServiceRecordRepository getRecurringServiceRecordRepository() {
-        return SampleApplication.getInstance().recurringServiceRecordRepository();
-    }
-
 }

@@ -22,11 +22,12 @@ import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
@@ -285,8 +286,7 @@ public class ChildUnderFiveFragment extends Fragment {
             dob = Calendar.getInstance().getTime();
         }
 
-        List<Vaccine> vaccineList = ((BaseChildDetailTabbedActivity) getActivity()).getVaccineRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
         if (vaccineList == null) {
             vaccineList = new ArrayList<>();
         }
@@ -309,8 +309,7 @@ public class ChildUnderFiveFragment extends Fragment {
             dateTime = DateTime.now();
         }
 
-        List<ServiceRecord> serviceRecordList = ((BaseChildDetailTabbedActivity) getActivity()).getRecurringServiceRecordRepository()
-                .findByEntityId(childDetails.entityId());
+        List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
         if (serviceRecordList == null) {
             serviceRecordList = new ArrayList<>();
         }
@@ -354,8 +353,7 @@ public class ChildUnderFiveFragment extends Fragment {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
 
-        WeightRepository weightRepository = ((BaseChildDetailTabbedActivity) getActivity()).getWeightRepository();
-        List<Weight> weightList = weightRepository.findByEntityId(childDetails.entityId());
+        List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
         if (!weightList.isEmpty()) {
             weightWrapper.setWeight(weightList.get(i).getKg());
             weightWrapper.setUpdatedWeightDate(new DateTime(weightList.get(i).getDate()), false);

@@ -1,14 +1,13 @@
-package org.smartregister.child.sample.model;
+package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.child.model.BaseChildRegisterFragmentModel;
-import org.smartregister.child.sample.contract.AdvancedSearchContract;
+import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.DBConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdvancedSearchModel extends BaseChildRegisterFragmentModel implements AdvancedSearchContract.Model {
+public class ChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
 
 
     public static final String GLOBAL_FIRST_NAME = "firstName";

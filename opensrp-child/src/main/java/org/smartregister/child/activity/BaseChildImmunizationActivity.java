@@ -53,6 +53,7 @@ import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
@@ -258,21 +259,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         updateAgeViews();
         updateChildIdViews();
 
-        WeightRepository weightRepository = getWeightRepository();
-
-        VaccineRepository vaccineRepository = getVaccineRepository();
-
-        RecurringServiceTypeRepository recurringServiceTypeRepository = getRecurringServiceTypeRepository();
-
-        RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
 
         AlertService alertService = getOpenSRPContext().alertService();
 
+
         UpdateViewTask updateViewTask = new UpdateViewTask();
-        updateViewTask.setWeightRepository(weightRepository);
-        updateViewTask.setVaccineRepository(vaccineRepository);
-        updateViewTask.setRecurringServiceTypeRepository(recurringServiceTypeRepository);
-        updateViewTask.setRecurringServiceRecordRepository(recurringServiceRecordRepository);
+        updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
+        updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
+        updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
+        updateViewTask.setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
         updateViewTask.setAlertService(alertService);
         Utils.startAsyncTask(updateViewTask, null);
     }
@@ -298,7 +293,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             childId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false);
         }
 
-        TextView nameTV =   findViewById(R.id.name_tv);
+        TextView nameTV = findViewById(R.id.name_tv);
         nameTV.setText(name);
         TextView childIdTV = findViewById(R.id.child_id_tv);
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
@@ -322,9 +317,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
         }
-        TextView dobTV =  findViewById(R.id.dob_tv);
+        TextView dobTV = findViewById(R.id.dob_tv);
         dobTV.setText(String.format("%s: %s", getString(R.string.birthdate), formattedDob));
-        TextView ageTV =  findViewById(R.id.age_tv);
+        TextView ageTV = findViewById(R.id.age_tv);
         ageTV.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
     }
 
@@ -356,7 +351,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
         toolbar.updateSeparatorView(toolbarResource);
 
-        TextView childSiblingsTV =  findViewById(R.id.child_siblings_tv);
+        TextView childSiblingsTV = findViewById(R.id.child_siblings_tv);
         childSiblingsTV.setText(
                 String.format(getString(R.string.child_siblings), "").toUpperCase());
         updateProfilePicture(gender);
@@ -727,7 +722,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
-        TextView recordWeightText =  findViewById(R.id.record_weight_text);
+        TextView recordWeightText = findViewById(R.id.record_weight_text);
         recordWeightText.setText(R.string.record_weight);
         if (!isActive) {
             recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
@@ -927,8 +922,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
 
-
-            Utils.recordWeight(getWeightRepository(), tag, dobString);
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), tag, dobString);
 
             updateRecordWeightViews(tag, isActiveStatus(childDetails));
             setLastModified(true);
@@ -972,8 +966,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dob = Calendar.getInstance().getTime();
         }
 
-        List<Vaccine> vaccineList = getVaccineRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
         if (vaccineList == null) {
             vaccineList = new ArrayList<>();
         }
@@ -1006,8 +999,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dob = DateTime.now();
         }
 
-        List<ServiceRecord> serviceRecordList = getRecurringServiceRecordRepository()
-                .findByEntityId(childDetails.entityId());
+        List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
         if (serviceRecordList == null) {
             serviceRecordList = new ArrayList<>();
         }
@@ -1053,7 +1045,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                         public void onFinishedLoadingVaccineWrappers() {
                             ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
                             if (!vaccineWrappers.isEmpty()) {
-                                final TextView recordAllTV =  vaccineGroup.findViewById(R.id.record_all_tv);
+                                final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
                                 recordAllTV.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -1075,11 +1067,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             return;
         }
 
-        VaccineRepository vaccineRepository = getVaccineRepository();
-
         VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
         SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
-        backgroundTask.setVaccineRepository(vaccineRepository);
+        backgroundTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         backgroundTask.setView(view);
         Utils.startAsyncTask(backgroundTask, arrayTags);
 
@@ -1584,8 +1574,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
             }
 
-            RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
-            List<ServiceRecord> serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
 
             AlertService alertService = getOpenSRPContext().alertService();
             List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
@@ -1616,11 +1605,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         @Override
         protected Void doInBackground(Void... params) {
             if (tag != null && tag.getDbKey() != null) {
-                RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
                 Long dbKey = tag.getDbKey();
-                recurringServiceRecordRepository.deleteServiceRecord(dbKey);
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-                serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
 
                 wrappers = new ArrayList<>();
                 wrappers.add(tag);
@@ -1655,8 +1643,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         @Override
         protected List<Weight> doInBackground(Void... params) {
-            WeightRepository weightRepository = getWeightRepository();
-            List<Weight> allWeights = weightRepository.findByEntityId(childDetails.entityId());
+            List<Weight> allWeights = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
             try {
                 String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
                 Date dob = Utils.dobStringToDate(dobString);
@@ -1766,7 +1753,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         public UndoVaccineTask(VaccineWrapper tag, View v) {
             this.tag = tag;
             this.v = v;
-            vaccineRepository = getVaccineRepository();
+            vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             alertService = getOpenSRPContext().alertService();
         }
 
@@ -1998,14 +1985,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public String getCurrentLocation() {
         return toolbar.getCurrentLocation();
     }
-
-    public abstract WeightRepository getWeightRepository();
-
-    public abstract VaccineRepository getVaccineRepository();
-
-    public abstract RecurringServiceTypeRepository getRecurringServiceTypeRepository();
-
-    public abstract RecurringServiceRecordRepository getRecurringServiceRecordRepository();
 
 
 }

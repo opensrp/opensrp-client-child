@@ -181,7 +181,7 @@ public class BaseChildRegisterFragmentModel implements ChildRegisterFragmentCont
                 altContactName = getJsonString(getJsonObject(client, "attributes"), "alt_name");
 
 
-                matrixCursor.addRow(new Object[]{entityId, null, firstName, lastName, dob, ancId, phoneNumber, altContactName});
+                matrixCursor.addRow(new Object[]{entityId, null, firstName, lastName, dob, ancId});
             }
         }
         return matrixCursor;

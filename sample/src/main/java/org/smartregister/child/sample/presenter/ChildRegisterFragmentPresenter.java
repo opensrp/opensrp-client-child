@@ -1,20 +1,13 @@
 package org.smartregister.child.sample.presenter;
 
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
-import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
-import org.smartregister.child.sample.contract.AdvancedSearchContract;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
  */
 public class ChildRegisterFragmentPresenter extends BaseChildRegisterFragmentPresenter {
-
-    protected AdvancedSearchContract.Interactor interactor;
-
-    protected AdvancedMatrixCursor matrixCursor;
 
     public ChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model, String viewConfigurationIdentifier) {
         super(view, model, viewConfigurationIdentifier);
@@ -27,7 +20,6 @@ public class ChildRegisterFragmentPresenter extends BaseChildRegisterFragmentPre
 
     @Override
     public String getDefaultSortQuery() {
-        return "";//To Remove DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
+        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
-
 }

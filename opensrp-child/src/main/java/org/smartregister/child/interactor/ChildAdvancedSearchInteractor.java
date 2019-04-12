@@ -1,11 +1,11 @@
-package org.smartregister.child.sample.interactor;
+package org.smartregister.child.interactor;
 
 import android.support.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
-import org.smartregister.child.sample.contract.AdvancedSearchContract;
+import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.domain.Response;
 import org.smartregister.service.HTTPAgent;
@@ -14,28 +14,28 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-public class AdvancedSearchInteractor implements AdvancedSearchContract.Interactor {
-
-    private AppExecutors appExecutors;
-
-    private HTTPAgent httpAgent;
-
-    private DristhiConfiguration dristhiConfiguration;
+/**
+ * Created by ndegwamartin on 11/04/2019.
+ */
+public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContract.Interactor {
 
     public static final String SEARCH_URL = "/rest/search/search";
+    private AppExecutors appExecutors;
+    private HTTPAgent httpAgent;
+    private DristhiConfiguration dristhiConfiguration;
 
     @VisibleForTesting
-    AdvancedSearchInteractor(AppExecutors appExecutors) {
+    ChildAdvancedSearchInteractor(AppExecutors appExecutors) {
         this.appExecutors = appExecutors;
     }
 
-    public AdvancedSearchInteractor() {
+    public ChildAdvancedSearchInteractor() {
         this(new AppExecutors());
     }
 
     @Override
-    public void search(final Map<String, String> editMap, final AdvancedSearchContract.InteractorCallBack callBack,
-                       final String opensrpID) {
+    public void search(final Map<String, String> editMap, final ChildAdvancedSearchContract.InteractorCallBack callBack,
+                       final String ancId) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -44,7 +44,7 @@ public class AdvancedSearchInteractor implements AdvancedSearchContract.Interact
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override
                     public void run() {
-                        callBack.onResultsFound(response, opensrpID);
+                        callBack.onResultsFound(response, ancId);
                     }
                 });
             }
@@ -55,7 +55,6 @@ public class AdvancedSearchInteractor implements AdvancedSearchContract.Interact
 
     private Response<String> globalSearch(Map<String, String> map) {
         String baseUrl = getDristhiConfiguration().dristhiBaseURL();
-        baseUrl = "https://zeir-demo.smartregister.org/opensrp-zeir/"; //To Remove
         String paramString = "";
         if (!map.isEmpty()) {
             for (Map.Entry<String, String> entry : map.entrySet()) {

@@ -10,7 +10,8 @@ public class CreateRemoteLocalCursor {
     private String firstName;
     private String lastName;
     private String dob;
-    private String ancId;
+    private String zeirId;
+
     private String phoneNumber;
     private String altName;
 
@@ -20,10 +21,11 @@ public class CreateRemoteLocalCursor {
         } else {
             id = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.BASE_ENTITY_ID));
         }
-        relationalId = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.RELATIONAL_ID));
+        relationalId = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.RELATIONALID));
         firstName = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.FIRST_NAME));
         lastName = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.LAST_NAME));
         dob = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.DOB));
+        zeirId = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.ZEIR_ID));
     }
 
     public String getId() {
@@ -46,15 +48,19 @@ public class CreateRemoteLocalCursor {
         return dob;
     }
 
-    public String getAncId() {
-        return ancId;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
     public String getAltName() {
         return altName;
+    }
+
+    public String getZeirId() {
+        return zeirId;
+    }
+
+    public void setZeirId(String zeirId) {
+        this.zeirId = zeirId;
     }
 }

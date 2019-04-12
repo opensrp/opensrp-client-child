@@ -2,6 +2,7 @@ package org.smartregister.child.presenter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.R;
+import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.DBConstants;
@@ -27,8 +28,12 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     protected RegisterConfiguration config;
 
     protected Set<org.smartregister.configurableviews.model.View> visibleColumns = new TreeSet<>();
+
     protected String viewConfigurationIdentifier;
-    private AdvancedMatrixCursor advancedMatrixCursor;
+
+    protected ChildAdvancedSearchContract.Interactor interactor;
+
+    protected AdvancedMatrixCursor matrixCursor;
 
     public BaseChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model, String viewConfigurationIdentifier) {
         this.viewReference = new WeakReference<>(view);
@@ -107,11 +112,14 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
         return String.format(" %s is null ", DBConstants.KEY.DATE_REMOVED);
     }
 
+    @Override
+    public abstract String getDefaultSortQuery();
+
     public void setMatrixCursor(AdvancedMatrixCursor matrixCursor) {
-        this.advancedMatrixCursor = matrixCursor;
+        this.matrixCursor = matrixCursor;
     }
 
     public AdvancedMatrixCursor getMatrixCursor() {
-        return advancedMatrixCursor;
+        return matrixCursor;
     }
 }

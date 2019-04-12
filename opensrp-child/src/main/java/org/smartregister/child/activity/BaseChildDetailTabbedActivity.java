@@ -58,11 +58,13 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceSchedule;
@@ -633,7 +635,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
-        Button positiveButton =  notificationsLayout.findViewById(R.id.noti_positive_button);
+        Button positiveButton = notificationsLayout.findViewById(R.id.noti_positive_button);
         positiveButton.setVisibility(View.VISIBLE);
         positiveButton.setText(getResources().getString(R.string.undo));
         positiveButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
@@ -646,7 +648,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         });
 
-        Button negativeButton =  notificationsLayout.findViewById(R.id.noti_negative_button);
+        Button negativeButton = notificationsLayout.findViewById(R.id.noti_negative_button);
         negativeButton.setVisibility(View.VISIBLE);
         negativeButton.setText(getResources().getString(R.string.confirm_button_label));
         negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
@@ -939,7 +941,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     public void onUndoVaccination(VaccineWrapper tag, View view) {
         if (tag != null && tag.getDbKey() != null) {
-            final VaccineRepository vaccineRepository = getVaccineRepository();
+            final VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             Long dbKey = tag.getDbKey();
             vaccineRepository.deleteVaccine(dbKey);
 
@@ -961,7 +963,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     public void onWeightTaken(WeightWrapper tag) {
         if (tag != null) {
-            WeightRepository weightRepository = getWeightRepository();
+            WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
             if (tag.getDbKey() != null) {
                 weight = weightRepository.find(tag.getDbKey());
@@ -1060,11 +1062,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private void saveVaccine(VaccineWrapper tag) {
-        VaccineRepository vaccineRepository = getVaccineRepository();
 
         Vaccine vaccine = new Vaccine();
         if (tag.getDbKey() != null) {
-            vaccine = vaccineRepository.find(tag.getDbKey());
+            vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(tag.getDbKey());
         }
         vaccine.setBaseEntityId(childDetails.entityId());
         vaccine.setName(tag.getName());
@@ -1081,7 +1082,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         } else {
             vaccine.setCalculation(-1);
         }
-        Utils.addVaccine(vaccineRepository, vaccine);
+        Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
         tag.setDbKey(vaccine.getId());
 
 
@@ -1119,11 +1120,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private boolean insertVaccinesGivenAsOptions(JSONObject question) throws JSONException {
-        VaccineRepository vaccineRepository = getVaccineRepository();
         JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
@@ -1292,13 +1292,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
 
-            WeightRepository wp = getWeightRepository();
-            List<Weight> weightList = wp.findLast5(childDetails.entityId());
+            List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
 
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
 
-            VaccineRepository vaccineRepository = getVaccineRepository();
+            VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
             NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
@@ -1306,8 +1305,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             List<ServiceRecord> serviceRecords = new ArrayList<>();
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = getRecurringServiceTypeRepository();
-            RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
+            RecurringServiceTypeRepository recurringServiceTypeRepository = ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository = ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
 
             if (recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
@@ -1421,8 +1420,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
             }
 
-            RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
-            List<ServiceRecord> serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
 
             AlertService alertService = getOpenSRPContext().alertService();
             List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
@@ -1496,11 +1494,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             if (tag != null) {
 
                 if (tag.getDbKey() != null) {
-                    RecurringServiceRecordRepository recurringServiceRecordRepository = getRecurringServiceRecordRepository();
                     Long dbKey = tag.getDbKey();
-                    recurringServiceRecordRepository.deleteServiceRecord(dbKey);
+                    ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-                    serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+                    serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
 
                     wrappers = new ArrayList<>();
                     wrappers.add(tag);
@@ -1596,13 +1593,4 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             return mFragmentTitleList.get(position);
         }
     }
-
-
-    public abstract WeightRepository getWeightRepository();
-
-    public abstract VaccineRepository getVaccineRepository();
-
-    public abstract RecurringServiceTypeRepository getRecurringServiceTypeRepository();
-
-    public abstract RecurringServiceRecordRepository getRecurringServiceRecordRepository();
 }

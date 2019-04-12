@@ -12,10 +12,6 @@ import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
-import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.location.helper.LocationHelper;
 
 public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
@@ -47,26 +43,6 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
         if (lastModified != application.isLastModified()) {
             application.setLastModified(lastModified);
         }
-    }
-
-    @Override
-    public WeightRepository getWeightRepository() {
-        return SampleApplication.getInstance().weightRepository();
-    }
-
-    @Override
-    public VaccineRepository getVaccineRepository() {
-        return SampleApplication.getInstance().vaccineRepository();
-    }
-
-    @Override
-    public RecurringServiceTypeRepository getRecurringServiceTypeRepository() {
-        return SampleApplication.getInstance().recurringServiceTypeRepository();
-    }
-
-    @Override
-    public RecurringServiceRecordRepository getRecurringServiceRecordRepository() {
-        return SampleApplication.getInstance().recurringServiceRecordRepository();
     }
 
     @Override

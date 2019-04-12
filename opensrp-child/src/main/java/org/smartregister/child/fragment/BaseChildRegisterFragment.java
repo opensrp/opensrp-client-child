@@ -37,6 +37,8 @@ import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.location.helper.LocationHelper;
@@ -61,10 +63,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         .SyncStatusListener, View.OnClickListener {
 
     private static String DOD_MAIN_CONDITION = " ( " + DBConstants.KEY.DOD + " is NULL OR " + DBConstants.KEY.DOD + " = '' ) ";
-    private TextView filterCount;
     private View filterSection;
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;
+    private TextView overdueCountTV;
 
     @Override
     protected void initializePresenter() {
@@ -79,9 +81,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-    protected String getDefaultSortQuery() {
-        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC";
-    }
+    protected abstract String getDefaultSortQuery();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -101,19 +101,25 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected void onResumption() {
         super.onResumption();
 
-        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        if (filterMode()) {
+            toggleFilterSelection();
         }
+
         updateSearchView();
 
         updateLocationText();
 
-        if (filterMode()) {
-            toggleFilterSelection();
-        }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        }
+    }
 
     private boolean filterMode() {
         return filterSection != null && filterSection.getTag() != null;
@@ -147,18 +153,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             filterSection = view.findViewById(R.id.filter_selection);
             filterSection.setOnClickListener(this);
 
-            filterCount = view.findViewById(R.id.filter_count);
-            filterCount.setVisibility(View.GONE);
-            filterCount.setClickable(false);
-            filterCount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (view.isClickable()) {
-                        filterSection.performClick();
-                    }
-                }
-            });
-
             clinicSelection = view.findViewById(R.id.clinic_selection);
             clinicSelection.init();
 
@@ -180,8 +174,26 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
             View globalSearchButton = view.findViewById(R.id.global_search);
             globalSearchButton.setOnClickListener(this);
+
+            overdueCountTV = view.findViewById(R.id.filter_count);
+            overdueCountTV.setVisibility(View.GONE);
         }
 
+    }
+
+    public void updateDueOverdueCountText(int overDueCount) {
+        if (overdueCountTV != null) {
+            if (overDueCount > 0) {
+                overdueCountTV.setText(String.valueOf(overDueCount));
+                overdueCountTV.setVisibility(View.VISIBLE);
+                overdueCountTV.setClickable(true);
+            } else {
+                overdueCountTV.setVisibility(View.GONE);
+                overdueCountTV.setClickable(false);
+            }
+        } else {
+            Log.e(BaseChildRegisterFragment.class.getCanonicalName(), "Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
+        }
     }
 
 
@@ -306,7 +318,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             android.support.v4.app.Fragment currentFragment = baseRegisterActivity
                     .findFragmentByPosition(BaseRegisterActivity
                             .ADVANCED_SEARCH_POSITION);
-            ((BaseAdvancedSearchFragment) currentFragment).setSearchFormData(formData);
+            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
         }
     }
 
@@ -315,8 +327,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         RepositoryHolder repositoryHolder = new RepositoryHolder();
         repositoryHolder.setCommonRepository(commonRepository());
-        repositoryHolder.setVaccineRepository(((BaseChildRegisterActivity) getActivity()).getVaccineRepository());
-        repositoryHolder.setWeightRepository(((BaseChildRegisterActivity) getActivity()).getWeightRepository());
+        repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
+        repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
 
 
         ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
@@ -339,6 +351,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void onSyncInProgress(FetchStatus fetchStatus) {
         // do we need to post progress?
+    }
+
+    @Override
+    public void onSyncComplete(FetchStatus fetchStatus) {
+        super.onSyncComplete(fetchStatus);
+        Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     @Override
@@ -450,6 +468,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         return count;
     }
 
+    public void triggerFilterSelection() {
+        if (filterSection != null && !filterMode()) {
+            filterSection.performClick();
+        }
+    }
+
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
         @Override
         protected Pair<Integer, Integer> doInBackground(Void... params) {
@@ -461,28 +485,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         @Override
         protected void onPostExecute(Pair<Integer, Integer> pair) {
-            super.onPostExecute(pair);
             int overDue = pair.first;
             dueOverdueCount = pair.second;
 
-            if (filterCount != null) {
-                if (overDue > 0) {
-                    filterCount.setText(String.valueOf(overDue));
-                    filterCount.setVisibility(View.VISIBLE);
-                    filterCount.setClickable(true);
-                } else {
-                    filterCount.setVisibility(View.GONE);
-                    filterCount.setClickable(false);
-                }
-            }
+            updateDueOverdueCountText(dueOverdueCount);
 
-            ((BaseChildRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(overDue);
-        }
-    }
-
-    public void triggerFilterSelection() {
-        if (filterSection != null && !filterMode()) {
-            filterSection.performClick();
         }
     }
 }

@@ -24,6 +24,7 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -32,6 +33,10 @@ import java.util.List;
 public abstract class BaseChildRegisterActivity extends BaseRegisterActivity implements ChildRegisterContract.View {
     public static final String TAG = BaseChildRegisterActivity.class.getCanonicalName();
 
+
+    private boolean isAdvancedSearch = false;
+    private String advancedSearchQrText = "";
+    private HashMap<String, String> advancedSearchFormData = new HashMap<>();
     @Override
     public void startRegistration() {
         startFormActivity(getRegistrationForm(), null, null);
@@ -49,6 +54,60 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        switchToAdvancedSearchFromBarcode();
+    }
+
+    /**
+     * Forces the Home register activity to open the the Advanced search fragment after the barcode activity is closed (as
+     * long as it was opened from the advanced search page)
+     */
+    private void switchToAdvancedSearchFromBarcode() {
+        if (isAdvancedSearch) {
+            switchToFragment(ADVANCED_SEARCH_POSITION);
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
+            setAdvancedFragmentSearchTerm(advancedSearchQrText);
+            setFormData(advancedSearchFormData);
+            advancedSearchQrText = "";
+            isAdvancedSearch = false;
+            advancedSearchFormData = new HashMap<>();
+        }
+    }
+
+
+
+    public void setAdvancedSearch(boolean advancedSearch) {
+        isAdvancedSearch = advancedSearch;
+    }
+
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        this.advancedSearchFormData = advancedSearchFormData;
+    }
+
+    private void setAdvancedFragmentSearchTerm(String searchTerm) {
+        mBaseFragment.setUniqueID(searchTerm);
+    }
+
+    private void setFormData(HashMap<String, String> formData) {
+        mBaseFragment.setAdvancedSearchFormData(formData);
+    }
+
+
+
+    public void startAdvancedSearch() {
+        try {
+            mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+    }
+
 
     @Override
     public void startFormActivity(JSONObject jsonForm) {
@@ -128,10 +187,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     public abstract String getRegistrationForm();
-
-    public abstract WeightRepository getWeightRepository();
-
-    public abstract VaccineRepository getVaccineRepository();
 
 
     public void updateAdvancedSearchFilterCount(int count) {
