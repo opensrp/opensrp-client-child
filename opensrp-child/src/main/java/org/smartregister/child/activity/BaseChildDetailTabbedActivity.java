@@ -904,7 +904,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         int lightSade = colors[2];
         detailtoolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
         tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
-//        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
+        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
         try {
             Field field = TabLayout.class.getDeclaredField("mTabStrip");
             field.setAccessible(true);

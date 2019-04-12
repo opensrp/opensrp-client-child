@@ -62,7 +62,7 @@
                         android:layout_height="match_parent"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_gravity="right|center_horizontal|end"
+                        android:layout_gravity="end|center_horizontal|end"
                         android:background="@color/transparent"
                         android:paddingStart="@dimen/advanced_search_toolbar_drawable_padding"
                         android:paddingEnd="@dimen/advanced_search_toolbar_drawable_padding"
