@@ -87,7 +87,7 @@ android {
 
 dependencies {
 
-    implementation('org.smartregister:opensrp-client-core:1.6.17-RTL-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.6.17-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -113,7 +113,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'design'
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    implementation('org.smartregister:opensrp-client-immunization:1.4.8-RTL-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-immunization:1.4.8-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -121,7 +121,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.3-RTL-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.3-SNAPSHOT@aar') {
 
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
