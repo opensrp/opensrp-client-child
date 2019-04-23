@@ -11,7 +11,7 @@
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
     <string name="add_child">Ajouter enfant</string>
-    <string name="nearex"> Scanner Carte</string>
+    <string name="scan_card"> Scanner Carte</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
@@ -302,5 +302,6 @@
 
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
+    <string name="next_visit">Prochain</string>
 
 </resources>

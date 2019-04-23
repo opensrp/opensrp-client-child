@@ -57,8 +57,7 @@
         android:layout_weight="1"
         android:background="@drawable/scan_qr_code_bg"
         android:layout_marginEnd="15dp"
-        android:layout_marginStart="7dp"
-        android:visibility="gone">
+        android:layout_marginStart="7dp">
 
         <TextView
             style="?android:attr/buttonStyle"
@@ -73,7 +72,7 @@
             android:gravity="center"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:text="@string/nearex"
+            android:text="@string/scan_card"
             android:textAllCaps="false"
             android:textColor="@color/light_grey"
             android:textSize="18sp"

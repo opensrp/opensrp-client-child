@@ -38,6 +38,7 @@ import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.Configurable;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
@@ -220,13 +221,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     protected void onResume() {
         super.onResume();
         if (vaccineGroups != null) {
-            LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
+            LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
             vaccineGroupCanvasLL.removeAllViews();
             vaccineGroups = null;
         }
 
         if (serviceGroups != null) {
-            LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
+            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
             serviceGroupCanvasLL.removeAllViews();
             serviceGroups = null;
         }
@@ -394,7 +395,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
 
             serviceGroups = new ArrayList<>();
-            LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
+            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
 
             ServiceGroup curGroup = new ServiceGroup(this);
             curGroup.setChildActive(isChildActive);
@@ -562,7 +563,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
-        LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
+        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, Constants.KEY.CHILD);
@@ -623,7 +624,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             parent.setId(groupParentId);
             vaccineGroupCanvasLL.addView(parent);
         } else {
-            parent = (LinearLayout) findViewById(groupParentId);
+            parent = findViewById(groupParentId);
             parent.removeAllViews();
         }
         parent.addView(curGroup);
@@ -1708,7 +1709,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if (weightWrapper == null || weightWrapper.getWeight() == null) {
+            if (Configurable.isShowWeightPopUp && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 

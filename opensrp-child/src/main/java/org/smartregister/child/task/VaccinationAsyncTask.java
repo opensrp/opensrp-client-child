@@ -2,9 +2,7 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 import static org.smartregister.util.Utils.getValue;
@@ -141,6 +138,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         Map<String, Object> nv = updateWrapper.getNv();
 
+        DateTime dueDate = null;
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
@@ -163,7 +161,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 today.set(Calendar.SECOND, 0);
                 today.set(Calendar.MILLISECOND, 0);
 
-                DateTime dueDate = null;
                 if (nv.get(Constants.KEY.DATE) != null && nv.get(Constants.KEY.DATE) instanceof DateTime) {
                     dueDate = (DateTime) nv.get(Constants.KEY.DATE);
                 }
@@ -178,6 +175,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             } else if (AlertStatus.expired.equals(alert.status())) {
                 state = State.EXPIRED;
             }
+        }
+
+        TextView nextDate = convertView.findViewById(R.id.child_next_appointment);
+
+        if (nextDate != null && dueDate != null) {
+
+            nextDate.setText(Utils.convertDateFormat(dueDate));
         }
 
         // Check for fully immunized child

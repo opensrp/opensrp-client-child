@@ -1,6 +1,6 @@
 [
   {
-    "name": "Naissance",
+    "name": "Birth",
     "id": "Birth",
     "days_after_birth_due": 0,
     "vaccines": [
@@ -30,6 +30,12 @@
             {
               "reference": "dob",
               "offset": "+13d"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "not_given",
+              "vaccine": "OPV 4"
             }
           ]
         }
@@ -63,41 +69,11 @@
             }
           ]
         }
-      },
-      {
-        "name": "HepB",
-        "type": "HepB",
-        "openmrs_date": {
-          "parent_entity": "782AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        },
-        "openmrs_calculate": {
-          "parent_entity": "782AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
-        },
-        "schedule": {
-          "due": [
-            {
-              "reference": "dob",
-              "offset": "+0d",
-              "window": "+10d"
-            }
-          ],
-          "expiry": [
-            {
-              "reference": "dob",
-              "offset": "+1y"
-            }
-          ]
-        }
       }
     ]
   },
   {
-    "name": "6 ème semaine",
+    "name": "6 Weeks",
     "id": "Six_Wks",
     "days_after_birth_due": 42,
     "vaccines": [
@@ -224,7 +200,7 @@
     ]
   },
   {
-    "name": "10 ème semaine",
+    "name": "10 Weeks",
     "id": "Ten_Wks",
     "days_after_birth_due": 70,
     "vaccines": [
@@ -355,16 +331,15 @@
     ]
   },
   {
-    "name": "14 ème Semaine",
+    "name": "14 Weeks",
     "id": "Fourteen_Weeks",
     "days_after_birth_due": 98,
     "vaccines": [
       {
-        "name": "OPV 3/ IPV",
-        "type": "OPV/ IPV",
-        "vaccine_separator": " / ",
+        "name": "OPV 3",
+        "type": "OPV",
         "openmrs_date": {
-          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/1422AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
@@ -456,7 +431,7 @@
     ]
   },
   {
-    "name": "9 mois",
+    "name": "9 Months",
     "id": "Nine_Months",
     "days_after_birth_due": 274,
     "vaccines": [
@@ -509,18 +484,18 @@
         }
       },
       {
-        "name": "Meningococcal",
-        "type": "Meningococcal",
+        "name": "OPV 4",
+        "type": "OPV",
         "openmrs_date": {
-          "parent_entity": "159900AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
         "openmrs_calculate": {
-          "parent_entity": "159900AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
+          "calculation": 4
         },
         "schedule": {
           "due": [
@@ -533,37 +508,19 @@
           "expiry": [
             {
               "reference": "dob",
-              "offset": "+18m"
-            }
-          ]
-        }
-      },
-      {
-        "name": "Yellow Fever",
-        "type": "Yellow Fever",
-        "openmrs_date": {
-          "parent_entity": "5864AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        },
-        "openmrs_calculate": {
-          "parent_entity": "5864AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
-        },
-        "schedule": {
-          "due": [
-            {
-              "reference": "dob",
-              "offset": "+9m",
-              "window": "+10d"
+              "offset": "+5y"
             }
           ],
-          "expiry": [
+          "conditions": [
             {
-              "reference": "dob",
-              "offset": "+18m"
+              "type": "not_given",
+              "vaccine": "OPV 0"
+            },
+            {
+              "type": "given",
+              "vaccine": "OPV 3",
+              "comparison": "at_least",
+              "value": "-28d"
             }
           ]
         }
@@ -571,7 +528,7 @@
     ]
   },
   {
-    "name": "18 mois",
+    "name": "18 Months",
     "id": "Eighteen_Months",
     "days_after_birth_due": 548,
     "vaccines": [

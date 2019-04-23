@@ -294,6 +294,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setDatePicker(endDate);
 
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
+        qrCodeButton.setText(R.string.scan_card);
         qrCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

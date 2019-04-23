@@ -12,10 +12,10 @@
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
-        android:layout_weight="4.4"
-        android:orientation="horizontal"
-        android:layout_marginEnd="1dp">
+        android:layout_weight="6.1"
+        android:orientation="horizontal">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_header"
@@ -33,23 +33,24 @@
             style="@style/CustomFontTextViewStyle.ClientList.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_marginEnd="7dp"
             android:layout_marginRight="7dp"
             android:text="@string/birthdate_age"
             android:textAllCaps="true"
             android:textColor="@color/client_list_grey"
-            android:textSize="16sp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="7dp" />
+            android:textSize="16sp" />
 
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1.8"
-        android:layout_marginEnd="1dp">
+        android:visibility="gone">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_zeir_id_header"
@@ -67,9 +68,10 @@
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1.7"
-        android:layout_marginEnd="1dp">
+        android:visibility="gone">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_weight_header"
@@ -83,6 +85,25 @@
             android:textSize="16sp" />
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:layout_weight="1.8">
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/child_next_appointment_header"
+            style="@style/CustomFontTextViewStyle.ClientList.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_visit"
+            android:textAllCaps="true"
+            android:textColor="@color/client_list_grey"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="0dp"
