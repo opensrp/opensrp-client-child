@@ -25,7 +25,7 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
 
         if (item.getItemId() == R.id.action_child) {
             baseRegisterActivity.switchToBaseFragment();
-        } else if (item.getItemId() == R.id.action_scan_qr) {
+        } else if (item.getItemId() == R.id.action_read_card) {
             ((BaseChildRegisterActivity) baseRegisterActivity).startNearexScanner();
         }
         if (item.getItemId() == R.id.action_child) {
