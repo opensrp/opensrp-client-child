@@ -379,6 +379,13 @@
           "json_mapping": {
             "field": "attributes.dateRemoved"
           }
+        },
+        {
+          "column_name": "nfc_card_identifier",
+          "type": "Client",
+          "json_mapping": {
+            "field": "attributes.NFC_Card_Identifier"
+          }
         }
       ]
     }

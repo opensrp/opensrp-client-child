@@ -262,6 +262,7 @@
 
                 <Button
                     android:id="@+id/qrCodeButton"
+                    android:visibility="gone"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
@@ -272,6 +273,19 @@
                     android:paddingEnd="@dimen/register_search_bar_min_margin"
                     android:paddingRight="@dimen/register_search_bar_min_margin"
                     android:text="@string/scan_qr_code"
+                    android:textColor="@color/advance_search_qr_code" />
+                <Button
+                    android:id="@+id/scanCardButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/advanced_search_qr_code"
+                    android:paddingStart="@dimen/register_search_bar_min_margin"
+                    android:paddingLeft="@dimen/register_search_bar_min_margin"
+                    android:paddingEnd="@dimen/register_search_bar_min_margin"
+                    android:paddingRight="@dimen/register_search_bar_min_margin"
+                    android:text="@string/scan_card"
                     android:textColor="@color/advance_search_qr_code" />
 
             </RelativeLayout>

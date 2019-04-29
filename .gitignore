@@ -14,3 +14,4 @@ jacoco.exec
 /captures
 .externalNativeBuild
 jacoco.exec
+.idea/

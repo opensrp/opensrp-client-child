@@ -17,9 +17,7 @@ import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.helper.BottomNavigationHelper;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
@@ -37,6 +35,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     private boolean isAdvancedSearch = false;
     private String advancedSearchQrText = "";
     private HashMap<String, String> advancedSearchFormData = new HashMap<>();
+
     @Override
     public void startRegistration() {
         startFormActivity(getRegistrationForm(), null, null);
@@ -54,7 +53,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
-
 
 
     @Override
@@ -80,7 +78,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
 
-
     public void setAdvancedSearch(boolean advancedSearch) {
         isAdvancedSearch = advancedSearch;
     }
@@ -96,7 +93,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     private void setFormData(HashMap<String, String> formData) {
         mBaseFragment.setAdvancedSearchFormData(formData);
     }
-
 
 
     public void startAdvancedSearch() {
@@ -165,10 +161,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         }
     }
 
-    public void startNearexScanner() {
-
-        Utils.showToast(this, this.getResources().getString(R.string.start_nearex_scan));
-    }
+    public abstract void startNFCCardScanner();
 
     @Override
     public List<String> getViewIdentifiers() {

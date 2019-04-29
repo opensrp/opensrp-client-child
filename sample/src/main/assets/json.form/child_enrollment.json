@@ -494,6 +494,14 @@
           "MSU": "1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "CNE": "664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         }
+      },
+      {
+        "key": "nfc_card_identifier",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "person_attribute",
+        "openmrs_entity_id": "NFC_Card_Identifier",
+        "type": "hidden",
+        "value": ""
       }
     ]
   }

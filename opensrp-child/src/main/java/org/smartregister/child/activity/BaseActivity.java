@@ -101,7 +101,7 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentView());
-        toolbar = (BaseToolbar) findViewById(getToolbarId());
+        toolbar = findViewById(getToolbarId());
         setSupportActionBar(toolbar);
 
      /*   DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());

@@ -111,7 +111,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by raihan on 1/03/2017.
  */
@@ -536,6 +535,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("CHW_Phone_Number")) {
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "CHW_Phone_Number", true));
                     }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Nfc_Card_Identifier")) {
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "nfc_card_identifier", true));
+                    }
+
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
                         List<String> homeFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(getValue(detailsMap,
                                 "Home_Facility", false), true);

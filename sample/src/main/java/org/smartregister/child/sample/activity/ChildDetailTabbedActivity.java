@@ -9,6 +9,7 @@ import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
 /**
@@ -20,7 +21,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.registration_data:
-                String formmetadata = getmetaDataForEditForm();
+                String formmetadata = JsonFormUtils.getmetaDataForEditForm(this, getChildDetails().getColumnmaps());
                 startFormActivity("child_enrollment", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), formmetadata);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;

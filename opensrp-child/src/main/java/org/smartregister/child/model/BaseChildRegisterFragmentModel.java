@@ -90,6 +90,7 @@ public class BaseChildRegisterFragmentModel implements ChildRegisterFragmentCont
                 tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                 tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                 tableName + "." + DBConstants.KEY.INACTIVE,
+                tableName + "." + DBConstants.KEY.NFC_CARD_IDENTIFIER,
         };
         return columns;
     }
