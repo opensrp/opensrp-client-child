@@ -310,12 +310,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
         Button scanCardButton = view.findViewById(R.id.scanCardButton);
         scanCardButton.setVisibility(View.GONE);
-        scanCardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
-
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
