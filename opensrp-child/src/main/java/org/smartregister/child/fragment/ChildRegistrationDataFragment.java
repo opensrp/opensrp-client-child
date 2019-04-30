@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import org.smartregister.child.R;
@@ -197,6 +198,25 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildsHomeAddress.setText(Utils.getValue(detailsMap, "address2", true));
             tvLandmark.setText(Utils.getValue(detailsMap, "address1", true));
+
+            // remove any empty fields
+            removeEmptyValueFields();
+        }
+    }
+
+    /**
+     * @since 2019-04-30
+     * This method hides registration data fields with empty values
+     */
+    public void removeEmptyValueFields(){
+        // check all textviews in the registration data table
+        TableLayout tableLayout = fragmentView.findViewById(R.id.registration_data_table);
+        for(int i=0; i<tableLayout.getChildCount(); i++) {
+            TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
+            // if no data, hide the row
+            if(((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim().equals("")) {
+                tableRow.setVisibility(View.GONE);
+            }
         }
     }
 }
