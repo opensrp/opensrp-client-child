@@ -204,7 +204,10 @@ public class ChildRegistrationDataFragment extends Fragment {
         }
     }
 
-
+    /**
+     * @since 2019-04-30
+     * This method hides registration data fields with empty values
+     */
     public void removeEmptyValueFields(){
         // check all textviews in the registration data table
         TableLayout tableLayout = fragmentView.findViewById(R.id.registration_data_table);
