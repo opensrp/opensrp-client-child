@@ -43,25 +43,28 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     }
 
     @Override
-    protected void onViewClicked(View view) {
+    protected void onViewClicked(View view) {˙
 
         super.onViewClicked(view);
 
-        if (view.getTag() != null && view.getTag(org.smartregister.child.R.id.record_action) != null) {
-            goToChildImmunizationActivity((CommonPersonObjectClient) view.getTag(), (Constants.RECORD_ACTION) view.getTag(org.smartregister.child.R.id.record_action));
+        RegisterClickables registerClickables = new RegisterClickables();
+
+        if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
+
+            registerClickables.setRecordWeight(Constants.RECORD_ACTION.WEIGHT.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+            registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+
         }
 
-        //starto
         CommonPersonObjectClient client = null;
         if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
             client = (CommonPersonObjectClient) view.getTag();
         }
-        RegisterClickables registerClickables = new RegisterClickables();
 
         switch (view.getId()) {
             case R.id.child_profile_info_layout:
 
-                ChildImmunizationActivity.launchActivity(getActivity(), client, null);
+                ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
                 break;
             case R.id.record_weight:
                 registerClickables.setRecordWeight(true);

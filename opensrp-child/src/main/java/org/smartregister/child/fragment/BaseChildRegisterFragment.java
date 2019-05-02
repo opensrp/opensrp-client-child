@@ -58,9 +58,7 @@ import java.util.Set;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
-        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver
-        .SyncStatusListener, View.OnClickListener {
+public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
 
     private static String DOD_MAIN_CONDITION = " ( " + DBConstants.KEY.DOD + " is NULL OR " + DBConstants.KEY.DOD + " = '' ) ";
     private View filterSection;
@@ -137,6 +135,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
             if (qrCodeScanImageView != null) {
                 qrCodeScanImageView.setOnClickListener(this);
+            }
+
+            FrameLayout scanCardView = view.findViewById(R.id.scan_card);
+            if (scanCardView != null) {
+                scanCardView.setOnClickListener(this);
+                scanCardView.setVisibility(View.GONE);
             }
 
             // Update title name

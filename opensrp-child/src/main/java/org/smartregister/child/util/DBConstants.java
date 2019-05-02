@@ -24,7 +24,7 @@ public class DBConstants {
         public static final String LANDMARK = "landmark";
         public static final String GPS = "gps";
         public static final String DATE_REMOVED = "date_removed";
-        public static final String FATHER_FIRST_NAME = "father_name";
+        public static final String FATHER_FIRST_NAME = "father_first_name";
         public static final String NRC_NUMBER = "nrc_number";
         public static final String DETAILS = "details";
         public static final String RELATIONALID = "relationalid";
@@ -46,5 +46,6 @@ public class DBConstants {
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String TETANUS_HISTORY = "tetanus_history";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String DEVICEID = "deviceid";
     }
 }
