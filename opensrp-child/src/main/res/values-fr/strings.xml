@@ -271,6 +271,7 @@
     <string name="child_age">âge</string>
     <string name="date_first_seen">Date de première visite</string>
     <string name="birth_weight">Poids à la naissance</string>
+    <string name="birth_tetanus_protection">Protection contre le tétanos néonatal</string>
     <string name="mother_first_name">Prénom mère</string>
     <string name="mother_second_name">Nom mère</string>
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
@@ -284,6 +285,7 @@
     <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
     <string name="landmark">Point de repère</string>
+    <string name="preferred_language">Langue Préférée</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="health_details">détails sur la santé</string>
     <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
