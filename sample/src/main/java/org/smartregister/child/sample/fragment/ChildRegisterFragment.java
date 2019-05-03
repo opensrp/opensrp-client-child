@@ -43,7 +43,7 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     }
 
     @Override
-    protected void onViewClicked(View view) {˙
+    protected void onViewClicked(View view) {
 
         super.onViewClicked(view);
 
