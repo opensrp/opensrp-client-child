@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.google.common.reflect.TypeToken;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -549,9 +550,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             JSONObject form = FormUtils.getInstance(context).getFormJson(Utils.metadata().childRegister.formName);
             LocationPickerView lpv = new LocationPickerView(context);
             lpv.init();
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
-            Map<String, String> detailsMap = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(childDetails.get(DBConstants.KEY.BASE_ENTITY_ID));
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
@@ -968,7 +968,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     if (subBindTypeJson != null) {
                         String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
                         if (StringUtils.isNotBlank(subBindTypeEncounter)) {
-                            subformEvent = JsonFormUtils.createSubFormEvent(null, metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, subBindType);
+
+
+                            subformEvent = JsonFormUtils.createSubFormEvent(getMotherFields(fields), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, subBindType);
                         }
                     }
                 }
@@ -986,6 +988,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
+    }
+
+    private static JSONArray getMotherFields(JSONArray fields) throws JSONException {
+        JSONArray array = new JSONArray();
+
+        for (int i = 0; i < fields.length(); i++) {
+            if (fields.getJSONObject(i).has(ENTITY_ID) && fields.getJSONObject(i).getString(ENTITY_ID).equals("mother")) {
+                array.put(fields.getJSONObject(i));
+            }
+        }
+        return array;
     }
 
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String bindType) {
@@ -1345,21 +1358,22 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                  String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
         Intent intent = new Intent(context, ChildFormActivity.class);
-   /*      Form formParam = new Form();
-        formParam.setName("Rules engine demo");
+
+        Form formParam = new Form();
+        // formParam.setName("Rules engine demo");
         formParam.setWizard(false);
         formParam.setHideSaveLabel(true);
         formParam.setNextLabel("");
 
-        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);*/
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
 
 
         String entityId = uniqueId;
         JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
         if (form != null) {
-            form.getJSONObject("metadata").put("encounter_location", currentLocationId);
+            form.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, currentLocationId);
 
-            if ("child_enrollment".equals(formName)) {
+            if (Utils.metadata().childRegister.formName.equals(formName)) {
                 if (StringUtils.isBlank(entityId)) {
                     UniqueIdRepository uniqueIdRepo = CoreLibrary.getInstance().context().getUniqueIdRepository();
                     entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";

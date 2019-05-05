@@ -28,7 +28,7 @@ import java.util.Map;
  * Created by ndegwamartin on 06/03/2019.
  */
 public class ChildRegistrationDataFragment extends Fragment {
-    public CommonPersonObjectClient childDetails;
+    private Map<String, String> childDetails;
     private View fragmentView;
 
     public static ChildRegistrationDataFragment newInstance(Bundle bundle) {
@@ -55,7 +55,7 @@ public class ChildRegistrationDataFragment extends Fragment {
         if (this.getArguments() != null) {
             Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
+                childDetails = ((CommonPersonObjectClient) serializable).getColumnmaps();
             }
         }
         // Inflate the layout for this fragment
@@ -63,7 +63,8 @@ public class ChildRegistrationDataFragment extends Fragment {
         return fragmentView;
     }
 
-    public void updateChildDetails(CommonPersonObjectClient childDetails) {
+
+    public void updateChildDetails(Map<String, String> childDetails) {
         this.childDetails = childDetails;
     }
 
@@ -100,7 +101,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             TableRow tableRowChildsOtherBirthFacility = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
             TableRow tableRowChildsOtherResidentialArea = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
-            Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
+            Map<String, String> childDetailsColumnMaps = childDetails;
 
             tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
             tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));
@@ -134,9 +135,9 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildDateFirstSeen.setText(dateString);
             tvChildsBirthWeight.setText(Utils.kgStringSuffix(Utils.getValue(detailsMap, "Birth_Weight", true)));
-            tvBirthTetanusProtection.setText(Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "Birth_Tetanus_Protection", true) : Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true));
-            tvMotherFirstName.setText(Utils.getValue(childDetailsColumnMaps, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_first_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_first_name", true));
-            tvMotherLastName.setText(Utils.getValue(childDetailsColumnMaps, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_last_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_last_name", true));
+            tvBirthTetanusProtection.setText(Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true).isEmpty() ? Utils.getValue(childDetails, "Birth_Tetanus_Protection", true) : Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true));
+            tvMotherFirstName.setText(Utils.getValue(childDetailsColumnMaps, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_first_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_first_name", true));
+            tvMotherLastName.setText(Utils.getValue(childDetailsColumnMaps, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_last_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_last_name", true));
 
             String motherDobString = Utils.getValue(childDetails, "mother_dob", true);
             Date motherDob = Utils.dobStringToDate(motherDobString);
@@ -202,7 +203,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChildsHomeAddress.setText(Utils.getValue(detailsMap, "address2", true));
             tvLandmark.setText(Utils.getValue(detailsMap, "address1", true));
 
-            tvPreferredLanguage.setText(Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "Preferred_Language", true) : Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true));
+            tvPreferredLanguage.setText(Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true).isEmpty() ? Utils.getValue(childDetails, "Preferred_Language", true) : Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true));
 
             // remove any empty fields
             removeEmptyValueFields();
@@ -213,13 +214,13 @@ public class ChildRegistrationDataFragment extends Fragment {
      * @since 2019-04-30
      * This method hides registration data fields with empty values
      */
-    public void removeEmptyValueFields(){
+    public void removeEmptyValueFields() {
         // check all textviews in the registration data table
         TableLayout tableLayout = fragmentView.findViewById(R.id.registration_data_table);
-        for(int i=0; i<tableLayout.getChildCount(); i++) {
+        for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
             // if no data, hide the row
-            if(((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim().equals("")) {
+            if (((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim().equals("")) {
                 tableRow.setVisibility(View.GONE);
             }
         }

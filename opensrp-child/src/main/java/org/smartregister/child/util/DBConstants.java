@@ -46,6 +46,7 @@ public class DBConstants {
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String TETANUS_HISTORY = "tetanus_history";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String NFC_TRANSACTION_IDENTIFIER = "nfc_transaction_identifier";
         public static final String DEVICEID = "deviceid";
     }
 }

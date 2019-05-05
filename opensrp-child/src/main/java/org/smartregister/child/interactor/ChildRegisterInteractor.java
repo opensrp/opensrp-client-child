@@ -4,6 +4,8 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.gms.nearby.messages.internal.Update;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
@@ -11,6 +13,7 @@ import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
@@ -78,16 +81,16 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final boolean isEditMode, final ChildRegisterContract.InteractorCallBack callBack) {
+    public void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final UpdateRegisterParams updateRegisterParams, final ChildRegisterContract.InteractorCallBack callBack) {
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                saveRegistration(childEventClientList, jsonString, isEditMode);
+                saveRegistration(childEventClientList, jsonString, updateRegisterParams);
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override
                     public void run() {
-                        callBack.onRegistrationSaved(isEditMode);
+                        callBack.onRegistrationSaved(updateRegisterParams.isEditMode());
                     }
                 });
             }
@@ -108,7 +111,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         appExecutors.diskIO().execute(runnable);
     }
 
-    private void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, boolean isEditMode) {
+    private void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
         try {
 
             for (int i = 0; i < childEventClientList.size(); i++) {
@@ -118,7 +121,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
                 if (baseClient != null) {
                     JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
-                    if (isEditMode) {
+                    if (params.isEditMode()) {
                         try {
                             JsonFormUtils.mergeAndSaveClient(getSyncHelper(), baseClient);
                         } catch (Exception e) {
@@ -145,7 +148,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson);
                 }
 
-                if (isEditMode) {
+                if (params.isEditMode()) {
                     // Unassign current OPENSRP ID
                     if (baseClient != null) {
                         try {
@@ -185,7 +188,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
             long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            getClientProcessorForJava().processClient(getSyncHelper().getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            getClientProcessorForJava().processClient(getSyncHelper().getEvents(lastSyncDate, params.getStatus()));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

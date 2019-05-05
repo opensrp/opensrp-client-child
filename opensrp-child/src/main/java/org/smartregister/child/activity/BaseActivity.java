@@ -43,6 +43,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.toolbar.BaseToolbar;
@@ -621,13 +622,16 @@ toggle.syncState();
         if (resultCode == RESULT_OK) {
             String jsonString = data.getStringExtra("json");
 
-            saveForm(jsonString, false);
+
+            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+            updateRegisterParams.setEditMode(false);
+
+            saveForm(jsonString, updateRegisterParams);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    public void saveForm(String jsonString, boolean isEditMode) {
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
 
         try {
 
@@ -635,8 +639,7 @@ toggle.syncState();
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
-
-            interactor.saveRegistration(childEventClientList, jsonString, isEditMode, this);
+            interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

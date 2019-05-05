@@ -35,6 +35,9 @@ public class MotherLookUpUtils {
     public static final String birthDate = "date_birth";
     public static final String dob = "dob";
     public static final String baseEntityId = "base_entity_id";
+    public static final String MOTHER_GUARDIAN_NRC_NUMBER = "Mother_Guardian_Nrc_Number";
+    public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "Mother_Guardian_Phone_Number";
+
 
     public static void motherLookUp(final Context context, final EntityLookUp entityLookUp, final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener, final ProgressBar progressBar) {
 
@@ -140,7 +143,7 @@ public class MotherLookUpUtils {
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
-                "relationalid",
+                DBConstants.KEY.RELATIONALID,
                 DBConstants.KEY.DETAILS,
                 DBConstants.KEY.ZEIR_ID,
                 DBConstants.KEY.FIRST_NAME,

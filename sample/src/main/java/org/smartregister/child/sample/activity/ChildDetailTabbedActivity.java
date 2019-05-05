@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
@@ -21,8 +20,8 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.registration_data:
-                String formmetadata = JsonFormUtils.getMetadataForEditForm(this, getChildDetails().getColumnmaps());
-                startFormActivity("child_enrollment", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), formmetadata);
+                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, getChildDetails().getColumnmaps());
+                startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
             case R.id.immunization_data:
@@ -58,8 +57,8 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return true;
 
             case R.id.report_deceased:
-                String reportDeceasedMetadata = getReportDeceasedMetadata();
-                startFormActivity("report_deceased", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), reportDeceasedMetadata);
+                String reportDeceasedJsonFormString = getReportDeceasedMetadata();
+                startFormActivity(reportDeceasedJsonFormString);
                 return true;
             case R.id.change_status:
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
@@ -86,11 +85,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
     @Override
     public void onNoUniqueId() {
-
-    }
-
-    @Override
-    public void onRegistrationSaved(boolean isEdit) {
 
     }
 }

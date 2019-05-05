@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
@@ -115,6 +116,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         //form.setActionBarBackground(R.color.child_actionbar);
         //form.setNavigationBackground(R.color.child_navigation);
         //form.setHomeAsUpIndicator(R.mipmap.ic_arrow_forward);
+
+        form.setWizard(false);
+        form.setHideSaveLabel(true);
+        form.setNextLabel("");
+
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
 
         startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
@@ -129,7 +135,9 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
-                    presenter().saveForm(jsonString, false);
+                    UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
+                    updateRegisterParam.setEditMode(false);
+                    presenter().saveForm(jsonString, updateRegisterParam);
                 }
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
@@ -212,7 +220,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         }
     }
 
-    public void saveForm(String jsonString, boolean editMode) {
-        presenter().saveForm(jsonString, editMode);
+    //To be overriden
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
+        presenter().saveForm(jsonString, updateRegisterParam);
     }
 }

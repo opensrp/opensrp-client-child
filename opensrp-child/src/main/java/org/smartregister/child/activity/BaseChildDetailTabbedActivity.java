@@ -15,7 +15,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -34,6 +33,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -44,12 +46,14 @@ import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -223,7 +227,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         super.onResume();
 
         ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        profileWidget();
+        renderProfileWidget(childDetails.getColumnmaps());
     }
 
     @Override
@@ -324,11 +328,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return true;
     }
 
-    protected void startFormActivity(String formName, String entityId, String metaData) {
+    protected void startFormActivity(String formData) {
 
         Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
 
-        intent.putExtra("json", metaData);
+        Form formParam = new Form();
+        formParam.setWizard(false);
+        formParam.setHideSaveLabel(true);
+        formParam.setNextLabel("");
+
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
+
         startActivityForResult(intent, REQUEST_CODE_GET_JSON);
 
 
@@ -456,7 +467,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void profileWidget() {
+    private void renderProfileWidget(Map<String, String> childDetails) {
         TextView profilename = findViewById(R.id.name);
         TextView profileZeirID = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
@@ -465,13 +476,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         String dobString = "";
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails.getColumnmaps(), "first_name", true)
-                    + " " + getValue(childDetails.getColumnmaps(), "last_name", true);
-            childId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
+            name = getValue(childDetails, DBConstants.KEY.FIRST_NAME, true)
+                    + " " + getValue(childDetails, DBConstants.KEY.LAST_NAME, true);
+            childId = getValue(childDetails, "zeir_id", false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            dobString = getValue(childDetails, Constants.EC_CHILD_TABLE.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
@@ -488,7 +499,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         updateGenderViews();
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
+            String genderString = getValue(childDetails, DBConstants.KEY.GENDER, false);
             if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
@@ -679,7 +690,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             method.setAccessible(true);
             method.invoke(ob, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
     }
 
@@ -1110,7 +1121,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Map<String, String>> {
+    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Void> {
 
         private String jsonString;
 
@@ -1121,37 +1132,41 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog();
+            showProgressDialog(getString(R.string.updating_dialog_title), getString(R.string.please_wait_message));
         }
 
         @Override
-        protected Map<String, String> doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
 
-            saveForm(jsonString, true);
+            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+            updateRegisterParams.setEditMode(true);
 
-            childDetails = getChildDetails(childDetails.entityId());
-            childDataFragment.childDetails = childDetails;//use updated ones
-
-            if (childDetails != null) {
-                DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-                detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-                Utils.putAll(detailsMap, childDetails.getColumnmaps());
-
-                return detailsMap;
-            } else {
-                return null;
-            }
+            saveForm(jsonString, updateRegisterParams);
+            return null;
         }
 
         @Override
-        protected void onPostExecute(@Nullable Map<String, String> detailsMap) {
-            hideProgressDialog();
-            if (detailsMap != null) {
-                childDataFragment.updateChildDetails(childDetails);
-                childDataFragment.loadData(detailsMap);
-                profileWidget();
-            }
+        protected void onPostExecute(Void result) {
         }
+    }
+
+    @Override
+    public void onRegistrationSaved(boolean isEdit) {
+
+        if (isEdit) {//On edit mode refresh view
+
+
+            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+            detailsMap.putAll(getChildDetails(childDetails.entityId()).getColumnmaps());
+            childDataFragment.updateChildDetails(detailsMap);
+            childDataFragment.loadData(detailsMap);
+
+            renderProfileWidget(detailsMap);
+        }
+
+        hideProgressDialog();
     }
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
@@ -1318,7 +1333,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         protected void onPostExecute(String metaData) {
             super.onPostExecute(metaData);
             if (metaData != null) {
-                startFormActivity("adverse_event", childDetails.entityId(), metaData);
+                startFormActivity(metaData);
             } else {
                 Utils.showToast(getContext(), getContext().getString(R.string.no_vaccine_record_found));
             }

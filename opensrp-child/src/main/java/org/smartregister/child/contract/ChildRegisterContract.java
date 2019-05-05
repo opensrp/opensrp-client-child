@@ -3,6 +3,7 @@ package org.smartregister.child.contract;
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.view.contract.BaseRegisterContract;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public interface ChildRegisterContract {
 
         void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception;
 
-        void saveForm(String jsonString, boolean isEditMode);
+        void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam);
 
         void closeChildRecord(String jsonString);
 
@@ -40,8 +41,7 @@ public interface ChildRegisterContract {
 
         List<ChildEventClient> processRegistration(String jsonString);
 
-        JSONObject getFormAsJson(String formName, String entityId,
-                                 String currentLocationId) throws Exception;
+        JSONObject getFormAsJson(String formName, String entityId, String currentLocationId) throws Exception;
 
         String getInitials();
 
@@ -53,7 +53,7 @@ public interface ChildRegisterContract {
 
         void getNextUniqueId(Triple<String, String, String> triple, ChildRegisterContract.InteractorCallBack callBack);
 
-        void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final boolean isEditMode, final ChildRegisterContract.InteractorCallBack callBack);
+        void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final UpdateRegisterParams updateRegisterParams, final ChildRegisterContract.InteractorCallBack callBack);
 
         void removeChildFromRegister(String closeFormJsonString, String providerId);
 

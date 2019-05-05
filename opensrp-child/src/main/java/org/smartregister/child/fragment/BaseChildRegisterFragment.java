@@ -1,7 +1,6 @@
 package org.smartregister.child.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -23,7 +22,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
@@ -31,7 +29,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -406,23 +403,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
     }
 
-    protected void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION recordAction) {
-
-        Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
-        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
-        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, recordAction);
-        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, patient);
-
-        RegisterClickables registerClickables = new RegisterClickables();
-        registerClickables.setRecordWeight(recordAction.equals(Constants.RECORD_ACTION.WEIGHT));
-        registerClickables.setRecordAll(recordAction.equals(Constants.RECORD_ACTION.VACCINATION));
-
-        intent.putExtra(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-
-        startActivity(intent);
-    }
-
-
     protected void updateLocationText() {
         if (clinicSelection != null) {
             clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
@@ -492,7 +472,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             int overDue = pair.first;
             dueOverdueCount = pair.second;
 
-            updateDueOverdueCountText(dueOverdueCount);
+            updateDueOverdueCountText(overDue);
 
         }
     }
