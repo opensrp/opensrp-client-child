@@ -1460,7 +1460,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             updateWeightViews(weight, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
-            updateVaccinationViews(vaccineList, alertList);
+            // TO DO: Needs fixing
+            //updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
 
             hideProgressDialog();

@@ -1,5 +1,8 @@
 package org.smartregister.child.sample.application;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.evernote.android.job.JobManager;
@@ -36,6 +39,7 @@ import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class SampleApplication extends DrishtiApplication {
@@ -51,6 +55,15 @@ public class SampleApplication extends DrishtiApplication {
 
         mInstance = this;
         context = Context.getInstance();
+
+        String lang = org.smartregister.child.sample.util.Utils.getLanguage(getApplicationContext());
+        Locale locale = new Locale(lang);
+        Resources res = getApplicationContext().getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = locale;
+        res.updateConfiguration(conf, dm);
+
         context.updateApplicationContext(getApplicationContext());
         context.updateCommonFtsObject(createCommonFtsObject());
 

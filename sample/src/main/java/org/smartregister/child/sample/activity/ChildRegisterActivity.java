@@ -15,6 +15,12 @@ import org.smartregister.view.fragment.BaseRegisterFragment;
 
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
 
+    @Override
+    protected void attachBaseContext(android.content.Context base) {
+        // get language from prefs
+        String lang = org.smartregister.child.sample.util.Utils.getLanguage(base.getApplicationContext());
+        super.attachBaseContext(org.smartregister.child.sample.util.Utils.setAppLocale(base, lang));
+    }
 
     @Override
     protected void initializePresenter() {
