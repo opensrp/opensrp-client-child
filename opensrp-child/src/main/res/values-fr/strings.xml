@@ -307,4 +307,18 @@
     <string name="next_visit">Prochain</string>
     <string name="refreshing">Rafraîchissante&#8230;</string>
 
+    <string name="at_birth">à la naissance</string>
+    <string name="six_weeks">6 semaines</string>
+    <string name="ten_weeks">10 semaines</string>
+    <string name="fourteen_weeks">14 semaines</string>
+    <string name="nine_months">9 mois</string>
+    <string name="fifteen_months">15 mois</string>
+    <string name="eighteen_months">18 mois</string>
+    <string name="after_lmp">Après LMP</string>
+    <string name="after_tt1">4 semaines après le TT 1</string>
+    <string name="after_tt2">26 semaines après le TT 2</string>
+    <string name="after_tt3"> 1 an après TT 3 </string>
+    <string name="after_tt4"> 1 an après TT 4 </string>
+    <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
+
 </resources>
