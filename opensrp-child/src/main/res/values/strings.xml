@@ -155,8 +155,8 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id">ZEIR ID</string>
-    <string name="zeir_id_hint">ZEIR ID number</string>
+    <string name="zeir_id">IZ ID</string>
+    <string name="iz_id_hint">IZ ID number</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
     <string name="last_name">Last Name</string>

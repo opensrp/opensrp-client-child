@@ -211,4 +211,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             }
         }
     }
+
+    public void saveForm(String jsonString, boolean editMode) {
+        presenter().saveForm(jsonString, editMode);
+    }
 }

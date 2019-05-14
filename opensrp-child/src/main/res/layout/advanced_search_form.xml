@@ -229,7 +229,7 @@
                     android:id="@+id/zeir_id"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/zeir_id_hint"
+                    android:hint="@string/iz_id_hint"
                     android:imeOptions="actionNext"
                     android:inputType="text"
                     android:textColor="@color/client_list_grey"
@@ -365,7 +365,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <com.rengwuxian.materialedittext.MaterialEditText
                     android:id="@+id/mother_guardian_nrc"
