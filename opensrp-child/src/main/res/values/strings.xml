@@ -308,4 +308,18 @@
     <string name="qr_code_label">QR code</string>
     <string name="next_visit">Next Visit</string>
 
+    <string name="at_birth">at birth</string>
+    <string name="six_weeks">6 weeks</string>
+    <string name="ten_weeks">10 weeks</string>
+    <string name="fourteen_weeks">14 weeks</string>
+    <string name="nine_months">9 months</string>
+    <string name="fifteen_months">15 months</string>
+    <string name="eighteen_months">18 months</string>
+    <string name="after_lmp">After LMP</string>
+    <string name="after_tt1">4 Weeks after TT 1</string>
+    <string name="after_tt2">26 Weeks after TT 2</string>
+    <string name="after_tt3"> 1 Year after  TT 3 </string>
+    <string name="after_tt4"> 1 Year after  TT 4 </string>
+    <string name="move_to_catchment">Move to my\ncatchment</string>
+
 </resources>
