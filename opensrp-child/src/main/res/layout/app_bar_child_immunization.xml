@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context=".activity.BaseActivity">
 
@@ -15,12 +15,22 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/inactive_status_bar"/>
+        <include layout="@layout/inactive_status_bar" />
 
         <include layout="@layout/content_child_immunization" />
 
     </LinearLayout>
 
     <include layout="@layout/notification_base" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_nearex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:padding="5dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@mipmap/ic_card_white"
+        android:background="@color/male_blue"/>
 
 </android.support.design.widget.CoordinatorLayout>

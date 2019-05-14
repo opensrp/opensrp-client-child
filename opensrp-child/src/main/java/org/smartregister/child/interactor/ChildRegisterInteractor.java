@@ -4,8 +4,6 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.gms.nearby.messages.internal.Update;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
@@ -26,12 +24,13 @@ import org.smartregister.domain.UniqueId;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -111,84 +110,92 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         appExecutors.diskIO().execute(runnable);
     }
 
-    private void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
+    public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
         try {
+            List<String> currentFormSubmissionIds = new ArrayList<>();
 
             for (int i = 0; i < childEventClientList.size(); i++) {
-                ChildEventClient childEventClient = childEventClientList.get(i);
-                Client baseClient = childEventClient.getClient();
-                Event baseEvent = childEventClient.getEvent();
+                try {
 
-                if (baseClient != null) {
-                    JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
-                    if (params.isEditMode()) {
-                        try {
-                            JsonFormUtils.mergeAndSaveClient(getSyncHelper(), baseClient);
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage());
-                        }
-                    } else {
-                        getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
+                    ChildEventClient childEventClient = childEventClientList.get(i);
+                    Client baseClient = childEventClient.getClient();
+                    Event baseEvent = childEventClient.getEvent();
 
-                        WeightWrapper weightParams = new WeightWrapper();
-                        weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-                        String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
-                        weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
-                        weightParams.setUpdatedWeightDate(new DateTime(), true);
-                        weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
-
-                        Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.name()));
-
-                    }
-                }
-
-
-                if (baseEvent != null) {
-                    JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
-                    getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson);
-                }
-
-                if (params.isEditMode()) {
-                    // Unassign current OPENSRP ID
                     if (baseClient != null) {
-                        try {
-                            String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
-                            String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
-                            if (!newOpenSRPId.equals(currentOpenSRPId)) {
-                                //OPENSRP ID was changed
-                                getUniqueIdRepository().open(currentOpenSRPId);
+                        JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
+                        if (params.isEditMode()) {
+                            try {
+                                JsonFormUtils.mergeAndSaveClient(baseClient);
+                            } catch (Exception e) {
+                                Log.e(TAG, e.getMessage());
                             }
-                        } catch (Exception e) {//might crash if M_ZEIR
-                            Log.e(TAG, e.getMessage());
+                        } else {
+                            getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
+
+                            String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
+
+                            if (!TextUtils.isEmpty(weight)) {
+                                WeightWrapper weightParams = new WeightWrapper();
+                                weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
+                                weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
+                                weightParams.setUpdatedWeightDate(new DateTime(), true);
+                                weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+
+                                Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
+                            }
                         }
                     }
 
-                } else {
-                    if (baseClient != null) {
-                        String opensrpId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID);
-
-                        //mark OPENSRP ID as used
-                        getUniqueIdRepository().close(opensrpId);
-                    }
-                }
-
-                if (baseClient != null || baseEvent != null) {
-                    String imageLocation = null;
-                    if (i == 0) {
-                        imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
-                    } else if (i == 1) {
-                        imageLocation = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                    if (baseEvent != null) {
+                        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
+                        getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
+                        currentFormSubmissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
                     }
 
-                    if (StringUtils.isNotBlank(imageLocation)) {
-                        JsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
+                    if (params.isEditMode()) {
+                        // Unassign current OPENSRP ID
+                        if (baseClient != null) {
+                            try {
+                                String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
+                                String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
+                                if (!newOpenSRPId.equals(currentOpenSRPId)) {
+                                    //OPENSRP ID was changed
+                                    getUniqueIdRepository().open(currentOpenSRPId);
+                                }
+                            } catch (Exception e) {//might crash if M_ZEIR
+                                Log.d(TAG, e.getMessage());
+                            }
+                        }
+
+                    } else {
+                        if (baseClient != null) {
+                            String opensrpId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID);
+
+                            //mark OPENSRP ID as used
+                            getUniqueIdRepository().close(opensrpId);
+                        }
                     }
+
+                    if (baseClient != null || baseEvent != null) {
+                        String imageLocation = null;
+                        if (i == 0) {
+                            imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
+                        } else if (i == 1) {
+                            imageLocation = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                        }
+
+                        if (StringUtils.isNotBlank(imageLocation)) {
+                            JsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, Log.getStackTraceString(e));
                 }
             }
 
             long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            getClientProcessorForJava().processClient(getSyncHelper().getEvents(lastSyncDate, params.getStatus()));
+            getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

@@ -8,6 +8,7 @@ import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.view.LocationPickerView;
 
 import id.zelory.compressor.Compressor;
 
@@ -30,6 +31,7 @@ public class ChildLibrary {
 
     private ClientProcessorForJava clientProcessorForJava;
     private Compressor compressor;
+    private LocationPickerView locationPickerView;
 
     public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
         if (instance == null) {
@@ -81,6 +83,7 @@ public class ChildLibrary {
         }
         return uniqueIdRepository;
     }
+
     public EventClientRepository eventClientRepository() {
         if (eventClientRepository == null) {
             eventClientRepository = new EventClientRepository(getRepository());
@@ -113,4 +116,14 @@ public class ChildLibrary {
         }
         return compressor;
     }
+
+    public LocationPickerView getLocationPickerView(android.content.Context context) {
+        if (locationPickerView == null) {
+            locationPickerView = new LocationPickerView(context);
+            locationPickerView.init();
+        }
+        return locationPickerView;
+    }
+
+
 }

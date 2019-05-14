@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
+import org.smartregister.domain.tag.FormTag;
 import org.smartregister.view.contract.BaseRegisterContract;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public interface ChildRegisterContract {
 
         String getLocationId(String locationName);
 
-        List<ChildEventClient> processRegistration(String jsonString);
+        List<ChildEventClient> processRegistration(String jsonString, FormTag formTag);
 
         JSONObject getFormAsJson(String formName, String entityId, String currentLocationId) throws Exception;
 

@@ -82,6 +82,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             CustomFontTextView tvChildDateFirstSeen = fragmentView.findViewById(R.id.value_date_first_seen);
             CustomFontTextView tvChildsBirthWeight = fragmentView.findViewById(R.id.value_birth_weight);
             CustomFontTextView tvBirthTetanusProtection = fragmentView.findViewById(R.id.value_birth_tetanus_protection);
+            ((View) tvBirthTetanusProtection.getParent()).setVisibility(View.GONE);
             CustomFontTextView tvMotherFirstName = fragmentView.findViewById(R.id.value_mother_guardian_first_name);
             CustomFontTextView tvMotherLastName = fragmentView.findViewById(R.id.value_mother_guardian_last_name);
             CustomFontTextView tvMotherDOB = fragmentView.findViewById(R.id.value_mother_guardian_dob);
@@ -101,17 +102,15 @@ public class ChildRegistrationDataFragment extends Fragment {
             TableRow tableRowChildsOtherBirthFacility = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
             TableRow tableRowChildsOtherResidentialArea = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
-            Map<String, String> childDetailsColumnMaps = childDetails;
-
             tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
-            tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));
+            tvChildsZeirID.setText(Utils.getValue(detailsMap, "zeir_id", false));
             tvChildsRegisterCardNumber.setText(Utils.getValue(detailsMap, "Child_Register_Card_Number", false));
-            tvChildsFirstName.setText(Utils.getValue(childDetailsColumnMaps, "first_name", true));
-            tvChildsLastName.setText(Utils.getValue(childDetailsColumnMaps, "last_name", true));
-            tvChildsSex.setText(Utils.getValue(childDetailsColumnMaps, "gender", true));
+            tvChildsFirstName.setText(Utils.getValue(detailsMap, "first_name", true));
+            tvChildsLastName.setText(Utils.getValue(detailsMap, "last_name", true));
+            tvChildsSex.setText(Utils.getValue(detailsMap, "gender", true));
 
             String formattedAge = "";
-            String dobString = Utils.getValue(childDetailsColumnMaps, DBConstants.KEY.DOB, false);
+            String dobString = Utils.getValue(detailsMap, DBConstants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 String childsDateOfBirth = Constants.DATE_FORMAT.format(dob);
@@ -135,9 +134,9 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildDateFirstSeen.setText(dateString);
             tvChildsBirthWeight.setText(Utils.kgStringSuffix(Utils.getValue(detailsMap, "Birth_Weight", true)));
-            tvBirthTetanusProtection.setText(Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true).isEmpty() ? Utils.getValue(childDetails, "Birth_Tetanus_Protection", true) : Utils.getValue(childDetailsColumnMaps, "Birth_Tetanus_Protection", true));
-            tvMotherFirstName.setText(Utils.getValue(childDetailsColumnMaps, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_first_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_first_name", true));
-            tvMotherLastName.setText(Utils.getValue(childDetailsColumnMaps, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_last_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_last_name", true));
+            tvBirthTetanusProtection.setText(Utils.getValue(detailsMap, "Birth_Tetanus_Protection", true).isEmpty() ? Utils.getValue(childDetails, "Birth_Tetanus_Protection", true) : Utils.getValue(detailsMap, "Birth_Tetanus_Protection", true));
+            tvMotherFirstName.setText(Utils.getValue(detailsMap, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_first_name", true) : Utils.getValue(detailsMap, "mother_first_name", true));
+            tvMotherLastName.setText(Utils.getValue(detailsMap, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_last_name", true) : Utils.getValue(detailsMap, "mother_last_name", true));
 
             String motherDobString = Utils.getValue(childDetails, "mother_dob", true);
             Date motherDob = Utils.dobStringToDate(motherDobString);
@@ -203,7 +202,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChildsHomeAddress.setText(Utils.getValue(detailsMap, "address2", true));
             tvLandmark.setText(Utils.getValue(detailsMap, "address1", true));
 
-            tvPreferredLanguage.setText(Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true).isEmpty() ? Utils.getValue(childDetails, "Preferred_Language", true) : Utils.getValue(childDetailsColumnMaps, "Preferred_Language", true));
+            tvPreferredLanguage.setText(Utils.getValue(detailsMap, "Preferred_Language", true).isEmpty() ? Utils.getValue(childDetails, "Preferred_Language", true) : Utils.getValue(detailsMap, "Preferred_Language", true));
 
             // remove any empty fields
             removeEmptyValueFields();
@@ -219,8 +218,9 @@ public class ChildRegistrationDataFragment extends Fragment {
         TableLayout tableLayout = fragmentView.findViewById(R.id.registration_data_table);
         for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
+            String value = ((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim();
             // if no data, hide the row
-            if (((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim().equals("")) {
+            if (TextUtils.isEmpty(value) || value.equals("kg")) {
                 tableRow.setVisibility(View.GONE);
             }
         }

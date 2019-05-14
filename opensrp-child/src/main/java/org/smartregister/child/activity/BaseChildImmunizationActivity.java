@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -89,6 +91,7 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
 import org.smartregister.location.helper.LocationHelper;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -115,7 +118,7 @@ import java.util.concurrent.TimeUnit;
  * Created by ndegwamartin on 06/03/2019.
  */
 public abstract class BaseChildImmunizationActivity extends BaseActivity
-        implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener {
+        implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
@@ -155,6 +158,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isChildActive = false;
+    protected FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,14 +201,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         toolbar.init(this);
         setLastModified(false);
 
-        FloatingActionButton fab =  findViewById(R.id.fab_nearex);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        floatingActionButton = findViewById(R.id.fab_nearex);
+        floatingActionButton.setOnClickListener(this);
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get("gender"))));
+
+
     }
 
     protected abstract Activity getActivity();
@@ -241,7 +242,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             serviceGroupCanvasLL.removeAllViews();
             serviceGroups = null;
         }
+
         updateViews();
+
+        if (childDetails.getColumnmaps().get(DBConstants.KEY.NFC_CARD_IDENTIFIER) == null) {
+            floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.inactive_grey)));
+            floatingActionButton.setOnClickListener(null);
+        }
 
     }
 
@@ -933,7 +940,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
 
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), tag, dobString);
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), tag, dobString, BaseRepository.TYPE_Unsynced);
 
             updateRecordWeightViews(tag, isActiveStatus(childDetails));
             setLastModified(true);
@@ -1418,6 +1425,36 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Type listType = new TypeToken<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>>() {
         }.getType();
         return ImmunizationLibrary.getInstance().assetJsonToJava(filename, classType, listType);
+    }
+
+
+    public String getCurrentLocation() {
+        return toolbar.getCurrentLocation();
+    }
+
+    @Override
+    public abstract void onClick(View view);
+
+    protected int getGenderButtonColor(String gender) {
+        int imageResource;
+
+        switch (gender.toLowerCase()) {
+            case Constants.GENDER.MALE:
+                imageResource = ContextCompat.getColor(this, R.color.male_blue);
+                break;
+            case Constants.GENDER.FEMALE:
+                imageResource = ContextCompat.getColor(this, R.color.female_pink);
+                break;
+            default:
+                imageResource = ContextCompat.getColor(this, R.color.gender_neutral_green);
+                break;
+        }
+
+        return imageResource;
+    }
+
+    public CommonPersonObjectClient getChildDetails() {
+        return childDetails;
     }
 
     ////////////////////////////////////////////////////////////////
@@ -1992,10 +2029,4 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
         }
     }
-
-    public String getCurrentLocation() {
-        return toolbar.getCurrentLocation();
-    }
-
-
 }

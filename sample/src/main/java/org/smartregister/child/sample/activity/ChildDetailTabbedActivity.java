@@ -20,7 +20,8 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.registration_data:
-                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, getChildDetails().getColumnmaps());
+
+                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap);
                 startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;

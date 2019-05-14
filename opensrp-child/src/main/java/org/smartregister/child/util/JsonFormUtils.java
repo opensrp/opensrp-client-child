@@ -55,7 +55,6 @@ import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
-import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -478,7 +477,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    public static ChildEventClient processChildUpdateForm(AllSharedPreferences allSharedPreferences, String jsonString) {
+    public static ChildEventClient processChildUpdateForm(String jsonString, FormTag formTag) {
 
         try {
             Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -503,12 +502,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             dobUnknownUpdateFromAge(fields);
 
-            Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag(allSharedPreferences), entityId);
+            Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, DBConstants.KEY.RELATIONAL_ID));//mama
 
-            Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag(allSharedPreferences), entityId, Utils.metadata().childRegister.registerEventType, Utils.metadata().childRegister.tableName);
+            Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag, entityId, Utils.metadata().childRegister.registerEventType, Utils.metadata().childRegister.tableName);
 
-            JsonFormUtils.tagSyncMetadata(allSharedPreferences, baseEvent);// tag docs
+            JsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
@@ -517,7 +516,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void mergeAndSaveClient(ECSyncHelper ecSyncHelper, Client baseClient) throws Exception {
+    public static void mergeAndSaveClient(Client baseClient) throws Exception {
         JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
 
         JSONObject originalClientJsonObject = ChildLibrary.getInstance().getEcSyncHelper().getClient(baseClient.getBaseEntityId());
@@ -548,8 +547,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         try {
             JSONObject form = FormUtils.getInstance(context).getFormJson(Utils.metadata().childRegister.formName);
-            LocationPickerView lpv = new LocationPickerView(context);
-            lpv.init();
+
 
             JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
@@ -563,9 +561,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
                 JSONObject metadata = form.getJSONObject(JsonFormUtils.METADATA);
-                String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lpv.getSelectedItem());
 
-                metadata.put(JsonFormUtils.ENCOUNTER_LOCATION, lastLocationId);
+                metadata.put(JsonFormUtils.ENCOUNTER_LOCATION, ChildLibrary.getInstance().getLocationPickerView(context).getSelectedItem());
 
 
                 //inject zeir id into the form
@@ -609,6 +606,22 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         jsonObject.put(JsonFormUtils.VALUE, getMappedValue(prefix + jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
 
                     }
+
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Tetanus_Protection")) {
+
+                        JSONArray array = jsonObject.getJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
+                        JSONObject object;
+                        for (int j = 0; j < array.length(); j++) {
+
+                            object = array.getJSONObject(j);
+                            if (jsonObject.has(JsonFormConstants.VALUE) && object.getString(JsonFormConstants.OPENMRS_ENTITY_ID).equals(jsonObject.getString(JsonFormConstants.VALUE))) {
+                                jsonObject.put(JsonFormConstants.VALUE, object.getString(JsonFormConstants.TEXT));
+                                break;
+                            }
+                        }
+
+                    }
+
 
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
@@ -772,7 +785,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return registrationFormParams;
     }
 
-    protected static Event tagSyncMetadata(AllSharedPreferences allSharedPreferences, Event event) {
+    protected static Event tagSyncMetadata(Event event) {
+        AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
         event.setLocationId(locationId(allSharedPreferences));
@@ -882,7 +896,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    protected static FormTag formTag(AllSharedPreferences allSharedPreferences) {
+    public static FormTag formTag(AllSharedPreferences allSharedPreferences) {
         FormTag formTag = new FormTag();
         formTag.providerId = allSharedPreferences.fetchRegisteredANM();
         formTag.appVersion = ChildLibrary.getInstance().getApplicationVersion();
@@ -981,7 +995,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             dobUnknownUpdateFromAge(fields);
 
 
-            JsonFormUtils.tagSyncMetadata(allSharedPreferences, subformEvent);// tag docs
+            JsonFormUtils.tagSyncMetadata(subformEvent);// tag docs
 
             return new ChildEventClient(subformClient, subformEvent);
         } catch (Exception e) {
@@ -1330,7 +1344,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             addMetaData(context, event, new Date());
 
-            JsonFormUtils.tagSyncMetadata(Utils.context().allSharedPreferences(), event);
+            JsonFormUtils.tagSyncMetadata(event);
             return event;
 
         } catch (Exception e) {

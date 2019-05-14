@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -36,6 +37,8 @@ import android.widget.TextView;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
+import net.sqlcipher.Cursor;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -44,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.UpdateRegisterParams;
@@ -124,7 +128,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static Gender gender;
     //////////////////////////////////////////////////
-    private static final String TAG = "ChildDetails";
+    private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     private ChildRegistrationDataFragment childDataFragment;
@@ -156,6 +160,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
+                detailsMap = childDetails.getColumnmaps();
             }
         }
 
@@ -169,7 +174,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
 
-        detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
+        detailtoolbar = findViewById(R.id.child_detail_toolbar);
 
         saveButton = detailtoolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
@@ -188,9 +193,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = findViewById(R.id.viewpager);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -227,7 +232,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         super.onResume();
 
         ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        renderProfileWidget(childDetails.getColumnmaps());
+        detailsMap = childDetails.getColumnmaps();
+        renderProfileWidget(detailsMap);
+        childDataFragment.loadData(detailsMap);
     }
 
     @Override
@@ -467,7 +474,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void renderProfileWidget(Map<String, String> childDetails) {
+    protected void renderProfileWidget(Map<String, String> childDetails) {
         TextView profilename = findViewById(R.id.name);
         TextView profileZeirID = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
@@ -995,6 +1002,56 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
+    private Map<String, String> getCleanMap(Map<String, String> rawDetails) {
+        Map<String, String> clean = new HashMap<>();
+
+        try {
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+
+            Map<String, String> old = rawDetails;
+            for (Map.Entry<String, String> entry : old.entrySet()) {
+                String val = entry.getValue();
+                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
+                    clean.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+        return clean;
+
+    }
+
+    private Map<String, String> getCleanMap() {
+        Map<String, String> detailsMap = new HashMap<>();
+        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils.metadata().childRegister.tableName, new String[]{});
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            String[] columnNames = cursor.getColumnNames();
+
+            for (int i = 0; i < columnNames.length; i++) {
+
+                detailsMap.put(columnNames[i], cursor.getString(cursor.getColumnIndex(columnNames[i])));
+
+            }
+        }
+
+        return detailsMap;
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Serializable serializable = savedInstanceState.getSerializable("child_details");
+        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+            this.childDetails = (CommonPersonObjectClient) serializable;
+        }
+
+    }
+
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
@@ -1022,14 +1079,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
+            showProgressDialog(getString(R.string.refreshing), null);
         }
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
-            detailsMap = AsyncTaskUtils.extractDetailsMap(map);
-            Utils.putAll(detailsMap, childDetails.getColumnmaps());
+            detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
+
+            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(DBConstants.KEY.NFC_CARD_IDENTIFIER) != null);
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
@@ -1043,8 +1101,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             if (STATUS.NONE.equals(status)) {
                 updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-                childDataFragment.loadData(detailsMap);
             }
+
+            childDataFragment.loadData(detailsMap);
 
             childUnderFiveFragment.setDetailsMap(detailsMap);
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
@@ -1055,6 +1114,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 updateStatus(true);
             }
 
+            renderProfileWidget(detailsMap);
+
             hideProgressDialog();
         }
 
@@ -1063,7 +1124,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
@@ -1157,9 +1218,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-            detailsMap.putAll(getChildDetails(childDetails.entityId()).getColumnmaps());
+            detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+
             childDataFragment.updateChildDetails(detailsMap);
             childDataFragment.loadData(detailsMap);
 

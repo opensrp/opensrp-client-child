@@ -635,7 +635,11 @@ toggle.syncState();
 
         try {
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString);
+            if (updateRegisterParams.getFormTag() == null) {
+                updateRegisterParams.setFormTag(JsonFormUtils.formTag(Utils.getAllSharedPreferences()));
+            }
+
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }

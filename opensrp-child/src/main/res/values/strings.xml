@@ -258,8 +258,8 @@
     <string name="her">her</string>
 
     <string name="scan_nfc_card">Launch the NFC Card scan&#8230;</string>
-    <string name="register_card">Registration card</string>
-    <string name="registering_card">Registering the map for %1$s </string>
+    <string name="register_card">Register card</string>
+    <string name="registering_card">Registering card for %1$s&#8230; </string>
 
     <string name="scan_card">Scan Card</string>
     <string name="father_guardian_full_name">Father\'s name</string>
@@ -307,5 +307,6 @@
     <string name="search_results">Search results</string>
     <string name="qr_code_label">QR code</string>
     <string name="next_visit">Next Visit</string>
+    <string name="refreshing">Refreshing&#8230;</string>
 
 </resources>

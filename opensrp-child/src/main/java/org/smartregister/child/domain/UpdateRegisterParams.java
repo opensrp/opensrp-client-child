@@ -1,5 +1,6 @@
 package org.smartregister.child.domain;
 
+import org.smartregister.domain.tag.FormTag;
 import org.smartregister.repository.BaseRepository;
 
 /**
@@ -11,6 +12,8 @@ public class UpdateRegisterParams {
     private String status = BaseRepository.TYPE_Unsynced;
 
     private boolean editMode;
+
+    private FormTag formTag;
 
     public String getStatus() {
         return status;
@@ -26,5 +29,13 @@ public class UpdateRegisterParams {
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+    }
+
+    public FormTag getFormTag() {
+        return formTag;
+    }
+
+    public void setFormTag(FormTag formTag) {
+        this.formTag = formTag;
     }
 }

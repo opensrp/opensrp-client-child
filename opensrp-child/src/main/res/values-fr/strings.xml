@@ -258,7 +258,7 @@
     <string name="her">elle</string>
 
     <string name="scan_nfc_card">Lancer le Carte NFC scan&#8230;</string>
-    <string name="register_card">Carte d\'enregistrement</string>
+    <string name="register_card">Carte d\'enregistre</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s </string>
 
     <string name="registration_data">Données d\'inscription</string>
@@ -305,5 +305,6 @@
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
     <string name="next_visit">Prochain</string>
+    <string name="refreshing">Rafraîchissante&#8230;</string>
 
 </resources>

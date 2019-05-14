@@ -96,9 +96,7 @@ public class BaseChildRegisterPresenter implements ChildRegisterContract.Present
 
         try {
 
-            getView().showProgressDialog(R.string.saving_dialog_title);
-
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString);
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
