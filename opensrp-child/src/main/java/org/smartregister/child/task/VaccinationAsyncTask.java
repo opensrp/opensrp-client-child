@@ -242,25 +242,25 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.OVERDUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
@@ -270,14 +270,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
                 if (previousStateKey != null) {
-                    recordVaccinationText.setText(previousStateKey);
+                    recordVaccinationText.setText(localizeStateKey(previousStateKey));
                 } else {
-                    recordVaccinationText.setText(stateKey);
+                    recordVaccinationText.setText(localizeStateKey(stateKey));
                 }
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
                 recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
-                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
+                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             }
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
@@ -320,7 +320,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 });
 
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
-                moveToCatchmentText.setText("Move to my\ncatchment");
+                moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
                 String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + DBConstants.KEY.BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
@@ -354,5 +354,49 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         WAITING,
         NO_ALERT,
         FULLY_IMMUNIZED
+    }
+
+    private String localizeStateKey(String stateKey) {
+        switch (stateKey) {
+            case "at birth":
+                return context.getString(R.string.at_birth);
+
+            case "6 weeks":
+                return context.getString(R.string.six_weeks);
+
+            case "10 weeks":
+                return context.getString(R.string.ten_weeks);
+
+            case "14 weeks":
+                return context.getString(R.string.fourteen_weeks);
+
+            case "9 months":
+                return context.getString(R.string.nine_months);
+
+            case "15 months":
+                return context.getString(R.string.fifteen_months);
+
+            case "18 months":
+                return context.getString(R.string.eighteen_months);
+
+            case "After LMP":
+                return context.getString(R.string.after_lmp);
+
+            case "4 Weeks after TT 1":
+                return context.getString(R.string.after_tt1);
+
+            case "26 Weeks after TT 2":
+                return context.getString(R.string.after_tt2);
+
+            case " 1 Year after  TT 3 ":
+                return context.getString(R.string.after_tt3);
+
+            case " 1 Year after  TT 4 ":
+                return context.getString(R.string.after_tt4);
+
+            default:
+                break;
+        }
+        return "";
     }
 }
