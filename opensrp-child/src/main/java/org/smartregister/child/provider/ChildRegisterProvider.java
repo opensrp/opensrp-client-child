@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
+import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
@@ -147,7 +148,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.EPI_CARD_NUMBER, false));
 
 
-        String gender = getValue(pc.getColumnmaps(), DBConstants.KEY.GENDER, true);
+        String gender = getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
 
         final ImageView profilePic = viewHolder.imageView.findViewById(R.id.child_profilepic);
         renderProfileImage(pc.entityId(), gender, profilePic);

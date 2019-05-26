@@ -1,7 +1,6 @@
 package org.smartregister.child.task;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.view.View;

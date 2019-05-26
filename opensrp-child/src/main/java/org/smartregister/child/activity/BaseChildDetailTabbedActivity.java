@@ -47,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
@@ -506,7 +507,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         updateGenderViews();
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = getValue(childDetails, DBConstants.KEY.GENDER, false);
+            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
             if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {

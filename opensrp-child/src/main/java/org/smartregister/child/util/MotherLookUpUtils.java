@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.child.domain.EntityLookUp;
 import org.smartregister.clientandeventmodel.DateUtil;
@@ -148,7 +149,7 @@ public class MotherLookUpUtils {
                 DBConstants.KEY.ZEIR_ID,
                 DBConstants.KEY.FIRST_NAME,
                 DBConstants.KEY.LAST_NAME,
-                DBConstants.KEY.GENDER,
+                AllConstants.ChildRegistrationFields.GENDER,
                 DBConstants.KEY.DOB,
                 DBConstants.KEY.NRC_NUMBER,
                 DBConstants.KEY.CONTACT_PHONE_NUMBER,

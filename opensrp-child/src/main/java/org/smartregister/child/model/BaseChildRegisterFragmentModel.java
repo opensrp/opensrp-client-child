@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.AllConstants;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.ConfigHelper;
@@ -72,7 +73,7 @@ public class BaseChildRegisterFragmentModel implements ChildRegisterFragmentCont
                 tableName + "." + DBConstants.KEY.RELATIONAL_ID,
                 tableName + "." + DBConstants.KEY.FIRST_NAME,
                 tableName + "." + DBConstants.KEY.LAST_NAME,
-                tableName + "." + DBConstants.KEY.GENDER,
+                tableName + "." + AllConstants.ChildRegistrationFields.GENDER,
                 tableName + "." + DBConstants.KEY.BASE_ENTITY_ID,
                 parentTableName + "." + DBConstants.KEY.FIRST_NAME + " as mother_first_name",
                 parentTableName + "." + DBConstants.KEY.LAST_NAME + " as mother_last_name",

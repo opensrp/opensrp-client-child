@@ -37,8 +37,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
@@ -372,7 +370,7 @@ public class Utils extends org.smartregister.util.Utils {
 
         Resources res = context.getResources();
         Configuration config = new Configuration(res.getConfiguration());
-        if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             config.setLocale(locale);
             context = context.createConfigurationContext(config);
         } else {

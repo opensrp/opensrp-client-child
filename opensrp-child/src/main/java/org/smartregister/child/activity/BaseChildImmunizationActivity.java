@@ -31,7 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -40,6 +39,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.Configurable;
 import org.smartregister.child.R;
@@ -101,7 +101,6 @@ import org.smartregister.view.activity.DrishtiApplication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -245,11 +244,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         updateViews();
 
-        if (childDetails.getColumnmaps().get(DBConstants.KEY.NFC_CARD_IDENTIFIER) == null) {
-            floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.inactive_grey)));
-            floatingActionButton.setOnClickListener(null);
-        }
-
     }
 
     private boolean isDataOk() {
@@ -344,7 +338,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void updateGenderViews() {
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, DBConstants.KEY.GENDER, false);
+            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
             if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
@@ -490,7 +484,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines, BCG_NAME), BCG_NO_SCAR_NAME);
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
@@ -507,7 +501,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
@@ -693,7 +687,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void updateWeightViews(Weight lastUnsyncedWeight, final boolean isActive) {
 
         String childName = constructChildName();
-        String gender = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.GENDER, true);
+        String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
         String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
@@ -748,7 +742,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
         }
 
-        ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
+        ImageView recordWeightCheck = findViewById(R.id.record_weight_check);
         recordWeightCheck.setVisibility(View.GONE);
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -839,7 +833,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
-        String genderString = Utils.getValue(childDetails, DBConstants.KEY.GENDER, false);
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
         if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
             return getString(R.string.her);
         } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
@@ -935,7 +929,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public void onWeightTaken(WeightWrapper tag) {
         if (tag != null) {
 
-            String genderString = Utils.getValue(childDetails, DBConstants.KEY.GENDER, false);
+            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
             tag.setGender(genderString);
 
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
@@ -1419,15 +1413,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         return gson.fromJson(serializedOject, object.getClass());
     }
 
-    public List<org.smartregister.immunization.domain.jsonmapping.Vaccine> getJsonVaccineGroup(@NonNull String filename) {
-
-        Class<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>> classType = (Class) List.class;
-        Type listType = new TypeToken<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>>() {
-        }.getType();
-        return ImmunizationLibrary.getInstance().assetJsonToJava(filename, classType, listType);
-    }
-
-
     public String getCurrentLocation() {
         return toolbar.getCurrentLocation();
     }
@@ -1857,8 +1842,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String baseEntityId = childDetails.entityId();
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
-                List<CommonPersonObject> children = getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName)
-                        .findByRelational_IDs(motherBaseEntityId);
+
+                List<CommonPersonObject> children = getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName).findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();

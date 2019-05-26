@@ -34,7 +34,7 @@ public class ChildFormActivity extends JsonFormActivity {
     @Override
     protected void attachBaseContext(android.content.Context base) {
 
-        String language = Utils.getLanguage(base.getApplicationContext());
+        String language = Utils.getLanguage(base);
         super.attachBaseContext(Utils.setAppLocale(base, language));
     }
 
