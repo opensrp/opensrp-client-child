@@ -14,7 +14,6 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
@@ -132,7 +131,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         } else {
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-                            String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, DBConstants.KEY.BIRTH_WEIGHT);
+                            String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
                             if (!TextUtils.isEmpty(weight)) {
                                 WeightWrapper weightParams = new WeightWrapper();
@@ -156,7 +155,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         // Unassign current OPENSRP ID
                         if (baseClient != null) {
                             try {
-                                String newOpenSRPId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID).replace("-", "");
+                                String newOpenSRPId = baseClient.getIdentifier(Constants.KEY.ZEIR_ID).replace("-", "");
                                 String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
                                 if (!newOpenSRPId.equals(currentOpenSRPId)) {
                                     //OPENSRP ID was changed
@@ -169,7 +168,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
                     } else {
                         if (baseClient != null) {
-                            String opensrpId = baseClient.getIdentifier(DBConstants.KEY.ZEIR_ID);
+                            String opensrpId = baseClient.getIdentifier(Constants.KEY.ZEIR_ID);
 
                             //mark OPENSRP ID as used
                             getUniqueIdRepository().close(opensrpId);

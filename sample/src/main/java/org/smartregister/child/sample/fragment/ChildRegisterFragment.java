@@ -4,10 +4,10 @@ import android.view.View;
 
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
-import org.smartregister.child.model.BaseChildRegisterFragmentModel;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.activity.ChildImmunizationActivity;
 import org.smartregister.child.sample.activity.ChildRegisterActivity;
+import org.smartregister.child.sample.model.ChildRegisterFragmentModel;
 import org.smartregister.child.sample.presenter.ChildRegisterFragmentPresenter;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -24,7 +24,7 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
         }
 
         String viewConfigurationIdentifier = ((BaseRegisterActivity) getActivity()).getViewIdentifiers().get(0);
-        presenter = new ChildRegisterFragmentPresenter(this, new BaseChildRegisterFragmentModel(), viewConfigurationIdentifier);
+        presenter = new ChildRegisterFragmentPresenter(this, new ChildRegisterFragmentModel(), viewConfigurationIdentifier);
     }
 
     @Override

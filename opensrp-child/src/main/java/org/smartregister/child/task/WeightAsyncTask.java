@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.wrapper.WeightViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -128,9 +128,9 @@ public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
                 });
 
                 TextView recordWeightText = catchmentView.findViewById(R.id.record_weight_text);
-                recordWeightText.setText("Record\nservice");
+                recordWeightText.setText(R.string.record_service);
 
-                String zeirId = getValue(pc.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false);
+                String zeirId = getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
                 View recordWeight = catchmentView.findViewById(R.id.record_weight);
                 recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));

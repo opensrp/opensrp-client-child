@@ -1,8 +1,9 @@
-package org.smartregister.child.cursor;
+package org.smartregister.child.sample.cursor;
 
 import android.database.Cursor;
 
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.sample.util.DBConstants;
+
 
 public class CreateRemoteLocalCursor {
     private String id;

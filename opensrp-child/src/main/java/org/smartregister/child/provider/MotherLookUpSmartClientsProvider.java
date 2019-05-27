@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
@@ -113,7 +112,7 @@ public class MotherLookUpSmartClientsProvider {
     }
 
     private DateTime dob(CommonPersonObjectClient pc) {
-        String dobString = getValue(pc.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
         return Utils.dobStringToDateTime(dobString);
     }
 

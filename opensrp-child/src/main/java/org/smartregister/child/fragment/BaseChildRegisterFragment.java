@@ -26,7 +26,6 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
@@ -57,7 +56,7 @@ import java.util.Set;
  */
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
 
-    private static String DOD_MAIN_CONDITION = " ( " + DBConstants.KEY.DOD + " is NULL OR " + DBConstants.KEY.DOD + " = '' ) ";
+    private static String DOD_MAIN_CONDITION = " ( " + Constants.KEY.DOD + " is NULL OR " + Constants.KEY.DOD + " = '' ) ";
     private View filterSection;
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;

@@ -217,8 +217,7 @@
     <string name="waiting_label">Waiting</string>
     <string name="fully_immunized_label">Fully\nimmunized</string>
     <string name="all_changes_saved">All changes saved</string>
-
-
+    <string name="record_service">Record\nservice</string>
     <string name="url_separator">/</string>
     <string name="clients_key">clients</string>
     <string name="events_key">events</string>
@@ -263,7 +262,6 @@
 
     <string name="scan_card">Scan Card</string>
     <string name="father_guardian_full_name">Father\'s name</string>
-
 
 
     <string name="registration_data">Registration data</string>

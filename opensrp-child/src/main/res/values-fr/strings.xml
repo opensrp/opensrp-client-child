@@ -218,8 +218,7 @@
     <string name="waiting_label">En attente</string>
     <string name="fully_immunized_label">Complètement\nimmunisé</string>
     <string name="all_changes_saved">Tous changements enrégistrés</string>
-
-
+    <string name="record_service">Service\nd\'enregistrement</string>
     <string name="url_separator">/</string>
     <string name="clients_key">clients</string>
     <string name="events_key">événements</string>
@@ -261,11 +260,7 @@
     <string name="scan_nfc_card">Lancer le Carte NFC scan&#8230;</string>
     <string name="register_card">Carte d\'enregistre</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s </string>
-
-    <string name="nearex"> Scanner Carte</string>
     <string name="father_guardian_full_name">Le nom du père</string>
-
-
 
     <string name="registration_data">Données d\'inscription</string>
     <string name="under_five_history">Moins de cinq ans d\'histoire</string>
@@ -297,7 +292,6 @@
     <string name="tap_to_view">Tapez pour voir</string>
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
-    <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
     <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications allumer.</string>

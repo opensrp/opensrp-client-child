@@ -38,6 +38,11 @@ public class MotherLookUpUtils {
     public static final String baseEntityId = "base_entity_id";
     public static final String MOTHER_GUARDIAN_NRC_NUMBER = "Mother_Guardian_Nrc_Number";
     public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "Mother_Guardian_Phone_Number";
+    public static final String RELATIONAL_ID = "relational_id";
+    public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+    public static final String NRC_NUMBER = "nrc_number";
+    public static final String DETAILS = "details";
+    public static final String RELATIONALID = "relationalid";
 
 
     public static void motherLookUp(final Context context, final EntityLookUp entityLookUp, final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener, final ProgressBar progressBar) {
@@ -130,7 +135,7 @@ public class MotherLookUpUtils {
     private static List<CommonPersonObject> findChildren(List<CommonPersonObject> childList, String motherBaseEnityId) {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
         for (CommonPersonObject child : childList) {
-            String relationalID = getValue(child.getColumnmaps(), DBConstants.KEY.RELATIONAL_ID, false);
+            String relationalID = getValue(child.getColumnmaps(), RELATIONAL_ID, false);
             if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
                 foundChildren.add(child);
             }
@@ -144,17 +149,16 @@ public class MotherLookUpUtils {
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
-                DBConstants.KEY.RELATIONALID,
-                DBConstants.KEY.DETAILS,
-                DBConstants.KEY.ZEIR_ID,
-                DBConstants.KEY.FIRST_NAME,
-                DBConstants.KEY.LAST_NAME,
+                RELATIONALID,
+                DETAILS,
+                Constants.KEY.ZEIR_ID,
+                Constants.KEY.FIRST_NAME,
+                Constants.KEY.LAST_NAME,
                 AllConstants.ChildRegistrationFields.GENDER,
-                DBConstants.KEY.DOB,
-                DBConstants.KEY.NRC_NUMBER,
-                DBConstants.KEY.CONTACT_PHONE_NUMBER,
-                DBConstants.KEY.TETANUS_HISTORY,
-                DBConstants.KEY.BASE_ENTITY_ID}
+                Constants.KEY.DOB,
+                NRC_NUMBER,
+                CONTACT_PHONE_NUMBER,
+                Constants.KEY.BASE_ENTITY_ID}
 
         );
         String query = queryBUilder.mainCondition(getMainConditionString(entityMap));

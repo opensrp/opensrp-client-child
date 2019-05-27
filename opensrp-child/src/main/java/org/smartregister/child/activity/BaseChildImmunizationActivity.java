@@ -48,7 +48,6 @@ import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -302,7 +301,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         String childId = "";
         if (isDataOk()) {
             name = constructChildName();
-            childId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false);
+            childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         }
 
         TextView nameTV = findViewById(R.id.name_tv);
@@ -318,7 +317,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         String formattedAge = "";
         String formattedDob = "";
         if (isDataOk()) {
-            dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 formattedDob = DATE_FORMAT.format(dob);
@@ -688,14 +687,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
-        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.MOTHER_FIRST_NAME, true);
+        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
 
-        String zeirId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false);
+        String zeirId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         String duration = "";
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {
             duration = DateUtil.getDuration(dateTime);
@@ -710,7 +709,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         weightWrapper.setPatientNumber(zeirId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.PMTCT_STATUS, false));
+        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.PMTCT_STATUS, false));
 
         if (lastUnsyncedWeight != null) {
             weightWrapper.setWeight(lastUnsyncedWeight.getKg());
@@ -791,7 +790,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
@@ -932,7 +931,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
             tag.setGender(genderString);
 
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
 
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), tag, dobString, BaseRepository.TYPE_Unsynced);
 
@@ -972,7 +971,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
@@ -1005,7 +1004,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dob = Utils.dobStringToDateTime(dobString);
         if (dob == null) {
             dob = DateTime.now();
@@ -1213,8 +1212,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.LAST_NAME, true);
+        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
 
@@ -1224,7 +1223,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String tableName = Utils.metadata().childRegister.tableName;
             AllCommonsRepository allCommonsRepository = getOpenSRPContext().allCommonsRepositoryobjects(tableName);
             ContentValues contentValues = new ContentValues();
-            contentValues.put(DBConstants.KEY.LAST_INTERACTED_WITH, (new Date()).getTime());
+            contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, (new Date()).getTime());
             allCommonsRepository.update(tableName, contentValues, childDetails.entityId());
             allCommonsRepository.updateSearch(childDetails.entityId());
         }
@@ -1500,7 +1499,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... voids) {
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
                 VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
@@ -1678,7 +1677,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected List<Weight> doInBackground(Void... params) {
             List<Weight> allWeights = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
             try {
-                String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+                String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
                 Date dob = Utils.dobStringToDate(dobString);
                 if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false))
                         && dob != null) {
@@ -1760,7 +1759,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
 
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
                 affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
@@ -1804,7 +1803,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     vaccineRepository.deleteVaccine(dbKey);
 
 
-                    String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+                    String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
                     DateTime dateTime = Utils.dobStringToDateTime(dobString);
                     if (dateTime != null) {
                         affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
@@ -1840,7 +1839,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
             String baseEntityId = childDetails.entityId();
-            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.RELATIONAL_ID, false);
+            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
                 List<CommonPersonObject> children = getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName).findByRelational_IDs(motherBaseEntityId);

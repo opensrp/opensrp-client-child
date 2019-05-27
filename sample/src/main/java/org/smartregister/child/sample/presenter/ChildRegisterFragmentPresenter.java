@@ -2,7 +2,7 @@ package org.smartregister.child.sample.presenter;
 
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.sample.util.DBConstants;
 
 /**
  * Created by ndegwamartin on 01/03/2019.

@@ -58,7 +58,6 @@ import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -484,13 +483,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         String dobString = "";
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails, DBConstants.KEY.FIRST_NAME, true)
-                    + " " + getValue(childDetails, DBConstants.KEY.LAST_NAME, true);
+            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
+                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
             childId = getValue(childDetails, "zeir_id", false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails, Constants.EC_CHILD_TABLE.DOB, false);
+            dobString = getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
@@ -768,7 +767,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 gender = Gender.MALE;
             }
 
-            String dobString = getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
@@ -1088,7 +1087,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
 
-            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(DBConstants.KEY.NFC_CARD_IDENTIFIER) != null);
+            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);

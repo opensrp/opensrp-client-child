@@ -60,6 +60,23 @@ public class Constants extends AllConstants {
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
+        public static final String FIRST_NAME = "first_name";
+        public static final String LAST_NAME = "last_name";
+        public static final String BASE_ENTITY_ID = "base_entity_id";
+        public static final String RELATIONAL_ID = "relational_id";
+        public static final String DOB = "dob";//Date Of Birth
+        public static final String DOD = "dod";
+        public static final String GENDER = "gender";
+        public static final String UNIQUE_ID = "unique_id";
+        public static final String ZEIR_ID = "zeir_id";
+        public static final String LAST_INTERACTED_WITH = "last_interacted_with";
+        public static final String INACTIVE = "inactive";
+        public static final String MOTHER_FIRST_NAME = "mother_first_name";
+        public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String EPI_CARD_NUMBER = "epi_card_number";
+        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+        public static final String DATE_REMOVED = "date_removed";
+        public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
     }
 
     public static final class INTENT_KEY {
@@ -83,18 +100,6 @@ public class Constants extends AllConstants {
     }
 
     public static final class EntityType {
-
-    }
-
-    public static final class EC_CHILD_TABLE {
-
-        public static final String BASE_ENTITY_ID = "base_entity_id";
-        public static final String DOB = "dob";
-        public static final String DOD = "dod";
-        public static final String REG_DATE = "client_reg_date";
-        public static final String INACTIVE = "inactive";
-        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
-
 
     }
 

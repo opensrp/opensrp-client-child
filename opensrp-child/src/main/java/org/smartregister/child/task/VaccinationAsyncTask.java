@@ -12,7 +12,6 @@ import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -322,7 +321,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + DBConstants.KEY.BASE_ENTITY_ID, false);
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + Constants.KEY.BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();

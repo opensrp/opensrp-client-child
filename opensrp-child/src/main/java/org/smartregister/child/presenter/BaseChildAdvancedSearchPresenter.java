@@ -1,15 +1,11 @@
 package org.smartregister.child.presenter;
 
-import android.database.Cursor;
-import android.database.CursorJoiner;
-
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.cursor.CreateRemoteLocalCursor;
 import org.smartregister.child.interactor.ChildAdvancedSearchInteractor;
-import org.smartregister.child.model.ChildAdvancedSearchModel;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.model.BaseChildAdvancedSearchModel;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.Response;
 
@@ -28,12 +24,13 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     public static final String TABLE_NAME = Utils.metadata().childRegister.tableName;
 
-    public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier) {
-        super(view, new ChildAdvancedSearchModel(), viewConfigurationIdentifier);
+    public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier, BaseChildAdvancedSearchModel advancedSearchModel) {
+        super(view, advancedSearchModel, viewConfigurationIdentifier);
         this.viewReference = new WeakReference<>(view);
         interactor = new ChildAdvancedSearchInteractor();
-        model = new ChildAdvancedSearchModel();
+        model = advancedSearchModel;
     }
+
 
     public void search(Map<String, String> searchMap, boolean isLocal) {
         String searchCriteria = model.createSearchString(searchMap);
@@ -66,7 +63,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
                     localQueryInitialize(localMap);
                 }
             }
-            interactor.search(editMap, this, searchMap.get(DBConstants.KEY.ZEIR_ID));
+            interactor.search(editMap, this, searchMap.get(Constants.KEY.ZEIR_ID));
 
         }
     }
@@ -95,46 +92,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     }
 
-    private AdvancedMatrixCursor getRemoteLocalMatrixCursor(AdvancedMatrixCursor matrixCursor) {
-        String query = getView().filterAndSortQuery();
-        Cursor cursor = getView().getRawCustomQueryForAdapter(query);
-        if (cursor != null && cursor.getCount() > 0) {
-            AdvancedMatrixCursor remoteLocalCursor = new AdvancedMatrixCursor(new String[]{DBConstants.KEY.ID_LOWER_CASE, DBConstants.KEY.RELATIONALID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.DOB, DBConstants.KEY.ZEIR_ID});
-
-            CursorJoiner joiner = new CursorJoiner(matrixCursor, new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.ID_LOWER_CASE}, cursor, new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.ID_LOWER_CASE});
-            for (CursorJoiner.Result joinerResult : joiner) {
-                switch (joinerResult) {
-                    case BOTH:
-                        CreateRemoteLocalCursor createRemoteLocalCursor = new CreateRemoteLocalCursor(matrixCursor, true);
-                        remoteLocalCursor
-                                .addRow(new Object[]{createRemoteLocalCursor.getId(), createRemoteLocalCursor.getRelationalId(),
-                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getZeirId()});
-                        break;
-                    case RIGHT:
-                        CreateRemoteLocalCursor localCreateRemoteLocalCursor = new CreateRemoteLocalCursor(cursor, false);
-                        remoteLocalCursor
-                                .addRow(new Object[]{localCreateRemoteLocalCursor.getId(), localCreateRemoteLocalCursor.getRelationalId(),
-                                        localCreateRemoteLocalCursor.getFirstName(), localCreateRemoteLocalCursor.getLastName(), localCreateRemoteLocalCursor.getDob(), localCreateRemoteLocalCursor.getZeirId()});
-
-                        break;
-                    case LEFT:
-                        createRemoteLocalCursor = new CreateRemoteLocalCursor(matrixCursor, true);
-                        remoteLocalCursor
-                                .addRow(new Object[]{createRemoteLocalCursor.getId(), createRemoteLocalCursor.getRelationalId(),
-                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getZeirId()});
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            cursor.close();
-            matrixCursor.close();
-            return remoteLocalCursor;
-        } else {
-            return matrixCursor;
-        }
-    }
+    protected abstract AdvancedMatrixCursor getRemoteLocalMatrixCursor(AdvancedMatrixCursor matrixCursor);
 
 
     protected ChildAdvancedSearchContract.View getView() {
@@ -154,7 +112,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     @Override
     public String getDefaultSortQuery() {
-        return TABLE_NAME + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC";
+        return TABLE_NAME + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC";
     }
 
 

@@ -16,7 +16,7 @@ import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
 import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
 import org.smartregister.child.sample.util.SampleConstants;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;

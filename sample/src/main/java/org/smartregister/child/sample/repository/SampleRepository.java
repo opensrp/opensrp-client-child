@@ -8,7 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.smartregister.AllConstants;
 import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.application.SampleApplication;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.repository.ConfigurableViewsRepository;
 import org.smartregister.domain.db.Column;

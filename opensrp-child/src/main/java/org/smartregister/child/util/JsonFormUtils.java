@@ -464,7 +464,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
-                    values.put(DBConstants.KEY.DOD, Constants.DEFAULT_DATE_STRING);
+                    values.put(Constants.KEY.DOD, Constants.DEFAULT_DATE_STRING);
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
@@ -503,7 +503,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             dobUnknownUpdateFromAge(fields);
 
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
-            baseClient.setRelationalBaseEntityId(getString(jsonForm, DBConstants.KEY.RELATIONAL_ID));//mama
+            baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
 
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA), formTag, entityId, Utils.metadata().childRegister.registerEventType, Utils.metadata().childRegister.tableName);
 
@@ -553,7 +553,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
-                form.put(JsonFormUtils.ENTITY_ID, childDetails.get(DBConstants.KEY.BASE_ENTITY_ID));
+                form.put(JsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
                 form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
                 form.put(JsonFormUtils.RELATIONAL_ID, childDetails.get(RELATIONAL_ID));
                 form.put(JsonFormUtils.CURRENT_ZEIR_ID, Utils.getValue(childDetails, "zeir_id", true).replace("-", ""));
@@ -578,7 +578,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.KEY.PHOTO)) {
 
-                        processPhoto(childDetails.get(DBConstants.KEY.BASE_ENTITY_ID), jsonObject);
+                        processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
 
                     } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.DOB_UNKNOWN)) {
 

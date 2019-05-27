@@ -11,7 +11,6 @@ import android.widget.TableRow;
 
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -110,7 +109,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChildsSex.setText(Utils.getValue(detailsMap, "gender", true));
 
             String formattedAge = "";
-            String dobString = Utils.getValue(detailsMap, DBConstants.KEY.DOB, false);
+            String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 String childsDateOfBirth = Constants.DATE_FORMAT.format(dob);

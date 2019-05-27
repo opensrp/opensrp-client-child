@@ -22,7 +22,6 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.VaccinationAsyncTask;
 import org.smartregister.child.task.WeightAsyncTask;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewProvider;
@@ -79,6 +78,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         this.alertService = alertService;
     }
 
+    public static void fillValue(TextView v, String value) {
+        if (v != null)
+            v.setText(value);
+
+    }
+
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
@@ -104,24 +109,23 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         footerViewHolder.previousPageView.setOnClickListener(paginationClickListener);
     }
 
-
     private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client, final RegisterViewHolder viewHolder) {
 
-        String firstName = Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.LAST_NAME, true);
+        String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
 
 
-        fillValue(viewHolder.childOpensrpID, getValue(pc.getColumnmaps(), DBConstants.KEY.ZEIR_ID, false));
+        fillValue(viewHolder.childOpensrpID, getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
-        String motherFirstName = getValue(pc.getColumnmaps(), DBConstants.KEY.MOTHER_FIRST_NAME, true);
+        String motherFirstName = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
-        String motherName = getValue(pc.getColumnmaps(), DBConstants.KEY.MOTHER_FIRST_NAME, true) + " " + getValue(pc, DBConstants.KEY.MOTHER_LAST_NAME, true);
+        String motherName = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
@@ -131,7 +135,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
 
         String durationString = "";
-        String dobString = getValue(pc.getColumnmaps(), DBConstants.KEY.DOB, false);
+        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime birthDateTime = Utils.dobStringToDateTime(dobString);
         if (birthDateTime != null) {
             try {
@@ -145,7 +149,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
         fillValue(viewHolder.childAge, durationString);
 
-        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), DBConstants.KEY.EPI_CARD_NUMBER, false));
+        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
 
 
         String gender = getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
@@ -170,8 +174,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         recordVaccination.setTag(R.id.record_action, Constants.RECORD_ACTION.VACCINATION);
 
 
-        String lostToFollowUp = getValue(pc.getColumnmaps(), DBConstants.KEY.LOST_TO_FOLLOW_UP, false);
-        String inactive = getValue(pc.getColumnmaps(), DBConstants.KEY.INACTIVE, false);
+        String lostToFollowUp = getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
+        String inactive = getValue(pc.getColumnmaps(), Constants.KEY.INACTIVE, false);
 
         if (show()) {
             try {
@@ -212,7 +216,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         view.setTag(client);
         view.setTag(R.id.record_action, Constants.RECORD_ACTION.NONE);
     }
-
 
     @Override
     public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption, FilterOption searchFilter, SortOption sortOption) {
@@ -263,16 +266,15 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         return FooterViewHolder.class.isInstance(viewHolder);
     }
 
-
-    public static void fillValue(TextView v, String value) {
-        if (v != null)
-            v.setText(value);
-
-    }
-
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
+
+    private boolean show() {
+
+        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context().allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+
+    }
 
     public static class RegisterViewHolder extends RecyclerView.ViewHolder {
         public TextView patientName;
@@ -317,14 +319,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         }
     }
-
-
-    private boolean show() {
-
-        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context().allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
-
-    }
-
 
     public class FooterViewHolder extends RecyclerView.ViewHolder {
         public TextView pageInfoView;
