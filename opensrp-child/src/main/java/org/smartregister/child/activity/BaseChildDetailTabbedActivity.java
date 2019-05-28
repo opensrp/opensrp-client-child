@@ -476,7 +476,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     protected void renderProfileWidget(Map<String, String> childDetails) {
         TextView profilename = findViewById(R.id.name);
-        TextView profileZeirID = findViewById(R.id.idforclient);
+        TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
@@ -501,7 +501,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileZeirID.setText(String.format("%s: %s", "ID", childId));
+        profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
         profilename.setText(name);
         updateGenderViews();
         Gender gender = Gender.UNKNOWN;

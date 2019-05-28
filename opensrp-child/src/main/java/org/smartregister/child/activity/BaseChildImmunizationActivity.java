@@ -692,7 +692,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             childName = "B/o " + motherFirstName.trim();
         }
 
-        String zeirId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
+        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         String duration = "";
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
@@ -706,7 +706,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         weightWrapper.setId(childDetails.entityId());
         weightWrapper.setGender(gender);
         weightWrapper.setPatientName(childName);
-        weightWrapper.setPatientNumber(zeirId);
+        weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.PMTCT_STATUS, false));

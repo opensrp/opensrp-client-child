@@ -71,7 +71,7 @@ public class ChildRegistrationDataFragment extends Fragment {
         if (fragmentView != null) {
 
             CustomFontTextView tvChildsHomeHealthFacility = fragmentView.findViewById(R.id.value_childs_home_health_facility);
-            CustomFontTextView tvChildsZeirID = fragmentView.findViewById(R.id.value_childs_zeir_id);
+            CustomFontTextView tvChildsOpenSrpId = fragmentView.findViewById(R.id.value_childs_zeir_id);
             CustomFontTextView tvChildsRegisterCardNumber = fragmentView.findViewById(R.id.value_childs_register_card_number);
             CustomFontTextView tvChildsFirstName = fragmentView.findViewById(R.id.value_first_name);
             CustomFontTextView tvChildsLastName = fragmentView.findViewById(R.id.value_last_name);
@@ -102,7 +102,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             TableRow tableRowChildsOtherResidentialArea = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
             tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
-            tvChildsZeirID.setText(Utils.getValue(detailsMap, "zeir_id", false));
+            tvChildsOpenSrpId.setText(Utils.getValue(detailsMap, "zeir_id", false));
             tvChildsRegisterCardNumber.setText(Utils.getValue(detailsMap, "Child_Register_Card_Number", false));
             tvChildsFirstName.setText(Utils.getValue(detailsMap, "first_name", true));
             tvChildsLastName.setText(Utils.getValue(detailsMap, "last_name", true));

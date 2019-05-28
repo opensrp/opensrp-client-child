@@ -130,11 +130,11 @@ public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView recordWeightText = catchmentView.findViewById(R.id.record_weight_text);
                 recordWeightText.setText(R.string.record_service);
 
-                String zeirId = getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
+                String openSrpId = getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
                 View recordWeight = catchmentView.findViewById(R.id.record_weight);
                 recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                recordWeight.setTag(zeirId);
+                recordWeight.setTag(openSrpId);
                 recordWeight.setClickable(true);
                 recordWeight.setEnabled(true);
                 recordWeight.setOnClickListener(onClickListener);

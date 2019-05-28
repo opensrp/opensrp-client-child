@@ -332,7 +332,7 @@ public class ChildUnderFiveFragment extends Fragment {
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String zeirId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
+        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
         String duration = "";
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
@@ -361,7 +361,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         weightWrapper.setGender(gender);
         weightWrapper.setPatientName(childName);
-        weightWrapper.setPatientNumber(zeirId);
+        weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));

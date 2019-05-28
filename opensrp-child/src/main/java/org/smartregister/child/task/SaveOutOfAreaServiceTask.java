@@ -73,7 +73,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         Weight weight = null;
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
         String serviceDate = null;
-        String zeirId = null;
+        String openSrpId = null;
 
         int foundFields = 0;
         for (int i = 0; i < fields.length(); i++) {
@@ -94,7 +94,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 serviceDate = curField.getString("value");
             } else if (curField.getString("key").equals("ZEIR_ID")) {
                 foundFields++;
-                zeirId = formatChildUniqueId(curField.getString("value"));
+                openSrpId = formatChildUniqueId(curField.getString("value"));
             }
 
             if (foundFields == 3) {
@@ -107,8 +107,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             weight.setDate(dateFormat.parse(serviceDate));
         }
 
-        if (weight != null && zeirId != null) {
-            weight.setProgramClientId(zeirId);
+        if (weight != null && openSrpId != null) {
+            weight.setProgramClientId(openSrpId);
         }
 
         return weight;
@@ -127,7 +127,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         ArrayList<Vaccine> vaccines = new ArrayList<>();
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
         String serviceDate = null;
-        String zeirId = null;
+        String openSrpId = null;
 
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
@@ -154,7 +154,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             } else if (curField.getString("key").equals("OA_Service_Date")) {
                 serviceDate = curField.getString("value");
             } else if (curField.getString("key").equals("ZEIR_ID")) {
-                zeirId = formatChildUniqueId(curField.getString("value"));
+                openSrpId = formatChildUniqueId(curField.getString("value"));
             }
         }
 
@@ -164,8 +164,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 curVaccine.setDate(dateFormat.parse(serviceDate));
             }
 
-            if (zeirId != null) {
-                curVaccine.setProgramClientId(zeirId);
+            if (openSrpId != null) {
+                curVaccine.setProgramClientId(openSrpId);
             }
         }
 

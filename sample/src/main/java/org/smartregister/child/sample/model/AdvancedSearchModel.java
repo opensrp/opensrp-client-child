@@ -1,4 +1,4 @@
-package org.smartregister.child.sample;
+package org.smartregister.child.sample.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.AllConstants;
