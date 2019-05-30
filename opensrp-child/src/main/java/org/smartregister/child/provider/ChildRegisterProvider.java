@@ -44,8 +44,6 @@ import org.smartregister.view.viewholder.OnClickFormLauncher;
 import java.text.MessageFormat;
 import java.util.Set;
 
-import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by ndegwamartin on 28/02/2019.
  */
@@ -116,16 +114,16 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String childName = Utils.getName(firstName, lastName);
 
 
-        fillValue(viewHolder.childOpensrpID, getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
+        fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
-        String motherFirstName = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
+        String motherFirstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
-        String motherName = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
+        String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
@@ -135,7 +133,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
 
         String durationString = "";
-        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime birthDateTime = Utils.dobStringToDateTime(dobString);
         if (birthDateTime != null) {
             try {
@@ -152,7 +150,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
 
 
-        String gender = getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
+        String gender = Utils.getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
 
         final ImageView profilePic = viewHolder.imageView.findViewById(R.id.child_profilepic);
         renderProfileImage(pc.entityId(), gender, profilePic);
@@ -174,8 +172,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         recordVaccination.setTag(R.id.record_action, Constants.RECORD_ACTION.VACCINATION);
 
 
-        String lostToFollowUp = getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
-        String inactive = getValue(pc.getColumnmaps(), Constants.KEY.INACTIVE, false);
+        String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
+        String inactive = Utils.getValue(pc.getColumnmaps(), Constants.KEY.INACTIVE, false);
 
         if (show()) {
             try {

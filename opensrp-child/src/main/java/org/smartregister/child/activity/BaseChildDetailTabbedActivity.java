@@ -37,8 +37,6 @@ import android.widget.TextView;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
-import net.sqlcipher.Cursor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -48,7 +46,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.AllConstants;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.UpdateRegisterParams;
@@ -1024,7 +1021,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return clean;
 
     }
-
+/*
     private Map<String, String> getCleanMap() {
         Map<String, String> detailsMap = new HashMap<>();
         Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils.metadata().childRegister.tableName, new String[]{});
@@ -1042,7 +1039,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         return detailsMap;
 
-    }
+    }*/
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -1206,10 +1203,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             saveForm(jsonString, updateRegisterParams);
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
         }
     }
 

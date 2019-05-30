@@ -36,7 +36,6 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
-import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -527,9 +526,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected String getMainCondition() {
-        return DBQueryHelper.getHomePatientRegisterCondition();
-    }
+    protected abstract String getMainCondition();
 
     private void search() {
 

@@ -3,7 +3,6 @@ package org.smartregister.child.model;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
@@ -29,8 +28,6 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
     public static final String AND = "AND";
 
 
-
-
     @Override
     public String createSearchString(Map<String, String> searchMap) {
         String searchCriteria = "";
@@ -53,7 +50,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         return removeLastSemiColon(searchCriteria);
     }
 
-    public abstract Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal) ;
+    public abstract Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal);
 
     protected abstract String getKey(String key);
 

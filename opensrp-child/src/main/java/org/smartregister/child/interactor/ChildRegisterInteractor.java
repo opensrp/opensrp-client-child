@@ -7,6 +7,7 @@ import android.util.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -131,17 +132,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         } else {
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-                            String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
-
-                            if (!TextUtils.isEmpty(weight)) {
-                                WeightWrapper weightParams = new WeightWrapper();
-                                weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-                                weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
-                                weightParams.setUpdatedWeightDate(new DateTime(), true);
-                                weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
-
-                                Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
-                            }
+                            processWeight(jsonString, params, clientJson);
                         }
                     }
 
@@ -198,6 +189,20 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    private void processWeight(String jsonString, UpdateRegisterParams params, JSONObject clientJson) throws JSONException {
+        String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
+
+        if (!TextUtils.isEmpty(weight)) {
+            WeightWrapper weightParams = new WeightWrapper();
+            weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
+            weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
+            weightParams.setUpdatedWeightDate(new DateTime(), true);
+            weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
         }
     }
 

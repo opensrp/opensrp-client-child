@@ -61,7 +61,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
             String value = ((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim();
             // if no data, hide the row
-            if (TextUtils.isEmpty(value) || value.equals("kg")) {
+            if (TextUtils.isEmpty(value) || "kg".equals(value)) {
                 tableRow.setVisibility(View.GONE);
             }
         }

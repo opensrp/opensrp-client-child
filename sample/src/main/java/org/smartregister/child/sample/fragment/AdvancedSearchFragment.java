@@ -10,6 +10,7 @@ import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
 import org.smartregister.child.sample.util.DBConstants;
+import org.smartregister.child.sample.util.DBQueryHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.HashMap;
@@ -78,6 +79,11 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
+    protected String filterSelectionCondition(boolean urgentOnly) {
+        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
+    }
+
+    @Override
     public void onClick(View view) {
         view.toString();
     }
@@ -118,6 +124,11 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         motherGuardianNrc.setText("");
         motherGuardianPhoneNumber.setText("");
 
+    }
+
+    @Override
+    protected String getMainCondition() {
+        return DBQueryHelper.getHomePatientRegisterCondition();
     }
 
     @Override

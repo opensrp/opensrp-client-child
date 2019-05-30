@@ -26,7 +26,6 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
@@ -65,9 +64,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     }
 
     @Override
-    protected String getMainCondition() {
-        return DBQueryHelper.getHomePatientRegisterCondition();
-    }
+    protected abstract String getMainCondition();
 
     @Override
     protected abstract String getDefaultSortQuery();

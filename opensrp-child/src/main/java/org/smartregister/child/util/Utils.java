@@ -44,14 +44,6 @@ public class Utils extends org.smartregister.util.Utils {
 
     private static final String PREFERENCES_FILE = "lang_prefs";
 
-    public static Context context() {
-        return ChildLibrary.getInstance().context();
-    }
-
-    public static ChildMetadata metadata() {
-        return ChildLibrary.getInstance().metadata();
-    }
-
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Facility";
     public static final String FACILITY = "Health Facility";
@@ -364,10 +356,10 @@ public class Utils extends org.smartregister.util.Utils {
         return sharedPref.getString("language", "en");
     }
 
-    public static android.content.Context setAppLocale(android.content.Context context, String language) {
+    public static android.content.Context setAppLocale(android.content.Context context_, String language) {
         Locale locale = new Locale(language);
         Locale.setDefault(locale);
-
+        android.content.Context context = context_;
         Resources res = context.getResources();
         Configuration config = new Configuration(res.getConfiguration());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -378,5 +370,14 @@ public class Utils extends org.smartregister.util.Utils {
             res.updateConfiguration(config, res.getDisplayMetrics());
         }
         return context;
+    }
+
+
+    public static Context context() {
+        return ChildLibrary.getInstance().context();
+    }
+
+    public static ChildMetadata metadata() {
+        return ChildLibrary.getInstance().metadata();
     }
 }

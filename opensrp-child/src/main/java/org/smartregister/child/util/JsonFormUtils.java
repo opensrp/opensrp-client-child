@@ -699,10 +699,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject) throws JSONException {
         String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" : jsonObject.getString(JsonFormUtils.KEY), true);
         Date date = Utils.dobStringToDate(dateString);
-        if (StringUtils.isNotBlank(dateString)) {
-            if (date != null) {
-                jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(date));
-            }
+        if (StringUtils.isNotBlank(dateString) && date != null) {
+            jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(date));
         }
     }
 
