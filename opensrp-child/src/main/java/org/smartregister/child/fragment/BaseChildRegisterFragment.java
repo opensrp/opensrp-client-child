@@ -31,12 +31,9 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.AlertStatus;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.AllSharedPreferences;
@@ -45,7 +42,6 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +52,6 @@ import java.util.Set;
  */
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
 
-    private static String DOD_MAIN_CONDITION = " ( " + Constants.KEY.DOD + " is NULL OR " + Constants.KEY.DOD + " = '' ) ";
     private View filterSection;
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;
@@ -212,87 +207,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         }
     }
 
-    private String filterSelectionCondition(boolean urgentOnly) {
-        final String AND = " AND ";
-        final String OR = " OR ";
-        final String IS_NULL_OR = " IS NULL OR ";
-        final String TRUE = "'true'";
-
-        String mainCondition = DOD_MAIN_CONDITION +
-                AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
-                AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
-                AND + " ( ";
-        ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
-
-        vaccines.remove(VaccineRepo.Vaccine.bcg2);
-        vaccines.remove(VaccineRepo.Vaccine.ipv);
-        vaccines.remove(VaccineRepo.Vaccine.opv0);
-        vaccines.remove(VaccineRepo.Vaccine.opv4);
-        vaccines.remove(VaccineRepo.Vaccine.measles1);
-        vaccines.remove(VaccineRepo.Vaccine.mr1);
-        vaccines.remove(VaccineRepo.Vaccine.measles2);
-        vaccines.remove(VaccineRepo.Vaccine.mr2);
-
-        final String URGENT = "'" + AlertStatus.urgent.value() + "'";
-        final String NORMAL = "'" + AlertStatus.normal.value() + "'";
-        final String COMPLETE = "'" + AlertStatus.complete.value() + "'";
-
-
-        for (int i = 0; i < vaccines.size(); i++) {
-            VaccineRepo.Vaccine vaccine = vaccines.get(i);
-            if (i == vaccines.size() - 1) {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + " ";
-            } else {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + OR;
-            }
-        }
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
-
-        if (urgentOnly) {
-            return mainCondition + " ) ";
-        }
-
-        mainCondition += OR;
-        for (int i = 0; i < vaccines.size(); i++) {
-            VaccineRepo.Vaccine vaccine = vaccines.get(i);
-            if (i == vaccines.size() - 1) {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + " ";
-            } else {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + OR;
-            }
-        }
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
-
-        return mainCondition + " ) ";
-    }
+    protected abstract String filterSelectionCondition(boolean urgentOnly);
 
     @SuppressLint("NewApi")
     @Override
@@ -301,14 +216,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
                 .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, opensrpID);
     }
 
-
     @Override
     public void setUniqueID(String s) {
         if (getSearchView() != null) {
             getSearchView().setText(s);
         }
     }
-
 
     @Override
 

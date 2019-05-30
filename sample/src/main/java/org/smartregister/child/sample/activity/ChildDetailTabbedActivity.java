@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
+import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
@@ -87,5 +88,10 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     @Override
     public void onNoUniqueId() {
 
+    }
+
+    @Override
+    public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
+        return new ChildRegistrationDataFragment();
     }
 }

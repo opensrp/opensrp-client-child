@@ -52,7 +52,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.UpdateRegisterParams;
-import org.smartregister.child.fragment.ChildRegistrationDataFragment;
+import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
@@ -131,7 +131,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-    private ChildRegistrationDataFragment childDataFragment;
+    private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
@@ -168,7 +168,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         setContentView(R.layout.child_detail_activity_simple_tabs);
 
-        childDataFragment = new ChildRegistrationDataFragment();
+        childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
@@ -226,6 +226,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         tabLayout.setupWithViewPager(viewPager);
     }
+
+    protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
 
     @Override
     protected void onResume() {

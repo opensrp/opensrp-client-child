@@ -1,72 +1,29 @@
-package org.smartregister.child.fragment;
+package org.smartregister.child.sample.fragment;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import org.smartregister.child.R;
+import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.DateUtil;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 /**
- * Created by ndegwamartin on 06/03/2019.
+ * Created by ndegwamartin on 2019-05-29.
  */
-public class ChildRegistrationDataFragment extends Fragment {
-    private Map<String, String> childDetails;
-    private View fragmentView;
+public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFragment {
 
-    public static ChildRegistrationDataFragment newInstance(Bundle bundle) {
-        Bundle args = bundle;
-        ChildRegistrationDataFragment fragment = new ChildRegistrationDataFragment();
-        if (args == null) {
-            args = new Bundle();
-        }
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public ChildRegistrationDataFragment() {
-        // Required empty public constructor
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (this.getArguments() != null) {
-            Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = ((CommonPersonObjectClient) serializable).getColumnmaps();
-            }
-        }
-        // Inflate the layout for this fragment
-        fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
-        return fragmentView;
-    }
-
-
-    public void updateChildDetails(Map<String, String> childDetails) {
-        this.childDetails = childDetails;
-    }
-
     public void loadData(Map<String, String> detailsMap) {
         if (fragmentView != null) {
 
@@ -205,23 +162,6 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             // remove any empty fields
             removeEmptyValueFields();
-        }
-    }
-
-    /**
-     * @since 2019-04-30
-     * This method hides registration data fields with empty values
-     */
-    public void removeEmptyValueFields() {
-        // check all textviews in the registration data table
-        TableLayout tableLayout = fragmentView.findViewById(R.id.registration_data_table);
-        for (int i = 0; i < tableLayout.getChildCount(); i++) {
-            TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
-            String value = ((CustomFontTextView) tableRow.getChildAt(1)).getText().toString().trim();
-            // if no data, hide the row
-            if (TextUtils.isEmpty(value) || value.equals("kg")) {
-                tableRow.setVisibility(View.GONE);
-            }
         }
     }
 }
