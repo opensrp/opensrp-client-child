@@ -48,11 +48,9 @@
     <string name="woman_profile">مواصفات المرأة</string>
     <string name="woman_title">المرأة</string>
     <string name="woman_contact_number">اتصال</string>
-    <string name="woman_edd">EDD and GA</string>
     <string name="woman_last_vaccine">اللقاح الأخير</string>
     <string name="woman_next_vaacine">اللقاح المقبل المستحق</string>
     <string name="woman_alphabetical_sort">(الاسم) الأبجدي</string>
-    <string name="id_sort">ID</string>
     <string name="woman_details_title">مواصفات المرأة</string>
     <string name="day">اليوم\n</string>
     <string name="bcg">لقاح السل\n</string>
@@ -111,7 +109,7 @@
     <string name="female_sex_id">لها</string>
     <string name="male_sex_id">له</string>
     <string name="label_zeir">رقم الهوية</string>
-    <string name="label_immunization_records">التطعيم & amp؛ خدمات</string>
+    <string name="label_immunization_records">التطعيم &amp; خدمات</string>
     <string name="str_search_hint"> بحث الاسم أو رقم الهوية</string>
     <string name="scan_qr_code">مسح شفرة الاستجابة السريعة</string>
     <string name="zeir">رقم الهوية</string>
@@ -155,10 +153,7 @@
     <string name="lost_to_follow_up">انقطاع المتابعة</string>
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
-    <string name="zeir_id">ID</string>
-    <string name="zeir_id_hint">ID Number</string>
     <string name="first_name">اللقب</string>
-    <string name="first_name_hint">اللقب</string>
     <string name="last_name">الاسم العائلى</string>
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
@@ -183,15 +178,12 @@
     <string name="title_activity_stock_control">نشاط مراقبة المخزون</string>
     <string name="device_timezone_changed">لقد تغير النطاق الزمني للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="device_time_changed">لقد تغير وقت للجهاز.الرجاء تسجيل الدخول.</string>
-    <string name="side_nav_hia2">Reports</string>
     <string name="hia2_daily_tallies">العد اليومي</string>
     <string name="hia2_draft_monthly">صياغ شهري</string>
     <string name="hia2_draft_monthly_with_count">صياغ شهري (%1$d)</string>
     <string name="hia2_sent_monthly">أرسل شهريا</string>
-    <string name="title_activity_hia2_report">Reports</string>
     <string name="start_new_report">بداية تقرير جديد</string>
     <string name="no_draft_reports">لا توجد مسودات تقرير</string>
-    <string name="no_monthly_ready">No Monthly Report ready to be completed</string>
     <string name="reports_available">تقارير متوفرة</string>
     <string name="sent_reports_">التقارير المرسلة>%1$s</string>
     <string name="submitted_by_">تم ارسال %1$s بواسطة %2$s</string>
@@ -217,8 +209,6 @@
     <string name="waiting_label">جارى اﻹنتظار</string>
     <string name="fully_immunized_label">تحصين\كامل</string>
     <string name="all_changes_saved">تم حفظ جميع التغييرات</string>
-
-
     <string name="url_separator">\</string>
     <string name="clients_key">الزبناء</string>
     <string name="events_key">الأحداث</string>
@@ -230,17 +220,13 @@
     <string name="to_from_key">إلى_من</string>
     <string name="date_updated_key">تاريخ_التحديث</string>
     <string name="validation_error">خطأ التحقق من الصحة</string>
-
     <string name="show_vaccine_card_disabled">عرض بطاقة اللقاح تم تعطيله لطفل خارج المنطقة</string>
-
     <string name="side_nav_add">أضافة طفل جديد</string>
     <string name="side_nav_out_of_catchment">سجل خارج منطقة تغطية التلقيح</string>
     <string name="side_nav_sync">التزامن</string>
     <string name="side_nav_coverage">تقارير التغطية</string>
     <string name="side_nav_dropout">تقارير التسرب</string>
     <string name="title_activity_child_immunization">نشاط تلقيح الطفل</string>
-
-
     <string name="go_back_button_label">رجوع</string>
     <string name="dismiss_button_label">رفض</string>
     <string name="turn_off_reminder_button_label">إيقاف تذكير ندبة لقاح السل</string>
@@ -252,22 +238,14 @@
     <string name="turn_off_reminder_notification_message">تذكير ندبة لقاح السل مُطْفَأ </string>
     <string name="create_reminder_notification_message">تم انشاء تذكير ندبة لقاح السل</string>
     <string name="bcg_scar_reminder_question">هل توجد ندبة لقاح السل عند هذا الطفل؟</string>
-
     <string name="status_text">الحالة:%1$s</string>
     <string name="him">هو</string>
     <string name="her">هي</string>
-
-    <string name="start_nearex_scan">قم بتشغيل ال Nearex NFC scan&#8230;  </string>
     <string name="register_card">بطاقة التسجيل</string>
     <string name="registering_card">جارى تسجيل الخريطة لـ %1$s</string>
-
-    <string name="nearex">ماسح البطاقة</string>
     <string name="father_guardian_full_name">اسم الاب</string>
-
-
-
     <string name="registration_data">بيانات التسجيل</string>
-    <string name="under_five_history">تاريخ دون الخامسة</string>
+    <string name="under_five_history">تاريخ دون الخامسة</string>
     <string name="child_home_health_facility">المنشأة الصحة للطفل</string>
     <string name="child_opensrp_id">رقم التلقيح للطفل</string>
     <string name="child_register_card_number">الرقم التسلسلي للطفل في سجل التلقيح</string>
@@ -299,10 +277,24 @@
     <string name="notifications_on">الإشعارات قيد التشغيل</string>
     <string name="notifications_off"> الإشعارات قيد التشغيل. طفل متغيب لبعض الوقت</string>
     <string name="notifications_off_child_cannot_be_located"> الإشعارات قيد التشغيل. لا يمكن تحديد مكان الطفل أو الاتصال به.</string>
-
     <string name="marked_as_deceased">وضع علامة متوفى</string>
-
     <string name="search_results">نتائج البحث</string>
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
+
+    <string name="next_visit">التالى</string>
+    <string name="refreshing">تحديث&#8230;</string>
+    <string name="at_birth">عند الولادة</string>
+    <string name="six_weeks">6 أسابيع</string>
+    <string name="ten_weeks">10 أسابيع</string>
+    <string name="fourteen_weeks">14 أسابي</string>
+    <string name="nine_months">9 أشهر</string>
+    <string name="fifteen_months">15 شهرا</string>
+    <string name="eighteen_months">18 شهرا</string>
+    <string name="after_lmp">بعد LMP</string>
+    <string name="after_tt1">4 أسابيع بعد TT 1</string>
+    <string name="after_tt2">26 أسابيع بعد TT 2</string>
+    <string name="after_tt3"> 1 سنة بعد TT 3 </string>
+    <string name="after_tt4"> 1 سنة بعد TT 4 </string>
+    <string name="move_to_catchment">منطقتي</string>
 
 </resources>
