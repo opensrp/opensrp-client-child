@@ -128,7 +128,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
 
     @Override
     protected String getMainCondition() {
-        return DBQueryHelper.getHomePatientRegisterCondition();
+        return DBQueryHelper.getHomeRegisterCondition();
     }
 
     @Override

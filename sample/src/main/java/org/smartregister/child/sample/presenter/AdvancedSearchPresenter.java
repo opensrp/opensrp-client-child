@@ -6,9 +6,10 @@ import android.database.CursorJoiner;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
-import org.smartregister.child.sample.model.AdvancedSearchModel;
 import org.smartregister.child.sample.cursor.CreateRemoteLocalCursor;
+import org.smartregister.child.sample.model.AdvancedSearchModel;
 import org.smartregister.child.sample.util.DBConstants;
+import org.smartregister.child.sample.util.DBQueryHelper;
 
 public class AdvancedSearchPresenter extends BaseChildAdvancedSearchPresenter {
     public AdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier) {
@@ -55,5 +56,10 @@ public class AdvancedSearchPresenter extends BaseChildAdvancedSearchPresenter {
         } else {
             return matrixCursor;
         }
+    }
+
+    @Override
+    public String getMainCondition() {
+        return DBQueryHelper.getHomeRegisterCondition();
     }
 }

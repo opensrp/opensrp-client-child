@@ -1363,8 +1363,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 break;
         }
 
-
-        LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
+        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
         vaccineGroupCanvasLL.removeAllViews();
         vaccineGroups = null;
         updateViews();

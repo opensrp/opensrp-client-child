@@ -14,7 +14,8 @@ import java.util.ArrayList;
 
 public class DBQueryHelper {
 
-    public static final String getHomePatientRegisterCondition() {
+    public static final String getHomeRegisterCondition() {
+        //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
         return Utils.metadata().childRegister.tableName + "." + Constants.KEY.DATE_REMOVED + " IS NULL ";
     }
 
