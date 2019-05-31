@@ -49,7 +49,6 @@
     <string name="woman_profile">Profil de la femme</string>
     <string name="woman_title">Femme</string>
     <string name="woman_contact_number">Contacte</string>
-    <string name="woman_edd">DPA et AG</string>
     <string name="woman_last_vaccine">Dernier vaccin</string>
     <string name="woman_next_vaacine">Prochain vaccin attendu</string>
     <string name="woman_alphabetical_sort">Alphabétique (Nom)</string>
@@ -189,7 +188,6 @@
     <string name="hia2_draft_monthly">Rapport préliminaire mensuel</string>
     <string name="hia2_draft_monthly_with_count">Rapport préliminaire mensuel (%1$d)</string>
     <string name="hia2_sent_monthly">Soumis par mois</string>
-    <string name="title_activity_hia2_report">Rapports ÉIS2</string>
     <string name="start_new_report">Lancer un nouveau rapport</string>
     <string name="no_draft_reports">Aucun rapport provisoir</string>
     <string name="no_monthly_ready">Aucun Rapport ÉIS2 mensuel prêt pour être finalisé.</string>

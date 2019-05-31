@@ -56,7 +56,7 @@
         "openmrs_entity_id": "1543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "date",
         "type": "date_picker",
-        "hint": "Date of death *",
+        "hint": "Date of death",
         "expanded": false,
         "min_date": "01-01-1900",
         "max_date": "today",
@@ -88,7 +88,7 @@
         "openmrs_entity_id": "1541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "select one",
         "type": "spinner",
-        "hint": "Where did the death occur? *",
+        "hint": "Where did the death occur?",
         "values": [
           "Health facility",
           "Home"

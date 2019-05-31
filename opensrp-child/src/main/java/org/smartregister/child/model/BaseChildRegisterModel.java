@@ -52,14 +52,14 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     @Override
     public List<ChildEventClient> processRegistration(String jsonString, FormTag formTag) {
         List<ChildEventClient> childEventClientList = new ArrayList<>();
-        ChildEventClient childEventClient = JsonFormUtils.processChildUpdateForm(jsonString, formTag);
+        ChildEventClient childEventClient = JsonFormUtils.processChildDetailsForm(jsonString, formTag);
         if (childEventClient == null) {
             return null;
         }
 
         childEventClientList.add(childEventClient);
 
-        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(Utils.context().allSharedPreferences(), jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
+        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
         if (childHeadEventClient == null) {
             return childEventClientList;
         }

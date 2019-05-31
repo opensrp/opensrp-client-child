@@ -48,11 +48,10 @@
     <string name="woman_profile">WOMAN PROFILE</string>
     <string name="woman_title">Woman</string>
     <string name="woman_contact_number">CONTACT</string>
-    <string name="woman_edd">EDD and GA</string>
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort">ZEIR ID </string>
+    <string name="id_sort" translatable="false">IZ ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -155,7 +154,7 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id">IZ ID</string>
+    <string name="zeir_id" translatable="false">IZ ID</string>
     <string name="iz_id_hint">IZ ID number</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
@@ -188,7 +187,6 @@
     <string name="hia2_draft_monthly">Draft Monthly</string>
     <string name="hia2_draft_monthly_with_count">Draft Monthly (%1$d)</string>
     <string name="hia2_sent_monthly">Sent Monthly</string>
-    <string name="title_activity_hia2_report">HIA2 Reports</string>
     <string name="start_new_report">Start new report</string>
     <string name="no_draft_reports">No draft reports</string>
     <string name="no_monthly_ready">No monthly HIA2 reports ready to be completed.</string>
@@ -300,7 +298,7 @@
     <string name="notifications_off">Notifications off. Child away for a period of time.</string>
     <string name="notifications_off_child_cannot_be_located">Notifications off. Child cannot be located or contacted.</string>
 
-    <string name="marked_as_deceased">%1$s marked as deceased</string>
+    <string name="marked_as_deceased"> %1$s marked as deceased</string>
 
     <string name="search_results">Search results</string>
     <string name="qr_code_label">QR code</string>

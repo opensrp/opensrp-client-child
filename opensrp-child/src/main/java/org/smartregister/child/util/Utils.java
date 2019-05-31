@@ -41,6 +41,7 @@ import java.util.Map;
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Utils extends org.smartregister.util.Utils {
+    public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
 
     private static final String PREFERENCES_FILE = "lang_prefs";
 
@@ -318,6 +319,17 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static boolean isEmptyCollection(Collection collection) {
         return collection == null || collection.isEmpty();
+    }
+
+
+    public static String getTodaysDate() {
+        return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
+    }
+
+
+    public static String convertDateFormat(Date date, SimpleDateFormat formatter) {
+
+        return formatter.format(date);
     }
 
     public static void recordWeight(WeightRepository weightRepository, WeightWrapper tag, String dobString, String syncStatus) {

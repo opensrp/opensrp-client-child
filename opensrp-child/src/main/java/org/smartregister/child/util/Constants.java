@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 public class Constants extends AllConstants {
 
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
@@ -19,7 +20,6 @@ public class Constants extends AllConstants {
         public static final String OPTIONS = "options";
         public static final String ENCOUNTER_LOCATION = "encounter_location";
         public static final String ATTRIBUTES = "attributes";
-        public static final String DEATH_DATE = "deathdate";
         public static final String DEATH_DATE_APPROX = "deathdateApprox";
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";

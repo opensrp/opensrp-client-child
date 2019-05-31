@@ -16,7 +16,7 @@ public class DBQueryHelper {
 
     public static final String getHomeRegisterCondition() {
         //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
-        return Utils.metadata().childRegister.tableName + "." + Constants.KEY.DATE_REMOVED + " IS NULL ";
+        return Utils.metadata().childRegister.tableName + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " + Utils.metadata().childRegister.tableName + "." + Constants.KEY.DOD + " IS NULL";
     }
 
     public static String getFilterSelectionCondition(boolean urgentOnly) {

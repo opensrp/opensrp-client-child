@@ -413,7 +413,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased, childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name")));
+        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME)))) ;
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
@@ -441,10 +441,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 saveReportDeceasedJson(json, allSharedPreferences);
                 builder.dismiss();
 
-                Intent intent = new Intent(getApplicationContext(), BaseChildRegisterActivity.class);
-                intent.putExtra("is_remote_login", false);
-                startActivity(intent);
-                finish();
+                navigateToRegisterActivity();
 
             }
         });
@@ -452,6 +449,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         builder.setView(notificationsLayout);
         builder.show();
     }
+
+    protected abstract void navigateToRegisterActivity();
 
     @Override
     protected int getContentView() {

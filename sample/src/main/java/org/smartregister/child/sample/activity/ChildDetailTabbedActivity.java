@@ -1,10 +1,12 @@
 package org.smartregister.child.sample.activity;
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.view.MenuItem;
 import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.smartregister.AllConstants;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
@@ -78,6 +80,15 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void navigateToRegisterActivity() {
+
+        Intent intent = new Intent(getApplicationContext(), ChildRegisterActivity.class);
+        intent.putExtra(AllConstants.INTENT_KEY.IS_REMOTE_LOGIN, false);
+        startActivity(intent);
+        finish();
     }
 
     @Override

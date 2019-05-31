@@ -16,6 +16,7 @@
     <!-- warning -->
     <string name="any_changes_you_make">سيتم فقد أي تغييرات قمت بإجرائها</string>
 
+    <string name="id_sort">IZ ID </string>
     <string name="invalid_device_date">يجب أن يكون تاريخ الجهاز الحالي بعد آخر وقت للخادم الذي تمت مزامنته والذي كان</string>
     <string name="home_women_label">المراة</string>
     <string name="home_field_monitor_label">المخزون</string>
@@ -153,7 +154,9 @@
     <string name="lost_to_follow_up">انقطاع المتابعة</string>
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
+    <string name="iz_id_hint">IZ ID رقم</string>
     <string name="first_name">اللقب</string>
+    <string name="first_name_hint">اللقب</string>
     <string name="last_name">الاسم العائلى</string>
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
@@ -209,6 +212,7 @@
     <string name="waiting_label">جارى اﻹنتظار</string>
     <string name="fully_immunized_label">تحصين\كامل</string>
     <string name="all_changes_saved">تم حفظ جميع التغييرات</string>
+    <string name="record_service">سجل &#10; الخدمة</string>
     <string name="url_separator">\</string>
     <string name="clients_key">الزبناء</string>
     <string name="events_key">الأحداث</string>
@@ -277,7 +281,7 @@
     <string name="notifications_on">الإشعارات قيد التشغيل</string>
     <string name="notifications_off"> الإشعارات قيد التشغيل. طفل متغيب لبعض الوقت</string>
     <string name="notifications_off_child_cannot_be_located"> الإشعارات قيد التشغيل. لا يمكن تحديد مكان الطفل أو الاتصال به.</string>
-    <string name="marked_as_deceased">وضع علامة متوفى</string>
+    <string name="marked_as_deceased"> %1$s وضع علامة متوفى</string>
     <string name="search_results">نتائج البحث</string>
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
 
@@ -296,5 +300,12 @@
     <string name="after_tt3"> 1 سنة بعد TT 3 </string>
     <string name="after_tt4"> 1 سنة بعد TT 4 </string>
     <string name="move_to_catchment">منطقتي</string>
+
+    <string name="preferred_language">اللغة المفضلة</string>
+    <string name="scan_card">تفحص</string>
+    <string name="birth_tetanus_protection">حماية كزاز المواليد</string>
+    <string name="side_nav_hia2">HIA 2 تقارير</string>
+    <string name="no_monthly_ready">لا توجد تقارير HIA 2 شهرية جاهزة للإكمال.</string>
+    <string name="scan_nfc_card"> قم بتشغيل فحص بطاقة NFC &#8230;</string>
 
 </resources>

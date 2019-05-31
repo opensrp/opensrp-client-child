@@ -90,7 +90,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String RELATIONAL_ID = "relational_id";
     public static final String CURRENT_ZEIR_ID = "current_zeir_id";
     public static final String ZEIR_ID = "ZEIR_ID";
-    public static final String encounterType = "Update Birth Registration";
+    public static final String updateBirthRegistrationDetailsEncounter = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     private static final String TAG = JsonFormUtils.class.getCanonicalName();
@@ -352,10 +352,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext,
-                                          String jsonString, String providerId, String locationId, String entityId) {
-
+    public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext, String jsonString, String providerId, String locationId, String entityId) {
         try {
+
             EventClientRepository db = ChildLibrary.getInstance().eventClientRepository();
 
             JSONObject jsonForm = new JSONObject(jsonString);
@@ -435,8 +434,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 //Update client to deceased
                 JSONObject client = db.getClientByBaseEntityId(eventJson.getString(ClientProcessor.baseEntityIdJSONKey));
-                client.put("deathdate", encounterDateTimeString);
-                client.put("deathdateApprox", false);
+                client.put(FormEntityConstants.Person.deathdate.name(), encounterDateTimeString);
+                client.put(FormEntityConstants.Person.deathdate_estimated.name(), false);
+                client.put(Constants.JSON_FORM_KEY.DEATH_DATE_APPROX, false);
+
                 db.addorUpdateClient(entityId, client);
 
                 //Add Death Event for child to flag for Server delete
@@ -446,7 +447,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 Event updateChildDetailsEvent = (Event) new Event()
                         .withBaseEntityId(entityId) //should be different for main and subform
                         .withEventDate(encounterDate)
-                        .withEventType(JsonFormUtils.encounterType)
+                        .withEventType(JsonFormUtils.updateBirthRegistrationDetailsEncounter)
                         .withLocationId(locationId)
                         .withProviderId(providerId)
                         .withEntityType(Constants.CHILD_TYPE)
@@ -454,6 +455,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         .withDateCreated(new Date());
 
                 addMetaData(context, updateChildDetailsEvent, new Date());
+
+                JsonFormUtils.tagSyncMetadata(updateChildDetailsEvent);
 
                 JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
 
@@ -464,12 +467,20 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
-                    values.put(Constants.KEY.DOD, Constants.DEFAULT_DATE_STRING);
+                    values.put(Constants.KEY.DOD, encounterDateField);
+                    values.put(Constants.KEY.DATE_REMOVED,  Utils.getTodaysDate());
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
                 }
+
+                updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
             }
+
+            long lastSyncTimeStamp = Utils.getAllSharedPreferences().fetchLastUpdatedAtDate(0);
+            Date lastSyncDate = new Date(lastSyncTimeStamp);
+            ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            Utils.getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
 
         } catch (Exception e) {
             Log.e(TAG, "", e);
@@ -477,7 +488,19 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    public static ChildEventClient processChildUpdateForm(String jsonString, FormTag formTag) {
+    public static void updateDateOfRemoval(String baseEntityId, String dateOfRemovalString) {
+
+        ContentValues contentValues = new ContentValues();
+
+        if (dateOfRemovalString != null) {
+            contentValues.put(Constants.KEY.DATE_REMOVED, dateOfRemovalString);
+        }
+
+        ChildLibrary.getInstance().context().getEventClientRepository().getWritableDatabase()
+                .update(Utils.metadata().childRegister.tableName, contentValues, Constants.KEY.BASE_ENTITY_ID + " = ?", new String[]{baseEntityId});
+    }
+
+    public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
 
         try {
             Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -517,6 +540,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     public static void mergeAndSaveClient(Client baseClient) throws Exception {
+
         JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
 
         JSONObject originalClientJsonObject = ChildLibrary.getInstance().getEcSyncHelper().getClient(baseClient.getBaseEntityId());
@@ -529,6 +553,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     public static void saveImage(String providerId, String entityId, String imageLocation) {
+
         if (StringUtils.isBlank(imageLocation)) {
             return;
         }
@@ -934,7 +959,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static ChildEventClient processMotherRegistrationForm(AllSharedPreferences allSharedPreferences, String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
 
         try {
             android.content.Context context = CoreLibrary.getInstance().context().applicationContext();
@@ -1515,7 +1540,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Event event = (Event) new Event()
                 .withBaseEntityId(childDetails.entityId())
                 .withEventDate(new Date())
-                .withEventType(JsonFormUtils.encounterType)
+                .withEventType(JsonFormUtils.updateBirthRegistrationDetailsEncounter)
                 .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
                 .withProviderId(allSharedPreferences.fetchRegisteredANM())
                 .withEntityType(Constants.CHILD_TYPE)
