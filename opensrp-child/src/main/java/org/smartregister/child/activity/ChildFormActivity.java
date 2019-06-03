@@ -18,6 +18,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.Utils;
 
 import java.util.List;
 
@@ -29,6 +30,13 @@ public class ChildFormActivity extends JsonFormActivity {
 
     private boolean enableOnCloseDialog = true;
     ChildFormFragment childFormFragment;
+
+    @Override
+    protected void attachBaseContext(android.content.Context base) {
+
+        String language = Utils.getLanguage(base);
+        super.attachBaseContext(Utils.setAppLocale(base, language));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

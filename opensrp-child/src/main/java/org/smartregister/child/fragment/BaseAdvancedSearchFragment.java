@@ -26,7 +26,6 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
@@ -37,8 +36,6 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
-import org.smartregister.child.util.DBConstants;
-import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -64,8 +61,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private RadioButton outsideInside;
     private RadioButton myCatchment;
 
-    private MaterialEditText firstName;
-    private MaterialEditText lastName;
 
     private TextView searchCriteria;
     private TextView matchingResults;
@@ -76,21 +71,17 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     private BroadcastReceiver connectionChangeReciever;
     private boolean registeredConnectionChangeReceiver = false;
-    private AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
-    private HashMap<String, String> searchFormData = new HashMap<>();
+    protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
+    protected HashMap<String, String> searchFormData = new HashMap<>();
 
     protected CheckBox active;
     protected CheckBox inactive;
     protected CheckBox lostToFollowUp;
-    protected MaterialEditText zeirId;
-    protected MaterialEditText motherGuardianName;
-    protected MaterialEditText motherGuardianNrc;
-    protected MaterialEditText motherGuardianPhoneNumber;
     protected EditText startDate;
     protected EditText endDate;
 
     private Button qrCodeButton;
-    private Map<String, View> advancedFormSearchableFields = new HashMap<>();
+    protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
 
     @Override
     protected void initializePresenter() {
@@ -184,27 +175,13 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
 
-        firstName = view.findViewById(R.id.first_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
-
-        lastName = view.findViewById(R.id.last_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
-
-        zeirId = view.findViewById(R.id.zeir_id);
-        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, zeirId);
-
-        motherGuardianName = view.findViewById(R.id.mother_guardian_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
-
-        motherGuardianNrc = view.findViewById(R.id.mother_guardian_nrc);
-        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
-
-        motherGuardianPhoneNumber = view.findViewById(R.id.mother_guardian_phone_number);
-        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
+        populateSearchableFields(view);
 
         populateFormViews(view);
 
     }
+
+    public abstract void populateSearchableFields(View view);
 
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
@@ -274,19 +251,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         });
 
 
-        firstName.addTextChangedListener(advancedSearchTextwatcher);
-
-        lastName.addTextChangedListener(advancedSearchTextwatcher);
-
-
-        zeirId.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
-
         startDate = view.findViewById(R.id.start_date);
         endDate = view.findViewById(R.id.end_date);
 
@@ -308,6 +272,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             }
         });
 
+        Button scanCardButton = view.findViewById(R.id.scanCardButton);
+        scanCardButton.setVisibility(View.GONE);
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
@@ -400,30 +366,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         resetForm();
     }
 
-    private void assignedValuesBeforeBarcode() {
-        if (searchFormData.size() > 0) {
-            firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
-            lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
-            motherGuardianName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
-            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
-            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
-            zeirId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
-        }
-    }
+    protected abstract void assignedValuesBeforeBarcode();
 
-    private HashMap<String, String> createSelectedFieldMap() {
-        HashMap<String, String> fields = new HashMap<>();
-        fields.put(DBConstants.KEY.FIRST_NAME, firstName.getText().toString());
-        fields.put(DBConstants.KEY.LAST_NAME, lastName.getText().toString());
-        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName.getText().toString());
-        fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
-        fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
-        fields.put(DBConstants.KEY.ZEIR_ID, zeirId.getText().toString());
-        return fields;
-    }
+    protected abstract HashMap<String, String> createSelectedFieldMap();
 
     private void checkTextFields() {
-        if (!TextUtils.isEmpty(firstName.getText()) || !TextUtils.isEmpty(lastName.getText()) || !TextUtils.isEmpty(motherGuardianName.getText()) || !TextUtils.isEmpty(motherGuardianNrc.getText()) || !TextUtils.isEmpty(motherGuardianPhoneNumber.getText()) || !TextUtils.isEmpty(zeirId.getText())) {
+        if (anySearchableFieldHasValue()) {
             search.setEnabled(true);
             search.setTextColor(getResources().getColor(R.color.white));
 
@@ -438,6 +386,21 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
         }
     }
+
+    private boolean anySearchableFieldHasValue() {
+
+        for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
+
+            if (entry.getValue() instanceof MaterialEditText && !TextUtils.isEmpty(((MaterialEditText) entry.getValue()).getText())) {
+                return true;
+            }
+
+
+        }
+        return false;
+
+    }
+
 
     @Override
     public void switchViews(boolean showList) {
@@ -508,17 +471,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         clearFormFields();
     }
 
-    private void clearFormFields() {
+    protected void clearFormFields() {
         active.setChecked(true);
         inactive.setChecked(false);
         lostToFollowUp.setChecked(false);
-
-        zeirId.setText("");
-        firstName.setText("");
-        lastName.setText("");
-        motherGuardianName.setText("");
-        motherGuardianNrc.setText("");
-        motherGuardianPhoneNumber.setText("");
 
         startDate.setText("");
         endDate.setText("");
@@ -570,9 +526,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected String getMainCondition() {
-        return DBQueryHelper.getHomePatientRegisterCondition();
-    }
+    protected abstract String getMainCondition();
 
     private void search() {
 
@@ -586,51 +540,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         ((ChildAdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
     }
 
-    public Map<String, String> getSearchMap() {
-
-        Map<String, String> searchParams = new HashMap<>();
-
-        String fn = firstName.getText().toString();
-        String ln = lastName.getText().toString();
-
-
-        String motherGuardianNameString = motherGuardianName.getText().toString();
-
-        String motherGuardianNrcString = motherGuardianNrc.getText().toString();
-
-        String motherGuardianPhoneNumberString = motherGuardianPhoneNumber.getText().toString();
-
-        String zeir = zeirId.getText().toString();
-
-
-        if (StringUtils.isNotBlank(motherGuardianNameString)) {
-            searchParams.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianNameString);
-        }
-
-        if (StringUtils.isNotBlank(motherGuardianNrcString)) {
-
-            searchParams.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrcString);
-        }
-
-        if (StringUtils.isNotBlank(motherGuardianPhoneNumberString)) {
-            searchParams.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumberString);
-        }
-
-
-        if (!TextUtils.isEmpty(fn)) {
-            searchParams.put(DBConstants.KEY.FIRST_NAME, fn);
-        }
-
-        if (!TextUtils.isEmpty(ln)) {
-            searchParams.put(DBConstants.KEY.LAST_NAME, ln);
-        }
-
-        if (!TextUtils.isEmpty(zeir)) {
-            searchParams.put(DBConstants.KEY.ZEIR_ID, zeir);
-        }
-
-        return searchParams;
-    }
+    protected abstract Map<String, String> getSearchMap();
 
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {

@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/ec_main_header_nav_layout_height" />
 
-    <include layout="@layout/register_header" />
+    <include layout="@layout/child_register_header" />
 
     <LinearLayout
         android:id="@+id/clients_upper_header_layout"

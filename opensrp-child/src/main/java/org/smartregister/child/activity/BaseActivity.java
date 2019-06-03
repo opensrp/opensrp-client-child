@@ -43,11 +43,12 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -101,7 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentView());
-        toolbar = (BaseToolbar) findViewById(getToolbarId());
+        toolbar = findViewById(getToolbarId());
         setSupportActionBar(toolbar);
 
      /*   DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());
@@ -527,7 +528,7 @@ toggle.syncState();
         String tableName = Utils.metadata().childRegister.tableName;
         String parentTableName = Utils.metadata().childRegister.motherTableName;
 
-        String mainCondition = tableName + "." + DBConstants.KEY.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
+        String mainCondition = tableName + "." + Constants.KEY.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
 
         SmartRegisterQueryBuilder childQueryBuilder = new SmartRegisterQueryBuilder();
         childQueryBuilder.SelectInitiateMainTable(tableName, new String[]{
@@ -542,7 +543,7 @@ toggle.syncState();
                 parentTableName + ".last_name as mother_last_name",
                 parentTableName + ".dob as mother_dob",
                 parentTableName + ".nrc_number as mother_nrc_number",
-                tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
+                tableName + ".father_first_name",
                 tableName + ".dob",
                 tableName + ".epi_card_number",
                 tableName + ".contact_phone_number",
@@ -621,22 +622,28 @@ toggle.syncState();
         if (resultCode == RESULT_OK) {
             String jsonString = data.getStringExtra("json");
 
-            saveForm(jsonString, false);
+
+            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+            updateRegisterParams.setEditMode(false);
+
+            saveForm(jsonString, updateRegisterParams);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    public void saveForm(String jsonString, boolean isEditMode) {
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
 
         try {
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString);
+            if (updateRegisterParams.getFormTag() == null) {
+                updateRegisterParams.setFormTag(JsonFormUtils.formTag(Utils.getAllSharedPreferences()));
+            }
+
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
-
-            interactor.saveRegistration(childEventClientList, jsonString, isEditMode, this);
+            interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

@@ -2,12 +2,10 @@ package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
-import org.smartregister.child.util.DBConstants;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class ChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
+public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
 
 
     public static final String GLOBAL_FIRST_NAME = "firstName";
@@ -31,37 +29,6 @@ public class ChildAdvancedSearchModel extends BaseChildRegisterFragmentModel imp
 
 
     @Override
-    public Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal) {
-
-        Map<String, String> editMap = new HashMap<>();
-        editMap.putAll(editMap_);
-
-        String firstName = editMap.get(DBConstants.KEY.FIRST_NAME);
-        String lastName = editMap.get(DBConstants.KEY.LAST_NAME);
-        String opensrpID = editMap.get(DBConstants.KEY.ZEIR_ID);
-        String dob = editMap.get(DBConstants.KEY.DOB);
-        String phoneNumber = editMap.get(DBConstants.KEY.CONTACT_PHONE_NUMBER);
-
-        if (StringUtils.isNotBlank(firstName)) {
-            editMap.put(isLocal ? DBConstants.KEY.FIRST_NAME : GLOBAL_FIRST_NAME, firstName);
-        }
-        if (StringUtils.isNotBlank(lastName)) {
-            editMap.put(isLocal ? DBConstants.KEY.LAST_NAME : GLOBAL_LAST_NAME, lastName);
-        }
-        if (StringUtils.isNotBlank(opensrpID)) {
-            editMap.put(isLocal ? DBConstants.KEY.ZEIR_ID : GLOBAL_IDENTIFIER, isLocal ? opensrpID : OPENSRP_ID + ":" + opensrpID);
-        }
-
-        if (StringUtils.isNotBlank(dob)) {
-            editMap.put(isLocal ? DBConstants.KEY.DOB : GLOBAL_BIRTH_DATE, dob);
-        }
-        if (StringUtils.isNotBlank(phoneNumber)) {
-            editMap.put(isLocal ? DBConstants.KEY.CONTACT_PHONE_NUMBER : PHONE_NUMBER, phoneNumber);
-        }
-        return editMap;
-    }
-
-    @Override
     public String createSearchString(Map<String, String> searchMap) {
         String searchCriteria = "";
         if (searchMap == null || searchMap.isEmpty()) {
@@ -83,40 +50,9 @@ public class ChildAdvancedSearchModel extends BaseChildRegisterFragmentModel imp
         return removeLastSemiColon(searchCriteria);
     }
 
-    protected String getKey(String key) {
-        String resKey = "";
-        switch (key) {
-            case DBConstants.KEY.FIRST_NAME:
-                resKey = FIRST_NAME;
+    public abstract Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal);
 
-                break;
-
-
-            case DBConstants.KEY.LAST_NAME:
-                resKey = LAST_NAME;
-
-                break;
-            case DBConstants.KEY.ZEIR_ID:
-                resKey = SEARCH_TERM_OPENSRP_ID;
-
-                break;
-            case DBConstants.KEY.DOB:
-                resKey = DOB;
-
-                break;
-            case DBConstants.KEY.CONTACT_PHONE_NUMBER:
-                resKey = MOBILE_PHONE_NUMBER;
-
-                break;
-
-            default:
-                break;
-
-        }
-
-
-        return resKey;
-    }
+    protected abstract String getKey(String key);
 
     @Override
     public String getMainConditionString(Map<String, String> editMap) {

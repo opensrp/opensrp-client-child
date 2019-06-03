@@ -1,6 +1,7 @@
 package org.smartregister.child.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.bottomnavigation.LabelVisibilityMode;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,16 +11,16 @@ import com.vijay.jsonwizard.domain.Form;
 
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.helper.BottomNavigationHelper;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
@@ -37,6 +38,13 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     private boolean isAdvancedSearch = false;
     private String advancedSearchQrText = "";
     private HashMap<String, String> advancedSearchFormData = new HashMap<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ChildLibrary.getInstance().getLocationPickerView(this);
+    }
+
     @Override
     public void startRegistration() {
         startFormActivity(getRegistrationForm(), null, null);
@@ -54,7 +62,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
-
 
 
     @Override
@@ -80,7 +87,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
 
-
     public void setAdvancedSearch(boolean advancedSearch) {
         isAdvancedSearch = advancedSearch;
     }
@@ -96,7 +102,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     private void setFormData(HashMap<String, String> formData) {
         mBaseFragment.setAdvancedSearchFormData(formData);
     }
-
 
 
     public void startAdvancedSearch() {
@@ -119,6 +124,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         //form.setActionBarBackground(R.color.child_actionbar);
         //form.setNavigationBackground(R.color.child_navigation);
         //form.setHomeAsUpIndicator(R.mipmap.ic_arrow_forward);
+
+        form.setWizard(false);
+        form.setHideSaveLabel(true);
+        form.setNextLabel("");
+
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
 
         startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
@@ -133,7 +143,12 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
-                    presenter().saveForm(jsonString, false);
+                    UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
+                    updateRegisterParam.setEditMode(false);
+                    updateRegisterParam.setFormTag(JsonFormUtils.formTag(Utils.context().allSharedPreferences()));
+
+                    showProgressDialog(R.string.saving_dialog_title);
+                    presenter().saveForm(jsonString, updateRegisterParam);
                 }
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
@@ -165,10 +180,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         }
     }
 
-    public void startNearexScanner() {
-
-        Utils.showToast(this, this.getResources().getString(R.string.start_nearex_scan));
-    }
+    public abstract void startNFCCardScanner();
 
     @Override
     public List<String> getViewIdentifiers() {
@@ -217,5 +229,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 ((BaseChildRegisterFragment) registerFragment).triggerFilterSelection();
             }
         }
+    }
+
+    //To be overriden
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
+        presenter().saveForm(jsonString, updateRegisterParam);
     }
 }

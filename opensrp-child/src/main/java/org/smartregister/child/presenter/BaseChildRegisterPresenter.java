@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.repository.AllSharedPreferences;
@@ -91,18 +92,16 @@ public class BaseChildRegisterPresenter implements ChildRegisterContract.Present
     }
 
     @Override
-    public void saveForm(String jsonString, boolean isEditMode) {
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
 
         try {
 
-            getView().showProgressDialog(R.string.saving_dialog_title);
-
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString);
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
 
-            interactor.saveRegistration(childEventClientList, jsonString, isEditMode, this);
+            interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

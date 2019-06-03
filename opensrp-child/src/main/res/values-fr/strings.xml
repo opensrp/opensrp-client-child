@@ -11,6 +11,7 @@
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
     <string name="add_child">Ajouter enfant</string>
+    <string name="scan_card"> Scanner Carte</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
@@ -48,7 +49,6 @@
     <string name="woman_profile">Profil de la femme</string>
     <string name="woman_title">Femme</string>
     <string name="woman_contact_number">Contacte</string>
-    <string name="woman_edd">DPA et AG</string>
     <string name="woman_last_vaccine">Dernier vaccin</string>
     <string name="woman_next_vaacine">Prochain vaccin attendu</string>
     <string name="woman_alphabetical_sort">Alphabétique (Nom)</string>
@@ -156,7 +156,7 @@
     <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
     <string name="status">état</string>
     <string name="zeir_id">IZ ID</string>
-    <string name="zeir_id_hint">numéro d\'identification</string>
+    <string name="iz_id_hint">Numéro d\'identification</string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
@@ -188,7 +188,6 @@
     <string name="hia2_draft_monthly">Rapport préliminaire mensuel</string>
     <string name="hia2_draft_monthly_with_count">Rapport préliminaire mensuel (%1$d)</string>
     <string name="hia2_sent_monthly">Soumis par mois</string>
-    <string name="title_activity_hia2_report">Rapports ÉIS2</string>
     <string name="start_new_report">Lancer un nouveau rapport</string>
     <string name="no_draft_reports">Aucun rapport provisoir</string>
     <string name="no_monthly_ready">Aucun Rapport ÉIS2 mensuel prêt pour être finalisé.</string>
@@ -217,8 +216,7 @@
     <string name="waiting_label">En attente</string>
     <string name="fully_immunized_label">Complètement\nimmunisé</string>
     <string name="all_changes_saved">Tous changements enrégistrés</string>
-
-
+    <string name="record_service">Service\nd\'enregistrement</string>
     <string name="url_separator">/</string>
     <string name="clients_key">clients</string>
     <string name="events_key">événements</string>
@@ -257,14 +255,10 @@
     <string name="him">lui</string>
     <string name="her">elle</string>
 
-    <string name="start_nearex_scan">Lancer le Nearex NFC scan&#8230;</string>
-    <string name="register_card">Carte d\'enregistrement</string>
+    <string name="scan_nfc_card">Lancer le Carte NFC scan&#8230;</string>
+    <string name="register_card">Carte d\'enregistre</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s </string>
-
-    <string name="nearex"> Scanner Carte</string>
     <string name="father_guardian_full_name">Le nom du père</string>
-
-
 
     <string name="registration_data">Données d\'inscription</string>
     <string name="under_five_history">Moins de cinq ans d\'histoire</string>
@@ -275,6 +269,7 @@
     <string name="child_dob">Date de naissance de l\'enfant</string>
     <string name="child_age">âge</string>
     <string name="birth_weight">Poids à la naissance</string>
+    <string name="birth_tetanus_protection">Protection contre le tétanos néonatal</string>
     <string name="mother_first_name">Prénom mère</string>
     <string name="mother_second_name">Nom mère</string>
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
@@ -287,13 +282,14 @@
     <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
     <string name="landmark">Point de repère</string>
+    <string name="preferred_language">Langue Préférée</string>
+    <string name="neutral_sex_id">lui ou elle</string>
     <string name="health_details">détails sur la santé</string>
     <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
     <string name="vaccine_group_birth_name">Naissance</string>
     <string name="tap_to_view">Tapez pour voir</string>
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
-    <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
     <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications allumer.</string>
@@ -304,5 +300,21 @@
 
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
+    <string name="next_visit">Prochain</string>
+    <string name="refreshing">Rafraîchissante&#8230;</string>
+
+    <string name="at_birth">à la naissance</string>
+    <string name="six_weeks">6 semaines</string>
+    <string name="ten_weeks">10 semaines</string>
+    <string name="fourteen_weeks">14 semaines</string>
+    <string name="nine_months">9 mois</string>
+    <string name="fifteen_months">15 mois</string>
+    <string name="eighteen_months">18 mois</string>
+    <string name="after_lmp">Après LMP</string>
+    <string name="after_tt1">4 semaines après le TT 1</string>
+    <string name="after_tt2">26 semaines après le TT 2</string>
+    <string name="after_tt3"> 1 an après TT 3 </string>
+    <string name="after_tt4"> 1 an après TT 4 </string>
+    <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
 
 </resources>

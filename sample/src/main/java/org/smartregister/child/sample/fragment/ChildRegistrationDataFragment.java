@@ -1,76 +1,34 @@
-package org.smartregister.child.fragment;
+package org.smartregister.child.sample.fragment;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TableRow;
 
-import org.smartregister.child.R;
+import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.DateUtil;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 /**
- * Created by ndegwamartin on 06/03/2019.
+ * Created by ndegwamartin on 2019-05-29.
  */
-public class ChildRegistrationDataFragment extends Fragment {
-    public CommonPersonObjectClient childDetails;
-    private View fragmentView;
+public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFragment {
 
-    public static ChildRegistrationDataFragment newInstance(Bundle bundle) {
-        Bundle args = bundle;
-        ChildRegistrationDataFragment fragment = new ChildRegistrationDataFragment();
-        if (args == null) {
-            args = new Bundle();
-        }
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public ChildRegistrationDataFragment() {
-        // Required empty public constructor
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (this.getArguments() != null) {
-            Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-            }
-        }
-        // Inflate the layout for this fragment
-        fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
-        return fragmentView;
-    }
-
-    public void updateChildDetails(CommonPersonObjectClient childDetails) {
-        this.childDetails = childDetails;
-    }
-
     public void loadData(Map<String, String> detailsMap) {
         if (fragmentView != null) {
 
             CustomFontTextView tvChildsHomeHealthFacility = fragmentView.findViewById(R.id.value_childs_home_health_facility);
-            CustomFontTextView tvChildsZeirID = fragmentView.findViewById(R.id.value_childs_zeir_id);
+            CustomFontTextView tvChildsOpenSrpId = fragmentView.findViewById(R.id.value_childs_zeir_id);
             CustomFontTextView tvChildsRegisterCardNumber = fragmentView.findViewById(R.id.value_childs_register_card_number);
             CustomFontTextView tvChildsFirstName = fragmentView.findViewById(R.id.value_first_name);
             CustomFontTextView tvChildsLastName = fragmentView.findViewById(R.id.value_last_name);
@@ -79,6 +37,8 @@ public class ChildRegistrationDataFragment extends Fragment {
             CustomFontTextView tvChildsAge = fragmentView.findViewById(R.id.value_age);
             CustomFontTextView tvChildDateFirstSeen = fragmentView.findViewById(R.id.value_date_first_seen);
             CustomFontTextView tvChildsBirthWeight = fragmentView.findViewById(R.id.value_birth_weight);
+            CustomFontTextView tvBirthTetanusProtection = fragmentView.findViewById(R.id.value_birth_tetanus_protection);
+            ((View) tvBirthTetanusProtection.getParent()).setVisibility(View.GONE);
             CustomFontTextView tvMotherFirstName = fragmentView.findViewById(R.id.value_mother_guardian_first_name);
             CustomFontTextView tvMotherLastName = fragmentView.findViewById(R.id.value_mother_guardian_last_name);
             CustomFontTextView tvMotherDOB = fragmentView.findViewById(R.id.value_mother_guardian_dob);
@@ -93,21 +53,20 @@ public class ChildRegistrationDataFragment extends Fragment {
             CustomFontTextView tvChildsOtherResidentialArea = fragmentView.findViewById(R.id.value_other_childs_residential_area);
             CustomFontTextView tvChildsHomeAddress = fragmentView.findViewById(R.id.value_home_address);
             CustomFontTextView tvLandmark = fragmentView.findViewById(R.id.value_landmark);
+            CustomFontTextView tvPreferredLanguage = fragmentView.findViewById(R.id.value_preferred_language);
 
             TableRow tableRowChildsOtherBirthFacility = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
             TableRow tableRowChildsOtherResidentialArea = fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
-            Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
-
             tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
-            tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));
+            tvChildsOpenSrpId.setText(Utils.getValue(detailsMap, "zeir_id", false));
             tvChildsRegisterCardNumber.setText(Utils.getValue(detailsMap, "Child_Register_Card_Number", false));
-            tvChildsFirstName.setText(Utils.getValue(childDetailsColumnMaps, "first_name", true));
-            tvChildsLastName.setText(Utils.getValue(childDetailsColumnMaps, "last_name", true));
-            tvChildsSex.setText(Utils.getValue(childDetailsColumnMaps, "gender", true));
+            tvChildsFirstName.setText(Utils.getValue(detailsMap, "first_name", true));
+            tvChildsLastName.setText(Utils.getValue(detailsMap, "last_name", true));
+            tvChildsSex.setText(Utils.getValue(detailsMap, "gender", true));
 
             String formattedAge = "";
-            String dobString = Utils.getValue(childDetailsColumnMaps, DBConstants.KEY.DOB, false);
+            String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 String childsDateOfBirth = Constants.DATE_FORMAT.format(dob);
@@ -131,8 +90,9 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildDateFirstSeen.setText(dateString);
             tvChildsBirthWeight.setText(Utils.kgStringSuffix(Utils.getValue(detailsMap, "Birth_Weight", true)));
-            tvMotherFirstName.setText(Utils.getValue(childDetailsColumnMaps, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_first_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_first_name", true));
-            tvMotherLastName.setText(Utils.getValue(childDetailsColumnMaps, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_last_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_last_name", true));
+            tvBirthTetanusProtection.setText(Utils.getValue(detailsMap, "Birth_Tetanus_Protection", true).isEmpty() ? Utils.getValue(childDetails, "Birth_Tetanus_Protection", true) : Utils.getValue(detailsMap, "Birth_Tetanus_Protection", true));
+            tvMotherFirstName.setText(Utils.getValue(detailsMap, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_first_name", true) : Utils.getValue(detailsMap, "mother_first_name", true));
+            tvMotherLastName.setText(Utils.getValue(detailsMap, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails, "mother_last_name", true) : Utils.getValue(detailsMap, "mother_last_name", true));
 
             String motherDobString = Utils.getValue(childDetails, "mother_dob", true);
             Date motherDob = Utils.dobStringToDate(motherDobString);
@@ -197,6 +157,11 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildsHomeAddress.setText(Utils.getValue(detailsMap, "address2", true));
             tvLandmark.setText(Utils.getValue(detailsMap, "address1", true));
+
+            tvPreferredLanguage.setText(Utils.getValue(detailsMap, "Preferred_Language", true).isEmpty() ? Utils.getValue(childDetails, "Preferred_Language", true) : Utils.getValue(detailsMap, "Preferred_Language", true));
+
+            // remove any empty fields
+            removeEmptyValueFields();
         }
     }
 }

@@ -73,7 +73,39 @@
             android:gravity="center"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:text="@string/nearex"
+            android:text="@string/scan_card"
+            android:textAllCaps="false"
+            android:textColor="@color/light_grey"
+            android:textSize="18sp"
+            android:drawableStart="@mipmap/ic_card_white" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/scan_card"
+        style="?android:attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="15dp"
+        android:layout_weight="1"
+        android:background="@drawable/scan_qr_code_bg"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="7dp">
+
+        <TextView
+            style="?android:attr/buttonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:clickable="false"
+            android:drawableLeft="@mipmap/ic_card_white"
+            android:drawablePadding="5dp"
+            android:focusable="false"
+            android:gravity="center"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="@string/scan_card"
             android:textAllCaps="false"
             android:textColor="@color/light_grey"
             android:textSize="18sp"

@@ -5,7 +5,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
@@ -108,9 +107,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     }
 
     @Override
-    public String getMainCondition() {
-        return String.format(" %s is null ", DBConstants.KEY.DATE_REMOVED);
-    }
+    public abstract String getMainCondition();
 
     @Override
     public abstract String getDefaultSortQuery();

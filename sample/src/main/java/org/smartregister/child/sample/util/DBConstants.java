@@ -1,14 +1,12 @@
-package org.smartregister.child.util;
+package org.smartregister.child.sample.util;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
  */
 public class DBConstants {
     public static final class KEY {
-        public static final String ID = "_ID";
         public static final String ID_LOWER_CASE = "_id";
         public static final String FIRST_NAME = "first_name";
-        public static final String MIDDLE_NAME = "middle_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
         public static final String RELATIONAL_ID = "relational_id";
@@ -45,5 +43,8 @@ public class DBConstants {
         public static final String MOTHER_LAST_NAME = "mother_last_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String TETANUS_HISTORY = "tetanus_history";
+        public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String NFC_TRANSACTION_IDENTIFIER = "nfc_transaction_identifier";
+        public static final String DEVICEID = "deviceid";
     }
 }

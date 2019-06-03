@@ -5,51 +5,52 @@
 
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="20dp">
 
         <android.support.v4.widget.NestedScrollView
+            android:id="@+id/scrollView2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/scrollView2">
+            android:layout_height="match_parent">
 
             <LinearLayout
+                android:id="@+id/rowholder"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:id="@+id/rowholder">
+                android:orientation="vertical">
 
                 <TableLayout
+                    android:id="@+id/registration_data_table"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TableRow
+                        android:id="@+id/tablerowcontainer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:id="@+id/tablerowcontainer">
+                        android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
-                            android:text="@string/child_home_health_facility"
                             android:id="@+id/label"
-                            android:layout_weight="1"/>
-
-                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/child_home_health_facility"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
+                            android:textColor="@color/dark_grey" />
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/value_childs_home_health_facility"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -59,22 +60,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/child_opensrp_id"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_childs_zeir_id"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -84,22 +85,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/child_register_card_number"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_childs_register_card_number"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -109,22 +110,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/first_name"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_first_name"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -134,22 +135,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/last_name"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_last_name"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -159,22 +160,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/sex"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_sex"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -185,22 +186,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/child_DOB"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_childs_dob"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -210,22 +211,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/age"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_age"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -235,22 +236,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/date_first_seen"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_date_first_seen"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -260,22 +261,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/birth_weight"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_birth_weight"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -285,22 +286,47 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/birth_tetanus_protection"
                             android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_birth_tetanus_protection"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_black" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp">
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/mother_first_name"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_mother_guardian_first_name"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -310,22 +336,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/mother_second_name"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_mother_guardian_last_name"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -335,22 +361,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/mother_guardian_dob"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_mother_guardian_dob"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -360,22 +386,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/mother_guardian_phone_number"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_mother_guardian_phone_number"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -385,22 +411,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/father_guardian_full_name"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_father_guardian_full_name"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -410,22 +436,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/father_guardian_date_birth"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_father_guardian_nrc_number"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -435,22 +461,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/father_guardian_phone_number"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/father_guardian_phone_number"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -460,22 +486,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/place_of_birth"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_place_of_birth"
+                            style="@style/CustomFontTextViewStyle.ClientList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_place_of_birth"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -485,49 +511,49 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/health_facility_the_child_was_in"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_childs_birth_health_facility"
+                            style="@style/CustomFontTextViewStyle.ClientList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_childs_birth_health_facility"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
                     <TableRow
-                        android:visibility="gone"
                         android:id="@+id/tableRow_childRegDataFragment_childsOtherBirthFacility"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="5dp">
+                        android:layout_margin="5dp"
+                        android:visibility="gone">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
-                            android:text="@string/other_birth_facility"
-                            android:layout_weight="1"/>
-
-                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_other_birth_facility"
                             android:layout_weight="1"
+                            android:text="@string/other_birth_facility"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_other_birth_facility"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -537,49 +563,49 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/child_residential_area"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_childs_residential_area"
+                            style="@style/CustomFontTextViewStyle.ClientList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_childs_residential_area"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
                     <TableRow
-                        android:visibility="gone"
                         android:id="@+id/tableRow_childRegDataFragment_childsOtherResidentialArea"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="5dp">
+                        android:layout_margin="5dp"
+                        android:visibility="gone">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/other_residential_area"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
                             android:id="@+id/value_other_childs_residential_area"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -589,22 +615,22 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/home_address"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_home_address"
+                            style="@style/CustomFontTextViewStyle.ClientList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_home_address"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 
@@ -614,22 +640,47 @@
                         android:layout_margin="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList.Light"
-                            android:textColor="@color/dark_grey"
+                            android:layout_weight="1"
                             android:text="@string/landmark"
-                            android:layout_weight="1"/>
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_landmark"
+                            style="@style/CustomFontTextViewStyle.ClientList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_landmark"
                             android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_black" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp">
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/preferred_language"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_preferred_language"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/text_black" />
                     </TableRow>
 

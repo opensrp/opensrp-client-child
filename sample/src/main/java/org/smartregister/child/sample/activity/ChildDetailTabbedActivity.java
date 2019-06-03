@@ -1,14 +1,17 @@
 package org.smartregister.child.sample.activity;
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.view.MenuItem;
 import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.smartregister.AllConstants;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
-import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
 /**
@@ -20,8 +23,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.registration_data:
-                String formmetadata = getmetaDataForEditForm();
-                startFormActivity("child_enrollment", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), formmetadata);
+
+                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap);
+                startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
             case R.id.immunization_data:
@@ -57,8 +61,8 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return true;
 
             case R.id.report_deceased:
-                String reportDeceasedMetadata = getReportDeceasedMetadata();
-                startFormActivity("report_deceased", detailsMap.get(DBConstants.KEY.BASE_ENTITY_ID), reportDeceasedMetadata);
+                String reportDeceasedJsonFormString = getReportDeceasedMetadata();
+                startFormActivity(reportDeceasedJsonFormString);
                 return true;
             case R.id.change_status:
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
@@ -79,6 +83,15 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     }
 
     @Override
+    protected void navigateToRegisterActivity() {
+
+        Intent intent = new Intent(getApplicationContext(), ChildRegisterActivity.class);
+        intent.putExtra(AllConstants.INTENT_KEY.IS_REMOTE_LOGIN, false);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
     public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
 
     }
@@ -89,7 +102,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     }
 
     @Override
-    public void onRegistrationSaved(boolean isEdit) {
-
+    public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
+        return new ChildRegistrationDataFragment();
     }
 }

@@ -17,7 +17,6 @@ import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -135,7 +134,7 @@ public class ChildUnderFiveFragment extends Fragment {
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.DOB, false);
+                String birthdate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
                 Date birth = Utils.dobStringToDate(birthdate);
                 if (birth != null) {
                     long timeDiff = weighttaken.getTime() - birth.getTime();
@@ -280,7 +279,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
@@ -303,7 +302,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime == null) {
             dateTime = DateTime.now();
@@ -333,9 +332,9 @@ public class ChildUnderFiveFragment extends Fragment {
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String zeirId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
+        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
         String duration = "";
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), DBConstants.KEY.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
 
         Date dob = null;
@@ -362,7 +361,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         weightWrapper.setGender(gender);
         weightWrapper.setPatientName(childName);
-        weightWrapper.setPatientNumber(zeirId);
+        weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));

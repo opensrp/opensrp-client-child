@@ -229,7 +229,7 @@
                     android:id="@+id/zeir_id"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/zeir_id_hint"
+                    android:hint="@string/iz_id_hint"
                     android:imeOptions="actionNext"
                     android:inputType="text"
                     android:textColor="@color/client_list_grey"
@@ -242,24 +242,31 @@
                     app:met_singleLineEllipsis="true" />
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/qrCodeButtonTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerInParent="true"
                     android:layout_marginBottom="@dimen/register_search_bar_max_margin"
                     android:text="@string/qr_code_label"
                     android:textColor="@color/client_list_grey"
-                    android:textSize="@dimen/advanced_search_label_size" />
+                    android:textSize="@dimen/advanced_search_label_size"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/qrCodeButton"
+                    android:visibility="gone"
                     android:layout_width="150dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
                     android:background="@drawable/advanced_search_qr_code"
                     android:paddingStart="@dimen/register_search_bar_min_margin"
                     android:paddingLeft="@dimen/register_search_bar_min_margin"
@@ -267,8 +274,21 @@
                     android:paddingRight="@dimen/register_search_bar_min_margin"
                     android:text="@string/scan_qr_code"
                     android:textColor="@color/advance_search_qr_code" />
+                <Button
+                    android:id="@+id/scanCardButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/advanced_search_qr_code"
+                    android:paddingStart="@dimen/register_search_bar_min_margin"
+                    android:paddingLeft="@dimen/register_search_bar_min_margin"
+                    android:paddingEnd="@dimen/register_search_bar_min_margin"
+                    android:paddingRight="@dimen/register_search_bar_min_margin"
+                    android:text="@string/scan_card"
+                    android:textColor="@color/advance_search_qr_code" />
 
-            </LinearLayout>
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -345,7 +365,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <com.rengwuxian.materialedittext.MaterialEditText
                     android:id="@+id/mother_guardian_nrc"

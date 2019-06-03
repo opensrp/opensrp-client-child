@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
@@ -13,6 +14,7 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.location.helper.LocationHelper;
+import org.smartregister.util.Utils;
 
 public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
 
@@ -43,6 +45,11 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
         if (lastModified != application.isLastModified()) {
             application.setLastModified(lastModified);
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        Utils.showToast(this, "Floating Action Button clicked...");
     }
 
     @Override

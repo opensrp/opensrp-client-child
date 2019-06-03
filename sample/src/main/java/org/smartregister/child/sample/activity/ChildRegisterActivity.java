@@ -6,9 +6,11 @@ import android.view.MenuItem;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.presenter.BaseChildRegisterPresenter;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.AdvancedSearchFragment;
 import org.smartregister.child.sample.fragment.ChildRegisterFragment;
 import org.smartregister.child.sample.util.SampleConstants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
@@ -48,7 +50,12 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
             clients.setTitle(getString(org.smartregister.child.R.string.header_children));
         }
         bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
-        bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_register);
+        bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
     }
 
+    @Override
+    public void startNFCCardScanner() {
+
+        Utils.showToast(this, this.getResources().getString(org.smartregister.child.R.string.scan_card));
+    }
 }

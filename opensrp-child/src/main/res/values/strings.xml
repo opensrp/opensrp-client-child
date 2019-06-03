@@ -48,11 +48,10 @@
     <string name="woman_profile">WOMAN PROFILE</string>
     <string name="woman_title">Woman</string>
     <string name="woman_contact_number">CONTACT</string>
-    <string name="woman_edd">EDD and GA</string>
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort">ZEIR ID </string>
+    <string name="id_sort" translatable="false">IZ ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -155,8 +154,8 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id">ZEIR ID</string>
-    <string name="zeir_id_hint">ZEIR ID number</string>
+    <string name="zeir_id" translatable="false">IZ ID</string>
+    <string name="iz_id_hint">IZ ID number</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
     <string name="last_name">Last Name</string>
@@ -188,7 +187,6 @@
     <string name="hia2_draft_monthly">Draft Monthly</string>
     <string name="hia2_draft_monthly_with_count">Draft Monthly (%1$d)</string>
     <string name="hia2_sent_monthly">Sent Monthly</string>
-    <string name="title_activity_hia2_report">HIA2 Reports</string>
     <string name="start_new_report">Start new report</string>
     <string name="no_draft_reports">No draft reports</string>
     <string name="no_monthly_ready">No monthly HIA2 reports ready to be completed.</string>
@@ -217,8 +215,7 @@
     <string name="waiting_label">Waiting</string>
     <string name="fully_immunized_label">Fully\nimmunized</string>
     <string name="all_changes_saved">All changes saved</string>
-
-
+    <string name="record_service">Record\nservice</string>
     <string name="url_separator">/</string>
     <string name="clients_key">clients</string>
     <string name="events_key">events</string>
@@ -257,36 +254,37 @@
     <string name="him">him</string>
     <string name="her">her</string>
 
-    <string name="start_nearex_scan">Launch the Nearex NFC scan&#8230;</string>
-    <string name="register_card">Registration card</string>
-    <string name="registering_card">Registering the map for %1$s </string>
+    <string name="scan_nfc_card">Launch the NFC Card scan&#8230;</string>
+    <string name="register_card">Register card</string>
+    <string name="registering_card">Registering card for %1$s&#8230; </string>
 
-    <string name="nearex">Card Scanner</string>
+    <string name="scan_card">Scan Card</string>
     <string name="father_guardian_full_name">Father\'s name</string>
-
 
 
     <string name="registration_data">Registration data</string>
     <string name="under_five_history">Under Five History</string>
     <string name="child_home_health_facility">Child\'s home health facility</string>
-    <string name="child_opensrp_id">Child\'s Vaccination ID</string>
+    <string name="child_opensrp_id">Child\'s vaccination ID</string>
     <string name="child_register_card_number">Child\'s register number</string>
     <string name="sex">Sex</string>
     <string name="child_dob">Child\'s DOB</string>
     <string name="child_age">Age</string>
     <string name="birth_weight">Birth weight (kg)</string>
+    <string name="birth_tetanus_protection">Neonatal tetanus protection</string>
     <string name="mother_first_name">Mother/guardian first name</string>
     <string name="mother_second_name">Mother/guardian last name</string>
     <string name="mother_guardian_dob">Mother/guardian DOB</string>
     <string name="father_guardian_date_birth">Father/guardian DOB</string>
     <string name="father_guardian_phone_number">Second guardian phone number</string>
     <string name="place_of_birth">Place of birth</string>
-    <string name="health_facility_the_child_was_in">Birth Facility</string>
-    <string name="other_birth_facility">Other Birth Facility</string>
+    <string name="health_facility_the_child_was_in">Birth facility</string>
+    <string name="other_birth_facility">Other birth facility</string>
     <string name="child_residential_area">Child\'s commune</string>
     <string name="other_residential_area">Other commune</string>
     <string name="home_address">Home address</string>
     <string name="landmark">Landmark</string>
+    <string name="preferred_language">Preferred language</string>
     <string name="health_details">Health details</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>
     <string name="vaccine_group_birth_name">Birth</string>
@@ -300,9 +298,25 @@
     <string name="notifications_off">Notifications off. Child away for a period of time.</string>
     <string name="notifications_off_child_cannot_be_located">Notifications off. Child cannot be located or contacted.</string>
 
-    <string name="marked_as_deceased">marked as deceased</string>
+    <string name="marked_as_deceased"> %1$s marked as deceased</string>
 
     <string name="search_results">Search results</string>
     <string name="qr_code_label">QR code</string>
+    <string name="next_visit">Next Visit</string>
+    <string name="refreshing">Refreshing&#8230;</string>
+
+    <string name="at_birth">at birth</string>
+    <string name="six_weeks">6 weeks</string>
+    <string name="ten_weeks">10 weeks</string>
+    <string name="fourteen_weeks">14 weeks</string>
+    <string name="nine_months">9 months</string>
+    <string name="fifteen_months">15 months</string>
+    <string name="eighteen_months">18 months</string>
+    <string name="after_lmp">After LMP</string>
+    <string name="after_tt1">4 Weeks after TT 1</string>
+    <string name="after_tt2">26 Weeks after TT 2</string>
+    <string name="after_tt3"> 1 Year after  TT 3 </string>
+    <string name="after_tt4"> 1 Year after  TT 4 </string>
+    <string name="move_to_catchment">Move to my\ncatchment</string>
 
 </resources>

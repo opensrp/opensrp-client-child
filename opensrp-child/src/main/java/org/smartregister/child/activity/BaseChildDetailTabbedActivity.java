@@ -15,7 +15,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -35,7 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.reflect.TypeToken;
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -45,15 +45,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
-import org.smartregister.child.fragment.ChildRegistrationDataFragment;
+import org.smartregister.child.domain.UpdateRegisterParams;
+import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -83,16 +84,13 @@ import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
-import org.smartregister.util.AssetHandler;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
-import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -127,10 +125,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static Gender gender;
     //////////////////////////////////////////////////
-    private static final String TAG = "ChildDetails";
+    private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-    private ChildRegistrationDataFragment childDataFragment;
+    private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
@@ -159,6 +157,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
+                detailsMap = childDetails.getColumnmaps();
             }
         }
 
@@ -166,13 +165,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         setContentView(R.layout.child_detail_activity_simple_tabs);
 
-        childDataFragment = new ChildRegistrationDataFragment();
+        childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
 
-        detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
+        detailtoolbar = findViewById(R.id.child_detail_toolbar);
 
         saveButton = detailtoolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
@@ -191,9 +190,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = findViewById(R.id.viewpager);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -225,12 +224,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
+
     @Override
     protected void onResume() {
         super.onResume();
 
         ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        profileWidget();
+        detailsMap = childDetails.getColumnmaps();
+        renderProfileWidget(detailsMap);
+        childDataFragment.loadData(detailsMap);
     }
 
     @Override
@@ -331,239 +334,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return true;
     }
 
-    protected String getmetaDataForEditForm() {
-        try {
-            JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("child_enrollment");
-            LocationPickerView lpv = new LocationPickerView(getApplicationContext());
-            lpv.init();
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
-            Log.d(TAG, "Form is " + form.toString());
-            if (form != null) {
-                form.put(JsonFormUtils.ENTITY_ID, childDetails.entityId());
-                form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
-                form.put(JsonFormUtils.RELATIONAL_ID, childDetails.getColumnmaps().get("relational_id"));
-                form.put(JsonFormUtils.CURRENT_ZEIR_ID, getValue(childDetails.getColumnmaps(), "zeir_id", true).replace("-", ""));
-
-                //Add the location id
-                form.getJSONObject("metadata").put("encounter_location", LocationHelper.getInstance().getOpenMrsLocationId(location_name));
-
-                //inject zeir id into the form
-                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("First_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "first_name", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Last_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "last_name", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Sex")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "gender", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, false);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "zeir_id", true).replace("-", ""));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Child_Register_Card_Number")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Child_Register_Card_Number", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Child_Birth_Certificate")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Child_Birth_Certificate", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_First_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_first_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_first_name", true) : getValue(childDetails.getColumnmaps(), "mother_first_name", true));
-
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Last_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_last_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_last_name", true) : getValue(childDetails.getColumnmaps(), "mother_last_name", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Date_Birth")) {
-
-                        if (!TextUtils.isEmpty(getValue(childDetails.getColumnmaps(), "mother_dob", true))) {
-                            try {
-                                String motherDobString = getValue(childDetails.getColumnmaps(), "mother_dob", true);
-                                Date dob = Utils.dobStringToDate(motherDobString);
-                                if (dob != null) {
-                                    Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
-                                    long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
-                                    if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
-                                        jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
-                                    }
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, Log.getStackTraceString(e));
-                            }
-                        }
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_NRC")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_nrc_number", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Phone_Number")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Mother_Guardian_Phone_Number", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Tetanus_History")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Mother_Tetanus_History", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Tetanus_Protection")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Birth_Tetanus_Protection", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_First_Name")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_First_Name", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Last_Name")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Last_Name", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Date_Birth")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Date_Birth", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Name")) {//zeir
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Name", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_NRC")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_NRC_Number", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Father_Guardian_Phone_Number")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Father_Guardian_Phone_Number", true));
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("First_Health_Facility_Contact")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        String dateString = getValue(detailsMap, "First_Health_Facility_Contact", false);
-                        if (!TextUtils.isEmpty(dateString)) {
-                            Date date = JsonFormUtils.formatDate(dateString, false);
-                            if (date != null) {
-                                jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(date));
-                            }
-                        }
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-
-                        String dobString = getValue(childDetails.getColumnmaps(), DBConstants.KEY.DOB, true);
-                        Date dob = Utils.dobStringToDate(dobString);
-                        if (dob != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
-                        }
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Weight")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Birth_Weight", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Place_Birth")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-
-                        String placeofnearth_Choice = getValue(detailsMap, "Place_Birth", true);
-                        if (placeofnearth_Choice.equalsIgnoreCase("Health facility")) {
-                            placeofnearth_Choice = "Health facility";
-                        }
-                        if (placeofnearth_Choice.equalsIgnoreCase("Home")) {
-                            placeofnearth_Choice = "Home";
-                        }
-                        jsonObject.put(JsonFormUtils.VALUE, placeofnearth_Choice);
-
-//                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Place_Birth", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name")) {
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        List<String> birthFacilityHierarchy = null;
-                        String birthFacilityName = getValue(detailsMap, "Birth_Facility_Name", false);
-
-                        if (birthFacilityName != null) {
-                            if (birthFacilityName.equalsIgnoreCase("other")) {
-                                birthFacilityHierarchy = new ArrayList<>();
-                                birthFacilityHierarchy.add(birthFacilityName);
-                            } else {
-                                birthFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(birthFacilityName, true);
-                            }
-                        }
-
-                        String birthFacilityHierarchyString = AssetHandler.javaToJsonString(birthFacilityHierarchy, new TypeToken<List<String>>() {
-                        }.getType());
-                        if (StringUtils.isNotBlank(birthFacilityHierarchyString)) {
-                            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
-                        }
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name_Other")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "Birth_Facility_Name_Other", false));
-                        jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area")) {
-                        List<String> residentialAreaHierarchy;
-                        String address3 = getValue(detailsMap, "address3", false);
-                        if (address3 != null && address3.equalsIgnoreCase("Other")) {
-                            residentialAreaHierarchy = new ArrayList<>();
-                            residentialAreaHierarchy.add(address3);
-                        } else {
-                            residentialAreaHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(address3, true);
-                        }
-
-                        String residentialAreaHierarchyString = AssetHandler.javaToJsonString(residentialAreaHierarchy, new TypeToken<List<String>>() {
-                        }.getType());
-                        if (StringUtils.isNotBlank(residentialAreaHierarchyString)) {
-                            jsonObject.put(JsonFormUtils.VALUE, residentialAreaHierarchyString);
-                        }
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area_Other")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "address5", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Address")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "address2", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Physical_Landmark")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "address1", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("CHW_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "CHW_Name", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("CHW_Phone_Number")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailsMap, "CHW_Phone_Number", true));
-                    }
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
-                        List<String> homeFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(getValue(detailsMap,
-                                "Home_Facility", false), true);
-
-                        String homeFacilityHierarchyString = AssetHandler.javaToJsonString(homeFacilityHierarchy, new TypeToken<List<String>>() {
-                        }.getType());
-                        if (StringUtils.isNotBlank(homeFacilityHierarchyString)) {
-                            jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchyString);
-                        }
-                    }
-
-                }
-//            intent.putExtra("json", form.toString());
-//            startActivityForResult(intent, REQUEST_CODE_GET_JSON);
-                return form.toString();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-
-        return "";
-    }
-
-    protected void startFormActivity(String formName, String entityId, String metaData) {
+    protected void startFormActivity(String formData) {
 
         Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
 
-        intent.putExtra("json", metaData);
+        Form formParam = new Form();
+        formParam.setWizard(false);
+        formParam.setHideSaveLabel(true);
+        formParam.setNextLabel("");
+
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
+
         startActivityForResult(intent, REQUEST_CODE_GET_JSON);
 
 
@@ -631,7 +413,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased, childDetails.getColumnmaps().get("first_name") + " " + childDetails.getColumnmaps().get("last_name")));
+        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME)))) ;
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
@@ -659,10 +441,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 saveReportDeceasedJson(json, allSharedPreferences);
                 builder.dismiss();
 
-                Intent intent = new Intent(getApplicationContext(), BaseChildRegisterActivity.class);
-                intent.putExtra("is_remote_login", false);
-                startActivity(intent);
-                finish();
+                navigateToRegisterActivity();
 
             }
         });
@@ -670,6 +449,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         builder.setView(notificationsLayout);
         builder.show();
     }
+
+    protected abstract void navigateToRegisterActivity();
 
     @Override
     protected int getContentView() {
@@ -691,22 +472,22 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void profileWidget() {
+    protected void renderProfileWidget(Map<String, String> childDetails) {
         TextView profilename = findViewById(R.id.name);
-        TextView profileZeirID = findViewById(R.id.idforclient);
+        TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
         String dobString = "";
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails.getColumnmaps(), "first_name", true)
-                    + " " + getValue(childDetails.getColumnmaps(), "last_name", true);
-            childId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
+            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
+                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
+            childId = getValue(childDetails, "zeir_id", false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            dobString = getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
@@ -718,12 +499,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileZeirID.setText(String.format("%s: %s", "ID", childId));
+        profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
         profilename.setText(name);
         updateGenderViews();
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
+            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
             if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
@@ -914,7 +695,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             method.setAccessible(true);
             method.invoke(ob, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
     }
 
@@ -984,7 +765,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 gender = Gender.MALE;
             }
 
-            String dobString = getValue(childDetails.getColumnmaps(), Constants.EC_CHILD_TABLE.DOB, false);
+            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
@@ -1219,6 +1000,56 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
+    private Map<String, String> getCleanMap(Map<String, String> rawDetails) {
+        Map<String, String> clean = new HashMap<>();
+
+        try {
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+
+            Map<String, String> old = rawDetails;
+            for (Map.Entry<String, String> entry : old.entrySet()) {
+                String val = entry.getValue();
+                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
+                    clean.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+        return clean;
+
+    }
+/*
+    private Map<String, String> getCleanMap() {
+        Map<String, String> detailsMap = new HashMap<>();
+        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils.metadata().childRegister.tableName, new String[]{});
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            String[] columnNames = cursor.getColumnNames();
+
+            for (int i = 0; i < columnNames.length; i++) {
+
+                detailsMap.put(columnNames[i], cursor.getString(cursor.getColumnIndex(columnNames[i])));
+
+            }
+        }
+
+        return detailsMap;
+
+    }*/
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Serializable serializable = savedInstanceState.getSerializable("child_details");
+        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+            this.childDetails = (CommonPersonObjectClient) serializable;
+        }
+
+    }
+
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
@@ -1246,14 +1077,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
+            showProgressDialog(getString(R.string.refreshing), null);
         }
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
-            detailsMap = AsyncTaskUtils.extractDetailsMap(map);
-            Utils.putAll(detailsMap, childDetails.getColumnmaps());
+            detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
+
+            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
@@ -1267,8 +1099,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             if (STATUS.NONE.equals(status)) {
                 updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-                childDataFragment.loadData(detailsMap);
             }
+
+            childDataFragment.loadData(detailsMap);
 
             childUnderFiveFragment.setDetailsMap(detailsMap);
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
@@ -1279,6 +1112,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 updateStatus(true);
             }
 
+            renderProfileWidget(detailsMap);
+
             hideProgressDialog();
         }
 
@@ -1287,7 +1122,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
@@ -1345,7 +1180,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Map<String, String>> {
+    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Void> {
 
         private String jsonString;
 
@@ -1356,37 +1191,37 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog();
+            showProgressDialog(getString(R.string.updating_dialog_title), getString(R.string.please_wait_message));
         }
 
         @Override
-        protected Map<String, String> doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
 
-            saveForm(jsonString, true);
+            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+            updateRegisterParams.setEditMode(true);
 
-            childDetails = getChildDetails(childDetails.entityId());
-            childDataFragment.childDetails = childDetails;//use updated ones
+            saveForm(jsonString, updateRegisterParams);
+            return null;
+        }
+    }
 
-            if (childDetails != null) {
-                DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-                detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-                Utils.putAll(detailsMap, childDetails.getColumnmaps());
+    @Override
+    public void onRegistrationSaved(boolean isEdit) {
 
-                return detailsMap;
-            } else {
-                return null;
-            }
+        if (isEdit) {//On edit mode refresh view
+
+
+            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+
+            detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+
+            childDataFragment.updateChildDetails(detailsMap);
+            childDataFragment.loadData(detailsMap);
+
+            renderProfileWidget(detailsMap);
         }
 
-        @Override
-        protected void onPostExecute(@Nullable Map<String, String> detailsMap) {
-            hideProgressDialog();
-            if (detailsMap != null) {
-                childDataFragment.updateChildDetails(childDetails);
-                childDataFragment.loadData(detailsMap);
-                profileWidget();
-            }
-        }
+        hideProgressDialog();
     }
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
@@ -1553,7 +1388,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         protected void onPostExecute(String metaData) {
             super.onPostExecute(metaData);
             if (metaData != null) {
-                startFormActivity("adverse_event", childDetails.entityId(), metaData);
+                startFormActivity(metaData);
             } else {
                 Utils.showToast(getContext(), getContext().getString(R.string.no_vaccine_record_found));
             }

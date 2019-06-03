@@ -1,7 +1,10 @@
 package org.smartregister.child.util;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -31,24 +34,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Utils extends org.smartregister.util.Utils {
+    public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
 
-    public static Context context() {
-        return ChildLibrary.getInstance().context();
-    }
-
-    public static ChildMetadata metadata() {
-        return ChildLibrary.getInstance().metadata();
-    }
+    private static final String PREFERENCES_FILE = "lang_prefs";
 
     public static final ArrayList<String> ALLOWED_LEVELS;
-    public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
-    public static final String FACILITY = "Dispensary";
+    public static final String DEFAULT_LOCATION_LEVEL = "Facility";
+    public static final String FACILITY = "Health Facility";
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -322,7 +321,18 @@ public class Utils extends org.smartregister.util.Utils {
         return collection == null || collection.isEmpty();
     }
 
-    public static void recordWeight(WeightRepository weightRepository, WeightWrapper tag, String dobString) {
+
+    public static String getTodaysDate() {
+        return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
+    }
+
+
+    public static String convertDateFormat(Date date, SimpleDateFormat formatter) {
+
+        return formatter.format(date);
+    }
+
+    public static void recordWeight(WeightRepository weightRepository, WeightWrapper tag, String dobString, String syncStatus) {
 
         Weight weight = new Weight();
         if (tag.getDbKey() != null) {
@@ -332,6 +342,7 @@ public class Utils extends org.smartregister.util.Utils {
         weight.setKg(tag.getWeight());
         weight.setDate(tag.getUpdatedWeightDate().toDate());
         weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+        weight.setSyncStatus(syncStatus);
 
         Gender gender = Gender.UNKNOWN;
         String genderString = tag.getGender();
@@ -350,5 +361,35 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         tag.setDbKey(weight.getId());
+    }
+
+    public static String getLanguage(android.content.Context ctx) {
+        SharedPreferences sharedPref = ctx.getSharedPreferences(PREFERENCES_FILE, android.content.Context.MODE_PRIVATE);
+        return sharedPref.getString("language", "en");
+    }
+
+    public static android.content.Context setAppLocale(android.content.Context context_, String language) {
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        android.content.Context context = context_;
+        Resources res = context.getResources();
+        Configuration config = new Configuration(res.getConfiguration());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            config.setLocale(locale);
+            context = context.createConfigurationContext(config);
+        } else {
+            config.locale = locale;
+            res.updateConfiguration(config, res.getDisplayMetrics());
+        }
+        return context;
+    }
+
+
+    public static Context context() {
+        return ChildLibrary.getInstance().context();
+    }
+
+    public static ChildMetadata metadata() {
+        return ChildLibrary.getInstance().metadata();
     }
 }

@@ -34,7 +34,6 @@ import org.smartregister.child.interactor.ChildFormInteractor;
 import org.smartregister.child.presenter.ChildFormFragmentPresenter;
 import org.smartregister.child.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.MotherLookUpUtils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -350,12 +349,12 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             }
                         }
 
-                        if (StringUtils.containsIgnoreCase(key, DBConstants.KEY.NRC_NUMBER)) {
-                            text = getValue(pc.getColumnmaps(), DBConstants.KEY.NRC_NUMBER, true).replaceAll("/", "");
+                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC_NUMBER)) {
+                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true).replaceAll("/", "");
                         }
 
-                        if (StringUtils.containsIgnoreCase(key, DBConstants.KEY.CONTACT_PHONE_NUMBER)) {
-                            text = getValue(pc.getColumnmaps(), DBConstants.KEY.CONTACT_PHONE_NUMBER, true);
+                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
+                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.CONTACT_PHONE_NUMBER, true);
                         }
 
                         if (view instanceof MaterialEditText) {

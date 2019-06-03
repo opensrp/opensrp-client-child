@@ -56,7 +56,7 @@
         "openmrs_entity_id": "",
         "type": "barcode",
         "barcode_type": "qrcode",
-        "hint": "ZEIR ID *",
+        "hint": "ZEIR ID",
         "scanButtonText": "Scan QR Code",
         "read_only": true,
         "value": "",
@@ -71,7 +71,7 @@
         "openmrs_entity": "encounter",
         "openmrs_entity_id": "encounter_date",
         "type": "date_picker",
-        "hint": "Service date *",
+        "hint": "Service date",
         "expanded": false,
         "max_date": "today",
         "v_required": {

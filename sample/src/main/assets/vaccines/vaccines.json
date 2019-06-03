@@ -1,6 +1,6 @@
 [
   {
-    "name": "Naissance",
+    "name": "Birth",
     "id": "Birth",
     "days_after_birth_due": 0,
     "vaccines": [
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "name": "6 ème semaine",
+    "name": "6 Weeks",
     "id": "Six_Wks",
     "days_after_birth_due": 42,
     "vaccines": [
@@ -224,7 +224,7 @@
     ]
   },
   {
-    "name": "10 ème semaine",
+    "name": "10 Weeks",
     "id": "Ten_Wks",
     "days_after_birth_due": 70,
     "vaccines": [
@@ -355,13 +355,13 @@
     ]
   },
   {
-    "name": "14 ème Semaine",
+    "name": "14 Weeks",
     "id": "Fourteen_Weeks",
     "days_after_birth_due": 98,
     "vaccines": [
       {
-        "name": "OPV 3/ IPV",
-        "type": "OPV/ IPV",
+        "name": "OPV 3 / IPV",
+        "type": "OPV / IPV",
         "vaccine_separator": " / ",
         "openmrs_date": {
           "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/1422AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -374,21 +374,51 @@
           "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "calculation": 3
         },
-        "schedule": {
-          "due": [
-            {
-              "reference": "prerequisite",
-              "prerequisite": "OPV 2",
-              "offset": "+28d",
-              "window": "+10d"
-            }
-          ],
-          "expiry": [
-            {
-              "reference": "dob",
-              "offset": "+5y"
-            }
-          ]
+        "schedules": {
+          "OPV 3": {
+            "due": [
+              {
+                "reference": "prerequisite",
+                "prerequisite": "OPV 2",
+                "offset": "+28d",
+                "window": "+10d"
+              }
+            ],
+            "expiry": [
+              {
+                "reference": "dob",
+                "offset": "+5y"
+              }
+            ],
+            "conditions": [
+              {
+                "type": "not_given",
+                "vaccine": "IPV"
+              }
+            ]
+          },
+          "IPV": {
+            "due": [
+              {
+                "reference": "prerequisite",
+                "prerequisite": "OPV 2",
+                "offset": "+28d",
+                "window": "+10d"
+              }
+            ],
+            "expiry": [
+              {
+                "reference": "dob",
+                "offset": "+5y"
+              }
+            ],
+            "conditions": [
+              {
+                "type": "not_given",
+                "vaccine": "OPV 3"
+              }
+            ]
+          }
         }
       },
       {
@@ -456,7 +486,7 @@
     ]
   },
   {
-    "name": "9 mois",
+    "name": "9 Months",
     "id": "Nine_Months",
     "days_after_birth_due": 274,
     "vaccines": [
@@ -571,7 +601,7 @@
     ]
   },
   {
-    "name": "18 mois",
+    "name": "18 Months",
     "id": "Eighteen_Months",
     "days_after_birth_due": 548,
     "vaccines": [

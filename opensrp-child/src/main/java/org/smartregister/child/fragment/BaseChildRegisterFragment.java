@@ -1,7 +1,6 @@
 package org.smartregister.child.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -23,24 +22,17 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DBConstants;
-import org.smartregister.child.util.DBQueryHelper;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.AlertStatus;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.AllSharedPreferences;
@@ -49,7 +41,6 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -58,11 +49,8 @@ import java.util.Set;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
-        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver
-        .SyncStatusListener, View.OnClickListener {
+public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
 
-    private static String DOD_MAIN_CONDITION = " ( " + DBConstants.KEY.DOD + " is NULL OR " + DBConstants.KEY.DOD + " = '' ) ";
     private View filterSection;
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;
@@ -76,9 +64,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-    protected String getMainCondition() {
-        return DBQueryHelper.getHomePatientRegisterCondition();
-    }
+    protected abstract String getMainCondition();
 
     @Override
     protected abstract String getDefaultSortQuery();
@@ -137,6 +123,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
             if (qrCodeScanImageView != null) {
                 qrCodeScanImageView.setOnClickListener(this);
+            }
+
+            FrameLayout scanCardView = view.findViewById(R.id.scan_card);
+            if (scanCardView != null) {
+                scanCardView.setOnClickListener(this);
+                scanCardView.setVisibility(View.GONE);
             }
 
             // Update title name
@@ -212,87 +204,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
-    private String filterSelectionCondition(boolean urgentOnly) {
-        final String AND = " AND ";
-        final String OR = " OR ";
-        final String IS_NULL_OR = " IS NULL OR ";
-        final String TRUE = "'true'";
-
-        String mainCondition = DOD_MAIN_CONDITION +
-                AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
-                AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
-                AND + " ( ";
-        ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
-
-        vaccines.remove(VaccineRepo.Vaccine.bcg2);
-        vaccines.remove(VaccineRepo.Vaccine.ipv);
-        vaccines.remove(VaccineRepo.Vaccine.opv0);
-        vaccines.remove(VaccineRepo.Vaccine.opv4);
-        vaccines.remove(VaccineRepo.Vaccine.measles1);
-        vaccines.remove(VaccineRepo.Vaccine.mr1);
-        vaccines.remove(VaccineRepo.Vaccine.measles2);
-        vaccines.remove(VaccineRepo.Vaccine.mr2);
-
-        final String URGENT = "'" + AlertStatus.urgent.value() + "'";
-        final String NORMAL = "'" + AlertStatus.normal.value() + "'";
-        final String COMPLETE = "'" + AlertStatus.complete.value() + "'";
-
-
-        for (int i = 0; i < vaccines.size(); i++) {
-            VaccineRepo.Vaccine vaccine = vaccines.get(i);
-            if (i == vaccines.size() - 1) {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + " ";
-            } else {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + URGENT + OR;
-            }
-        }
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + URGENT +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
-
-        if (urgentOnly) {
-            return mainCondition + " ) ";
-        }
-
-        mainCondition += OR;
-        for (int i = 0; i < vaccines.size(); i++) {
-            VaccineRepo.Vaccine vaccine = vaccines.get(i);
-            if (i == vaccines.size() - 1) {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + " ";
-            } else {
-                mainCondition += " " + VaccinateActionUtils.addHyphen(vaccine.display()) + " = " + NORMAL + OR;
-            }
-        }
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv4.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.opv0.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr1.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles1.display()) + " != " + COMPLETE + " ) ";
-
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " != " + COMPLETE + " ) ";
-        mainCondition += OR + " ( " + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.mr2.display()) + " = " + NORMAL +
-                AND + VaccinateActionUtils.addHyphen(VaccineRepo.Vaccine.measles2.display()) + " != " + COMPLETE + " ) ";
-
-        return mainCondition + " ) ";
-    }
+    protected abstract String filterSelectionCondition(boolean urgentOnly);
 
     @SuppressLint("NewApi")
     @Override
@@ -301,14 +213,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, opensrpID);
     }
 
-
     @Override
     public void setUniqueID(String s) {
         if (getSearchView() != null) {
             getSearchView().setText(s);
         }
     }
-
 
     @Override
 
@@ -402,23 +312,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     }
 
-    protected void goToChildImmunizationActivity(CommonPersonObjectClient patient, Constants.RECORD_ACTION recordAction) {
-
-        Intent intent = new Intent(getActivity(), Utils.metadata().childImmunizationActivity);
-        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, patient.getCaseId());
-        intent.putExtra(Constants.INTENT_KEY.RECORD_ACTION, recordAction);
-        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, patient);
-
-        RegisterClickables registerClickables = new RegisterClickables();
-        registerClickables.setRecordWeight(recordAction.equals(Constants.RECORD_ACTION.WEIGHT));
-        registerClickables.setRecordAll(recordAction.equals(Constants.RECORD_ACTION.VACCINATION));
-
-        intent.putExtra(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-
-        startActivity(intent);
-    }
-
-
     protected void updateLocationText() {
         if (clinicSelection != null) {
             clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
@@ -488,7 +381,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             int overDue = pair.first;
             dueOverdueCount = pair.second;
 
-            updateDueOverdueCountText(dueOverdueCount);
+            updateDueOverdueCountText(overDue);
 
         }
     }
