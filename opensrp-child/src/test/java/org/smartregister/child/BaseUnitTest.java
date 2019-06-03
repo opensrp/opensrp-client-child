@@ -12,6 +12,6 @@ import org.robolectric.annotation.Config;
 
 
 @RunWith(RobolectricTestRunner.class)
-@Config( constants = BuildConfig.class, sdk = Build.VERSION_CODES.O_MR1)
-public class BaseUnitTest {
+@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.O_MR1)
+public abstract class BaseUnitTest {
 }
