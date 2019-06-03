@@ -15,7 +15,6 @@
 
     <!-- warning -->
     <string name="any_changes_you_make">سيتم فقد أي تغييرات قمت بإجرائها</string>
-
     <string name="id_sort">IZ ID </string>
     <string name="invalid_device_date">يجب أن يكون تاريخ الجهاز الحالي بعد آخر وقت للخادم الذي تمت مزامنته والذي كان</string>
     <string name="home_women_label">المراة</string>
@@ -282,6 +281,7 @@
     <string name="notifications_off"> الإشعارات قيد التشغيل. طفل متغيب لبعض الوقت</string>
     <string name="notifications_off_child_cannot_be_located"> الإشعارات قيد التشغيل. لا يمكن تحديد مكان الطفل أو الاتصال به.</string>
     <string name="marked_as_deceased"> %1$s وضع علامة متوفى</string>
+
     <string name="search_results">نتائج البحث</string>
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
 
