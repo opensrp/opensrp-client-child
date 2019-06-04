@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.child.activity.ChildFormActivity;
+import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
@@ -53,7 +53,6 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
-import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -468,7 +467,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
                     values.put(Constants.KEY.DOD, encounterDateField);
-                    values.put(Constants.KEY.DATE_REMOVED,  Utils.getTodaysDate());
+                    values.put(Constants.KEY.DATE_REMOVED, Utils.getTodaysDate());
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
@@ -629,21 +628,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     } else {
 
                         jsonObject.put(JsonFormUtils.VALUE, getMappedValue(prefix + jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
-
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Tetanus_Protection")) {
-
-                        JSONArray array = jsonObject.getJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
-                        JSONObject object;
-                        for (int j = 0; j < array.length(); j++) {
-
-                            object = array.getJSONObject(j);
-                            if (jsonObject.has(JsonFormConstants.VALUE) && object.getString(JsonFormConstants.OPENMRS_ENTITY_ID).equals(jsonObject.getString(JsonFormConstants.VALUE))) {
-                                jsonObject.put(JsonFormConstants.VALUE, object.getString(JsonFormConstants.TEXT));
-                                break;
-                            }
-                        }
 
                     }
 
@@ -1384,7 +1368,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * Starts an instance of JsonFormActivity with the provided form details
      *
      * @param context                     The activity form is being launched from
-     * @param jsonFormActivityRequestCode The request code to be used to launch {@link ChildFormActivity}
+     * @param jsonFormActivityRequestCode The request code to be used to launch {@link BaseChildFormActivity}
      * @param formName                    The name of the form to launch
      * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location
@@ -1394,7 +1378,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                  int jsonFormActivityRequestCode,
                                  String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
-        Intent intent = new Intent(context, ChildFormActivity.class);
+        Intent intent = new Intent(context, BaseChildFormActivity.class);
 
         Form formParam = new Form();
         // formParam.setName("Rules engine demo");

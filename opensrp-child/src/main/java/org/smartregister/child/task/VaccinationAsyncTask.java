@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
@@ -27,6 +28,7 @@ import org.smartregister.service.AlertService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -178,9 +180,16 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         TextView nextDate = convertView.findViewById(R.id.child_next_appointment);
 
-        if (nextDate != null && dueDate != null) {
+        if (nextDate != null) {
 
-            nextDate.setText(Utils.convertDateFormat(dueDate));
+            SimpleDateFormat UI_DF = new SimpleDateFormat("dd-MM-yyyy", CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
+
+            if (dueDate != null) {
+                nextDate.setText(UI_DF.format(dueDate.toDate()));
+            } else {
+                nextDate.setText(UI_DF.format(Calendar.getInstance().getTime()));
+
+            }
         }
 
         // Check for fully immunized child

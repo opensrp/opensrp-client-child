@@ -80,7 +80,7 @@ allprojects {
 
 dependencies {
 
-    implementation('org.smartregister:opensrp-client-core:1.6.27-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.6.29-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -114,7 +114,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.4-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.5-SNAPSHOT@aar') {
 
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
@@ -138,8 +138,22 @@ dependencies {
     implementation 'id.zelory:compressor:1.0.4'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation('org.robolectric:robolectric:3.8') {
+
+        exclude group: 'com.google.guava', module: 'guava'
+        exclude group: 'org.apache.maven', module: 'maven-model'
+        exclude group: 'com.android.support'
+        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
+    }
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+
+    // PowerMock
+    def powerMockVersion = '1.7.1'
+    testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
+    testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
+    testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {

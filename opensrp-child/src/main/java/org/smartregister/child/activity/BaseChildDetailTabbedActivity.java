@@ -34,9 +34,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.vijay.jsonwizard.constants.JsonFormConstants;
-import com.vijay.jsonwizard.domain.Form;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -55,6 +52,7 @@ import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.FormUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -88,7 +86,6 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
-import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -121,7 +118,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private TabLayout tabLayout;
     protected ViewPager viewPager;
     protected TextView saveButton;
-    private static final int REQUEST_CODE_GET_JSON = 3432;
+    protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static Gender gender;
     //////////////////////////////////////////////////
@@ -334,22 +331,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return true;
     }
 
-    protected void startFormActivity(String formData) {
-
-        Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
-
-        Form formParam = new Form();
-        formParam.setWizard(false);
-        formParam.setHideSaveLabel(true);
-        formParam.setNextLabel("");
-
-        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
-        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
-
-        startActivityForResult(intent, REQUEST_CODE_GET_JSON);
-
-
-    }
+    protected abstract void startFormActivity(String formData);
 
     @Override
     public void onBackPressed() {
@@ -413,7 +395,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME)))) ;
+        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
