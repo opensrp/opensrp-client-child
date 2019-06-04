@@ -19,7 +19,7 @@ public class FormUtils {
 
     public static final String ecClientRelationships = "ec_client_relationships.json";
     public static final String TAG = FormUtils.class.getCanonicalName();
-    public static final String JSON_FORMS_FOLDER = "json.form" + File.pathSeparator;
+    public static final String JSON_FORMS_FOLDER = "json.form" + File.separator;
     public static final String JSON_FORM_EXTENSION = ".json";
 
     private Context mContext;
@@ -59,14 +59,14 @@ public class FormUtils {
                 locale = locale.equalsIgnoreCase("en") ? "" : "-" + locale;
 
 
-                String filePath = readFileFromAssetsFolder(JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
+                String jsonFileString = readFileFromAssetsFolder(JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
 
-                if (filePath == null) {
+                if (jsonFileString == null) {
 
-                    filePath = readFileFromAssetsFolder(JSON_FORMS_FOLDER + formIdentity + JSON_FORM_EXTENSION);
+                    jsonFileString = readFileFromAssetsFolder(JSON_FORMS_FOLDER + formIdentity + JSON_FORM_EXTENSION);
                 }
 
-                return new JSONObject(readFileFromAssetsFolder(filePath));
+                return new JSONObject(jsonFileString);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
