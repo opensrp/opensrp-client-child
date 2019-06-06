@@ -261,7 +261,7 @@
     <string name="father_guardian_full_name">Le nom du père</string>
 
     <string name="registration_data">Données d\'inscription</string>
-    <string name="under_five_history">Moins de cinq ans d\'histoire</string>
+    <string name="under_five_history">Histoire</string>
     <string name="child_home_health_facility">Structure sanitaire</string>
     <string name="child_opensrp_id">Notez ce numéro sur le carnet de santé de l\'enfant</string>
     <string name="child_register_card_number">No Ordre de registre de vaccine de lenfant</string>
