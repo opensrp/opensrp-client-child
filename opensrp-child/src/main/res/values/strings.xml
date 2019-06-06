@@ -262,8 +262,8 @@
     <string name="father_guardian_full_name">Father\'s name</string>
 
 
-    <string name="registration_data">Registration data</string>
-    <string name="under_five_history">Under Five History</string>
+    <string name="registration_data">Registration Data</string>
+    <string name="under_five_history">History</string>
     <string name="child_home_health_facility">Child\'s home health facility</string>
     <string name="child_opensrp_id">Child\'s vaccination ID</string>
     <string name="child_register_card_number">Child\'s register number</string>
