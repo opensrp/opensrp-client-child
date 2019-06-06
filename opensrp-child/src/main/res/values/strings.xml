@@ -23,7 +23,7 @@
     <string name="child_profile">CHILD </string>
     <string name="child_DOB">Date Of Birth</string>
     <string name="child_reminder">REMINDER</string>
-    <string name="child_next_vaccine">DUE VACCINE</string>
+    <string name="child_next_vaccine">VACCINE DUE</string>
     <string name="child_register_title">Child Register</string>
     <string name="register_search_hint">Search</string>
     <string name="child_title">Child</string>
