@@ -248,7 +248,7 @@
     <string name="registering_card">جارى تسجيل الخريطة لـ %1$s</string>
     <string name="father_guardian_full_name">اسم الاب</string>
     <string name="registration_data">بيانات التسجيل</string>
-    <string name="under_five_history">تاريخ دون الخامسة</string>
+    <string name="under_five_history">التاريخ</string>
     <string name="child_home_health_facility">المنشأة الصحة للطفل</string>
     <string name="child_opensrp_id">رقم التلقيح للطفل</string>
     <string name="child_register_card_number">الرقم التسلسلي للطفل في سجل التلقيح</string>
