@@ -1,6 +1,7 @@
 package org.smartregister.child.util;
 
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -28,6 +29,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -392,4 +394,19 @@ public class Utils extends org.smartregister.util.Utils {
     public static ChildMetadata metadata() {
         return ChildLibrary.getInstance().metadata();
     }
+
+    public static AppProperties getProperties(android.content.Context context) {
+
+        AppProperties properties = new AppProperties();
+        try {
+            AssetManager assetManager = context.getAssets();
+            InputStream inputStream = assetManager.open("app.properties");
+            properties.load(inputStream);
+        } catch (Exception e) {
+            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
+        }
+        return properties;
+
+    }
+
 }

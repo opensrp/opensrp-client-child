@@ -1,6 +1,7 @@
 package org.smartregister.child.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.codec.CharEncoding;
 import org.json.JSONException;
@@ -44,7 +45,7 @@ public class FormUtils {
             is.close();
             fileContents = new String(buffer, CharEncoding.UTF_8);
         } catch (IOException ex) {
-            android.util.Log.e(TAG, ex.toString(), ex);
+            Log.e(TAG, ex.toString(), ex);
 
             return null;
         }
@@ -68,7 +69,7 @@ public class FormUtils {
 
                 return new JSONObject(jsonFileString);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage(), e);
             }
         }
         return null;

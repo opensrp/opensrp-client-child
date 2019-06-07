@@ -114,13 +114,13 @@
 
 
     <LinearLayout
+        android:id="@+id/record_weight_wrapper"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
         android:layout_weight="1.7"
-        android:background="#ffffff"
-        android:visibility="gone">
+        android:background="#ffffff">
 
         <LinearLayout
             android:id="@+id/record_weight"
@@ -156,6 +156,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/child_next_appointment_wrapper"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="1dp"

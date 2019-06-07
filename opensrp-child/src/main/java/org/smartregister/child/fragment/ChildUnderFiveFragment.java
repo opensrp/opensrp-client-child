@@ -21,7 +21,6 @@ import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
-import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
@@ -156,12 +155,14 @@ public class ChildUnderFiveFragment extends Fragment {
                     weightEditMode.add(false);
                 }
 
+                final List<Weight> weightListFinal = weightList;
+
                 final int finalI = i;
                 View.OnClickListener onClickListener = new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
-                        showWeightDialog(finalI);
+                        showWeightDialog(finalI, weightListFinal);
                     }
                 };
                 listeners.add(onClickListener);
@@ -317,7 +318,7 @@ public class ChildUnderFiveFragment extends Fragment {
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void showWeightDialog(int i) {
+    public void showWeightDialog(int i, List<Weight> weightList) {
         FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -327,12 +328,12 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
         String childName = constructChildName();
-        String gender = Utils.getValue(childDetails.getColumnmaps(), "gender", true);
-        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), "mother_first_name", true);
+        String gender = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
+        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         String duration = "";
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
@@ -352,7 +353,6 @@ public class ChildUnderFiveFragment extends Fragment {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
 
-        List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
         if (!weightList.isEmpty()) {
             weightWrapper.setWeight(weightList.get(i).getKg());
             weightWrapper.setUpdatedWeightDate(new DateTime(weightList.get(i).getDate()), false);
@@ -376,8 +376,8 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
+        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
 

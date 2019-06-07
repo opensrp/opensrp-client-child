@@ -132,4 +132,14 @@ public class Constants extends AllConstants {
 
     }
 
+    public static class PROPERTY {
+        public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
+        public static final String IMAGES_CAPTURE_ENABLED = "images.capture.enabled";
+        public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
+        public static final String FEATURE_NFC_CARD_ENABLED = "feature.nfc.card.enabled";
+        public static final String HOME_NEXT_VISIT_DATE_ENABLED = "home.next.visit.date.enabled";
+        public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
+
+    }
+
 }

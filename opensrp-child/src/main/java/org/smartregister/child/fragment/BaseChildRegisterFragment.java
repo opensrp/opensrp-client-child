@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
@@ -171,6 +172,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             overdueCountTV.setVisibility(View.GONE);
         }
 
+        if (!(this instanceof BaseAdvancedSearchFragment)) {
+            view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+            view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+        }
     }
 
     public void updateDueOverdueCountText(int overDueCount) {

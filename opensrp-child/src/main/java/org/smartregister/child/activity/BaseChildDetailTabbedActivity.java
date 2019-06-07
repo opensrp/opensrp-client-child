@@ -43,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.AllConstants;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.UpdateRegisterParams;
@@ -547,14 +548,25 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
             }
-            profileImageIV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
-                        dispatchTakePictureIntent();
+
+
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
+                profileImageIV.setOnClickListener(null);
+                findViewById(R.id.profile_image_wrapper).setVisibility(View.GONE);
+
+            } else {
+                findViewById(R.id.profile_image_wrapper).setVisibility(View.VISIBLE);
+                profileImageIV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                            dispatchTakePictureIntent();
+                        }
                     }
-                }
-            });
+                });
+            }
+
+
         }
     }
 

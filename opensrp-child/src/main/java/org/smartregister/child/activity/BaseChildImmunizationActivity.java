@@ -41,7 +41,7 @@ import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.Configurable;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
@@ -1739,7 +1739,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if (Configurable.isShowWeightPopUp && (weightWrapper == null || weightWrapper.getWeight() == null)) {
+            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 

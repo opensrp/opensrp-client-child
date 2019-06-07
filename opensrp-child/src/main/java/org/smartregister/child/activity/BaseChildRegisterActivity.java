@@ -170,6 +170,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             bottomNavigationView.getMenu().removeItem(R.id.action_search);
             bottomNavigationView.getMenu().removeItem(R.id.action_library);
 
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+                bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
+            }
+
             bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
 
             bottomNavigationHelper.disableShiftMode(bottomNavigationView);
