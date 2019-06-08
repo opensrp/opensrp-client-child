@@ -123,13 +123,21 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             // Update top left icon
             FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
             if (qrCodeScanImageView != null) {
-                qrCodeScanImageView.setOnClickListener(this);
+
+                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)&& ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                    qrCodeScanImageView.setOnClickListener(this);
+                } else {
+                    qrCodeScanImageView.setVisibility(View.GONE);
+                }
             }
 
             FrameLayout scanCardView = view.findViewById(R.id.scan_card);
             if (scanCardView != null) {
-                scanCardView.setOnClickListener(this);
-                scanCardView.setVisibility(View.GONE);
+
+                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+                    scanCardView.setOnClickListener(this);
+                    scanCardView.setVisibility(View.VISIBLE);
+                }
             }
 
             // Update title name

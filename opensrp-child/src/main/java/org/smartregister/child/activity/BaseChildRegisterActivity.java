@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.bottomnavigation.LabelVisibilityMode;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.View;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
@@ -162,21 +163,27 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
         bottomNavigationHelper = new BottomNavigationHelper();
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
 
         if (bottomNavigationView != null) {
             bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+
+            //Bottom nav supports 5 items max, so we remove em first , then inflate
             bottomNavigationView.getMenu().removeItem(R.id.action_clients);
             bottomNavigationView.getMenu().removeItem(R.id.action_register);
             bottomNavigationView.getMenu().removeItem(R.id.action_search);
             bottomNavigationView.getMenu().removeItem(R.id.action_library);
 
+            bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
+            bottomNavigationHelper.disableShiftMode(bottomNavigationView);
+
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+                bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
+            }
+
             if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
             }
-
-            bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
-
-            bottomNavigationHelper.disableShiftMode(bottomNavigationView);
 
             ChildBottomNavigationListener childBottomNavigationListener = new ChildBottomNavigationListener(this);
             bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);

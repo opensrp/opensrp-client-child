@@ -19,7 +19,6 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:id="@+id/profile_image_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/immun_child_card_height"
                 android:layout_margin="20dp"
@@ -27,6 +26,7 @@
                 android:orientation="horizontal">
 
                 <FrameLayout
+                    android:id="@+id/profile_image_wrapper"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -39,7 +39,7 @@
                         android:src="@drawable/child_boy_infant" />
 
                     <ImageView
-                        android:id="@+id/imageView2"
+                        android:id="@+id/profile_image_edit_icon"
                         android:layout_width="@dimen/navigation_icon_size"
                         android:layout_height="@dimen/navigation_icon_size"
                         android:layout_gravity="start|top"

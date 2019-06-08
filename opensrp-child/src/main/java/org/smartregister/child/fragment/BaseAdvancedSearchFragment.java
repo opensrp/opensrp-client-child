@@ -36,6 +36,7 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -258,22 +259,27 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setDatePicker(endDate);
 
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        qrCodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getActivity() == null) {
-                    return;
-                }
-                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-                baseRegisterActivity.startQrCodeScanner();
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+            qrCodeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (getActivity() == null) {
+                        return;
+                    }
+                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                    baseRegisterActivity.startQrCodeScanner();
 
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
-            }
-        });
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+                }
+            });
+        }
 
         Button scanCardButton = view.findViewById(R.id.scanCardButton);
-        scanCardButton.setVisibility(View.GONE);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            scanCardButton.setVisibility(View.GONE);//should be visible
+        }
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);

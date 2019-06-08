@@ -262,7 +262,7 @@
 
                 <Button
                     android:id="@+id/qrCodeButton"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
@@ -276,6 +276,7 @@
                     android:textColor="@color/advance_search_qr_code" />
                 <Button
                     android:id="@+id/scanCardButton"
+                    android:visibility="gone"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"

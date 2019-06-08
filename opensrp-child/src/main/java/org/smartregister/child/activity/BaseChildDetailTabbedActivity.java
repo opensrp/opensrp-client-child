@@ -146,6 +146,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private Uri sharedFileUri;
     public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
+    private ImageView profileImageIV;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +222,29 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         detailtoolbar.setTitle(updateActivityTitle());
 
         tabLayout.setupWithViewPager(viewPager);
+
+        setupViews();
+    }
+
+    public void setupViews() {
+        profileImageIV = findViewById(R.id.profile_image_iv);
+
+
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_IMAGES_ENABLED)) {
+            profileImageIV.setOnClickListener(null);
+            findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
+
+        } else {
+            findViewById(R.id.profile_image_edit_icon).setVisibility(View.VISIBLE);
+            profileImageIV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                        dispatchTakePictureIntent();
+                    }
+                }
+            });
+        }
     }
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
@@ -530,9 +555,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private String updateActivityTitle() {
         String name = "";
+
         if (isDataOk()) {
-            name = getValue(childDetails.getColumnmaps(), "first_name", true)
-                    + " " + getValue(childDetails.getColumnmaps(), "last_name", true);
+            name = Utils.getName(getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true), getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true));
         }
         return String.format("%s's %s", name, getString(R.string.health_details));
     }
@@ -540,30 +565,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private void updateProfilePicture(Gender gender) {
         BaseChildDetailTabbedActivity.gender = gender;
         if (isDataOk()) {
-            ImageView profileImageIV = findViewById(R.id.profile_image_iv);
 
-            if (childDetails.entityId() != null) { //image already in local storage most likey ):
+            if (childDetails.entityId() != null) { //image already in local storage most likely ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
-            }
-
-
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
-                profileImageIV.setOnClickListener(null);
-                findViewById(R.id.profile_image_wrapper).setVisibility(View.GONE);
-
-            } else {
-                findViewById(R.id.profile_image_wrapper).setVisibility(View.VISIBLE);
-                profileImageIV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
-                            dispatchTakePictureIntent();
-                        }
-                    }
-                });
             }
 
 
@@ -752,7 +759,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
 
             Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, "gender", false);
+            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
             if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {

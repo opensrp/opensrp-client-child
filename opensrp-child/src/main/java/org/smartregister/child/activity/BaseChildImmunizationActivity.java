@@ -193,15 +193,19 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = false;
-        weightNotificationShown = false;
+        bcgScarNotificationShown = true; //TO DO investigate configuratability
+        weightNotificationShown = true; //TO DO
 
         toolbar.init(this);
         setLastModified(false);
 
         floatingActionButton = findViewById(R.id.fab_nearex);
-        floatingActionButton.setOnClickListener(this);
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get("gender"))));
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            floatingActionButton.setOnClickListener(this);
+            floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER))));
+            floatingActionButton.show();
+        }
 
 
     }
@@ -1876,7 +1880,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Updating Child's Status", "");
+            showProgressDialog(getResources().getString(R.string.updating_dialog_title), "");
         }
 
         @Override
