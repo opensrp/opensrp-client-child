@@ -4,7 +4,6 @@
 # opensrp-client-child
 OpenSRP client child health module library
 
-
 #Features
 ## Configurability
 
@@ -12,15 +11,15 @@ By placing a file named `app.properties` in your implementation assets folder (S
 
 ### Configurable Settings
 
-Configuration | Type | Default | Description
------ | -------- | -------- | --------
-`notifications.bcg.enabled` | Boolean | true | Show BCG Notifications
-`popup.weight.enabled` | Boolean | true | Show Record Weight pop up dialog
-`home.next.visit.date.enabled` | Boolean | false | Show Next Visit date column in home register
-`home.record.weight.enabled` | Boolean | true | Show Record Weight column in home register
-`feature.nfc.card.enabled` | Boolean | false | Show Scan Card button
-`feature.scan.qr.enabled` | Boolean | true | Show Scan QR button
-`feature.images.enabled` | Boolean | true | Allow profile image capture
-`feature.bottom.navigation.enabled` | Boolean | false | Show Bottom Navigation menu
-`home.toolbar.scan.qr.enabled` | Boolean | false | Show Scan QR Code in home register toolbar
-`home.toolbar.scan.card.enabled` | Boolean | false | Show Scan Card in home register toolbar
+| Configuration                       | Type    | Default | Description                                   |
+| ----------------------------------- | ------- | ------- | ----------------------------------------------|
+| `notifications.bcg.enabled`         | Boolean | true    | Show BCG Notifications                        |
+| `popup.weight.enabled`              | Boolean | true    | Show Record Weight pop up dialog              |
+| `home.next.visit.date.enabled`      | Boolean | false   | Show Next Visit date column in home register  |
+| `home.record.weight.enabled`        | Boolean | true    | Show Record Weight column in home register    |
+| `feature.nfc.card.enabled`          | Boolean | false   | Enable Scan NFC Card feature                  |
+| `feature.scan.qr.enabled`           | Boolean | true    | Enable Scan QR feature                        |
+| `feature.images.enabled`            | Boolean | true    | Allow profile image capture                   |
+| `feature.bottom.navigation.enabled` | Boolean | false   | Show Bottom Navigation menu                   |
+| `home.toolbar.scan.qr.enabled`      | Boolean | false   | Show Scan QR Code in home register toolbar    |
+| `home.toolbar.scan.card.enabled`    | Boolean | false   | Show Scan Card in home register toolbar       |
