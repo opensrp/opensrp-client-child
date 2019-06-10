@@ -120,36 +120,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
-            // Update top left icon
-            FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
-            if (qrCodeScanImageView != null) {
+            // Update top right icon
+            setUpQRCodeScanButtonView(view);
 
-                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
-                    qrCodeScanImageView.setOnClickListener(this);
-                } else {
-                    qrCodeScanImageView.setVisibility(View.GONE);
-                }
-            }
+            setUpScanCardButtonView(view);
 
-            FrameLayout scanCardView = view.findViewById(R.id.scan_card);
-            if (scanCardView != null) {
-
-                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
-                    scanCardView.setOnClickListener(this);
-                    scanCardView.setVisibility(View.VISIBLE);
-                }
-            }
+            //OpenSRPLogo
+            setUpOpenSRPLogoImageView(view, R.id.opensrp_logo_image_view);
 
             // Update title name
-            ImageView logo = view.findViewById(R.id.opensrp_logo_image_view);
-            if (logo != null) {
-                logo.setVisibility(View.GONE);
-            }
-
-            CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
-            if (titleView != null) {
-                titleView.setVisibility(View.GONE);
-            }
+            setUpOpenSRPTitleView(view);
 
             filterSection = view.findViewById(R.id.filter_selection);
             filterSection.setOnClickListener(this);
@@ -186,6 +166,41 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
             if (ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) != null) {
                 view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+            }
+        }
+    }
+
+    private void setUpOpenSRPTitleView(View view) {
+        CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
+        if (titleView != null) {
+            titleView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpOpenSRPLogoImageView(View view, int p) {
+        ImageView logo = view.findViewById(p);
+        if (logo != null) {
+            logo.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpScanCardButtonView(View view) {
+        FrameLayout scanCardView = view.findViewById(R.id.scan_card);
+        if (scanCardView != null && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+            scanCardView.setOnClickListener(this);
+            scanCardView.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    private void setUpQRCodeScanButtonView(View view) {
+        FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
+        if (qrCodeScanImageView != null) {
+
+            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                qrCodeScanImageView.setOnClickListener(this);
+            } else {
+                qrCodeScanImageView.setVisibility(View.GONE);
             }
         }
     }

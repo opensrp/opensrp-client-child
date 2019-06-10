@@ -2,6 +2,7 @@ package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
+import org.smartregister.child.util.Utils;
 
 import java.util.Map;
 
@@ -63,7 +64,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         }
 
         for (Map.Entry<String, String> entry : editMap.entrySet()) {
-            String key = "ec_child." + entry.getKey();
+            String key = Utils.metadata().childRegister.tableName + "." + entry.getKey();
             String value = entry.getValue();
 
             if (!StringUtils.isBlank(mainConditionString)) {

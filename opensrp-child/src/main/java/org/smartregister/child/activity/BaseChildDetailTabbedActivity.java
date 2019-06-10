@@ -564,17 +564,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void updateProfilePicture(Gender gender) {
         BaseChildDetailTabbedActivity.gender = gender;
-        if (isDataOk()) {
-
-            if (childDetails.entityId() != null) { //image already in local storage most likely ):
-                //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-                profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
-
-            }
-
+        if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
+            profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
         }
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
