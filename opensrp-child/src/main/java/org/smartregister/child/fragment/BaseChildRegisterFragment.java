@@ -124,7 +124,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
             if (qrCodeScanImageView != null) {
 
-                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)&& ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
                     qrCodeScanImageView.setOnClickListener(this);
                 } else {
                     qrCodeScanImageView.setVisibility(View.GONE);
@@ -182,7 +182,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
         if (!(this instanceof BaseAdvancedSearchFragment)) {
             view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
-            view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+
+
+            if (ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) != null) {
+                view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+            }
         }
     }
 
