@@ -1743,7 +1743,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
+            if ((ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) != null && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 

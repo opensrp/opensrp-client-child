@@ -1378,7 +1378,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                  int jsonFormActivityRequestCode,
                                  String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
-        Intent intent = new Intent(context, BaseChildFormActivity.class);
+        Intent intent = new Intent(context, Utils.metadata().childFormActivity);
 
         Form formParam = new Form();
         // formParam.setName("Rules engine demo");

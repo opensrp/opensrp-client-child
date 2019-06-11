@@ -70,4 +70,7 @@
     <color name="contact_complete_grey_text">#777777</color>
     <color name="contact_summary_section_header_bg">#444956</color>
     <color name="advance_search_qr_code">#FBAB26</color>
+
+    <color name="colorPrimary">#358CB7</color>
+    <color name="colorAccent">#358CB7</color>
 </resources>
