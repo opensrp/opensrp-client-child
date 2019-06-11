@@ -11,6 +11,7 @@ buildscript {
 allprojects {
     repositories {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://s3.amazonaws.com/repo.commonsware.com"}
         mavenLocal()
     }
 }
@@ -87,7 +88,7 @@ android {
 
 dependencies {
 
-    implementation('org.smartregister:opensrp-client-core:1.6.29-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.6.34-SNAPSHOT@aar') {
 
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
