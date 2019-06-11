@@ -164,7 +164,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
 
-            if (ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) != null) {
+            if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
                 view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
             }
         }

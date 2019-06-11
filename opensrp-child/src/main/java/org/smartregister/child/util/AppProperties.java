@@ -12,8 +12,8 @@ public class AppProperties extends Properties {
         return Boolean.valueOf(getProperty(key));
     }
 
-    public Integer getPropertyInteger(String key) {
+    public Boolean hasProperty(String key) {
 
-        return Integer.valueOf(getProperty(key));
+        return getProperty(key) != null;
     }
 }

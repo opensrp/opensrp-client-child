@@ -249,7 +249,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED) != null && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)) ) {
+        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)  && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)) ) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }
