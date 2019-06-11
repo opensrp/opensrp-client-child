@@ -147,6 +147,8 @@ public class Constants extends AllConstants {
         public static final String FEATURE_BOTTOM_NAVIGATION_ENABLED = "feature.bottom.navigation.enabled";
         public static final String FEATURE_SCAN_QR_ENABLED = "feature.scan.qr.enabled";
 
+        public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
+
 
     }
 

@@ -476,7 +476,7 @@ toggle.syncState();
             notiIcon.setVisibility(View.GONE);
         }
 
-        final LinearLayout notificationLL = (LinearLayout) findViewById(R.id.notification);
+        final LinearLayout notificationLL = findViewById(R.id.notification);
 
         Animation slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down);
         slideDownAnimation.setAnimationListener(new Animation.AnimationListener() {

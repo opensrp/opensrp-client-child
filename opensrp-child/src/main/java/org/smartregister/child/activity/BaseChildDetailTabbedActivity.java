@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -163,7 +164,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
         location_name = extras.getString("location_name");
 
-        setContentView(R.layout.child_detail_activity_simple_tabs);
+        setContentView(getContentView());
 
         childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
@@ -244,6 +245,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     }
                 }
             });
+        }
+
+
+        DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
+        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().getProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED) != null && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)) ) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }
 

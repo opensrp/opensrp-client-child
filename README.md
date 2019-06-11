@@ -23,3 +23,4 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `feature.bottom.navigation.enabled` | Boolean | false   | Show Bottom Navigation menu                   |
 | `home.toolbar.scan.qr.enabled`      | Boolean | false   | Show Scan QR Code in home register toolbar    |
 | `home.toolbar.scan.card.enabled`    | Boolean | false   | Show Scan Card in home register toolbar       |
+| `details.side.navigation.enabled`   | Boolean | true    | Enable side navigation drawer on details page |
