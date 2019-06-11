@@ -41,7 +41,7 @@ import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.Configurable;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
@@ -193,15 +193,19 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = false;
-        weightNotificationShown = false;
+        bcgScarNotificationShown = true; //TO DO investigate configuratability
+        weightNotificationShown = true; //TO DO
 
         toolbar.init(this);
         setLastModified(false);
 
         floatingActionButton = findViewById(R.id.fab_nearex);
-        floatingActionButton.setOnClickListener(this);
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get("gender"))));
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            floatingActionButton.setOnClickListener(this);
+            floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER))));
+            floatingActionButton.show();
+        }
 
 
     }
@@ -1739,7 +1743,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if (Configurable.isShowWeightPopUp && (weightWrapper == null || weightWrapper.getWeight() == null)) {
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 
@@ -1876,7 +1880,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Updating Child's Status", "");
+            showProgressDialog(getResources().getString(R.string.updating_dialog_title), "");
         }
 
         @Override

@@ -111,7 +111,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
     protected void startFormActivity(String formData) {
 
-        Intent intent = new Intent(getApplicationContext(), ChildFormActivity.class);
+        Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
 
         Form formParam = new Form();
         formParam.setWizard(false);
