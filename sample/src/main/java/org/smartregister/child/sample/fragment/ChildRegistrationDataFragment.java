@@ -1,27 +1,12 @@
 package org.smartregister.child.sample.fragment;
 
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.TableRow;
-
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
-import org.smartregister.child.sample.R;
-import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.child.util.Utils;
-import org.smartregister.location.helper.LocationHelper;
-import org.smartregister.util.DateUtil;
-import org.smartregister.view.customcontrols.CustomFontTextView;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by ndegwamartin on 2019-05-29.
  */
 public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFragment {
-
+/*
 
     @Override
     public void loadData(Map<String, String> detailsMap) {
@@ -163,5 +148,5 @@ public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFrag
             // remove any empty fields
             removeEmptyValueFields();
         }
-    }
+    }*/
 }

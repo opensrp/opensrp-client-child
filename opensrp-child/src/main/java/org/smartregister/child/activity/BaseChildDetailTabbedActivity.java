@@ -249,9 +249,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)  && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)) ) {
+        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+
+        renderProfileWidget(detailsMap);
+        updateGenderViews();
     }
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
@@ -261,9 +264,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         super.onResume();
 
         ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        detailsMap = childDetails.getColumnmaps();
-        renderProfileWidget(detailsMap);
-        childDataFragment.loadData(detailsMap);
     }
 
     @Override
@@ -498,7 +498,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         if (isDataOk()) {
             name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
                     + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
-            childId = getValue(childDetails, "zeir_id", false);
+            childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
@@ -516,7 +516,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
         profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
         profilename.setText(name);
-        updateGenderViews();
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
             String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
@@ -1116,8 +1115,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 updateStatus(true);
             }
 
-            renderProfileWidget(detailsMap);
-
             hideProgressDialog();
         }
 
@@ -1220,7 +1217,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
             childDataFragment.updateChildDetails(detailsMap);
-            childDataFragment.loadData(detailsMap);
+            childDataFragment.refreshRecyclerViewData(detailsMap);
 
             renderProfileWidget(detailsMap);
         }
