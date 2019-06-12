@@ -1,11 +1,28 @@
 package org.smartregister.child.sample.fragment;
 
+import android.util.Log;
+
+import org.json.JSONObject;
+import org.smartregister.child.domain.Form;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.util.AssetHandler;
 
 /**
  * Created by ndegwamartin on 2019-05-29.
  */
 public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFragment {
+    @Override
+    protected Form getForm() {
+        try {
+
+            String jsonFormString = AssetHandler.readFileFromAssetsFolder("json.form/child_enrollment.json", getActivity());
+            return AssetHandler.jsonStringToJava(new JSONObject(jsonFormString).toString(), Form.class);
+        } catch (Exception e) {
+            Log.e(ChildRegistrationDataFragment.class.getCanonicalName(), e.getMessage());
+            return null;
+        }
+
+    }
 /*
 
     @Override

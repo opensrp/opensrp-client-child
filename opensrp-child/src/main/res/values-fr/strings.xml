@@ -278,10 +278,10 @@
     <string name="place_of_birth">Lieu de naissance</string>
     <string name="health_facility_the_child_was_in">Structure sanitaire de l\'enfant était en</string>
     <string name="other_birth_facility">Autre Structure sanitaire</string>
-    <string name="child_residential_area">Commune</string>
-    <string name="other_residential_area">Autre commune</string>
+    <string name="residential_area">Commune</string>
+    <string name="residential_area_other">Autre commune</string>
     <string name="home_address">Adresse précise</string>
-    <string name="landmark">Point de repère</string>
+    <string name="physical_landmark">Point de repère</string>
     <string name="preferred_language">Langue Préférée</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="health_details">détails sur la santé</string>

@@ -193,8 +193,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = true; //TO DO investigate configuratability
-        weightNotificationShown = true; //TO DO
+        bcgScarNotificationShown = false;
+        weightNotificationShown = false;
 
         toolbar.init(this);
         setLastModified(false);
@@ -317,7 +317,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void updateAgeViews() {
-        String dobString = "";
+        String dobString;
         String formattedAge = "";
         String formattedDob = "";
         if (isDataOk()) {

@@ -264,10 +264,10 @@
     <string name="place_of_birth">مكان الولادة</string>
     <string name="health_facility_the_child_was_in">المنشأة الصحية للولادة</string>
     <string name="other_birth_facility">منشأة صحية اخرى للولادة</string>
-    <string name="child_residential_area">بلدية الطفل</string>
-    <string name="other_residential_area">بلدية أخرى</string>
+    <string name="residential_area">بلدية الطفل</string>
+    <string name="residential_area_other">بلدية أخرى</string>
     <string name="home_address">عنوان السكن</string>
-    <string name="landmark">المعلم</string>
+    <string name="physical_landmark">المعلم</string>
     <string name="health_details">التفاصيل الصحية</string>
     <string name="weight_for_age">الوزن بالنسبة للعمر</string>
     <string name="vaccine_group_birth_name">الولادة</string>

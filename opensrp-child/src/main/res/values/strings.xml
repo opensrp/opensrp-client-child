@@ -280,10 +280,10 @@
     <string name="place_of_birth">Place of birth</string>
     <string name="health_facility_the_child_was_in">Birth facility</string>
     <string name="other_birth_facility">Other birth facility</string>
-    <string name="child_residential_area">Child\'s commune</string>
-    <string name="other_residential_area">Other commune</string>
+    <string name="residential_area">Child\'s commune</string>
+    <string name="residential_area_other">Other commune</string>
     <string name="home_address">Home address</string>
-    <string name="landmark">Landmark</string>
+    <string name="physical_landmark">Landmark</string>
     <string name="preferred_language">Preferred language</string>
     <string name="health_details">Health details</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>

@@ -5,18 +5,25 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
+import org.smartregister.child.domain.Field;
+import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +35,14 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected View fragmentView;
     private RecyclerView mRecyclerView1;
     private ChildRegistrationDataAdapter mAdapter;
+    private List<Field> fields;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Form form = getForm();
+        fields = form.getStep1().getFields();
     }
 
     @Override
@@ -66,17 +76,50 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     }
 
+    protected abstract Form getForm();
+
     private void resetAdapterData(Map<String, String> detailsMap) {
         List<KeyValueItem> mArrayList = new ArrayList<>();
 
-        for (Map.Entry<String, String> entry : detailsMap.entrySet()) {
+        String key;
+        String value;
 
-            mArrayList.add(new KeyValueItem(entry.getKey(), entry.getValue()));
+        for (int i = 0; i < fields.size(); i++) {
+            key = fields.get(i).getKey();
+
+            value = detailsMap.get(key);
+            value = !TextUtils.isEmpty(value) ? value : detailsMap.get(fields.get(i).getOpenmrsEntityId());
+
+            if (!TextUtils.isEmpty(value)) {
+                mArrayList.add(new KeyValueItem(cleanKey(key), cleanValue(fields.get(i).getType(), value)));
+            }
+
         }
 
         mAdapter = new ChildRegistrationDataAdapter(mArrayList);
     }
 
+    private String cleanKey(String raw) {
+        return raw.replaceAll("_", " ");
+    }
+
+    private String cleanValue(String type, String raw) {
+        String result = raw;
+        switch (type) {
+            case JsonFormConstants.DATE_PICKER:
+                Date date = JsonFormUtils.formatDate(raw, false);
+                if (date != null) {
+                    result = Constants.DATE_FORMAT.format(date);
+                }
+                break;
+
+            default:
+                break;
+
+        }
+
+        return result;
+    }
 
     public void refreshRecyclerViewData(Map<String, String> detailsMap) {
 
