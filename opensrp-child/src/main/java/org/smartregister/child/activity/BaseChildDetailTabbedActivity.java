@@ -58,10 +58,14 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
-import org.smartregister.growthmonitoring.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.util.HeightUtils;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -83,6 +87,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -111,7 +116,9 @@ import static org.smartregister.util.Utils.getValue;
  * Created by raihan on 1/03/2017.
  */
 
-public abstract class BaseChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener, WeightActionListener, StatusChangeListener, ServiceActionListener {
+public abstract class BaseChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener,
+        GrowthMonitoringActionListener,
+        StatusChangeListener, ServiceActionListener {
 
     protected Menu overflow;
     private ChildDetailsToolbar detailtoolbar;
@@ -254,7 +261,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         saveButton.setVisibility(View.INVISIBLE);
     }
 
-    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList,
+                                  List<Weight> weightList, List<Height> heightList, List<Alert> alertList) {
         boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
@@ -284,9 +292,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
+        boolean showHeightEdit = false;
+        for (int i = 0; i < heightList.size(); i++) {
+            Height height = heightList.get(i);
+            showHeightEdit = HeightUtils.lessThanThreeMonths(height);
+            if (showHeightEdit) {
+                break;
+            }
+        }
+
         boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
 
-        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
+        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showHeightEdit, showRecordBcg2);
     }
 
     private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
@@ -314,10 +331,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
     }
 
-    private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
+    private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit,
+                                   boolean showHeightEdit, boolean showRecordBcg2) {
         overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
         overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
         overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
+        overflow.findItem(R.id.weight_data).setEnabled(showHeightEdit);
     }
 
     @Override
@@ -349,7 +368,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE)
+                        .equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE)
+                        .equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask();
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
@@ -373,7 +394,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
 
-        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), location_name, childDetails.entityId());
+        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(),
+                location_name, childDetails.entityId());
 
     }
 
@@ -395,7 +417,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
+        notificationMessage.setText(getString(R.string.marked_as_deceased,
+                Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME),
+                        childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
@@ -516,11 +540,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         } else {
             updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive, isChildActive);
         }
     }
 
-    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
+    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased,
+                                   boolean canReportAdverseEvent) {
         //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
@@ -544,13 +569,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
+                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
+                        OpenSRPImageLoader
+                                .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
+                                        ImageUtils.profileImageResourceByGender(gender)));
 
             }
             profileImageIV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this,
+                            new String[] {Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
                         dispatchTakePictureIntent();
                     }
                 }
@@ -567,7 +596,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private void dispatchTakePictureIntent() {
-        if (PermissionUtils.isPermissionGranted(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+        if (PermissionUtils.isPermissionGranted(this,
+                new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             // Ensure that there's a camera activity to handle the intent
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -606,7 +637,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
         switch (requestCode) {
             case PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE:
-                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
+                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     dispatchTakePictureIntent();
                 }
                 break;
@@ -642,7 +674,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             } else {
 
                 Log.v(TAG, "Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
@@ -724,16 +756,24 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     @Override
-    public void onWeightTaken(WeightWrapper tag) {
-        if (tag != null) {
+    public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
+        updateHeightWrapper(weightWrapper);
+        updateHeightWrapper(heightWrapper);
+
+        Utils.startAsyncTask(new LoadAsyncTask(), null);
+
+    }
+
+    private void updateHeightWrapper(WeightWrapper weightWrapper) {
+        if (weightWrapper != null) {
             WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
-            if (tag.getDbKey() != null) {
-                weight = weightRepository.find(tag.getDbKey());
+            if (weightWrapper.getDbKey() != null) {
+                weight = weightRepository.find(weightWrapper.getDbKey());
             }
             weight.setBaseEntityId(childDetails.entityId());
-            weight.setKg(tag.getWeight());
-            weight.setDate(tag.getUpdatedWeightDate().toDate());
+            weight.setKg(weightWrapper.getWeight());
+            weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
             if (StringUtils.isNotBlank(location_name)) {
                 weight.setLocationId(location_name);
@@ -756,10 +796,44 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 weightRepository.add(weight);
             }
 
-            tag.setDbKey(weight.getId());
+            weightWrapper.setDbKey(weight.getId());
         }
+    }
 
-        Utils.startAsyncTask(new LoadAsyncTask(), null);
+    private void updateHeightWrapper(HeightWrapper heightWrapper) {
+        if (heightWrapper != null) {
+            HeightRepository heightRepository = GrowthMonitoringLibrary.getInstance().heightRepository();
+            Height height = new Height();
+            if (heightWrapper.getDbKey() != null) {
+                height = heightRepository.find(heightWrapper.getDbKey());
+            }
+            height.setBaseEntityId(childDetails.entityId());
+            height.setCm(heightWrapper.getHeight());
+            height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+            height.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+            if (StringUtils.isNotBlank(location_name)) {
+                height.setLocationId(location_name);
+            }
+
+            Gender gender = Gender.UNKNOWN;
+            String genderString = getValue(childDetails, "gender", false);
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+
+            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+
+            if (dob != null && gender != Gender.UNKNOWN) {
+                heightRepository.add(dob, gender, height);
+            } else {
+                heightRepository.add(height);
+            }
+
+            heightWrapper.setDbKey(height.getId());
+        }
     }
 
     private void saveVaccine(List<VaccineWrapper> tags, final View view) {
@@ -795,7 +869,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, final List<Vaccine> vaccineList, final boolean undo) {
+    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
+                                         final List<Vaccine> vaccineList, final boolean undo) {
         if (view == null || !(view instanceof ImmunizationRowGroup)) {
             return;
         }
@@ -886,7 +961,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
+                .findByEntityId(childDetails.entityId());
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
@@ -1070,6 +1146,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+            List<Height> heightList = AsyncTaskUtils.extractHeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
@@ -1080,13 +1157,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
 
             if (STATUS.NONE.equals(status)) {
-                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
+                updateOptionsMenu(vaccineList, serviceRecords, weightList, heightList, alertList);
             }
 
             childDataFragment.loadData(detailsMap);
 
             childUnderFiveFragment.setDetailsMap(detailsMap);
-            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
+            childUnderFiveFragment.loadGrowthMonitoringView(weightList, heightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
 
@@ -1109,10 +1186,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
 
-            List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
+            List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository()
+                    .findLast5(childDetails.entityId());
 
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
+
+            List<Height> heightList =
+                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
+
+            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+            map.put(heightNamedObject.name, heightNamedObject);
 
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
@@ -1122,14 +1206,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             List<ServiceRecord> serviceRecords = new ArrayList<>();
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
-            RecurringServiceRecordRepository recurringServiceRecordRepository = ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
+            RecurringServiceTypeRepository recurringServiceTypeRepository = ImmunizationLibrary.getInstance()
+                    .recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository = ImmunizationLibrary.getInstance()
+                    .recurringServiceRecordRepository();
 
             if (recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             }
 
-            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(),
+                    serviceRecords);
             map.put(serviceNamedObject.name, serviceNamedObject);
 
             Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
@@ -1146,7 +1233,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 }
             }
 
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(
+                    ServiceType.class.getName(), serviceTypeMap);
             map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
             List<Alert> alertList = new ArrayList<>();
@@ -1206,7 +1294,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         hideProgressDialog();
     }
 
-    public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
+    public class SaveServiceTask
+            extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
 
         private View view;
 
@@ -1226,7 +1315,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         @Override
-        protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(ServiceWrapper... params) {
+        protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(
+                ServiceWrapper... params) {
 
             ArrayList<ServiceWrapper> list = new ArrayList<>();
 
@@ -1234,10 +1324,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 RecurringServiceUtils.saveService(tag, childDetails.entityId(), null, null);
                 list.add(tag);
 
-                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                ServiceSchedule
+                        .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
             }
 
-            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
+            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                    .findByEntityId(childDetails.entityId());
 
             AlertService alertService = getOpenSRPContext().alertService();
             List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
@@ -1314,12 +1406,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     Long dbKey = tag.getDbKey();
                     ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-                    serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
+                    serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                            .findByEntityId(childDetails.entityId());
 
                     wrappers = new ArrayList<>();
                     wrappers.add(tag);
 
-                    ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                    ServiceSchedule
+                            .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
                     AlertService alertService = getOpenSRPContext().alertService();
                     alertList = alertService.findByEntityId(childDetails.entityId());

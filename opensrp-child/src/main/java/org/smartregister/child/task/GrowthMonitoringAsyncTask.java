@@ -10,11 +10,13 @@ import android.widget.TextView;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.wrapper.WeightViewRecordUpdateWrapper;
+import org.smartregister.child.wrapper.GrowthMonitoringViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
@@ -24,20 +26,23 @@ import static org.smartregister.util.Utils.getValue;
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
-public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
+public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     private final View convertView;
     private final String entityId;
     private final String lostToFollowUp;
     private final String inactive;
     private Weight weight;
+    private Height height;
     private SmartRegisterClient client;
     private WeightRepository weightRepository;
+    private HeightRepository heightRepository;
     private CommonRepository commonRepository;
     private Context context;
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
 
-    public WeightAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository, WeightRepository weightRepository, Context context) {
+    public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
+                                     WeightRepository weightRepository,HeightRepository heightRepository, Context context) {
         this.convertView = recordActionParams.getConvertView();
         this.entityId = recordActionParams.getEntityId();
         this.lostToFollowUp = recordActionParams.getLostToFollowUp();
@@ -46,6 +51,7 @@ public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
         this.updateOutOfCatchment = recordActionParams.getUpdateOutOfCatchment();
         this.onClickListener = recordActionParams.getOnClickListener();
         this.weightRepository = weightRepository;
+        this.heightRepository = heightRepository;
         this.commonRepository = commonRepository;
         this.context = context;
     }
@@ -54,13 +60,15 @@ public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         weight = weightRepository.findUnSyncedByEntityId(entityId);
+        height = heightRepository.findUnSyncedByEntityId(entityId);
         return null;
     }
 
     @Override
     protected void onPostExecute(Void param) {
-        WeightViewRecordUpdateWrapper wrapper = new WeightViewRecordUpdateWrapper();
+        GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
         wrapper.setWeight(weight);
+        wrapper.setHeight(height);
         wrapper.setLostToFollowUp(lostToFollowUp);
         wrapper.setInactive(inactive);
         wrapper.setClient(client);
@@ -70,7 +78,7 @@ public class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
 
-    private void updateRecordWeight(WeightViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {
+    private void updateRecordWeight(GrowthMonitoringViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {
 
         View recordWeight = updateWrapper.getConvertView().findViewById(R.id.record_weight);
         recordWeight.setVisibility(View.VISIBLE);

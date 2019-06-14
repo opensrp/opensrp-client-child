@@ -189,6 +189,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         BaseChildRegisterActivity activity = (BaseChildRegisterActivity) getActivity();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
+        repoHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repoHolder.setCommonRepository(commonRepository());
 

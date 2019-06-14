@@ -319,4 +319,7 @@
     <string name="after_tt4"> 1 Year after  TT 4 </string>
     <string name="move_to_catchment">Move to my\ncatchment</string>
 
+    <string name="record_growth">Record Growth</string>
+    <string name="growth_monitoring">Growth Monitoring</string>
+
 </resources>

@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import org.smartregister.child.R;
 
 import java.text.SimpleDateFormat;
@@ -25,19 +24,20 @@ public class WidgetFactory {
 
     public View createTableRow(LayoutInflater inflater, ViewGroup container, String labelString, String valueString) {
         View rows = inflater.inflate(R.layout.tablerows, container, false);
-        TextView label = (TextView) rows.findViewById(R.id.label);
-        TextView value = (TextView) rows.findViewById(R.id.value);
+        TextView label = rows.findViewById(R.id.label);
+        TextView value = rows.findViewById(R.id.value);
 
         label.setText(labelString);
         value.setText(valueString);
         return rows;
     }
 
-    private View createTableRowForWeight(LayoutInflater inflater, ViewGroup container, String labelString, String valueString, boolean editenabled, View.OnClickListener listener) {
+    private View createTableRowForGrowthMonitoring(LayoutInflater inflater, ViewGroup container, String labelString,
+                                                   String valueString, boolean editenabled, View.OnClickListener listener) {
         View rows = inflater.inflate(R.layout.tablerows_weight, container, false);
-        TextView label = (TextView) rows.findViewById(R.id.label);
-        TextView value = (TextView) rows.findViewById(R.id.value);
-        Button edit = (Button) rows.findViewById(R.id.edit);
+        TextView label = rows.findViewById(R.id.label);
+        TextView value = rows.findViewById(R.id.value);
+        Button edit = rows.findViewById(R.id.edit);
         if (editenabled) {
             edit.setVisibility(View.VISIBLE);
             edit.setOnClickListener(listener);
@@ -49,14 +49,33 @@ public class WidgetFactory {
         return rows;
     }
 
-    public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String, String>> last_five_weight_map, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
-        LinearLayout tableLayout = (LinearLayout) fragmentContainer.findViewById(R.id.weightvalues);
+    public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
+                                   HashMap<Long, Pair<String, String>> last_five_weight_map,
+                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
+        LinearLayout tableLayout = fragmentContainer.findViewById(R.id.weightvalues);
         tableLayout.removeAllViews();
 
         int i = 0;
         for (Map.Entry<Long, Pair<String, String>> entry : last_five_weight_map.entrySet()) {
             Pair<String, String> pair = entry.getValue();
-            View view = createTableRowForWeight(inflater, tableLayout, pair.first, pair.second, editenabled.get(i), listeners.get(i));
+            View view = createTableRowForGrowthMonitoring(inflater, tableLayout, pair.first, pair.second, editenabled.get(i),
+                    listeners.get(i));
+
+            tableLayout.addView(view);
+            i++;
+        }
+    }
+
+    public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String,
+            String>> lastFiveWeightMap, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
+        LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
+        tableLayout.removeAllViews();
+
+        int i = 0;
+        for (Map.Entry<Long, Pair<String, String>> entry : lastFiveWeightMap.entrySet()) {
+            Pair<String, String> pair = entry.getValue();
+            View view = createTableRowForGrowthMonitoring(inflater, tableLayout, pair.first, pair.second, editenabled.get(i),
+                    listeners.get(i));
 
             tableLayout.addView(view);
             i++;

@@ -13,7 +13,9 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.Alert;
+import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
@@ -76,6 +78,12 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
         map.put(weightNamedObject.name, weightNamedObject);
+
+        HeightRepository heightRepository = repositoryHolder.getHeightRepository();
+        List<Height> heightList = heightRepository.findLast5(baseEntityId);
+
+        NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+        map.put(heightNamedObject.name, heightNamedObject);
 
         VaccineRepository vaccineRepository = repositoryHolder.getVaccineRepository();
         List<Vaccine> vaccineList = vaccineRepository.findByEntityId(baseEntityId);
@@ -147,7 +155,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         }
 
         childUnderFiveFragment.setDetailsMap(detailsMap);
-        childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
+        childUnderFiveFragment.loadGrowthMonitoringView(weightList, editWeightMode);
         childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
         childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
 

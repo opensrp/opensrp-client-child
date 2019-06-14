@@ -13,6 +13,7 @@ import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.Utils;
 

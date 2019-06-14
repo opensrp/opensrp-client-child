@@ -19,12 +19,13 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
+import org.smartregister.child.task.GrowthMonitoringAsyncTask;
 import org.smartregister.child.task.VaccinationAsyncTask;
-import org.smartregister.child.task.WeightAsyncTask;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewProvider;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.ImageUtils;
@@ -58,10 +59,13 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     private Context context;
     private CommonRepository commonRepository;
     private WeightRepository weightRepository;
+    private HeightRepository heightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
 
-    public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns, View.OnClickListener onClickListener, View.OnClickListener paginationClickListener, AlertService alertService) {
+    public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
+                                 View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
+                                 AlertService alertService) {
 
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.visibleColumns = visibleColumns;
@@ -72,6 +76,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         this.context = context;
         this.commonRepository = repositoryHolder.getCommonRepository();
         this.weightRepository = repositoryHolder.getWeightRepository();
+        this.heightRepository = repositoryHolder.getHeightRepository();
         this.vaccineRepository = repositoryHolder.getVaccineRepository();
         this.alertService = alertService;
     }
@@ -94,7 +99,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     @Override
-    public void getFooterView(RecyclerView.ViewHolder viewHolder, int currentPageCount, int totalPageCount, boolean hasNext, boolean hasPrevious) {
+    public void getFooterView(RecyclerView.ViewHolder viewHolder, int currentPageCount, int totalPageCount, boolean hasNext,
+                              boolean hasPrevious) {
         FooterViewHolder footerViewHolder = (FooterViewHolder) viewHolder;
         footerViewHolder.pageInfoView.setText(
                 MessageFormat.format(context.getString(R.string.str_page_info), currentPageCount,
@@ -107,7 +113,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         footerViewHolder.previousPageView.setOnClickListener(paginationClickListener);
     }
 
-    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client, final RegisterViewHolder viewHolder) {
+    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client,
+                                       final RegisterViewHolder viewHolder) {
 
         String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
@@ -123,7 +130,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
-        String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
+        String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils
+                .getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
@@ -188,8 +196,11 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setUpdateOutOfCatchment(false);//TO DO update with dynamic parameter
                 params.setOnClickListener(onClickListener);
 
-                Utils.startAsyncTask(new WeightAsyncTask(params, commonRepository, weightRepository, context), null);
-                Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
+                Utils.startAsyncTask(
+                        new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context),
+                        null);
+                Utils.startAsyncTask(
+                        new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage(), e);
             }
@@ -204,7 +215,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         if (entityId != null && show()) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(R.id.entity_id, entityId);
-            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
+            DrishtiApplication.getCachedImageLoaderInstance()
+                    .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
         }
 
     }
@@ -216,7 +228,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     @Override
-    public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption, FilterOption searchFilter, SortOption sortOption) {
+    public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
+                                              FilterOption searchFilter, SortOption sortOption) {
         return null;
     }
 
@@ -270,7 +283,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     private boolean show() {
 
-        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context().allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context()
+                .allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
 
     }
 
@@ -280,39 +294,23 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         public TextView childMotherName;
         public TextView childAge;
         public TextView childCardNumnber;
-
-
         public View childProfileInfoLayout;
-
         public ImageView imageView;
-
         public View recordWeight;
-
         public View recordVaccination;
-
         public View registerColumns;
 
         public RegisterViewHolder(View itemView) {
             super(itemView);
-
             patientName = itemView.findViewById(R.id.child_name);
-
             childOpensrpID = itemView.findViewById(R.id.child_zeir_id);
-
             childMotherName = itemView.findViewById(R.id.child_mothername);
-
             childAge = itemView.findViewById(R.id.child_age);
-
             childCardNumnber = itemView.findViewById(R.id.child_card_number);
-
             imageView = itemView.findViewById(R.id.child_profilepic);
-
             childProfileInfoLayout = itemView.findViewById(R.id.child_profile_info_layout);
-
             recordWeight = itemView.findViewById(R.id.record_weight);
-
             recordVaccination = itemView.findViewById(R.id.record_vaccination);
-
             registerColumns = itemView.findViewById(R.id.register_columns);
 
         }
@@ -325,7 +323,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         public FooterViewHolder(View view) {
             super(view);
-
             nextPageView = view.findViewById(R.id.btn_next_page);
             previousPageView = view.findViewById(R.id.btn_previous_page);
             pageInfoView = view.findViewById(R.id.txt_page_info);

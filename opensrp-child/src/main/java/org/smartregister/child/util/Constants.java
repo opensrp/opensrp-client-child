@@ -12,6 +12,8 @@ public class Constants extends AllConstants {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
+    public static final String WEIGHT = "weight";
+    public static final String HEIGHT = "height";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
 
@@ -57,6 +59,7 @@ public class Constants extends AllConstants {
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String LOCATION_NAME = "location_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
+        public static final String BIRTH_HEIGHT = "Birth_Height";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";

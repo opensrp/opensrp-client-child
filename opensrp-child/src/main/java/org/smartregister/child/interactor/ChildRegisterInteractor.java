@@ -22,6 +22,7 @@ import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
@@ -56,7 +57,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void getNextUniqueId(final Triple<String, String, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
+    public void getNextUniqueId(final Triple<String, String, String> triple,
+                                final ChildRegisterContract.InteractorCallBack callBack) {
 
         Runnable runnable = new Runnable() {
             @Override
@@ -80,7 +82,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final UpdateRegisterParams updateRegisterParams, final ChildRegisterContract.InteractorCallBack callBack) {
+    public void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString,
+                                 final UpdateRegisterParams updateRegisterParams,
+                                 final ChildRegisterContract.InteractorCallBack callBack) {
 
         Runnable runnable = new Runnable() {
             @Override
@@ -110,7 +114,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         appExecutors.diskIO().execute(runnable);
     }
 
-    public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
+    public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString,
+                                 UpdateRegisterParams params) {
         try {
             List<String> currentFormSubmissionIds = new ArrayList<>();
 
@@ -133,13 +138,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
                             processWeight(jsonString, params, clientJson);
+                            processHeight(jsonString, params, clientJson);
                         }
                     }
 
                     if (baseEvent != null) {
                         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
                         getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
-                        currentFormSubmissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
+                        currentFormSubmissionIds
+                                .add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
                     }
 
                     if (params.isEditMode()) {
@@ -147,7 +154,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         if (baseClient != null) {
                             try {
                                 String newOpenSRPId = baseClient.getIdentifier(Constants.KEY.ZEIR_ID).replace("-", "");
-                                String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
+                                String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID)
+                                        .replace("-", "");
                                 if (!newOpenSRPId.equals(currentOpenSRPId)) {
                                     //OPENSRP ID was changed
                                     getUniqueIdRepository().open(currentOpenSRPId);
@@ -171,7 +179,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         if (i == 0) {
                             imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
                         } else if (i == 1) {
-                            imageLocation = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                            imageLocation = JsonFormUtils
+                                    .getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
                         }
 
                         if (StringUtils.isNotBlank(imageLocation)) {
@@ -202,7 +211,23 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             weightParams.setUpdatedWeightDate(new DateTime(), true);
             weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
 
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams, clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams,
+                    clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
+        }
+    }
+
+    private void processHeight(String jsonString, UpdateRegisterParams params, JSONObject clientJson) throws JSONException {
+        String height = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
+
+        if (!TextUtils.isEmpty(height)) {
+            HeightWrapper heightWrapper = new HeightWrapper();
+            heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
+            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : null);
+            heightWrapper.setUpdatedHeightDate(new DateTime(), true);
+            heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+
+            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper,
+                    clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
         }
     }
 

@@ -21,8 +21,11 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
@@ -361,6 +364,38 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         tag.setDbKey(weight.getId());
+    }
+
+    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String dobString,
+                                    String syncStatus) {
+
+        Height height = new Height();
+        if (heightWrapper.getDbKey() != null) {
+            height = heightRepository.find(heightWrapper.getDbKey());
+        }
+        height.setBaseEntityId(heightWrapper.getId());
+        height.setCm(heightWrapper.getHeight());
+        height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+        height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+        height.setSyncStatus(syncStatus);
+
+        Gender gender = Gender.UNKNOWN;
+        String genderString = heightWrapper.getGender();
+        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            gender = Gender.FEMALE;
+        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            gender = Gender.MALE;
+        }
+
+        Date dob = Utils.dobStringToDate(dobString);
+
+        if (dob != null && gender != Gender.UNKNOWN) {
+            heightRepository.add(dob, gender, height);
+        } else {
+            heightRepository.add(height);
+        }
+
+        heightWrapper.setDbKey(height.getId());
     }
 
     public static String getLanguage(android.content.Context ctx) {

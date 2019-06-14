@@ -239,6 +239,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
+        repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
 
 
         ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());

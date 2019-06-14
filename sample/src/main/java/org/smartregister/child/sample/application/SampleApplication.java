@@ -21,8 +21,10 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.HeightZScoreRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.growthmonitoring.repository.WeightZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
@@ -102,8 +104,10 @@ public class SampleApplication extends DrishtiApplication {
 
     private void initRepositories() {
         weightRepository();
+        heightRepository();
         vaccineRepository();
-        zScoreRepository();
+        weightZScoreRepository();
+        heightZScoreRepository();
     }
 
     public static CommonFtsObject createCommonFtsObject() {
@@ -178,6 +182,10 @@ public class SampleApplication extends DrishtiApplication {
         return GrowthMonitoringLibrary.getInstance().weightRepository();
     }
 
+    public HeightRepository heightRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightRepository();
+    }
+
     public Context context() {
         return context;
     }
@@ -186,8 +194,12 @@ public class SampleApplication extends DrishtiApplication {
         return ImmunizationLibrary.getInstance().vaccineRepository();
     }
 
-    public ZScoreRepository zScoreRepository() {
-        return GrowthMonitoringLibrary.getInstance().zScoreRepository();
+    public HeightZScoreRepository weightZScoreRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightZScoreRepository();
+    }
+
+    public WeightZScoreRepository heightZScoreRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightZScoreRepository();
     }
 
 
