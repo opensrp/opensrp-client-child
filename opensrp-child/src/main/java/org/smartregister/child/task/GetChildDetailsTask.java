@@ -36,7 +36,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
     private ImageView profilePhoto;
     private TextView initials;
 
-    public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId, DetailsRepository detailsRepository, View itemView) {
+    public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId, DetailsRepository detailsRepository,
+                               View itemView) {
         this.baseActivity = baseActivity;
         this.detailsRepository = detailsRepository;
         this.baseEntityId = baseEntityId;
@@ -77,7 +78,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             motherDetails.put("mother_nrc_number", "");
             if (!TextUtils.isEmpty(motherBaseEntityId)) {
                 CommonPersonObject rawMotherDetails = CoreLibrary.getInstance().context()
-                        .commonrepository(Utils.metadata().childRegister.motherTableName).findByBaseEntityId(motherBaseEntityId);
+                        .commonrepository(Utils.metadata().childRegister.motherTableName)
+                        .findByBaseEntityId(motherBaseEntityId);
                 if (rawMotherDetails != null) {
                     motherDetails.put("mother_first_name",
                             Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
@@ -106,7 +108,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         }
     }
 
-    private void updatePicture(final BaseActivity baseActivity, String baseEntityId, final CommonPersonObjectClient childDetails) {
+    private void updatePicture(final BaseActivity baseActivity, String baseEntityId,
+                               final CommonPersonObjectClient childDetails) {
         Gender gender = Gender.UNKNOWN;
         int genderColor = R.color.gender_neutral_green;
         int genderLightColor = R.color.gender_neutral_light_green;
@@ -140,7 +143,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         final String firstName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
         final String lastName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals("false")) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false)
+                .equals("false")) {
             initials.setVisibility(View.VISIBLE);
             String initialsString = "";
             if (!TextUtils.isEmpty(firstName)) {

@@ -28,7 +28,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
 
-    public SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString, WeightRepository weightRepository, VaccineRepository vaccineRepository) {
+    public SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString,
+                                    WeightRepository weightRepository, VaccineRepository vaccineRepository) {
         this.context = context;
         this.openSrpContext = openSrpContext;
         this.formString = formString;
@@ -69,7 +70,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
      * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
      * @throws Exception
      */
-    private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm) throws Exception {
+    private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm)
+    throws Exception {
         Weight weight = null;
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
         String serviceDate = null;

@@ -34,7 +34,9 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     protected AdvancedMatrixCursor matrixCursor;
 
-    public BaseChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model, String viewConfigurationIdentifier) {
+    public BaseChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view,
+                                              ChildRegisterFragmentContract.Model model,
+                                              String viewConfigurationIdentifier) {
         this.viewReference = new WeakReference<>(view);
         this.model = model;
         this.viewConfigurationIdentifier = viewConfigurationIdentifier;
@@ -79,16 +81,12 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     }
 
     @Override
-    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
-        String filterText = model.getFilterText(filterList, getView().getString(R.string.filter));
-        String sortText = model.getSortText(sortField);
-
-        getView().updateFilterAndFilterStatus(filterText, sortText);
-    }
-
-    @Override
     public void searchGlobally(String uniqueId) {
         // TODO implement search global
+    }
+
+    private void setVisibleColumns(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+        this.visibleColumns = visibleColumns;
     }
 
     protected ChildRegisterFragmentContract.View getView() {
@@ -98,12 +96,12 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
             return null;
     }
 
-    private void setVisibleColumns(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
-        this.visibleColumns = visibleColumns;
-    }
+    @Override
+    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
+        String filterText = model.getFilterText(filterList, getView().getString(R.string.filter));
+        String sortText = model.getSortText(sortField);
 
-    public void setModel(ChildRegisterFragmentContract.Model model) {
-        this.model = model;
+        getView().updateFilterAndFilterStatus(filterText, sortText);
     }
 
     @Override
@@ -112,11 +110,15 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     @Override
     public abstract String getDefaultSortQuery();
 
-    public void setMatrixCursor(AdvancedMatrixCursor matrixCursor) {
-        this.matrixCursor = matrixCursor;
+    public void setModel(ChildRegisterFragmentContract.Model model) {
+        this.model = model;
     }
 
     public AdvancedMatrixCursor getMatrixCursor() {
         return matrixCursor;
+    }
+
+    public void setMatrixCursor(AdvancedMatrixCursor matrixCursor) {
+        this.matrixCursor = matrixCursor;
     }
 }

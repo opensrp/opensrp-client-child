@@ -39,19 +39,22 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public ViewConfiguration getViewConfiguration(String viewConfigurationIdentifier) {
-        return ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper().getViewConfiguration(viewConfigurationIdentifier);
+        return ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper()
+                .getViewConfiguration(viewConfigurationIdentifier);
     }
 
     @Override
     public Set<View> getRegisterActiveColumns(String viewConfigurationIdentifier) {
-        return ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper().getRegisterActiveColumns(viewConfigurationIdentifier);
+        return ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper()
+                .getRegisterActiveColumns(viewConfigurationIdentifier);
     }
 
     @Override
     public String countSelect(String tableName, String mainCondition, String parentTableName) {
         SmartRegisterQueryBuilder countQueryBuilder = new SmartRegisterQueryBuilder();
         countQueryBuilder.SelectInitiateMainTableCounts(tableName);
-        countQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
+        countQueryBuilder.customJoin(
+                "LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         return countQueryBuilder.mainCondition(mainCondition);
     }
 
@@ -59,7 +62,8 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
     public String mainSelect(String tableName, String mainCondition, String parentTableName) {
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, mainColumns(tableName, parentTableName));
-        queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
+        queryBUilder.customJoin(
+                "LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         return queryBUilder.mainCondition(mainCondition);
     }
 
@@ -99,7 +103,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
-        String[] columns = new String[]{"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
+        String[] columns = new String[] {"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
         AdvancedMatrixCursor matrixCursor = new AdvancedMatrixCursor(columns);
 
         if (response == null || response.isFailure() || StringUtils.isBlank(response.payload())) {
@@ -152,10 +156,22 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 altContactName = getJsonString(getJsonObject(client, "attributes"), "alt_name");
 
 
-                matrixCursor.addRow(new Object[]{entityId, null, firstName, lastName, dob, ancId});
+                matrixCursor.addRow(new Object[] {entityId, null, firstName, lastName, dob, ancId});
             }
         }
         return matrixCursor;
+    }
+
+    private JSONObject getJsonObject(JSONArray jsonArray, int position) {
+        try {
+            if (jsonArray != null && jsonArray.length() > 0) {
+                return jsonArray.getJSONObject(position);
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), "", e);
+        }
+        return null;
+
     }
 
     private String getJsonString(JSONObject jsonObject, String field) {
@@ -179,18 +195,6 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
         try {
             if (jsonObject != null && jsonObject.has(field)) {
                 return jsonObject.getJSONObject(field);
-            }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(), "", e);
-        }
-        return null;
-
-    }
-
-    private JSONObject getJsonObject(JSONArray jsonArray, int position) {
-        try {
-            if (jsonArray != null && jsonArray.length() > 0) {
-                return jsonArray.getJSONObject(position);
             }
         } catch (JSONException e) {
             Log.e(getClass().getName(), "", e);

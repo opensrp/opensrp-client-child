@@ -81,12 +81,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         this.alertService = alertService;
     }
 
-    public static void fillValue(TextView v, String value) {
-        if (v != null)
-            v.setText(value);
-
-    }
-
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
@@ -111,6 +105,65 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         footerViewHolder.nextPageView.setOnClickListener(paginationClickListener);
         footerViewHolder.previousPageView.setOnClickListener(paginationClickListener);
+    }
+
+    @Override
+    public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
+                                              FilterOption searchFilter, SortOption sortOption) {
+        return null;
+    }
+
+    @Override
+    public void onServiceModeSelected(ServiceModeOption serviceModeOption) {//Implement Abstract Method
+    }
+
+    @Override
+    public OnClickFormLauncher newFormLauncher(String formName, String entityId, String metaData) {
+        return null;
+    }
+
+    @Override
+    public LayoutInflater inflater() {
+        return inflater;
+    }
+
+    @Override
+    public RegisterViewHolder createViewHolder(ViewGroup parent) {
+        View view = inflater.inflate(R.layout.child_register_list_row, parent, false);
+
+        if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
+
+            view.findViewById(R.id.record_weight_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+        }
+
+        view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+
+        /*
+        ConfigurableViewsHelper helper = ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper();
+        if (helper.isJsonViewsEnabled()) {
+
+            ViewConfiguration viewConfiguration = helper.getViewConfiguration(Constants.CONFIGURATION.HOME_REGISTER_ROW);
+            ViewConfiguration commonConfiguration = helper.getViewConfiguration(COMMON_REGISTER_ROW);
+
+            if (viewConfiguration != null) {
+                return helper.inflateDynamicView(viewConfiguration, commonConfiguration, view, R.id.register_columns, false);
+            }
+        }*/
+
+        return new RegisterViewHolder(view);
+    }
+
+    @Override
+    public RecyclerView.ViewHolder createFooterHolder(ViewGroup parent) {
+        View view = inflater.inflate(R.layout.smart_register_pagination, parent, false);
+        return new FooterViewHolder(view);
+    }
+
+    @Override
+    public boolean isFooterViewHolder(RecyclerView.ViewHolder viewHolder) {
+        return viewHolder instanceof FooterViewHolder;
     }
 
     private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client,
@@ -208,6 +261,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     }
 
+    public static void fillValue(TextView v, String value) {
+        if (v != null)
+            v.setText(value);
+
+    }
+
     private void renderProfileImage(String entityId, String gender, ImageView profilePic) {
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
@@ -225,56 +284,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         view.setOnClickListener(onClickListener);
         view.setTag(client);
         view.setTag(R.id.record_action, Constants.RECORD_ACTION.NONE);
-    }
-
-    @Override
-    public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
-                                              FilterOption searchFilter, SortOption sortOption) {
-        return null;
-    }
-
-    @Override
-    public void onServiceModeSelected(ServiceModeOption serviceModeOption) {//Implement Abstract Method
-    }
-
-    @Override
-    public OnClickFormLauncher newFormLauncher(String formName, String entityId, String metaData) {
-        return null;
-    }
-
-    @Override
-    public LayoutInflater inflater() {
-        return inflater;
-    }
-
-    @Override
-    public RegisterViewHolder createViewHolder(ViewGroup parent) {
-        View view = inflater.inflate(R.layout.child_register_list_row, parent, false);
-
-        /*
-        ConfigurableViewsHelper helper = ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper();
-        if (helper.isJsonViewsEnabled()) {
-
-            ViewConfiguration viewConfiguration = helper.getViewConfiguration(Constants.CONFIGURATION.HOME_REGISTER_ROW);
-            ViewConfiguration commonConfiguration = helper.getViewConfiguration(COMMON_REGISTER_ROW);
-
-            if (viewConfiguration != null) {
-                return helper.inflateDynamicView(viewConfiguration, commonConfiguration, view, R.id.register_columns, false);
-            }
-        }*/
-
-        return new RegisterViewHolder(view);
-    }
-
-    @Override
-    public RecyclerView.ViewHolder createFooterHolder(ViewGroup parent) {
-        View view = inflater.inflate(R.layout.smart_register_pagination, parent, false);
-        return new FooterViewHolder(view);
-    }
-
-    @Override
-    public boolean isFooterViewHolder(RecyclerView.ViewHolder viewHolder) {
-        return FooterViewHolder.class.isInstance(viewHolder);
     }
 
     ////////////////////////////////////////////////////////////////

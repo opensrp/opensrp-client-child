@@ -24,13 +24,13 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     private HTTPAgent httpAgent;
     private DristhiConfiguration dristhiConfiguration;
 
+    public ChildAdvancedSearchInteractor() {
+        this(new AppExecutors());
+    }
+
     @VisibleForTesting
     ChildAdvancedSearchInteractor(AppExecutors appExecutors) {
         this.appExecutors = appExecutors;
-    }
-
-    public ChildAdvancedSearchInteractor() {
-        this(new AppExecutors());
     }
 
     @Override
@@ -77,6 +77,12 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return getHttpAgent().fetch(uri);
     }
 
+    public DristhiConfiguration getDristhiConfiguration() {
+        if (this.dristhiConfiguration == null) {
+            this.dristhiConfiguration = CoreLibrary.getInstance().context().configuration();
+        }
+        return this.dristhiConfiguration;
+    }
 
     private String urlEncode(String value) {
         try {
@@ -96,13 +102,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
     public void setHttpAgent(HTTPAgent httpAgent) {
         this.httpAgent = httpAgent;
-    }
-
-    public DristhiConfiguration getDristhiConfiguration() {
-        if (this.dristhiConfiguration == null) {
-            this.dristhiConfiguration = CoreLibrary.getInstance().context().configuration();
-        }
-        return this.dristhiConfiguration;
     }
 
     public void setDristhiConfiguration(DristhiConfiguration dristhiConfiguration) {

@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.presenter.BaseChildRegisterPresenter;
-import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.AdvancedSearchFragment;
 import org.smartregister.child.sample.fragment.ChildRegisterFragment;
 import org.smartregister.child.sample.util.SampleConstants;
@@ -50,7 +49,6 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
             clients.setTitle(getString(org.smartregister.child.R.string.header_children));
         }
         bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
-        bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
     }
 
     @Override

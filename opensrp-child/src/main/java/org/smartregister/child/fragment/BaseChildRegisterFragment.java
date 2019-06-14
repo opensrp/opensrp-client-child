@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
@@ -49,25 +50,13 @@ import java.util.Set;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterFragment extends BaseRegisterFragment implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
+public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
+        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
 
     private View filterSection;
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;
     private TextView overdueCountTV;
-
-    @Override
-    protected void initializePresenter() {
-        if (getActivity() == null) {
-            return;
-        }
-    }
-
-    @Override
-    protected abstract String getMainCondition();
-
-    @Override
-    protected abstract String getDefaultSortQuery();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,31 +73,29 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     }
 
     @Override
-    protected void onResumption() {
-        super.onResumption();
-
-        if (filterMode()) {
-            toggleFilterSelection();
+    protected void initializePresenter() {
+        if (getActivity() == null) {
+            return;
         }
-
-        updateSearchView();
-
-        updateLocationText();
-
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+    public void setUniqueID(String s) {
+        if (getSearchView() != null) {
+            getSearchView().setText(s);
         }
     }
 
-    private boolean filterMode() {
-        return filterSection != null && filterSection.getTag() != null;
+    @Override
+
+    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
+        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+        if (baseRegisterActivity != null) {
+            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
+                    .findFragmentByPosition(BaseRegisterActivity
+                            .ADVANCED_SEARCH_POSITION);
+            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
+        }
     }
 
     @Override
@@ -119,28 +106,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
-            // Update top left icon
-            FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
-            if (qrCodeScanImageView != null) {
-                qrCodeScanImageView.setOnClickListener(this);
-            }
+            // Update top right icon
+            setUpQRCodeScanButtonView(view);
 
-            FrameLayout scanCardView = view.findViewById(R.id.scan_card);
-            if (scanCardView != null) {
-                scanCardView.setOnClickListener(this);
-                scanCardView.setVisibility(View.GONE);
-            }
+            setUpScanCardButtonView(view);
+
+            //OpenSRPLogo
+            setUpOpenSRPLogoImageView(view, R.id.opensrp_logo_image_view);
 
             // Update title name
-            ImageView logo = view.findViewById(R.id.opensrp_logo_image_view);
-            if (logo != null) {
-                logo.setVisibility(View.GONE);
-            }
-
-            CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
-            if (titleView != null) {
-                titleView.setVisibility(View.GONE);
-            }
+            setUpOpenSRPTitleView(view);
 
             filterSection = view.findViewById(R.id.filter_selection);
             filterSection.setOnClickListener(this);
@@ -171,23 +146,116 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             overdueCountTV.setVisibility(View.GONE);
         }
 
-    }
+        if (!(this instanceof BaseAdvancedSearchFragment)) {
+            view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(
+                    ChildLibrary.getInstance().getProperties()
+                            .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
-    public void updateDueOverdueCountText(int overDueCount) {
-        if (overdueCountTV != null) {
-            if (overDueCount > 0) {
-                overdueCountTV.setText(String.valueOf(overDueCount));
-                overdueCountTV.setVisibility(View.VISIBLE);
-                overdueCountTV.setClickable(true);
-            } else {
-                overdueCountTV.setVisibility(View.GONE);
-                overdueCountTV.setClickable(false);
+
+            if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
+                view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
+                        .getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
             }
-        } else {
-            Log.e(BaseChildRegisterFragment.class.getCanonicalName(), "Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
         }
     }
 
+    @Override
+    protected void onResumption() {
+        super.onResumption();
+
+        if (filterMode()) {
+            toggleFilterSelection();
+        }
+
+        updateSearchView();
+
+        updateLocationText();
+
+    }
+
+    @Override
+    protected abstract String getMainCondition();
+
+    @Override
+    protected abstract String getDefaultSortQuery();
+
+    @Override
+    protected void startRegistration() {
+        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
+    }
+
+    @Override
+    protected void onViewClicked(View view) {
+
+        if (getActivity() == null) {
+            return;
+        }
+
+    }
+
+    @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        // do we need to post progress?
+    }
+
+    @Override
+    public void onSyncComplete(FetchStatus fetchStatus) {
+        super.onSyncComplete(fetchStatus);
+        Utils.startAsyncTask(new CountDueAndOverDue(), null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        }
+    }
+
+    private void setUpQRCodeScanButtonView(View view) {
+        FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
+        if (qrCodeScanImageView != null) {
+
+            if (ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance()
+                    .getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                qrCodeScanImageView.setOnClickListener(this);
+            } else {
+                qrCodeScanImageView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void setUpScanCardButtonView(View view) {
+        FrameLayout scanCardView = view.findViewById(R.id.scan_card);
+        if (scanCardView != null && ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance()
+                .getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+            scanCardView.setOnClickListener(this);
+            scanCardView.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    private void setUpOpenSRPLogoImageView(View view, int p) {
+        ImageView logo = view.findViewById(p);
+        if (logo != null) {
+            logo.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpOpenSRPTitleView(View view) {
+        CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
+        if (titleView != null) {
+            titleView.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean filterMode() {
+        return filterSection != null && filterSection.getTag() != null;
+    }
 
     protected void toggleFilterSelection() {
         if (filterSection != null) {
@@ -204,32 +272,42 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         }
     }
 
+    protected void updateLocationText() {
+        if (clinicSelection != null) {
+            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
+                    clinicSelection.getSelectedItem()));
+            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
+            context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+        }
+    }
+
     protected abstract String filterSelectionCondition(boolean urgentOnly);
 
-    @SuppressLint("NewApi")
+    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
+        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
+    }
+
+    public void updateDueOverdueCountText(int overDueCount) {
+        if (overdueCountTV != null) {
+            if (overDueCount > 0) {
+                overdueCountTV.setText(String.valueOf(overDueCount));
+                overdueCountTV.setVisibility(View.VISIBLE);
+                overdueCountTV.setClickable(true);
+            } else {
+                overdueCountTV.setVisibility(View.GONE);
+                overdueCountTV.setClickable(false);
+            }
+        } else {
+            Log.e(BaseChildRegisterFragment.class.getCanonicalName(),
+                    "Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
+        }
+    }
+
+    @SuppressLint ("NewApi")
     @Override
     public void showNotFoundPopup(String opensrpID) {
         NoMatchDialogFragment
                 .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, opensrpID);
-    }
-
-    @Override
-    public void setUniqueID(String s) {
-        if (getSearchView() != null) {
-            getSearchView().setText(s);
-        }
-    }
-
-    @Override
-
-    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
-        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-        if (baseRegisterActivity != null) {
-            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
-                    .findFragmentByPosition(BaseRegisterActivity
-                            .ADVANCED_SEARCH_POSITION);
-            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
-        }
     }
 
     @Override
@@ -242,32 +320,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
 
 
-        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
+        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder,
+                visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider,
+                context().commonrepository(this.tablename));
         clientAdapter.setCurrentlimit(20);
         clientsView.setAdapter(clientAdapter);
-    }
-
-
-    @Override
-    protected void startRegistration() {
-        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
-    }
-
-
-    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
-        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
-    }
-
-    @Override
-    public void onSyncInProgress(FetchStatus fetchStatus) {
-        // do we need to post progress?
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
-        Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     @Override
@@ -279,6 +337,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             clientAdapter.setCurrentlimit(clientAdapter.getTotalcount());
         }
         clientAdapter.setCurrentoffset(0);
+    }
+
+    @Override
+    public ChildRegisterFragmentContract.Presenter presenter() {
+        return (ChildRegisterFragmentContract.Presenter) presenter;
     }
 
     @Override
@@ -302,30 +365,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
                     return null;
             }
         }
-    }
-
-    @Override
-    protected void onViewClicked(View view) {
-
-        if (getActivity() == null) {
-            return;
-        }
-
-    }
-
-    protected void updateLocationText() {
-        if (clinicSelection != null) {
-            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
-                    clinicSelection.getSelectedItem()));
-            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-            context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
-        }
-    }
-
-
-    @Override
-    public ChildRegisterFragmentContract.Presenter presenter() {
-        return (ChildRegisterFragmentContract.Presenter) presenter;
     }
 
     private int count(String mainConditionString) {

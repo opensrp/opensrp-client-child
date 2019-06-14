@@ -25,6 +25,17 @@ public class LocationActionView extends LinearLayout {
         init();
     }
 
+    private void init() {
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        layoutInflater.inflate(R.layout.action_location_switcher, this, true);
+        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        setLayoutParams(layoutParams);
+
+        itemText = findViewById(R.id.item_text);
+        itemText.init();
+    }
+
     public LocationActionView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
@@ -37,22 +48,12 @@ public class LocationActionView extends LinearLayout {
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @TargetApi (Build.VERSION_CODES.LOLLIPOP)
     public LocationActionView(Context context,
                               AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.context = context;
         init();
-    }
-
-    private void init() {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layoutInflater.inflate(R.layout.action_location_switcher, this, true);
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        setLayoutParams(layoutParams);
-
-        itemText = (LocationPickerView) findViewById(R.id.item_text);
-        itemText.init();
     }
 
     public String getSelectedItem() {

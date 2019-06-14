@@ -36,6 +36,7 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -52,44 +53,28 @@ import java.util.Set;
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View {
 
-    private View listViewLayout;
-    private View advancedSearchForm;
-    private ImageButton backButton;
-    private Button searchButton;
-    private Button search;
-
-    private RadioButton outsideInside;
-    private RadioButton myCatchment;
-
-
-    private TextView searchCriteria;
-    private TextView matchingResults;
-
-
-    private boolean listMode = false;
-    private boolean isLocal = false;
-
-    private BroadcastReceiver connectionChangeReciever;
-    private boolean registeredConnectionChangeReceiver = false;
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
     protected HashMap<String, String> searchFormData = new HashMap<>();
-
     protected CheckBox active;
     protected CheckBox inactive;
     protected CheckBox lostToFollowUp;
     protected EditText startDate;
     protected EditText endDate;
-
-    private Button qrCodeButton;
     protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
-
-    @Override
-    protected void initializePresenter() {
-        presenter = getPresenter();
-
-    }
-
-    protected abstract BaseChildAdvancedSearchPresenter getPresenter();
+    private View listViewLayout;
+    private View advancedSearchForm;
+    private ImageButton backButton;
+    private Button searchButton;
+    private Button search;
+    private RadioButton outsideInside;
+    private RadioButton myCatchment;
+    private TextView searchCriteria;
+    private TextView matchingResults;
+    private boolean listMode = false;
+    private boolean isLocal = false;
+    private BroadcastReceiver connectionChangeReciever;
+    private boolean registeredConnectionChangeReceiver = false;
+    private Button qrCodeButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,60 +87,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            switchViews(false);
-            updateSearchLimits();
-            resetForm();
-        }
+    protected void initializePresenter() {
+        presenter = getPresenter();
+
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
-            getActivity().unregisterReceiver(connectionChangeReciever);
-            registeredConnectionChangeReceiver = false;
-        }
-    }
-
-    @Override
-    public boolean onBackPressed() {
-        goBack();
-        return true;
-    }
-
-    @Override
-    protected void goBack() {
-        if (listMode) {
-            switchViews(false);
-        } else {
-            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-        }
-    }
-
-    @Override
-    protected void onViewClicked(View view) {
-        if (view.getId() == R.id.search) {
-            search();
-        } else if (view.getId() == R.id.advanced_form_search_btn) {
-            search();
-        } else if (view.getId() == R.id.back_button) {
-            switchViews(false);
-        } /*else if (view.getId() == R.id.undo_button) {
-            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-            ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
-            ((BaseRegisterActivity) getActivity()).setSearchTerm("");
-        } else if ((view.getId() == R.id.patient_column || view.getId() == R.id.profile) && view.getTag() != null) {
-            Utils.navigateToProfile(getActivity(), (HashMap<String, String>) ((CommonPersonObjectClient) view.getTag()).getColumnmaps());
-        } else if (view.getId() == R.id.sync) {
-            SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
-            SyncSettingsServiceJob.scheduleJobImmediately(SyncSettingsServiceJob.TAG);
-            //Todo add the move to catchment area
-        }*/
-    }
+    protected abstract BaseChildAdvancedSearchPresenter getPresenter();
 
     @Override
     public void setupViews(View view) {
@@ -181,7 +118,56 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    public abstract void populateSearchableFields(View view);
+    @Override
+    protected abstract String getMainCondition();
+
+    @Override
+    protected void onViewClicked(View view) {
+        if (view.getId() == R.id.search) {
+            search();
+        } else if (view.getId() == R.id.advanced_form_search_btn) {
+            search();
+        } else if (view.getId() == R.id.back_button) {
+            switchViews(false);
+        } /*else if (view.getId() == R.id.undo_button) {
+            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+            ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
+            ((BaseRegisterActivity) getActivity()).setSearchTerm("");
+        } else if ((view.getId() == R.id.patient_column || view.getId() == R.id.profile) && view.getTag() != null) {
+            Utils.navigateToProfile(getActivity(), (HashMap<String, String>) ((CommonPersonObjectClient) view.getTag()).getColumnmaps());
+        } else if (view.getId() == R.id.sync) {
+            SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
+            SyncSettingsServiceJob.scheduleJobImmediately(SyncSettingsServiceJob.TAG);
+            //Todo add the move to catchment area
+        }*/
+    }
+
+    private void search() {
+
+        if (myCatchment.isChecked()) {
+            isLocal = true;
+        } else if (outsideInside.isChecked()) {
+            isLocal = false;
+        }
+
+
+        ((ChildAdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
+    }
+
+    protected abstract Map<String, String> getSearchMap();
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        assignedValuesBeforeBarcode();
+    }
+
+    protected abstract void assignedValuesBeforeBarcode();
+
+    @Override
+    public void showNotFoundPopup(String opensrpID) {
+        //Todo implement this
+    }
 
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
@@ -194,11 +180,51 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         repoHolder.setCommonRepository(commonRepository());
 
         AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder,
-                visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
+                visibleColumns, registerActionHandler, paginationViewHandler,
+                ChildLibrary.getInstance().context().alertService());
         clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider,
                 context().commonrepository(this.tablename));
         clientsView.setAdapter(clientAdapter);
     }
+
+    @Override
+    public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
+        super.recalculatePagination(matrixCursor);
+        updateMatchingResults(clientAdapter.getTotalcount());
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case LOADER_ID:
+                // Returns a new CursorLoader
+                return new CursorLoader(getActivity()) {
+                    @Override
+                    public Cursor loadInBackground() {
+                        AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) presenter).getMatrixCursor();
+                        if (isLocal || matrixCursor == null) {
+                            String query = filterAndSortQuery();
+                            Cursor cursor = commonRepository().rawCustomQueryForAdapter(query);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideProgressView();
+                                }
+                            });
+
+                            return cursor;
+                        } else {
+                            return matrixCursor;
+                        }
+                    }
+                };
+            default:
+                // An invalid id was passed in
+                return null;
+        }
+    }
+
+    public abstract void populateSearchableFields(View view);
 
     private void populateFormViews(View view) {
         search.setEnabled(false);
@@ -259,22 +285,27 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setDatePicker(endDate);
 
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        qrCodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getActivity() == null) {
-                    return;
-                }
-                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-                baseRegisterActivity.startQrCodeScanner();
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+            qrCodeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (getActivity() == null) {
+                        return;
+                    }
+                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                    baseRegisterActivity.startQrCodeScanner();
 
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
-            }
-        });
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+                }
+            });
+        }
 
         Button scanCardButton = view.findViewById(R.id.scanCardButton);
-        scanCardButton.setVisibility(View.GONE);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            scanCardButton.setVisibility(View.GONE);//should be visible
+        }
 
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
@@ -367,41 +398,50 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         resetForm();
     }
 
-    protected abstract void assignedValuesBeforeBarcode();
+    private void setDatePicker(final EditText editText) {
+        editText.setOnClickListener(new DatePickerListener(getActivity(), editText, true));
+    }
 
     protected abstract HashMap<String, String> createSelectedFieldMap();
 
-    private void checkTextFields() {
-        if (anySearchableFieldHasValue()) {
-            search.setEnabled(true);
-            search.setTextColor(getResources().getColor(R.color.white));
+    private void resetForm() {
+        clearSearchCriteria();
+        clearMatchingResults();
+        clearFormFields();
+    }
 
-
-            searchButton.setEnabled(true);
-            searchButton.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            search.setEnabled(false);
-            search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-
-            searchButton.setEnabled(false);
-            searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+    private void clearSearchCriteria() {
+        if (searchCriteria != null) {
+            searchCriteria.setVisibility(View.GONE);
+            searchCriteria.setText("");
         }
     }
 
-    private boolean anySearchableFieldHasValue() {
-
-        for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
-
-            if (entry.getValue() instanceof MaterialEditText && !TextUtils.isEmpty(((MaterialEditText) entry.getValue()).getText())) {
-                return true;
-            }
-
-
+    private void clearMatchingResults() {
+        if (matchingResults != null) {
+            matchingResults.setVisibility(View.GONE);
+            matchingResults.setText("");
         }
-        return false;
-
     }
 
+    protected void clearFormFields() {
+        active.setChecked(true);
+        inactive.setChecked(false);
+        lostToFollowUp.setChecked(false);
+
+        startDate.setText("");
+        endDate.setText("");
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            switchViews(false);
+            updateSearchLimits();
+            resetForm();
+        }
+    }
 
     @Override
     public void switchViews(boolean showList) {
@@ -466,36 +506,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void resetForm() {
-        clearSearchCriteria();
-        clearMatchingResults();
-        clearFormFields();
-    }
-
-    protected void clearFormFields() {
-        active.setChecked(true);
-        inactive.setChecked(false);
-        lostToFollowUp.setChecked(false);
-
-        startDate.setText("");
-        endDate.setText("");
-    }
-
-    private void clearSearchCriteria() {
-        if (searchCriteria != null) {
-            searchCriteria.setVisibility(View.GONE);
-            searchCriteria.setText("");
-        }
-    }
-
-    private void clearMatchingResults() {
-        if (matchingResults != null) {
-            matchingResults.setVisibility(View.GONE);
-            matchingResults.setText("");
-        }
-    }
-
-
     public void updateMatchingResults(int count) {
         if (matchingResults != null) {
             matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
@@ -511,9 +521,58 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         }
     }
 
+    @Override
+    public String filterAndSortQuery() {
+        SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
 
-    private void setDatePicker(final EditText editText) {
-        editText.setOnClickListener(new DatePickerListener(getActivity(), editText, true));
+        String query = "";
+        try {
+            sqb.addCondition(filters);
+            query = sqb.orderbyCondition(Sortqueries);
+            query = sqb.Endquery(
+                    sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.toString(), e);
+        }
+
+        return query;
+    }
+
+    @Override
+    public Cursor getRawCustomQueryForAdapter(String query) {
+        return commonRepository().rawCustomQueryForAdapter(query);
+    }
+
+    private void checkTextFields() {
+        if (anySearchableFieldHasValue()) {
+            search.setEnabled(true);
+            search.setTextColor(getResources().getColor(R.color.white));
+
+
+            searchButton.setEnabled(true);
+            searchButton.setTextColor(getResources().getColor(R.color.white));
+        } else {
+            search.setEnabled(false);
+            search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+
+            searchButton.setEnabled(false);
+            searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        }
+    }
+
+    private boolean anySearchableFieldHasValue() {
+
+        for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
+
+            if (entry.getValue() instanceof MaterialEditText && !TextUtils
+                    .isEmpty(((MaterialEditText) entry.getValue()).getText())) {
+                return true;
+            }
+
+
+        }
+        return false;
+
     }
 
     @Override
@@ -522,36 +581,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
-        return null;
-    }
-
-    @Override
-    protected abstract String getMainCondition();
-
-    private void search() {
-
-        if (myCatchment.isChecked()) {
-            isLocal = true;
-        } else if (outsideInside.isChecked()) {
-            isLocal = false;
+    protected void goBack() {
+        if (listMode) {
+            switchViews(false);
+        } else {
+            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
         }
-
-
-        ((ChildAdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
-    }
-
-    protected abstract Map<String, String> getSearchMap();
-
-    @Override
-    public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
-        super.recalculatePagination(matrixCursor);
-        updateMatchingResults(clientAdapter.getTotalcount());
-    }
-
-    @Override
-    public void showNotFoundPopup(String opensrpID) {
-        //Todo implement this
     }
 
     @Override
@@ -587,63 +622,24 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case LOADER_ID:
-                // Returns a new CursorLoader
-                return new CursorLoader(getActivity()) {
-                    @Override
-                    public Cursor loadInBackground() {
-                        AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) presenter).getMatrixCursor();
-                        if (isLocal || matrixCursor == null) {
-                            String query = filterAndSortQuery();
-                            Cursor cursor = commonRepository().rawCustomQueryForAdapter(query);
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    hideProgressView();
-                                }
-                            });
+    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
+        return null;
+    }
 
-                            return cursor;
-                        } else {
-                            return matrixCursor;
-                        }
-                    }
-                };
-            default:
-                // An invalid id was passed in
-                return null;
+    @Override
+    public boolean onBackPressed() {
+        goBack();
+        return true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
+            getActivity().unregisterReceiver(connectionChangeReciever);
+            registeredConnectionChangeReceiver = false;
         }
-    }
-
-
-    @Override
-    public String filterAndSortQuery() {
-        SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
-
-        String query = "";
-        try {
-            sqb.addCondition(filters);
-            query = sqb.orderbyCondition(Sortqueries);
-            query = sqb.Endquery(
-                    sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
-        }
-
-        return query;
-    }
-
-    @Override
-    public Cursor getRawCustomQueryForAdapter(String query) {
-        return commonRepository().rawCustomQueryForAdapter(query);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        assignedValuesBeforeBarcode();
     }
 
     private class AdvancedSearchTextWatcher implements TextWatcher {

@@ -29,8 +29,6 @@ import static org.smartregister.util.Utils.getValue;
  * Created by keyman on 26/01/2017.
  */
 public class MotherLookUpUtils {
-    private static final String TAG = MotherLookUpUtils.class.getName();
-
     public static final String firstName = "first_name";
     public static final String lastName = "last_name";
     public static final String birthDate = "date_birth";
@@ -43,32 +41,35 @@ public class MotherLookUpUtils {
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
+    private static final String TAG = MotherLookUpUtils.class.getName();
 
+    public static void motherLookUp(final Context context, final EntityLookUp entityLookUp,
+                                    final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener,
+                                    final ProgressBar progressBar) {
 
-    public static void motherLookUp(final Context context, final EntityLookUp entityLookUp, final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener, final ProgressBar progressBar) {
+        org.smartregister.util.Utils
+                .startAsyncTask(new AsyncTask<Void, Void, HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+                    @Override
+                    protected HashMap<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
+                        publishProgress();
+                        return lookUp(context, entityLookUp);
+                    }
 
-        org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
-            @Override
-            protected HashMap<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
-                publishProgress();
-                return lookUp(context, entityLookUp);
-            }
+                    @Override
+                    protected void onPostExecute(HashMap<CommonPersonObject, List<CommonPersonObject>> result) {
+                        listener.onEvent(result);
+                        if (progressBar != null) {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
 
-            @Override
-            protected void onProgressUpdate(Void... values) {
-                if (progressBar != null) {
-                    progressBar.setVisibility(VISIBLE);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(HashMap<CommonPersonObject, List<CommonPersonObject>> result) {
-                listener.onEvent(result);
-                if (progressBar != null) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        }, null);
+                    @Override
+                    protected void onProgressUpdate(Void... values) {
+                        if (progressBar != null) {
+                            progressBar.setVisibility(VISIBLE);
+                        }
+                    }
+                }, null);
     }
 
     private static HashMap<CommonPersonObject, List<CommonPersonObject>> lookUp(Context context, EntityLookUp entityLookUp) {
@@ -132,23 +133,10 @@ public class MotherLookUpUtils {
 
     }
 
-    private static List<CommonPersonObject> findChildren(List<CommonPersonObject> childList, String motherBaseEnityId) {
-        List<CommonPersonObject> foundChildren = new ArrayList<>();
-        for (CommonPersonObject child : childList) {
-            String relationalID = getValue(child.getColumnmaps(), RELATIONAL_ID, false);
-            if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
-                foundChildren.add(child);
-            }
-        }
-
-        return foundChildren;
-
-    }
-
     private static String lookUpQuery(Map<String, String> entityMap, String tableName) {
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
+        queryBUilder.SelectInitiateMainTable(tableName, new String[] {
                 RELATIONALID,
                 DETAILS,
                 Constants.KEY.ZEIR_ID,
@@ -165,6 +153,18 @@ public class MotherLookUpUtils {
         return queryBUilder.Endquery(query);
     }
 
+    private static List<CommonPersonObject> findChildren(List<CommonPersonObject> childList, String motherBaseEnityId) {
+        List<CommonPersonObject> foundChildren = new ArrayList<>();
+        for (CommonPersonObject child : childList) {
+            String relationalID = getValue(child.getColumnmaps(), RELATIONAL_ID, false);
+            if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
+                foundChildren.add(child);
+            }
+        }
+
+        return foundChildren;
+
+    }
 
     private static String getMainConditionString(Map<String, String> entityMap) {
 

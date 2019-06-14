@@ -25,10 +25,9 @@ import java.util.List;
  * Created by ndegwamartin on 01/03/2019.
  */
 public class BaseChildFormActivity extends JsonFormActivity {
-    private String TAG = BaseChildFormActivity.class.getCanonicalName();
-
-    private boolean enableOnCloseDialog = true;
     ChildFormFragment childFormFragment;
+    private String TAG = BaseChildFormActivity.class.getCanonicalName();
+    private boolean enableOnCloseDialog = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +51,12 @@ public class BaseChildFormActivity extends JsonFormActivity {
         initializeFormFragmentCore();
     }
 
+    protected void initializeFormFragmentCore() {
+        childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
+        getSupportFragmentManager().beginTransaction()
+                .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
+    }
+
     @Override
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
         if (toolbar != null) {
@@ -60,22 +65,9 @@ public class BaseChildFormActivity extends JsonFormActivity {
         super.setSupportActionBar(toolbar);
     }
 
-    protected void initializeFormFragmentCore() {
-        childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
-        getSupportFragmentManager().beginTransaction()
-                .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
-    }
-
     @Override
-    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup) throws JSONException {
-        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity, openMrsEntityId, popup);
-        if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
-            validateActivateNext();
-        }
-    }
-
-    @Override
-    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup) throws JSONException {
+    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity,
+                           String openMrsEntityId, boolean popup) throws JSONException {
         super.writeValue(stepName, key, value, openMrsEntityParent, openMrsEntity, openMrsEntityId, popup);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
@@ -83,7 +75,19 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     @Override
-    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
+    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value,
+                           String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup)
+    throws JSONException {
+        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity,
+                openMrsEntityId, popup);
+        if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
+            validateActivateNext();
+        }
+    }
+
+    @Override
+    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity,
+                           String openMrsEntityId) throws JSONException {
         super.writeValue(stepName, key, value, openMrsEntityParent, openMrsEntity, openMrsEntityId);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
@@ -91,10 +95,24 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     @Override
-    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
-        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity, openMrsEntityId);
+    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value,
+                           String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
+        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity,
+                openMrsEntityId);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
+        }
+    }
+
+    /**
+     * Conditionaly display the confirmation dialog
+     */
+    @Override
+    public void onBackPressed() {
+        if (enableOnCloseDialog) {
+            super.onBackPressed();
+        } else {
+            BaseChildFormActivity.this.finish();
         }
     }
 
@@ -114,18 +132,6 @@ public class BaseChildFormActivity extends JsonFormActivity {
             }
         }
         return null;
-    }
-
-    /**
-     * Conditionaly display the confirmation dialog
-     */
-    @Override
-    public void onBackPressed() {
-        if (enableOnCloseDialog) {
-            super.onBackPressed();
-        } else {
-            BaseChildFormActivity.this.finish();
-        }
     }
 
     public boolean checkIfBalanceNegative() {
@@ -159,7 +165,8 @@ public class BaseChildFormActivity extends JsonFormActivity {
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg") && vaccineGroup.has("value") && vaccineGroup.getString("value").length() > 0) {
+                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg") && vaccineGroup
+                            .has("value") && vaccineGroup.getString("value").length() > 0) {
                         return true;
                     }
                 }

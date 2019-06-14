@@ -10,8 +10,6 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RepositoryHolder;
-import org.smartregister.child.util.AsyncTaskUtils;
-import org.smartregister.child.util.Utils;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -58,12 +56,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        //    showProgressDialog(getString(R.string.updating_dialog_title), null);
-    }
-
-    @Override
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         Map<String, NamedObject<?>> map = new HashMap<>();
 
@@ -94,13 +86,15 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         List<ServiceRecord> serviceRecords = new ArrayList<>();
 
         RecurringServiceTypeRepository recurringServiceTypeRepository = repositoryHolder.getRecurringServiceTypeRepository();
-        RecurringServiceRecordRepository recurringServiceRecordRepository = repositoryHolder.getRecurringServiceRecordRepository();
+        RecurringServiceRecordRepository recurringServiceRecordRepository = repositoryHolder
+                .getRecurringServiceRecordRepository();
 
         if (recurringServiceRecordRepository != null) {
             serviceRecords = recurringServiceRecordRepository.findByEntityId(baseEntityId);
         }
 
-        NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+        NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(),
+                serviceRecords);
         map.put(serviceNamedObject.name, serviceNamedObject);
 
         Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
@@ -117,7 +111,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             }
         }
 
-        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(),
+                serviceTypeMap);
         map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
         List<Alert> alertList = new ArrayList<>();
@@ -132,6 +127,11 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         return map;
     }
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        //    showProgressDialog(getString(R.string.updating_dialog_title), null);
+    }
 
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {

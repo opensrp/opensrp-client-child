@@ -42,7 +42,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     private View.OnClickListener onClickListener;
 
     public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
-                                     WeightRepository weightRepository,HeightRepository heightRepository, Context context) {
+                                     WeightRepository weightRepository, HeightRepository heightRepository, Context context) {
         this.convertView = recordActionParams.getConvertView();
         this.entityId = recordActionParams.getEntityId();
         this.lostToFollowUp = recordActionParams.getLostToFollowUp();
@@ -103,7 +103,8 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         // Update active/inactive/lostToFollowup status
-        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) || updateWrapper.getInactive().equals(Boolean.TRUE.toString())) {
+        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) || updateWrapper.getInactive()
+                .equals(Boolean.TRUE.toString())) {
             recordWeight.setVisibility(View.INVISIBLE);
         }
 

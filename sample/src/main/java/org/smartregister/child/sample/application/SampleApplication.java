@@ -7,9 +7,9 @@ import com.evernote.android.job.JobManager;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
-import org.smartregister.child.sample.activity.ChildFormActivity;
 import org.smartregister.child.sample.activity.ChildImmunizationActivity;
 import org.smartregister.child.sample.activity.ChildProfileActivity;
 import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
@@ -156,7 +156,7 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private ChildMetadata getMetadata() {
-        ChildMetadata metadata = new ChildMetadata(ChildFormActivity.class, ChildProfileActivity.class, ChildImmunizationActivity.class, true);
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class, ChildImmunizationActivity.class, true);
         metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         return metadata;
     }

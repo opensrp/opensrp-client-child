@@ -58,6 +58,30 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private Snackbar snackbar = null;
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
+    private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
+                CommonPersonObjectClient client = null;
+                if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
+                    client = (CommonPersonObjectClient) view.getTag();
+                }
+
+                if (client != null) {
+                    lookupDialogDismissed(client);
+                }
+            }
+        }
+    };
+    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener = new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+        @Override
+        public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
+            if (!lookedUp) {
+                showMotherLookUp(data);
+            }
+        }
+    };
 
     public static ChildFormFragment getFormFragment(String stepName) {
         ChildFormFragment jsonFormFragment = new ChildFormFragment();
@@ -81,9 +105,15 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     public void updateVisibilityOfNextAndSave(boolean next, boolean save) {
         super.updateVisibilityOfNextAndSave(next, save);
         Form form = getForm();
-        if (form != null && form.isWizard() && !ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
+        if (form != null && form.isWizard() && !ChildLibrary.getInstance()
+                .metadata().formWizardValidateRequiredFieldsBefore) {
             this.getMenu().findItem(com.vijay.jsonwizard.R.id.action_save).setVisible(save);
         }
+    }
+
+    private Form getForm() {
+        return this.getActivity() != null && this.getActivity() instanceof JsonFormActivity ? ((JsonFormActivity) this
+                .getActivity()).getForm() : null;
     }
 
     public void validateActivateNext() {
@@ -124,10 +154,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         return (ChildFormFragmentPresenter) presenter;
     }
 
-    private Form getForm() {
-        return this.getActivity() != null && this.getActivity() instanceof JsonFormActivity ? ((JsonFormActivity) this.getActivity()).getForm() : null;
-    }
-
     //Mother Lookup
     public Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener() {
         return motherLookUpListener;
@@ -141,6 +167,21 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 snackbar.dismiss();
             }
         }
+    }
+
+    private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
+        snackbar = Snackbar
+                .make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()),
+                        Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateResults(map);
+                //updateResultTree(map);
+            }
+        });
+        show(snackbar, 30000);
+
     }
 
     private void updateResults(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
@@ -160,7 +201,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             mothers.add(entry.getKey());
         }
 
-        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider = new MotherLookUpSmartClientsProvider(getActivity());
+        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider = new MotherLookUpSmartClientsProvider(
+                getActivity());
         BaseAdapter baseAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
@@ -201,59 +243,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         listView.setAdapter(baseAdapter);
         alertDialog.show();
 
-    }
-
-    private void clearMotherLookUp() {
-        Map<String, List<View>> lookupMap = getLookUpMap();
-        if (lookupMap.containsKey(Constants.KEY.MOTHER)) {
-            List<View> lookUpViews = lookupMap.get(Constants.KEY.MOTHER);
-            if (lookUpViews != null && !lookUpViews.isEmpty()) {
-                for (View view : lookUpViews) {
-                    if (view instanceof MaterialEditText) {
-                        MaterialEditText materialEditText = (MaterialEditText) view;
-                        materialEditText.setEnabled(true);
-                        enableEditText(materialEditText);
-                        materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
-                        materialEditText.setText("");
-                    }
-                }
-
-                Map<String, String> metadataMap = new HashMap<>();
-                metadataMap.put(Constants.KEY.ENTITY_ID, "");
-                metadataMap.put(Constants.KEY.VALUE, "");
-
-                writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
-
-                lookedUp = false;
-            }
-        }
-    }
-
-    private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
-        snackbar = Snackbar
-                .make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()), Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateResults(map);
-                //updateResultTree(map);
-            }
-        });
-        show(snackbar, 30000);
-
-    }
-
-    private void clearView() {
-        snackbar = Snackbar
-                .make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.cancel, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-                clearMotherLookUp();
-            }
-        });
-        show(snackbar, 30000);
     }
 
     private void show(final Snackbar snackbar, int duration) {
@@ -306,14 +295,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             }
         }, duration);
 
-    }
-
-    private void disableEditText(MaterialEditText editText) {
-        editText.setInputType(InputType.TYPE_NULL);
-    }
-
-    private void enableEditText(MaterialEditText editText) {
-        editText.setInputType(InputType.TYPE_CLASS_TEXT);
     }
 
     private void lookupDialogDismissed(CommonPersonObjectClient pc) {
@@ -369,7 +350,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
                     Map<String, String> metadataMap = new HashMap<>();
                     metadataMap.put(Constants.KEY.ENTITY_ID, Constants.KEY.MOTHER);
-                    metadataMap.put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
+                    metadataMap
+                            .put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
 
                     writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
@@ -380,37 +362,58 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     }
 
-    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener = new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
-        @Override
-        public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
-            if (!lookedUp) {
-                showMotherLookUp(data);
-            }
-        }
-    };
+    private void disableEditText(MaterialEditText editText) {
+        editText.setInputType(InputType.TYPE_NULL);
+    }
 
-    private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (alertDialog != null && alertDialog.isShowing()) {
-                alertDialog.dismiss();
-                CommonPersonObjectClient client = null;
-                if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-                    client = (CommonPersonObjectClient) view.getTag();
+    private void clearView() {
+        snackbar = Snackbar
+                .make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+                clearMotherLookUp();
+            }
+        });
+        show(snackbar, 30000);
+    }
+
+    private void clearMotherLookUp() {
+        Map<String, List<View>> lookupMap = getLookUpMap();
+        if (lookupMap.containsKey(Constants.KEY.MOTHER)) {
+            List<View> lookUpViews = lookupMap.get(Constants.KEY.MOTHER);
+            if (lookUpViews != null && !lookUpViews.isEmpty()) {
+                for (View view : lookUpViews) {
+                    if (view instanceof MaterialEditText) {
+                        MaterialEditText materialEditText = (MaterialEditText) view;
+                        materialEditText.setEnabled(true);
+                        enableEditText(materialEditText);
+                        materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
+                        materialEditText.setText("");
+                    }
                 }
 
-                if (client != null) {
-                    lookupDialogDismissed(client);
-                }
+                Map<String, String> metadataMap = new HashMap<>();
+                metadataMap.put(Constants.KEY.ENTITY_ID, "");
+                metadataMap.put(Constants.KEY.VALUE, "");
+
+                writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
+
+                lookedUp = false;
             }
         }
-    };
+    }
+
+    private void enableEditText(MaterialEditText editText) {
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+    }
 
     public void getLabelViewFromTag(String labeltext, String todisplay) {
-//        super.getMainView();
+        //        super.getMainView();
         updateRelevantTextView(getMainView(), todisplay, labeltext);
 
-//        findViewWithTag("labelHeaderImage")).setText("is it possible");
+        //        findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
 
     private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
@@ -425,9 +428,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         textView.setText(textstring);
                     }
                 }
-//            else if(view instanceof  ViewGroup){
-//                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-//            }
+                //            else if(view instanceof  ViewGroup){
+                //                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
+                //            }
             }
         }
     }
@@ -445,9 +448,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         toreturn = textView.getText().toString();
                     }
                 }
-//            else if(view instanceof  ViewGroup){
-//                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-//            }
+                //            else if(view instanceof  ViewGroup){
+                //                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
+                //            }
             }
         }
         return toreturn;

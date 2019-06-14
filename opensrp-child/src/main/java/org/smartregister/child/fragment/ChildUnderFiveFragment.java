@@ -62,15 +62,19 @@ import java.util.Map;
  */
 public class ChildUnderFiveFragment extends Fragment {
 
+    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private Map<String, String> detailsMap;
     private LinearLayout fragmentContainer;
 
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
     private Boolean curGrowthMonitoringMode;
+
+    public ChildUnderFiveFragment() {
+        // Required empty public constructor
+    }
 
     public static ChildUnderFiveFragment newInstance(Bundle bundle) {
         Bundle args = bundle;
@@ -80,10 +84,6 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public ChildUnderFiveFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -319,6 +319,31 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
+    private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        Date dob = Utils.dobStringToDate(dobString);
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
+        }
+
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
+                .findByEntityId(childDetails.entityId());
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
+
+        VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment
+                .newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
+    }
+
     public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap,
                                    List<ServiceRecord> services, List<Alert> alertList, boolean editServiceMode) {
         boolean showService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
@@ -360,31 +385,6 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        Date dob = Utils.dobStringToDate(dobString);
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) {
-            vaccineList = new ArrayList<>();
-        }
-
-        VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment
-                .newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
-    }
-
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
@@ -411,21 +411,20 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     public void showGrowthMonitoringDialog(int i) {
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            fragmentTransaction.remove(prev);
         }
-        ft.addToBackStack(null);
-
+        fragmentTransaction.addToBackStack(null);
 
         String childName = constructChildName();
-        String gender = Utils.getValue(childDetails.getColumnmaps(), "gender", true);
-        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), "mother_first_name", true);
+        String gender = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
+        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         String duration = "";
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
@@ -447,7 +446,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment
                 .newInstance(getActivity(), dob, weightWrapper, heightWrapper);
-        editWeightDialogFragment.show(ft, DIALOG_TAG);
+        editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
     }
 
@@ -459,6 +458,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository()
                 .findByEntityId(childDetails.entityId());
+
         if (!weightList.isEmpty()) {
             weightWrapper.setWeight(weightList.get(i).getKg());
             weightWrapper.setUpdatedWeightDate(new DateTime(weightList.get(i).getDate()), false);
@@ -504,8 +504,8 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
+        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
 

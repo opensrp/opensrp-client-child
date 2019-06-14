@@ -3,6 +3,8 @@ package org.smartregister.child;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.Utils;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -32,8 +34,20 @@ public class ChildLibrary {
     private ClientProcessorForJava clientProcessorForJava;
     private Compressor compressor;
     private LocationPickerView locationPickerView;
+    private AppProperties properties;
 
-    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
+    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion,
+                         int databaseVersion) {
+        this.context = contextArg;
+        repository = repositoryArg;
+        this.metadata = metadataArg;
+        this.applicationVersion = applicationVersion;
+        this.databaseVersion = databaseVersion;
+        this.properties = Utils.getProperties(this.context.applicationContext());
+    }
+
+    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion,
+                            int databaseVersion) {
         if (instance == null) {
             instance = new ChildLibrary(context, repository, metadataArg, applicationVersion, databaseVersion);
         }
@@ -49,24 +63,8 @@ public class ChildLibrary {
         return instance;
     }
 
-    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
-        this.context = contextArg;
-        repository = repositoryArg;
-        this.metadata = metadataArg;
-        this.applicationVersion = applicationVersion;
-        this.databaseVersion = databaseVersion;
-    }
-
     public ChildMetadata metadata() {
         return metadata;
-    }
-
-    public Context context() {
-        return context;
-    }
-
-    public Repository getRepository() {
-        return repository;
     }
 
     public int getApplicationVersion() {
@@ -84,6 +82,10 @@ public class ChildLibrary {
         return uniqueIdRepository;
     }
 
+    public Repository getRepository() {
+        return repository;
+    }
+
     public EventClientRepository eventClientRepository() {
         if (eventClientRepository == null) {
             eventClientRepository = new EventClientRepository(getRepository());
@@ -98,6 +100,9 @@ public class ChildLibrary {
         return syncHelper;
     }
 
+    public Context context() {
+        return context;
+    }
 
     public ClientProcessorForJava getClientProcessorForJava() {
         if (clientProcessorForJava == null) {
@@ -125,5 +130,12 @@ public class ChildLibrary {
         return locationPickerView;
     }
 
+    public AppProperties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(AppProperties properties) {
+        this.properties = properties;
+    }
 
 }

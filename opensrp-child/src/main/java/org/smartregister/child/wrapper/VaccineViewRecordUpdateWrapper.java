@@ -21,11 +21,11 @@ public class VaccineViewRecordUpdateWrapper extends BaseViewRecordUpdateWrapper 
         this.vaccines = vaccines;
     }
 
-    public void setNv(Map<String, Object> nv) {
-        this.nv = nv;
-    }
-
     public Map<String, Object> getNv() {
         return nv;
+    }
+
+    public void setNv(Map<String, Object> nv) {
+        this.nv = nv;
     }
 }

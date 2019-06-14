@@ -11,19 +11,19 @@ public class RegisterClickables implements Serializable {
 
     private boolean recordAll;
 
-    public void setRecordWeight(boolean recordWeight) {
-        this.recordWeight = recordWeight;
-    }
-
     public boolean isRecordWeight() {
         return recordWeight;
     }
 
-    public void setRecordAll(boolean recordAll) {
-        this.recordAll = recordAll;
+    public void setRecordWeight(boolean recordWeight) {
+        this.recordWeight = recordWeight;
     }
 
     public boolean isRecordAll() {
         return recordAll;
+    }
+
+    public void setRecordAll(boolean recordAll) {
+        this.recordAll = recordAll;
     }
 }

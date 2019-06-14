@@ -75,13 +75,15 @@ public class MotherLookUpSmartClientsProvider {
         fillValue((TextView) convertView.findViewById(R.id.details), birthDateString + " - " + childListString);
     }
 
-
-    public View inflatelayoutForCursorAdapter() {
-        return inflater().inflate(R.layout.mother_child_lookup_client, null);
+    private String name(CommonPersonObjectClient pc) {
+        String firstName = getValue(pc.getColumnmaps(), "first_name", true);
+        String lastName = getValue(pc.getColumnmaps(), "last_name", true);
+        return getName(firstName, lastName);
     }
 
-    private LayoutInflater inflater() {
-        return inflater;
+    private DateTime dob(CommonPersonObjectClient pc) {
+        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
+        return Utils.dobStringToDateTime(dobString);
     }
 
     private void sortList(List<CommonPersonObjectClient> childList) {
@@ -111,15 +113,12 @@ public class MotherLookUpSmartClientsProvider {
         });
     }
 
-    private DateTime dob(CommonPersonObjectClient pc) {
-        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
-        return Utils.dobStringToDateTime(dobString);
+    public View inflatelayoutForCursorAdapter() {
+        return inflater().inflate(R.layout.mother_child_lookup_client, null);
     }
 
-    private String name(CommonPersonObjectClient pc) {
-        String firstName = getValue(pc.getColumnmaps(), "first_name", true);
-        String lastName = getValue(pc.getColumnmaps(), "last_name", true);
-        return getName(firstName, lastName);
+    private LayoutInflater inflater() {
+        return inflater;
     }
 
 }

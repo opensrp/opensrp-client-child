@@ -23,7 +23,7 @@
     <string name="child_profile">CHILD </string>
     <string name="child_DOB">Date Of Birth</string>
     <string name="child_reminder">REMINDER</string>
-    <string name="child_next_vaccine">DUE VACCINE</string>
+    <string name="child_next_vaccine">VACCINE DUE</string>
     <string name="child_register_title">Child Register</string>
     <string name="register_search_hint">Search</string>
     <string name="child_title">Child</string>
@@ -82,7 +82,7 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="userNameText">User Name</string>
-    <string name="passwordText">Password</string>
+    <string name="passwordText">Password</string>H
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="undo">Undo</string>
@@ -262,8 +262,8 @@
     <string name="father_guardian_full_name">Father\'s name</string>
 
 
-    <string name="registration_data">Registration data</string>
-    <string name="under_five_history">Under Five History</string>
+    <string name="registration_data">Registration Data</string>
+    <string name="under_five_history">History</string>
     <string name="child_home_health_facility">Child\'s home health facility</string>
     <string name="child_opensrp_id">Child\'s vaccination ID</string>
     <string name="child_register_card_number">Child\'s register number</string>

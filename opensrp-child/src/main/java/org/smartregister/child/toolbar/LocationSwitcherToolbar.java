@@ -81,7 +81,7 @@ public class LocationSwitcherToolbar extends BaseToolbar {
                             }
                         }
                     });
-            CustomFontTextView titleTV = (CustomFontTextView) baseActivity.findViewById(R.id.title);
+            CustomFontTextView titleTV = baseActivity.findViewById(R.id.title);
             View separatorV = baseActivity.findViewById(R.id.separator_v);
             titleTV.setText(title);
             baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);

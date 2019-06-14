@@ -1,6 +1,7 @@
 package org.smartregister.child.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.codec.CharEncoding;
 import org.json.JSONException;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * * Created by ndegwamartin on 2019-05-31.
@@ -33,6 +35,28 @@ public class FormUtils {
         return new FormUtils(ctx);
     }
 
+    public JSONObject getFormJson(String formIdentity) {
+        if (mContext != null) {
+            try {
+                String locale = mContext.getResources().getConfiguration().locale.getLanguage();
+                locale = locale.equalsIgnoreCase("en") ? "" : "-" + locale;
+
+
+                String jsonFileString = readFileFromAssetsFolder(
+                        JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
+
+                if (jsonFileString == null) {
+
+                    jsonFileString = readFileFromAssetsFolder(JSON_FORMS_FOLDER + formIdentity + JSON_FORM_EXTENSION);
+                }
+
+                return new JSONObject(jsonFileString);
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+        return null;
+    }
 
     private String readFileFromAssetsFolder(String fileName) {
         String fileContents;
@@ -42,36 +66,14 @@ public class FormUtils {
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            fileContents = new String(buffer, CharEncoding.UTF_8);
+            fileContents = new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            android.util.Log.e(TAG, ex.toString(), ex);
+            Log.e(TAG, ex.toString(), ex);
 
             return null;
         }
 
         return fileContents;
-    }
-
-    public JSONObject getFormJson(String formIdentity) {
-        if (mContext != null) {
-            try {
-                String locale = mContext.getResources().getConfiguration().locale.getLanguage();
-                locale = locale.equalsIgnoreCase("en") ? "" : "-" + locale;
-
-
-                String jsonFileString = readFileFromAssetsFolder(JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
-
-                if (jsonFileString == null) {
-
-                    jsonFileString = readFileFromAssetsFolder(JSON_FORMS_FOLDER + formIdentity + JSON_FORM_EXTENSION);
-                }
-
-                return new JSONObject(jsonFileString);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
 }

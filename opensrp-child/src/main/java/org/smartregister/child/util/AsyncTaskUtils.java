@@ -4,7 +4,6 @@ import org.smartregister.child.domain.NamedObject;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
-import org.smartregister.growthmonitoring.util.HeightUtils;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.Vaccine;

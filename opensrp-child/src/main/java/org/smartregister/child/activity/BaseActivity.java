@@ -80,21 +80,20 @@ import java.util.Map;
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
 public abstract class BaseActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener, ChildRegisterContract.InteractorCallBack {
+        implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener,
+        ChildRegisterContract.InteractorCallBack {
+    public static final int REQUEST_CODE_GET_JSON = 3432;
+    public static final String INACTIVE = "inactive";
+    public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
     private static final String TAG = "BaseActivity";
     private BaseToolbar toolbar;
     private Menu menu;
-    public static final int REQUEST_CODE_GET_JSON = 3432;
     private Snackbar syncStatusSnackbar;
     private ProgressDialog progressDialog;
-    private ArrayList<Notification> notifications;
-    private BaseActivityToggle toggle;
     //  private NavigationItemListener navigationItemListener;
     // private CustomNavigationBarListener customNavigationBarListener;
-
-    public static final String INACTIVE = "inactive";
-    public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
-
+    private ArrayList<Notification> notifications;
+    private BaseActivityToggle toggle;
     private ChildRegisterContract.Interactor interactor;
     private BaseChildRegisterModel model;
 
@@ -127,6 +126,27 @@ toggle.syncState();
         //customNavigationBarListener = new CustomNavigationBarListener(this, toolbar);
     }
 
+    /**
+     * The layout resource file to user for this activity
+     *
+     * @return The resource id for the layout file to use
+     */
+    protected abstract int getContentView();
+
+    /**
+     * The id for the toolbar used in this activity
+     *
+     * @return The id for the toolbar used
+     */
+    protected abstract int getToolbarId();
+
+    private void initializeProgressDialog() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(getString(R.string.saving_dialog_title));
+        progressDialog.setMessage(getString(R.string.please_wait_message));
+    }
+
     @Override
     public void onSyncStart() {
         refreshSyncStatusViews(null);
@@ -140,18 +160,6 @@ toggle.syncState();
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         refreshSyncStatusViews(fetchStatus);
-    }
-
-    private void registerSyncStatusBroadcastReceiver() {
-        SyncStatusBroadcastReceiver.getInstance().addSyncStatusListener(this);
-    }
-
-    private void unregisterSyncStatusBroadcastReceiver() {
-        SyncStatusBroadcastReceiver.getInstance().removeSyncStatusListener(this);
-    }
-
-    public BaseToolbar getBaseToolbar() {
-        return toolbar;
     }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////
@@ -195,14 +203,25 @@ toggle.syncState();
         }*/
     }
 
+    public BaseToolbar getBaseToolbar() {
+        return toolbar;
+    }
+
     protected ActionBarDrawerToggle getDrawerToggle() {
         return toggle;
     }
 
     protected void openDrawer() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());
+        DrawerLayout drawer = findViewById(getDrawerLayoutId());
         drawer.openDrawer(Gravity.LEFT);
     }
+
+    /**
+     * The id for the base {@link DrawerLayout} for the activity
+     *
+     * @return
+     */
+    protected abstract int getDrawerLayoutId();
 
     private void updateLastSyncText() {/*
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -273,18 +292,6 @@ toggle.syncState();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        registerSyncStatusBroadcastReceiver();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterSyncStatusBroadcastReceiver();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (toolbar.getSupportedMenu() != 0) {
             this.menu = menu;
@@ -302,17 +309,6 @@ toggle.syncState();
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(toolbar.onMenuItemSelected(item));
     }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());
-        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
 
     public boolean onNavigationItemSelected(MenuItem item) {
         //  return navigationItemListener.onNavigationItemSelected(item);
@@ -351,7 +347,7 @@ toggle.syncState();
                 .findViewById(android.R.id.content)).getChildAt(0);
         viewGroup.setBackground(new ColorDrawable(getResources().getColor(lightSade)));
 
-        return new int[]{darkShade, normalShade, lightSade};
+        return new int[] {darkShade, normalShade, lightSade};
     }
 
     protected void startJsonForm(String formName, String entityId) {
@@ -414,9 +410,9 @@ toggle.syncState();
     }
 
     private void updateNotificationViews(final Notification notification) {
-        TextView notiMessage = (TextView) findViewById(R.id.noti_message);
+        TextView notiMessage = findViewById(R.id.noti_message);
         notiMessage.setText(notification.message);
-        Button notiPositiveButton = (Button) findViewById(R.id.noti_positive_button);
+        Button notiPositiveButton = findViewById(R.id.noti_positive_button);
         notiPositiveButton.setTag(notification.tag);
         if (notification.positiveButtonText != null) {
             notiPositiveButton.setVisibility(View.VISIBLE);
@@ -442,7 +438,7 @@ toggle.syncState();
             notiPositiveButton.setVisibility(View.GONE);
         }
 
-        Button notiNegativeButton = (Button) findViewById(R.id.noti_negative_button);
+        Button notiNegativeButton = findViewById(R.id.noti_negative_button);
         notiNegativeButton.setTag(notification.tag);
         if (notification.negativeButtonText != null) {
             notiNegativeButton.setVisibility(View.VISIBLE);
@@ -468,7 +464,7 @@ toggle.syncState();
             notiNegativeButton.setVisibility(View.GONE);
         }
 
-        ImageView notiIcon = (ImageView) findViewById(R.id.noti_icon);
+        ImageView notiIcon = findViewById(R.id.noti_icon);
         if (notification.notificationIcon != null) {
             notiIcon.setVisibility(View.VISIBLE);
             notiIcon.setImageDrawable(notification.notificationIcon);
@@ -476,7 +472,7 @@ toggle.syncState();
             notiIcon.setVisibility(View.GONE);
         }
 
-        final LinearLayout notificationLL = (LinearLayout) findViewById(R.id.notification);
+        final LinearLayout notificationLL = findViewById(R.id.notification);
 
         Animation slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down);
         slideDownAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -500,7 +496,7 @@ toggle.syncState();
     }
 
     protected void hideNotification() {
-        final LinearLayout notification = (LinearLayout) findViewById(R.id.notification);
+        final LinearLayout notification = findViewById(R.id.notification);
         if (notification.getVisibility() == View.VISIBLE) {
             Animation slideUpAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
             slideUpAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -531,7 +527,7 @@ toggle.syncState();
         String mainCondition = tableName + "." + Constants.KEY.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
 
         SmartRegisterQueryBuilder childQueryBuilder = new SmartRegisterQueryBuilder();
-        childQueryBuilder.SelectInitiateMainTable(tableName, new String[]{
+        childQueryBuilder.SelectInitiateMainTable(tableName, new String[] {
                 tableName + ".relationalid",
                 tableName + ".details",
                 tableName + ".zeir_id",
@@ -557,7 +553,8 @@ toggle.syncState();
                 tableName + ".inactive",
                 tableName + ".lost_to_follow_up"
         });
-        childQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
+        childQueryBuilder.customJoin(
+                "LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         String mainSelect = childQueryBuilder.mainCondition(mainCondition);
 
         CommonRepository commonRepository = getOpenSRPContext().commonrepository(tableName);
@@ -566,7 +563,8 @@ toggle.syncState();
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             CommonPersonObject person = commonRepository.readAllcommonforCursorAdapter(cursor);
-            client = new CommonPersonObjectClient(person.getCaseId(), person.getDetails(), person.getDetails().get("FWHOHFNAME"));
+            client = new CommonPersonObjectClient(person.getCaseId(), person.getDetails(),
+                    person.getDetails().get("FWHOHFNAME"));
             client.setColumnmaps(person.getColumnmaps());
         }
 
@@ -575,30 +573,13 @@ toggle.syncState();
         return client;
     }
 
+    public Context getOpenSRPContext() {
+        return CoreLibrary.getInstance().context();
+    }
+
     protected boolean isActiveStatus(CommonPersonObjectClient child) {
         String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
         return isActiveStatus(humanFriendlyStatus);
-    }
-
-    protected boolean isActiveStatus(String humanFriendlyStatus) {
-        return getString(R.string.active).equals(humanFriendlyStatus);
-    }
-
-    protected void showChildsStatus(String status) {
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_inactive_status_bar_layout);
-        boolean isStatusActive = getString(R.string.active).equals(status);
-
-        if (linearLayout != null) {
-            linearLayout.setVisibility((isStatusActive) ? View.GONE : View.VISIBLE);
-
-            if (!isStatusActive) {
-                TextView textView = (TextView) findViewById(R.id.tv_inactive_status_bar_status_text);
-
-                if (textView != null) {
-                    textView.setText(String.format(getString(R.string.status_text), status));
-                }
-            }
-        }
     }
 
     protected String getHumanFriendlyChildsStatus(CommonPersonObjectClient child) {
@@ -606,15 +587,39 @@ toggle.syncState();
         return getHumanFriendlyChildsStatus(detailsMap);
     }
 
+    protected boolean isActiveStatus(String humanFriendlyStatus) {
+        return getString(R.string.active).equals(humanFriendlyStatus);
+    }
+
     protected String getHumanFriendlyChildsStatus(Map<String, String> detailsColumnMap) {
         String status = getString(R.string.active);
-        if (detailsColumnMap.containsKey(INACTIVE) && detailsColumnMap.get(INACTIVE) != null && detailsColumnMap.get(INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (detailsColumnMap.containsKey(INACTIVE) && detailsColumnMap.get(INACTIVE) != null && detailsColumnMap
+                .get(INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
             status = getString(R.string.inactive);
-        } else if (detailsColumnMap.containsKey(LOST_TO_FOLLOW_UP) && detailsColumnMap.get(LOST_TO_FOLLOW_UP) != null && detailsColumnMap.get(LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (detailsColumnMap.containsKey(LOST_TO_FOLLOW_UP) && detailsColumnMap
+                .get(LOST_TO_FOLLOW_UP) != null && detailsColumnMap.get(LOST_TO_FOLLOW_UP)
+                .equalsIgnoreCase(Boolean.TRUE.toString())) {
             status = getString(R.string.lost_to_follow_up);
         }
 
         return status;
+    }
+
+    protected void showChildsStatus(String status) {
+        LinearLayout linearLayout = findViewById(R.id.ll_inactive_status_bar_layout);
+        boolean isStatusActive = getString(R.string.active).equals(status);
+
+        if (linearLayout != null) {
+            linearLayout.setVisibility((isStatusActive) ? View.GONE : View.VISIBLE);
+
+            if (!isStatusActive) {
+                TextView textView = findViewById(R.id.tv_inactive_status_bar_status_text);
+
+                if (textView != null) {
+                    textView.setText(String.format(getString(R.string.status_text), status));
+                }
+            }
+        }
     }
 
     @Override
@@ -631,6 +636,36 @@ toggle.syncState();
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(getDrawerLayoutId());
+        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterSyncStatusBroadcastReceiver();
+    }
+
+    private void unregisterSyncStatusBroadcastReceiver() {
+        SyncStatusBroadcastReceiver.getInstance().removeSyncStatusListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerSyncStatusBroadcastReceiver();
+    }
+
+    private void registerSyncStatusBroadcastReceiver() {
+        SyncStatusBroadcastReceiver.getInstance().addSyncStatusListener(this);
+    }
+
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
 
         try {
@@ -639,7 +674,8 @@ toggle.syncState();
                 updateRegisterParams.setFormTag(JsonFormUtils.formTag(Utils.getAllSharedPreferences()));
             }
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
+            List<ChildEventClient> childEventClientList = model
+                    .processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -654,31 +690,6 @@ toggle.syncState();
         return toolbar;
     }
 
-    /**
-     * The layout resource file to user for this activity
-     *
-     * @return The resource id for the layout file to use
-     */
-    protected abstract int getContentView();
-
-    /**
-     * The id for the base {@link DrawerLayout} for the activity
-     *
-     * @return
-     */
-    protected abstract int getDrawerLayoutId();
-
-    /**
-     * The id for the toolbar used in this activity
-     *
-     * @return The id for the toolbar used
-     */
-    protected abstract int getToolbarId();
-
-    public Context getOpenSRPContext() {
-        return CoreLibrary.getInstance().context();
-    }
-
     public Menu getMenu() {
         return menu;
     }
@@ -690,18 +701,14 @@ toggle.syncState();
      */
     protected abstract Class onBackActivity();
 
-
     public void processInThread(Runnable runnable) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(runnable).start();
         }
     }
 
-    private void initializeProgressDialog() {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setTitle(getString(R.string.saving_dialog_title));
-        progressDialog.setMessage(getString(R.string.please_wait_message));
+    protected void showProgressDialog() {
+        showProgressDialog(getString(R.string.saving_dialog_title), getString(R.string.please_wait_message));
     }
 
     protected void showProgressDialog(String title, String message) {
@@ -718,10 +725,6 @@ toggle.syncState();
         }
     }
 
-    protected void showProgressDialog() {
-        showProgressDialog(getString(R.string.saving_dialog_title), getString(R.string.please_wait_message));
-    }
-
     protected void hideProgressDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
@@ -734,7 +737,8 @@ toggle.syncState();
 
     private class BaseActivityToggle extends ActionBarDrawerToggle {
 
-        private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
+        private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar,
+                                   @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
             super(activity, drawerLayout, toolbar, openDrawerContentDescRes, closeDrawerContentDescRes);
         }
 
@@ -786,11 +790,9 @@ toggle.syncState();
                 String negativeButtonText = this.negativeButtonText;
                 if (negativeButtonText == null) negativeButtonText = "";
 
-                if (message.equals(notification.message)
+                return message.equals(notification.message)
                         && positiveButtonText.equals(notification.positiveButtonText)
-                        && negativeButtonText.equals(notification.negativeButtonText)) {
-                    return true;
-                }
+                        && negativeButtonText.equals(notification.negativeButtonText);
             }
             return false;
         }

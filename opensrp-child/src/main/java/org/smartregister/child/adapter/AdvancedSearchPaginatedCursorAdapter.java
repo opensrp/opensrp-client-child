@@ -21,7 +21,8 @@ public class AdvancedSearchPaginatedCursorAdapter extends RecyclerViewCursorAdap
     private final CommonRepository commonRepository;
     private final Context context;
 
-    public AdvancedSearchPaginatedCursorAdapter(Context context, Cursor c, AdvancedSearchClientsProvider listItemProvider, CommonRepository commonRepository) {
+    public AdvancedSearchPaginatedCursorAdapter(Context context, Cursor c, AdvancedSearchClientsProvider listItemProvider,
+                                                CommonRepository commonRepository) {
         super(c);
         this.listItemProvider = listItemProvider;
         this.commonRepository = commonRepository;

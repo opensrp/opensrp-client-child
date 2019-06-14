@@ -59,14 +59,17 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         childEventClientList.add(childEventClient);
 
-        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
+        ChildEventClient childHeadEventClient = JsonFormUtils
+                .processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
+                        childEventClient);
         if (childHeadEventClient == null) {
             return childEventClientList;
         }
 
         // Update the child mother
         Client childClient = childEventClient.getClient();
-        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
+        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey,
+                childHeadEventClient.getClient().getBaseEntityId());
 
         childEventClientList.add(childHeadEventClient);
         return childEventClientList;

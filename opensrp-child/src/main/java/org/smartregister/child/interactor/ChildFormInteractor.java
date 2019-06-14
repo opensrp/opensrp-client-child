@@ -17,14 +17,14 @@ public class ChildFormInteractor extends JsonFormInteractor {
         super();
     }
 
+    public static JsonFormInteractor getWellnessInteractorInstance() {
+        return WELLNESS_INTERACTOR_INSTANCE;
+    }
+
     @Override
     protected void registerWidgets() {
         super.registerWidgets();
         map.put(JsonFormConstants.EDIT_TEXT, new WellnessEditTextFactory());
         map.put(JsonFormConstants.DATE_PICKER, new WellnessDatePickerFactory());
-    }
-
-    public static JsonFormInteractor getWellnessInteractorInstance() {
-        return WELLNESS_INTERACTOR_INSTANCE;
     }
 }

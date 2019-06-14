@@ -21,7 +21,8 @@ import java.util.List;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public class BaseChildRegisterPresenter implements ChildRegisterContract.Presenter, ChildRegisterContract.InteractorCallBack {
+public class BaseChildRegisterPresenter
+        implements ChildRegisterContract.Presenter, ChildRegisterContract.InteractorCallBack {
 
     public static final String TAG = BaseChildRegisterPresenter.class.getName();
 
@@ -54,82 +55,6 @@ public class BaseChildRegisterPresenter implements ChildRegisterContract.Present
     }
 
     @Override
-    public void saveLanguage(String language) {
-        model.saveLanguage(language);
-        getView().displayToast(language + " selected");
-    }
-
-    @Override
-    public void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception {
-
-        if (StringUtils.isBlank(entityId)) {
-            Triple<String, String, String> triple = Triple.of(formName, metadata, currentLocationId);
-            interactor.getNextUniqueId(triple, this);
-            return;
-        }
-
-        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId);
-        getView().startFormActivity(form);
-
-    }
-
-    @Override
-    public void closeChildRecord(String jsonString) {
-
-        try {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
-            Log.d("JSONResult", jsonString);
-            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title : R.string.saving_dialog_title);
-
-            interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
-
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-
-        }
-    }
-
-    @Override
-    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
-
-        try {
-
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
-            if (childEventClientList == null || childEventClientList.isEmpty()) {
-                return;
-            }
-
-            interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
-
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-    }
-
-    @Override
-    public void onNoUniqueId() {
-        getView().displayShortToast(R.string.no_unique_id);
-    }
-
-    @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
-        try {
-            startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-            getView().displayToast(R.string.error_unable_to_start_form);
-        }
-    }
-
-    @Override
-    public void onRegistrationSaved(boolean isEdit) {
-        getView().refreshList(FetchStatus.fetched);
-        getView().hideProgressDialog();
-    }
-
-    @Override
     public void onDestroy(boolean isChangingConfiguration) {
 
         viewReference = null;//set to null on destroy
@@ -150,10 +75,87 @@ public class BaseChildRegisterPresenter implements ChildRegisterContract.Present
         }
     }
 
+    @Override
+    public void saveLanguage(String language) {
+        model.saveLanguage(language);
+        getView().displayToast(language + " selected");
+    }
+
+    @Override
+    public void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception {
+
+        if (StringUtils.isBlank(entityId)) {
+            Triple<String, String, String> triple = Triple.of(formName, metadata, currentLocationId);
+            interactor.getNextUniqueId(triple, this);
+            return;
+        }
+
+        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId);
+        getView().startFormActivity(form);
+
+    }
+
+    @Override
+    public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParams) {
+
+        try {
+
+            List<ChildEventClient> childEventClientList = model
+                    .processRegistration(jsonString, updateRegisterParams.getFormTag());
+            if (childEventClientList == null || childEventClientList.isEmpty()) {
+                return;
+            }
+
+            interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
+
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    @Override
+    public void closeChildRecord(String jsonString) {
+
+        try {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
+            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+
+            Log.d("JSONResult", jsonString);
+            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title : R.string.saving_dialog_title);
+
+            interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
+
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+
+        }
+    }
+
     private ChildRegisterContract.View getView() {
         if (viewReference != null)
             return viewReference.get();
         else
             return null;
+    }
+
+    @Override
+    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+        try {
+            startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            getView().displayToast(R.string.error_unable_to_start_form);
+        }
+    }
+
+    @Override
+    public void onNoUniqueId() {
+        getView().displayShortToast(R.string.no_unique_id);
+    }
+
+    @Override
+    public void onRegistrationSaved(boolean isEdit) {
+        getView().refreshList(FetchStatus.fetched);
+        getView().hideProgressDialog();
     }
 }

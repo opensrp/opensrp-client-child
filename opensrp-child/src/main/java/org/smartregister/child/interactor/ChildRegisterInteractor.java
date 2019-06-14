@@ -41,19 +41,21 @@ import java.util.List;
 public class ChildRegisterInteractor implements ChildRegisterContract.Interactor {
 
     public static final String TAG = ChildRegisterInteractor.class.getName();
-
-    public enum type {SAVED, UPDATED}
-
-
     private AppExecutors appExecutors;
+
+
+    public ChildRegisterInteractor() {
+        this(new AppExecutors());
+    }
 
     @VisibleForTesting
     ChildRegisterInteractor(AppExecutors appExecutors) {
         this.appExecutors = appExecutors;
     }
 
-    public ChildRegisterInteractor() {
-        this(new AppExecutors());
+    @Override
+    public void onDestroy(boolean isChangingConfiguration) {
+        //TODO set presenter or model to null
     }
 
     @Override
@@ -201,6 +203,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         }
     }
 
+    public ECSyncHelper getSyncHelper() {
+        return ChildLibrary.getInstance().getEcSyncHelper();
+    }
+
     private void processWeight(String jsonString, UpdateRegisterParams params, JSONObject clientJson) throws JSONException {
         String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
@@ -231,26 +237,18 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         }
     }
 
-    @Override
-    public void onDestroy(boolean isChangingConfiguration) {
-        //TODO set presenter or model to null
-    }
-
     public AllSharedPreferences getAllSharedPreferences() {
         return Utils.context().allSharedPreferences();
+    }
+
+    public ClientProcessorForJava getClientProcessorForJava() {
+        return ChildLibrary.getInstance().getClientProcessorForJava();
     }
 
     public UniqueIdRepository getUniqueIdRepository() {
         return ChildLibrary.getInstance().getUniqueIdRepository();
     }
 
-
-    public ECSyncHelper getSyncHelper() {
-        return ChildLibrary.getInstance().getEcSyncHelper();
-    }
-
-    public ClientProcessorForJava getClientProcessorForJava() {
-        return ChildLibrary.getInstance().getClientProcessorForJava();
-    }
+    public enum type {SAVED, UPDATED}
 
 }

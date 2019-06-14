@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
-import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.domain.Response;
 import org.smartregister.event.Listener;
 
@@ -22,7 +21,8 @@ import java.util.Map;
  */
 public class GlobalSearchUtils {
 
-    public static void backgroundSearch(final Map<String, String> map, final Listener<JSONArray> listener, final ProgressDialog progressDialog) {
+    public static void backgroundSearch(final Map<String, String> map, final Listener<JSONArray> listener,
+                                        final ProgressDialog progressDialog) {
 
         org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONArray>() {
             @Override
@@ -42,14 +42,14 @@ public class GlobalSearchUtils {
             }
 
             @Override
-            protected void onProgressUpdate(Void... values) {
-                progressDialog.show();
-            }
-
-            @Override
             protected void onPostExecute(JSONArray result) {
                 listener.onEvent(result);
                 progressDialog.dismiss();
+            }
+
+            @Override
+            protected void onProgressUpdate(Void... values) {
+                progressDialog.show();
             }
         }, null);
     }

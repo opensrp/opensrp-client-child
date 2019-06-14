@@ -32,23 +32,6 @@ public class WidgetFactory {
         return rows;
     }
 
-    private View createTableRowForGrowthMonitoring(LayoutInflater inflater, ViewGroup container, String labelString,
-                                                   String valueString, boolean editenabled, View.OnClickListener listener) {
-        View rows = inflater.inflate(R.layout.tablerows_weight, container, false);
-        TextView label = rows.findViewById(R.id.label);
-        TextView value = rows.findViewById(R.id.value);
-        Button edit = rows.findViewById(R.id.edit);
-        if (editenabled) {
-            edit.setVisibility(View.VISIBLE);
-            edit.setOnClickListener(listener);
-        } else {
-            edit.setVisibility(View.INVISIBLE);
-        }
-        label.setText(labelString);
-        value.setText(valueString);
-        return rows;
-    }
-
     public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
                                    HashMap<Long, Pair<String, String>> last_five_weight_map,
                                    ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
@@ -64,6 +47,23 @@ public class WidgetFactory {
             tableLayout.addView(view);
             i++;
         }
+    }
+
+    private View createTableRowForGrowthMonitoring(LayoutInflater inflater, ViewGroup container, String labelString,
+                                                   String valueString, boolean editenabled, View.OnClickListener listener) {
+        View rows = inflater.inflate(R.layout.tablerows_weight, container, false);
+        TextView label = rows.findViewById(R.id.label);
+        TextView value = rows.findViewById(R.id.value);
+        Button edit = rows.findViewById(R.id.edit);
+        if (editenabled) {
+            edit.setVisibility(View.VISIBLE);
+            edit.setOnClickListener(listener);
+        } else {
+            edit.setVisibility(View.INVISIBLE);
+        }
+        label.setText(labelString);
+        value.setText(valueString);
+        return rows;
     }
 
     public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String,

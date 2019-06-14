@@ -16,11 +16,21 @@ public class ChildMetadata {
 
     public ChildRegister childRegister;
 
-    public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity, Class<? extends BaseProfileActivity> profileActivity, Class<? extends BaseChildImmunizationActivity> childImmunizationActivity, boolean formWizardValidateRequiredFieldsBefore) {
+    public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
+                         Class<? extends BaseProfileActivity> profileActivity,
+                         Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         boolean formWizardValidateRequiredFieldsBefore) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
+    }
+
+    public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
+                                    String updateEventType, String config, String childCareGiverRelationKey,
+                                    String outOfCatchmentFormName) {
+        this.childRegister = new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType,
+                config, childCareGiverRelationKey, outOfCatchmentFormName);
     }
 
     public class ChildRegister {
@@ -42,7 +52,9 @@ public class ChildMetadata {
         public final String outOfCatchmentFormName;
 
 
-        public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
+        public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
+                             String updateEventType, String config, String childCareGiverRelationKey,
+                             String outOfCatchmentFormName) {
             this.formName = formName;
             this.tableName = tableName;
             this.motherTableName = parentTableName;
@@ -52,10 +64,6 @@ public class ChildMetadata {
             this.childCareGiverRelationKey = childCareGiverRelationKey;
             this.outOfCatchmentFormName = outOfCatchmentFormName;
         }
-    }
-
-    public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType, String updateEventType, String config, String childCareGiverRelationKey, String outOfCatchmentFormName) {
-        this.childRegister = new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType, config, childCareGiverRelationKey, outOfCatchmentFormName);
     }
 
     public class ChildActivityRegister {

@@ -2,10 +2,12 @@ package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
+import org.smartregister.child.util.Utils;
 
 import java.util.Map;
 
-public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
+public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
+        implements ChildAdvancedSearchContract.Model {
 
 
     public static final String GLOBAL_FIRST_NAME = "firstName";
@@ -27,6 +29,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
     public static final String LIKE = "Like";
     public static final String AND = "AND";
 
+    public abstract Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal);
 
     @Override
     public String createSearchString(Map<String, String> searchMap) {
@@ -50,9 +53,18 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         return removeLastSemiColon(searchCriteria);
     }
 
-    public abstract Map<String, String> createEditMap(Map<String, String> editMap_, boolean isLocal);
-
     protected abstract String getKey(String key);
+
+    private String removeLastSemiColon(String str) {
+        if (StringUtils.isBlank(str)) {
+            return str;
+        }
+        String s = str.trim();
+        if (s.charAt(s.length() - 1) == ';') {
+            return s.substring(0, s.length() - 1);
+        }
+        return s;
+    }
 
     @Override
     public String getMainConditionString(Map<String, String> editMap) {
@@ -63,7 +75,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         }
 
         for (Map.Entry<String, String> entry : editMap.entrySet()) {
-            String key = "ec_child." + entry.getKey();
+            String key = Utils.metadata().childRegister.tableName + "." + entry.getKey();
             String value = entry.getValue();
 
             if (!StringUtils.isBlank(mainConditionString)) {
@@ -78,17 +90,6 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
         return mainConditionString;
 
-    }
-
-    private String removeLastSemiColon(String str) {
-        if (StringUtils.isBlank(str)) {
-            return str;
-        }
-        String s = str.trim();
-        if (s.charAt(s.length() - 1) == ';') {
-            return s.substring(0, s.length() - 1);
-        }
-        return s;
     }
 
 }
