@@ -71,7 +71,7 @@
         "openmrs_entity": "",
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
-        "type": "tree",
+        "type": "edit_text",
         "hint": "Child's home health facility",
         "tree": [],
         "v_required": {
@@ -123,7 +123,7 @@
         "hint": "First name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -140,7 +140,7 @@
           "err": "Please enter the last name"
         },
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -237,7 +237,7 @@
           "err": "Please enter the mother/guardian's first name"
         },
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -256,7 +256,7 @@
           "err": "Please enter the mother/guardian's last name"
         },
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -317,7 +317,7 @@
         "hint": "Father/guardian full name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -457,7 +457,7 @@
         "hint": "CHW name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-z\\s\.\-]*",
+          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
           "err": "Please enter a valid name"
         }
       },

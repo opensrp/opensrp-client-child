@@ -11,6 +11,9 @@ public class Field {
 
     private String type;
 
+    @SerializedName("entity_id")
+    private String entityId;
+
     @SerializedName("openmrs_entity")
     private String openmrsEntity;
 
@@ -23,6 +26,11 @@ public class Field {
 
     public String getType() {
         return type;
+    }
+
+
+    public String getEntityId() {
+        return entityId;
     }
 
     public String getOpenmrsEntity() {

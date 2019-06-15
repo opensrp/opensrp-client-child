@@ -307,5 +307,6 @@
     <string name="side_nav_hia2">HIA 2 تقارير</string>
     <string name="no_monthly_ready">لا توجد تقارير HIA 2 شهرية جاهزة للإكمال.</string>
     <string name="scan_nfc_card"> قم بتشغيل فحص بطاقة NFC &#8230;</string>
+    <string name="activate_new_card">تنشيط البطاقة</string>
 
 </resources>

@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -406,6 +408,28 @@ public class Utils extends org.smartregister.util.Utils {
             Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
         }
         return properties;
+
+    }
+
+
+    public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
+        Map<String, String> clean = new HashMap<>();
+
+        try {
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+
+            Map<String, String> old = rawDetails;
+            for (Map.Entry<String, String> entry : old.entrySet()) {
+                String val = entry.getValue();
+                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
+                    clean.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
+        }
+
+        return clean;
 
     }
 

@@ -63,15 +63,14 @@ public class SampleApplication extends DrishtiApplication {
 
         initRepositories();
 
-        SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
-
 
         //Auto login by default
         context.session().start(context.session().lengthInMilliseconds());
         context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
         context.session().setPassword(SampleRepository.PASSWORD);
 
+        SyncStatusBroadcastReceiver.init(this);
+        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());

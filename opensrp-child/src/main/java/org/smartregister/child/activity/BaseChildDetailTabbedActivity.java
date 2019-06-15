@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -54,7 +53,7 @@ import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.FormUtils;
+import org.smartregister.util.FormUtils;;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -220,7 +219,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 onBackPressed();
             }
         });
-        detailtoolbar.setTitle(updateActivityTitle());
+        setActivityTitle();
 
         tabLayout.setupWithViewPager(viewPager);
 
@@ -262,8 +261,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void onResume() {
         super.onResume();
-
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
     }
 
     @Override
@@ -276,7 +273,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
-        Utils.startAsyncTask(new LoadAsyncTask(), null);
+        Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
+
         return true;
     }
 
@@ -559,11 +557,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
     }
 
-    private String updateActivityTitle() {
+    protected void setActivityTitle() {
+        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getActivityTitle());
+    }
+
+    private String getActivityTitle() {
         String name = "";
 
         if (isDataOk()) {
-            name = Utils.getName(getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true), getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true));
+            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true), getValue(detailsMap, Constants.KEY.LAST_NAME, true));
         }
         return String.format("%s's %s", name, getString(R.string.health_details));
     }
@@ -1003,26 +1005,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private Map<String, String> getCleanMap(Map<String, String> rawDetails) {
-        Map<String, String> clean = new HashMap<>();
-
-        try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
-
-            Map<String, String> old = rawDetails;
-            for (Map.Entry<String, String> entry : old.entrySet()) {
-                String val = entry.getValue();
-                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
-                    clean.put(entry.getKey(), entry.getValue());
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return clean;
-
-    }
 /*
     private Map<String, String> getCleanMap() {
         Map<String, String> detailsMap = new HashMap<>();
@@ -1084,46 +1066,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         @Override
-        protected void onPostExecute(Map<String, NamedObject<?>> map) {
-
-            detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
-
-            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-
-            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
-            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
-            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
-            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
-            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-
-            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
-            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
-            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
-
-            if (STATUS.NONE.equals(status)) {
-                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-            }
-
-            childDataFragment.loadData(detailsMap);
-
-            childUnderFiveFragment.setDetailsMap(detailsMap);
-            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
-            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
-            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
-
-            if (!fromUpdateStatus) {
-                updateStatus(true);
-            }
-
-            hideProgressDialog();
-        }
-
-        @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+            detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
@@ -1179,6 +1127,45 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             return map;
         }
+
+        @Override
+        protected void onPostExecute(Map<String, NamedObject<?>> map) {
+
+            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
+
+            if (writeToCard != null) {
+                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+
+            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
+            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
+            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
+
+            if (STATUS.NONE.equals(status)) {
+                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
+            }
+
+            childDataFragment.loadData(detailsMap);
+
+            childUnderFiveFragment.setDetailsMap(detailsMap);
+            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
+            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
+            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            if (!fromUpdateStatus) {
+                updateStatus(true);
+            }
+
+            setActivityTitle();
+            renderProfileWidget(detailsMap);
+            hideProgressDialog();
+        }
     }
 
     public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Void> {
@@ -1212,17 +1199,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         if (isEdit) {//On edit mode refresh view
 
 
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+            Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
 
-            detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+            //To Do optimize with
+            // childDataFragment.refreshRecyclerViewData(detailsMap);
 
-            childDataFragment.updateChildDetails(detailsMap);
-            childDataFragment.refreshRecyclerViewData(detailsMap);
-
-            renderProfileWidget(detailsMap);
         }
-
-        hideProgressDialog();
     }
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {

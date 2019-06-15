@@ -37,6 +37,7 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -97,7 +98,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Birth_Weight", "Sex", ZEIR_ID);
+    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", ZEIR_ID);// To Do To Remove , "Birth_Weight"
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
@@ -1024,13 +1025,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String bindType) {
 
+        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(new String[]{entityId}));
+
+        boolean alreadyExists = eventClients.size() > 0;
+        org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
         Event e = (Event) new Event()
-                .withBaseEntityId(entityId)//should be different for main and subform
+                .withBaseEntityId(alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
                 .withEventDate(parent.getEventDate())
                 .withEventType(encounterType)
                 .withEntityType(bindType)
-                .withFormSubmissionId(generateRandomUUIDString())
+                .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
                 .withDateCreated(new Date());
 
         if (fields != null && fields.length() != 0)

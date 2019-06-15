@@ -316,5 +316,6 @@
     <string name="after_tt3"> 1 an après TT 3 </string>
     <string name="after_tt4"> 1 an après TT 4 </string>
     <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
+    <string name="activate_new_card">ACTIVER LA CARTE</string>
 
 </resources>

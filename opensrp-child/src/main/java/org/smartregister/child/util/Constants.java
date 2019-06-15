@@ -134,7 +134,7 @@ public class Constants extends AllConstants {
 
     public static class PROPERTY {
         public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
-        public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
+        public static final String NOTIFICATIONS_WEIGHT_ENABLED = "notifications.weight.enabled";
 
         public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";
         public static final String FEATURE_NFC_CARD_ENABLED = "feature.nfc.card.enabled";

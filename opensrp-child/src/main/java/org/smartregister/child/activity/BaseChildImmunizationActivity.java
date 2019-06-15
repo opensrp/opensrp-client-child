@@ -7,16 +7,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -156,7 +153,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isChildActive = false;
-    protected FloatingActionButton floatingActionButton;
+    protected LinearLayout floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,21 +190,39 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = false;
-        weightNotificationShown = false;
+        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) ? !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) : false;
+        weightNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
         toolbar.init(this);
         setLastModified(false);
 
-        floatingActionButton = findViewById(R.id.fab_nearex);
+        floatingActionButton = findViewById(R.id.fab);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+
             floatingActionButton.setOnClickListener(this);
-            floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER))));
-            floatingActionButton.show();
+
+            configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)), null);
+        }
+    }
+
+    protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
+
+        if (drawableResourceId != null) {
+            int paddingLeft = floatingActionButton.getPaddingLeft();
+            int paddingRight = floatingActionButton.getPaddingRight();
+            int paddingTop = floatingActionButton.getPaddingTop();
+            int paddingBottom = floatingActionButton.getPaddingBottom();
+
+            floatingActionButton.setBackgroundResource(drawableResourceId);
+            floatingActionButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
 
+        if (title != null) {
+            ((TextView) floatingActionButton.findViewById(R.id.fab_text)).setText(title);
+        }
 
+        floatingActionButton.setVisibility(View.VISIBLE);
     }
 
     protected abstract Activity getActivity();
@@ -263,14 +278,16 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         // TODO: update all views using child data
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
 
-        Utils.putAll(childDetails.getColumnmaps(), details);
         isChildActive = isActiveStatus(childDetails);
 
         showChildsStatus(childDetails);
 
         updateGenderViews();
+
         toolbar.setTitle(updateActivityTitle());
+        ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differntly Fixes wierd bug
         updateAgeViews();
         updateChildIdViews();
 
@@ -521,7 +538,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
 
             for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : compiledVaccineGroups) {
-                addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
+                try {
+                    addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
+                } catch (Exception e) {
+
+                    Log.e(TAG, e.getMessage(), e);
+                }
             }
         } else {
             for (VaccineGroup vaccineGroup : vaccineGroups) {
@@ -1427,13 +1449,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         switch (gender.toLowerCase()) {
             case Constants.GENDER.MALE:
-                imageResource = ContextCompat.getColor(this, R.color.male_blue);
+                imageResource = R.drawable.pill_background_male_blue;
                 break;
             case Constants.GENDER.FEMALE:
-                imageResource = ContextCompat.getColor(this, R.color.female_pink);
+                imageResource = R.drawable.pill_background_female_pink;
                 break;
             default:
-                imageResource = ContextCompat.getColor(this, R.color.gender_neutral_green);
+                imageResource = R.drawable.pill_background_gender_neutral_green;
                 break;
         }
 
@@ -1743,7 +1765,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if ((ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 

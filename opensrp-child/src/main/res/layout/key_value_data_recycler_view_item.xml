@@ -23,6 +23,6 @@
         android:text="Bit"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/text_black"
-        android:gravity="left"/>
+        android:gravity="start"/>
 
 </LinearLayout>

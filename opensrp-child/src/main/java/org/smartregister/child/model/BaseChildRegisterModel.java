@@ -5,13 +5,13 @@ import android.util.Log;
 import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
-import org.smartregister.child.util.FormUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
+import org.smartregister.util.FormUtils;
 
 import java.util.ArrayList;
 import java.util.List;
