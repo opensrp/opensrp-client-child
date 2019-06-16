@@ -136,10 +136,10 @@ public class BaseChildFormActivity extends JsonFormActivity {
 
     public boolean checkIfBalanceNegative() {
         boolean balancecheck = true;
-        String balancestring = childFormFragment.getRelevantTextViewString("Balance");
+        String balancestring = childFormFragment.getRelevantTextViewString(Constants.BALANCE);
 
-        if (balancestring.contains("New balance") && StringUtils.isNumeric(balancestring)) {
-            int balance = Integer.parseInt(balancestring.replace("New balance:", "").trim());
+        if (balancestring.contains(Constants.NEW_BALANCE) && StringUtils.isNumeric(balancestring)) {
+            int balance = Integer.parseInt(balancestring.replace(Constants.NEW_BALANCE_, "").trim());
             if (balance < 0) {
                 balancecheck = false;
             }
@@ -149,24 +149,25 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     public boolean checkIfAtLeastOneServiceGiven() {
-        JSONObject object = getStep("step1");
+        JSONObject object = getStep(Constants.STEP_1);
         try {
-            if (object.getString("title").contains("Record out of catchment area service")) {
-                JSONArray fields = object.getJSONArray("fields");
+            if (object.getString(Constants.TITLE).contains("Record out of catchment area service")) {
+                JSONArray fields = object.getJSONArray(Constants.FIELDS);
                 for (int i = 0; i < fields.length(); i++) {
                     JSONObject vaccineGroup = fields.getJSONObject(i);
-                    if (vaccineGroup.has("key") && vaccineGroup.has("is_vaccine_group")) {
-                        if (vaccineGroup.getBoolean("is_vaccine_group") && vaccineGroup.has("options")) {
-                            JSONArray vaccineOptions = vaccineGroup.getJSONArray("options");
+                    if (vaccineGroup.has(Constants.KEY) && vaccineGroup.has(Constants.IS_VACCINE_GROUP)) {
+                        if (vaccineGroup.getBoolean(Constants.IS_VACCINE_GROUP) && vaccineGroup.has(Constants.OPTIONS)) {
+                            JSONArray vaccineOptions = vaccineGroup.getJSONArray(Constants.OPTIONS);
                             for (int j = 0; j < vaccineOptions.length(); j++) {
                                 JSONObject vaccineOption = vaccineOptions.getJSONObject(j);
-                                if (vaccineOption.has("value") && vaccineOption.getBoolean("value")) {
+                                if (vaccineOption.has(Constants.VALUE) && vaccineOption.getBoolean(Constants.VALUE)) {
                                     return true;
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg") && vaccineGroup
-                            .has("value") && vaccineGroup.getString("value").length() > 0) {
+                    } else if (vaccineGroup.has(Constants.KEY) && vaccineGroup.getString(Constants.KEY).equals(
+                            Constants.WEIGHT_KG) && vaccineGroup
+                            .has(Constants.VALUE) && vaccineGroup.getString(Constants.VALUE).length() > 0) {
                         return true;
                     }
                 }

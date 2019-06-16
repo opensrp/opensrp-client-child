@@ -14,6 +14,16 @@ public class Constants extends AllConstants {
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
     public static final String WEIGHT = "weight";
     public static final String HEIGHT = "height";
+    public static final String BALANCE = "Balance";
+    public static final String NEW_BALANCE = "New balance";
+    public static final String NEW_BALANCE_ = "New balance:";
+    public static final String STEP_1 = "step1";
+    public static final String TITLE = "title";
+    public static final String FIELDS = "fields";
+    public static final String KEY = "key";
+    public static final String IS_VACCINE_GROUP = "is_vaccine_group";
+    public static final String VALUE = "value";
+    public static final String WEIGHT_KG = "Weight_Kg";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
 
