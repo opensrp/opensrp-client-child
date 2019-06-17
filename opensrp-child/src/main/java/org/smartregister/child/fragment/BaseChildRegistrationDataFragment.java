@@ -13,24 +13,32 @@ import android.view.ViewGroup;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
 import org.smartregister.child.util.Constants;
-import org.smartregister.util.FormUtils;;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
+import org.smartregister.util.FormUtils;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -88,7 +96,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected Form getForm() {
         try {
 
-            return AssetHandler.jsonStringToJava(FormUtils.getInstance(getActivity()).getFormJson(getRegistrationForm()).toString(), Form.class);
+            return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(), Form.class);
         } catch (Exception e) {
             Log.e(BaseChildRegistrationDataFragment.class.getCanonicalName(), e.getMessage());
             return null;
@@ -112,7 +120,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(fields.get(i).getEntityId()) + cleanOpenMRSEntityId(fields.get(i).getOpenmrsEntityId().toLowerCase()));
             String label = cleanLabel(key);
             if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label)) {
-                mArrayList.add(new KeyValueItem(label, cleanValue(fields.get(i).getType(), value)));
+                mArrayList.add(new KeyValueItem(label, cleanValue(fields.get(i), value)));
             }
 
         }
@@ -146,14 +154,25 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         return label;
     }
 
-    private String cleanValue(String type, String raw) {
+    private String cleanValue(Field field, String raw) {
         String result = raw;
+        String type = field.getType();
+
         switch (type) {
             case JsonFormConstants.DATE_PICKER:
                 Date date = JsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
-                    result = Constants.DATE_FORMAT.format(date);
+                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN).format(date);
                 }
+                break;
+
+
+            case JsonFormConstants.SPINNER:
+
+                if (field.getKeys() != null && field.getKeys().size() > 0) {
+                    result = field.getValues().get(field.getKeys().indexOf(raw));
+                }
+
                 break;
 
             case JsonFormConstants.TREE:
@@ -169,13 +188,22 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
         }
 
-        return result;
+        return cleanResult(result.trim());
     }
 
     public void refreshRecyclerViewData(Map<String, String> detailsMap) {
 
         resetAdapterData(detailsMap);
         mAdapter.notifyDataSetChanged();
+    }
+
+    private String cleanResult(String result) {
+
+        if (NumberUtils.isNumber(result)) {
+            return Utils.formatNumber(result);
+        } else {
+            return result;
+        }
     }
 }
 

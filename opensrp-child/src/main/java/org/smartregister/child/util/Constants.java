@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
  */
 public class Constants extends AllConstants {
 
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
@@ -55,7 +55,6 @@ public class Constants extends AllConstants {
         public static final String DATE = "date";
         public static final String CHILD = "child";
         public static final String PMTCT_STATUS = "pmtct_status";
-        public static final String LOCATION_NAME = "location_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
@@ -85,6 +84,7 @@ public class Constants extends AllConstants {
         public static final String RECORD_ACTION = "record_action";
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
+        public static final String LOCATION_ID = "location_id";
     }
 
     public static class ENTITY {

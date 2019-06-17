@@ -46,7 +46,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         lastName = view.findViewById(org.smartregister.child.R.id.last_name);
         advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
 
-        openSrpId = view.findViewById(org.smartregister.child.R.id.zeir_id);
+        openSrpId = view.findViewById(org.smartregister.child.R.id.opensrp_id);
         advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
 
         motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
@@ -62,7 +62,6 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         firstName.addTextChangedListener(advancedSearchTextwatcher);
 
         lastName.addTextChangedListener(advancedSearchTextwatcher);
-
 
         openSrpId.addTextChangedListener(advancedSearchTextwatcher);
 

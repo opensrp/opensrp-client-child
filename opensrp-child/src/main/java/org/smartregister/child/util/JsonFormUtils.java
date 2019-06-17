@@ -92,7 +92,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String ZEIR_ID = "ZEIR_ID";
     public static final String updateBirthRegistrationDetailsEncounter = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     private static final String TAG = JsonFormUtils.class.getCanonicalName();
     private static final String ENCOUNTER = "encounter";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
@@ -571,7 +571,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         try {
-            JSONObject form = FormUtils.getInstance(context).getFormJson(Utils.metadata().childRegister.formName);
+            JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
 
 
             JsonFormUtils.addChildRegLocHierarchyQuestions(form);
@@ -1395,7 +1395,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
         String entityId = uniqueId;
-        JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
+        JSONObject form = new FormUtils(context).getFormJson(formName);
         if (form != null) {
             form.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, currentLocationId);
 

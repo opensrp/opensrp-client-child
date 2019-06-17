@@ -112,6 +112,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
+        childName = childName + " " + Utils.getValue(pc.getColumnmaps(), Constants.KEY.NFC_CARD_IDENTIFIER, true);
 
 
         fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));

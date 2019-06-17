@@ -51,7 +51,7 @@
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort" translatable="false">IZ ID </string>
+    <string name="id_sort" translatable="false">System ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -154,8 +154,9 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id" translatable="false">IZ ID</string>
-    <string name="iz_id_hint">IZ ID number</string>
+    <string name="opensrp_id">System ID</string>
+    <string name="iz_id_hint">System ID</string>
+    <string name="card_id_hint">Card ID</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
     <string name="last_name">Last Name</string>
@@ -319,5 +320,7 @@
     <string name="after_tt4"> 1 Year after  TT 4 </string>
     <string name="move_to_catchment">Move to my\ncatchment</string>
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
+    <string name="card_id_colon">Card ID :</string>
+    <string name="age_colon">Age :</string>
 
 </resources>

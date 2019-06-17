@@ -57,7 +57,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private View advancedSearchForm;
     private ImageButton backButton;
     private Button searchButton;
-    private Button search;
+    private Button advancedSearchToolbarSearchButton;
 
     private RadioButton outsideInside;
     private RadioButton myCatchment;
@@ -171,7 +171,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
-        search = view.findViewById(R.id.search);
+        advancedSearchToolbarSearchButton = view.findViewById(R.id.search);
         searchButton = view.findViewById(R.id.advanced_form_search_btn);
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
@@ -187,7 +187,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
         RepositoryHolder repoHolder = new RepositoryHolder();
-        BaseChildRegisterActivity activity = (BaseChildRegisterActivity) getActivity();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
@@ -200,10 +199,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         clientsView.setAdapter(clientAdapter);
     }
 
-    private void populateFormViews(View view) {
-        search.setEnabled(false);
-        search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-        search.setOnClickListener(registerActionHandler);
+    protected void populateFormViews(View view) {
+        advancedSearchToolbarSearchButton.setEnabled(false);
+        advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        advancedSearchToolbarSearchButton.setOnClickListener(registerActionHandler);
 
 
         searchButton.setEnabled(false);
@@ -259,7 +258,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setDatePicker(endDate);
 
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
             qrCodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -273,12 +272,15 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                     ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
                 }
             });
+        } else {
+            qrCodeButton.setVisibility(View.GONE);
         }
 
         Button scanCardButton = view.findViewById(R.id.scanCardButton);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
-            scanCardButton.setVisibility(View.GONE);//should be visible
+            scanCardButton.setVisibility(View.VISIBLE);//should be visible
+            ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
         }
 
         outsideInside = view.findViewById(R.id.out_and_inside);
@@ -378,15 +380,15 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     private void checkTextFields() {
         if (anySearchableFieldHasValue()) {
-            search.setEnabled(true);
-            search.setTextColor(getResources().getColor(R.color.white));
+            advancedSearchToolbarSearchButton.setEnabled(true);
+            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.white));
 
 
             searchButton.setEnabled(true);
             searchButton.setTextColor(getResources().getColor(R.color.white));
         } else {
-            search.setEnabled(false);
-            search.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+            advancedSearchToolbarSearchButton.setEnabled(false);
+            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
 
             searchButton.setEnabled(false);
             searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
@@ -418,6 +420,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             clientsView.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.VISIBLE);
             searchButton.setVisibility(View.GONE);
+            advancedSearchToolbarSearchButton.setVisibility(View.GONE);
 
             if (titleLabelView != null) {
                 titleLabelView.setText(getString(R.string.search_results));
@@ -433,6 +436,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             clientsView.setVisibility(View.INVISIBLE);
             backButton.setVisibility(View.GONE);
             searchButton.setVisibility(View.VISIBLE);
+            advancedSearchToolbarSearchButton.setVisibility(View.VISIBLE);
 
             if (titleLabelView != null) {
                 titleLabelView.setText(getString(R.string.advanced_search));

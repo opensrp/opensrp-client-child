@@ -15,7 +15,7 @@
 
     <!-- warning -->
     <string name="any_changes_you_make">سيتم فقد أي تغييرات قمت بإجرائها</string>
-    <string name="id_sort">IZ ID </string>
+    <string name="id_sort">معرف النظام </string>
     <string name="invalid_device_date">يجب أن يكون تاريخ الجهاز الحالي بعد آخر وقت للخادم الذي تمت مزامنته والذي كان</string>
     <string name="home_women_label">المراة</string>
     <string name="home_field_monitor_label">المخزون</string>
@@ -153,7 +153,9 @@
     <string name="lost_to_follow_up">انقطاع المتابعة</string>
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
-    <string name="iz_id_hint">IZ ID رقم</string>
+    <string name="opensrp_id">معرف النظام</string>
+    <string name="iz_id_hint">معرف النظام رقم</string>
+    <string name="card_id_hint">بطاقة الهوية</string>
     <string name="first_name">اللقب</string>
     <string name="first_name_hint">اللقب</string>
     <string name="last_name">الاسم العائلى</string>
@@ -308,5 +310,7 @@
     <string name="no_monthly_ready">لا توجد تقارير HIA 2 شهرية جاهزة للإكمال.</string>
     <string name="scan_nfc_card"> قم بتشغيل فحص بطاقة NFC &#8230;</string>
     <string name="activate_new_card">تنشيط البطاقة</string>
+    <string name="card_id_colon">بطاقة الهوية</string>
+    <string name="age_colon">العمر :</string>
 
 </resources>

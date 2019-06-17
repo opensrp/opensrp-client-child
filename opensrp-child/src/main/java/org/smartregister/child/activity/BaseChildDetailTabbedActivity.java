@@ -53,7 +53,6 @@ import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.util.FormUtils;;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -87,6 +86,7 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
+import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -108,6 +108,8 @@ import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
 
+;
+
 /**
  * Created by raihan on 1/03/2017.
  */
@@ -125,13 +127,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     //////////////////////////////////////////////////
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
     private File currentfile;
-    private String location_name = "";
+    private String locationId = "";
 
     private ViewPagerAdapter adapter;
 
@@ -161,7 +163,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        location_name = extras.getString("location_name");
+        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
         setContentView(getContentView());
 
@@ -385,7 +387,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    //   JsonFormUtils.saveAdverseEvent(jsonString, location_name,
+                    //   JsonFormUtils.saveAdverseEvent(jsonString, locationId,
                     //         childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
 
@@ -404,7 +406,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
 
-        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), location_name, childDetails.entityId());
+        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), locationId, childDetails.entityId());
 
     }
 
@@ -511,8 +513,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
+        profileage.setText(" " + formattedAge);
+        profileOpenSrpId.setText(" " + childId);
         profilename.setText(name);
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
@@ -758,8 +760,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             weight.setKg(tag.getWeight());
             weight.setDate(tag.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (StringUtils.isNotBlank(location_name)) {
-                weight.setLocationId(location_name);
+            if (StringUtils.isNotBlank(locationId)) {
+                weight.setLocationId(locationId);
             }
 
             Gender gender = Gender.UNKNOWN;
@@ -858,8 +860,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(tag.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        if (StringUtils.isNotBlank(location_name)) {
-            vaccine.setLocationId(location_name);
+        if (StringUtils.isNotBlank(locationId)) {
+            vaccine.setLocationId(locationId);
         }
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -887,7 +889,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
@@ -990,7 +992,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void startJsonForm(String formName, String entityId) {
         try {
-            startJsonForm(formName, entityId, location_name);
+            startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

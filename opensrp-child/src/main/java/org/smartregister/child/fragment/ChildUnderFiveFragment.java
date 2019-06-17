@@ -97,7 +97,7 @@ public class ChildUnderFiveFragment extends Fragment {
             }
         }
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
-        fragmentContainer = (LinearLayout) underFiveFragment.findViewById(R.id.container);
+        fragmentContainer = underFiveFragment.findViewById(R.id.container);
 
         return underFiveFragment;
     }
@@ -146,7 +146,7 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
+                weightMap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
                 if (lessThanThreeMonthsEventCreated) {
@@ -169,12 +169,16 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
         }
+        /*
 
-        if (weightMap.size() < 5) {
-            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
-            weightEditMode.add(false);
-            listeners.add(null);
-        }
+        To Do Investigate Zero day weight rendering
+
+                if (weightMap.size() < 5) {
+                    weightMap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
+                    weightEditMode.add(false);
+                    listeners.add(null);
+                }
+        */
 
         WidgetFactory wd = new WidgetFactory();
         if (weightMap.size() > 0) {

@@ -182,7 +182,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         if (nextDate != null) {
 
-            SimpleDateFormat UI_DF = new SimpleDateFormat("dd-MM-yyyy", CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
+            SimpleDateFormat UI_DF = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
 
             if (dueDate != null) {
                 nextDate.setText(UI_DF.format(dueDate.toDate()));

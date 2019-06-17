@@ -2,6 +2,8 @@ package org.smartregister.child.domain;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by ndegwamartin on 2019-06-11.
  */
@@ -10,6 +12,10 @@ public class Field {
     private String key;
 
     private String type;
+
+    private List<String> keys;
+
+    private List<String> values;
 
     @SerializedName("entity_id")
     private String entityId;
@@ -39,5 +45,13 @@ public class Field {
 
     public String getOpenmrsEntityId() {
         return openmrsEntityId;
+    }
+
+    public List<String> getKeys() {
+        return keys;
+    }
+
+    public List<String> getValues() {
+        return values;
     }
 }

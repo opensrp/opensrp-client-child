@@ -31,6 +31,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -431,6 +432,18 @@ public class Utils extends org.smartregister.util.Utils {
 
         return clean;
 
+    }
+
+    public static String formatNumber(String raw) {
+        try {
+
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setGroupingUsed(false);
+            return nf.format(NumberFormat.getInstance(Locale.ENGLISH).parse(raw));
+
+        } catch (ParseException e) {
+            return raw;
+        }
     }
 
 }

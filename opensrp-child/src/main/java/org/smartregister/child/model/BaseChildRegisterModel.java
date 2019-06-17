@@ -84,7 +84,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     private FormUtils getFormUtils() {
 
         try {
-            formUtils = FormUtils.getInstance(Utils.context().applicationContext());
+            formUtils = new FormUtils(Utils.context().applicationContext());
         } catch (Exception e) {
             Log.e(BaseChildRegisterModel.class.getCanonicalName(), e.getMessage(), e);
         }

@@ -125,4 +125,5 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
 
     }
+
 }

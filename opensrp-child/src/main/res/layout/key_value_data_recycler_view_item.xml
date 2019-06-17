@@ -10,6 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="start"
         android:text="@string/first_name"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/dark_grey" />
@@ -20,9 +21,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="start"
         android:text="Bit"
+        android:textAlignment="viewStart"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/text_black"
-        android:gravity="start"/>
+        android:textDirection="locale" />
 
 </LinearLayout>
