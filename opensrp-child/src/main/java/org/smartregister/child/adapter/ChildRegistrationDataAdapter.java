@@ -46,7 +46,7 @@ public class ChildRegistrationDataAdapter extends RecyclerView.Adapter<ChildRegi
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView keyText, valueText;
+        public TextView keyText, valueText;
 
         public ViewHolder(View itemView) {
             super(itemView);

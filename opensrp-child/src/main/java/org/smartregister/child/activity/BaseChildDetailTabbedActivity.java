@@ -108,8 +108,6 @@ import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
 
-;
-
 /**
  * Created by raihan on 1/03/2017.
  */
@@ -1155,7 +1153,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             childDataFragment.loadData(detailsMap);
 
-            childUnderFiveFragment.setDetailsMap(detailsMap);
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);

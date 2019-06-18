@@ -200,55 +200,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     protected void populateFormViews(View view) {
-        advancedSearchToolbarSearchButton.setEnabled(false);
-        advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-        advancedSearchToolbarSearchButton.setOnClickListener(registerActionHandler);
 
+        setUpSearchButtons();
 
-        searchButton.setEnabled(false);
-        searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-        searchButton.setOnClickListener(registerActionHandler);
+        setUpMyCatchmentControls(view, outsideInside, myCatchment, R.id.out_and_inside_layout);
 
-
-        outsideInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    myCatchment.setChecked(!isChecked);
-                }
-            }
-        });
-
-        myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    outsideInside.setChecked(!isChecked);
-                }
-            }
-        });
-
-        View outsideInsideLayout = view.findViewById(R.id.out_and_inside_layout);
-        outsideInsideLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                outsideInside.toggle();
-            }
-        });
-
-        View myCatchmentLayout = view.findViewById(R.id.my_catchment_layout);
-        myCatchmentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myCatchment.toggle();
-            }
-        });
+        setUpMyCatchmentControls(view, myCatchment, outsideInside, R.id.my_catchment_layout);
 
 
         startDate = view.findViewById(R.id.start_date);
@@ -257,67 +214,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setDatePicker(startDate);
         setDatePicker(endDate);
 
-        qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        if (!ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
-            qrCodeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getActivity() == null) {
-                        return;
-                    }
-                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-                    baseRegisterActivity.startQrCodeScanner();
+        setUpQRCodeButton(view);
 
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
-                }
-            });
-        } else {
-            qrCodeButton.setVisibility(View.GONE);
-        }
+        setUpScanCardButton(view);
 
-        Button scanCardButton = view.findViewById(R.id.scanCardButton);
-
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
-            scanCardButton.setVisibility(View.VISIBLE);//should be visible
-            ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
-        }
-
-        outsideInside = view.findViewById(R.id.out_and_inside);
-        myCatchment = view.findViewById(R.id.my_catchment);
-
-        outsideInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    myCatchment.setChecked(!isChecked);
-                }
-            }
-        });
-
-        myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    outsideInside.setChecked(!isChecked);
-                }
-            }
-        });
-
-
-        View mycatchmentLayout = view.findViewById(R.id.my_catchment_layout);
-        mycatchmentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myCatchment.toggle();
-            }
-        });
+        setUpMyCatchmentControls(view, myCatchment, outsideInside, R.id.my_catchment_layout);
 
         active = view.findViewById(R.id.active);
         active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -372,6 +273,69 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         });
 
         resetForm();
+    }
+
+    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment, final RadioButton outsideInside, int p) {
+        myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!Utils.isConnectedToNetwork(getActivity())) {
+                    myCatchment.setChecked(true);
+                    outsideInside.setChecked(false);
+                } else {
+                    outsideInside.setChecked(!isChecked);
+                }
+            }
+        });
+
+        View myCatchmentLayout = view.findViewById(p);
+        myCatchmentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myCatchment.toggle();
+            }
+        });
+    }
+
+    private void setUpSearchButtons() {
+        advancedSearchToolbarSearchButton.setEnabled(false);
+        advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        advancedSearchToolbarSearchButton.setOnClickListener(registerActionHandler);
+
+
+        searchButton.setEnabled(false);
+        searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        searchButton.setOnClickListener(registerActionHandler);
+    }
+
+    private void setUpQRCodeButton(View view) {
+        qrCodeButton = view.findViewById(R.id.qrCodeButton);
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+            qrCodeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (getActivity() == null) {
+                        return;
+                    }
+                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                    baseRegisterActivity.startQrCodeScanner();
+
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
+                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+                }
+            });
+        } else {
+            qrCodeButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpScanCardButton(View view) {
+        Button scanCardButton = view.findViewById(R.id.scanCardButton);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            scanCardButton.setVisibility(View.VISIBLE);//should be visible
+            ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
+        }
     }
 
     protected abstract void assignedValuesBeforeBarcode();

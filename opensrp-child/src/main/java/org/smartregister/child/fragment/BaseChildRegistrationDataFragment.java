@@ -29,16 +29,11 @@ import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 
 import java.io.Serializable;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -46,7 +41,6 @@ import java.util.Map;
 public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected Map<String, String> childDetails;
     protected View fragmentView;
-    private RecyclerView mRecyclerView1;
     private ChildRegistrationDataAdapter mAdapter;
     private List<Field> fields;
     private Map<String, Integer> stringResourceIds;
@@ -80,7 +74,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     public void loadData(Map<String, String> detailsMap) {
 
-        mRecyclerView1 = getActivity().findViewById(R.id.recyclerView);
+        RecyclerView mRecyclerView1 = getActivity().findViewById(R.id.recyclerView);
 
         resetAdapterData(detailsMap);
 

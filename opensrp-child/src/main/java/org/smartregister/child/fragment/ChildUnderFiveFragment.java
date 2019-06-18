@@ -94,6 +94,7 @@ public class ChildUnderFiveFragment extends Fragment {
             Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
+                detailsMap = childDetails.getColumnmaps();
             }
         }
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
@@ -133,7 +134,7 @@ public class ChildUnderFiveFragment extends Fragment {
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+                String birthdate = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
                 Date birth = Utils.dobStringToDate(birthdate);
                 if (birth != null) {
                     long timeDiff = weighttaken.getTime() - birth.getTime();
@@ -284,7 +285,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
@@ -307,7 +308,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime == null) {
             dateTime = DateTime.now();
@@ -332,14 +333,14 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
         String childName = constructChildName();
-        String gender = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, true);
-        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
+        String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(detailsMap, Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
+        String openSrpId = Utils.getValue(detailsMap, Constants.KEY.ZEIR_ID, false);
         String duration = "";
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
 
         Date dob = null;
@@ -368,7 +369,7 @@ public class ChildUnderFiveFragment extends Fragment {
         weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
+        weightWrapper.setPmtctStatus(Utils.getValue(detailsMap, BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
 
         EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(getActivity(), dob, weightWrapper);
         editWeightDialogFragment.show(ft, DIALOG_TAG);
@@ -380,8 +381,8 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
+        String firstName = Utils.getValue(detailsMap, Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(detailsMap, Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
 
