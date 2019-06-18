@@ -956,7 +956,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
 
             Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, "gender", false);
+            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
             if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
@@ -1163,7 +1163,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     // Inner classes
     ////////////////////////////////////////////////////////////////
     public enum STATUS {
-        NONE, EDIT_WEIGHT, EDIT_VACCINE, EDIT_SERVICE
+        NONE, EDIT_GROWTH, EDIT_VACCINE, EDIT_SERVICE
     }
 
     public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
@@ -1278,7 +1278,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
             boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
-            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
+            boolean editWeightMode = STATUS.EDIT_GROWTH.equals(status);
 
             if (STATUS.NONE.equals(status)) {
                 updateOptionsMenu(vaccineList, serviceRecords, weightList, heightList, alertList);

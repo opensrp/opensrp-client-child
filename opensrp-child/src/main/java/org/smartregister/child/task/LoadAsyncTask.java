@@ -147,7 +147,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         boolean editVaccineMode = BaseChildDetailTabbedActivity.STATUS.EDIT_VACCINE.equals(status);
         boolean editServiceMode = BaseChildDetailTabbedActivity.STATUS.EDIT_SERVICE.equals(status);
-        boolean editWeightMode = BaseChildDetailTabbedActivity.STATUS.EDIT_WEIGHT.equals(status);
+        boolean editWeightMode = BaseChildDetailTabbedActivity.STATUS.EDIT_GROWTH.equals(status);
 
         if (BaseChildDetailTabbedActivity.STATUS.NONE.equals(status)) {
             updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
