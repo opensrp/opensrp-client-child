@@ -148,18 +148,18 @@
                         android:weightSum="2">
 
                         <LinearLayout
-                            android:id="@+id/record_weight"
+                            android:id="@+id/record_growth"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.5"
-                            android:background="@drawable/record_weight_bg"
+                            android:background="@drawable/record_growth_bg"
                             android:gravity="center"
                             android:orientation="horizontal"
                             android:paddingBottom="16dp"
                             android:paddingTop="16dp">
 
                             <ImageView
-                                android:id="@+id/record_weight_check"
+                                android:id="@+id/record_growth_check"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:paddingRight="3dp"
@@ -168,7 +168,7 @@
                                 android:paddingEnd="3dp" />
 
                             <TextView
-                                android:id="@+id/record_weight_text"
+                                android:id="@+id/record_growth_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="center"

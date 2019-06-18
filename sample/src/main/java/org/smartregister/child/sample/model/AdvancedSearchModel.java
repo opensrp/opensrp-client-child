@@ -50,32 +50,22 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
         switch (key) {
             case DBConstants.KEY.FIRST_NAME:
                 resKey = FIRST_NAME;
-
                 break;
-
-
             case DBConstants.KEY.LAST_NAME:
                 resKey = LAST_NAME;
-
                 break;
             case DBConstants.KEY.ZEIR_ID:
                 resKey = SEARCH_TERM_OPENSRP_ID;
-
                 break;
             case DBConstants.KEY.DOB:
                 resKey = DOB;
-
                 break;
             case DBConstants.KEY.CONTACT_PHONE_NUMBER:
                 resKey = MOBILE_PHONE_NUMBER;
-
                 break;
-
             default:
                 break;
-
         }
-
 
         return resKey;
     }

@@ -123,16 +123,16 @@
         android:background="#ffffff">
 
         <LinearLayout
-            android:id="@+id/record_weight"
+            android:id="@+id/record_growth"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_margin="5dp"
-            android:background="@drawable/record_weight_bg"
+            android:background="@drawable/record_growth_bg"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/record_weight_check"
+                android:id="@+id/record_growth_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingEnd="3dp"
@@ -141,11 +141,11 @@
                 android:visibility="gone" />
 
             <TextView
-                android:id="@+id/record_weight_text"
+                android:id="@+id/record_growth_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/record_weight_with_nl"
+                android:text="@string/record_growth_with_nl"
                 android:textAllCaps="false"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/text_black"

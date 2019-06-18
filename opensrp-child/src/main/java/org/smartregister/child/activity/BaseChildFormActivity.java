@@ -155,7 +155,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
                 JSONArray fields = object.getJSONArray(Constants.FIELDS);
                 for (int i = 0; i < fields.length(); i++) {
                     JSONObject vaccineGroup = fields.getJSONObject(i);
-                    if (vaccineGroup.has(Constants.KEY) && vaccineGroup.has(Constants.IS_VACCINE_GROUP)) {
+                    if (vaccineGroup.has(Constants.KEY.KEY) && vaccineGroup.has(Constants.IS_VACCINE_GROUP)) {
                         if (vaccineGroup.getBoolean(Constants.IS_VACCINE_GROUP) && vaccineGroup.has(Constants.OPTIONS)) {
                             JSONArray vaccineOptions = vaccineGroup.getJSONArray(Constants.OPTIONS);
                             for (int j = 0; j < vaccineOptions.length(); j++) {
@@ -165,7 +165,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has(Constants.KEY) && vaccineGroup.getString(Constants.KEY).equals(
+                    } else if (vaccineGroup.has(Constants.KEY.KEY) && vaccineGroup.getString(Constants.KEY.KEY).equals(
                             Constants.WEIGHT_KG) && vaccineGroup
                             .has(Constants.VALUE) && vaccineGroup.getString(Constants.VALUE).length() > 0) {
                         return true;

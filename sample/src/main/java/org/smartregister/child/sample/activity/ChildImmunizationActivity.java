@@ -6,14 +6,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.evernote.android.job.JobManager;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.sample.application.SampleApplication;
+import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
+import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.Utils;
 
@@ -51,6 +55,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public void onClick(View view) {
         Utils.showToast(this, "Floating Action Button clicked...");
+        ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
     }
 
     @Override

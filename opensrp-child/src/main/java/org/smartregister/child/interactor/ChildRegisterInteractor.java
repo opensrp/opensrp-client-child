@@ -211,13 +211,13 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
         if (!TextUtils.isEmpty(weight)) {
-            WeightWrapper weightParams = new WeightWrapper();
-            weightParams.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-            weightParams.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
-            weightParams.setUpdatedWeightDate(new DateTime(), true);
-            weightParams.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            WeightWrapper weightWrapper = new WeightWrapper();
+            weightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
+            weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
+            weightWrapper.setUpdatedWeightDate(new DateTime(), true);
+            weightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
 
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightParams,
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper,
                     clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
         }
     }

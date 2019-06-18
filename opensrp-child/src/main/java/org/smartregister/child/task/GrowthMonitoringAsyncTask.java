@@ -80,32 +80,38 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private void updateRecordWeight(GrowthMonitoringViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {
 
-        View recordWeight = updateWrapper.getConvertView().findViewById(R.id.record_weight);
-        recordWeight.setVisibility(View.VISIBLE);
+        View recordGrowth = updateWrapper.getConvertView().findViewById(R.id.record_growth);
+        TextView recordGrowthText = updateWrapper.getConvertView().findViewById(R.id.record_growth_text);
+        ImageView recordGrowthCheck = updateWrapper.getConvertView().findViewById(R.id.record_growth_check);
+        recordGrowth.setVisibility(View.VISIBLE);
 
-        if (updateWrapper.getWeight() != null) {
-            TextView recordWeightText = updateWrapper.getConvertView().findViewById(R.id.record_weight_text);
-            recordWeightText.setText(Utils.kgStringSuffix(updateWrapper.getWeight().getKg()));
+        if (updateWrapper.getWeight() != null || updateWrapper.getHeight() != null) {
+            String weightString = "";
+            String heightString = "";
+            if (updateWrapper.getWeight() != null) {
+                weightString = Utils.kgStringSuffix(updateWrapper.getWeight().getKg());
+            }
+            if (updateWrapper.getHeight() != null) {
+                heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
+            }
 
-            ImageView recordWeightCheck = updateWrapper.getConvertView().findViewById(R.id.record_weight_check);
-            recordWeightCheck.setVisibility(View.VISIBLE);
+            String growthString = weightString + ", " + heightString;
+            recordGrowthText.setText(growthString);
 
-            recordWeight.setClickable(false);
-            recordWeight.setBackground(new ColorDrawable(context.getResources()
+            recordGrowthCheck.setVisibility(View.VISIBLE);
+            recordGrowth.setClickable(false);
+            recordGrowth.setBackground(new ColorDrawable(context.getResources()
                     .getColor(android.R.color.transparent)));
         } else {
-            TextView recordWeightText = updateWrapper.getConvertView().findViewById(R.id.record_weight_text);
-            recordWeightText.setText(context.getString(R.string.record_weight_with_nl));
-
-            ImageView recordWeightCheck = updateWrapper.getConvertView().findViewById(R.id.record_weight_check);
-            recordWeightCheck.setVisibility(View.GONE);
-            recordWeight.setClickable(true);
+            recordGrowthText.setText(context.getString(R.string.record_growth_with_nl));
+            recordGrowthCheck.setVisibility(View.GONE);
+            recordGrowth.setClickable(true);
         }
 
         // Update active/inactive/lostToFollowup status
         if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) || updateWrapper.getInactive()
                 .equals(Boolean.TRUE.toString())) {
-            recordWeight.setVisibility(View.INVISIBLE);
+            recordGrowth.setVisibility(View.INVISIBLE);
         }
 
         //Update Out of Catchment
@@ -136,13 +142,13 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
                     }
                 });
 
-                TextView recordWeightText = catchmentView.findViewById(R.id.record_weight_text);
+                TextView recordWeightText = catchmentView.findViewById(R.id.record_growth_text);
                 recordWeightText.setText(R.string.record_service);
 
                 String openSrpId = getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
-                View recordWeight = catchmentView.findViewById(R.id.record_weight);
-                recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                View recordWeight = catchmentView.findViewById(R.id.record_growth);
+                recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
                 recordWeight.setTag(openSrpId);
                 recordWeight.setClickable(true);
                 recordWeight.setEnabled(true);

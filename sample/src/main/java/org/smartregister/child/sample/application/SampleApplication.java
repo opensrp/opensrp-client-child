@@ -1,5 +1,6 @@
 package org.smartregister.child.sample.application;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.evernote.android.job.JobManager;
@@ -25,6 +26,7 @@ import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.HeightZScoreRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightZScoreRepository;
+import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
@@ -77,6 +79,8 @@ public class SampleApplication extends DrishtiApplication {
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
+
+        startZscoreRefreshService();
 
         sampleUniqueIds();
 
@@ -202,6 +206,10 @@ public class SampleApplication extends DrishtiApplication {
         return GrowthMonitoringLibrary.getInstance().weightZScoreRepository();
     }
 
+    public void startZscoreRefreshService() {
+        Intent intent = new Intent(this.getApplicationContext(), ZScoreRefreshIntentService.class);
+        this.getApplicationContext().startService(intent);
+    }
 
     public RecurringServiceTypeRepository recurringServiceTypeRepository() {
         return ImmunizationLibrary.getInstance().recurringServiceTypeRepository();

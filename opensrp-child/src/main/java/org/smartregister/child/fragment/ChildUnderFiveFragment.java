@@ -116,12 +116,12 @@ public class ChildUnderFiveFragment extends Fragment {
         boolean showGrowthMonitoring = curGrowthMonitoringMode == null || !curGrowthMonitoringMode
                 .equals(editGrowthMonitoringMode);
         if (fragmentContainer != null && showGrowthMonitoring) {
-            createWeightLayout(weightList, heightList, fragmentContainer, editGrowthMonitoringMode);
+            createGrowthLayout(weightList, heightList, fragmentContainer, editGrowthMonitoringMode);
             curGrowthMonitoringMode = editGrowthMonitoringMode;
         }
     }
 
-    private void createWeightLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer,
+    private void createGrowthLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer,
                                     boolean editmode) {
         LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
         LinkedHashMap<Long, Pair<String, String>> heightMap = new LinkedHashMap<>();
@@ -137,14 +137,17 @@ public class ChildUnderFiveFragment extends Fragment {
 
         if (weightMap.size() < 5) {
             weightMap
-                    .put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
+                    .put(0L, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT,
+                            true) + " kg"));
             weightEditMode.add(false);
             listeners.add(null);
         }
 
         if (heightMap.size() < 5) {
             heightMap
-                    .put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Height", true) + " cm"));
+                    .put(0L, Pair.create(DateUtil.getDuration(0),
+                            Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true) + " " +
+                                    "cm"));
             heightEditMode.add(false);
             listeners.add(null);
         }

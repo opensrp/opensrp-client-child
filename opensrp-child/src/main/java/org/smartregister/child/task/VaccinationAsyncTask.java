@@ -395,7 +395,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 ids.add(motherBaseEntityId);
                 ids.add(entityId);
 
-                moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
                 moveToCatchment.setTag(ids);
                 moveToCatchment.setClickable(true);
                 moveToCatchment.setEnabled(true);

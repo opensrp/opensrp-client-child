@@ -20,7 +20,6 @@ public class Constants extends AllConstants {
     public static final String STEP_1 = "step1";
     public static final String TITLE = "title";
     public static final String FIELDS = "fields";
-    public static final String KEY = "key";
     public static final String IS_VACCINE_GROUP = "is_vaccine_group";
     public static final String VALUE = "value";
     public static final String WEIGHT_KG = "Weight_Kg";

@@ -1089,11 +1089,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper,
                                                    final boolean isActive) {
-        View recordWeight = findViewById(R.id.record_weight);
+        View recordWeight = findViewById(R.id.record_growth);
         recordWeight.setClickable(true);
-        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
 
-        TextView recordWeightText = findViewById(R.id.record_weight_text);
+        TextView recordWeightText = findViewById(R.id.record_growth_text);
         recordWeightText.setText(R.string.record_growth);
         if (!isActive) {
             recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
@@ -1101,7 +1101,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
         }
 
-        ImageView recordWeightCheck = findViewById(R.id.record_weight_check);
+        ImageView recordWeightCheck = findViewById(R.id.record_growth_check);
         recordWeightCheck.setVisibility(View.GONE);
 
         updateWeightWrapper(weightWrapper, recordWeight, recordWeightText, recordWeightCheck);
@@ -1122,7 +1122,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     }
 
-    private void updateWeightWrapper(WeightWrapper weightWrapper, View recordWeight, TextView recordWeightText,
+    private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
         if (weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
             recordWeightText.setText(Utils.kgStringSuffix(weightWrapper.getWeight()));
@@ -1133,15 +1133,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
-                    recordWeight.setClickable(false);
-                    recordWeight.setBackground(new ColorDrawable(getResources()
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources()
                             .getColor(android.R.color.transparent)));
                 } else {
                     //reset state
                     weightWrapper.setWeight(null);
                     weightWrapper.setDbKey(null);
-                    recordWeight.setClickable(true);
-                    recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordGrowth.setClickable(true);
+                    recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
                 }
@@ -1149,10 +1149,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void updateHeightWrapper(HeightWrapper heightWrapper, View recordWeight, TextView recordWeightText,
+    private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
         if (heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
-            recordWeightText.setText(Utils.kgStringSuffix(heightWrapper.getHeight()));
+            recordWeightText.setText(Utils.cmStringSuffix(heightWrapper.getHeight()));
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (heightWrapper.getUpdatedHeightDate() != null) {
@@ -1160,15 +1160,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
-                    recordWeight.setClickable(false);
-                    recordWeight.setBackground(new ColorDrawable(getResources()
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources()
                             .getColor(android.R.color.transparent)));
                 } else {
                     //reset state
                     heightWrapper.setHeight(null);
                     heightWrapper.setDbKey(null);
-                    recordWeight.setClickable(true);
-                    recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordGrowth.setClickable(true);
+                    recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
                 }
@@ -1312,7 +1312,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void performRegisterActions() {
         if (registerClickables != null) {
             if (registerClickables.isRecordWeight()) {
-                final View recordWeight = findViewById(R.id.record_weight);
+                final View recordWeight = findViewById(R.id.record_growth);
                 recordWeight.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1426,7 +1426,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            View recordWeight = findViewById(R.id.record_weight);
+                            View recordWeight = findViewById(R.id.record_growth);
                             showWeightDialog(recordWeight);
                             hideNotification();
                         }
@@ -1568,7 +1568,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 Double birthWeight = Double
                         .valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
 
-                Weight weight = new Weight(-1l, null, (float) birthWeight.doubleValue(), dob, null, null, null,
+                Weight weight = new Weight(-1L, null, (float) birthWeight.doubleValue(), dob, null, null, null,
                         Calendar.getInstance().getTimeInMillis(), null, null, 0);
                 allWeights.add(weight);
             }
@@ -1591,7 +1591,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                         .valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
 
                 Height height = new Height();
-                height.setId(-1l);
+                height.setId(-1L);
                 height.setBaseEntityId(null);
                 height.setCm((float) birthHeight.doubleValue());
                 height.setDate(dob);
@@ -1857,11 +1857,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected Map<String, List> doInBackground(Void... params) {
             Map<String, List> growthMonitoring = new HashMap<>();
             List<Weight> allWeights = getAllWeights();
-            growthMonitoring.put(Constants.WEIGHT, allWeights);
-
             List<Height> allHeights = getAllHeights();
             growthMonitoring.put(Constants.HEIGHT, allHeights);
-
+            growthMonitoring.put(Constants.WEIGHT, allWeights);
 
             return growthMonitoring;
         }
@@ -1958,7 +1956,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(ArrayList<VaccineWrapper> list) {
             hideProgressDialog();
             updateVaccineGroupViews(view, list, vaccineList);
-            View recordWeight = findViewById(R.id.record_weight);
+            View recordWeight = findViewById(R.id.record_growth);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
             if ((ChildLibrary.getInstance().getProperties()
                     .hasProperty(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties()

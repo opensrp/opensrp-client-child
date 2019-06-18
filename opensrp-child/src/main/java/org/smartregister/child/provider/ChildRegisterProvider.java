@@ -220,7 +220,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
 
         View recordWeight = viewHolder.recordWeight;
-        recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+        recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
         recordWeight.setTag(client);
         recordWeight.setOnClickListener(onClickListener);
         recordWeight.setVisibility(View.INVISIBLE);
@@ -318,7 +318,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childCardNumnber = itemView.findViewById(R.id.child_card_number);
             imageView = itemView.findViewById(R.id.child_profilepic);
             childProfileInfoLayout = itemView.findViewById(R.id.child_profile_info_layout);
-            recordWeight = itemView.findViewById(R.id.record_weight);
+            recordWeight = itemView.findViewById(R.id.record_growth);
             recordVaccination = itemView.findViewById(R.id.record_vaccination);
             registerColumns = itemView.findViewById(R.id.register_columns);
 
