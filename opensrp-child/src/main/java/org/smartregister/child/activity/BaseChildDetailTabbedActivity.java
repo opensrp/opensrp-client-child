@@ -1153,6 +1153,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             childDataFragment.loadData(detailsMap);
 
+            childUnderFiveFragment.setDetailsMap(detailsMap);
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);

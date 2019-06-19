@@ -203,6 +203,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             floatingActionButton.setOnClickListener(this);
 
             configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)), null);
+
+            LinearLayout someLayout = findViewById(R.id.content_base_inner);
+            someLayout.setPadding(someLayout.getPaddingLeft(), someLayout.getPaddingTop(), someLayout.getPaddingRight(), someLayout.getPaddingBottom() + 80);
         }
     }
 
