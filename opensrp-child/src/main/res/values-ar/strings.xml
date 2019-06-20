@@ -288,6 +288,7 @@
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
 
     <string name="next_visit">التالى</string>
+    <string name="next_visit_colon">التالى :</string>
     <string name="refreshing">تحديث&#8230;</string>
     <string name="at_birth">عند الولادة</string>
     <string name="six_weeks">6 أسابيع</string>

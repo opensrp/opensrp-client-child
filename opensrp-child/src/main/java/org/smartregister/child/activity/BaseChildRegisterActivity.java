@@ -48,6 +48,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     public void startRegistration() {
+        //setSelectedBottomBarMenuItem(R.id.action_register);
         startFormActivity(getRegistrationForm(), null, null);
     }
 
@@ -64,10 +65,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         }
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
+        setSelectedBottomBarMenuItem(R.id.action_home);
         switchToAdvancedSearchFromBarcode();
     }
 
@@ -108,6 +109,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     public void startAdvancedSearch() {
         try {
             mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -228,7 +230,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             super.onBackPressed();
         } else {
             switchToBaseFragment();
-            setSelectedBottomBarMenuItem(R.id.action_clients);
+            setSelectedBottomBarMenuItem(R.id.action_home);
         }
     }
 

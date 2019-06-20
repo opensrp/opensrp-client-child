@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.VaccinationAsyncTask;
@@ -60,6 +61,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
+    private boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns, View.OnClickListener onClickListener, View.OnClickListener paginationClickListener, AlertService alertService) {
 
@@ -84,6 +86,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
+        isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
         if (visibleColumns.isEmpty()) {
             populatePatientColumn(pc, client, viewHolder);
@@ -112,8 +115,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
-        childName = childName + " " + Utils.getValue(pc.getColumnmaps(), Constants.KEY.NFC_CARD_IDENTIFIER, true);
-
 
         fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
@@ -125,7 +126,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
-        if (!StringUtils.isNotBlank(motherName)) {
+        if (StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
 
@@ -186,8 +187,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setDobString(dobString);
                 params.setInactive(inactive);
                 params.setSmartRegisterClient(client);
-                params.setUpdateOutOfCatchment(false);//TO DO update with dynamic parameter
+                params.setUpdateOutOfCatchment(isOutOfCatchment);
                 params.setOnClickListener(onClickListener);
+                params.setProfileInfoView(viewHolder.childProfileInfoLayout);
 
                 Utils.startAsyncTask(new WeightAsyncTask(params, commonRepository, weightRepository, context), null);
                 Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);

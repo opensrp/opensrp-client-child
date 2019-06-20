@@ -85,6 +85,7 @@ public class Constants extends AllConstants {
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
         public static final String LOCATION_ID = "location_id";
+        public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 
     public static class ENTITY {

@@ -1,11 +1,8 @@
 package org.smartregister.child.util;
 
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,6 +50,7 @@ public class Utils extends org.smartregister.util.Utils {
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Facility";
     public static final String FACILITY = "Health Facility";
+    public static final String APP_PROPERTIES_FILE = "app.properties";
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -368,28 +366,6 @@ public class Utils extends org.smartregister.util.Utils {
         tag.setDbKey(weight.getId());
     }
 
-    public static String getLanguage(android.content.Context ctx) {
-        SharedPreferences sharedPref = ctx.getSharedPreferences(PREFERENCES_FILE, android.content.Context.MODE_PRIVATE);
-        return sharedPref.getString("language", "en");
-    }
-
-    public static android.content.Context setAppLocale(android.content.Context context_, String language) {
-        Locale locale = new Locale(language);
-        Locale.setDefault(locale);
-        android.content.Context context = context_;
-        Resources res = context.getResources();
-        Configuration config = new Configuration(res.getConfiguration());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            config.setLocale(locale);
-            context = context.createConfigurationContext(config);
-        } else {
-            config.locale = locale;
-            res.updateConfiguration(config, res.getDisplayMetrics());
-        }
-        return context;
-    }
-
-
     public static Context context() {
         return ChildLibrary.getInstance().context();
     }
@@ -403,7 +379,7 @@ public class Utils extends org.smartregister.util.Utils {
         AppProperties properties = new AppProperties();
         try {
             AssetManager assetManager = context.getAssets();
-            InputStream inputStream = assetManager.open("app.properties");
+            InputStream inputStream = assetManager.open(APP_PROPERTIES_FILE);
             properties.load(inputStream);
         } catch (Exception e) {
             Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);

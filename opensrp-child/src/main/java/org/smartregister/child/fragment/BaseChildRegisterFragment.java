@@ -281,7 +281,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
     @Override
     protected void startRegistration() {
-        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
+
+        ((BaseChildRegisterActivity) getActivity()).startRegistration();
     }
 
 

@@ -8,6 +8,7 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
@@ -35,6 +36,13 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         }
 
         return presenter;
+    }
+
+
+    @Override
+    public boolean onBackPressed(){
+        ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_home);
+        return super.onBackPressed();
     }
 
     @Override

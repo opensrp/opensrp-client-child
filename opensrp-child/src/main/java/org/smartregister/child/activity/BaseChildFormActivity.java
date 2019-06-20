@@ -18,6 +18,8 @@ import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.Utils;
+import org.smartregister.util.LangUtils;
 
 import java.util.List;
 
@@ -25,10 +27,17 @@ import java.util.List;
  * Created by ndegwamartin on 01/03/2019.
  */
 public class BaseChildFormActivity extends JsonFormActivity {
-    private String TAG = BaseChildFormActivity.class.getCanonicalName();
 
+    private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
-    ChildFormFragment childFormFragment;
+    private ChildFormFragment childFormFragment;
+
+    @Override
+    protected void attachBaseContext(android.content.Context base) {
+
+        String language = LangUtils.getLanguage(base);
+        super.attachBaseContext(LangUtils.setAppLocale(base, language));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

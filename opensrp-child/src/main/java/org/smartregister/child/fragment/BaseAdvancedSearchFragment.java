@@ -1,7 +1,9 @@
 package org.smartregister.child.fragment;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -9,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -21,31 +24,39 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
+import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.MoveToMyCatchmentUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,10 +95,19 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private Button qrCodeButton;
     protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void initializePresenter() {
         presenter = getPresenter();
+        initProgressDialog();
 
+    }
+
+    private void initProgressDialog() {
+
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
     }
 
     protected abstract BaseChildAdvancedSearchPresenter getPresenter();
@@ -149,14 +169,64 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
             ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
             ((BaseRegisterActivity) getActivity()).setSearchTerm("");
-        } else if ((view.getId() == R.id.patient_column || view.getId() == R.id.profile) && view.getTag() != null) {
-            Utils.navigateToProfile(getActivity(), (HashMap<String, String>) ((CommonPersonObjectClient) view.getTag()).getColumnmaps());
-        } else if (view.getId() == R.id.sync) {
-            SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
-            SyncSettingsServiceJob.scheduleJobImmediately(SyncSettingsServiceJob.TAG);
-            //Todo add the move to catchment area
-        }*/
+        } */ else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout) && view.getTag() != null) {
+
+            RegisterClickables registerClickables = new RegisterClickables();
+            if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
+
+                registerClickables.setRecordWeight(Constants.RECORD_ACTION.WEIGHT.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+                registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+                registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
+
+            }
+            BaseChildImmunizationActivity.launchActivity(getActivity(), (CommonPersonObjectClient) view.getTag(), registerClickables);
+
+        }/* else if (view.getId() == R.id.sync) {
+            // SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
+
+TO DO ? , sync unsynced records within catchment
+
+        }*/ else if (view.getId() == R.id.move_to_catchment) {
+            if (view.getTag() != null && view.getTag() instanceof List) {
+                @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
+                moveToMyCatchmentArea(ids);
+            }
+        }
     }
+
+
+    private void moveToMyCatchmentArea(final List<String> ids) {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
+                .setMessage(R.string.move_to_catchment_confirm_dialog_message)
+                .setTitle(R.string.move_to_catchment_confirm_dialog_title)
+                .setCancelable(false)
+                .setPositiveButton(R.string.no_button_label, null)
+                .setNegativeButton(R.string.yes_button_label,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
+                                progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
+                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
+                            }
+                        }).create();
+
+        dialog.show();
+    }
+
+    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
+        public void onEvent(final JSONObject jsonObject) {
+            if (jsonObject != null) {
+                if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
+                    clientAdapter.notifyDataSetChanged();
+                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public void setupViews(View view) {
@@ -185,7 +255,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     public abstract void populateSearchableFields(View view);
 
     @Override
-    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    public void initializeAdapter
+            (Set<org.smartregister.configurableviews.model.View> visibleColumns) {
         RepositoryHolder repoHolder = new RepositoryHolder();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
@@ -275,7 +346,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         resetForm();
     }
 
-    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment, final RadioButton outsideInside, int p) {
+    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
+                                          final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -495,7 +567,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
+    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider
+            () {
         return null;
     }
 

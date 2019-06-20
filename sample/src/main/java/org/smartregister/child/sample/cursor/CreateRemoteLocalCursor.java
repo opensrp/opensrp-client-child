@@ -10,6 +10,7 @@ public class CreateRemoteLocalCursor {
     private String relationalId;
     private String firstName;
     private String lastName;
+    private String gender;
     private String dob;
     private String openSrpId;
 
@@ -27,6 +28,7 @@ public class CreateRemoteLocalCursor {
         lastName = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.LAST_NAME));
         dob = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.DOB));
         openSrpId = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.ZEIR_ID));
+        gender = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.GENDER));
     }
 
     public String getId() {
@@ -45,6 +47,10 @@ public class CreateRemoteLocalCursor {
         return lastName;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
     public String getDob() {
         return dob;
     }
@@ -59,9 +65,5 @@ public class CreateRemoteLocalCursor {
 
     public String getOpenSrpId() {
         return openSrpId;
-    }
-
-    public void setOpenSrpId(String openSrpId) {
-        this.openSrpId = openSrpId;
     }
 }

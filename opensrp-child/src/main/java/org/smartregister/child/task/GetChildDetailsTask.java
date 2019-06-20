@@ -110,7 +110,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         Gender gender = Gender.UNKNOWN;
         int genderColor = R.color.gender_neutral_green;
         int genderLightColor = R.color.gender_neutral_light_green;
-        String genderString = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "gender", false);
+        String genderString = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, false);
 
         if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
             gender = Gender.FEMALE;
@@ -122,7 +122,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             genderLightColor = R.color.male_light_blue;
         }
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals("true")) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.TRUE)) {
             profilePhoto.setVisibility(View.VISIBLE);
             initials.setBackgroundColor(baseActivity.getResources().getColor(android.R.color.transparent));
             initials.setTextColor(baseActivity.getResources().getColor(android.R.color.black));

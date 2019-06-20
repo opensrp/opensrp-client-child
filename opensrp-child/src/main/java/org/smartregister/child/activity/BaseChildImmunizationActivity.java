@@ -93,6 +93,7 @@ import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
+import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -291,12 +292,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         toolbar.setTitle(updateActivityTitle());
         ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differntly Fixes wierd bug
+
         updateAgeViews();
         updateChildIdViews();
-
+        updateNextAppointmentDateView();
 
         AlertService alertService = getOpenSRPContext().alertService();
-
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
@@ -334,6 +335,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
 
         Utils.startAsyncTask(new GetSiblingsTask(), null);
+    }
+
+    private void updateNextAppointmentDateView() {
+
+        if (!TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
+            CustomFontTextView nextAppointmentDateView = findViewById(R.id.next_appointment_date);
+            ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
+            nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
+        }
     }
 
     private void updateAgeViews() {
@@ -907,6 +917,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE, registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ? registerClickables.getNextAppointmentDate() : "");
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtras(bundle);
 

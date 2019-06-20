@@ -304,6 +304,7 @@
     <string name="search_results">Search results</string>
     <string name="qr_code_label">QR code</string>
     <string name="next_visit">Next Visit</string>
+    <string name="next_visit_colon">Next Visit :</string>
     <string name="refreshing">Refreshing&#8230;</string>
 
     <string name="at_birth">at birth</string>
@@ -322,5 +323,6 @@
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
     <string name="card_id_colon">Card ID :</string>
     <string name="age_colon">Age :</string>
+    <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
 
 </resources>

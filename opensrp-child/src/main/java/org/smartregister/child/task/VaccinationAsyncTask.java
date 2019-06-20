@@ -2,6 +2,7 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -62,6 +63,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
     private AlertService alertService;
+    private View childProfileInfoLayout;
 
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository, VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -78,6 +80,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.commonRepository = commonRepository;
         this.context = context;
         this.alertService = alertService;
+        this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
 
 
     }
@@ -139,7 +142,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         Map<String, Object> nv = updateWrapper.getNv();
 
-        DateTime dueDate = null;
+        Object dueDateRawObject = nv.get(Constants.KEY.DATE);
+        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
@@ -162,9 +167,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 today.set(Calendar.SECOND, 0);
                 today.set(Calendar.MILLISECOND, 0);
 
-                if (nv.get(Constants.KEY.DATE) != null && nv.get(Constants.KEY.DATE) instanceof DateTime) {
-                    dueDate = (DateTime) nv.get(Constants.KEY.DATE);
-                }
 
                 if (dueDate != null && dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
                     state = State.UPCOMING_NEXT_7_DAYS;
@@ -178,17 +180,16 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        TextView nextDate = convertView.findViewById(R.id.child_next_appointment);
+        TextView nextAppointmentDate = convertView.findViewById(R.id.child_next_appointment);
 
-        if (nextDate != null) {
+        if (nextAppointmentDate != null) {
 
             SimpleDateFormat UI_DF = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
 
             if (dueDate != null) {
-                nextDate.setText(UI_DF.format(dueDate.toDate()));
-            } else {
-                nextDate.setText(UI_DF.format(Calendar.getInstance().getTime()));
-
+                String nextAppointment = UI_DF.format(dueDate.toDate());
+                nextAppointmentDate.setText(nextAppointment);
+                childProfileInfoLayout.setTag(R.id.next_appointment_date, nextAppointment);
             }
         }
 
@@ -277,7 +278,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) && !updateWrapper.getVaccines().isEmpty()) {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
-                if (previousStateKey != null) {
+                if (!TextUtils.isEmpty(previousStateKey)) {
                     recordVaccinationText.setText(localizeStateKey(previousStateKey));
                 } else {
                     recordVaccinationText.setText(localizeStateKey(stateKey));

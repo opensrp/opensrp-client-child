@@ -302,6 +302,7 @@
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
     <string name="next_visit">Prochain</string>
+    <string name="next_visit_colon">Prochain :</string>
     <string name="refreshing">Rafraîchissante&#8230;</string>
 
     <string name="at_birth">à la naissance</string>

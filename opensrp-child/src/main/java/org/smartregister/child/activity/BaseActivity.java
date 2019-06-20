@@ -60,6 +60,7 @@ import org.smartregister.job.SyncServiceJob;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.view.activity.MultiLanguageActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -79,7 +80,7 @@ import java.util.Map;
  * <p/>
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
-public abstract class BaseActivity extends AppCompatActivity
+public abstract class BaseActivity extends MultiLanguageActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener, ChildRegisterContract.InteractorCallBack {
     private static final String TAG = "BaseActivity";
     private BaseToolbar toolbar;
