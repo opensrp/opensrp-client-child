@@ -18,7 +18,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.child.util.Utils;
 import org.smartregister.util.LangUtils;
 
 import java.util.List;
@@ -31,6 +30,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
     private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
     private ChildFormFragment childFormFragment;
+    private JSONObject form;
 
     @Override
     protected void attachBaseContext(android.content.Context base) {
@@ -43,15 +43,26 @@ public class BaseChildFormActivity extends JsonFormActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        try {
+            form = new JSONObject(currentJsonState());
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
+
         enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         try {
-            JSONObject form = new JSONObject(currentJsonState());
             String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
             if (et.trim().toLowerCase().contains("update")) {
-                setConfirmCloseMessage(getString(R.string.any_changes_you_make));
+                setConfirmCloseMessage(this.getString(R.string.any_changes_you_make));
+
             }
-        } catch (Exception e) {
+        } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
     }

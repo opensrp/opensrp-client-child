@@ -339,7 +339,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateNextAppointmentDateView() {
 
-        if (!TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
+        if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
             CustomFontTextView nextAppointmentDateView = findViewById(R.id.next_appointment_date);
             ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
             nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
@@ -359,6 +359,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 if (timeDiff >= 0) {
                     formattedAge = DateUtil.getDuration(timeDiff);
+                } else {
+                    formattedAge = DateUtil.getDuration(0);
                 }
             }
         }

@@ -205,7 +205,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 vaccineList = vaccines;
             }
 
-            LinearLayout vaccineGroupCanvasLL = (LinearLayout) fragmentContainer.findViewById(R.id.immunizations);
+            LinearLayout vaccineGroupCanvasLL = fragmentContainer.findViewById(R.id.immunizations);
             vaccineGroupCanvasLL.removeAllViews();
 
             CustomFontTextView title = new CustomFontTextView(getActivity());
@@ -246,7 +246,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 serviceRecords = services;
             }
 
-            LinearLayout serviceGroupCanvasLL = (LinearLayout) fragmentContainer.findViewById(R.id.services);
+            LinearLayout serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
             serviceGroupCanvasLL.removeAllViews();
 
             CustomFontTextView title = new CustomFontTextView(getActivity());
