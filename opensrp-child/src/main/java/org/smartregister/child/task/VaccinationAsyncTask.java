@@ -49,7 +49,7 @@ import static org.smartregister.util.Utils.getValue;
  */
 public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
-    List<String> vaccineGroups = Arrays.asList(new String[]{"at birth",
+    private List<String> vaccineGroups = Arrays.asList(new String[]{"at birth",
             "6 weeks",
             "10 weeks",
             "14 weeks",
