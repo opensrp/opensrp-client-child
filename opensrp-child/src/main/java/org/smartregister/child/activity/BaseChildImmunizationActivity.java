@@ -300,7 +300,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         updateGenderViews();
 
         toolbar.setTitle(updateActivityTitle());
-        ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differntly Fixes wierd bug
+        ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differently Fixes wierd bug
 
         updateAgeViews();
         updateChildIdViews();

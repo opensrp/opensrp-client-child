@@ -311,7 +311,8 @@
     <string name="no_monthly_ready">لا توجد تقارير HIA 2 شهرية جاهزة للإكمال.</string>
     <string name="scan_nfc_card"> قم بتشغيل فحص بطاقة NFC &#8230;</string>
     <string name="activate_new_card">تنشيط البطاقة</string>
-    <string name="card_id_colon">بطاقة الهوية</string>
+
+    <string name="system_id_colon">معرف النظام :</string>
     <string name="age_colon">العمر :</string>
 
 </resources>

@@ -319,7 +319,7 @@
     <string name="after_tt4"> 1 an après TT 4 </string>
     <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
     <string name="activate_new_card">ACTIVER LA CARTE</string>
-    <string name="card_id_colon">Carte d\'identité :</string>
     <string name="age_colon">Âge : </string>
+    <string name="system_id_colon">Id système :</string>
 
 </resources>
