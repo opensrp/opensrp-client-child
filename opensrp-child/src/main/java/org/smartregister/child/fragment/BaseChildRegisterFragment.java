@@ -252,15 +252,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     }
 
     @Override
-
-    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
-        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-        if (baseRegisterActivity != null) {
-            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
-                    .findFragmentByPosition(BaseRegisterActivity
-                            .ADVANCED_SEARCH_POSITION);
-            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
-        }
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        //do nothing , overrode from ma
     }
 
     @Override

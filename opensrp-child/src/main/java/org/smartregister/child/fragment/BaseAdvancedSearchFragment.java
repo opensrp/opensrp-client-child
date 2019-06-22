@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -255,18 +256,17 @@ TO DO ? , sync unsynced records within catchment
     public abstract void populateSearchableFields(View view);
 
     @Override
-    public void initializeAdapter
-            (Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+
         RepositoryHolder repoHolder = new RepositoryHolder();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repoHolder.setCommonRepository(commonRepository());
 
-        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder,
-                visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider,
-                context().commonrepository(this.tablename));
+        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder, visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
+
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider, context().commonrepository(this.tablename));
         clientsView.setAdapter(clientAdapter);
     }
 
@@ -406,11 +406,22 @@ TO DO ? , sync unsynced records within catchment
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
             scanCardButton.setVisibility(View.VISIBLE);//should be visible
+
+            //If QR code button not visible send to right
+            if (qrCodeButton.getVisibility() == View.GONE) {
+
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) scanCardButton.getLayoutParams();
+                params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                params.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                scanCardButton.setLayoutParams(params);
+            }
+
+
             ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
         }
     }
 
-    protected abstract void assignedValuesBeforeBarcode();
+    public abstract void assignedValuesBeforeBarcode();
 
     protected abstract HashMap<String, String> createSelectedFieldMap();
 
@@ -598,6 +609,11 @@ TO DO ? , sync unsynced records within catchment
     @Override
     public void showNotFoundPopup(String opensrpID) {
         //Todo implement this
+    }
+
+    @Override
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        this.searchFormData = advancedSearchFormData;
     }
 
     @Override

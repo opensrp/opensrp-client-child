@@ -38,9 +38,8 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         return presenter;
     }
 
-
     @Override
-    public boolean onBackPressed(){
+    public boolean onBackPressed() {
         ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_home);
         return super.onBackPressed();
     }
@@ -49,35 +48,29 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     public void populateSearchableFields(View view) {
 
         firstName = view.findViewById(org.smartregister.child.R.id.first_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
-
-        lastName = view.findViewById(org.smartregister.child.R.id.last_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
-
-        openSrpId = view.findViewById(org.smartregister.child.R.id.opensrp_id);
-        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
-
-        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
-
-        motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
-        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
-
-        motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
-        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
-
-
         firstName.addTextChangedListener(advancedSearchTextwatcher);
 
+        lastName = view.findViewById(org.smartregister.child.R.id.last_name);
         lastName.addTextChangedListener(advancedSearchTextwatcher);
 
+        openSrpId = view.findViewById(org.smartregister.child.R.id.opensrp_id);
         openSrpId.addTextChangedListener(advancedSearchTextwatcher);
 
+        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
         motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
 
+        motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
         motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
 
+        motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
         motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
+
+        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
+        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
+        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
+        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
+        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
     }
 
     @Override
@@ -91,12 +84,19 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
+    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
+
+        this.searchFormData = formData;
+
+    }
+
+    @Override
     public void onClick(View view) {
         view.toString();
     }
 
     @Override
-    protected void assignedValuesBeforeBarcode() {
+    public void assignedValuesBeforeBarcode() {
         if (searchFormData.size() > 0) {
             firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
             lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
@@ -120,7 +120,6 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
-
     protected void clearFormFields() {
         super.clearFormFields();
 

@@ -14,8 +14,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
-import java.util.HashMap;
-
 public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
     @Override
@@ -41,11 +39,6 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     @Override
     protected String filterSelectionCondition(boolean urgentOnly) {
         return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
-    }
-
-    @Override
-    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
-        //do nothing
     }
 
     @Override
