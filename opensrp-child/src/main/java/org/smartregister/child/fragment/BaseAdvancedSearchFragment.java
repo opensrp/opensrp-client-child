@@ -186,11 +186,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
 TO DO ? , sync unsynced records within catchment
 
-        }*/ else if (view.getId() == R.id.move_to_catchment) {
-            if (view.getTag() != null && view.getTag() instanceof List) {
-                @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
-                moveToMyCatchmentArea(ids);
-            }
+        }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag() != null && view.getTag() instanceof List) {
+
+            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
+            moveToMyCatchmentArea(ids);
+
         }
     }
 

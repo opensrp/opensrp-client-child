@@ -173,9 +173,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         String vaccine;
         for (int i = 0; i < sch_.size(); i++) {
-
+//To Refactor remove
             vaccine = String.valueOf(sch_.get(i).get("vaccine")); //eg penta1
-            vaccine = vaccine.equals("yf") ? "yellowfever" : vaccine;
+            vaccine = "yf".equals(vaccine) ? "yellowfever" : vaccine;
             if (mapHasVaccine(vaccine, vaccines)) {
                 sch.remove(sch.indexOf(sch_.get(i)));
             }

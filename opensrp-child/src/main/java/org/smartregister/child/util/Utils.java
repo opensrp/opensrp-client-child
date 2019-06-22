@@ -44,9 +44,6 @@ import java.util.Map;
  */
 public class Utils extends org.smartregister.util.Utils {
     public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
-
-    private static final String PREFERENCES_FILE = "lang_prefs";
-
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Facility";
     public static final String FACILITY = "Health Facility";

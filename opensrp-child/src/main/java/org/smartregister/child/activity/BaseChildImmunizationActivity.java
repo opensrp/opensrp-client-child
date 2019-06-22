@@ -160,22 +160,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
         detailsRepository = getOpenSRPContext().detailsRepository();
 
-        toolbar = (LocationSwitcherToolbar) getToolbar();
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToRegisterPage();
-            }
-        });
-        toolbar.setOnLocationChangeListener(this);
-//       View view= toolbar.findViewById(R.id.immunization_separator);
-//        view.setBackground(R.drawable.vertical_seperator_female);
+        setUpToolbar();
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
@@ -194,9 +181,31 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         bcgScarNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) ? !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) : false;
         weightNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
-        toolbar.init(this);
         setLastModified(false);
 
+        setUpFloatingActionButton();
+    }
+
+    private void setUpToolbar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbar = (LocationSwitcherToolbar) getToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToRegisterPage();
+            }
+        });
+        toolbar.setOnLocationChangeListener(this);
+//       View view= toolbar.findViewById(R.id.immunization_separator);
+//        view.setBackground(R.drawable.vertical_seperator_female);
+
+        toolbar.init(this);
+    }
+
+    private void setUpFloatingActionButton() {
         floatingActionButton = findViewById(R.id.fab);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
@@ -380,6 +389,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 gender = Gender.MALE;
             }
         }
+
         updateGenderViews(gender);
     }
 
@@ -396,11 +406,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             toolbarResource = R.drawable.vertical_separator_male;
             identifier = getString(R.string.male_sex_id);
         }
+
         toolbar.updateSeparatorView(toolbarResource);
 
         TextView childSiblingsTV = findViewById(R.id.child_siblings_tv);
-        childSiblingsTV.setText(
-                String.format(getString(R.string.child_siblings), "").toUpperCase());
+        childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
+
         updateProfilePicture(gender);
 
         return selectedColor;
