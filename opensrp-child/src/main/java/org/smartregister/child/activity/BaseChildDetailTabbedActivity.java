@@ -104,6 +104,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
@@ -272,6 +273,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.immunization_data).setEnabled(false);
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+
+            overflow.findItem(R.id.write_to_card).setVisible(true);
+            overflow.findItem(R.id.register_card).setVisible(true);
+        }
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
 
@@ -887,7 +894,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
