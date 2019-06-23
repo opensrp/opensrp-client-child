@@ -43,6 +43,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
@@ -178,8 +179,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) ? !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_BCG_ENABLED) : false;
-        weightNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) ? !ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) : false;
+        weightNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
         setLastModified(false);
 
@@ -208,7 +209,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void setUpFloatingActionButton() {
         floatingActionButton = findViewById(R.id.fab);
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
 
             floatingActionButton.setOnClickListener(this);
 
@@ -1792,7 +1793,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if ((ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 

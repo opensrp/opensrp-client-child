@@ -51,6 +51,7 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
@@ -231,7 +232,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         profileImageIV = findViewById(R.id.profile_image_iv);
 
 
-        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_IMAGES_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
 
@@ -249,7 +250,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
+        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
@@ -274,7 +275,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
 
             overflow.findItem(R.id.write_to_card).setVisible(true);
             overflow.findItem(R.id.register_card).setVisible(true);

@@ -22,6 +22,7 @@ import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.VaccinationAsyncTask;
 import org.smartregister.child.task.WeightAsyncTask;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
@@ -241,12 +242,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     public RegisterViewHolder createViewHolder(ViewGroup parent) {
         View view = inflater.inflate(R.layout.child_register_list_row, parent, false);
 
-        if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
 
-            view.findViewById(R.id.record_weight_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+            view.findViewById(R.id.record_weight_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
         }
 
-        view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
         /*
         ConfigurableViewsHelper helper = ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper();
