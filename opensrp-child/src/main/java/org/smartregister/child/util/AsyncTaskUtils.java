@@ -62,7 +62,7 @@ public class AsyncTaskUtils {
     }
 
 
-    public static Weight retriveWeight(Map<String, NamedObject<?>> map) {
+    public static Weight retrieveWeight(Map<String, NamedObject<?>> map) {
         if (map.containsKey(Weight.class.getName())) {
             NamedObject<?> namedObject = map.get(Weight.class.getName());
             if (namedObject != null) {
@@ -72,7 +72,7 @@ public class AsyncTaskUtils {
         return null;
     }
 
-    public static Height retriveHeight(Map<String, NamedObject<?>> map) {
+    public static Height retrieveHeight(Map<String, NamedObject<?>> map) {
         if (map.containsKey(Height.class.getName())) {
             NamedObject<?> namedObject = map.get(Height.class.getName());
             if (namedObject != null) {

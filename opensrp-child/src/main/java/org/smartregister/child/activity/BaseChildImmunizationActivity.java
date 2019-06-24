@@ -63,6 +63,7 @@ import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.RecordGrowthDialogFragment;
 import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
@@ -163,6 +164,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
+    private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
@@ -1106,14 +1108,28 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         updateWeightWrapper(weightWrapper, recordWeight, recordWeightText, recordWeightCheck);
         updateHeightWrapper(heightWrapper, recordWeight, recordWeightText, recordWeightCheck);
+        String weight = "";
+        String height = "";
+        if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) || (heightWrapper
+                .getDbKey() != null && heightWrapper.getHeight() != null)) {
+            if (weightWrapper.getWeight() != null) {
+                weight = Utils.kgStringSuffix(weightWrapper.getWeight());
+            }
+            if (heightWrapper.getHeight() != null) {
+                height = Utils.cmStringSuffix(heightWrapper.getHeight());
+            }
+            isGrowthEdit = true;
+            recordWeightText.setText(weight + ", " + height);
+        }
         recordWeight.setTag(R.id.weight_wrapper, weightWrapper);
         recordWeight.setTag(R.id.height_wrapper, heightWrapper);
+        recordWeight.setTag(R.id.growth_edit_flag, isGrowthEdit);
 
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isActive) {
-                    showWeightDialog(view);
+                    showGrowthDialog(view);
                 } else {
                     showActivateChildStatusDialogBox();
                 }
@@ -1125,7 +1141,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
         if (weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
-            recordWeightText.setText(Utils.kgStringSuffix(weightWrapper.getWeight()));
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (weightWrapper.getUpdatedWeightDate() != null) {
@@ -1152,7 +1167,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
         if (heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
-            recordWeightText.setText(Utils.cmStringSuffix(heightWrapper.getHeight()));
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (heightWrapper.getUpdatedHeightDate() != null) {
@@ -1176,13 +1190,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void showWeightDialog(View view) {
-        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+    private void showGrowthDialog(View view) {
+        FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            fragmentTransaction.remove(prev);
         }
-        ft.addToBackStack(null);
+        fragmentTransaction.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1192,9 +1206,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         WeightWrapper weightWrapper = (WeightWrapper) view.getTag(R.id.weight_wrapper);
         HeightWrapper heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
-        RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment
-                .newInstance(dob, weightWrapper, heightWrapper);
-        recordWeightDialogFragment.show(ft, DIALOG_TAG);
+
+        boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
+        if (isGrowthEdit) {
+            EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment
+                    .newInstance(getActivity(), dob, weightWrapper, heightWrapper);
+            editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
+        } else {
+            RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment
+                    .newInstance(dob, weightWrapper, heightWrapper);
+            recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
+        }
+
 
     }
 
@@ -1427,7 +1450,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                         @Override
                         public void onClick(View v) {
                             View recordWeight = findViewById(R.id.record_growth);
-                            showWeightDialog(recordWeight);
+                            showGrowthDialog(recordWeight);
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
@@ -1732,8 +1755,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-            Weight weight = AsyncTaskUtils.retriveWeight(map);
-            Height height = AsyncTaskUtils.retriveHeight(map);
+            Weight weight = AsyncTaskUtils.retrieveWeight(map);
+            Height height = AsyncTaskUtils.retrieveHeight(map);
 
             updateGrowthViews(weight, height, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);

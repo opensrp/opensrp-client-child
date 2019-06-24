@@ -65,8 +65,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);
 
-        WeightRepository wp = repositoryHolder.getWeightRepository();
-        List<Weight> weightList = wp.findLast5(baseEntityId);
+        WeightRepository weightRepository = repositoryHolder.getWeightRepository();
+        List<Weight> weightList = weightRepository.findLast5(baseEntityId);
 
         NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
         map.put(weightNamedObject.name, weightNamedObject);

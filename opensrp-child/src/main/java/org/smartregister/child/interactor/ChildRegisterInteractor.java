@@ -228,7 +228,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         if (!TextUtils.isEmpty(height)) {
             HeightWrapper heightWrapper = new HeightWrapper();
             heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : null);
+            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : 0);
             heightWrapper.setUpdatedHeightDate(new DateTime(), true);
             heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
 

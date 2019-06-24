@@ -290,6 +290,31 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text="@string/birth_height"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/dark_grey" />
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/value_birth_height"
+                            style="@style/CustomFontTextViewStyle.ClientList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_black" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp">
+
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/birth_tetanus_protection"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/dark_grey" />

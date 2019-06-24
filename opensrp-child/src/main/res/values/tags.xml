@@ -11,4 +11,5 @@
 
     <item name="height_wrapper" type="id"/>
     <item name="weight_wrapper" type="id"/>
+    <item name="growth_edit_flag" type="id"/>
 </resources>

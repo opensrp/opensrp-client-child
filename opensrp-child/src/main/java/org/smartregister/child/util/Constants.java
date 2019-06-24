@@ -23,8 +23,12 @@ public class Constants extends AllConstants {
     public static final String IS_VACCINE_GROUP = "is_vaccine_group";
     public static final String VALUE = "value";
     public static final String WEIGHT_KG = "Weight_Kg";
+    public static final String DATE_BIRTH = "Date_Birth";
+    public static final String BIRTH_WEIGHT = "Birth_Weight";
+    public static final String BIRTH_HEIGHT = "Birth_Height";
+    public static final String SEX = "Sex";
 
-    public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
+    public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
     public static class JSON_FORM_KEY {
         public static final String ENTITY_ID = "entity_id";

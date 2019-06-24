@@ -239,8 +239,8 @@ public class SampleRepository extends Repository {
     private void upgradeToVersion8ReportDeceased(SQLiteDatabase database) {
         try {
 
-            String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Utils.metadata().childRegister.tableName + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
-            database.execSQL(ALTER_ADD_DEATHDATE_COLUMN);
+          /*  String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Utils.metadata().childRegister.tableName + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
+            database.execSQL(ALTER_ADD_DEATHDATE_COLUMN);*/
 
             ArrayList<String> newlyAddedFields = new ArrayList<>();
             newlyAddedFields.add(DBConstants.KEY.DOD);
@@ -353,7 +353,7 @@ public class SampleRepository extends Repository {
         upgradeToVersion7OutOfArea(database);
         upgradeToVersion8RecurringServiceUpdate(database);
         upgradeToVersion8ReportDeceased(database);
-        upgradeToVersion9(database);
+        //upgradeToVersion9(database);
         upgradeToVersion12(database);
         upgradeToVersion13(database);
         upgradeToVersion14(database);

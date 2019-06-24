@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Created by keyman on 11/04/2017.
  */
-public class WellnessDatePickerFactory extends DatePickerFactory {
+public class ChildDatePickerFactory extends DatePickerFactory {
 
     @Override
     public void attachLayout(String stepName, final Context context, JsonFormFragment formFragment, JSONObject jsonObject,

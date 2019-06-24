@@ -61,7 +61,8 @@ public class SampleApplication extends DrishtiApplication {
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
         GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
-        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE,
+                BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 
@@ -79,9 +80,6 @@ public class SampleApplication extends DrishtiApplication {
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
-
-        startZscoreRefreshService();
-
         sampleUniqueIds();
 
     }
@@ -112,6 +110,7 @@ public class SampleApplication extends DrishtiApplication {
         vaccineRepository();
         weightZScoreRepository();
         heightZScoreRepository();
+        startZscoreRefreshService();
     }
 
     public static CommonFtsObject createCommonFtsObject() {
@@ -126,12 +125,12 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private static String[] getFtsTables() {
-        return new String[]{SampleConstants.TABLE_NAME.CHILD};
+        return new String[] {SampleConstants.TABLE_NAME.CHILD};
     }
 
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
+            return new String[] {DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
                     DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.NFC_CARD_IDENTIFIER};
         }
         return null;
@@ -160,8 +159,12 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private ChildMetadata getMetadata() {
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class, ChildImmunizationActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
+                ChildImmunizationActivity.class, true);
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD,
+                SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION,
+                SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER,
+                SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         return metadata;
     }
 

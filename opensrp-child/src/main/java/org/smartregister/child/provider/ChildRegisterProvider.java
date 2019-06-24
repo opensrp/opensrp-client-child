@@ -219,12 +219,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         attachGoToImmunizationPage(viewHolder.childProfileInfoLayout, client);
 
 
-        View recordWeight = viewHolder.recordWeight;
-        recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
-        recordWeight.setTag(client);
-        recordWeight.setOnClickListener(onClickListener);
-        recordWeight.setVisibility(View.INVISIBLE);
-        recordWeight.setTag(R.id.record_action, Constants.RECORD_ACTION.WEIGHT);
+        View recordGrowthMonitoring = viewHolder.recordGrowth;
+        recordGrowthMonitoring.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
+        recordGrowthMonitoring.setTag(client);
+        recordGrowthMonitoring.setOnClickListener(onClickListener);
+        recordGrowthMonitoring.setVisibility(View.INVISIBLE);
+        recordGrowthMonitoring.setTag(R.id.record_action, Constants.RECORD_ACTION.GROWTH);
 
         View recordVaccination = viewHolder.recordVaccination;
         recordVaccination.setTag(client);
@@ -305,7 +305,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         public TextView childCardNumnber;
         public View childProfileInfoLayout;
         public ImageView imageView;
-        public View recordWeight;
+        public View recordGrowth;
         public View recordVaccination;
         public View registerColumns;
 
@@ -318,7 +318,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childCardNumnber = itemView.findViewById(R.id.child_card_number);
             imageView = itemView.findViewById(R.id.child_profilepic);
             childProfileInfoLayout = itemView.findViewById(R.id.child_profile_info_layout);
-            recordWeight = itemView.findViewById(R.id.record_growth);
+            recordGrowth = itemView.findViewById(R.id.record_growth);
             recordVaccination = itemView.findViewById(R.id.record_vaccination);
             registerColumns = itemView.findViewById(R.id.register_columns);
 

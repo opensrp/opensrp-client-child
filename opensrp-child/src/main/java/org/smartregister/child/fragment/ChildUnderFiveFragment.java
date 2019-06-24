@@ -122,9 +122,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void createGrowthLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer,
-                                    boolean editmode) {
-        LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
-        LinkedHashMap<Long, Pair<String, String>> heightMap = new LinkedHashMap<>();
+                                    boolean editMode) {
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
         ArrayList<Boolean> heightEditMode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
@@ -132,45 +130,33 @@ public class ChildUnderFiveFragment extends Fragment {
         List<Weight> weightList = getWeights(weights);
         List<Height> heightList = getHeights(heights);
 
-        updateWeightMap(editmode, weightMap, weightEditMode, listeners, weightList);
-        updateHeightMap(editmode, heightMap, heightEditMode, listeners, heightList);
-
-        if (weightMap.size() < 5) {
-            weightMap
-                    .put(0L, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT,
-                            true) + " kg"));
-            weightEditMode.add(false);
-            listeners.add(null);
-        }
-
-        if (heightMap.size() < 5) {
-            heightMap
-                    .put(0L, Pair.create(DateUtil.getDuration(0),
-                            Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true) + " " +
-                                    "cm"));
-            heightEditMode.add(false);
-            listeners.add(null);
-        }
+        LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners,
+                weightList);
+        LinkedHashMap<Long, Pair<String, String>> heightMap = updateHeightMap(editMode, heightEditMode, listeners,
+                heightList);
 
         WidgetFactory widgetFactory = new WidgetFactory();
         if (weightMap.size() > 0) {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
+        }
+
+        if (heightMap.size() > 0) {
             widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, listeners, heightEditMode);
         }
     }
 
-    private void updateWeightMap(boolean editmode, LinkedHashMap<Long, Pair<String, String>> weightMap,
-                                 ArrayList<Boolean> weightEditMode, ArrayList<View.OnClickListener> listeners,
-                                 List<Weight> weightList) {
+    private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode,
+                                                                      ArrayList<View.OnClickListener> listeners,
+                                                                      List<Weight> weightList) {
+        LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
         for (int i = 0; i < weightList.size(); i++) {
             Weight weight = weightList.get(i);
             String formattedAge = "";
             if (weight.getDate() != null) {
-                Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-                Date birth = Utils.dobStringToDate(birthdate);
+                Date weightDate = weight.getDate();
+                Date birth = getBirthDate();
                 if (birth != null) {
-                    long timeDiff = weighttaken.getTime() - birth.getTime();
+                    long timeDiff = weightDate.getTime() - birth.getTime();
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff);
@@ -180,39 +166,44 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
+                weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
-                if (lessThanThreeMonthsEventCreated) {
-                    weightEditMode.add(editmode);
-                } else {
-                    weightEditMode.add(false);
-                }
+                weightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
 
-                final int finalI = i;
+                final long weightTaken = weight.getId();
                 View.OnClickListener onClickListener = new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
-                        showGrowthMonitoringDialog(finalI);
+                        showGrowthMonitoringDialog((int) weightTaken);
                     }
                 };
                 listeners.add(onClickListener);
             }
 
         }
+
+        if (weightMap.size() < 5) {
+            weightMap.put(0L, Pair.create(DateUtil.getDuration(0),
+                    Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true) + " kg"));
+            weightEditMode.add(false);
+            listeners.add(null);
+        }
+
+        return weightMap;
     }
 
-    private void updateHeightMap(boolean editmode, LinkedHashMap<Long, Pair<String, String>> heightMap,
-                                 ArrayList<Boolean> heightEditMode, ArrayList<View.OnClickListener> listeners,
-                                 List<Height> heightList) {
+    private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode,
+                                                                      ArrayList<Boolean> heightEditMode,
+                                                                      ArrayList<View.OnClickListener> listeners,
+                                                                      List<Height> heightList) {
+        LinkedHashMap<Long, Pair<String, String>> heightMap = new LinkedHashMap<>();
         for (int i = 0; i < heightList.size(); i++) {
             Height height = heightList.get(i);
             String formattedAge = "";
             if (height.getDate() != null) {
                 Date heightDate = height.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-                Date birth = Utils.dobStringToDate(birthdate);
+                Date birth = getBirthDate();
                 if (birth != null) {
                     long timeDiff = heightDate.getTime() - birth.getTime();
                     Log.v("timeDiff is ", timeDiff + "");
@@ -224,53 +215,88 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                heightMap.put(height.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(height.getCm())));
+                heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
 
                 boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
-                if (lessThanThreeMonthsEventCreated) {
-                    heightEditMode.add(editmode);
-                } else {
-                    heightEditMode.add(false);
-                }
+                heightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
 
-                final int finalI = i;
+                final long heightTaken = height.getId();
                 View.OnClickListener onClickListener = new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
-                        showGrowthMonitoringDialog(finalI);
+                        showGrowthMonitoringDialog((int) heightTaken);
                     }
                 };
                 listeners.add(onClickListener);
             }
 
         }
+
+        if (heightMap.size() < 5) {
+            heightMap.put(0L, Pair.create(DateUtil.getDuration(0),
+                    Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true) + "cm"));
+            heightEditMode.add(false);
+            listeners.add(null);
+        }
+
+        return heightMap;
+    }
+
+    private Date getBirthDate() {
+        String birthDate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        return Utils.dobStringToDate(birthDate);
     }
 
     @NotNull
     private List<Weight> getWeights(List<Weight> weights) {
         List<Weight> weightList = new ArrayList<>();
-        if (weights != null && !weights.isEmpty()) {
-            if (weights.size() <= 5) {
-                weightList = weights;
+        List<Weight> formattedWeights = getChildSpecificWeights(weights);
+        if (formattedWeights != null && !formattedWeights.isEmpty()) {
+            if (formattedWeights.size() <= 5) {
+                weightList = formattedWeights;
             } else {
-                weightList = weights.subList(0, 5);
+                weightList = formattedWeights.subList(0, 5);
             }
         }
+
         return weightList;
     }
 
     @NotNull
     private List<Height> getHeights(List<Height> heights) {
         List<Height> heightList = new ArrayList<>();
-        if (heights != null && !heights.isEmpty()) {
+        List<Height> formattedHeights = getChildSpecificHeights(heights);
+        if (formattedHeights != null && !formattedHeights.isEmpty()) {
             if (heights.size() <= 5) {
                 heightList = heights;
             } else {
                 heightList = heights.subList(0, 5);
             }
         }
+
         return heightList;
+    }
+
+    private List<Height> getChildSpecificHeights(List<Height> heights) {
+        List<Height> heightList = new ArrayList<>();
+        for (Height height : heights) {
+            if (height.getBaseEntityId().equals(childDetails.getCaseId())) {
+                heightList.add(height);
+            }
+        }
+
+        return heightList;
+    }
+
+    private List<Weight> getChildSpecificWeights(List<Weight> weights) {
+        List<Weight> weightList = new ArrayList<>();
+        for (Weight height : weights) {
+            if (height.getBaseEntityId().equals(childDetails.getCaseId())) {
+                weightList.add(height);
+            }
+        }
+
+        return weightList;
     }
 
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
@@ -330,8 +356,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        Date dob = Utils.dobStringToDate(dobString);
+        Date dob = getBirthDate();
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
         }
@@ -413,7 +438,7 @@ public class ChildUnderFiveFragment extends Fragment {
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void showGrowthMonitoringDialog(int i) {
+    public void showGrowthMonitoringDialog(int growthRecordPosition) {
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -444,8 +469,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
         Photo photo = getProfilePhotoByClient();
 
-        WeightWrapper weightWrapper = getWeightWrapper(i, childName, gender, openSrpId, duration, photo);
-        HeightWrapper heightWrapper = getHeightWrapper(i, childName, gender, openSrpId, duration, photo);
+        WeightWrapper weightWrapper = getWeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
+        HeightWrapper heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
 
         EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment
                 .newInstance(getActivity(), dob, weightWrapper, heightWrapper);
@@ -454,7 +479,8 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     @NotNull
-    private WeightWrapper getWeightWrapper(int i, String childName, String gender, String openSrpId, String duration,
+    private WeightWrapper getWeightWrapper(int weightPosition, String childName, String gender, String openSrpId,
+                                           String duration,
                                            Photo photo) {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
@@ -462,10 +488,12 @@ public class ChildUnderFiveFragment extends Fragment {
         List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository()
                 .findByEntityId(childDetails.entityId());
 
+        Weight weight = getWeight(weightList, weightPosition);
+
         if (!weightList.isEmpty()) {
-            weightWrapper.setWeight(weightList.get(i).getKg());
-            weightWrapper.setUpdatedWeightDate(new DateTime(weightList.get(i).getDate()), false);
-            weightWrapper.setDbKey(weightList.get(i).getId());
+            weightWrapper.setWeight(weight.getKg());
+            weightWrapper.setUpdatedWeightDate(new DateTime(weight.getDate()), false);
+            weightWrapper.setDbKey(weight.getId());
         }
 
         weightWrapper.setGender(gender);
@@ -478,18 +506,32 @@ public class ChildUnderFiveFragment extends Fragment {
         return weightWrapper;
     }
 
+    private Weight getWeight(List<Weight> weights, int weightPosition) {
+        Weight displayWeight = new Weight();
+        for (Weight weight : weights) {
+            if (weight.getId().equals((long) weightPosition)) {
+                displayWeight = weight;
+            }
+        }
+
+        return displayWeight;
+    }
+
     @NotNull
-    private HeightWrapper getHeightWrapper(int i, String childName, String gender, String openSrpId, String duration,
+    private HeightWrapper getHeightWrapper(int heightPosition, String childName, String gender, String openSrpId,
+                                           String duration,
                                            Photo photo) {
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setId(childDetails.entityId());
 
         List<Height> heightList =
                 GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(childDetails.entityId());
+        Height height = getHeight(heightList, heightPosition);
+
         if (!heightList.isEmpty()) {
-            heightWrapper.setHeight(heightList.get(i).getCm());
-            heightWrapper.setUpdatedHeightDate(new DateTime(heightList.get(i).getDate()), false);
-            heightWrapper.setDbKey(heightList.get(i).getId());
+            heightWrapper.setHeight(height.getCm());
+            heightWrapper.setUpdatedHeightDate(new DateTime(height.getDate()), false);
+            heightWrapper.setDbKey(height.getId());
         }
 
         heightWrapper.setGender(gender);
@@ -500,6 +542,17 @@ public class ChildUnderFiveFragment extends Fragment {
         heightWrapper.setPmtctStatus(
                 Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
         return heightWrapper;
+    }
+
+    private Height getHeight(List<Height> heights, int heightPosition) {
+        Height displayHeight = new Height();
+        for (Height height : heights) {
+            if (height.getId().equals((long) heightPosition)) {
+                displayHeight = height;
+            }
+        }
+
+        return displayHeight;
     }
 
     protected Photo getProfilePhotoByClient() {

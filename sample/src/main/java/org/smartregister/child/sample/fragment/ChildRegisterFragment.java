@@ -57,7 +57,7 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
         if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
 
-            registerClickables.setRecordWeight(Constants.RECORD_ACTION.WEIGHT.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+            registerClickables.setRecordWeight(Constants.RECORD_ACTION.GROWTH.equals(view.getTag(org.smartregister.child.R.id.record_action)));
             registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
 
         }

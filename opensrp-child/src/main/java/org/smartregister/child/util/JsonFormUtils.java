@@ -97,7 +97,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Birth_Weight", "Sex", ZEIR_ID);
+    public static List<String> nonEditableFields = Arrays
+            .asList(Constants.DATE_BIRTH, Constants.BIRTH_WEIGHT, Constants.BIRTH_HEIGHT, Constants.SEX, ZEIR_ID);
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
@@ -615,7 +616,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         try {
             //TO DO Will need re-architecting later to support more languages, perhaps update the selector widget
 
-            JSONObject genderObject = getFieldJSONObject(fields, "Sex");
+            JSONObject genderObject = getFieldJSONObject(fields, Constants.SEX);
             String genderValue = "";
 
             String rawGender = genderObject.getString(JsonFormConstants.VALUE);
@@ -928,7 +929,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return "";
     }
 
-    private static void processPhoto(String baseEntityId, JSONObject jsonObject) throws JSONException {
+    protected static void processPhoto(String baseEntityId, JSONObject jsonObject) throws JSONException {
         Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
 
         if (StringUtils.isNotBlank(photo.getFilePath())) {
@@ -938,13 +939,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void processAge(String dobString, JSONObject jsonObject) throws JSONException {
+    protected static void processAge(String dobString, JSONObject jsonObject) throws JSONException {
         if (StringUtils.isNotBlank(dobString)) {
             jsonObject.put(JsonFormUtils.VALUE, Utils.getAgeFromDate(dobString));
         }
     }
 
-    private static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject)
+    protected static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject)
     throws JSONException {
         String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID)
                 .equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" : jsonObject
@@ -955,7 +956,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static String getMappedValue(String key, Map<String, String> childDetails) {
+    protected static String getMappedValue(String key, Map<String, String> childDetails) {
 
         String value = Utils.getValue(childDetails, key, true);
         return !TextUtils.isEmpty(value) ? value : Utils.getValue(childDetails, key.toLowerCase(), true);

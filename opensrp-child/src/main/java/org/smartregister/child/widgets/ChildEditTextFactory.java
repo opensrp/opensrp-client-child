@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Created by keyman on 11/04/2017.
  */
-public class WellnessEditTextFactory extends EditTextFactory {
+public class ChildEditTextFactory extends EditTextFactory {
 
     @Override
     public void attachLayout(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject,

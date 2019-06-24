@@ -98,7 +98,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     @Override
     protected ChildFormFragmentPresenter createPresenter() {
-        return new ChildFormFragmentPresenter(this, ChildFormInteractor.getWellnessInteractorInstance());
+        return new ChildFormFragmentPresenter(this, ChildFormInteractor.getChildInteractorInstance());
     }
 
     @Override
