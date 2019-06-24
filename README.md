@@ -4,7 +4,6 @@
 # opensrp-client-child
 OpenSRP client child health module library
 
-#Features
 ## Configurability
 
 By placing a file named `app.properties` in your implementation assets folder (See sample app) , one can configure certain aspects of the app
