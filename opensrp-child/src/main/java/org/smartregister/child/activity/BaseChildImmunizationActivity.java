@@ -118,7 +118,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
@@ -364,7 +363,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
-                formattedDob = DATE_FORMAT.format(dob);
+                formattedDob = new SimpleDateFormat("dd/MM/yyyy").format(dob);
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {

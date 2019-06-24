@@ -26,10 +26,14 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.domain.jsonmapping.Vaccine;
+import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.Repository;
@@ -77,6 +81,8 @@ public class SampleApplication extends DrishtiApplication {
         JobManager.create(this).addJobCreator(new SampleJobCreator());
 
         sampleUniqueIds();
+
+        initOfflineSchedules();
 
         ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
 
@@ -207,5 +213,15 @@ public class SampleApplication extends DrishtiApplication {
 
     public void setLastModified(boolean lastModified) {
         this.lastModified = lastModified;
+    }
+
+    private void initOfflineSchedules() {
+        try {
+            List<VaccineGroup> childVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            List<Vaccine> specialVaccines = VaccinatorUtils.getSpecialVaccines(this);
+            VaccineSchedule.init(childVaccines, specialVaccines, "child");
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
     }
 }
