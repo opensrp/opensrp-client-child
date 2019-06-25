@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.AllConstants;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.ConfigHelper;
@@ -24,6 +25,7 @@ import org.smartregister.domain.ResponseStatus;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -99,7 +101,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
-        String[] columns = new String[]{"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
+        String[] columns = new String[]{"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.GENDER, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
         AdvancedMatrixCursor matrixCursor = new AdvancedMatrixCursor(columns);
 
         if (response == null || response.isFailure() || StringUtils.isBlank(response.payload())) {
@@ -115,7 +117,8 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 String firstName;
                 String lastName;
                 String dob;
-                String ancId;
+                String opensrpId;
+                String gender;
                 String phoneNumber;
                 String altContactName;
                 if (client == null) {
@@ -130,6 +133,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 entityId = getJsonString(client, "baseEntityId");
                 firstName = getJsonString(client, "firstName");
                 lastName = getJsonString(client, "lastName");
+                gender = getJsonString(client, AllConstants.ChildRegistrationFields.GENDER);
 
                 dob = getJsonString(client, "birthdate");
                 if (StringUtils.isNotBlank(dob) && StringUtils.isNumeric(dob)) {
@@ -142,9 +146,12 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                     }
                 }
 
-                ancId = getJsonString(getJsonObject(client, "identifiers"), Constants.KEY.ZEIR_ID);
-                if (StringUtils.isNotBlank(ancId)) {
-                    ancId = ancId.replace("-", "");
+                JSONObject identifiers = getJsonObject(client, "identifiers");
+                opensrpId = getJsonString(identifiers, Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH));
+
+                opensrpId = StringUtils.isBlank(opensrpId) && identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers, "M_ZEIR_ID").substring(0, getJsonString(identifiers, "M_ZEIR_ID").indexOf("_mother")) : opensrpId;
+                if (StringUtils.isNotBlank(opensrpId)) {
+                    opensrpId = opensrpId.replace("-", "");
                 }
 
                 phoneNumber = getJsonString(getJsonObject(client, "attributes"), "phone_number");
@@ -152,7 +159,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 altContactName = getJsonString(getJsonObject(client, "attributes"), "alt_name");
 
 
-                matrixCursor.addRow(new Object[]{entityId, null, firstName, lastName, dob, ancId});
+                matrixCursor.addRow(new Object[]{entityId, identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers, "M_ZEIR_ID") : null, firstName, lastName, gender, dob, opensrpId});
             }
         }
         return matrixCursor;

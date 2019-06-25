@@ -86,7 +86,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
 
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(Constants.KEY.LOCATION_NAME, LocationHelper.getInstance().getOpenMrsLocationId(getCurrentLocation()));
+        bundle.putString(Constants.INTENT_KEY.LOCATION_ID, LocationHelper.getInstance().getOpenMrsLocationId(getCurrentLocation()));
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
         intent.putExtras(bundle);

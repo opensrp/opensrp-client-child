@@ -73,4 +73,5 @@
 
     <color name="colorPrimary">#358CB7</color>
     <color name="colorAccent">#358CB7</color>
+    <color name="easy_black">#1f1f1f</color>
 </resources>

@@ -21,7 +21,7 @@ public class AdvancedSearchPresenter extends BaseChildAdvancedSearchPresenter {
         String query = getView().filterAndSortQuery();
         Cursor cursor = getView().getRawCustomQueryForAdapter(query);
         if (cursor != null && cursor.getCount() > 0) {
-            AdvancedMatrixCursor remoteLocalCursor = new AdvancedMatrixCursor(new String[]{DBConstants.KEY.ID_LOWER_CASE, DBConstants.KEY.RELATIONALID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.DOB, DBConstants.KEY.ZEIR_ID});
+            AdvancedMatrixCursor remoteLocalCursor = new AdvancedMatrixCursor(new String[]{DBConstants.KEY.ID_LOWER_CASE, DBConstants.KEY.RELATIONALID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME,DBConstants.KEY.GENDER, DBConstants.KEY.DOB, DBConstants.KEY.ZEIR_ID});
 
             CursorJoiner joiner = new CursorJoiner(matrixCursor, new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.ID_LOWER_CASE}, cursor, new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.ID_LOWER_CASE});
             for (CursorJoiner.Result joinerResult : joiner) {
@@ -30,20 +30,20 @@ public class AdvancedSearchPresenter extends BaseChildAdvancedSearchPresenter {
                         CreateRemoteLocalCursor createRemoteLocalCursor = new CreateRemoteLocalCursor(matrixCursor, true);
                         remoteLocalCursor
                                 .addRow(new Object[]{createRemoteLocalCursor.getId(), createRemoteLocalCursor.getRelationalId(),
-                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getOpenSrpId()});
+                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getGender(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getOpenSrpId()});
                         break;
                     case RIGHT:
                         CreateRemoteLocalCursor localCreateRemoteLocalCursor = new CreateRemoteLocalCursor(cursor, false);
                         remoteLocalCursor
                                 .addRow(new Object[]{localCreateRemoteLocalCursor.getId(), localCreateRemoteLocalCursor.getRelationalId(),
-                                        localCreateRemoteLocalCursor.getFirstName(), localCreateRemoteLocalCursor.getLastName(), localCreateRemoteLocalCursor.getDob(), localCreateRemoteLocalCursor.getOpenSrpId()});
+                                        localCreateRemoteLocalCursor.getFirstName(), localCreateRemoteLocalCursor.getLastName(), localCreateRemoteLocalCursor.getGender(),  localCreateRemoteLocalCursor.getDob(), localCreateRemoteLocalCursor.getOpenSrpId()});
 
                         break;
                     case LEFT:
                         createRemoteLocalCursor = new CreateRemoteLocalCursor(matrixCursor, true);
                         remoteLocalCursor
                                 .addRow(new Object[]{createRemoteLocalCursor.getId(), createRemoteLocalCursor.getRelationalId(),
-                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getOpenSrpId()});
+                                        createRemoteLocalCursor.getFirstName(), createRemoteLocalCursor.getLastName(), createRemoteLocalCursor.getGender(), createRemoteLocalCursor.getDob(), createRemoteLocalCursor.getOpenSrpId()});
                         break;
                     default:
                         break;

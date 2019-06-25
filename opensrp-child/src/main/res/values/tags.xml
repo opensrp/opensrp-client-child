@@ -8,4 +8,5 @@
     <item name="vaccine_stock_wasted_tag" type="id" />
     <item name="vaccine_group_parent_id" type="id" />
     <item name="vaccine_group_vaccine_data" type="id" />
+    <item name="next_appointment_date" type="id" />
 </resources>

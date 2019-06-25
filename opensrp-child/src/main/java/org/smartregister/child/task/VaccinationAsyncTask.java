@@ -2,6 +2,7 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,19 @@ import static org.smartregister.util.Utils.getValue;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
+
+    private List<String> vaccineGroups = Arrays.asList(new String[]{"at birth",
+            "6 weeks",
+            "10 weeks",
+            "14 weeks",
+            "9 months",
+            "15 months",
+            "18 months",
+            "After LMP",
+            "4 Weeks after TT 1",
+            "26 Weeks after TT 2",
+            "1 Year after TT 3 ",
+            " 1 Year after TT 4 "});
 
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -62,6 +78,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
     private AlertService alertService;
+    private View childProfileInfoLayout;
 
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository, VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -78,6 +95,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.commonRepository = commonRepository;
         this.context = context;
         this.alertService = alertService;
+        this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
 
 
     }
@@ -86,12 +104,48 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         vaccines = vaccineRepository.findByEntityId(entityId);
+
+        Collections.sort(vaccines, new Comparator<Vaccine>() {
+            @Override
+            public int compare(Vaccine vaccineA, Vaccine vaccineB) {
+                try {
+                    VaccineRepo.Vaccine v1 = VaccineRepo.getVaccine(vaccineA.getName(), Constants.CHILD_TYPE);
+                    VaccineRepo.Vaccine v2 = VaccineRepo.getVaccine(vaccineB.getName(), Constants.CHILD_TYPE);
+
+                    String stateKey1 = VaccinateActionUtils.stateKey(v1);
+                    String stateKey2 = VaccinateActionUtils.stateKey(v2);
+
+                    return vaccineGroups.indexOf(stateKey1) - vaccineGroups.indexOf(stateKey2);
+                } catch (Exception e) {
+
+                    e.getMessage();
+                    return 0;
+
+
+                }
+
+            }
+        });
+
         List<Alert> alerts = alertService.findByEntityId(entityId);
 
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
+        List<String> receivedVaccinesList = new ArrayList<>();
+        String key;
+
+        for (Map.Entry<String, Date> entry : receivedVaccines.entrySet()) {
+
+            key = entry.getKey();
+            key = key.contains("/") ? key.substring(0, key.indexOf("/")) : key;
+            key = key.trim().replaceAll(" ", "").toLowerCase();
+            receivedVaccinesList.add(key);
+        }
+
+
+        sch = cleanMap(sch, receivedVaccinesList);
 
         if (vaccines.isEmpty()) {
             List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
@@ -106,9 +160,35 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             nv = nextVaccineDue(sch, lastVaccine);
+
         }
 
         return null;
+    }
+
+    private List<Map<String, Object>> cleanMap(List<Map<String, Object>> sch_, List<String> vaccines) {
+
+        List<Map<String, Object>> sch = new ArrayList<>();
+        sch.addAll(sch_);
+
+        String vaccine;
+        for (int i = 0; i < sch_.size(); i++) {
+//To Refactor remove
+            vaccine = String.valueOf(sch_.get(i).get("vaccine")); //eg penta1
+            vaccine = "yf".equals(vaccine) ? "yellowfever" : vaccine;
+            if (mapHasVaccine(vaccine, vaccines)) {
+                sch.remove(sch.indexOf(sch_.get(i)));
+            }
+
+        }
+
+        return sch;
+    }
+
+    private boolean mapHasVaccine(String vaccine, List<String> vaccines) {
+
+        return vaccines.contains(vaccine);
+
     }
 
     @Override
@@ -139,7 +219,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         Map<String, Object> nv = updateWrapper.getNv();
 
-        DateTime dueDate = null;
+        Object dueDateRawObject = nv.get(Constants.KEY.DATE);
+        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
@@ -162,9 +244,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 today.set(Calendar.SECOND, 0);
                 today.set(Calendar.MILLISECOND, 0);
 
-                if (nv.get(Constants.KEY.DATE) != null && nv.get(Constants.KEY.DATE) instanceof DateTime) {
-                    dueDate = (DateTime) nv.get(Constants.KEY.DATE);
-                }
 
                 if (dueDate != null && dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
                     state = State.UPCOMING_NEXT_7_DAYS;
@@ -178,17 +257,16 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        TextView nextDate = convertView.findViewById(R.id.child_next_appointment);
+        TextView nextAppointmentDate = convertView.findViewById(R.id.child_next_appointment);
 
-        if (nextDate != null) {
+        if (nextAppointmentDate != null) {
 
-            SimpleDateFormat UI_DF = new SimpleDateFormat("dd-MM-yyyy", CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
+            SimpleDateFormat UI_DF = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
 
             if (dueDate != null) {
-                nextDate.setText(UI_DF.format(dueDate.toDate()));
-            } else {
-                nextDate.setText(UI_DF.format(Calendar.getInstance().getTime()));
-
+                String nextAppointment = UI_DF.format(dueDate.toDate());
+                nextAppointmentDate.setText(nextAppointment);
+                childProfileInfoLayout.setTag(R.id.next_appointment_date, nextAppointment);
             }
         }
 
@@ -277,7 +355,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) && !updateWrapper.getVaccines().isEmpty()) {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
-                if (previousStateKey != null) {
+                if (!TextUtils.isEmpty(previousStateKey)) {
                     recordVaccinationText.setText(localizeStateKey(previousStateKey));
                 } else {
                     recordVaccinationText.setText(localizeStateKey(stateKey));
@@ -365,47 +443,63 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     private String localizeStateKey(String stateKey) {
+        String localizedKey = "";
         switch (stateKey) {
+            case "Birth":
+                localizedKey = context.getString(R.string.birth);
+                break;
             case "at birth":
-                return context.getString(R.string.at_birth);
+                localizedKey = context.getString(R.string.at_birth);
+                break;
 
             case "6 weeks":
-                return context.getString(R.string.six_weeks);
+                localizedKey = context.getString(R.string.six_weeks);
+                break;
 
             case "10 weeks":
-                return context.getString(R.string.ten_weeks);
+                localizedKey = context.getString(R.string.ten_weeks);
+                break;
 
             case "14 weeks":
-                return context.getString(R.string.fourteen_weeks);
+                localizedKey = context.getString(R.string.fourteen_weeks);
+                break;
 
             case "9 months":
-                return context.getString(R.string.nine_months);
+                localizedKey = context.getString(R.string.nine_months);
+                break;
 
             case "15 months":
-                return context.getString(R.string.fifteen_months);
+                localizedKey = context.getString(R.string.fifteen_months);
+                break;
 
             case "18 months":
-                return context.getString(R.string.eighteen_months);
+                localizedKey = context.getString(R.string.eighteen_months);
+                break;
 
             case "After LMP":
-                return context.getString(R.string.after_lmp);
+                localizedKey = context.getString(R.string.after_lmp);
+                break;
 
             case "4 Weeks after TT 1":
-                return context.getString(R.string.after_tt1);
+                localizedKey = context.getString(R.string.after_tt1);
+                break;
 
             case "26 Weeks after TT 2":
-                return context.getString(R.string.after_tt2);
+                localizedKey = context.getString(R.string.after_tt2);
+                break;
 
             case " 1 Year after  TT 3 ":
-                return context.getString(R.string.after_tt3);
+                localizedKey = context.getString(R.string.after_tt3);
+                break;
 
             case " 1 Year after  TT 4 ":
-                return context.getString(R.string.after_tt4);
+                localizedKey = context.getString(R.string.after_tt4);
+                break;
 
             default:
                 break;
         }
-        return "";
+        return VaccinatorUtils.getTranslatedGroupName(localizedKey);
     }
 
 }

@@ -21,14 +21,19 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.domain.jsonmapping.Vaccine;
+import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.Repository;
@@ -56,15 +61,12 @@ public class SampleApplication extends DrishtiApplication {
 
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
-        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
         ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 
         initRepositories();
-
-        SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
 
 
         //Auto login by default
@@ -72,11 +74,17 @@ public class SampleApplication extends DrishtiApplication {
         context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
         context.session().setPassword(SampleRepository.PASSWORD);
 
+        SyncStatusBroadcastReceiver.init(this);
+        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
 
         sampleUniqueIds();
+
+        initOfflineSchedules();
+
+        ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
 
     }
 
@@ -124,7 +132,7 @@ public class SampleApplication extends DrishtiApplication {
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
             return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
-                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.NFC_CARD_IDENTIFIER};
+                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.NFC_CARD_IDENTIFIER, DBConstants.KEY.PROVIDER_ID, DBConstants.KEY.PROVIDER_LOCATION_ID};
         }
         return null;
     }
@@ -205,5 +213,15 @@ public class SampleApplication extends DrishtiApplication {
 
     public void setLastModified(boolean lastModified) {
         this.lastModified = lastModified;
+    }
+
+    private void initOfflineSchedules() {
+        try {
+            List<VaccineGroup> childVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            List<Vaccine> specialVaccines = VaccinatorUtils.getSpecialVaccines(this);
+            VaccineSchedule.init(childVaccines, specialVaccines, "child");
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
     }
 }

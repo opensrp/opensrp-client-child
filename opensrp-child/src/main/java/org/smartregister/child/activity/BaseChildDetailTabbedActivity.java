@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -52,9 +51,9 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.FormUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -88,6 +87,7 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
+import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -105,6 +105,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
@@ -126,13 +127,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     //////////////////////////////////////////////////
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
     private File currentfile;
-    private String location_name = "";
+    private String locationId = "";
 
     private ViewPagerAdapter adapter;
 
@@ -162,7 +163,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        location_name = extras.getString("location_name");
+        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
         setContentView(getContentView());
 
@@ -220,7 +221,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 onBackPressed();
             }
         });
-        detailtoolbar.setTitle(updateActivityTitle());
+        setActivityTitle();
 
         tabLayout.setupWithViewPager(viewPager);
 
@@ -231,7 +232,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         profileImageIV = findViewById(R.id.profile_image_iv);
 
 
-        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_IMAGES_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
 
@@ -249,9 +250,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)  && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED)) ) {
+        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+
+        renderProfileWidget(detailsMap);
+        updateGenderViews();
     }
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
@@ -259,11 +263,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void onResume() {
         super.onResume();
-
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        detailsMap = childDetails.getColumnmaps();
-        renderProfileWidget(detailsMap);
-        childDataFragment.loadData(detailsMap);
     }
 
     @Override
@@ -276,7 +275,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
-        Utils.startAsyncTask(new LoadAsyncTask(), null);
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+
+            overflow.findItem(R.id.write_to_card).setVisible(true);
+            overflow.findItem(R.id.register_card).setVisible(true);
+        }
+
+        Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
+
         return true;
     }
 
@@ -387,7 +393,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    //   JsonFormUtils.saveAdverseEvent(jsonString, location_name,
+                    //   JsonFormUtils.saveAdverseEvent(jsonString, locationId,
                     //         childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
 
@@ -406,7 +412,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
 
-        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), location_name, childDetails.entityId());
+        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), locationId, childDetails.entityId());
 
     }
 
@@ -498,7 +504,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         if (isDataOk()) {
             name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
                     + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
-            childId = getValue(childDetails, "zeir_id", false);
+            childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
@@ -513,10 +519,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
+        profileage.setText(" " + formattedAge);
+        profileOpenSrpId.setText(" " + childId);
         profilename.setText(name);
-        updateGenderViews();
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
             String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
@@ -560,11 +565,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
     }
 
-    private String updateActivityTitle() {
+    protected void setActivityTitle() {
+        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getActivityTitle());
+    }
+
+    private String getActivityTitle() {
         String name = "";
 
         if (isDataOk()) {
-            name = Utils.getName(getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true), getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true));
+            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true), getValue(detailsMap, Constants.KEY.LAST_NAME, true));
         }
         return String.format("%s's %s", name, getString(R.string.health_details));
     }
@@ -757,8 +766,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             weight.setKg(tag.getWeight());
             weight.setDate(tag.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (StringUtils.isNotBlank(location_name)) {
-                weight.setLocationId(location_name);
+            if (StringUtils.isNotBlank(locationId)) {
+                weight.setLocationId(locationId);
             }
 
             Gender gender = Gender.UNKNOWN;
@@ -857,8 +866,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(tag.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        if (StringUtils.isNotBlank(location_name)) {
-            vaccine.setLocationId(location_name);
+        if (StringUtils.isNotBlank(locationId)) {
+            vaccine.setLocationId(locationId);
         }
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -886,7 +895,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
@@ -989,7 +998,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void startJsonForm(String formName, String entityId) {
         try {
-            startJsonForm(formName, entityId, location_name);
+            startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -1004,26 +1013,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private Map<String, String> getCleanMap(Map<String, String> rawDetails) {
-        Map<String, String> clean = new HashMap<>();
-
-        try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
-
-            Map<String, String> old = rawDetails;
-            for (Map.Entry<String, String> entry : old.entrySet()) {
-                String val = entry.getValue();
-                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
-                    clean.put(entry.getKey(), entry.getValue());
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return clean;
-
-    }
 /*
     private Map<String, String> getCleanMap() {
         Map<String, String> detailsMap = new HashMap<>();
@@ -1085,48 +1074,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         @Override
-        protected void onPostExecute(Map<String, NamedObject<?>> map) {
-
-            detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
-
-            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-
-            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
-            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
-            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
-            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
-            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-
-            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
-            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
-            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
-
-            if (STATUS.NONE.equals(status)) {
-                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-            }
-
-            childDataFragment.loadData(detailsMap);
-
-            childUnderFiveFragment.setDetailsMap(detailsMap);
-            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
-            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
-            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
-
-            if (!fromUpdateStatus) {
-                updateStatus(true);
-            }
-
-            renderProfileWidget(detailsMap);
-
-            hideProgressDialog();
-        }
-
-        @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+            detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
@@ -1182,6 +1135,45 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             return map;
         }
+
+        @Override
+        protected void onPostExecute(Map<String, NamedObject<?>> map) {
+
+            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
+
+            if (writeToCard != null) {
+                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+
+            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
+            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
+            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
+
+            if (STATUS.NONE.equals(status)) {
+                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
+            }
+
+            childDataFragment.loadData(detailsMap);
+
+            childUnderFiveFragment.setDetailsMap(detailsMap);
+            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
+            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
+            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            if (!fromUpdateStatus) {
+                updateStatus(true);
+            }
+
+            setActivityTitle();
+            renderProfileWidget(detailsMap);
+            hideProgressDialog();
+        }
     }
 
     public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Void> {
@@ -1215,17 +1207,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         if (isEdit) {//On edit mode refresh view
 
 
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+            Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
 
-            detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+            //To Do optimize with
+            // childDataFragment.refreshRecyclerViewData(detailsMap);
 
-            childDataFragment.updateChildDetails(detailsMap);
-            childDataFragment.loadData(detailsMap);
-
-            renderProfileWidget(detailsMap);
         }
-
-        hideProgressDialog();
     }
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
