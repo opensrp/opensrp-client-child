@@ -445,4 +445,12 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
+    public static String updateGrowthValue(String value) {
+        String growthValue = value;
+        if (!value.contains(".")) {
+            growthValue = value + ".0";
+        }
+        return growthValue;
+    }
+
 }

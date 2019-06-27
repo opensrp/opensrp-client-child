@@ -57,6 +57,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.smartregister.child.util.Utils.updateGrowthValue;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -185,7 +187,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         if (weightMap.size() < 5) {
             weightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true) + " kg"));
+                    updateGrowthValue(Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true)) + " kg"));
             weightEditMode.add(false);
             listeners.add(null);
         }
@@ -234,7 +236,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         if (heightMap.size() < 5) {
             heightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true) + "cm"));
+                    updateGrowthValue(Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true)) + " cm"));
             heightEditMode.add(false);
             listeners.add(null);
         }

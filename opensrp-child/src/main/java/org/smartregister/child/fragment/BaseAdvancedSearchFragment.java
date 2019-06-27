@@ -72,7 +72,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private TextView matchingResults;
     private boolean listMode = false;
     private boolean isLocal = false;
-    private BroadcastReceiver connectionChangeReciever;
+    private BroadcastReceiver connectionChangeReceiver;
     private boolean registeredConnectionChangeReceiver = false;
     private Button qrCodeButton;
 
@@ -172,7 +172,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
         RepositoryHolder repoHolder = new RepositoryHolder();
-        BaseChildRegisterActivity activity = (BaseChildRegisterActivity) getActivity();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
         repoHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
@@ -487,8 +486,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             outsideInside.setChecked(false);
         }
 
-        if (connectionChangeReciever == null) {
-            connectionChangeReciever = new BroadcastReceiver() {
+        if (connectionChangeReceiver == null) {
+            connectionChangeReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (!Utils.isConnectedToNetwork(getActivity())) {
@@ -500,7 +499,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            getActivity().registerReceiver(connectionChangeReciever, intentFilter);
+            getActivity().registerReceiver(connectionChangeReceiver, intentFilter);
             registeredConnectionChangeReceiver = true;
         }
 
@@ -636,8 +635,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     public void onPause() {
         super.onPause();
 
-        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
-            getActivity().unregisterReceiver(connectionChangeReciever);
+        if (connectionChangeReceiver != null && registeredConnectionChangeReceiver) {
+            getActivity().unregisterReceiver(connectionChangeReceiver);
             registeredConnectionChangeReceiver = false;
         }
     }
