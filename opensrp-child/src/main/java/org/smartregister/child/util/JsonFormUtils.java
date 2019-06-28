@@ -98,7 +98,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", ZEIR_ID);// To Do To Remove , "Birth_Weight"
+    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", ZEIR_ID, "isConsented");
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
