@@ -101,6 +101,7 @@ public class ChildUnderFiveFragment extends Fragment {
             Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
+                detailsMap = childDetails.getColumnmaps();
             }
         }
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
@@ -156,7 +157,8 @@ public class ChildUnderFiveFragment extends Fragment {
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weightDate = weight.getDate();
-                Date birth = getBirthDate();
+                String birthDate = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
+                Date birth = Utils.dobStringToDate(birthDate);
                 if (birth != null) {
                     long timeDiff = weightDate.getTime() - birth.getTime();
                     Log.v("timeDiff is ", timeDiff + "");
@@ -168,7 +170,9 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
+                weightMap.put(weight.getId() - 1, Pair.create(formattedAge,
+                        Utils.kgStringSuffix(
+                                org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
                 weightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
@@ -242,11 +246,6 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         return heightMap;
-    }
-
-    private Date getBirthDate() {
-        String birthDate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        return Utils.dobStringToDate(birthDate);
     }
 
     @NotNull
@@ -374,6 +373,11 @@ public class ChildUnderFiveFragment extends Fragment {
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
+    private Date getBirthDate() {
+        String birthDate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        return Utils.dobStringToDate(birthDate);
+    }
+
     public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap,
                                    List<ServiceRecord> services, List<Alert> alertList, boolean editServiceMode) {
         boolean showService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
@@ -423,7 +427,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime == null) {
             dateTime = DateTime.now();
@@ -449,14 +453,14 @@ public class ChildUnderFiveFragment extends Fragment {
         fragmentTransaction.addToBackStack(null);
 
         String childName = constructChildName();
-        String gender = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, true);
-        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
+        String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(detailsMap, Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
-        String openSrpId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
+        String openSrpId = Utils.getValue(detailsMap, Constants.KEY.ZEIR_ID, false);
         String duration = "";
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
 
         Date dob = null;
@@ -562,8 +566,8 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
+        String firstName = Utils.getValue(detailsMap, Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(detailsMap, Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
 

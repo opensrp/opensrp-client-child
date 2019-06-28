@@ -22,6 +22,21 @@ import org.smartregister.util.Utils;
  */
 public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     @Override
+    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+
+    }
+
+    @Override
+    public void onNoUniqueId() {
+
+    }
+
+    @Override
+    public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
+        return new ChildRegistrationDataFragment();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
@@ -35,7 +50,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                Utils.startAsyncTask(new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_VACCINE), null);
+                Utils.startAsyncTask(
+                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_VACCINE),
+                        null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -46,7 +63,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                Utils.startAsyncTask(new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_SERVICE), null);
+                Utils.startAsyncTask(
+                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_SERVICE),
+                        null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -56,7 +75,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                Utils.startAsyncTask(new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_GROWTH), null);
+                Utils.startAsyncTask(
+                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_GROWTH),
+                        null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -94,21 +115,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         finish();
     }
 
-    @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
-
-    }
-
-    @Override
-    public void onNoUniqueId() {
-
-    }
-
-    @Override
-    public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
-        return new ChildRegistrationDataFragment();
-    }
-
     protected void startFormActivity(String formData) {
 
         Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
@@ -125,4 +131,5 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
 
     }
+
 }

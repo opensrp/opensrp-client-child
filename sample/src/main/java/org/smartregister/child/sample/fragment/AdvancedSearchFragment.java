@@ -8,6 +8,7 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
+import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
@@ -18,13 +19,13 @@ import java.util.Map;
 
 public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
 
-    AdvancedSearchPresenter presenter;
-    private MaterialEditText firstName;
-    private MaterialEditText lastName;
     protected MaterialEditText openSrpId;
     protected MaterialEditText motherGuardianName;
     protected MaterialEditText motherGuardianNrc;
     protected MaterialEditText motherGuardianPhoneNumber;
+    AdvancedSearchPresenter presenter;
+    private MaterialEditText firstName;
+    private MaterialEditText lastName;
 
     @Override
     protected BaseChildAdvancedSearchPresenter getPresenter() {
@@ -38,91 +39,9 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
-    public void populateSearchableFields(View view) {
+    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
 
-        firstName = view.findViewById(org.smartregister.child.R.id.first_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
-
-        lastName = view.findViewById(org.smartregister.child.R.id.last_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
-
-        openSrpId = view.findViewById(org.smartregister.child.R.id.zeir_id);
-        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
-
-        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
-        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
-
-        motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
-        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
-
-        motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
-        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
-
-
-        firstName.addTextChangedListener(advancedSearchTextwatcher);
-
-        lastName.addTextChangedListener(advancedSearchTextwatcher);
-
-
-        openSrpId.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
-
-        motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
-    }
-
-    @Override
-    protected String getDefaultSortQuery() {
-        return presenter.getDefaultSortQuery();
-    }
-
-    @Override
-    protected String filterSelectionCondition(boolean urgentOnly) {
-        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
-    }
-
-    @Override
-    public void onClick(View view) {
-        view.toString();
-    }
-
-    @Override
-    protected void assignedValuesBeforeBarcode() {
-        if (searchFormData.size() > 0) {
-            firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
-            lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
-            motherGuardianName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
-            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
-            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
-            openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
-        }
-    }
-
-    @Override
-    protected HashMap<String, String> createSelectedFieldMap() {
-        HashMap<String, String> fields = new HashMap<>();
-        fields.put(DBConstants.KEY.FIRST_NAME, firstName.getText().toString());
-        fields.put(DBConstants.KEY.LAST_NAME, lastName.getText().toString());
-        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName.getText().toString());
-        fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
-        fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
-        fields.put(DBConstants.KEY.ZEIR_ID, openSrpId.getText().toString());
-        return fields;
-    }
-
-    @Override
-
-    protected void clearFormFields() {
-        super.clearFormFields();
-
-        openSrpId.setText("");
-        firstName.setText("");
-        lastName.setText("");
-        motherGuardianName.setText("");
-        motherGuardianNrc.setText("");
-        motherGuardianPhoneNumber.setText("");
+        this.searchFormData = formData;
 
     }
 
@@ -176,6 +95,93 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         }
 
         return searchParams;
+    }
+
+    @Override
+    public void assignedValuesBeforeBarcode() {
+        if (searchFormData.size() > 0) {
+            firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
+            lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
+            motherGuardianName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
+            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
+            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
+            openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
+        }
+    }
+
+    @Override
+    public void populateSearchableFields(View view) {
+
+        firstName = view.findViewById(org.smartregister.child.R.id.first_name);
+        firstName.addTextChangedListener(advancedSearchTextwatcher);
+
+        lastName = view.findViewById(org.smartregister.child.R.id.last_name);
+        lastName.addTextChangedListener(advancedSearchTextwatcher);
+
+        openSrpId = view.findViewById(org.smartregister.child.R.id.opensrp_id);
+        openSrpId.addTextChangedListener(advancedSearchTextwatcher);
+
+        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
+        motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
+
+        motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
+        motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
+
+        motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
+        motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
+
+        advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
+        advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
+        advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
+        advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
+        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
+    }
+
+    @Override
+    protected HashMap<String, String> createSelectedFieldMap() {
+        HashMap<String, String> fields = new HashMap<>();
+        fields.put(DBConstants.KEY.FIRST_NAME, firstName.getText().toString());
+        fields.put(DBConstants.KEY.LAST_NAME, lastName.getText().toString());
+        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName.getText().toString());
+        fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
+        fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
+        fields.put(DBConstants.KEY.ZEIR_ID, openSrpId.getText().toString());
+        return fields;
+    }
+
+    @Override
+    protected void clearFormFields() {
+        super.clearFormFields();
+
+        openSrpId.setText("");
+        firstName.setText("");
+        lastName.setText("");
+        motherGuardianName.setText("");
+        motherGuardianNrc.setText("");
+        motherGuardianPhoneNumber.setText("");
+
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_home);
+        return super.onBackPressed();
+    }
+
+    @Override
+    protected String getDefaultSortQuery() {
+        return presenter.getDefaultSortQuery();
+    }
+
+    @Override
+    protected String filterSelectionCondition(boolean urgentOnly) {
+        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
+    }
+
+    @Override
+    public void onClick(View view) {
+        view.toString();
     }
 
 }

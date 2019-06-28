@@ -16,7 +16,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -60,6 +59,7 @@ import org.smartregister.job.SyncServiceJob;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.view.activity.MultiLanguageActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,21 +67,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Base activity class for all other PATH activity classes. Implements:
- * - A uniform navigation bar that is launched by swiping from the left
- * - Support for specifying which {@link BaseToolbar} to use
+ * Base activity class for all other PATH activity classes. Implements: - A uniform navigation bar that is launched by
+ * swiping from the left - Support for specifying which {@link BaseToolbar} to use
  * <p/>
- * This activity requires that the base view for any child activity be {@link DrawerLayout}
- * Make sure include the navigation view as the last element in the activity's root DrawerLayout
- * like this:
+ * This activity requires that the base view for any child activity be {@link DrawerLayout} Make sure include the navigation
+ * view as the last element in the activity's root DrawerLayout like this:
  * <p/>
  * <include layout="@layout/nav_view_base"/>
  * <p/>
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
-public abstract class BaseActivity extends AppCompatActivity
+public abstract class BaseActivity extends MultiLanguageActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener,
         ChildRegisterContract.InteractorCallBack {
+
     public static final int REQUEST_CODE_GET_JSON = 3432;
     public static final String INACTIVE = "inactive";
     public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
@@ -322,7 +321,8 @@ toggle.syncState();
     /**
      * Updates all gender affected views
      *
-     * @param gender The gender to update the
+     * @param gender
+     *         The gender to update the
      */
     protected int[] updateGenderViews(Gender gender) {
         int darkShade = R.color.gender_neutral_dark_green;

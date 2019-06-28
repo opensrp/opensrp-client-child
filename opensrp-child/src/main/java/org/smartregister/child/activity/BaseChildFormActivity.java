@@ -18,6 +18,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.util.LangUtils;
 
 import java.util.List;
 
@@ -28,22 +29,27 @@ public class BaseChildFormActivity extends JsonFormActivity {
     ChildFormFragment childFormFragment;
     private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
+    private JSONObject form;
+
+    @Override
+    protected void attachBaseContext(android.content.Context base) {
+
+        String language = LangUtils.getLanguage(base);
+        super.attachBaseContext(LangUtils.setAppLocale(base, language));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
-
         try {
-            JSONObject form = new JSONObject(currentJsonState());
-            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
-            if (et.trim().toLowerCase().contains("update")) {
-                setConfirmCloseMessage(getString(R.string.any_changes_you_make));
-            }
-        } catch (Exception e) {
+            form = new JSONObject(currentJsonState());
+        } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
+
+        enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
+
     }
 
     @Override
@@ -113,6 +119,20 @@ public class BaseChildFormActivity extends JsonFormActivity {
             super.onBackPressed();
         } else {
             BaseChildFormActivity.this.finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
+            if (et.trim().toLowerCase().contains("update")) {
+                setConfirmCloseMessage(this.getString(R.string.any_changes_you_make));
+
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
         }
     }
 

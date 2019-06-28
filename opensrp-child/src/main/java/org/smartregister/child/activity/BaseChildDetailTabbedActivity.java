@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -52,9 +51,9 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.FormUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -67,7 +66,6 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.growthmonitoring.util.HeightUtils;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -92,6 +90,7 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
+import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -109,6 +108,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
@@ -122,7 +122,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         StatusChangeListener, ServiceActionListener {
 
     public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
+            com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
     public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
@@ -142,7 +143,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private ChildUnderFiveFragment childUnderFiveFragment;
     private File currentfile;
     ////////////////////////////////////////////////
-    private String location_name = "";
+    private String locationId = "";
     private ViewPagerAdapter adapter;
     // Data
     private CommonPersonObjectClient childDetails;
@@ -162,7 +163,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        location_name = extras.getString("location_name");
+        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
         setContentView(getContentView());
 
@@ -220,7 +221,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 onBackPressed();
             }
         });
-        detailtoolbar.setTitle(updateActivityTitle());
+        setActivityTitle();
 
         tabLayout.setupWithViewPager(viewPager);
 
@@ -244,19 +245,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         viewPager.setAdapter(adapter);
     }
 
-    private String updateActivityTitle() {
-        String name = "";
-
-        if (isDataOk()) {
-            name = Utils.getName(getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true),
-                    getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true));
-        }
-        return String.format("%s's %s", name, getString(R.string.health_details));
+    protected void setActivityTitle() {
+        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getActivityTitle());
     }
 
     public void setupViews() {
         profileImageIV = findViewById(R.id.profile_image_iv);
-        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_IMAGES_ENABLED)) {
+
+
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
 
@@ -273,16 +270,26 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             });
         }
 
+
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
         if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties()
-                .hasProperty(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance()
-                .getProperties().getPropertyBoolean(Constants.PROPERTY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
+                .hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance()
+                .getProperties().getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+
+        renderProfileWidget(detailsMap);
+        updateGenderViews();
     }
 
-    private boolean isDataOk() {
-        return childDetails != null && childDetails.getDetails() != null;
+    private String getActivityTitle() {
+        String name = "";
+
+        if (isDataOk()) {
+            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true),
+                    getValue(detailsMap, Constants.KEY.LAST_NAME, true));
+        }
+        return String.format("%s's %s", name, getString(R.string.health_details));
     }
 
     private void dispatchTakePictureIntent() {
@@ -318,6 +325,81 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
+    protected void renderProfileWidget(Map<String, String> childDetails) {
+        TextView profilename = findViewById(R.id.name);
+        TextView profileOpenSrpId = findViewById(R.id.idforclient);
+        TextView profileage = findViewById(R.id.ageforclient);
+        String name = "";
+        String childId = "";
+        String dobString = "";
+        String formattedAge = "";
+        if (isDataOk()) {
+            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
+                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
+            childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
+            if (StringUtils.isNotBlank(childId)) {
+                childId = childId.replace("-", "");
+            }
+            dobString = getValue(childDetails, Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+            if (dob != null) {
+                long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
+
+                if (timeDiff >= 0) {
+                    formattedAge = DateUtil.getDuration(timeDiff);
+                }
+            }
+        }
+
+        profileage.setText(" " + formattedAge);
+        profileOpenSrpId.setText(" " + childId);
+        profilename.setText(name);
+        Gender gender = Gender.UNKNOWN;
+        if (isDataOk()) {
+            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+        }
+        updateProfilePicture(gender);
+    }
+
+    private void updateGenderViews() {
+        Gender gender = Gender.UNKNOWN;
+        if (isDataOk()) {
+            String genderString = getValue(childDetails, "gender", false);
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+        }
+        int[] colors = updateGenderViews(gender);
+        int darkShade = colors[0];
+        int normalShade = colors[1];
+        int lightSade = colors[2];
+        detailtoolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
+        tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
+        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
+        try {
+            Field field = TabLayout.class.getDeclaredField("mTabStrip");
+            field.setAccessible(true);
+            Object ob = field.get(tabLayout);
+            Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
+            Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
+            method.setAccessible(true);
+            method.invoke(ob, getResources().getColor(normalShade)); //now its ok
+        } catch (Exception e) {
+            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+        }
+    }
+
+    private boolean isDataOk() {
+        return childDetails != null && childDetails.getDetails() != null;
+    }
+
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -333,6 +415,19 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
 
         return null;
+    }
+
+    private void updateProfilePicture(Gender gender) {
+        BaseChildDetailTabbedActivity.gender = gender;
+        if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
+            profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader
+                    .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
+                            ImageUtils.profileImageResourceByGender(gender)));
+
+        }
+
     }
 
     public boolean isStoragePermissionGranted() {
@@ -378,7 +473,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
-        Utils.startAsyncTask(new LoadAsyncTask(), null);
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+
+            overflow.findItem(R.id.write_to_card).setVisible(true);
+            overflow.findItem(R.id.register_card).setVisible(true);
+        }
+
+        Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
+
         return true;
     }
 
@@ -390,7 +492,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void startJsonForm(String formName, String entityId) {
         try {
-            startJsonForm(formName, entityId, location_name);
+            startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -414,7 +516,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    //   JsonFormUtils.saveAdverseEvent(jsonString, location_name,
+                    //   JsonFormUtils.saveAdverseEvent(jsonString, locationId,
                     //         childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
 
@@ -439,118 +541,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     @Override
     protected void onResume() {
         super.onResume();
-
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-        detailsMap = childDetails.getColumnmaps();
-        renderProfileWidget(detailsMap);
-        childDataFragment.loadData(detailsMap);
     }
 
     @Override
     protected Class onBackActivity() {
         return Utils.metadata().childImmunizationActivity;
-    }
-
-    protected void renderProfileWidget(Map<String, String> childDetails) {
-        TextView profilename = findViewById(R.id.name);
-        TextView profileOpenSrpId = findViewById(R.id.idforclient);
-        TextView profileage = findViewById(R.id.ageforclient);
-        String name = "";
-        String childId = "";
-        String dobString = "";
-        String formattedAge = "";
-        if (isDataOk()) {
-            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
-                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
-            childId = getValue(childDetails, "zeir_id", false);
-            if (StringUtils.isNotBlank(childId)) {
-                childId = childId.replace("-", "");
-            }
-            dobString = getValue(childDetails, Constants.KEY.DOB, false);
-            Date dob = Utils.dobStringToDate(dobString);
-            if (dob != null) {
-                long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
-
-                if (timeDiff >= 0) {
-                    formattedAge = DateUtil.getDuration(timeDiff);
-                }
-            }
-        }
-
-        profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
-        profileOpenSrpId.setText(String.format("%s: %s", "ID", childId));
-        profilename.setText(name);
-        updateGenderViews();
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
-        updateProfilePicture(gender);
-    }
-
-    private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
-        int[] colors = updateGenderViews(gender);
-        int darkShade = colors[0];
-        int normalShade = colors[1];
-        int lightSade = colors[2];
-        detailtoolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
-        tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
-        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
-        try {
-            Field field = TabLayout.class.getDeclaredField("mTabStrip");
-            field.setAccessible(true);
-            Object ob = field.get(tabLayout);
-            Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
-            Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
-            method.setAccessible(true);
-            method.invoke(ob, getResources().getColor(normalShade)); //now its ok
-        } catch (Exception e) {
-            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
-        }
-    }
-
-    private void updateProfilePicture(Gender gender) {
-        BaseChildDetailTabbedActivity.gender = gender;
-        if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
-            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-            profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader
-                    .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
-                            ImageUtils.profileImageResourceByGender(gender)));
-
-            if (childDetails.entityId() != null) { //image already in local storage most likey ):
-                //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-                profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
-                        OpenSRPImageLoader
-                                .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
-                                        ImageUtils.profileImageResourceByGender(gender)));
-
-            }
-            profileImageIV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this,
-                            new String[] {Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
-                        dispatchTakePictureIntent();
-                    }
-                }
-            });
-        }
     }
 
     private void confirmReportDeceased(final String json, final AllSharedPreferences allSharedPreferences) {
@@ -613,14 +608,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
 
         JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(),
-                location_name, childDetails.entityId());
+                locationId, childDetails.entityId());
 
     }
 
     protected abstract void navigateToRegisterActivity();
 
-    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList,
-                                  List<Weight> weightList, List<Height> heightList, List<Alert> alertList) {
+    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList,
+                                  List<Alert> alertList) {
         boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
@@ -650,18 +645,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        boolean showHeightEdit = false;
-        for (int i = 0; i < heightList.size(); i++) {
-            Height height = heightList.get(i);
-            showHeightEdit = HeightUtils.lessThanThreeMonths(height);
-            if (showHeightEdit) {
-                break;
-            }
-        }
-
         boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
 
-        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showHeightEdit, showRecordBcg2);
+        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
     }
 
     private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
@@ -690,11 +676,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit,
-                                   boolean showHeightEdit, boolean showRecordBcg2) {
+                                   boolean showRecordBcg2) {
         overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
         overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
         overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
-        overflow.findItem(R.id.weight_data).setEnabled(showHeightEdit);
     }
 
     protected boolean launchAdverseEventForm() {
@@ -725,7 +710,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         } else {
             updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
         }
     }
 
@@ -789,8 +774,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Long dbKey = tag.getDbKey();
             vaccineRepository.deleteVaccine(dbKey);
 
+
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);
+
 
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
@@ -804,7 +791,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
                                          final List<Vaccine> vaccineList, final boolean undo) {
-        if (!(view instanceof ImmunizationRowGroup)) {
+        if (view == null || !(view instanceof ImmunizationRowGroup)) {
             return;
         }
         final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
@@ -857,8 +844,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(tag.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        if (StringUtils.isNotBlank(location_name)) {
-            vaccine.setLocationId(location_name);
+        if (StringUtils.isNotBlank(locationId)) {
+            vaccine.setLocationId(locationId);
         }
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -877,7 +864,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     private void updateVaccineGroupViews(View view) {
-        if (!(view instanceof ImmunizationRowGroup)) {
+        if (view == null || !(view instanceof ImmunizationRowGroup)) {
             return;
         }
         final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
@@ -897,14 +884,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     @Override
     public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
-        updateHeightWrapper(weightWrapper);
+        updateWeightWrapper(weightWrapper);
         updateHeightWrapper(heightWrapper);
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
 
     }
 
-    private void updateHeightWrapper(WeightWrapper weightWrapper) {
+    private void updateWeightWrapper(WeightWrapper weightWrapper) {
         if (weightWrapper != null) {
             WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
@@ -915,8 +902,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             weight.setKg(weightWrapper.getWeight());
             weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (StringUtils.isNotBlank(location_name)) {
-                weight.setLocationId(location_name);
+            if (StringUtils.isNotBlank(locationId)) {
+                weight.setLocationId(locationId);
             }
 
             Gender gender = Gender.UNKNOWN;
@@ -951,8 +938,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             height.setCm(heightWrapper.getHeight());
             height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
             height.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (StringUtils.isNotBlank(location_name)) {
-                height.setLocationId(location_name);
+            if (StringUtils.isNotBlank(locationId)) {
+                height.setLocationId(locationId);
             }
 
             Gender gender = Gender.UNKNOWN;
@@ -986,7 +973,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+                                com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
@@ -1086,15 +1074,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Serializable serializable = savedInstanceState.getSerializable("child_details");
-        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-            this.childDetails = (CommonPersonObjectClient) serializable;
-        }
-
-    }
 /*
     private Map<String, String> getCleanMap() {
         Map<String, String> detailsMap = new HashMap<>();
@@ -1116,43 +1095,27 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }*/
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Serializable serializable = savedInstanceState.getSerializable("child_details");
+        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+            this.childDetails = (CommonPersonObjectClient) serializable;
+        }
+
+    }
+
+    @Override
     public void onRegistrationSaved(boolean isEdit) {
 
         if (isEdit) {//On edit mode refresh view
 
 
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+            Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
 
-            detailsMap.putAll(getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+            //To Do optimize with
+            // childDataFragment.refreshRecyclerViewData(detailsMap);
 
-            childDataFragment.updateChildDetails(detailsMap);
-            childDataFragment.loadData(detailsMap);
-
-            renderProfileWidget(detailsMap);
         }
-
-        hideProgressDialog();
-    }
-
-    private Map<String, String> getCleanMap(Map<String, String> rawDetails) {
-        Map<String, String> clean = new HashMap<>();
-
-        try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
-
-            Map<String, String> old = rawDetails;
-            for (Map.Entry<String, String> entry : old.entrySet()) {
-                String val = entry.getValue();
-                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
-                    clean.put(entry.getKey(), entry.getValue());
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return clean;
-
     }
 
     public Context getContext() {
@@ -1188,7 +1151,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+            detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
@@ -1198,12 +1162,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
-
-            List<Height> heightList =
-                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
-
-            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
-            map.put(heightNamedObject.name, heightNamedObject);
 
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
@@ -1265,9 +1223,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
-            detailsMap.putAll(getCleanMap(AsyncTaskUtils.extractDetailsMap(map)));
+            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
 
-            overflow.findItem(R.id.write_to_card).setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            if (writeToCard != null) {
+                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Height> heightList = AsyncTaskUtils.extractHeights(map);
@@ -1281,7 +1241,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             boolean editWeightMode = STATUS.EDIT_GROWTH.equals(status);
 
             if (STATUS.NONE.equals(status)) {
-                updateOptionsMenu(vaccineList, serviceRecords, weightList, heightList, alertList);
+                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
             }
 
             childDataFragment.loadData(detailsMap);

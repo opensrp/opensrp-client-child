@@ -65,9 +65,12 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     /**
      * Constructs a weight object using the out of service area form
      *
-     * @param openSrpContext The context to work with
-     * @param outOfAreaForm  Out of area form to extract the weight form
+     * @param openSrpContext
+     *         The context to work with
+     * @param outOfAreaForm
+     *         Out of area form to extract the weight form
      * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
+     *
      * @throws Exception
      */
     private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm)
@@ -105,7 +108,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (weight != null && serviceDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(
+                    com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
             weight.setDate(dateFormat.parse(serviceDate));
         }
 
@@ -119,8 +123,10 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     /**
      * Constructs a list of recorded vaccines from the out of area form provided
      *
-     * @param openSrpContext The context to use
-     * @param outOfAreaForm  Out of area form to extract recorded vaccines from
+     * @param openSrpContext
+     *         The context to use
+     * @param outOfAreaForm
+     *         Out of area form to extract recorded vaccines from
      * @return A list of recorded vaccines
      */
     private static ArrayList<Vaccine> getVaccineObjects(Context context,
@@ -160,7 +166,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
         for (Vaccine curVaccine : vaccines) {
             if (serviceDate != null) {
                 curVaccine.setDate(dateFormat.parse(serviceDate));
@@ -220,7 +227,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     /**
      * This method formats the child unique id obtained from a JSON Form to something that is useable
      *
-     * @param unformattedId The unformatted unique identifier
+     * @param unformattedId
+     *         The unformatted unique identifier
      * @return A formatted ID or the original id if method is unable to format
      */
     private static String formatChildUniqueId(String unformattedId) {

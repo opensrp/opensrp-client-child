@@ -21,23 +21,8 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     }
 
     @Override
-    protected Fragment[] getOtherFragments() {
-        ADVANCED_SEARCH_POSITION = 1;
-
-        Fragment[] fragments = new Fragment[1];
-        fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
-
-        return fragments;
-    }
-
-    @Override
     protected BaseRegisterFragment getRegisterFragment() {
         return new ChildRegisterFragment();
-    }
-
-    @Override
-    public String getRegistrationForm() {
-        return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
     }
 
     @Override
@@ -49,6 +34,21 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
             clients.setTitle(getString(org.smartregister.child.R.string.header_children));
         }
         bottomNavigationView.getMenu().removeItem(org.smartregister.R.id.action_library);
+    }
+
+    @Override
+    protected Fragment[] getOtherFragments() {
+        ADVANCED_SEARCH_POSITION = 1;
+
+        Fragment[] fragments = new Fragment[1];
+        fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
+
+        return fragments;
+    }
+
+    @Override
+    public String getRegistrationForm() {
+        return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
     }
 
     @Override

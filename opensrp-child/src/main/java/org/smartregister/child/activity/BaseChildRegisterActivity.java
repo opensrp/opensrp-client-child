@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.vision.barcode.Barcode;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
@@ -16,8 +17,10 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.UpdateRegisterParams;
+import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -36,9 +39,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     public static final String TAG = BaseChildRegisterActivity.class.getCanonicalName();
 
 
-    private boolean isAdvancedSearch = false;
-    private String advancedSearchQrText = "";
-    private HashMap<String, String> advancedSearchFormData = new HashMap<>();
+    protected boolean isAdvancedSearch = false;
+    protected HashMap<String, String> advancedSearchFormData = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         bottomNavigationHelper = new BottomNavigationHelper();
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setVisibility(ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(Constants.PROPERTY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
+                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
 
         if (bottomNavigationView != null) {
             bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
@@ -66,12 +68,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
             bottomNavigationHelper.disableShiftMode(bottomNavigationView);
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED)) {
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
             }
 
-            if (!ChildLibrary.getInstance().getProperties()
-                    .getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
             }
 
@@ -87,7 +88,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             super.onBackPressed();
         } else {
             switchToBaseFragment();
-            setSelectedBottomBarMenuItem(R.id.action_clients);
+            setSelectedBottomBarMenuItem(R.id.action_home);
         }
     }
 
@@ -131,6 +132,25 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == AllConstants.BARCODE.BARCODE_REQUEST_CODE && resultCode == RESULT_OK && isAdvancedSearch) {
+
+            Barcode barcode = data.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY);
+            String barcodeSearchTerm = barcode.displayValue;
+            barcodeSearchTerm = barcodeSearchTerm.contains("/") ? barcodeSearchTerm
+                    .substring(barcodeSearchTerm.lastIndexOf('/') + 1) : barcodeSearchTerm;
+
+            //Set value and refresh form values!
+            advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
+
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
+    }
+
+    @Override
     protected void onActivityResultExtended(int requestCode, int resultCode, Intent data) {
         if (requestCode == JsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
@@ -156,31 +176,47 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     public void onResume() {
         super.onResume();
-        switchToAdvancedSearchFromBarcode();
+        onChildRegisterResumption();
     }
 
-    /**
-     * Forces the Home register activity to open the the Advanced search fragment after the barcode activity is closed (as
-     * long as it was opened from the advanced search page)
-     */
-    private void switchToAdvancedSearchFromBarcode() {
+    protected void onChildRegisterResumption() {
         if (isAdvancedSearch) {
-            switchToFragment(ADVANCED_SEARCH_POSITION);
-            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
-            setAdvancedFragmentSearchTerm(advancedSearchQrText);
-            setFormData(advancedSearchFormData);
-            advancedSearchQrText = "";
-            isAdvancedSearch = false;
-            advancedSearchFormData = new HashMap<>();
+
+            refreshAdvancedSearchFormValues();
+            switchToAdvancedSearchFromRegister();
+
+        } else {
+            setSelectedBottomBarMenuItem(R.id.action_home);
         }
     }
 
-    private void setAdvancedFragmentSearchTerm(String searchTerm) {
-        mBaseFragment.setUniqueID(searchTerm);
+    protected void refreshAdvancedSearchFormValues() {
+        setFormData(this.advancedSearchFormData);
+        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).assignedValuesBeforeBarcode();
+    }
+
+    /**
+     * Forces the Home register activity to open the the Advanced search fragment after the barcode or other activity is
+     * closed (as long as it was opened from the advanced search page)
+     */
+    protected void switchToAdvancedSearchFromRegister() {
+
+        if (ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
+        } else {
+
+            switchToFragment(ADVANCED_SEARCH_POSITION);
+        }
+
+        setFormData(advancedSearchFormData);
+        isAdvancedSearch = false;
+        advancedSearchFormData = new HashMap<>();
+
     }
 
     private void setFormData(HashMap<String, String> formData) {
-        mBaseFragment.setAdvancedSearchFormData(formData);
+        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).setAdvancedSearchFormData(formData);
     }
 
     @Override
@@ -189,16 +225,17 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
+    public ChildRegisterContract.Presenter presenter() {
+        return (ChildRegisterContract.Presenter) presenter;
+    }
+
+    @Override
     public void startRegistration() {
+        //setSelectedBottomBarMenuItem(R.id.action_register);
         startFormActivity(getRegistrationForm(), null, null);
     }
 
     public abstract String getRegistrationForm();
-
-    @Override
-    public ChildRegisterContract.Presenter presenter() {
-        return (ChildRegisterContract.Presenter) presenter;
-    }
 
     public void setAdvancedSearch(boolean advancedSearch) {
         isAdvancedSearch = advancedSearch;
@@ -210,7 +247,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     public void startAdvancedSearch() {
         try {
-            mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+            // mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

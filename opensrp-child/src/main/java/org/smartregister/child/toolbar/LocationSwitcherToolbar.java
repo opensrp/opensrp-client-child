@@ -13,8 +13,8 @@ import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 /**
- * To use this toolbar in your activity, include the following line as the first child in your
- * activity's main {@link android.support.design.widget.CoordinatorLayout}
+ * To use this toolbar in your activity, include the following line as the first child in your activity's main {@link
+ * android.support.design.widget.CoordinatorLayout}
  * <p/>
  * <include layout="@layout/toolbar_location_switcher" />
  * <p/>

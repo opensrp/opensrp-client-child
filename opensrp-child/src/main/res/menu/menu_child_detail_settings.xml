@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/write_to_card" android:title="@string/write_to_card"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" app:showAsAction="never" android:visible="false" />
     <item android:id="@+id/register_card" android:title="@string/register_card"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" app:showAsAction="never" android:visible="false" />
     <item android:id="@+id/change_status" android:title="@string/change_status"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/registration_data" android:title="@string/edit_registration_data"

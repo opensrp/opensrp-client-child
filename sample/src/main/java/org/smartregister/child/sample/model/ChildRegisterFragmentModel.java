@@ -10,7 +10,7 @@ import org.smartregister.child.sample.util.DBConstants;
 public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
     @Override
     protected String[] mainColumns(String tableName, String parentTableName) {
-        String[] columns = new String[]{
+        String[] columns = new String[] {
 
                 tableName + "." + DBConstants.KEY.RELATIONALID,
                 tableName + "." + DBConstants.KEY.DETAILS,

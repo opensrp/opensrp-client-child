@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.GrowthMonitoringAsyncTask;
@@ -62,6 +63,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     private HeightRepository heightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
+    private boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
                                  View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
@@ -83,6 +85,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
+        isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
         if (visibleColumns.isEmpty()) {
             populatePatientColumn(pc, client, viewHolder);
@@ -246,8 +249,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setDobString(dobString);
                 params.setInactive(inactive);
                 params.setSmartRegisterClient(client);
-                params.setUpdateOutOfCatchment(false);//TO DO update with dynamic parameter
+                params.setUpdateOutOfCatchment(isOutOfCatchment);
                 params.setOnClickListener(onClickListener);
+                params.setProfileInfoView(viewHolder.childProfileInfoLayout);
 
                 Utils.startAsyncTask(
                         new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context),
@@ -298,18 +302,18 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     public static class RegisterViewHolder extends RecyclerView.ViewHolder {
-        public TextView patientName;
-        public TextView childOpensrpID;
-        public TextView childMotherName;
-        public TextView childAge;
-        public TextView childCardNumnber;
-        public View childProfileInfoLayout;
-        public ImageView imageView;
-        public View recordGrowth;
-        public View recordVaccination;
-        public View registerColumns;
+        TextView patientName;
+        TextView childOpensrpID;
+        TextView childMotherName;
+        TextView childAge;
+        TextView childCardNumnber;
+        View childProfileInfoLayout;
+        ImageView imageView;
+        View recordGrowth;
+        View recordVaccination;
+        View registerColumns;
 
-        public RegisterViewHolder(View itemView) {
+        RegisterViewHolder(View itemView) {
             super(itemView);
             patientName = itemView.findViewById(R.id.child_name);
             childOpensrpID = itemView.findViewById(R.id.child_zeir_id);
@@ -326,11 +330,11 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     public class FooterViewHolder extends RecyclerView.ViewHolder {
-        public TextView pageInfoView;
-        public Button nextPageView;
-        public Button previousPageView;
+        TextView pageInfoView;
+        Button nextPageView;
+        Button previousPageView;
 
-        public FooterViewHolder(View view) {
+        FooterViewHolder(View view) {
             super(view);
             nextPageView = view.findViewById(R.id.btn_next_page);
             previousPageView = view.findViewById(R.id.btn_previous_page);

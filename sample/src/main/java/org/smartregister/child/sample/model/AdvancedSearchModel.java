@@ -32,7 +32,8 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
             editMap.put(isLocal ? DBConstants.KEY.LAST_NAME : GLOBAL_LAST_NAME, lastName);
         }
         if (StringUtils.isNotBlank(opensrpID)) {
-            editMap.put(isLocal ? DBConstants.KEY.ZEIR_ID : GLOBAL_IDENTIFIER, isLocal ? opensrpID : OPENSRP_ID + ":" + opensrpID);
+            editMap.put(isLocal ? DBConstants.KEY.ZEIR_ID : GLOBAL_IDENTIFIER,
+                    isLocal ? opensrpID : OPENSRP_ID + ":" + opensrpID);
         }
 
         if (StringUtils.isNotBlank(dob)) {
@@ -73,7 +74,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
     @Override
     protected String[] mainColumns(String tableName, String parentTableName) {
         {
-            String[] columns = new String[]{
+            String[] columns = new String[] {
 
                     tableName + "." + DBConstants.KEY.RELATIONALID,
                     tableName + "." + DBConstants.KEY.DETAILS,

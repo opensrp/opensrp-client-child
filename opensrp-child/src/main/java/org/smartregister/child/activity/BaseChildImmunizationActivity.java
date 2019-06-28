@@ -5,18 +5,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -48,6 +45,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
@@ -102,6 +100,7 @@ import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
+import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -130,7 +129,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final ArrayList<String> COMBINED_VACCINES;
     private static final HashMap<String, String> COMBINED_VACCINES_MAP;
@@ -152,7 +150,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
-    protected FloatingActionButton floatingActionButton;
+    protected LinearLayout floatingActionButton;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private boolean bcgScarNotificationShown;
@@ -173,6 +171,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE, registerClickables != null && !TextUtils
+                .isEmpty(registerClickables.getNextAppointmentDate()) ? registerClickables.getNextAppointmentDate() : "");
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtras(bundle);
 
@@ -183,22 +183,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
         detailsRepository = getOpenSRPContext().detailsRepository();
 
-        toolbar = (LocationSwitcherToolbar) getToolbar();
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToRegisterPage();
-            }
-        });
-        toolbar.setOnLocationChangeListener(this);
-        //       View view= toolbar.findViewById(R.id.immunization_separator);
-        //        view.setBackground(R.drawable.vertical_seperator_female);
+        setUpToolbar();
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
@@ -214,36 +201,86 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = true; //TO DO investigate configuratability
-        weightNotificationShown = true; //TO DO
+        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties()
+                .hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) && !ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown = ChildLibrary.getInstance().getProperties()
+                .hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
-        toolbar.init(this);
         setLastModified(false);
 
-        floatingActionButton = findViewById(R.id.fab_nearex);
+        setUpFloatingActionButton();
+    }
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED)) {
+    private void setUpToolbar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        toolbar = (LocationSwitcherToolbar) getToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToRegisterPage();
+            }
+        });
+        toolbar.setOnLocationChangeListener(this);
+        //       View view= toolbar.findViewById(R.id.immunization_separator);
+        //        view.setBackground(R.drawable.vertical_seperator_female);
+
+        toolbar.init(this);
+    }
+
+    private void setUpFloatingActionButton() {
+        floatingActionButton = findViewById(R.id.fab);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+
             floatingActionButton.setOnClickListener(this);
-            floatingActionButton.setBackgroundTintList(
-                    ColorStateList.valueOf(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER))));
-            floatingActionButton.show();
+
+            configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)),
+                    null);
+
+            LinearLayout someLayout = findViewById(R.id.content_base_inner);
+            someLayout.setPadding(someLayout.getPaddingLeft(), someLayout.getPaddingTop(), someLayout.getPaddingRight(),
+                    someLayout.getPaddingBottom() + 80);
         }
     }
 
     protected abstract void goToRegisterPage();
+
+    protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
+
+        if (drawableResourceId != null) {
+            int paddingLeft = floatingActionButton.getPaddingLeft();
+            int paddingRight = floatingActionButton.getPaddingRight();
+            int paddingTop = floatingActionButton.getPaddingTop();
+            int paddingBottom = floatingActionButton.getPaddingBottom();
+
+            floatingActionButton.setBackgroundResource(drawableResourceId);
+            floatingActionButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+        }
+
+        if (title != null) {
+            ((TextView) floatingActionButton.findViewById(R.id.fab_text)).setText(title);
+        }
+
+        floatingActionButton.setVisibility(View.VISIBLE);
+    }
 
     protected int getGenderButtonColor(String gender) {
         int imageResource;
 
         switch (gender.toLowerCase()) {
             case Constants.GENDER.MALE:
-                imageResource = ContextCompat.getColor(this, R.color.male_blue);
+                imageResource = R.drawable.pill_background_male_blue;
                 break;
             case Constants.GENDER.FEMALE:
-                imageResource = ContextCompat.getColor(this, R.color.female_pink);
+                imageResource = R.drawable.pill_background_female_pink;
                 break;
             default:
-                imageResource = ContextCompat.getColor(this, R.color.gender_neutral_green);
+                imageResource = R.drawable.pill_background_gender_neutral_green;
                 break;
         }
 
@@ -276,11 +313,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             toolbarResource = R.drawable.vertical_separator_male;
             identifier = getString(R.string.male_sex_id);
         }
+
         toolbar.updateSeparatorView(toolbarResource);
 
         TextView childSiblingsTV = findViewById(R.id.child_siblings_tv);
-        childSiblingsTV.setText(
-                String.format(getString(R.string.child_siblings), "").toUpperCase());
+        childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
+
         updateProfilePicture(gender);
 
         return selectedColor;
@@ -315,22 +353,25 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         // TODO: update all views using child data
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
 
-        Utils.putAll(childDetails.getColumnmaps(), details);
         isChildActive = isActiveStatus(childDetails);
 
         showChildsStatus(childDetails);
 
         updateGenderViews();
+
         toolbar.setTitle(updateActivityTitle());
+        ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differently Fixes wierd bug
+
         updateAgeViews();
         updateChildIdViews();
+        updateNextAppointmentDateView();
 
         AlertService alertService = getOpenSRPContext().alertService();
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
         updateViewTask
@@ -359,6 +400,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 gender = Gender.MALE;
             }
         }
+
         updateGenderViews(gender);
     }
 
@@ -380,11 +422,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
-                formattedDob = DATE_FORMAT.format(dob);
+                formattedDob = new SimpleDateFormat("dd/MM/yyyy").format(dob);
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
                     formattedAge = DateUtil.getDuration(timeDiff);
+                } else {
+                    formattedAge = DateUtil.getDuration(0);
                 }
             }
         }
@@ -408,6 +452,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
 
         Utils.startAsyncTask(new GetSiblingsTask(), null);
+    }
+
+    private void updateNextAppointmentDateView() {
+
+        if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
+            CustomFontTextView nextAppointmentDateView = findViewById(R.id.next_appointment_date);
+            ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
+            nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
+        }
     }
 
     private boolean isDataOk() {
@@ -563,7 +616,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -725,7 +777,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
 
             for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : compiledVaccineGroups) {
-                addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
+                try {
+                    addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
             }
         } else {
             for (VaccineGroup vaccineGroup : vaccineGroups) {
@@ -1108,6 +1164,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         updateWeightWrapper(weightWrapper, recordWeight, recordWeightText, recordWeightCheck);
         updateHeightWrapper(heightWrapper, recordWeight, recordWeightText, recordWeightCheck);
+
         String weight = "";
         String height = "";
         if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) || (heightWrapper
@@ -1979,11 +2036,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(ArrayList<VaccineWrapper> list) {
             hideProgressDialog();
             updateVaccineGroupViews(view, list, vaccineList);
-            View recordWeight = findViewById(R.id.record_growth);
-            WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
+            View recordGrowth = findViewById(R.id.record_growth);
+            WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
+            HeightWrapper heightWrapper = (HeightWrapper) recordGrowth.getTag(R.id.height_wrapper);
             if ((ChildLibrary.getInstance().getProperties()
-                    .hasProperty(Constants.PROPERTY.POPUP_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties()
-                    .getPropertyBoolean(Constants.PROPERTY.POPUP_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper
+                    .hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance()
+                    .getProperties().getPropertyBoolean(
+                            AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper
                     .getWeight() == null)) {
                 showRecordWeightNotification();
             }

@@ -2,7 +2,6 @@ package org.smartregister.child.sample.presenter;
 
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
-import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
 import org.smartregister.child.util.Constants;
 
@@ -11,7 +10,8 @@ import org.smartregister.child.util.Constants;
  */
 public class ChildRegisterFragmentPresenter extends BaseChildRegisterFragmentPresenter {
 
-    public ChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model, String viewConfigurationIdentifier) {
+    public ChildRegisterFragmentPresenter(ChildRegisterFragmentContract.View view, ChildRegisterFragmentContract.Model model,
+                                          String viewConfigurationIdentifier) {
         super(view, model, viewConfigurationIdentifier);
     }
 

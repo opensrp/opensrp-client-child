@@ -4,7 +4,6 @@
 # opensrp-client-child
 OpenSRP client child health module library
 
-#Features
 ## Configurability
 
 By placing a file named `app.properties` in your implementation assets folder (See sample app) , one can configure certain aspects of the app
@@ -14,7 +13,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | Configuration                       | Type    | Default | Description                                   |
 | ----------------------------------- | ------- | ------- | ----------------------------------------------|
 | `notifications.bcg.enabled`         | Boolean | true    | Show BCG Notifications                        |
-| `popup.weight.enabled`              | Boolean | true    | Show Record Weight pop up dialog              |
+| `notifications.weight.enabled`      | Boolean | true    | Show Record Weight pop notification up dialog |
 | `home.next.visit.date.enabled`      | Boolean | false   | Show Next Visit date column in home register  |
 | `home.record.weight.enabled`        | Boolean | true    | Show Record Weight column in home register    |
 | `feature.nfc.card.enabled`          | Boolean | false   | Enable Scan NFC Card feature                  |

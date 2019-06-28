@@ -1,12 +1,10 @@
 package org.smartregister.child.util;
 
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -33,12 +31,14 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class Utils extends org.smartregister.util.Utils {
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Facility";
     public static final String FACILITY = "Health Facility";
-    private static final String PREFERENCES_FILE = "lang_prefs";
+    public static final String APP_PROPERTIES_FILE = "app.properties";
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -401,28 +401,6 @@ public class Utils extends org.smartregister.util.Utils {
         heightWrapper.setDbKey(height.getId());
     }
 
-    public static String getLanguage(android.content.Context ctx) {
-        SharedPreferences sharedPref = ctx.getSharedPreferences(PREFERENCES_FILE, android.content.Context.MODE_PRIVATE);
-        return sharedPref.getString("language", "en");
-    }
-
-    public static android.content.Context setAppLocale(android.content.Context context_, String language) {
-        Locale locale = new Locale(language);
-        Locale.setDefault(locale);
-        android.content.Context context = context_;
-        Resources res = context.getResources();
-        Configuration config = new Configuration(res.getConfiguration());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            config.setLocale(locale);
-            context = context.createConfigurationContext(config);
-        } else {
-            config.locale = locale;
-            res.updateConfiguration(config, res.getDisplayMetrics());
-        }
-        return context;
-    }
-
-
     public static Context context() {
         return ChildLibrary.getInstance().context();
     }
@@ -436,7 +414,7 @@ public class Utils extends org.smartregister.util.Utils {
         AppProperties properties = new AppProperties();
         try {
             AssetManager assetManager = context.getAssets();
-            InputStream inputStream = assetManager.open("app.properties");
+            InputStream inputStream = assetManager.open(APP_PROPERTIES_FILE);
             properties.load(inputStream);
         } catch (Exception e) {
             Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
@@ -451,6 +429,39 @@ public class Utils extends org.smartregister.util.Utils {
             growthValue = value + ".0";
         }
         return growthValue;
+    }
+
+    public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
+        Map<String, String> clean = new HashMap<>();
+
+        try {
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+
+            Map<String, String> old = rawDetails;
+            for (Map.Entry<String, String> entry : old.entrySet()) {
+                String val = entry.getValue();
+                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
+                    clean.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
+        }
+
+        return clean;
+
+    }
+
+    public static String formatNumber(String raw) {
+        try {
+
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setGroupingUsed(false);
+            return nf.format(NumberFormat.getInstance(Locale.ENGLISH).parse(raw));
+
+        } catch (ParseException e) {
+            return raw;
+        }
     }
 
 }

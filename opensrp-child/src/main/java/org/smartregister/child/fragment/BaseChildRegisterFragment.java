@@ -26,6 +26,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
@@ -87,15 +88,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-
-    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
-        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-        if (baseRegisterActivity != null) {
-            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
-                    .findFragmentByPosition(BaseRegisterActivity
-                            .ADVANCED_SEARCH_POSITION);
-            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
-        }
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        //do nothing , overrode from ma
     }
 
     @Override
@@ -149,12 +143,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         if (!(this instanceof BaseAdvancedSearchFragment)) {
             view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(
                     ChildLibrary.getInstance().getProperties()
-                            .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+                            .getPropertyBoolean(AppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
 
-            if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED)) {
+            if (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
                 view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
-                        .getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+                        .getPropertyBoolean(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
             }
         }
     }
@@ -168,9 +162,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
 
         updateSearchView();
-
         updateLocationText();
-
     }
 
     @Override
@@ -181,16 +173,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     protected void startRegistration() {
-        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
+        ((BaseChildRegisterActivity) getActivity()).startRegistration();
     }
 
     @Override
     protected void onViewClicked(View view) {
-
         if (getActivity() == null) {
             return;
         }
-
     }
 
     @Override
@@ -219,8 +209,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         if (qrCodeScanImageView != null) {
 
             if (ChildLibrary.getInstance().getProperties()
-                    .getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance()
-                    .getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                    .getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance()
+                    .getProperties().getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
                 qrCodeScanImageView.setOnClickListener(this);
             } else {
                 qrCodeScanImageView.setVisibility(View.GONE);
@@ -231,8 +221,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private void setUpScanCardButtonView(View view) {
         FrameLayout scanCardView = view.findViewById(R.id.scan_card);
         if (scanCardView != null && ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(Constants.PROPERTY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance()
-                .getProperties().getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+                .getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
             scanCardView.setOnClickListener(this);
             scanCardView.setVisibility(View.VISIBLE);
 
@@ -265,7 +255,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                updateSortAndFilter(null, null);
+                filter("", "", "", false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }
@@ -282,10 +272,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     protected abstract String filterSelectionCondition(boolean urgentOnly);
-
-    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
-        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
-    }
 
     public void updateDueOverdueCountText(int overDueCount) {
         if (overdueCountTV != null) {
@@ -312,13 +298,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
-
         RepositoryHolder repositoryHolder = new RepositoryHolder();
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
         repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
-
 
         ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder,
                 visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
@@ -342,6 +326,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public ChildRegisterFragmentContract.Presenter presenter() {
         return (ChildRegisterFragmentContract.Presenter) presenter;
+    }
+
+    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
+        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
     }
 
     @Override

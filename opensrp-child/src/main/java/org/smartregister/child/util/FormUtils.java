@@ -3,7 +3,6 @@ package org.smartregister.child.util;
 import android.content.Context;
 import android.util.Log;
 
-import org.apache.commons.codec.CharEncoding;
 import org.json.JSONException;
 import org.json.JSONObject;
 

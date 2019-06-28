@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import org.smartregister.child.R;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

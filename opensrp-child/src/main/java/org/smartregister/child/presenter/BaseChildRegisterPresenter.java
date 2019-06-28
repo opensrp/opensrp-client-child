@@ -75,6 +75,13 @@ public class BaseChildRegisterPresenter
         }
     }
 
+    private ChildRegisterContract.View getView() {
+        if (viewReference != null)
+            return viewReference.get();
+        else
+            return null;
+    }
+
     @Override
     public void saveLanguage(String language) {
         model.saveLanguage(language);
@@ -129,13 +136,6 @@ public class BaseChildRegisterPresenter
             Log.e(TAG, Log.getStackTraceString(e));
 
         }
-    }
-
-    private ChildRegisterContract.View getView() {
-        if (viewReference != null)
-            return viewReference.get();
-        else
-            return null;
     }
 
     @Override
