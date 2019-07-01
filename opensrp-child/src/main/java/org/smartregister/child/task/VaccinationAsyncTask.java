@@ -499,7 +499,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             default:
                 break;
         }
-        return VaccinatorUtils.getTranslatedGroupName(localizedKey);
+        return localizedKey;
     }
 
 }

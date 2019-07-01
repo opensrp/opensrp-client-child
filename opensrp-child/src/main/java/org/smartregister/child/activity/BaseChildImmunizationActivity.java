@@ -511,7 +511,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             final String BCG2_NAME = "BCG 2";
             final String BCG_NO_SCAR_NAME = "BCG: no scar";
             final String BCG_SCAR_NAME = "BCG: scar";
-//            final String VACCINE_GROUP_BIRTH_NAME = "Birth";
+            final String VACCINE_GROUP_BIRTH_NAME = "Birth";
             final int BIRTH_VACCINE_GROUP_INDEX = 0;
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> compiledVaccineGroups;
 
@@ -522,7 +522,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup = (org.smartregister.immunization.domain.jsonmapping.VaccineGroup)
-                    clone(getVaccineGroupByName(supportedVaccines, getString(R.string.vaccine_group_birth_name)));
+                    clone(getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
 
             if (showBcg2Reminder) {
 
@@ -1450,7 +1450,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList, @NonNull String name) {
 
         for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : vaccineGroupList) {
-            if (vaccineGroup.name.equals(name))
+            if (vaccineGroup.id.equals(name))
                 return vaccineGroup;
         }
         return null;
