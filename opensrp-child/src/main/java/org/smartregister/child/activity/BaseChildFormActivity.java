@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -42,7 +44,6 @@ public class BaseChildFormActivity extends JsonFormActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
             form = new JSONObject(currentJsonState());
         } catch (JSONException e) {
@@ -57,11 +58,11 @@ public class BaseChildFormActivity extends JsonFormActivity {
     protected void onResume() {
         super.onResume();
         try {
-            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
-            if (et.trim().toLowerCase().contains("update")) {
-                setConfirmCloseMessage(this.getString(R.string.any_changes_you_make));
 
-            }
+            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
+            setConfirmCloseTitle(this.getString(R.string.confirm_form_close));
+            setConfirmCloseMessage(et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation));
+
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
@@ -142,7 +143,21 @@ public class BaseChildFormActivity extends JsonFormActivity {
     @Override
     public void onBackPressed() {
         if (enableOnCloseDialog) {
-            super.onBackPressed();
+            AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppThemeAlertDialog).setTitle(confirmCloseTitle)
+                    .setMessage(confirmCloseMessage).setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            BaseChildFormActivity.this.finish();
+                        }
+                    }).setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d(TAG, "No button on dialog in " + JsonFormActivity.class.getCanonicalName());
+                        }
+                    }).create();
+
+            dialog.show();
+
         } else {
             BaseChildFormActivity.this.finish();
         }
