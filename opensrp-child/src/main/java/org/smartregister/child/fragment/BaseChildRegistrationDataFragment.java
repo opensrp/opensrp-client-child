@@ -144,8 +144,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             label = resourceId != null ? getResources().getString(resourceId) : null;
         }
 
-        label = label;
-
 
         return label;
     }

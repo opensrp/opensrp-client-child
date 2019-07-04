@@ -17,7 +17,6 @@ public class ChildRegisterFragmentPresenter extends BaseChildRegisterFragmentPre
 
     @Override
     public String getMainCondition() {
-
         return String.format(" %s is null ", Constants.KEY.DATE_REMOVED);
     }
 

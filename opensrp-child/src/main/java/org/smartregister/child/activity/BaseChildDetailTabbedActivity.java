@@ -1163,6 +1163,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
 
+            List<Height> heightList = GrowthMonitoringLibrary.getInstance().heightRepository()
+                    .findLast5(childDetails.entityId());
+
+            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+            map.put(heightNamedObject.name, heightNamedObject);
+
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 

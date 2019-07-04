@@ -372,6 +372,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
+        updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
         updateViewTask
@@ -1001,18 +1002,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            fragmentTransaction.remove(prev);
         }
 
-        ft.addToBackStack(null);
+        fragmentTransaction.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment
                 .newInstance(vaccineWrapper);
-        undoVaccinationDialogFragment.show(ft, DIALOG_TAG);
+        undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -1172,7 +1173,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
-            if (heightWrapper.getHeight() != null) {
+            if (heightWrapper != null && heightWrapper.getHeight() != null) {
                 height = Utils.cmStringSuffix(heightWrapper.getHeight());
             }
             isGrowthEdit = true;
@@ -1197,7 +1198,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
-        if (weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
+        if (weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (weightWrapper.getUpdatedWeightDate() != null) {
@@ -1223,7 +1224,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, TextView recordWeightText,
                                      ImageView recordWeightCheck) {
-        if (heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
+        if (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (heightWrapper.getUpdatedHeightDate() != null) {

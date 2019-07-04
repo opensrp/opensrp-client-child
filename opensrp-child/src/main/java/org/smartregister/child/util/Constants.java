@@ -117,10 +117,6 @@ public class Constants extends AllConstants {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }
 
-    public static final class EntityType {
-
-    }
-
     public static final class GENDER {
 
         public static final String MALE = "male";

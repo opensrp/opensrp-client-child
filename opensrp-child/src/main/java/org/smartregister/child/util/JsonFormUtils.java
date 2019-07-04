@@ -19,6 +19,7 @@ import com.vijay.jsonwizard.domain.Form;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -125,7 +127,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 entityId = entityId.replace("-", "");
             }
 
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
 
             // Inject zeir id into the form
             JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
@@ -173,24 +175,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return form;
     }
 
-    public static void addChildRegLocHierarchyQuestions(JSONObject form) {
+    public static void addChildRegLocHierarchyQuestions(JSONObject form, String widgetKey,
+                                                        LocationHierarchy locationHierarchy) {
         try {
             JSONArray questions = form.getJSONObject("step1").getJSONArray("fields");
-            ArrayList<String> allLevels = new ArrayList<>();
-            allLevels.add("Country");
-            allLevels.add("Province");
-            allLevels.add("Department");
-            allLevels.add("Health Facility");
-            allLevels.add("Zone");
-            allLevels.add("Residential Area");
-            allLevels.add("Facility");
-
-            ArrayList<String> healthFacilities = new ArrayList<>();
-            healthFacilities.add("Country");
-            healthFacilities.add("Province");
-            healthFacilities.add("Department");
-            healthFacilities.add("Health Facility");
-            healthFacilities.add("Facility");
+            ArrayList<String> allLevels = getLocationLevels();
+            ArrayList<String> healthFacilities = getHealthFacilityLevels();
 
             List<String> defaultLocation = LocationHelper.getInstance().generateDefaultLocationHierarchy(allLevels);
             List<String> defaultFacility = LocationHelper.getInstance().generateDefaultLocationHierarchy(healthFacilities);
@@ -220,32 +210,89 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     new TypeToken<List<FormLocation>>() {
                     }.getType());
 
-            for (int i = 0; i < questions.length(); i++) {
-                if (questions.getJSONObject(i).getString("key").equals("Home_Facility")) {
-                    if (StringUtils.isNotBlank(upToFacilitiesString)) {
-                        questions.getJSONObject(i).put("tree", new JSONArray(upToFacilitiesString));
-                    }
-                    if (StringUtils.isNotBlank(defaultFacilityString)) {
-                        questions.getJSONObject(i).put("default", defaultFacilityString);
-                    }
-                } else if (questions.getJSONObject(i).getString("key").equals("Birth_Facility_Name")) {
-                    if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
-                        questions.getJSONObject(i).put("tree", new JSONArray(upToFacilitiesWithOtherString));
-                    }
-                    if (StringUtils.isNotBlank(defaultFacilityString)) {
-                        questions.getJSONObject(i).put("default", defaultFacilityString);
-                    }
-                } else if (questions.getJSONObject(i).getString("key").equals("Residential_Area")) {
-                    if (StringUtils.isNotBlank(entireTreeString)) {
-                        questions.getJSONObject(i).put("tree", new JSONArray(entireTreeString));
-                    }
-                    if (StringUtils.isNotBlank(defaultLocationString)) {
-                        questions.getJSONObject(i).put("default", defaultLocationString);
-                    }
-                }
-            }
+            updateLocationTree(widgetKey, locationHierarchy, questions, defaultLocationString, defaultFacilityString,
+                    upToFacilitiesString, upToFacilitiesWithOtherString, entireTreeString);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    private static void updateLocationTree(String widgetKey, LocationHierarchy locationHierarchy, JSONArray questions,
+                                           String defaultLocationString, String defaultFacilityString,
+                                           String upToFacilitiesString, String upToFacilitiesWithOtherString,
+                                           String entireTreeString) throws JSONException {
+        for (int i = 0; i < questions.length(); i++) {
+            JSONObject widgets = questions.getJSONObject(i);
+            switch (locationHierarchy) {
+                case FACILITY_ONLY:
+                    if (StringUtils.isNotBlank(upToFacilitiesString)) {
+                        addLocationTree(widgetKey, widgets, upToFacilitiesString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
+                    }
+                    break;
+                case FACILITY_WITH_OTHER_STRING:
+                    if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
+                        addLocationTree(widgetKey, widgets, upToFacilitiesWithOtherString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
+                    }
+                    break;
+                case ENTIRE_TREE:
+                    if (StringUtils.isNotBlank(entireTreeString)) {
+                        addLocationTree(widgetKey, widgets, entireTreeString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultLocationString);
+                    }
+                    break;
+            }
+        }
+    }
+
+    @NotNull
+    private static ArrayList<String> getHealthFacilityLevels() {
+        ArrayList<String> healthFacilities = new ArrayList<>();
+        healthFacilities.add("Country");
+        healthFacilities.add("Province");
+        healthFacilities.add("Department");
+        healthFacilities.add("Health Facility");
+        healthFacilities.add("Facility");
+        return healthFacilities;
+    }
+
+    @NotNull
+    private static ArrayList<String> getLocationLevels() {
+        ArrayList<String> allLevels = new ArrayList<>();
+        allLevels.add("Country");
+        allLevels.add("Province");
+        allLevels.add("Department");
+        allLevels.add("Health Facility");
+        allLevels.add("Zone");
+        allLevels.add("Residential Area");
+        allLevels.add("Facility");
+        return allLevels;
+    }
+
+    private static void addLocationTree(String widgetKey, JSONObject widget, String updateString) {
+        try {
+            if (widget.getString("key").equals(widgetKey)) {
+                widget.put("tree", new JSONArray(updateString));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void addLocationDefault(String widgetKey, JSONObject widget, String updateString) {
+        try {
+            if (widget.getString("key").equals(widgetKey)) {
+                widget.put("default", new JSONArray(updateString));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -783,9 +830,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         try {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
-
-
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
 
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
@@ -1465,7 +1510,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     entityId = entityId.replace("-", "");
                 }
 
-                JsonFormUtils.addChildRegLocHierarchyQuestions(form);
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
 
                 // Inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
