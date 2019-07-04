@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.AllConstants;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
@@ -105,4 +108,22 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
         return new ChildRegistrationDataFragment();
     }
+
+    protected void startFormActivity(String formData) {
+
+        Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
+
+        Form formParam = new Form();
+        formParam.setWizard(false);
+        formParam.setHideSaveLabel(true);
+        formParam.setNextLabel("");
+
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
+
+        startActivityForResult(intent, REQUEST_CODE_GET_JSON);
+
+
+    }
+
 }

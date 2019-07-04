@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class RegisterClickables implements Serializable {
 
+    private String nextAppointmentDate;
+
     private boolean recordWeight;
 
     private boolean recordAll;
@@ -25,5 +27,13 @@ public class RegisterClickables implements Serializable {
 
     public boolean isRecordAll() {
         return recordAll;
+    }
+
+    public String getNextAppointmentDate() {
+        return nextAppointmentDate;
+    }
+
+    public void setNextAppointmentDate(String nextAppointmentDate) {
+        this.nextAppointmentDate = nextAppointmentDate;
     }
 }

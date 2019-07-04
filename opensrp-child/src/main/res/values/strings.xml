@@ -23,7 +23,7 @@
     <string name="child_profile">CHILD </string>
     <string name="child_DOB">Date Of Birth</string>
     <string name="child_reminder">REMINDER</string>
-    <string name="child_next_vaccine">DUE VACCINE</string>
+    <string name="child_next_vaccine">VACCINE DUE</string>
     <string name="child_register_title">Child Register</string>
     <string name="register_search_hint">Search</string>
     <string name="child_title">Child</string>
@@ -51,7 +51,7 @@
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort" translatable="false">IZ ID </string>
+    <string name="id_sort" translatable="false">System ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -82,7 +82,7 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="userNameText">User Name</string>
-    <string name="passwordText">Password</string>
+    <string name="passwordText">Password</string>H
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="undo">Undo</string>
@@ -154,8 +154,9 @@
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
     <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
     <string name="status">status</string>
-    <string name="zeir_id" translatable="false">IZ ID</string>
-    <string name="iz_id_hint">IZ ID number</string>
+    <string name="opensrp_id">System ID</string>
+    <string name="iz_id_hint">System ID</string>
+    <string name="card_id_hint">Card ID</string>
     <string name="first_name">First Name</string>
     <string name="first_name_hint">First name</string>
     <string name="last_name">Last Name</string>
@@ -262,8 +263,8 @@
     <string name="father_guardian_full_name">Father\'s name</string>
 
 
-    <string name="registration_data">Registration data</string>
-    <string name="under_five_history">Under Five History</string>
+    <string name="registration_data">Registration Data</string>
+    <string name="under_five_history">History</string>
     <string name="child_home_health_facility">Child\'s home health facility</string>
     <string name="child_opensrp_id">Child\'s vaccination ID</string>
     <string name="child_register_card_number">Child\'s register number</string>
@@ -280,14 +281,13 @@
     <string name="place_of_birth">Place of birth</string>
     <string name="health_facility_the_child_was_in">Birth facility</string>
     <string name="other_birth_facility">Other birth facility</string>
-    <string name="child_residential_area">Child\'s commune</string>
-    <string name="other_residential_area">Other commune</string>
+    <string name="residential_area">Child\'s commune</string>
+    <string name="residential_area_other">Other commune</string>
     <string name="home_address">Home address</string>
-    <string name="landmark">Landmark</string>
+    <string name="physical_landmark">Landmark</string>
     <string name="preferred_language">Preferred language</string>
     <string name="health_details">Health details</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>
-    <string name="vaccine_group_birth_name">Birth</string>
     <string name="tap_to_view">Tap to see</string>
     <string name="undo_lookup">Undo Lookup.</string>
     <string name="mother_guardian_matches">%1$d results found mother / person.</string>
@@ -303,6 +303,7 @@
     <string name="search_results">Search results</string>
     <string name="qr_code_label">QR code</string>
     <string name="next_visit">Next Visit</string>
+    <string name="next_visit_colon">Next Visit :</string>
     <string name="refreshing">Refreshing&#8230;</string>
 
     <string name="at_birth">at birth</string>
@@ -318,5 +319,9 @@
     <string name="after_tt3"> 1 Year after  TT 3 </string>
     <string name="after_tt4"> 1 Year after  TT 4 </string>
     <string name="move_to_catchment">Move to my\ncatchment</string>
+    <string name="activate_new_card">ACTIVATE NEW CARD</string>
+    <string name="system_id_colon">System Id :</string>
+    <string name="age_colon">Age :</string>
+    <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
 
 </resources>

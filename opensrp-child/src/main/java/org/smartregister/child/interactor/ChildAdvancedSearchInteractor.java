@@ -35,7 +35,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
     @Override
     public void search(final Map<String, String> editMap, final ChildAdvancedSearchContract.InteractorCallBack callBack,
-                       final String ancId) {
+                       final String opensrpID) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -44,7 +44,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override
                     public void run() {
-                        callBack.onResultsFound(response, ancId);
+                        callBack.onResultsFound(response, opensrpID);
                     }
                 });
             }

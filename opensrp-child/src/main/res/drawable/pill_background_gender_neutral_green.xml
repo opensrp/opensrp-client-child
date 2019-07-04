@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/gender_neutral_green"/>
+    <corners android:radius="24dp"/>
+    <padding android:left="32dp" android:top="0dp" android:right="32dp" android:bottom="0dp" />
+</shape>

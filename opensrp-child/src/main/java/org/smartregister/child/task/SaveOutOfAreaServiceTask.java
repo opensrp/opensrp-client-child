@@ -103,7 +103,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (weight != null && serviceDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
             weight.setDate(dateFormat.parse(serviceDate));
         }
 
@@ -158,7 +158,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
         for (Vaccine curVaccine : vaccines) {
             if (serviceDate != null) {
                 curVaccine.setDate(dateFormat.parse(serviceDate));

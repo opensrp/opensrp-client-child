@@ -52,7 +52,7 @@
     <string name="woman_last_vaccine">Dernier vaccin</string>
     <string name="woman_next_vaacine">Prochain vaccin attendu</string>
     <string name="woman_alphabetical_sort">Alphabétique (Nom)</string>
-    <string name="id_sort">IZ ID</string>
+    <string name="id_sort">ID du système</string>
     <string name="woman_details_title">Profil de la femme</string>
     <string name="day">JOUR\n</string>
     <string name="bcg">BCG\n</string>
@@ -155,8 +155,9 @@
     <string name="lost_to_follow_up">Perdu au suivi</string>
     <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
     <string name="status">état</string>
-    <string name="zeir_id">IZ ID</string>
+    <string name="opensrp_id">ID du système</string>
     <string name="iz_id_hint">Numéro d\'identification</string>
+    <string name="card_id_hint"> Carte d\'identité</string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
@@ -261,7 +262,7 @@
     <string name="father_guardian_full_name">Le nom du père</string>
 
     <string name="registration_data">Données d\'inscription</string>
-    <string name="under_five_history">Moins de cinq ans d\'histoire</string>
+    <string name="under_five_history">Histoire</string>
     <string name="child_home_health_facility">Structure sanitaire</string>
     <string name="child_opensrp_id">Notez ce numéro sur le carnet de santé de l\'enfant</string>
     <string name="child_register_card_number">No Ordre de registre de vaccine de lenfant</string>
@@ -278,15 +279,14 @@
     <string name="place_of_birth">Lieu de naissance</string>
     <string name="health_facility_the_child_was_in">Structure sanitaire de l\'enfant était en</string>
     <string name="other_birth_facility">Autre Structure sanitaire</string>
-    <string name="child_residential_area">Commune</string>
-    <string name="other_residential_area">Autre commune</string>
+    <string name="residential_area">Commune</string>
+    <string name="residential_area_other">Autre commune</string>
     <string name="home_address">Adresse précise</string>
-    <string name="landmark">Point de repère</string>
+    <string name="physical_landmark">Point de repère</string>
     <string name="preferred_language">Langue Préférée</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="health_details">détails sur la santé</string>
     <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
-    <string name="vaccine_group_birth_name">Naissance</string>
     <string name="tap_to_view">Tapez pour voir</string>
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
@@ -301,6 +301,7 @@
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
     <string name="next_visit">Prochain</string>
+    <string name="next_visit_colon">Prochain :</string>
     <string name="refreshing">Rafraîchissante&#8230;</string>
 
     <string name="at_birth">à la naissance</string>
@@ -316,5 +317,8 @@
     <string name="after_tt3"> 1 an après TT 3 </string>
     <string name="after_tt4"> 1 an après TT 4 </string>
     <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
+    <string name="activate_new_card">ACTIVER LA CARTE</string>
+    <string name="age_colon">Âge : </string>
+    <string name="system_id_colon">Id système :</string>
 
 </resources>

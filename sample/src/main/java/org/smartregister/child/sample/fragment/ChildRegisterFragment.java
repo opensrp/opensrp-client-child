@@ -14,8 +14,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
-import java.util.HashMap;
-
 public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
     @Override
@@ -44,11 +42,6 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     }
 
     @Override
-    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
-        //do nothing
-    }
-
-    @Override
     protected void onViewClicked(View view) {
 
         super.onViewClicked(view);
@@ -59,6 +52,7 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
             registerClickables.setRecordWeight(Constants.RECORD_ACTION.WEIGHT.equals(view.getTag(org.smartregister.child.R.id.record_action)));
             registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+            registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
 
         }
 

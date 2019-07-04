@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
@@ -25,6 +26,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
@@ -119,28 +121,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
-            // Update top left icon
-            FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
-            if (qrCodeScanImageView != null) {
-                qrCodeScanImageView.setOnClickListener(this);
-            }
+            // Update top right icon
+            setUpQRCodeScanButtonView(view);
 
-            FrameLayout scanCardView = view.findViewById(R.id.scan_card);
-            if (scanCardView != null) {
-                scanCardView.setOnClickListener(this);
-                scanCardView.setVisibility(View.GONE);
-            }
+            setUpScanCardButtonView(view);
+
+            //OpenSRPLogo
+            setUpOpenSRPLogoImageView(view, R.id.opensrp_logo_image_view);
 
             // Update title name
-            ImageView logo = view.findViewById(R.id.opensrp_logo_image_view);
-            if (logo != null) {
-                logo.setVisibility(View.GONE);
-            }
-
-            CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
-            if (titleView != null) {
-                titleView.setVisibility(View.GONE);
-            }
+            setUpOpenSRPTitleView(view);
 
             filterSection = view.findViewById(R.id.filter_selection);
             filterSection.setOnClickListener(this);
@@ -171,6 +161,49 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
             overdueCountTV.setVisibility(View.GONE);
         }
 
+        if (!(this instanceof BaseAdvancedSearchFragment)) {
+            view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+
+
+            if (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
+                view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+            }
+        }
+    }
+
+    private void setUpOpenSRPTitleView(View view) {
+        CustomFontTextView titleView = view.findViewById(R.id.txt_title_label);
+        if (titleView != null) {
+            titleView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpOpenSRPLogoImageView(View view, int p) {
+        ImageView logo = view.findViewById(p);
+        if (logo != null) {
+            logo.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpScanCardButtonView(View view) {
+        FrameLayout scanCardView = view.findViewById(R.id.scan_card);
+        if (scanCardView != null && ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+            scanCardView.setOnClickListener(this);
+            scanCardView.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    private void setUpQRCodeScanButtonView(View view) {
+        FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
+        if (qrCodeScanImageView != null) {
+
+            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                qrCodeScanImageView.setOnClickListener(this);
+            } else {
+                qrCodeScanImageView.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void updateDueOverdueCountText(int overDueCount) {
@@ -188,7 +221,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
         }
     }
 
-
     protected void toggleFilterSelection() {
         if (filterSection != null) {
             String tagString = "PRESSED";
@@ -197,7 +229,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                updateSortAndFilter(null, null);
+                filter("", "", "", false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }
@@ -221,15 +253,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
     }
 
     @Override
-
-    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
-        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-        if (baseRegisterActivity != null) {
-            android.support.v4.app.Fragment currentFragment = baseRegisterActivity
-                    .findFragmentByPosition(BaseRegisterActivity
-                            .ADVANCED_SEARCH_POSITION);
-            ((BaseAdvancedSearchFragment) currentFragment).setAdvancedSearchFormData(formData);
-        }
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        //do nothing , overrode from ma
     }
 
     @Override
@@ -250,7 +275,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment imp
 
     @Override
     protected void startRegistration() {
-        ((BaseChildRegisterActivity) getActivity()).startFormActivity(Utils.metadata().childRegister.formName, null, null);
+
+        ((BaseChildRegisterActivity) getActivity()).startRegistration();
     }
 
 

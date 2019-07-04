@@ -1,6 +1,5 @@
 package org.smartregister.child.domain;
 
-import android.database.Cursor;
 import android.view.View;
 
 import org.smartregister.view.contract.SmartRegisterClient;
@@ -10,6 +9,7 @@ import org.smartregister.view.contract.SmartRegisterClient;
  */
 public class RegisterActionParams {
     private View convertView;
+    private View profileInfoView;
     private String entityId;
     private String dobString;
     private String lostToFollowUp;
@@ -81,5 +81,13 @@ public class RegisterActionParams {
 
     public void setOnClickListener(View.OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    public View getProfileInfoView() {
+        return profileInfoView;
+    }
+
+    public void setProfileInfoView(View profileInfoView) {
+        this.profileInfoView = profileInfoView;
     }
 }

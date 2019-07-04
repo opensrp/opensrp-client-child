@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,39 +20,50 @@ import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.child.util.Utils;
+import org.smartregister.util.LangUtils;
 
 import java.util.List;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
  */
-public class ChildFormActivity extends JsonFormActivity {
-    private String TAG = ChildFormActivity.class.getCanonicalName();
+public class BaseChildFormActivity extends JsonFormActivity {
 
+    private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
-    ChildFormFragment childFormFragment;
+    private ChildFormFragment childFormFragment;
+    private JSONObject form;
 
     @Override
     protected void attachBaseContext(android.content.Context base) {
 
-        String language = Utils.getLanguage(base);
-        super.attachBaseContext(Utils.setAppLocale(base, language));
+        String language = LangUtils.getLanguage(base);
+        super.attachBaseContext(LangUtils.setAppLocale(base, language));
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            form = new JSONObject(currentJsonState());
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
 
         enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         try {
-            JSONObject form = new JSONObject(currentJsonState());
+
             String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
-            if (et.trim().toLowerCase().contains("update")) {
-                setConfirmCloseMessage(getString(R.string.any_changes_you_make));
-            }
-        } catch (Exception e) {
+            setConfirmCloseTitle(this.getString(R.string.confirm_form_close));
+            setConfirmCloseMessage(et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation));
+
+        } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
     }
@@ -130,9 +143,23 @@ public class ChildFormActivity extends JsonFormActivity {
     @Override
     public void onBackPressed() {
         if (enableOnCloseDialog) {
-            super.onBackPressed();
+            AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppThemeAlertDialog).setTitle(confirmCloseTitle)
+                    .setMessage(confirmCloseMessage).setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            BaseChildFormActivity.this.finish();
+                        }
+                    }).setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d(TAG, "No button on dialog in " + JsonFormActivity.class.getCanonicalName());
+                        }
+                    }).create();
+
+            dialog.show();
+
         } else {
-            ChildFormActivity.this.finish();
+            BaseChildFormActivity.this.finish();
         }
     }
 

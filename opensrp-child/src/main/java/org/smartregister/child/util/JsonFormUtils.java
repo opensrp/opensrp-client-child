@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.child.activity.ChildFormActivity;
+import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
@@ -37,6 +37,7 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -53,7 +54,6 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
-import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -92,13 +92,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String ZEIR_ID = "ZEIR_ID";
     public static final String updateBirthRegistrationDetailsEncounter = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     private static final String TAG = JsonFormUtils.class.getCanonicalName();
     private static final String ENCOUNTER = "encounter";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Birth_Weight", "Sex", ZEIR_ID);
+    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", ZEIR_ID, "isConsented");
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
@@ -468,7 +468,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 if (allCommonsRepository != null) {
                     ContentValues values = new ContentValues();
                     values.put(Constants.KEY.DOD, encounterDateField);
-                    values.put(Constants.KEY.DATE_REMOVED,  Utils.getTodaysDate());
+                    values.put(Constants.KEY.DATE_REMOVED, Utils.getTodaysDate());
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
@@ -571,7 +571,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         try {
-            JSONObject form = FormUtils.getInstance(context).getFormJson(Utils.metadata().childRegister.formName);
+            JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
 
 
             JsonFormUtils.addChildRegLocHierarchyQuestions(form);
@@ -581,7 +581,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
                 form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
                 form.put(JsonFormUtils.RELATIONAL_ID, childDetails.get(RELATIONAL_ID));
-                form.put(JsonFormUtils.CURRENT_ZEIR_ID, Utils.getValue(childDetails, "zeir_id", true).replace("-", ""));
+                form.put(JsonFormUtils.CURRENT_ZEIR_ID, Utils.getValue(childDetails, Constants.KEY.ZEIR_ID, true).replace("-", ""));
                 form.put(JsonFormUtils.CURRENT_OPENSRP_ID, Utils.getValue(childDetails, Constants.JSON_FORM_KEY.UNIQUE_ID, false));
 
 
@@ -629,21 +629,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     } else {
 
                         jsonObject.put(JsonFormUtils.VALUE, getMappedValue(prefix + jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
-
-                    }
-
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Tetanus_Protection")) {
-
-                        JSONArray array = jsonObject.getJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
-                        JSONObject object;
-                        for (int j = 0; j < array.length(); j++) {
-
-                            object = array.getJSONObject(j);
-                            if (jsonObject.has(JsonFormConstants.VALUE) && object.getString(JsonFormConstants.OPENMRS_ENTITY_ID).equals(jsonObject.getString(JsonFormConstants.VALUE))) {
-                                jsonObject.put(JsonFormConstants.VALUE, object.getString(JsonFormConstants.TEXT));
-                                break;
-                            }
-                        }
 
                     }
 
@@ -1040,13 +1025,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String bindType) {
 
+        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(new String[]{entityId}));
+
+        boolean alreadyExists = eventClients.size() > 0;
+        org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
         Event e = (Event) new Event()
-                .withBaseEntityId(entityId)//should be different for main and subform
+                .withBaseEntityId(alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
                 .withEventDate(parent.getEventDate())
                 .withEventType(encounterType)
                 .withEntityType(bindType)
-                .withFormSubmissionId(generateRandomUUIDString())
+                .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
                 .withDateCreated(new Date());
 
         if (fields != null && fields.length() != 0)
@@ -1384,7 +1373,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * Starts an instance of JsonFormActivity with the provided form details
      *
      * @param context                     The activity form is being launched from
-     * @param jsonFormActivityRequestCode The request code to be used to launch {@link ChildFormActivity}
+     * @param jsonFormActivityRequestCode The request code to be used to launch {@link BaseChildFormActivity}
      * @param formName                    The name of the form to launch
      * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location
@@ -1394,7 +1383,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                  int jsonFormActivityRequestCode,
                                  String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
-        Intent intent = new Intent(context, ChildFormActivity.class);
+        Intent intent = new Intent(context, Utils.metadata().childFormActivity);
 
         Form formParam = new Form();
         // formParam.setName("Rules engine demo");
@@ -1406,7 +1395,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
         String entityId = uniqueId;
-        JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
+        JSONObject form = new FormUtils(context).getFormJson(formName);
         if (form != null) {
             form.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, currentLocationId);
 
@@ -1529,7 +1518,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         ContentValues contentValues = new ContentValues();
         //Add the base_entity_id
         contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-        db.getWritableDatabase().update(Utils.metadata().childRegister.tableName, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
+        db.getWritableDatabase().update(Utils.metadata().childRegister.tableName, contentValues, Constants.KEY.BASE_ENTITY_ID + "=?", new String[]{childDetails.entityId()});
 
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
         String locationName = allSharedPreferences.fetchCurrentLocality();

@@ -17,10 +17,12 @@ import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.VaccinationAsyncTask;
 import org.smartregister.child.task.WeightAsyncTask;
+import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
@@ -60,6 +62,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
+    private boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns, View.OnClickListener onClickListener, View.OnClickListener paginationClickListener, AlertService alertService) {
 
@@ -84,6 +87,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
+        isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
         if (visibleColumns.isEmpty()) {
             populatePatientColumn(pc, client, viewHolder);
@@ -113,7 +117,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
 
-
         fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
         String motherFirstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
@@ -124,7 +127,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
-        if (!StringUtils.isNotBlank(motherName)) {
+        if (StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
 
@@ -185,8 +188,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setDobString(dobString);
                 params.setInactive(inactive);
                 params.setSmartRegisterClient(client);
-                params.setUpdateOutOfCatchment(false);//TO DO update with dynamic parameter
+                params.setUpdateOutOfCatchment(isOutOfCatchment);
                 params.setOnClickListener(onClickListener);
+                params.setProfileInfoView(viewHolder.childProfileInfoLayout);
 
                 Utils.startAsyncTask(new WeightAsyncTask(params, commonRepository, weightRepository, context), null);
                 Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
@@ -237,6 +241,13 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     @Override
     public RegisterViewHolder createViewHolder(ViewGroup parent) {
         View view = inflater.inflate(R.layout.child_register_list_row, parent, false);
+
+        if (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
+
+            view.findViewById(R.id.record_weight_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+        }
+
+        view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
         /*
         ConfigurableViewsHelper helper = ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper();

@@ -2,24 +2,17 @@ package org.smartregister.child.util;
 
 import org.smartregister.AllConstants;
 
-import java.text.SimpleDateFormat;
-
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Constants extends AllConstants {
 
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
-    public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
 
     public static class JSON_FORM_KEY {
-        public static final String ENTITY_ID = "entity_id";
         public static final String OPTIONS = "options";
-        public static final String ENCOUNTER_LOCATION = "encounter_location";
-        public static final String ATTRIBUTES = "attributes";
         public static final String DEATH_DATE_APPROX = "deathdateApprox";
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
@@ -30,7 +23,6 @@ public class Constants extends AllConstants {
     }
 
     public static class JSON_FORM_EXTRA {
-        public static final String JSON = "json";
         public static final String NEXT = "next";
 
     }
@@ -43,19 +35,14 @@ public class Constants extends AllConstants {
     public static final class KEY {
         public static final String KEY = "key";
         public static final String VALUE = "value";
-        public static final String TREE = "tree";
-        public static final String DEFAULT = "default";
         public static final String PHOTO = "photo";
-        public static final String TYPE = "type";
         public static final String VACCINE = "vaccine";
         public static final String ALERT = "alert";
         public static final String WEEK = "week";
         public static final String MONTH = "month";
-        public static final String DAY = "day";
         public static final String DATE = "date";
         public static final String CHILD = "child";
         public static final String PMTCT_STATUS = "pmtct_status";
-        public static final String LOCATION_NAME = "location_name";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
@@ -85,6 +72,8 @@ public class Constants extends AllConstants {
         public static final String RECORD_ACTION = "record_action";
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
+        public static final String LOCATION_ID = "location_id";
+        public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 
     public static class ENTITY {
@@ -99,15 +88,10 @@ public class Constants extends AllConstants {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }
 
-    public static final class EntityType {
-
-    }
-
     public static final class GENDER {
 
         public static final String MALE = "male";
         public static final String FEMALE = "female";
-        public static final String TRANSGENDER = "transgender";
     }
 
     //Temporary to move implementation
