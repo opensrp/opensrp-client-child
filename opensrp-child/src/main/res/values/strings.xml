@@ -323,5 +323,8 @@
     <string name="system_id_colon">System Id :</string>
     <string name="age_colon">Age :</string>
     <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
+    <string name="search_criteria_includes">Search criteria includes:&#032;</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
 
 </resources>

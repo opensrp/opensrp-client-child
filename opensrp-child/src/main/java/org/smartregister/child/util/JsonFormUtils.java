@@ -54,6 +54,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
+import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -625,6 +626,19 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.CONCEPT)) {
 
                         jsonObject.put(JsonFormUtils.VALUE, getMappedValue(jsonObject.getString(JsonFormUtils.KEY), childDetails));
+
+                    } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
+
+
+                        String val = getMappedValue(prefix + jsonObject.getString(JsonFormUtils.KEY), childDetails).toLowerCase();
+
+                        String key = Boolean.valueOf(val) ? prefix + jsonObject.getString(JsonFormUtils.KEY) : "";
+
+                        JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
+
+
+                        jsonObject.put(JsonFormConstants.VALUE, array);
+
 
                     } else {
 

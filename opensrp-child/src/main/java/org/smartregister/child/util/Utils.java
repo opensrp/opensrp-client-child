@@ -45,8 +45,8 @@ import java.util.Map;
 public class Utils extends org.smartregister.util.Utils {
     public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
     public static final ArrayList<String> ALLOWED_LEVELS;
-    public static final String DEFAULT_LOCATION_LEVEL = "Facility";
-    public static final String FACILITY = "Health Facility";
+    public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
+    public static final String FACILITY = "Facility";
     public static final String APP_PROPERTIES_FILE = "app.properties";
 
     static {
@@ -417,6 +417,18 @@ public class Utils extends org.smartregister.util.Utils {
         } catch (ParseException e) {
             return raw;
         }
+    }
+
+    public static String getTranslatedIdentifier(String key) {
+
+        String myKey;
+        try {
+            myKey = ChildLibrary.getInstance().context().applicationContext().getString(ChildLibrary.getInstance().context().applicationContext().getResources().getIdentifier(key.toLowerCase(), "string", ChildLibrary.getInstance().context().applicationContext().getPackageName()));
+
+        } catch (Resources.NotFoundException resourceNotFoundException) {
+            myKey = key;
+        }
+        return myKey;
     }
 
 }

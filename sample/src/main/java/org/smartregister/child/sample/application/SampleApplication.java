@@ -131,8 +131,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
-                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.NFC_CARD_IDENTIFIER, DBConstants.KEY.PROVIDER_ID, DBConstants.KEY.PROVIDER_LOCATION_ID};
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER};
         }
         return null;
     }
@@ -176,10 +175,16 @@ public class SampleApplication extends DrishtiApplication {
 
         for (int i = 10; i < size; i++) {
             Integer randomInt = r.nextInt(10000) + 1;
-            ids.add(randomInt.toString());
+            ids.add(formatSampleId(randomInt.toString()));
         }
 
         return ids;
+    }
+
+    private String formatSampleId(String openmrsId) {
+        int lastIndex = openmrsId.length() - 1;
+        String tail = openmrsId.substring(lastIndex);
+        return openmrsId.substring(0, lastIndex) + "-" + tail;
     }
 
     public WeightRepository weightRepository() {

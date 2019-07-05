@@ -12,10 +12,15 @@ import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
+import org.smartregister.child.util.Utils;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.smartregister.child.util.Constants.CHILD_STATUS.ACTIVE;
+import static org.smartregister.child.util.Constants.CHILD_STATUS.INACTIVE;
+import static org.smartregister.child.util.Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
 
 public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
 
@@ -65,12 +70,18 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
         motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
 
+//Defaults
+        startDate.addTextChangedListener(advancedSearchTextwatcher);
+        endDate.addTextChangedListener(advancedSearchTextwatcher);
+
         advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
         advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
         advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
         advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
         advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
         advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
+        advancedFormSearchableFields.put(START_DATE, startDate);
+        advancedFormSearchableFields.put(END_DATE, endDate);
     }
 
     @Override
@@ -138,9 +149,10 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
-    protected Map<String, String> getSearchMap() {
+    protected Map<String, String> getSearchMap(boolean outOfArea) {
 
         Map<String, String> searchParams = new HashMap<>();
+
 
         String fn = firstName.getText().toString();
         String ln = lastName.getText().toString();
@@ -180,6 +192,95 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         if (!TextUtils.isEmpty(zeir)) {
             searchParams.put(DBConstants.KEY.ZEIR_ID, zeir);
         }
+
+
+        String tableName = Utils.metadata().childRegister.tableName;
+        String parentTableName = Utils.metadata().childRegister.motherTableName;
+
+
+        //Inactive
+        boolean isInactive = inactive.isChecked();
+        if (isInactive) {
+            String inActiveKey = INACTIVE;
+            if (!outOfArea) {
+                inActiveKey = tableName + "." + INACTIVE;
+            }
+            searchParams.put(inActiveKey, Boolean.toString(isInactive));
+        }
+        //Active
+        boolean isActive = active.isChecked();
+        if (isActive) {
+            String activeKey = ACTIVE;
+            if (!outOfArea) {
+                activeKey = tableName + "." + ACTIVE;
+            }
+            searchParams.put(activeKey, Boolean.toString(isActive));
+        }
+
+        //Lost To Follow Up
+        boolean isLostToFollowUp = lostToFollowUp.isChecked();
+        if (isLostToFollowUp) {
+            String lostToFollowUpKey = LOST_TO_FOLLOW_UP;
+            if (!outOfArea) {
+                lostToFollowUpKey = tableName + "." + LOST_TO_FOLLOW_UP;
+            }
+            searchParams.put(lostToFollowUpKey, Boolean.toString(isLostToFollowUp));
+        }
+
+
+        if (isActive == isInactive && isActive == isLostToFollowUp) {
+
+            if (searchParams.containsKey(INACTIVE)) {
+                searchParams.remove(INACTIVE);
+            }
+
+            if (searchParams.containsKey(tableName + "." + INACTIVE)) {
+                searchParams.remove(tableName + "." + INACTIVE);
+            }
+
+            if (searchParams.containsKey(ACTIVE)) {
+                searchParams.remove(ACTIVE);
+            }
+
+            if (searchParams.containsKey(tableName + "." + ACTIVE)) {
+                searchParams.remove(tableName + "." + ACTIVE);
+            }
+
+            if (searchParams.containsKey(LOST_TO_FOLLOW_UP)) {
+                searchParams.remove(LOST_TO_FOLLOW_UP);
+            }
+
+            if (searchParams.containsKey(tableName + "." + LOST_TO_FOLLOW_UP)) {
+                searchParams.remove(tableName + "." + LOST_TO_FOLLOW_UP);
+            }
+
+        }
+
+        String startDateString = startDate.getText().toString();
+        if (StringUtils.isNotBlank(startDateString)) {
+            searchParams.put(START_DATE, startDateString.trim());
+        }
+
+        String endDateString = endDate.getText().toString();
+        if (StringUtils.isNotBlank(endDateString)) {
+            searchParams.put(END_DATE, endDateString.trim());
+        }
+
+        /*
+
+
+        if (StringUtils.isNotBlank(startDateString) && StringUtils.isNotBlank(endDateString)) {
+            String dateFormat = "yyyy-MM-dd";
+            Date startDate = Utils.getDateFromString(startDateString, dateFormat);
+            Date endDate = Utils.getDateFromString(endDateString, dateFormat);
+
+            if (startDate.compareTo(endDate) > 0) {
+                Utils.showToast(getActivity(),"For birth range please select an End Date which IS NOT earlier than the Start Date");
+                return;
+            }
+        }
+
+        */
 
         return searchParams;
     }

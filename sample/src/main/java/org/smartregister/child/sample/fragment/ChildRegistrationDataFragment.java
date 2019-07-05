@@ -31,7 +31,7 @@ public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFrag
         resourceIds.put("Last_Name", R.string.last_name);
         resourceIds.put("Sex", R.string.sex);
         resourceIds.put("Date_Birth", R.string.child_dob);
-        resourceIds.put("Birth_Weight", R.string.first_name);
+        resourceIds.put("Birth_Weight", R.string.birth_weight);
         resourceIds.put("Birth_Tetanus_Protection", R.string.birth_tetanus_protection);
         resourceIds.put("Child_Register_Card_Number", R.string.child_register_card_number);
         resourceIds.put("Home_Facility", R.string.child_home_health_facility);

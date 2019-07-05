@@ -60,8 +60,13 @@ public class BaseChildFormActivity extends JsonFormActivity {
         try {
 
             String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
-            setConfirmCloseTitle(this.getString(R.string.confirm_form_close));
-            setConfirmCloseMessage(et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation));
+
+            confirmCloseTitle = getString(R.string.confirm_form_close);
+            confirmCloseMessage = et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation);
+
+            setConfirmCloseTitle(confirmCloseTitle);
+            setConfirmCloseMessage(confirmCloseMessage);
+
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());

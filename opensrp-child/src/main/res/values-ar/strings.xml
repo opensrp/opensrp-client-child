@@ -323,4 +323,8 @@
     <string name="activate_new_card">تنشيط البطاقة</string>
     <string name="system_id_colon">معرف النظام :</string>
     <string name="age_colon">العمر :</string>
+    <string name="search_criteria_includes">&#032;تتضمن معايير البحث:</string>
+    <string name="start_date">تاريخ البدء</string>
+    <string name="end_date">تاريخ الانتهاء</string>
+
 </resources>

@@ -1,6 +1,7 @@
 package org.smartregister.child.presenter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.interactor.ChildAdvancedSearchInteractor;
@@ -33,7 +34,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
 
     public void search(Map<String, String> searchMap, boolean isLocal) {
-        String searchCriteria = model.createSearchString(searchMap);
+        String searchCriteria = getView().getString(R.string.search_criteria_includes) + model.createSearchString(searchMap);
         if (StringUtils.isBlank(searchCriteria)) {
             return;
         }

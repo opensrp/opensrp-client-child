@@ -60,7 +60,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             "4 Weeks after TT 1",
             "26 Weeks after TT 2",
             "1 Year after TT 3 ",
-            " 1 Year after TT 4 "});
+            "1 Year after TT 4 "});
 
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
 

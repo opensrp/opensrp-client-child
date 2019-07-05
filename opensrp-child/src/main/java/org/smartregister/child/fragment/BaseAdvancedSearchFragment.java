@@ -27,7 +27,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
@@ -98,6 +97,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
 
     private ProgressDialog progressDialog;
+
+    public static final String START_DATE = "start_date";
+    public static final String END_DATE = "end_date";
 
     @Override
     protected void initializePresenter() {
@@ -248,9 +250,12 @@ TO DO ? , sync unsynced records within catchment
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
 
-        populateSearchableFields(view);
 
         populateFormViews(view);
+
+        populateSearchableFields(view);
+
+        resetForm();
 
     }
 
@@ -343,8 +348,6 @@ TO DO ? , sync unsynced records within catchment
                 lostToFollowUp.toggle();
             }
         });
-
-        resetForm();
     }
 
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
@@ -447,7 +450,7 @@ TO DO ? , sync unsynced records within catchment
 
         for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
 
-            if (entry.getValue() instanceof MaterialEditText && !TextUtils.isEmpty(((MaterialEditText) entry.getValue()).getText())) {
+            if (entry.getValue() instanceof TextView && !TextUtils.isEmpty(((TextView) entry.getValue()).getText())) {
                 return true;
             }
 
@@ -529,7 +532,9 @@ TO DO ? , sync unsynced records within catchment
         clearFormFields();
     }
 
+
     protected void clearFormFields() {
+
         active.setChecked(true);
         inactive.setChecked(false);
         lostToFollowUp.setChecked(false);
@@ -595,11 +600,12 @@ TO DO ? , sync unsynced records within catchment
             isLocal = false;
         }
 
+        Map<String, String> editMap = getSearchMap(!isLocal);
 
-        ((ChildAdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
+        ((ChildAdvancedSearchContract.Presenter) presenter).search(editMap, isLocal);
     }
 
-    protected abstract Map<String, String> getSearchMap();
+    protected abstract Map<String, String> getSearchMap(boolean outOfarea);
 
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {

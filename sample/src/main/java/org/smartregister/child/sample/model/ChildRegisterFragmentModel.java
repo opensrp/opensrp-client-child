@@ -24,7 +24,7 @@ public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
                 parentTableName + "." + DBConstants.KEY.LAST_NAME + " as mother_last_name",
                 parentTableName + "." + DBConstants.KEY.DOB + " as mother_dob",
                 parentTableName + "." + DBConstants.KEY.NRC_NUMBER + " as mother_nrc_number",
-                tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
+                parentTableName + "." + DBConstants.KEY.FATHER_NAME,
                 tableName + "." + DBConstants.KEY.DOB,
                 tableName + "." + DBConstants.KEY.EPI_CARD_NUMBER,
                 tableName + "." + DBConstants.KEY.CONTACT_PHONE_NUMBER,
@@ -36,7 +36,6 @@ public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
                 tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                 tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                 tableName + "." + DBConstants.KEY.INACTIVE,
-                tableName + "." + DBConstants.KEY.NFC_CARD_IDENTIFIER,
         };
         return columns;
     }

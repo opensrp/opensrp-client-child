@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.AllConstants;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.sample.util.DBConstants;
+import org.smartregister.child.util.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,42 +46,6 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
     }
 
     @Override
-    protected String getKey(String key) {
-        String resKey = "";
-        switch (key) {
-            case DBConstants.KEY.FIRST_NAME:
-                resKey = FIRST_NAME;
-
-                break;
-
-
-            case DBConstants.KEY.LAST_NAME:
-                resKey = LAST_NAME;
-
-                break;
-            case DBConstants.KEY.ZEIR_ID:
-                resKey = SEARCH_TERM_OPENSRP_ID;
-
-                break;
-            case DBConstants.KEY.DOB:
-                resKey = DOB;
-
-                break;
-            case DBConstants.KEY.CONTACT_PHONE_NUMBER:
-                resKey = MOBILE_PHONE_NUMBER;
-
-                break;
-
-            default:
-                break;
-
-        }
-
-
-        return resKey;
-    }
-
-    @Override
     protected String[] mainColumns(String tableName, String parentTableName) {
         {
             String[] columns = new String[]{
@@ -97,7 +62,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                     parentTableName + "." + DBConstants.KEY.LAST_NAME + " as mother_last_name",
                     parentTableName + "." + DBConstants.KEY.DOB + " as mother_dob",
                     parentTableName + "." + DBConstants.KEY.NRC_NUMBER + " as mother_nrc_number",
-                    tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
+                    parentTableName + "." + DBConstants.KEY.FATHER_NAME,
                     tableName + "." + DBConstants.KEY.DOB,
                     tableName + "." + DBConstants.KEY.EPI_CARD_NUMBER,
                     tableName + "." + DBConstants.KEY.CONTACT_PHONE_NUMBER,
@@ -109,7 +74,6 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                     tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                     tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                     tableName + "." + DBConstants.KEY.INACTIVE,
-                    tableName + "." + DBConstants.KEY.NFC_CARD_IDENTIFIER,
             };
             return columns;
         }
