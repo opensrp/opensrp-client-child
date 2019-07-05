@@ -31,6 +31,12 @@
               "reference": "dob",
               "offset": "+13d"
             }
+          ],
+          "conditions": [
+            {
+              "type": "not_given",
+              "vaccine": "OPV 4"
+            }
           ]
         }
       },
@@ -44,36 +50,6 @@
         },
         "openmrs_calculate": {
           "parent_entity": "886AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
-        },
-        "schedule": {
-          "due": [
-            {
-              "reference": "dob",
-              "offset": "+0d",
-              "window": "+10d"
-            }
-          ],
-          "expiry": [
-            {
-              "reference": "dob",
-              "offset": "+1y"
-            }
-          ]
-        }
-      },
-      {
-        "name": "HepB",
-        "type": "HepB",
-        "openmrs_date": {
-          "parent_entity": "782AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        },
-        "openmrs_calculate": {
-          "parent_entity": "782AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "calculation": 1
@@ -360,11 +336,10 @@
     "days_after_birth_due": 98,
     "vaccines": [
       {
-        "name": "OPV 3 / IPV",
-        "type": "OPV / IPV",
-        "vaccine_separator": " / ",
+        "name": "OPV 3",
+        "type": "OPV",
         "openmrs_date": {
-          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/1422AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
@@ -374,51 +349,21 @@
           "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "calculation": 3
         },
-        "schedules": {
-          "OPV 3": {
-            "due": [
-              {
-                "reference": "prerequisite",
-                "prerequisite": "OPV 2",
-                "offset": "+28d",
-                "window": "+10d"
-              }
-            ],
-            "expiry": [
-              {
-                "reference": "dob",
-                "offset": "+5y"
-              }
-            ],
-            "conditions": [
-              {
-                "type": "not_given",
-                "vaccine": "IPV"
-              }
-            ]
-          },
-          "IPV": {
-            "due": [
-              {
-                "reference": "prerequisite",
-                "prerequisite": "OPV 2",
-                "offset": "+28d",
-                "window": "+10d"
-              }
-            ],
-            "expiry": [
-              {
-                "reference": "dob",
-                "offset": "+5y"
-              }
-            ],
-            "conditions": [
-              {
-                "type": "not_given",
-                "vaccine": "OPV 3"
-              }
-            ]
-          }
+        "schedule": {
+          "due": [
+            {
+              "reference": "prerequisite",
+              "prerequisite": "OPV 2",
+              "offset": "+28d",
+              "window": "+10d"
+            }
+          ],
+          "expiry": [
+            {
+              "reference": "dob",
+              "offset": "+5y"
+            }
+          ]
         }
       },
       {
@@ -539,18 +484,18 @@
         }
       },
       {
-        "name": "Meningococcal",
-        "type": "Meningococcal",
+        "name": "OPV 4",
+        "type": "OPV",
         "openmrs_date": {
-          "parent_entity": "159900AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
         "openmrs_calculate": {
-          "parent_entity": "159900AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "parent_entity": "783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "entity": "concept",
           "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
+          "calculation": 4
         },
         "schedule": {
           "due": [
@@ -563,37 +508,19 @@
           "expiry": [
             {
               "reference": "dob",
-              "offset": "+18m"
-            }
-          ]
-        }
-      },
-      {
-        "name": "Yellow Fever",
-        "type": "Yellow Fever",
-        "openmrs_date": {
-          "parent_entity": "5864AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        },
-        "openmrs_calculate": {
-          "parent_entity": "5864AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "entity": "concept",
-          "entity_id": "1418AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "calculation": 1
-        },
-        "schedule": {
-          "due": [
-            {
-              "reference": "dob",
-              "offset": "+9m",
-              "window": "+10d"
+              "offset": "+5y"
             }
           ],
-          "expiry": [
+          "conditions": [
             {
-              "reference": "dob",
-              "offset": "+18m"
+              "type": "not_given",
+              "vaccine": "OPV 0"
+            },
+            {
+              "type": "given",
+              "vaccine": "OPV 3",
+              "comparison": "at_least",
+              "value": "-28d"
             }
           ]
         }
