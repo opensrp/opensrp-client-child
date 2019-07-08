@@ -13,6 +13,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -568,7 +569,7 @@ TO DO ? , sync unsynced records within catchment
     @Override
     public void updateSearchCriteria(String searchCriteriaString) {
         if (searchCriteria != null) {
-            searchCriteria.setText(searchCriteriaString);
+            searchCriteria.setText(Html.fromHtml(searchCriteriaString));
             searchCriteria.setVisibility(View.VISIBLE);
         }
     }

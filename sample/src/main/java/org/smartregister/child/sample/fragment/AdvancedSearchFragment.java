@@ -12,7 +12,6 @@ import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
-import org.smartregister.child.util.Utils;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.HashMap;
@@ -28,7 +27,8 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     private MaterialEditText firstName;
     private MaterialEditText lastName;
     protected MaterialEditText openSrpId;
-    protected MaterialEditText motherGuardianName;
+    protected MaterialEditText motherGuardianFirstName;
+    protected MaterialEditText motherGuardianLastName;
     protected MaterialEditText motherGuardianNrc;
     protected MaterialEditText motherGuardianPhoneNumber;
 
@@ -61,8 +61,11 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         openSrpId = view.findViewById(org.smartregister.child.R.id.opensrp_id);
         openSrpId.addTextChangedListener(advancedSearchTextwatcher);
 
-        motherGuardianName = view.findViewById(org.smartregister.child.R.id.mother_guardian_name);
-        motherGuardianName.addTextChangedListener(advancedSearchTextwatcher);
+        motherGuardianFirstName = view.findViewById(org.smartregister.child.R.id.mother_guardian_first_name);
+        motherGuardianFirstName.addTextChangedListener(advancedSearchTextwatcher);
+
+        motherGuardianLastName = view.findViewById(org.smartregister.child.R.id.mother_guardian_last_name);
+        motherGuardianLastName.addTextChangedListener(advancedSearchTextwatcher);
 
         motherGuardianNrc = view.findViewById(org.smartregister.child.R.id.mother_guardian_nrc);
         motherGuardianNrc.addTextChangedListener(advancedSearchTextwatcher);
@@ -77,7 +80,8 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         advancedFormSearchableFields.put(DBConstants.KEY.FIRST_NAME, firstName);
         advancedFormSearchableFields.put(DBConstants.KEY.LAST_NAME, lastName);
         advancedFormSearchableFields.put(DBConstants.KEY.ZEIR_ID, openSrpId);
-        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianFirstName);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_LAST_NAME, motherGuardianLastName);
         advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
         advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
         advancedFormSearchableFields.put(START_DATE, startDate);
@@ -111,7 +115,8 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         if (searchFormData.size() > 0) {
             firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
             lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
-            motherGuardianName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
+            motherGuardianFirstName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
+            motherGuardianLastName.setText(searchFormData.get(DBConstants.KEY.MOTHER_LAST_NAME));
             motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
             motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
             openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
@@ -123,10 +128,13 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         HashMap<String, String> fields = new HashMap<>();
         fields.put(DBConstants.KEY.FIRST_NAME, firstName.getText().toString());
         fields.put(DBConstants.KEY.LAST_NAME, lastName.getText().toString());
-        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianName.getText().toString());
+        fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianFirstName.getText().toString());
+        fields.put(DBConstants.KEY.MOTHER_LAST_NAME, motherGuardianLastName.getText().toString());
         fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
         fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
         fields.put(DBConstants.KEY.ZEIR_ID, openSrpId.getText().toString());
+        fields.put(START_DATE, startDate.getText().toString());
+        fields.put(END_DATE, endDate.getText().toString());
         return fields;
     }
 
@@ -137,7 +145,8 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         openSrpId.setText("");
         firstName.setText("");
         lastName.setText("");
-        motherGuardianName.setText("");
+        motherGuardianFirstName.setText("");
+        motherGuardianLastName.setText("");
         motherGuardianNrc.setText("");
         motherGuardianPhoneNumber.setText("");
 
@@ -158,7 +167,9 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         String ln = lastName.getText().toString();
 
 
-        String motherGuardianNameString = motherGuardianName.getText().toString();
+        String motherGuardianFirstNameString = motherGuardianFirstName.getText().toString();
+
+        String motherGuardianLastNameString = motherGuardianLastName.getText().toString();
 
         String motherGuardianNrcString = motherGuardianNrc.getText().toString();
 
@@ -167,8 +178,12 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         String zeir = openSrpId.getText().toString();
 
 
-        if (StringUtils.isNotBlank(motherGuardianNameString)) {
-            searchParams.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianNameString);
+        if (StringUtils.isNotBlank(motherGuardianFirstNameString)) {
+            searchParams.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianFirstNameString);
+        }
+
+        if (StringUtils.isNotBlank(motherGuardianLastNameString)) {
+            searchParams.put(DBConstants.KEY.MOTHER_LAST_NAME, motherGuardianLastNameString);
         }
 
         if (StringUtils.isNotBlank(motherGuardianNrcString)) {
@@ -194,37 +209,21 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         }
 
 
-        String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = Utils.metadata().childRegister.motherTableName;
-
-
         //Inactive
         boolean isInactive = inactive.isChecked();
         if (isInactive) {
-            String inActiveKey = INACTIVE;
-            if (!outOfArea) {
-                inActiveKey = tableName + "." + INACTIVE;
-            }
-            searchParams.put(inActiveKey, Boolean.toString(isInactive));
+            searchParams.put(INACTIVE, Boolean.toString(true));
         }
         //Active
         boolean isActive = active.isChecked();
         if (isActive) {
-            String activeKey = ACTIVE;
-            if (!outOfArea) {
-                activeKey = tableName + "." + ACTIVE;
-            }
-            searchParams.put(activeKey, Boolean.toString(isActive));
+            searchParams.put(ACTIVE, Boolean.toString(true));
         }
 
         //Lost To Follow Up
         boolean isLostToFollowUp = lostToFollowUp.isChecked();
         if (isLostToFollowUp) {
-            String lostToFollowUpKey = LOST_TO_FOLLOW_UP;
-            if (!outOfArea) {
-                lostToFollowUpKey = tableName + "." + LOST_TO_FOLLOW_UP;
-            }
-            searchParams.put(lostToFollowUpKey, Boolean.toString(isLostToFollowUp));
+            searchParams.put(LOST_TO_FOLLOW_UP, Boolean.toString(true));
         }
 
 
@@ -234,24 +233,12 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
                 searchParams.remove(INACTIVE);
             }
 
-            if (searchParams.containsKey(tableName + "." + INACTIVE)) {
-                searchParams.remove(tableName + "." + INACTIVE);
-            }
-
             if (searchParams.containsKey(ACTIVE)) {
                 searchParams.remove(ACTIVE);
             }
 
-            if (searchParams.containsKey(tableName + "." + ACTIVE)) {
-                searchParams.remove(tableName + "." + ACTIVE);
-            }
-
             if (searchParams.containsKey(LOST_TO_FOLLOW_UP)) {
                 searchParams.remove(LOST_TO_FOLLOW_UP);
-            }
-
-            if (searchParams.containsKey(tableName + "." + LOST_TO_FOLLOW_UP)) {
-                searchParams.remove(tableName + "." + LOST_TO_FOLLOW_UP);
             }
 
         }

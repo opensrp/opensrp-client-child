@@ -6,13 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.smartregister.AllConstants;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.util.ConfigHelper;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
-import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
@@ -23,10 +20,7 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -95,77 +89,9 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
     }
 
     @Override
-    public Map<String, String> createEditMap(String opensrpID) {
-        return null;
-    }
+    public abstract AdvancedMatrixCursor createMatrixCursor(Response<String> response);
 
-    @Override
-    public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
-        String[] columns = new String[]{"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.GENDER, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
-        AdvancedMatrixCursor matrixCursor = new AdvancedMatrixCursor(columns);
-
-        if (response == null || response.isFailure() || StringUtils.isBlank(response.payload())) {
-            return matrixCursor;
-        }
-
-        JSONArray jsonArray = getJsonArray(response);
-        if (jsonArray != null) {
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject client = getJsonObject(jsonArray, i);
-                String entityId;
-                String firstName;
-                String lastName;
-                String dob;
-                String opensrpId;
-                String gender;
-                String phoneNumber;
-                String altContactName;
-                if (client == null) {
-                    continue;
-                }
-
-                // Skip deceased children
-                if (StringUtils.isNotBlank(getJsonString(client, "deathdate"))) {
-                    continue;
-                }
-
-                entityId = getJsonString(client, "baseEntityId");
-                firstName = getJsonString(client, "firstName");
-                lastName = getJsonString(client, "lastName");
-                gender = getJsonString(client, AllConstants.ChildRegistrationFields.GENDER);
-
-                dob = getJsonString(client, "birthdate");
-                if (StringUtils.isNotBlank(dob) && StringUtils.isNumeric(dob)) {
-                    try {
-                        Long dobLong = Long.valueOf(dob);
-                        Date date = new Date(dobLong);
-                        dob = DateUtil.yyyyMMddTHHmmssSSSZ.format(date);
-                    } catch (Exception e) {
-                        Log.e(getClass().getName(), e.toString(), e);
-                    }
-                }
-
-                JSONObject identifiers = getJsonObject(client, "identifiers");
-                opensrpId = getJsonString(identifiers, Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH));
-
-                opensrpId = StringUtils.isBlank(opensrpId) && identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers, "M_ZEIR_ID").substring(0, getJsonString(identifiers, "M_ZEIR_ID").indexOf("_mother")) : opensrpId;
-                if (StringUtils.isNotBlank(opensrpId)) {
-                    opensrpId = opensrpId.replace("-", "");
-                }
-
-                phoneNumber = getJsonString(getJsonObject(client, "attributes"), "phone_number");
-
-                altContactName = getJsonString(getJsonObject(client, "attributes"), "alt_name");
-
-
-                matrixCursor.addRow(new Object[]{entityId, identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers, "M_ZEIR_ID") : null, firstName, lastName, gender, dob, opensrpId});
-            }
-        }
-        return matrixCursor;
-    }
-
-    private String getJsonString(JSONObject jsonObject, String field) {
+    protected String getJsonString(JSONObject jsonObject, String field) {
         try {
             if (jsonObject != null && jsonObject.has(field)) {
                 String string = jsonObject.getString(field);
@@ -182,7 +108,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     }
 
-    private JSONObject getJsonObject(JSONObject jsonObject, String field) {
+    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
         try {
             if (jsonObject != null && jsonObject.has(field)) {
                 return jsonObject.getJSONObject(field);
@@ -194,7 +120,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     }
 
-    private JSONObject getJsonObject(JSONArray jsonArray, int position) {
+    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
         try {
             if (jsonArray != null && jsonArray.length() > 0) {
                 return jsonArray.getJSONObject(position);

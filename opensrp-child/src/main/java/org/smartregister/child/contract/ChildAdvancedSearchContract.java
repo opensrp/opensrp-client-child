@@ -24,7 +24,7 @@ public interface ChildAdvancedSearchContract {
 
     interface Model extends ChildRegisterFragmentContract.Model {
 
-        Map<String, String> createEditMap(Map<String, String> searchMap, boolean isLocal);
+        Map<String, String> createEditMap(Map<String, String> searchMap);
 
         String createSearchString(Map<String, String> searchMap);
 

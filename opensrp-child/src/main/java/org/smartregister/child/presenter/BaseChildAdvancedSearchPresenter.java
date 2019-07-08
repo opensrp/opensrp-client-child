@@ -34,14 +34,16 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
 
     public void search(Map<String, String> searchMap, boolean isLocal) {
-        String searchCriteria = getView().getString(R.string.search_criteria_includes) + model.createSearchString(searchMap);
+
+        String searchCriteria = String.format("%s %s", getView().getString(R.string.search_criteria_includes) + (getView().getString(isLocal ? R.string.my_catchment_area : R.string.out_and_inside)), model.createSearchString(searchMap));
+
         if (StringUtils.isBlank(searchCriteria)) {
             return;
         }
 
         getView().updateSearchCriteria(searchCriteria);
 
-        Map<String, String> editMap = model.createEditMap(searchMap, isLocal);
+        Map<String, String> editMap = model.createEditMap(searchMap);
         if (editMap == null || editMap.isEmpty()) {
             return;
         }
@@ -59,7 +61,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
             getView().showProgressView();
             getView().switchViews(true);
             if (editMap.size() > 0) {
-                Map<String, String> localMap = model.createEditMap(searchMap, true);
+                Map<String, String> localMap = model.createEditMap(searchMap);
                 if (localMap != null && !localMap.isEmpty()) {
                     localQueryInitialize(localMap);
                 }
@@ -81,7 +83,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     @Override
     public void onResultsFound(Response<String> response, String opensrpID) {
-        matrixCursor = model.createMatrixCursor(response);
+        matrixCursor = model.createMatrixCursor(response);//To Do magic cursors
         AdvancedMatrixCursor advancedMatrixCursor = getRemoteLocalMatrixCursor(matrixCursor);
         setMatrixCursor(advancedMatrixCursor);
 

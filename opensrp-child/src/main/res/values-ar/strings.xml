@@ -162,6 +162,8 @@
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
     <string name="mother_guardian_name_hint">اسم الأم أو الحاضن</string>
+    <string name="mother_guardian_first_name_hint">الأم / الوصي الاسم الأول</string>
+    <string name="mother_guardian_last_name_hint">اسم الأم / ولي الأمر</string>
     <string name="mother_guardian_nrc">الرقم الوطنى للتعريف للأم\الحاضن</string>
     <string name="mother_guardian_nrc_hint">الرقم الوطنى للتعريف للأم أو الحاضن</string>
     <string name="mother_guardian_phone_number">رقم هاتف الأم /الحاضن</string>
@@ -274,6 +276,7 @@
     <string name="birth_tetanus_protection"> طفل محصن عند الولادة ضد الكزاز</string>
     <string name="mother_first_name">الاسم الأم/ الحاضن</string>
     <string name="mother_second_name">الاسم العائلي للأم/الحاضن</string>
+    <string name="mother_last_name">الاسم العائلي للأم/الحاضن</string>
     <string name="mother_guardian_dob">تاريخ ميلاد الأم/الحاضن</string>
     <string name="father_guardian_date_birth">تاريخ ميلاد الآب/الحاضن</string>
     <string name="father_guardian_phone_number">رقم هاتف الحاضن الثاني</string>
@@ -323,7 +326,7 @@
     <string name="activate_new_card">تنشيط البطاقة</string>
     <string name="system_id_colon">معرف النظام :</string>
     <string name="age_colon">العمر :</string>
-    <string name="search_criteria_includes">&#032;تتضمن معايير البحث:</string>
+    <string name="search_criteria_includes">تتضمن معايير البحث</string>
     <string name="start_date">تاريخ البدء</string>
     <string name="end_date">تاريخ الانتهاء</string>
 

@@ -431,4 +431,7 @@ public class Utils extends org.smartregister.util.Utils {
         return myKey;
     }
 
+    public static String bold(String textToBold) {
+        return "<b>" + textToBold + "</b>";
+    }
 }
