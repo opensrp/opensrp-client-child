@@ -238,9 +238,10 @@ public class ChildUnderFiveFragment extends Fragment {
 
         }
 
-        if (heightMap.size() < 5) {
+        String initialHeight = Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true);
+        if (heightMap.size() < 5 && !initialHeight.isEmpty()) {
             heightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    updateGrowthValue(Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true)) + " cm"));
+                    updateGrowthValue(initialHeight) + " cm"));
             heightEditMode.add(false);
             listeners.add(null);
         }

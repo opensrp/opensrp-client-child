@@ -218,7 +218,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             weightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
 
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper,
-                    clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
+                    getChildBirthDate(clientJson), params.getStatus());
         }
     }
 
@@ -233,8 +233,21 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
 
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper,
-                    clientJson.getString(FormEntityConstants.Person.birthdate.toString()), params.getStatus());
+                    getChildBirthDate(clientJson), params.getStatus());
         }
+    }
+
+    private String getChildBirthDate(JSONObject jsonObject) {
+        String childBirthDate = "";
+        try {
+            if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {
+                childBirthDate = jsonObject.getString(FormEntityConstants.Person.birthdate.toString());
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+
+        return childBirthDate;
     }
 
     public AllSharedPreferences getAllSharedPreferences() {
