@@ -174,8 +174,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
             ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
             ((BaseRegisterActivity) getActivity()).setSearchTerm("");
-        } */ else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout) && view
-                .getTag() != null) {
+        } */ else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout) &&
+                view.getTag() != null) {
 
             RegisterClickables registerClickables = new RegisterClickables();
             if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
@@ -184,8 +184,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                         Constants.RECORD_ACTION.GROWTH.equals(view.getTag(org.smartregister.child.R.id.record_action)));
                 registerClickables.setRecordAll(
                         Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
-                registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String
-                        .valueOf(view.getTag(R.id.next_appointment_date)) : "");
+                registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ?
+                        String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
 
             }
             BaseChildImmunizationActivity
@@ -198,7 +198,7 @@ TO DO ? , sync unsynced records within catchment
 
         }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag() != null && view.getTag() instanceof List) {
 
-            @SuppressWarnings ("unchecked") List<String> ids = (List<String>) view.getTag();
+            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
             moveToMyCatchmentArea(ids);
 
         }
@@ -256,17 +256,15 @@ TO DO ? , sync unsynced records within catchment
     private void moveToMyCatchmentArea(final List<String> ids) {
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
-                .setTitle(R.string.move_to_catchment_confirm_dialog_title)
-                .setCancelable(false)
+                .setTitle(R.string.move_to_catchment_confirm_dialog_title).setCancelable(false)
                 .setPositiveButton(R.string.no_button_label, null)
-                .setNegativeButton(R.string.yes_button_label,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
-                                progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
-                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
-                            }
-                        }).create();
+                .setNegativeButton(R.string.yes_button_label, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
+                        progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
+                        MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
+                    }
+                }).create();
 
         dialog.show();
     }
@@ -332,11 +330,11 @@ TO DO ? , sync unsynced records within catchment
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repoHolder.setCommonRepository(commonRepository());
 
-        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder,
-                visibleColumns, registerActionHandler, paginationViewHandler,
-                ChildLibrary.getInstance().context().alertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider,
-                context().commonrepository(this.tablename));
+        AdvancedSearchClientsProvider advancedSearchProvider =
+                new AdvancedSearchClientsProvider(getActivity(), repoHolder, visibleColumns, registerActionHandler,
+                        paginationViewHandler, ChildLibrary.getInstance().context().alertService());
+        clientAdapter =
+                new RecyclerViewPaginatedAdapter(null, advancedSearchProvider, context().commonrepository(this.tablename));
         clientsView.setAdapter(clientAdapter);
     }
 
@@ -466,8 +464,7 @@ TO DO ? , sync unsynced records within catchment
         searchButton.setOnClickListener(registerActionHandler);
     }
 
-    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
-                                          final RadioButton outsideInside, int p) {
+    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment, final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -495,9 +492,8 @@ TO DO ? , sync unsynced records within catchment
 
     private void setUpQRCodeButton(View view) {
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        if (!ChildLibrary.getInstance().getProperties()
-                .hasProperty(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) ||
+                ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
             qrCodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -626,8 +622,8 @@ TO DO ? , sync unsynced records within catchment
 
         for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
 
-            if (entry.getValue() instanceof MaterialEditText && !TextUtils
-                    .isEmpty(((MaterialEditText) entry.getValue()).getText())) {
+            if (entry.getValue() instanceof MaterialEditText &&
+                    !TextUtils.isEmpty(((MaterialEditText) entry.getValue()).getText())) {
                 return true;
             }
 
@@ -684,8 +680,7 @@ TO DO ? , sync unsynced records within catchment
     }
 
     @Override
-    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider
-            () {
+    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
         return null;
     }
 

@@ -46,8 +46,8 @@ public class LocationSwitcherToolbar extends BaseToolbar {
 
     public String getCurrentLocation() {
         if (baseActivity != null && baseActivity.getMenu() != null) {
-            return ((LocationActionView) baseActivity.getMenu().findItem(R.id.location_switcher)
-                    .getActionView()).getSelectedItem();
+            return ((LocationActionView) baseActivity.getMenu().findItem(R.id.location_switcher).getActionView())
+                    .getSelectedItem();
         }
 
         return null;

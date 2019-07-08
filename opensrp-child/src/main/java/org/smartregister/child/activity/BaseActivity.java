@@ -79,7 +79,7 @@ import java.util.Map;
  */
 public abstract class BaseActivity extends MultiLanguageActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener,
-        ChildRegisterContract.InteractorCallBack {
+                   ChildRegisterContract.InteractorCallBack {
 
     public static final int REQUEST_CODE_GET_JSON = 3432;
     public static final String INACTIVE = "inactive";
@@ -191,7 +191,8 @@ toggle.syncState();
                                 || fetchStatus.equals(FetchStatus.nothingFetched)) {
                             syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_complete, Snackbar.LENGTH_LONG);
                         } else if (fetchStatus.equals(FetchStatus.noConnection)) {
-                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_failed_no_internet, Snackbar.LENGTH_LONG);
+                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_failed_no_internet, Snackbar
+                            .LENGTH_LONG);
                         }
                         syncStatusSnackbar.show();
                     }
@@ -321,8 +322,7 @@ toggle.syncState();
     /**
      * Updates all gender affected views
      *
-     * @param gender
-     *         The gender to update the
+     * @param gender The gender to update the
      */
     protected int[] updateGenderViews(Gender gender) {
         int darkShade = R.color.gender_neutral_dark_green;
@@ -343,11 +343,10 @@ toggle.syncState();
             getWindow().setStatusBarColor(getResources().getColor(darkShade));
         }
         toolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
-        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this
-                .findViewById(android.R.id.content)).getChildAt(0);
+        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this.findViewById(android.R.id.content)).getChildAt(0);
         viewGroup.setBackground(new ColorDrawable(getResources().getColor(lightSade)));
 
-        return new int[] {darkShade, normalShade, lightSade};
+        return new int[]{darkShade, normalShade, lightSade};
     }
 
     protected void startJsonForm(String formName, String entityId) {
@@ -369,10 +368,8 @@ toggle.syncState();
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,
-                                    View.OnClickListener positiveButtonClick,
-                                    int negativeButtonText,
-                                    View.OnClickListener negativeButtonClick,
-                                    Object tag) {
+                                    View.OnClickListener positiveButtonClick, int negativeButtonText,
+                                    View.OnClickListener negativeButtonClick, Object tag) {
         String posBtnText = null;
         if (positiveButtonText != 0 && positiveButtonClick != null) {
             posBtnText = getString(positiveButtonText);
@@ -383,18 +380,16 @@ toggle.syncState();
             negBtnText = getString(negativeButtonText);
         }
 
-        showNotification(getString(message), getResources().getDrawable(notificationIcon),
-                posBtnText, positiveButtonClick,
+        showNotification(getString(message), getResources().getDrawable(notificationIcon), posBtnText, positiveButtonClick,
                 negBtnText, negativeButtonClick, tag);
     }
 
     private void showNotification(String message, Drawable notificationIcon, String positiveButtonText,
-                                  View.OnClickListener positiveButtonOnClick,
-                                  String negativeButtonText,
-                                  View.OnClickListener negativeButtonOnClick,
-                                  Object tag) {
-        Notification notification = new Notification(message, notificationIcon, positiveButtonText,
-                positiveButtonOnClick, negativeButtonText, negativeButtonOnClick, tag);
+                                  View.OnClickListener positiveButtonOnClick, String negativeButtonText,
+                                  View.OnClickListener negativeButtonOnClick, Object tag) {
+        Notification notification =
+                new Notification(message, notificationIcon, positiveButtonText, positiveButtonOnClick, negativeButtonText,
+                        negativeButtonOnClick, tag);
 
         // Add the notification as the last element in the notification list
         String notificationMessage = notification.message;
@@ -527,32 +522,16 @@ toggle.syncState();
         String mainCondition = tableName + "." + Constants.KEY.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
 
         SmartRegisterQueryBuilder childQueryBuilder = new SmartRegisterQueryBuilder();
-        childQueryBuilder.SelectInitiateMainTable(tableName, new String[] {
-                tableName + ".relationalid",
-                tableName + ".details",
-                tableName + ".zeir_id",
-                tableName + ".relational_id",
-                tableName + ".first_name",
-                tableName + ".last_name",
-                tableName + ".gender",
-                parentTableName + ".first_name as mother_first_name",
-                parentTableName + ".last_name as mother_last_name",
-                parentTableName + ".dob as mother_dob",
-                parentTableName + ".nrc_number as mother_nrc_number",
-                tableName + ".father_first_name",
-                tableName + ".dob",
-                tableName + ".epi_card_number",
-                tableName + ".contact_phone_number",
-                tableName + ".pmtct_status",
-                tableName + ".provider_uc",
-                tableName + ".provider_town",
-                tableName + ".provider_id",
-                tableName + ".provider_location_id",
-                tableName + ".client_reg_date",
-                tableName + ".last_interacted_with",
-                tableName + ".inactive",
-                tableName + ".lost_to_follow_up"
-        });
+        childQueryBuilder.SelectInitiateMainTable(tableName,
+                new String[]{tableName + ".relationalid", tableName + ".details", tableName + ".zeir_id",
+                        tableName + ".relational_id", tableName + ".first_name", tableName + ".last_name",
+                        tableName + ".gender", parentTableName + ".first_name as mother_first_name",
+                        parentTableName + ".last_name as mother_last_name", parentTableName + ".dob as mother_dob",
+                        parentTableName + ".nrc_number as mother_nrc_number", tableName + ".father_first_name",
+                        tableName + ".dob", tableName + ".epi_card_number", tableName + ".contact_phone_number",
+                        tableName + ".pmtct_status", tableName + ".provider_uc", tableName + ".provider_town",
+                        tableName + ".provider_id", tableName + ".provider_location_id", tableName + ".client_reg_date",
+                        tableName + ".last_interacted_with", tableName + ".inactive", tableName + ".lost_to_follow_up"});
         childQueryBuilder.customJoin(
                 "LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         String mainSelect = childQueryBuilder.mainCondition(mainCondition);
@@ -593,12 +572,11 @@ toggle.syncState();
 
     protected String getHumanFriendlyChildsStatus(Map<String, String> detailsColumnMap) {
         String status = getString(R.string.active);
-        if (detailsColumnMap.containsKey(INACTIVE) && detailsColumnMap.get(INACTIVE) != null && detailsColumnMap
-                .get(INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (detailsColumnMap.containsKey(INACTIVE) && detailsColumnMap.get(INACTIVE) != null &&
+                detailsColumnMap.get(INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
             status = getString(R.string.inactive);
-        } else if (detailsColumnMap.containsKey(LOST_TO_FOLLOW_UP) && detailsColumnMap
-                .get(LOST_TO_FOLLOW_UP) != null && detailsColumnMap.get(LOST_TO_FOLLOW_UP)
-                .equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (detailsColumnMap.containsKey(LOST_TO_FOLLOW_UP) && detailsColumnMap.get(LOST_TO_FOLLOW_UP) != null &&
+                detailsColumnMap.get(LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
             status = getString(R.string.lost_to_follow_up);
         }
 
@@ -674,8 +652,8 @@ toggle.syncState();
                 updateRegisterParams.setFormTag(JsonFormUtils.formTag(Utils.getAllSharedPreferences()));
             }
 
-            List<ChildEventClient> childEventClientList = model
-                    .processRegistration(jsonString, updateRegisterParams.getFormTag());
+            List<ChildEventClient> childEventClientList =
+                    model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -766,10 +744,8 @@ toggle.syncState();
         public final Object tag;
 
         private Notification(String message, Drawable notificationIcon, String positiveButtonText,
-                             View.OnClickListener positiveButtonOnClick,
-                             String negativeButtonText,
-                             View.OnClickListener negativeButtonOnClick,
-                             Object tag) {
+                             View.OnClickListener positiveButtonOnClick, String negativeButtonText,
+                             View.OnClickListener negativeButtonOnClick, Object tag) {
             this.message = message;
             this.notificationIcon = notificationIcon;
             this.positiveButtonText = positiveButtonText;
@@ -790,9 +766,8 @@ toggle.syncState();
                 String negativeButtonText = this.negativeButtonText;
                 if (negativeButtonText == null) negativeButtonText = "";
 
-                return message.equals(notification.message)
-                        && positiveButtonText.equals(notification.positiveButtonText)
-                        && negativeButtonText.equals(notification.negativeButtonText);
+                return message.equals(notification.message) && positiveButtonText.equals(notification.positiveButtonText) &&
+                        negativeButtonText.equals(notification.negativeButtonText);
             }
             return false;
         }

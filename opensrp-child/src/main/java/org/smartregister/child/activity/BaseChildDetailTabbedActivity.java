@@ -117,16 +117,16 @@ import static org.smartregister.util.Utils.getValue;
  * Created by raihan on 1/03/2017.
  */
 
-public abstract class BaseChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener,
-        GrowthMonitoringActionListener,
-        StatusChangeListener, ServiceActionListener {
+public abstract class BaseChildDetailTabbedActivity extends BaseActivity
+        implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
     public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-            com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
-    public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
+    public static final int PHOTO_TAKING_PERMISSION =
+            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     //////////////////////////////////////////////////
@@ -263,7 +263,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 @Override
                 public void onClick(View v) {
                     if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this,
-                            new String[] {Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                            new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
                         dispatchTakePictureIntent();
                     }
                 }
@@ -272,9 +272,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties()
-                .hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance()
-                .getProperties().getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
+        if (mDrawerLayout != null &&
+                (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
@@ -294,8 +295,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     private void dispatchTakePictureIntent() {
         if (PermissionUtils.isPermissionGranted(this,
-                new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             // Ensure that there's a camera activity to handle the intent
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -317,8 +318,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                     }
 
                     currentfile = photoFile;
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                            Uri.fromFile(photoFile));
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                     startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 }
             }
@@ -334,8 +334,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         String dobString = "";
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
-                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
+            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true) + " " +
+                    getValue(childDetails, Constants.KEY.LAST_NAME, true);
             childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
@@ -404,14 +404,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         if (isStoragePermissionGranted()) {
-            return File.createTempFile(
-                    imageFileName,  /* prefix */
+            return File.createTempFile(imageFileName,  /* prefix */
                     ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
+                    storageDir      /* directory */);
         }
 
         return null;
@@ -420,7 +417,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     private void updateProfilePicture(Gender gender) {
         BaseChildDetailTabbedActivity.gender = gender;
         if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
-            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then download
+            // and save locally
             profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader
                     .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
@@ -432,14 +430,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     public boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG, "Permission is granted");
                 return true;
             } else {
 
                 Log.v(TAG, "Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
@@ -509,9 +507,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE)
-                        .equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE)
-                        .equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) ||
+                        form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask();
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
@@ -973,8 +970,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-                                com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+                        SimpleDateFormat simpleDateFormat =
+                                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                                        Locale.ENGLISH);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
@@ -996,16 +994,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList =
+                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getVaccineDisplayName(this, curVaccine.getName())
-                        + " (" + DATE_FORMAT.format(curVaccine.getDate()) + ")";
+                String name = VaccinatorUtils.getVaccineDisplayName(this, curVaccine.getName()) + " (" +
+                        DATE_FORMAT.format(curVaccine.getDate()) + ")";
                 choices.put(name);
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
@@ -1077,7 +1075,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 /*
     private Map<String, String> getCleanMap() {
         Map<String, String> detailsMap = new HashMap<>();
-        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils.metadata().childRegister.tableName, new String[]{});
+        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils
+        .metadata().childRegister.tableName, new String[]{});
 
         if (cursor != null && cursor.moveToFirst()) {
 
@@ -1157,14 +1156,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
             map.put(detailsNamedObject.name, detailsNamedObject);
 
-            List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository()
-                    .findLast5(childDetails.entityId());
+            List<Weight> weightList =
+                    GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
 
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
 
-            List<Height> heightList = GrowthMonitoringLibrary.getInstance().heightRepository()
-                    .findLast5(childDetails.entityId());
+            List<Height> heightList =
+                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
 
             NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
             map.put(heightNamedObject.name, heightNamedObject);
@@ -1177,17 +1176,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
             List<ServiceRecord> serviceRecords = new ArrayList<>();
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = ImmunizationLibrary.getInstance()
-                    .recurringServiceTypeRepository();
-            RecurringServiceRecordRepository recurringServiceRecordRepository = ImmunizationLibrary.getInstance()
-                    .recurringServiceRecordRepository();
+            RecurringServiceTypeRepository recurringServiceTypeRepository =
+                    ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository =
+                    ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
 
             if (recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             }
 
-            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(),
-                    serviceRecords);
+            NamedObject<List<ServiceRecord>> serviceNamedObject =
+                    new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
             map.put(serviceNamedObject.name, serviceNamedObject);
 
             Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
@@ -1204,8 +1203,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 }
             }
 
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(
-                    ServiceType.class.getName(), serviceTypeMap);
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                    new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
             map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
             List<Alert> alertList = new ArrayList<>();
@@ -1437,8 +1436,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         @Override
         protected String doInBackground(Void... params) {
             try {
-                JSONObject form = FormUtils.getInstance(getApplicationContext())
-                        .getFormJson("adverse_event");
+                JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("adverse_event");
                 if (form != null) {
                     JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {

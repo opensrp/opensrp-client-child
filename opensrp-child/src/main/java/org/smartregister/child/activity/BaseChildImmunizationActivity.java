@@ -123,9 +123,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseChildImmunizationActivity extends BaseActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
-        VaccinationActionListener,
-        ServiceActionListener,
-        View.OnClickListener {
+                   VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
@@ -171,12 +169,21 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE, registerClickables != null && !TextUtils
-                .isEmpty(registerClickables.getNextAppointmentDate()) ? registerClickables.getNextAppointmentDate() : "");
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
+                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
+                        registerClickables.getNextAppointmentDate() : "");
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtras(bundle);
 
         fromContext.startActivity(intent);
+    }
+
+    public static Object clone(@NonNull Object object) {
+
+        Gson gson = new Gson();
+        String serializedOject = gson.toJson(object);
+
+        return gson.fromJson(serializedOject, object.getClass());
     }
 
     @Override
@@ -201,12 +208,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties()
-                .hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) && !ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
-        weightNotificationShown = ChildLibrary.getInstance().getProperties()
-                .hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+        bcgScarNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                        ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
         setLastModified(false);
 
@@ -479,7 +488,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             ImageView profileImageIV = findViewById(R.id.profile_image_iv);
 
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
-                //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
+                //set profile image by passing the client id.If the image doesn't exist in the image repository then
+                // download and save locally
                 profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
                         OpenSRPImageLoader
@@ -538,8 +548,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
 
                 for (ServiceRecord serviceRecord : serviceRecordList) {
-                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) && serviceRecord
-                            .getType().equals(type)) {
+                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
+                            serviceRecord.getType().equals(type)) {
                         foundServiceTypeMap.put(type, serviceTypeMap.get(type));
                         break;
                     }
@@ -550,8 +560,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
 
                 for (Alert a : alerts) {
-                    if (StringUtils.containsIgnoreCase(a.scheduleName(), type)
-                            || StringUtils.containsIgnoreCase(a.visitCode(), type)) {
+                    if (StringUtils.containsIgnoreCase(a.scheduleName(), type) ||
+                            StringUtils.containsIgnoreCase(a.visitCode(), type)) {
                         foundServiceTypeMap.put(type, serviceTypeMap.get(type));
                         break;
                     }
@@ -572,8 +582,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
             curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
                 @Override
-                public void onClick(ServiceGroup serviceGroup, ServiceWrapper
-                        serviceWrapper) {
+                public void onClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
                     if (dialogOpen) {
                         return;
                     }
@@ -632,14 +641,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dob = DateTime.now();
         }
 
-        List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                .findByEntityId(childDetails.entityId());
+        List<ServiceRecord> serviceRecordList =
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
         if (serviceRecordList == null) {
             serviceRecordList = new ArrayList<>();
         }
 
-        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment
-                .newInstance(dob, serviceRecordList, serviceWrapper, true);
+        ServiceDialogFragment serviceDialogFragment =
+                ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
         serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -718,20 +727,21 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             final String BCG2_NAME = "BCG 2";
             final String BCG_NO_SCAR_NAME = "BCG: no scar";
             final String BCG_SCAR_NAME = "BCG: scar";
-            //            final String VACCINE_GROUP_BIRTH_NAME = "Birth";
+            final String VACCINE_GROUP_BIRTH_NAME = "Birth";
             final int BIRTH_VACCINE_GROUP_INDEX = 0;
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> compiledVaccineGroups;
 
             vaccineGroups = new ArrayList<>();
-            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils
-                    .getSupportedVaccines(this);
+            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines =
+                    VaccinatorUtils.getSupportedVaccines(this);
 
-            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) && Boolean
-                    .parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
+            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) &&
+                    Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
             boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
 
-            org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup = (org.smartregister.immunization.domain.jsonmapping.VaccineGroup)
-                    clone(getVaccineGroupByName(supportedVaccines, getString(R.string.vaccine_group_birth_name)));
+            org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup =
+                    (org.smartregister.immunization.domain.jsonmapping.VaccineGroup) clone(
+                            getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
 
             if (showBcg2Reminder) {
 
@@ -740,8 +750,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines, BCG_NAME), BCG_NO_SCAR_NAME);
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils
-                        .getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
+                        VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
@@ -759,8 +769,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils
-                        .getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
+                        VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
@@ -798,21 +808,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         showVaccineNotifications(vaccineList, alerts);
     }
 
-    public static Object clone(@NonNull Object object) {
-
-        Gson gson = new Gson();
-        String serializedOject = gson.toJson(object);
-
-        return gson.fromJson(serializedOject, object.getClass());
-    }
-
     public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(
             @NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList,
             @NonNull String name) {
 
         for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : vaccineGroupList) {
-            if (vaccineGroup.name.equals(name))
-                return vaccineGroup;
+            if (vaccineGroup.id.equals(name)) return vaccineGroup;
         }
         return null;
     }
@@ -820,16 +821,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public void updateVaccineName(org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine,
                                   @NonNull String newName) {
 
-        if (vaccine != null)
-            vaccine.name = newName;
+        if (vaccine != null) vaccine.name = newName;
     }
 
     public org.smartregister.immunization.domain.jsonmapping.Vaccine getVaccineByName(
             @NonNull List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccineList, @NonNull String name) {
 
         for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccineList) {
-            if (vaccine.name.equals(name))
-                return vaccine;
+            if (vaccine.name.equals(name)) return vaccine;
         }
         return null;
     }
@@ -983,14 +982,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dob = Calendar.getInstance().getTime();
         }
 
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList =
+                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
         if (vaccineList == null) {
             vaccineList = new ArrayList<>();
         }
 
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment
-                .newInstance(dob, vaccineList, vaccineWrappers, true);
+        VaccinationDialogFragment vaccinationDialogFragment =
+                VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
         vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -1011,8 +1010,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         fragmentTransaction.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
-        UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment
-                .newInstance(vaccineWrapper);
+        UndoVaccinationDialogFragment undoVaccinationDialogFragment =
+                UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -1168,8 +1167,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         String weight = "";
         String height = "";
-        if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) || (heightWrapper
-                .getDbKey() != null && heightWrapper.getHeight() != null)) {
+        if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
+                (heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
@@ -1207,8 +1206,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
                     recordGrowth.setClickable(false);
-                    recordGrowth.setBackground(new ColorDrawable(getResources()
-                            .getColor(android.R.color.transparent)));
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
                 } else {
                     //reset state
                     weightWrapper.setWeight(null);
@@ -1233,8 +1231,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
                     recordGrowth.setClickable(false);
-                    recordGrowth.setBackground(new ColorDrawable(getResources()
-                            .getColor(android.R.color.transparent)));
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
                 } else {
                     //reset state
                     heightWrapper.setHeight(null);
@@ -1267,12 +1264,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
-            EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment
-                    .newInstance(getActivity(), dob, weightWrapper, heightWrapper);
+            EditGrowthDialogFragment editWeightDialogFragment =
+                    EditGrowthDialogFragment.newInstance(getActivity(), dob, weightWrapper, heightWrapper);
             editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         } else {
-            RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment
-                    .newInstance(dob, weightWrapper, heightWrapper);
+            RecordGrowthDialogFragment recordWeightDialogFragment =
+                    RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
 
@@ -1282,16 +1279,16 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void activateChildsStatus() {
         try {
             Map<String, String> details = childDetails.getColumnmaps();
-            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) && details
-                    .get(Constants.CHILD_STATUS.INACTIVE) != null && details.get(Constants.CHILD_STATUS.INACTIVE)
-                    .equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 childDetails.setColumnmaps(
                         JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
 
-            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) && details
-                    .get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null && details
-                    .get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 childDetails.setColumnmaps(JsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
@@ -1502,8 +1499,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void showRecordWeightNotification() {
         if (!weightNotificationShown) {
             weightNotificationShown = true;
-            showNotification(R.string.record_growth_notification, R.drawable.ic_weight_notification,
-                    R.string.record_growth,
+            showNotification(R.string.record_growth_notification, R.drawable.ic_weight_notification, R.string.record_growth,
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1567,8 +1563,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 try {
                     vaccineGroups.remove(curGroup);
                     addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            curGroup.getVaccineData(),
-                            vaccineList, alerts);
+                            curGroup.getVaccineData(), vaccineList, alerts);
                 } catch (Exception e) {
                     Log.e(TAG, Log.getStackTraceString(e));
                 }
@@ -1617,8 +1612,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     public Vaccine getVaccineAquiredByName(@NonNull List<Vaccine> vaccineList, @NonNull String name) {
 
         for (Vaccine vaccine : vaccineList) {
-            if (vaccine.getName().equals(name))
-                return vaccine;
+            if (vaccine.getName().equals(name)) return vaccine;
         }
         return null;
     }
@@ -1639,15 +1633,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     ////////////////////////////////////////////////////////////////
 
     private List<Weight> getAllWeights() {
-        List<Weight> allWeights = GrowthMonitoringLibrary.getInstance().weightRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Weight> allWeights =
+                GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
         try {
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
-            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false))
-                    && dob != null) {
-                Double birthWeight = Double
-                        .valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
+            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false)) &&
+                    dob != null) {
+                Double birthWeight =
+                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
 
                 Weight weight = new Weight(-1L, null, (float) birthWeight.doubleValue(), dob, null, null, null,
                         Calendar.getInstance().getTimeInMillis(), null, null, 0);
@@ -1661,15 +1655,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private List<Height> getAllHeights() {
-        List<Height> allHeights = GrowthMonitoringLibrary.getInstance().heightRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Height> allHeights =
+                GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(childDetails.entityId());
         try {
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
-            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false))
-                    && dob != null) {
-                Double birthHeight = Double
-                        .valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
+            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false)) &&
+                    dob != null) {
+                Double birthHeight =
+                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
 
                 Height height = new Height();
                 height.setId(-1L);
@@ -1786,12 +1780,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             NamedObject<Height> heightNamedObject = new NamedObject<>(Height.class.getName(), height);
             map.put(heightNamedObject.name, heightNamedObject);
 
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(
-                    ServiceType.class.getName(), serviceTypeMap);
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                    new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
             map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
-            NamedObject<List<ServiceRecord>> serviceRecordNamedObject = new NamedObject<>(ServiceRecord.class.getName(),
-                    serviceRecords);
+            NamedObject<List<ServiceRecord>> serviceRecordNamedObject =
+                    new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
             map.put(serviceRecordNamedObject.name, serviceRecordNamedObject);
 
             NamedObject<List<Alert>> alertsNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
@@ -1805,7 +1799,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
-        @SuppressWarnings ("unchecked")
+        @SuppressWarnings("unchecked")
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
@@ -1966,8 +1960,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             List<Height> heights = new ArrayList<>();
             if (growthMonitoring == null || growthMonitoring.isEmpty()) {
                 Toast.makeText(BaseChildImmunizationActivity.this,
-                        "Record at least one set of growth details (height, Weight)",
-                        Toast.LENGTH_LONG).show();
+                        "Record at least one set of growth details (height, Weight)", Toast.LENGTH_LONG).show();
             } else {
 
                 if (growthMonitoring.containsKey(Constants.WEIGHT)) {
@@ -2019,8 +2012,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
-                affectedVaccines = VaccineSchedule
-                        .updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                affectedVaccines =
+                        VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());
@@ -2040,11 +2033,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             View recordGrowth = findViewById(R.id.record_growth);
             WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
             HeightWrapper heightWrapper = (HeightWrapper) recordGrowth.getTag(R.id.height_wrapper);
-            if ((ChildLibrary.getInstance().getProperties()
-                    .hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance()
-                    .getProperties().getPropertyBoolean(
-                            AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper
-                    .getWeight() == null)) {
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) &&
+                    ChildLibrary.getInstance().getProperties()
+                            .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) &&
+                    (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }
 
@@ -2083,8 +2075,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
                     DateTime dateTime = Utils.dobStringToDateTime(dobString);
                     if (dateTime != null) {
-                        affectedVaccines = VaccineSchedule
-                                .updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                        affectedVaccines =
+                                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
                         vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
                         alertList = alertService.findByEntityId(childDetails.entityId());
                     }
@@ -2125,8 +2117,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
-                List<CommonPersonObject> children = getOpenSRPContext()
-                        .commonrepository(Utils.metadata().childRegister.tableName).findByRelational_IDs(motherBaseEntityId);
+                List<CommonPersonObject> children =
+                        getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName)
+                                .findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
@@ -2221,15 +2214,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                             ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
                             selectedOption.put(SELECTED_OPTION, selectedIndex);
                         }
-                    })
-                    .setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
+                    }).setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
 
-                            alertDialog = new BCGNotificationDialog(context, subDialogPositiveListener,
-                                    subDialogNegativeListener)
-                                    .getAlertDialogInstance();
+                            alertDialog =
+                                    new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
+                                            .getAlertDialogInstance();
 
                             if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
                                 subDialogPositive.show();
@@ -2239,24 +2231,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                                 increaseBtnTextSizeTabletDevice(subDialogNegative);
                             }
                         }
-                    })
-                    .setNegativeButton(R.string.dismiss_button_label, null)
-                    .create();
+                    }).setNegativeButton(R.string.dismiss_button_label, null).create();
 
-            subDialogPositive = new AlertDialog.Builder(context, THEME)
-                    .setCancelable(false)
+            subDialogPositive = new AlertDialog.Builder(context, THEME).setCancelable(false)
                     .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_turn_off, null))
                     .setPositiveButton(R.string.turn_off_reminder_button_label, subDialogPositiveListener)
-                    .setNegativeButton(R.string.go_back_button_label, backListener)
-                    .create();
+                    .setNegativeButton(R.string.go_back_button_label, backListener).create();
 
-            subDialogNegative = new AlertDialog.Builder(context, THEME)
-                    .setCancelable(false)
-                    .setTitle(R.string.create_reminder_label)
-                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
-                    .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
-                    .setNegativeButton(R.string.go_back_button_label, backListener)
-                    .create();
+            subDialogNegative =
+                    new AlertDialog.Builder(context, THEME).setCancelable(false).setTitle(R.string.create_reminder_label)
+                            .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
+                            .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
+                            .setNegativeButton(R.string.go_back_button_label, backListener).create();
         }
 
         private AlertDialog getAlertDialogInstance() {

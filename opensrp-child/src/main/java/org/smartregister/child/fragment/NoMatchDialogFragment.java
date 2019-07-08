@@ -16,7 +16,7 @@ import android.widget.Button;
 import org.smartregister.child.R;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
-@SuppressLint ("ValidFragment")
+@SuppressLint("ValidFragment")
 public class NoMatchDialogFragment extends DialogFragment {
 
     public static final String TAG = NoMatchDialogFragment.class.getName();

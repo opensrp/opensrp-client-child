@@ -37,40 +37,13 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         this.vaccineRepository = vaccineRepository;
     }
 
-    @Override
-    protected Void doInBackground(Void... params) {
-        try {
-            JSONObject form = new JSONObject(formString);
-
-            // Create a weight object if weight was recorded
-            Weight weight = getWeightObject(openSrpContext, form);
-            if (weight != null) {
-                weightRepository.add(weight);
-            }
-
-            // Create a vaccine object for all recorded vaccines
-            ArrayList<Vaccine> vaccines = getVaccineObjects(context, openSrpContext, form);
-            if (vaccines.size() > 0) {
-                for (Vaccine curVaccine : vaccines) {
-                    addVaccine(vaccineRepository, curVaccine);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
-        }
-        return null;
-    }
-
-
     /**
      * Constructs a weight object using the out of service area form
      *
-     * @param openSrpContext
-     *         The context to work with
-     * @param outOfAreaForm
-     *         Out of area form to extract the weight form
-     * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
+     * @param openSrpContext The context to work with
+     * @param outOfAreaForm  Out of area form to extract the weight form
      *
+     * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
      * @throws Exception
      */
     private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm)
@@ -90,8 +63,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                     weight.setBaseEntityId("");
                     weight.setKg(Float.parseFloat(curField.getString("value")));
                     weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(outOfAreaForm.getJSONObject("metadata")
-                            .getString("encounter_location"));
+                    weight.setLocationId(outOfAreaForm.getJSONObject("metadata").getString("encounter_location"));
                     weight.setUpdatedAt(null);
                 }
             } else if (curField.getString("key").equals("OA_Service_Date")) {
@@ -108,8 +80,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (weight != null && serviceDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(
-                    com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
             weight.setDate(dateFormat.parse(serviceDate));
         }
 
@@ -123,14 +95,12 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     /**
      * Constructs a list of recorded vaccines from the out of area form provided
      *
-     * @param openSrpContext
-     *         The context to use
-     * @param outOfAreaForm
-     *         Out of area form to extract recorded vaccines from
+     * @param openSrpContext The context to use
+     * @param outOfAreaForm  Out of area form to extract recorded vaccines from
+     *
      * @return A list of recorded vaccines
      */
-    private static ArrayList<Vaccine> getVaccineObjects(Context context,
-                                                        org.smartregister.Context openSrpContext,
+    private static ArrayList<Vaccine> getVaccineObjects(Context context, org.smartregister.Context openSrpContext,
                                                         JSONObject outOfAreaForm) throws Exception {
         ArrayList<Vaccine> vaccines = new ArrayList<>();
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
@@ -139,9 +109,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
-            if (curField.has("is_vaccine_group")
-                    && curField.getBoolean("is_vaccine_group")
-                    && curField.getString("type").equals("check_box")) {
+            if (curField.has("is_vaccine_group") && curField.getBoolean("is_vaccine_group") &&
+                    curField.getString("type").equals("check_box")) {
                 JSONArray options = curField.getJSONArray("options");
                 for (int j = 0; j < options.length(); j++) {
                     JSONObject curOption = options.getJSONObject(j);
@@ -150,10 +119,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                         curVaccine.setBaseEntityId("");
                         curVaccine.setName(curOption.getString("key"));
                         curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                        curVaccine.setLocationId(outOfAreaForm.getJSONObject("metadata")
-                                .getString("encounter_location"));
-                        curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context,
-                                curVaccine.getName()));
+                        curVaccine.setLocationId(outOfAreaForm.getJSONObject("metadata").getString("encounter_location"));
+                        curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
                         curVaccine.setUpdatedAt(null);
 
                         vaccines.add(curVaccine);
@@ -166,8 +133,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
         for (Vaccine curVaccine : vaccines) {
             if (serviceDate != null) {
                 curVaccine.setDate(dateFormat.parse(serviceDate));
@@ -227,8 +194,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     /**
      * This method formats the child unique id obtained from a JSON Form to something that is useable
      *
-     * @param unformattedId
-     *         The unformatted unique identifier
+     * @param unformattedId The unformatted unique identifier
+     *
      * @return A formatted ID or the original id if method is unable to format
      */
     private static String formatChildUniqueId(String unformattedId) {
@@ -239,5 +206,29 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         return unformattedId;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+        try {
+            JSONObject form = new JSONObject(formString);
+
+            // Create a weight object if weight was recorded
+            Weight weight = getWeightObject(openSrpContext, form);
+            if (weight != null) {
+                weightRepository.add(weight);
+            }
+
+            // Create a vaccine object for all recorded vaccines
+            ArrayList<Vaccine> vaccines = getVaccineObjects(context, openSrpContext, form);
+            if (vaccines.size() > 0) {
+                for (Vaccine curVaccine : vaccines) {
+                    addVaccine(vaccineRepository, curVaccine);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
+        }
+        return null;
     }
 }

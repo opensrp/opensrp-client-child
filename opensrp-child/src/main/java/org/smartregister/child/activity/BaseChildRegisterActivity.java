@@ -138,8 +138,9 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
             Barcode barcode = data.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY);
             String barcodeSearchTerm = barcode.displayValue;
-            barcodeSearchTerm = barcodeSearchTerm.contains("/") ? barcodeSearchTerm
-                    .substring(barcodeSearchTerm.lastIndexOf('/') + 1) : barcodeSearchTerm;
+            barcodeSearchTerm =
+                    barcodeSearchTerm.contains("/") ? barcodeSearchTerm.substring(barcodeSearchTerm.lastIndexOf('/') + 1) :
+                            barcodeSearchTerm;
 
             //Set value and refresh form values!
             advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
@@ -258,7 +259,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     public abstract void startNFCCardScanner();
 
     public void updateAdvancedSearchFilterCount(int count) {
-       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
+       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition
+       (ADVANCED_SEARCH_POSITION);
         if (advancedSearchFragment != null) {
             advancedSearchFragment.updateFilterCount(count);
         }*/

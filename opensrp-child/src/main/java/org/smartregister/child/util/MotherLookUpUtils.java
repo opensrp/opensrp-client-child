@@ -136,17 +136,10 @@ public class MotherLookUpUtils {
     private static String lookUpQuery(Map<String, String> entityMap, String tableName) {
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName, new String[] {
-                RELATIONALID,
-                DETAILS,
-                Constants.KEY.ZEIR_ID,
-                Constants.KEY.FIRST_NAME,
-                Constants.KEY.LAST_NAME,
-                AllConstants.ChildRegistrationFields.GENDER,
-                Constants.KEY.DOB,
-                NRC_NUMBER,
-                CONTACT_PHONE_NUMBER,
-                Constants.KEY.BASE_ENTITY_ID}
+        queryBUilder.SelectInitiateMainTable(tableName,
+                new String[]{RELATIONALID, DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+                        AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
+                        Constants.KEY.BASE_ENTITY_ID}
 
         );
         String query = queryBUilder.mainCondition(getMainConditionString(entityMap));

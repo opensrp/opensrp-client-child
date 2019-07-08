@@ -208,9 +208,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
         if (qrCodeScanImageView != null) {
 
-            if (ChildLibrary.getInstance().getProperties()
-                    .getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) && ChildLibrary.getInstance()
-                    .getProperties().getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) &&
+                    ChildLibrary.getInstance().getProperties()
+                            .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
                 qrCodeScanImageView.setOnClickListener(this);
             } else {
                 qrCodeScanImageView.setVisibility(View.GONE);
@@ -220,9 +220,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     private void setUpScanCardButtonView(View view) {
         FrameLayout scanCardView = view.findViewById(R.id.scan_card);
-        if (scanCardView != null && ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+        if (scanCardView != null &&
+                ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED) &&
+                ChildLibrary.getInstance().getProperties()
+                        .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
             scanCardView.setOnClickListener(this);
             scanCardView.setVisibility(View.VISIBLE);
 
@@ -264,8 +265,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     protected void updateLocationText() {
         if (clinicSelection != null) {
-            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
-                    clinicSelection.getSelectedItem()));
+            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
             String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
             context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
         }
@@ -289,7 +289,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
-    @SuppressLint ("NewApi")
+    @SuppressLint("NewApi")
     @Override
     public void showNotFoundPopup(String opensrpID) {
         NoMatchDialogFragment
@@ -304,10 +304,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
         repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
 
-        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(getActivity(), repositoryHolder,
-                visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider,
-                context().commonrepository(this.tablename));
+        ChildRegisterProvider childRegisterProvider =
+                new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,
+                        paginationViewHandler, context().alertService());
+        clientAdapter =
+                new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
         clientAdapter.setCurrentlimit(20);
         clientsView.setAdapter(clientAdapter);
     }

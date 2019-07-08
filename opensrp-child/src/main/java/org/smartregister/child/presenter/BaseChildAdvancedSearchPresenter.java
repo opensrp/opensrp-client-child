@@ -68,10 +68,8 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     }
 
     protected ChildAdvancedSearchContract.View getView() {
-        if (viewReference != null)
-            return viewReference.get();
-        else
-            return null;
+        if (viewReference != null) return viewReference.get();
+        else return null;
     }
 
     private void localQueryInitialize(Map<String, String> editMap) {

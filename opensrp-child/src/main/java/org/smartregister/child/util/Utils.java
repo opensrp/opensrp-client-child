@@ -66,8 +66,8 @@ public class Utils extends org.smartregister.util.Utils {
         TableRow tr = row;
         if (row == null) {
             tr = new TableRow(context);
-            TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            TableRow.LayoutParams trlp =
+                    new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             tr.setLayoutParams(trlp);
             tr.setPadding(10, 5, 10, 5);
         }
@@ -96,8 +96,8 @@ public class Utils extends org.smartregister.util.Utils {
         TableRow tr = row;
         if (row == null) {
             tr = new TableRow(context);
-            TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            TableRow.LayoutParams trlp =
+                    new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             tr.setLayoutParams(trlp);
             tr.setPadding(10, 5, 10, 5);
         }
@@ -129,8 +129,8 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static TableRow getDataRow(android.content.Context context) {
         TableRow tr = new TableRow(context);
-        TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        TableRow.LayoutParams trlp =
+                new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tr.setLayoutParams(trlp);
         tr.setPadding(0, 0, 0, 0);
         // tr.setBackgroundColor(Color.BLUE);
@@ -436,7 +436,8 @@ public class Utils extends org.smartregister.util.Utils {
         Map<String, String> clean = new HashMap<>();
 
         try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient
+            //    (getChildDetails().getCaseId());
 
             Map<String, String> old = rawDetails;
             for (Map.Entry<String, String> entry : old.entrySet()) {

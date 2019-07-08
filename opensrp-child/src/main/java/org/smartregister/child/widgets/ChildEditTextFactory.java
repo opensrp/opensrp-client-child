@@ -27,8 +27,8 @@ public class ChildEditTextFactory extends EditTextFactory {
                              MaterialEditText editText, ImageView editable) throws Exception {
         super.attachLayout(stepName, context, formFragment, jsonObject, editText, editable);
 
-        if (jsonObject.has(Constants.KEY.LOOK_UP) && jsonObject.get(Constants.KEY.LOOK_UP).toString()
-                .equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (jsonObject.has(Constants.KEY.LOOK_UP) &&
+                jsonObject.get(Constants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
             String entityId = jsonObject.getString(Constants.KEY.ENTITY_ID);
 

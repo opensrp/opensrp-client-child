@@ -94,8 +94,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.inflater = inflater;
         if (this.getArguments() != null) {
             Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
@@ -116,8 +115,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
     public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList,
                                          boolean editGrowthMonitoringMode) {
-        boolean showGrowthMonitoring = curGrowthMonitoringMode == null || !curGrowthMonitoringMode
-                .equals(editGrowthMonitoringMode);
+        boolean showGrowthMonitoring =
+                curGrowthMonitoringMode == null || !curGrowthMonitoringMode.equals(editGrowthMonitoringMode);
         if (fragmentContainer != null && showGrowthMonitoring) {
             createGrowthLayout(weightList, heightList, fragmentContainer, editGrowthMonitoringMode);
             curGrowthMonitoringMode = editGrowthMonitoringMode;
@@ -133,10 +132,10 @@ public class ChildUnderFiveFragment extends Fragment {
         List<Weight> weightList = getWeights(weights);
         List<Height> heightList = getHeights(heights);
 
-        LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners,
-                weightList);
-        LinkedHashMap<Long, Pair<String, String>> heightMap = updateHeightMap(editMode, heightEditMode, listeners,
-                heightList);
+        LinkedHashMap<Long, Pair<String, String>> weightMap =
+                updateWeightMap(editMode, weightEditMode, listeners, weightList);
+        LinkedHashMap<Long, Pair<String, String>> heightMap =
+                updateHeightMap(editMode, heightEditMode, listeners, heightList);
 
         WidgetFactory widgetFactory = new WidgetFactory();
         if (weightMap.size() > 0) {
@@ -170,9 +169,8 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId() - 1, Pair.create(formattedAge,
-                        Utils.kgStringSuffix(
-                                org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
+                weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(
+                        org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
                 weightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
@@ -199,8 +197,7 @@ public class ChildUnderFiveFragment extends Fragment {
         return weightMap;
     }
 
-    private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode,
-                                                                      ArrayList<Boolean> heightEditMode,
+    private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode, ArrayList<Boolean> heightEditMode,
                                                                       ArrayList<View.OnClickListener> listeners,
                                                                       List<Height> heightList) {
         LinkedHashMap<Long, Pair<String, String>> heightMap = new LinkedHashMap<>();
@@ -240,8 +237,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         String initialHeight = Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true);
         if (heightMap.size() < 5 && !initialHeight.isEmpty()) {
-            heightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    updateGrowthValue(initialHeight) + " cm"));
+            heightMap.put(0L, Pair.create(DateUtil.getDuration(0), updateGrowthValue(initialHeight) + " cm"));
             heightEditMode.add(false);
             listeners.add(null);
         }
@@ -363,8 +359,8 @@ public class ChildUnderFiveFragment extends Fragment {
             dob = Calendar.getInstance().getTime();
         }
 
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList =
+                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
         if (vaccineList == null) {
             vaccineList = new ArrayList<>();
         }
@@ -379,8 +375,8 @@ public class ChildUnderFiveFragment extends Fragment {
         return Utils.dobStringToDate(birthDate);
     }
 
-    public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap,
-                                   List<ServiceRecord> services, List<Alert> alertList, boolean editServiceMode) {
+    public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> services,
+                                   List<Alert> alertList, boolean editServiceMode) {
         boolean showService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
         if (fragmentContainer != null && showService) {
 
@@ -434,14 +430,14 @@ public class ChildUnderFiveFragment extends Fragment {
             dateTime = DateTime.now();
         }
 
-        List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                .findByEntityId(childDetails.entityId());
+        List<ServiceRecord> serviceRecordList =
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
         if (serviceRecordList == null) {
             serviceRecordList = new ArrayList<>();
         }
 
-        ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment
-                .newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
+        ServiceEditDialogFragment serviceEditDialogFragment =
+                ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -479,21 +475,20 @@ public class ChildUnderFiveFragment extends Fragment {
         WeightWrapper weightWrapper = getWeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
         HeightWrapper heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
 
-        EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment
-                .newInstance(getActivity(), dob, weightWrapper, heightWrapper);
+        EditGrowthDialogFragment editWeightDialogFragment =
+                EditGrowthDialogFragment.newInstance(getActivity(), dob, weightWrapper, heightWrapper);
         editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
     }
 
     @NotNull
     private WeightWrapper getWeightWrapper(int weightPosition, String childName, String gender, String openSrpId,
-                                           String duration,
-                                           Photo photo) {
+                                           String duration, Photo photo) {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
 
-        List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository()
-                .findByEntityId(childDetails.entityId());
+        List<Weight> weightList =
+                GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
 
         Weight weight = getWeight(weightList, weightPosition);
 
@@ -526,8 +521,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
     @NotNull
     private HeightWrapper getHeightWrapper(int heightPosition, String childName, String gender, String openSrpId,
-                                           String duration,
-                                           Photo photo) {
+                                           String duration, Photo photo) {
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setId(childDetails.entityId());
 

@@ -27,8 +27,7 @@ public class SiblingPictureAdapter extends RecyclerView.Adapter<SiblingPicture> 
 
     @Override
     public SiblingPicture onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(baseActivity)
-                .inflate(R.layout.view_sibling_picture, parent, false);
+        View view = LayoutInflater.from(baseActivity).inflate(R.layout.view_sibling_picture, parent, false);
         return new SiblingPicture(view);
     }
 

@@ -41,8 +41,8 @@ public class FormUtils {
                 locale = locale.equalsIgnoreCase("en") ? "" : "-" + locale;
 
 
-                String jsonFileString = readFileFromAssetsFolder(
-                        JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
+                String jsonFileString =
+                        readFileFromAssetsFolder(JSON_FORMS_FOLDER + locale + "/" + formIdentity + JSON_FORM_EXTENSION);
 
                 if (jsonFileString == null) {
 

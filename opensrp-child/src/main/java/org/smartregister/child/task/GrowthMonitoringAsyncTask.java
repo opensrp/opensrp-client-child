@@ -100,8 +100,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
 
             recordGrowthCheck.setVisibility(View.VISIBLE);
             recordGrowth.setClickable(false);
-            recordGrowth.setBackground(new ColorDrawable(context.getResources()
-                    .getColor(android.R.color.transparent)));
+            recordGrowth.setBackground(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
         } else {
             recordGrowthText.setText(context.getString(R.string.record_growth_with_nl));
             recordGrowthCheck.setVisibility(View.GONE);
@@ -109,8 +108,8 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         // Update active/inactive/lostToFollowup status
-        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) || updateWrapper.getInactive()
-                .equals(Boolean.TRUE.toString())) {
+        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) ||
+                updateWrapper.getInactive().equals(Boolean.TRUE.toString())) {
             recordGrowth.setVisibility(View.INVISIBLE);
         }
 

@@ -76,10 +76,8 @@ public class BaseChildRegisterPresenter
     }
 
     private ChildRegisterContract.View getView() {
-        if (viewReference != null)
-            return viewReference.get();
-        else
-            return null;
+        if (viewReference != null) return viewReference.get();
+        else return null;
     }
 
     @Override
@@ -107,8 +105,8 @@ public class BaseChildRegisterPresenter
 
         try {
 
-            List<ChildEventClient> childEventClientList = model
-                    .processRegistration(jsonString, updateRegisterParams.getFormTag());
+            List<ChildEventClient> childEventClientList =
+                    model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -128,7 +126,8 @@ public class BaseChildRegisterPresenter
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
             Log.d("JSONResult", jsonString);
-            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title : R.string.saving_dialog_title);
+            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title
+            // : R.string.saving_dialog_title);
 
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
 

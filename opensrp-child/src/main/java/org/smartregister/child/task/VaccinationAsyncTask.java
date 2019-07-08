@@ -55,18 +55,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private final String dobString;
     private final String lostToFollowUp;
     private final String inactive;
-    private List<String> vaccineGroups = Arrays.asList("at birth",
-            "6 weeks",
-            "10 weeks",
-            "14 weeks",
-            "9 months",
-            "15 months",
-            "18 months",
-            "After LMP",
-            "4 Weeks after TT 1",
-            "26 Weeks after TT 2",
-            "1 Year after TT 3 ",
-            " 1 Year after TT 4 ");
+    private List<String> vaccineGroups =
+            Arrays.asList("at birth", "6 weeks", "10 weeks", "14 weeks", "9 months", "15 months", "18 months", "After LMP",
+                    "4 Weeks after TT 1", "26 Weeks after TT 2", "1 Year after TT 3 ", " 1 Year after TT 4 ");
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;
@@ -131,8 +122,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
-        List<Map<String, Object>> sch = VaccinatorUtils
-                .generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
+        List<Map<String, Object>> sch =
+                VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
@@ -220,7 +211,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         Map<String, Object> nv = updateWrapper.getNv();
 
         Object dueDateRawObject = nv.get(Constants.KEY.DATE);
-        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+        DateTime dueDate =
+                dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
 
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
@@ -245,9 +237,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 today.set(Calendar.MILLISECOND, 0);
 
 
-                if (dueDate != null && dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS
-                        .convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS
-                        .convert(7, TimeUnit.DAYS))) {
+                if (dueDate != null &&
+                        dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) &&
+                        dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
                     state = State.UPCOMING_NEXT_7_DAYS;
                 } else {
                     state = State.UPCOMING;
@@ -262,9 +254,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         TextView nextAppointmentDate = convertView.findViewById(R.id.child_next_appointment);
 
         if (nextAppointmentDate != null) {
-            SimpleDateFormat UI_DF = new SimpleDateFormat(
-                    com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-                    CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
+            SimpleDateFormat UI_DF =
+                    new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                            CoreLibrary.getInstance().context().applicationContext().getResources()
+                                    .getConfiguration().locale);
 
             if (dueDate != null) {
                 String nextAppointment = UI_DF.format(dueDate.toDate());
@@ -359,11 +352,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
-            if (StringUtils.isNotBlank(stateKey) && (StringUtils
-                    .containsIgnoreCase(stateKey, Constants.KEY.WEEK) || StringUtils
-                    .containsIgnoreCase(stateKey, Constants.KEY.MONTH)) && !updateWrapper.getVaccines().isEmpty()) {
-                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines()
-                        .get(updateWrapper.getVaccines().size() - 1);
+            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) ||
+                    StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) &&
+                    !updateWrapper.getVaccines().isEmpty()) {
+                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null :
+                        updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
                 if (!TextUtils.isEmpty(previousStateKey)) {
                     recordVaccinationText.setText(localizeStateKey(previousStateKey));
@@ -502,15 +495,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     private enum State {
-        DUE,
-        OVERDUE,
-        UPCOMING_NEXT_7_DAYS,
-        UPCOMING,
-        INACTIVE,
-        LOST_TO_FOLLOW_UP,
-        EXPIRED,
-        WAITING,
-        NO_ALERT,
+        DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
         FULLY_IMMUNIZED
     }
 }

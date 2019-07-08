@@ -83,6 +83,11 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         this.alertService = alertService;
     }
 
+    public static void fillValue(TextView v, String value) {
+        if (v != null) v.setText(value);
+
+    }
+
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
         isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
@@ -99,9 +104,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     public void getFooterView(RecyclerView.ViewHolder viewHolder, int currentPageCount, int totalPageCount, boolean hasNext,
                               boolean hasPrevious) {
         FooterViewHolder footerViewHolder = (FooterViewHolder) viewHolder;
-        footerViewHolder.pageInfoView.setText(
-                MessageFormat.format(context.getString(R.string.str_page_info), currentPageCount,
-                        totalPageCount));
+        footerViewHolder.pageInfoView
+                .setText(MessageFormat.format(context.getString(R.string.str_page_info), currentPageCount, totalPageCount));
 
         footerViewHolder.nextPageView.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
         footerViewHolder.previousPageView.setVisibility(hasPrevious ? View.VISIBLE : View.INVISIBLE);
@@ -186,8 +190,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
 
-        String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " + Utils
-                .getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
+        String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
+                Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
@@ -265,18 +269,13 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     }
 
-    public static void fillValue(TextView v, String value) {
-        if (v != null)
-            v.setText(value);
-
-    }
-
     private void renderProfileImage(String entityId, String gender, ImageView profilePic) {
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
 
         if (entityId != null && show()) { //image already in local storage most likely ):
-            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then download
+            // and save locally
             profilePic.setTag(R.id.entity_id, entityId);
             DrishtiApplication.getCachedImageLoaderInstance()
                     .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
@@ -296,8 +295,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     private boolean show() {
 
-        return !ChildRegisterProvider.class.equals(this.getClass()) || !ChildLibrary.getInstance().context()
-                .allSharedPreferences().fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+        return !ChildRegisterProvider.class.equals(this.getClass()) ||
+                !ChildLibrary.getInstance().context().allSharedPreferences().fetchIsSyncInitial() ||
+                !SyncStatusBroadcastReceiver.getInstance().isSyncing();
 
     }
 

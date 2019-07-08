@@ -60,8 +60,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
 
     protected void initializeFormFragmentCore() {
         childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
-        getSupportFragmentManager().beginTransaction()
-                .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
     }
 
     @Override
@@ -145,8 +144,8 @@ public class BaseChildFormActivity extends JsonFormActivity {
             String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
             setConfirmCloseTitle(this.getString(R.string.confirm_form_close));
             setConfirmCloseMessage(
-                    et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this
-                            .getString(R.string.confirm_form_close_explanation));
+                    et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) :
+                            this.getString(R.string.confirm_form_close_explanation));
 
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
@@ -165,8 +164,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
         List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
-                if (fragment != null && fragment.isVisible())
-                    return fragment;
+                if (fragment != null && fragment.isVisible()) return fragment;
             }
         }
         return null;
@@ -203,9 +201,9 @@ public class BaseChildFormActivity extends JsonFormActivity {
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has(Constants.KEY.KEY) && vaccineGroup.getString(Constants.KEY.KEY).equals(
-                            Constants.WEIGHT_KG) && vaccineGroup
-                            .has(Constants.VALUE) && vaccineGroup.getString(Constants.VALUE).length() > 0) {
+                    } else if (vaccineGroup.has(Constants.KEY.KEY) &&
+                            vaccineGroup.getString(Constants.KEY.KEY).equals(Constants.WEIGHT_KG) &&
+                            vaccineGroup.has(Constants.VALUE) && vaccineGroup.getString(Constants.VALUE).length() > 0) {
                         return true;
                     }
                 }

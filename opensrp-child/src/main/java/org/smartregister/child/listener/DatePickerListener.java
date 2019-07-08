@@ -72,7 +72,7 @@ public class DatePickerListener implements View.OnClickListener {
         mDatePicker.show();
 
         try {
-            DatePickerUtils.themeDatePicker(mDatePicker, new char[] {'d', 'm', 'y'});
+            DatePickerUtils.themeDatePicker(mDatePicker, new char[]{'d', 'm', 'y'});
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }

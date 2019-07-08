@@ -29,8 +29,9 @@ public class ChildMetadata {
     public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
                                     String updateEventType, String config, String childCareGiverRelationKey,
                                     String outOfCatchmentFormName) {
-        this.childRegister = new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType,
-                config, childCareGiverRelationKey, outOfCatchmentFormName);
+        this.childRegister =
+                new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType, config,
+                        childCareGiverRelationKey, outOfCatchmentFormName);
     }
 
     public class ChildRegister {

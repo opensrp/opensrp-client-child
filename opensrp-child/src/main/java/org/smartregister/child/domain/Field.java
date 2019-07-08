@@ -17,13 +17,13 @@ public class Field {
 
     private List<String> values;
 
-    @SerializedName ("entity_id")
+    @SerializedName("entity_id")
     private String entityId;
 
-    @SerializedName ("openmrs_entity")
+    @SerializedName("openmrs_entity")
     private String openmrsEntity;
 
-    @SerializedName ("openmrs_entity_id")
+    @SerializedName("openmrs_entity_id")
     private String openmrsEntityId;
 
     public String getKey() {

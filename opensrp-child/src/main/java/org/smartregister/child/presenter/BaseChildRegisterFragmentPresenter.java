@@ -90,10 +90,8 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     }
 
     protected ChildRegisterFragmentContract.View getView() {
-        if (viewReference != null)
-            return viewReference.get();
-        else
-            return null;
+        if (viewReference != null) return viewReference.get();
+        else return null;
     }
 
     @Override

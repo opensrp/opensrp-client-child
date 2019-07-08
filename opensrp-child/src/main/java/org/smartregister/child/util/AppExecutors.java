@@ -27,8 +27,7 @@ public class AppExecutors {
     private final Executor mainThread;
 
     public AppExecutors() {
-        this(new DiskIOThreadExecutor(), Executors.newFixedThreadPool(THREAD_COUNT),
-                new MainThreadExecutor());
+        this(new DiskIOThreadExecutor(), Executors.newFixedThreadPool(THREAD_COUNT), new MainThreadExecutor());
     }
 
     public AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {

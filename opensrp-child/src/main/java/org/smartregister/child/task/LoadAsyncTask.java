@@ -86,15 +86,15 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         List<ServiceRecord> serviceRecords = new ArrayList<>();
 
         RecurringServiceTypeRepository recurringServiceTypeRepository = repositoryHolder.getRecurringServiceTypeRepository();
-        RecurringServiceRecordRepository recurringServiceRecordRepository = repositoryHolder
-                .getRecurringServiceRecordRepository();
+        RecurringServiceRecordRepository recurringServiceRecordRepository =
+                repositoryHolder.getRecurringServiceRecordRepository();
 
         if (recurringServiceRecordRepository != null) {
             serviceRecords = recurringServiceRecordRepository.findByEntityId(baseEntityId);
         }
 
-        NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(),
-                serviceRecords);
+        NamedObject<List<ServiceRecord>> serviceNamedObject =
+                new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
         map.put(serviceNamedObject.name, serviceNamedObject);
 
         Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
@@ -111,8 +111,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             }
         }
 
-        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(),
-                serviceTypeMap);
+        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
         map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
         List<Alert> alertList = new ArrayList<>();

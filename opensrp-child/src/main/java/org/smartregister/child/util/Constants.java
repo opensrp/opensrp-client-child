@@ -9,8 +9,8 @@ import java.text.SimpleDateFormat;
  */
 public class Constants extends AllConstants {
 
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-            com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
     public static final String WEIGHT = "weight";

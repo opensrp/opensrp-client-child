@@ -84,6 +84,10 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return this.dristhiConfiguration;
     }
 
+    public void setDristhiConfiguration(DristhiConfiguration dristhiConfiguration) {
+        this.dristhiConfiguration = dristhiConfiguration;
+    }
+
     private String urlEncode(String value) {
         try {
             return URLEncoder.encode(value, "UTF-8");
@@ -102,9 +106,5 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
     public void setHttpAgent(HTTPAgent httpAgent) {
         this.httpAgent = httpAgent;
-    }
-
-    public void setDristhiConfiguration(DristhiConfiguration dristhiConfiguration) {
-        this.dristhiConfiguration = dristhiConfiguration;
     }
 }

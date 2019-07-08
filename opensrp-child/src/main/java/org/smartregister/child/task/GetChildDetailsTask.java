@@ -52,8 +52,9 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
 
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
-        CommonPersonObject rawDetails = CoreLibrary.getInstance().context()
-                .commonrepository(Utils.metadata().childRegister.tableName).findByBaseEntityId(baseEntityId);
+        CommonPersonObject rawDetails =
+                CoreLibrary.getInstance().context().commonrepository(Utils.metadata().childRegister.tableName)
+                        .findByBaseEntityId(baseEntityId);
         if (rawDetails != null) {
             // Get extra child details
             CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
@@ -68,8 +69,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             }
 
             // Get mother details
-            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(),
-                    "relational_id", false);
+            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
 
             Map<String, String> motherDetails = new HashMap<>();
             motherDetails.put("mother_first_name", "");
@@ -77,18 +77,17 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             motherDetails.put("mother_dob", "");
             motherDetails.put("mother_nrc_number", "");
             if (!TextUtils.isEmpty(motherBaseEntityId)) {
-                CommonPersonObject rawMotherDetails = CoreLibrary.getInstance().context()
-                        .commonrepository(Utils.metadata().childRegister.motherTableName)
-                        .findByBaseEntityId(motherBaseEntityId);
+                CommonPersonObject rawMotherDetails =
+                        CoreLibrary.getInstance().context().commonrepository(Utils.metadata().childRegister.motherTableName)
+                                .findByBaseEntityId(motherBaseEntityId);
                 if (rawMotherDetails != null) {
-                    motherDetails.put("mother_first_name",
-                            Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
-                    motherDetails.put("mother_last_name",
-                            Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
-                    motherDetails.put("mother_dob",
-                            Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
-                    motherDetails.put("mother_nrc_number",
-                            Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
+                    motherDetails
+                            .put("mother_first_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
+                    motherDetails
+                            .put("mother_last_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
+                    motherDetails.put("mother_dob", Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
+                    motherDetails
+                            .put("mother_nrc_number", Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
                 }
             }
             Utils.putAll(childDetails.getColumnmaps(), motherDetails);
@@ -113,8 +112,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         Gender gender = Gender.UNKNOWN;
         int genderColor = R.color.gender_neutral_green;
         int genderLightColor = R.color.gender_neutral_light_green;
-        String genderString = org.smartregister.util.Utils
-                .getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, false);
+        String genderString =
+                org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, false);
 
         if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
             gender = Gender.FEMALE;
@@ -132,9 +131,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             initials.setBackgroundColor(baseActivity.getResources().getColor(android.R.color.transparent));
             initials.setTextColor(baseActivity.getResources().getColor(android.R.color.black));
             profilePhoto.setTag(org.smartregister.R.id.entity_id, baseEntityId);
-            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(baseEntityId,
-                    OpenSRPImageLoader.getStaticImageListener(profilePhoto,
-                            ImageUtils.profileImageResourceByGender(gender),
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(baseEntityId, OpenSRPImageLoader
+                    .getStaticImageListener(profilePhoto, ImageUtils.profileImageResourceByGender(gender),
                             ImageUtils.profileImageResourceByGender(gender)));
         } else {
             profilePhoto.setVisibility(View.GONE);

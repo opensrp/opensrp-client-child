@@ -156,8 +156,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         if (baseClient != null) {
                             try {
                                 String newOpenSRPId = baseClient.getIdentifier(Constants.KEY.ZEIR_ID).replace("-", "");
-                                String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID)
-                                        .replace("-", "");
+                                String currentOpenSRPId =
+                                        JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
                                 if (!newOpenSRPId.equals(currentOpenSRPId)) {
                                     //OPENSRP ID was changed
                                     getUniqueIdRepository().open(currentOpenSRPId);
@@ -181,8 +181,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         if (i == 0) {
                             imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
                         } else if (i == 1) {
-                            imageLocation = JsonFormUtils
-                                    .getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                            imageLocation =
+                                    JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
                         }
 
                         if (StringUtils.isNotBlank(imageLocation)) {

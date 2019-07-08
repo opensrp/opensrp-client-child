@@ -25,8 +25,8 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
     private final String providerId;
     private final EventClientRepository db;
 
-    private SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId,
-                                 String providerId, EventClientRepository eventClientRepository) {
+    private SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId, String providerId,
+                                 EventClientRepository eventClientRepository) {
         this.jsonString = jsonString;
         this.locationId = locationId;
         this.baseEntityId = baseEntityId;
@@ -58,15 +58,10 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 }
             }
 
-            Event event = (Event) new Event()
-                    .withBaseEntityId(baseEntityId) //should be different for main and subform
-                    .withEventDate(encounterDate)
-                    .withEventType(encounterType)
-                    .withLocationId(locationId)
-                    .withProviderId(providerId)
-                    .withEntityType(Constants.CHILD_TYPE)
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
-                    .withDateCreated(new Date());
+            Event event = (Event) new Event().withBaseEntityId(baseEntityId) //should be different for main and subform
+                    .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
+                    .withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
+                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
 
 
             for (int i = 0; i < fields.length(); i++) {
@@ -92,8 +87,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                                 JsonFormUtils.addObservation(event, jsonObject);
                             } else if ("encounter".equals(entityVal)) {
                                 String entityIdVal = JsonFormUtils.getString(jsonObject, JsonFormUtils.OPENMRS_ENTITY_ID);
-                                if (entityIdVal.equals(
-                                        FormEntityConstants.Encounter.encounter_date.name())) {
+                                if (entityIdVal.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                     Date eDate = JsonFormUtils.formatDate(value, false);
                                     if (eDate != null) {
                                         event.setEventDate(eDate);

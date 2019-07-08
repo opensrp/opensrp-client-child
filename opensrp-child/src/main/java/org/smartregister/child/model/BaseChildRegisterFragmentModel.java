@@ -105,7 +105,9 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
-        String[] columns = new String[] {"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.GENDER, Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
+        String[] columns =
+                new String[]{"_id", "relationalid", Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME, Constants.KEY.GENDER,
+                        Constants.KEY.DOB, Constants.KEY.ZEIR_ID};
         AdvancedMatrixCursor matrixCursor = new AdvancedMatrixCursor(columns);
 
         if (response == null || response.isFailure() || StringUtils.isBlank(response.payload())) {
@@ -153,9 +155,10 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 JSONObject identifiers = getJsonObject(client, "identifiers");
                 opensrpId = getJsonString(identifiers, Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH));
 
-                opensrpId = StringUtils.isBlank(opensrpId) && identifiers
-                        .has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers,
-                        "M_ZEIR_ID").substring(0, getJsonString(identifiers, "M_ZEIR_ID").indexOf("_mother")) : opensrpId;
+                opensrpId = StringUtils.isBlank(opensrpId) &&
+                        identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ?
+                        getJsonString(identifiers, "M_ZEIR_ID")
+                                .substring(0, getJsonString(identifiers, "M_ZEIR_ID").indexOf("_mother")) : opensrpId;
                 if (StringUtils.isNotBlank(opensrpId)) {
                     opensrpId = opensrpId.replace("-", "");
                 }
@@ -165,9 +168,10 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 altContactName = getJsonString(getJsonObject(client, "attributes"), "alt_name");
 
 
-                matrixCursor.addRow(new Object[] {entityId, identifiers
-                        .has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? getJsonString(identifiers,
-                        "M_ZEIR_ID") : null, firstName, lastName, gender, dob, opensrpId});
+                matrixCursor.addRow(new Object[]{entityId,
+                        identifiers.has("M_" + Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ?
+                                getJsonString(identifiers, "M_ZEIR_ID") : null, firstName, lastName, gender, dob,
+                        opensrpId});
             }
         }
         return matrixCursor;

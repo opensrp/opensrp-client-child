@@ -53,8 +53,9 @@ public class WidgetFactory {
         return rows;
     }
 
-    public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String,
-            String>> lastFiveHeightMap, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
+    public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
+                                   HashMap<Long, Pair<String, String>> lastFiveHeightMap,
+                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
         LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
         tableLayout.removeAllViews();
 

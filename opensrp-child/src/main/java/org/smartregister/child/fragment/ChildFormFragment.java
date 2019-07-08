@@ -74,14 +74,15 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             }
         }
     };
-    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener = new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
-        @Override
-        public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
-            if (!lookedUp) {
-                showMotherLookUp(data);
-            }
-        }
-    };
+    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener =
+            new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+                @Override
+                public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
+                    if (!lookedUp) {
+                        showMotherLookUp(data);
+                    }
+                }
+            };
 
     public static ChildFormFragment getFormFragment(String stepName) {
         ChildFormFragment jsonFormFragment = new ChildFormFragment();
@@ -105,15 +106,15 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     public void updateVisibilityOfNextAndSave(boolean next, boolean save) {
         super.updateVisibilityOfNextAndSave(next, save);
         Form form = getForm();
-        if (form != null && form.isWizard() && !ChildLibrary.getInstance()
-                .metadata().formWizardValidateRequiredFieldsBefore) {
+        if (form != null && form.isWizard() &&
+                !ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             this.getMenu().findItem(com.vijay.jsonwizard.R.id.action_save).setVisible(save);
         }
     }
 
     private Form getForm() {
-        return this.getActivity() != null && this.getActivity() instanceof JsonFormActivity ? ((JsonFormActivity) this
-                .getActivity()).getForm() : null;
+        return this.getActivity() != null && this.getActivity() instanceof JsonFormActivity ?
+                ((JsonFormActivity) this.getActivity()).getForm() : null;
     }
 
     public void validateActivateNext() {
@@ -170,9 +171,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
-        snackbar = Snackbar
-                .make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()),
-                        Snackbar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()),
+                Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,8 +201,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             mothers.add(entry.getKey());
         }
 
-        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider = new MotherLookUpSmartClientsProvider(
-                getActivity());
+        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider =
+                new MotherLookUpSmartClientsProvider(getActivity());
         BaseAdapter baseAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
@@ -367,8 +367,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void clearView() {
-        snackbar = Snackbar
-                .make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.cancel, new View.OnClickListener() {
             @Override
             public void onClick(View v) {

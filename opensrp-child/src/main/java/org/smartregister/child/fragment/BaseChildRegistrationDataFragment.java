@@ -111,9 +111,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
             value = detailsMap.get(key);
 
-            value = !TextUtils.isEmpty(value) ? value : detailsMap
-                    .get(getPrefix(fields.get(i).getEntityId()) + cleanOpenMRSEntityId(
-                            fields.get(i).getOpenmrsEntityId().toLowerCase()));
+            value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(fields.get(i).getEntityId()) +
+                    cleanOpenMRSEntityId(fields.get(i).getOpenmrsEntityId().toLowerCase()));
             String label = cleanLabel(key);
             if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label)) {
                 mArrayList.add(new KeyValueItem(label, cleanValue(fields.get(i), value)));

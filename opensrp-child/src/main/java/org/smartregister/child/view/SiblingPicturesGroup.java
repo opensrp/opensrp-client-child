@@ -26,13 +26,6 @@ public class SiblingPicturesGroup extends LinearLayout {
         init(context);
     }
 
-    private void init(Context context) {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layoutInflater.inflate(R.layout.view_sibling_group, this, true);
-        siblingsGV = findViewById(R.id.siblings_gv);
-        siblingsGV.setRowHeight(context.getResources().getDimensionPixelSize(R.dimen.sibling_profile_pic_height));
-    }
-
     public SiblingPicturesGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
@@ -43,10 +36,17 @@ public class SiblingPicturesGroup extends LinearLayout {
         init(context);
     }
 
-    @TargetApi (Build.VERSION_CODES.LOLLIPOP)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public SiblingPicturesGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
+    }
+
+    private void init(Context context) {
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        layoutInflater.inflate(R.layout.view_sibling_group, this, true);
+        siblingsGV = findViewById(R.id.siblings_gv);
+        siblingsGV.setRowHeight(context.getResources().getDimensionPixelSize(R.dimen.sibling_profile_pic_height));
     }
 
     public void setSiblingBaseEntityIds(BaseActivity baseActivity, ArrayList<String> baseEntityIds) {
