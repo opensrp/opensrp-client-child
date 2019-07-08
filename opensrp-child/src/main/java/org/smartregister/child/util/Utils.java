@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
@@ -201,22 +200,6 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
-    public static Date getDateFromString(String date, String dateFormatPattern) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
-            return dateFormat.parse(date);
-        } catch (ParseException e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage());
-            return null;
-        }
-    }
-
-    public static int yearFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
-    }
-
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
         if (StringUtils.isBlank(vaccine) || startDate == null) {
@@ -247,46 +230,6 @@ public class Utils extends org.smartregister.util.Utils {
         return endDateCalendar.getTime();
     }
 
-    public static Date getCohortEndDate(VaccineRepo.Vaccine vaccine, Date startDate) {
-        if (vaccine == null || startDate == null) {
-            return null;
-        }
-        String vaccineName = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
-        return getCohortEndDate(vaccineName, startDate);
-
-    }
-
-    public static Date getLastDayOfMonth(Date month) {
-        if (month == null) {
-            return null;
-        }
-
-        Calendar c = Calendar.getInstance();
-        c.setTime(month);
-        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
-        return c.getTime();
-    }
-
-    public static boolean isSameMonthAndYear(Date date1, Date date2) {
-        if (date1 != null && date2 != null) {
-            DateTime dateTime1 = new DateTime(date1);
-            DateTime dateTime2 = new DateTime(date2);
-
-            return dateTime1.getMonthOfYear() == dateTime2.getMonthOfYear() && dateTime1.getYear() == dateTime2.getYear();
-        }
-        return false;
-    }
-
-    public static boolean isSameYear(Date date1, Date date2) {
-        if (date1 != null && date2 != null) {
-            DateTime dateTime1 = new DateTime(date1);
-            DateTime dateTime2 = new DateTime(date2);
-
-            return dateTime1.getYear() == dateTime2.getYear();
-        }
-        return false;
-    }
-
     public static Date dobStringToDate(String dobString) {
         DateTime dateTime = dobStringToDateTime(dobString);
         if (dateTime != null) {
@@ -306,21 +249,6 @@ public class Utils extends org.smartregister.util.Utils {
             return null;
         }
     }
-
-    public static int convertDpToPx(android.content.Context context, int dp) {
-        Resources r = context.getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
-        return Math.round(px);
-    }
-
-    public static boolean isEmptyMap(Map map) {
-        return map == null || map.isEmpty();
-    }
-
-    public static boolean isEmptyCollection(Collection collection) {
-        return collection == null || collection.isEmpty();
-    }
-
 
     public static String getTodaysDate() {
         return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
