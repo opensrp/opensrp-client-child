@@ -237,6 +237,14 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         }
     }
 
+    public AllSharedPreferences getAllSharedPreferences() {
+        return Utils.context().allSharedPreferences();
+    }
+
+    public ClientProcessorForJava getClientProcessorForJava() {
+        return ChildLibrary.getInstance().getClientProcessorForJava();
+    }
+
     private String getChildBirthDate(JSONObject jsonObject) {
         String childBirthDate = "";
         try {
@@ -248,14 +256,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         }
 
         return childBirthDate;
-    }
-
-    public AllSharedPreferences getAllSharedPreferences() {
-        return Utils.context().allSharedPreferences();
-    }
-
-    public ClientProcessorForJava getClientProcessorForJava() {
-        return ChildLibrary.getInstance().getClientProcessorForJava();
     }
 
     public UniqueIdRepository getUniqueIdRepository() {

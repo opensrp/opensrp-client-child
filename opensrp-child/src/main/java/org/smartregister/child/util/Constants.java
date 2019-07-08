@@ -32,10 +32,7 @@ public class Constants extends AllConstants {
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
     public static class JSON_FORM_KEY {
-        public static final String ENTITY_ID = "entity_id";
         public static final String OPTIONS = "options";
-        public static final String ENCOUNTER_LOCATION = "encounter_location";
-        public static final String ATTRIBUTES = "attributes";
         public static final String DEATH_DATE_APPROX = "deathdateApprox";
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
@@ -46,7 +43,6 @@ public class Constants extends AllConstants {
     }
 
     public static class JSON_FORM_EXTRA {
-        public static final String JSON = "json";
         public static final String NEXT = "next";
 
     }
@@ -59,15 +55,11 @@ public class Constants extends AllConstants {
     public static final class KEY {
         public static final String KEY = "key";
         public static final String VALUE = "value";
-        public static final String TREE = "tree";
-        public static final String DEFAULT = "default";
         public static final String PHOTO = "photo";
-        public static final String TYPE = "type";
         public static final String VACCINE = "vaccine";
         public static final String ALERT = "alert";
         public static final String WEEK = "week";
         public static final String MONTH = "month";
-        public static final String DAY = "day";
         public static final String DATE = "date";
         public static final String CHILD = "child";
         public static final String PMTCT_STATUS = "pmtct_status";
@@ -121,7 +113,6 @@ public class Constants extends AllConstants {
 
         public static final String MALE = "male";
         public static final String FEMALE = "female";
-        public static final String TRANSGENDER = "transgender";
     }
 
     //Temporary to move implementation

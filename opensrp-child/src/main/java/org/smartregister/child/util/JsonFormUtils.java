@@ -101,7 +101,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static List<String> nonEditableFields = Arrays
-            .asList(Constants.DATE_BIRTH, Constants.SEX, ZEIR_ID);
+            .asList(Constants.DATE_BIRTH, Constants.SEX, ZEIR_ID, "isConsented");
 
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
@@ -217,85 +217,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void updateLocationTree(String widgetKey, LocationHierarchy locationHierarchy, JSONArray questions,
-                                           String defaultLocationString, String defaultFacilityString,
-                                           String upToFacilitiesString, String upToFacilitiesWithOtherString,
-                                           String entireTreeString) throws JSONException {
-        for (int i = 0; i < questions.length(); i++) {
-            JSONObject widgets = questions.getJSONObject(i);
-            switch (locationHierarchy) {
-                case FACILITY_ONLY:
-                    if (StringUtils.isNotBlank(upToFacilitiesString)) {
-                        addLocationTree(widgetKey, widgets, upToFacilitiesString);
-                    }
-                    if (StringUtils.isNotBlank(defaultFacilityString)) {
-                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
-                    }
-                    break;
-                case FACILITY_WITH_OTHER_STRING:
-                    if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
-                        addLocationTree(widgetKey, widgets, upToFacilitiesWithOtherString);
-                    }
-                    if (StringUtils.isNotBlank(defaultFacilityString)) {
-                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
-                    }
-                    break;
-                case ENTIRE_TREE:
-                    if (StringUtils.isNotBlank(entireTreeString)) {
-                        addLocationTree(widgetKey, widgets, entireTreeString);
-                    }
-                    if (StringUtils.isNotBlank(defaultFacilityString)) {
-                        addLocationDefault(widgetKey, widgets, defaultLocationString);
-                    }
-                    break;
-            }
-        }
-    }
-
-    @NotNull
-    private static ArrayList<String> getHealthFacilityLevels() {
-        ArrayList<String> healthFacilities = new ArrayList<>();
-        healthFacilities.add("Country");
-        healthFacilities.add("Province");
-        healthFacilities.add("Department");
-        healthFacilities.add("Health Facility");
-        healthFacilities.add("Facility");
-        return healthFacilities;
-    }
-
-    @NotNull
-    private static ArrayList<String> getLocationLevels() {
-        ArrayList<String> allLevels = new ArrayList<>();
-        allLevels.add("Country");
-        allLevels.add("Province");
-        allLevels.add("Department");
-        allLevels.add("Health Facility");
-        allLevels.add("Zone");
-        allLevels.add("Residential Area");
-        allLevels.add("Facility");
-        return allLevels;
-    }
-
-    private static void addLocationTree(String widgetKey, JSONObject widget, String updateString) {
-        try {
-            if (widget.getString("key").equals(widgetKey)) {
-                widget.put("tree", new JSONArray(updateString));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void addLocationDefault(String widgetKey, JSONObject widget, String updateString) {
-        try {
-            if (widget.getString("key").equals(widgetKey)) {
-                widget.put("default", new JSONArray(updateString));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void addAddAvailableVaccines(Context context, JSONObject form) {
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(context);
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
@@ -399,6 +320,85 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } catch (JSONException e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
+        }
+    }
+
+    @NotNull
+    private static ArrayList<String> getLocationLevels() {
+        ArrayList<String> allLevels = new ArrayList<>();
+        allLevels.add("Country");
+        allLevels.add("Province");
+        allLevels.add("Department");
+        allLevels.add("Health Facility");
+        allLevels.add("Zone");
+        allLevels.add("Residential Area");
+        allLevels.add("Facility");
+        return allLevels;
+    }
+
+    @NotNull
+    private static ArrayList<String> getHealthFacilityLevels() {
+        ArrayList<String> healthFacilities = new ArrayList<>();
+        healthFacilities.add("Country");
+        healthFacilities.add("Province");
+        healthFacilities.add("Department");
+        healthFacilities.add("Health Facility");
+        healthFacilities.add("Facility");
+        return healthFacilities;
+    }
+
+    private static void updateLocationTree(String widgetKey, LocationHierarchy locationHierarchy, JSONArray questions,
+                                           String defaultLocationString, String defaultFacilityString,
+                                           String upToFacilitiesString, String upToFacilitiesWithOtherString,
+                                           String entireTreeString) throws JSONException {
+        for (int i = 0; i < questions.length(); i++) {
+            JSONObject widgets = questions.getJSONObject(i);
+            switch (locationHierarchy) {
+                case FACILITY_ONLY:
+                    if (StringUtils.isNotBlank(upToFacilitiesString)) {
+                        addLocationTree(widgetKey, widgets, upToFacilitiesString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
+                    }
+                    break;
+                case FACILITY_WITH_OTHER_STRING:
+                    if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
+                        addLocationTree(widgetKey, widgets, upToFacilitiesWithOtherString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultFacilityString);
+                    }
+                    break;
+                case ENTIRE_TREE:
+                    if (StringUtils.isNotBlank(entireTreeString)) {
+                        addLocationTree(widgetKey, widgets, entireTreeString);
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        addLocationDefault(widgetKey, widgets, defaultLocationString);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static void addLocationTree(String widgetKey, JSONObject widget, String updateString) {
+        try {
+            if (widget.getString("key").equals(widgetKey)) {
+                widget.put("tree", new JSONArray(updateString));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void addLocationDefault(String widgetKey, JSONObject widget, String updateString) {
+        try {
+            if (widget.getString("key").equals(widgetKey)) {
+                widget.put("default", new JSONArray(updateString));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
