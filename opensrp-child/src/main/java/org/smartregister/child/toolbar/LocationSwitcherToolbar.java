@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
-
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.view.LocationActionView;

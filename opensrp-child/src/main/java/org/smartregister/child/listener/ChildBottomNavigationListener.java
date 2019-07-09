@@ -3,7 +3,6 @@ package org.smartregister.child.listener;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
-
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.listener.BottomNavigationListener;

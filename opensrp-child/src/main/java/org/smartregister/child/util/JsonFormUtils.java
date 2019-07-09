@@ -11,11 +11,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
-
 import com.google.common.reflect.TypeToken;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -30,11 +28,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
-import org.smartregister.clientandeventmodel.Address;
-import org.smartregister.clientandeventmodel.Client;
-import org.smartregister.clientandeventmodel.Event;
-import org.smartregister.clientandeventmodel.FormEntityConstants;
-import org.smartregister.clientandeventmodel.Obs;
+import org.smartregister.clientandeventmodel.*;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
@@ -47,12 +41,7 @@ import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
-import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.DetailsRepository;
-import org.smartregister.repository.EventClientRepository;
-import org.smartregister.repository.ImageRepository;
-import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.repository.*;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
@@ -60,22 +49,10 @@ import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.view.activity.DrishtiApplication;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.smartregister.child.util.MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT;
 
@@ -105,7 +82,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Arrays.asList(Constants.DATE_BIRTH, Constants.SEX, ZEIR_ID, "isConsented");
 
     public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
-    throws Exception {
+            throws Exception {
         if (form == null) {
             return null;
         }
@@ -987,7 +964,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     protected static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject)
-    throws JSONException {
+            throws JSONException {
         String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID)
                 .equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" :
                 jsonObject.getString(JsonFormUtils.KEY), true);
@@ -1446,7 +1423,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * @param formName                    The name of the form to launch
      * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location
-     *
      * @throws Exception
      */
     public static void startForm(Activity context, int jsonFormActivityRequestCode, String formName, String uniqueId,

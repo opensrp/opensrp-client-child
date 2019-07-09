@@ -3,7 +3,6 @@ package org.smartregister.child.task;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,12 +41,11 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
      *
      * @param openSrpContext The context to work with
      * @param outOfAreaForm  Out of area form to extract the weight form
-     *
      * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
      * @throws Exception
      */
     private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm)
-    throws Exception {
+            throws Exception {
         Weight weight = null;
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
         String serviceDate = null;
@@ -97,7 +95,6 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
      *
      * @param openSrpContext The context to use
      * @param outOfAreaForm  Out of area form to extract recorded vaccines from
-     *
      * @return A list of recorded vaccines
      */
     private static ArrayList<Vaccine> getVaccineObjects(Context context, org.smartregister.Context openSrpContext,
@@ -195,7 +192,6 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
      * This method formats the child unique id obtained from a JSON Form to something that is useable
      *
      * @param unformattedId The unformatted unique identifier
-     *
      * @return A formatted ID or the original id if method is unable to format
      */
     private static String formatChildUniqueId(String unformattedId) {

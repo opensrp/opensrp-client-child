@@ -5,7 +5,6 @@ package org.smartregister.child.task;
  */
 
 import android.os.AsyncTask;
-
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
@@ -24,11 +23,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ndegwamartin on 07/03/2019.

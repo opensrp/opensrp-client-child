@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;
@@ -19,9 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.smartregister.util.Utils.fillValue;
-import static org.smartregister.util.Utils.getName;
-import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.*;
 
 /**
  * Created by Ahmed on 13-Oct-15.

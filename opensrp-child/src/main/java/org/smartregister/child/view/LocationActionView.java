@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
 import org.smartregister.child.R;
 import org.smartregister.view.LocationPickerView;
 

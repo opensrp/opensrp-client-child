@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -31,11 +30,7 @@ import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
 import org.smartregister.growthmonitoring.util.HeightUtils;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.domain.ServiceRecord;
-import org.smartregister.immunization.domain.ServiceType;
-import org.smartregister.immunization.domain.ServiceWrapper;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.domain.*;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.fragment.ServiceEditDialogFragment;
 import org.smartregister.immunization.fragment.VaccinationEditDialogFragment;
@@ -49,13 +44,7 @@ import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.smartregister.child.util.Utils.updateGrowthValue;
 

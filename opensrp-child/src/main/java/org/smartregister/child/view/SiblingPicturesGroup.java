@@ -7,7 +7,6 @@ import android.support.v17.leanback.widget.HorizontalGridView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
-
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.adapter.SiblingPictureAdapter;

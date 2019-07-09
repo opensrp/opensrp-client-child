@@ -1,7 +1,6 @@
 package org.smartregister.child.domain;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
-
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.view.activity.BaseProfileActivity;
 

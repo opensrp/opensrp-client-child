@@ -4,11 +4,9 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
-
 import org.json.JSONObject;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.watchers.LookUpTextWatcher;

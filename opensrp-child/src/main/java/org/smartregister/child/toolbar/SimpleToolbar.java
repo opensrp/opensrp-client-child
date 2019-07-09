@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
-
 import org.smartregister.child.R;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 

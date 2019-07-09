@@ -3,7 +3,6 @@ package org.smartregister.child.presenter;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.interactors.JsonFormInteractor;
 import com.vijay.jsonwizard.presenters.JsonFormFragmentPresenter;
-
 import org.smartregister.child.util.Constants;
 
 /**

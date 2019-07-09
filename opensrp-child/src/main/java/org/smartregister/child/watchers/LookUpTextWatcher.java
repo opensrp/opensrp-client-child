@@ -3,9 +3,7 @@ package org.smartregister.child.watchers;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
-
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.EntityLookUp;

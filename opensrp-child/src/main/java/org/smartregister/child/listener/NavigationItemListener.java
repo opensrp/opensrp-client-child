@@ -3,7 +3,6 @@ package org.smartregister.child.listener;
 import android.app.Activity;
 import android.support.design.widget.NavigationView;
 import android.view.MenuItem;
-
 import org.smartregister.child.toolbar.BaseToolbar;
 
 

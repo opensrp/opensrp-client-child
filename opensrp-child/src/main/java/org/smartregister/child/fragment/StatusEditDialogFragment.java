@@ -14,7 +14,6 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import org.smartregister.child.R;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.util.Constants;

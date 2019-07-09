@@ -1,11 +1,7 @@
 package org.smartregister.child.fragment;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -20,17 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
-
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -66,41 +54,45 @@ import java.util.Set;
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View {
 
-    private View listViewLayout;
-    private View advancedSearchForm;
-    private ImageButton backButton;
-    private Button searchButton;
-    private Button advancedSearchToolbarSearchButton;
-
-    private RadioButton outsideInside;
-    private RadioButton myCatchment;
-
-
-    private TextView searchCriteria;
-    private TextView matchingResults;
-
-
-    private boolean listMode = false;
-    private boolean isLocal = false;
-
-    private BroadcastReceiver connectionChangeReciever;
-    private boolean registeredConnectionChangeReceiver = false;
+    public static final String START_DATE = "start_date";
+    public static final String END_DATE = "end_date";
+    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
+        public void onEvent(final JSONObject jsonObject) {
+            if (jsonObject != null) {
+                if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
+                    clientAdapter.notifyDataSetChanged();
+                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
     protected HashMap<String, String> searchFormData = new HashMap<>();
-
     protected CheckBox active;
     protected CheckBox inactive;
     protected CheckBox lostToFollowUp;
     protected EditText startDate;
     protected EditText endDate;
-
-    private Button qrCodeButton;
     protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
-
+    private View listViewLayout;
+    private View advancedSearchForm;
+    private ImageButton backButton;
+    private Button searchButton;
+    private Button advancedSearchToolbarSearchButton;
+    private RadioButton outsideInside;
+    private RadioButton myCatchment;
+    private TextView searchCriteria;
+    private TextView matchingResults;
+    private boolean listMode = false;
+    private boolean isLocal = false;
+    private BroadcastReceiver connectionChangeReciever;
+    private boolean registeredConnectionChangeReceiver = false;
+    private Button qrCodeButton;
     private ProgressDialog progressDialog;
-
-    public static final String START_DATE = "start_date";
-    public static final String END_DATE = "end_date";
 
     @Override
     protected void initializePresenter() {
@@ -199,7 +191,6 @@ TO DO ? , sync unsynced records within catchment
         }
     }
 
-
     private void moveToMyCatchmentArea(final List<String> ids) {
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
@@ -217,21 +208,6 @@ TO DO ? , sync unsynced records within catchment
 
         dialog.show();
     }
-
-    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
-        public void onEvent(final JSONObject jsonObject) {
-            if (jsonObject != null) {
-                if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
-                    clientAdapter.notifyDataSetChanged();
-                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-                } else {
-                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
 
     @Override
     public void setupViews(View view) {

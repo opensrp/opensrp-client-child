@@ -2,7 +2,6 @@ package org.smartregister.child.interactor;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.interactors.JsonFormInteractor;
-
 import org.smartregister.child.widgets.ChildDatePickerFactory;
 import org.smartregister.child.widgets.ChildEditTextFactory;
 

@@ -21,15 +21,8 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.google.gson.Gson;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -45,11 +38,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.AppProperties;
-import org.smartregister.child.util.AsyncTaskUtils;
-import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.*;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -69,18 +58,8 @@ import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.domain.ServiceRecord;
-import org.smartregister.immunization.domain.ServiceSchedule;
-import org.smartregister.immunization.domain.ServiceType;
-import org.smartregister.immunization.domain.ServiceWrapper;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.VaccineSchedule;
-import org.smartregister.immunization.domain.VaccineWrapper;
-import org.smartregister.immunization.fragment.ActivateChildStatusDialogFragment;
-import org.smartregister.immunization.fragment.ServiceDialogFragment;
-import org.smartregister.immunization.fragment.UndoServiceDialogFragment;
-import org.smartregister.immunization.fragment.UndoVaccinationDialogFragment;
-import org.smartregister.immunization.fragment.VaccinationDialogFragment;
+import org.smartregister.immunization.domain.*;
+import org.smartregister.immunization.fragment.*;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.listener.VaccineCardAdapterLoadingListener;
@@ -107,15 +86,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -123,7 +94,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseChildImmunizationActivity extends BaseActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
-                   VaccinationActionListener, ServiceActionListener, View.OnClickListener {
+        VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();

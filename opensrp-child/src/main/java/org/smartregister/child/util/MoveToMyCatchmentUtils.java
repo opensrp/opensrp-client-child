@@ -3,7 +3,6 @@ package org.smartregister.child.util;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.smartregister.Context;

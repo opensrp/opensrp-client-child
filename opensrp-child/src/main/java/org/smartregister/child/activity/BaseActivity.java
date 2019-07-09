@@ -18,24 +18,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
+import org.joda.time.*;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -79,7 +70,7 @@ import java.util.Map;
  */
 public abstract class BaseActivity extends MultiLanguageActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener,
-                   ChildRegisterContract.InteractorCallBack {
+        ChildRegisterContract.InteractorCallBack {
 
     public static final int REQUEST_CODE_GET_JSON = 3432;
     public static final String INACTIVE = "inactive";

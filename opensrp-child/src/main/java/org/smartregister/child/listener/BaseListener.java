@@ -2,7 +2,6 @@ package org.smartregister.child.listener;
 
 import android.app.Activity;
 import android.util.Log;
-
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.JsonFormUtils;

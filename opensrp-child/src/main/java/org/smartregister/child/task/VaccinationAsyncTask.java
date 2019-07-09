@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.CoreLibrary;
@@ -30,14 +29,7 @@ import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
@@ -48,6 +40,12 @@ import static org.smartregister.util.Utils.getValue;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
+    public final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    private final View convertView;
+    private final String entityId;
+    private final String dobString;
+    private final String lostToFollowUp;
+    private final String inactive;
     private List<String> vaccineGroups = Arrays.asList("at birth",
             "6 weeks",
             "10 weeks",
@@ -60,13 +58,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             "26 Weeks after TT 2",
             "1 Year after TT 3 ",
             "1 Year after TT 4 ");
-
-    public final static String LINE_SEPARATOR = System.getProperty("line.separator");
-    private final View convertView;
-    private final String entityId;
-    private final String dobString;
-    private final String lostToFollowUp;
-    private final String inactive;
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;
