@@ -162,7 +162,9 @@
     <string name="last_name">Last Name</string>
     <string name="last_name_hint">Last name</string>
     <string name="mother_guardian_name">Mother/Guardian Name</string>
-    <string name="mother_guardian_name_hint">Mother or guardian name</string>
+    <string name="mother_guardian_name_hint">Mother/guardian name</string>
+    <string name="mother_guardian_first_name_hint">Mother/guardian first name</string>
+    <string name="mother_guardian_last_name_hint">Mother/guardian last name</string>
     <string name="mother_guardian_nrc">Mother/Guardian NRC</string>
     <string name="mother_guardian_nrc_hint">Mother or guardian NRC number</string>
     <string name="mother_guardian_phone_number">Mother/Guardian Phone Number</string>
@@ -275,6 +277,7 @@
     <string name="birth_tetanus_protection">Neonatal tetanus protection</string>
     <string name="mother_first_name">Mother/guardian first name</string>
     <string name="mother_second_name">Mother/guardian last name</string>
+    <string name="mother_last_name">Mother/guardian last name</string>
     <string name="mother_guardian_dob">Mother/guardian DOB</string>
     <string name="father_guardian_date_birth">Father/guardian DOB</string>
     <string name="father_guardian_phone_number">Second guardian phone number</string>
@@ -323,5 +326,8 @@
     <string name="system_id_colon">System Id :</string>
     <string name="age_colon">Age :</string>
     <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
+    <string name="search_criteria_includes">search criteria includes:&#032;</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
 
 </resources>

@@ -57,6 +57,7 @@ public class Constants extends AllConstants {
         public static final String UNIQUE_ID = "unique_id";
         public static final String ZEIR_ID = "zeir_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
+        public static final String ACTIVE = "active";
         public static final String INACTIVE = "inactive";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
@@ -64,6 +65,8 @@ public class Constants extends AllConstants {
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String ID_LOWER_CASE = "_id";
+        public static final String RELATIONALID = "relationalid";
     }
 
     public static final class INTENT_KEY {
@@ -111,6 +114,7 @@ public class Constants extends AllConstants {
     }
 
     public static final class CHILD_STATUS {
+        public static final String ACTIVE = "active";
         public static final String INACTIVE = "inactive";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
 

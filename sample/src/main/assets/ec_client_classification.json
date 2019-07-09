@@ -14,21 +14,7 @@
           },
           {
             "field": "eventType",
-            "field_value": "Update Woman Registration",
-            "creates_case": [
-              "ec_mother"
-            ]
-          },
-          {
-            "field": "eventType",
             "field_value": "Birth Registration",
-            "creates_case": [
-              "ec_child"
-            ]
-          },
-          {
-            "field": "eventType",
-            "field_value": "Death",
             "creates_case": [
               "ec_child"
             ]

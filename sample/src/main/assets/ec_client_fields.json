@@ -166,13 +166,6 @@
           "json_mapping": {
             "field": "version"
           }
-        },
-        {
-          "column_name": "date_removed",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.dateRemoved"
-          }
         }
       ]
     },
@@ -252,7 +245,7 @@
           }
         },
         {
-          "column_name": "father_name",
+          "column_name": "father_first_name",
           "type": "Event",
           "json_mapping": {
             "field": "obs.fieldCode",
@@ -271,6 +264,13 @@
           "type": "Client",
           "json_mapping": {
             "field": "deathdate"
+          }
+        },
+        {
+          "column_name": "date_removed",
+          "type": "Client",
+          "json_mapping": {
+            "field": "attributes.dateRemoved"
           }
         },
         {
@@ -371,20 +371,6 @@
           "type": "Event",
           "json_mapping": {
             "field": "version"
-          }
-        },
-        {
-          "column_name": "date_removed",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.dateRemoved"
-          }
-        },
-        {
-          "column_name": "nfc_card_identifier",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.NFC_Card_Identifier"
           }
         }
       ]

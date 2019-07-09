@@ -1,13 +1,22 @@
 package org.smartregister.child.sample.model;
 
 import org.smartregister.AllConstants;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.model.BaseChildRegisterFragmentModel;
 import org.smartregister.child.sample.util.DBConstants;
+import org.smartregister.domain.Response;
 
 /**
  * Created by ndegwamartin on 2019-05-27.
  */
 public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
+
+    @Override
+    public AdvancedMatrixCursor createMatrixCursor(Response<String> response) {
+        //Just overriddenn
+        return null;
+    }
+
     @Override
     protected String[] mainColumns(String tableName, String parentTableName) {
         String[] columns = new String[]{
@@ -24,7 +33,7 @@ public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
                 parentTableName + "." + DBConstants.KEY.LAST_NAME + " as mother_last_name",
                 parentTableName + "." + DBConstants.KEY.DOB + " as mother_dob",
                 parentTableName + "." + DBConstants.KEY.NRC_NUMBER + " as mother_nrc_number",
-                tableName + "." + DBConstants.KEY.FATHER_FIRST_NAME,
+                parentTableName + "." + DBConstants.KEY.FATHER_NAME,
                 tableName + "." + DBConstants.KEY.DOB,
                 tableName + "." + DBConstants.KEY.EPI_CARD_NUMBER,
                 tableName + "." + DBConstants.KEY.CONTACT_PHONE_NUMBER,
@@ -36,7 +45,6 @@ public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
                 tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                 tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                 tableName + "." + DBConstants.KEY.INACTIVE,
-                tableName + "." + DBConstants.KEY.NFC_CARD_IDENTIFIER,
         };
         return columns;
     }
