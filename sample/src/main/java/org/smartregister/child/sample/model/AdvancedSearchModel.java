@@ -10,6 +10,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.domain.Response;
 
@@ -168,7 +169,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                         }
                     }
 
-                    zeirId = getJsonString(getJsonObject(child, "identifiers"), Constants.KEY.ZEIR_ID);
+                    zeirId = getJsonString(getJsonObject(child, "identifiers"), JsonFormUtils.ZEIR_ID);
                     if (StringUtils.isNotBlank(zeirId)) {
                         zeirId = zeirId.replace("-", "");
                     }

@@ -35,7 +35,7 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     public void search(Map<String, String> searchMap, boolean isLocal) {
 
-        String searchCriteria = String.format("%s %s", getView().getString(R.string.search_criteria_includes) + (getView().getString(isLocal ? R.string.my_catchment_area : R.string.out_and_inside)), model.createSearchString(searchMap));
+        String searchCriteria = String.format("%s %s", getView().getString(R.string.search_criteria_includes) + Utils.bold(getView().getString(isLocal ? R.string.my_catchment_area : R.string.out_and_inside)), model.createSearchString(searchMap));
 
         if (StringUtils.isBlank(searchCriteria)) {
             return;
