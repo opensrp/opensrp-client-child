@@ -48,6 +48,18 @@ import static org.smartregister.util.Utils.getValue;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
+    private List<String> vaccineGroups = Arrays.asList("at birth",
+            "6 weeks",
+            "10 weeks",
+            "14 weeks",
+            "9 months",
+            "15 months",
+            "18 months",
+            "After LMP",
+            "4 Weeks after TT 1",
+            "26 Weeks after TT 2",
+            "1 Year after TT 3 ",
+            "1 Year after TT 4 ");
 
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
     private final View convertView;
@@ -55,9 +67,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private final String dobString;
     private final String lostToFollowUp;
     private final String inactive;
-    private List<String> vaccineGroups =
-            Arrays.asList("at birth", "6 weeks", "10 weeks", "14 weeks", "9 months", "15 months", "18 months", "After LMP",
-                    "4 Weeks after TT 1", "26 Weeks after TT 2", "1 Year after TT 3 ", " 1 Year after TT 4 ");
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;

@@ -2,9 +2,7 @@ package org.smartregister.child.sample.application;
 
 import android.content.Intent;
 import android.util.Log;
-
 import com.evernote.android.job.JobManager;
-
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
@@ -50,6 +48,54 @@ public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
     private static CommonFtsObject commonFtsObject;
     private boolean lastModified;
+
+    public static CommonFtsObject createCommonFtsObject() {
+        if (commonFtsObject == null) {
+            commonFtsObject = new CommonFtsObject(getFtsTables());
+            for (String ftsTable : commonFtsObject.getTables()) {
+                commonFtsObject.updateSearchFields(ftsTable, getFtsSearchFields(ftsTable));
+                commonFtsObject.updateSortFields(ftsTable, getFtsSortFields(ftsTable));
+            }
+        }
+        return commonFtsObject;
+    }
+
+    private static String[] getFtsTables() {
+        return new String[]{SampleConstants.TABLE_NAME.CHILD};
+    }
+
+    private static String[] getFtsSearchFields(String tableName) {
+        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER};
+        }
+        return null;
+    }
+
+    private static String[] getFtsSortFields(String tableName) {
+        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
+            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD);
+            List<String> names = new ArrayList<>();
+            names.add(DBConstants.KEY.FIRST_NAME);
+            names.add(DBConstants.KEY.DOB);
+            names.add(DBConstants.KEY.ZEIR_ID);
+            names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
+            names.add(DBConstants.KEY.INACTIVE);
+            names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
+            names.add(DBConstants.KEY.DOD);
+            names.add(DBConstants.KEY.DATE_REMOVED);
+
+            for (VaccineRepo.Vaccine vaccine : vaccines) {
+                names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.display()));
+            }
+
+            return names.toArray(new String[names.size()]);
+        }
+        return null;
+    }
+
+    public static synchronized SampleApplication getInstance() {
+        return (SampleApplication) mInstance;
+    }
 
     @Override
     public void onCreate() {
@@ -100,17 +146,6 @@ public class SampleApplication extends DrishtiApplication {
         return repository;
     }
 
-    public static CommonFtsObject createCommonFtsObject() {
-        if (commonFtsObject == null) {
-            commonFtsObject = new CommonFtsObject(getFtsTables());
-            for (String ftsTable : commonFtsObject.getTables()) {
-                commonFtsObject.updateSearchFields(ftsTable, getFtsSearchFields(ftsTable));
-                commonFtsObject.updateSortFields(ftsTable, getFtsSortFields(ftsTable));
-            }
-        }
-        return commonFtsObject;
-    }
-
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
                 ChildImmunizationActivity.class, true);
@@ -149,44 +184,6 @@ public class SampleApplication extends DrishtiApplication {
         this.getApplicationContext().startService(intent);
     }
 
-    private static String[] getFtsTables() {
-        return new String[] {SampleConstants.TABLE_NAME.CHILD};
-    }
-
-    private static String[] getFtsSearchFields(String tableName) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[] {DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME,
-                    DBConstants.KEY.LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.NFC_CARD_IDENTIFIER, DBConstants.KEY.PROVIDER_ID, DBConstants.KEY.PROVIDER_LOCATION_ID};
-        }
-        return null;
-    }
-
-    private static String[] getFtsSortFields(String tableName) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD);
-            List<String> names = new ArrayList<>();
-            names.add(DBConstants.KEY.FIRST_NAME);
-            names.add(DBConstants.KEY.DOB);
-            names.add(DBConstants.KEY.ZEIR_ID);
-            names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
-            names.add(DBConstants.KEY.INACTIVE);
-            names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
-            names.add(DBConstants.KEY.DOD);
-            names.add(DBConstants.KEY.DATE_REMOVED);
-
-            for (VaccineRepo.Vaccine vaccine : vaccines) {
-                names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.display()));
-            }
-
-            return names.toArray(new String[names.size()]);
-        }
-        return null;
-    }
-
-    public static synchronized SampleApplication getInstance() {
-        return (SampleApplication) mInstance;
-    }
-
     public WeightRepository weightRepository() {
         return GrowthMonitoringLibrary.getInstance().weightRepository();
     }
@@ -213,10 +210,16 @@ public class SampleApplication extends DrishtiApplication {
 
         for (int i = 10; i < size; i++) {
             Integer randomInt = r.nextInt(10000) + 1;
-            ids.add(randomInt.toString());
+            ids.add(formatSampleId(randomInt.toString()));
         }
 
         return ids;
+    }
+
+    private String formatSampleId(String openmrsId) {
+        int lastIndex = openmrsId.length() - 1;
+        String tail = openmrsId.substring(lastIndex);
+        return openmrsId.substring(0, lastIndex) + "-" + tail;
     }
 
     public Context context() {

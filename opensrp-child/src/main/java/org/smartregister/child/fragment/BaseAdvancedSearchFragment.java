@@ -13,6 +13,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -27,7 +28,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
@@ -66,44 +66,56 @@ import java.util.Set;
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View {
 
-    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
-        public void onEvent(final JSONObject jsonObject) {
-            if (jsonObject != null) {
-                if (MoveToMyCatchmentUtils
-                        .processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
-                    clientAdapter.notifyDataSetChanged();
-                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-                } else {
-                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
-    protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
-    protected HashMap<String, String> searchFormData = new HashMap<>();
-    protected CheckBox active;
-    protected CheckBox inactive;
-    protected CheckBox lostToFollowUp;
-    protected EditText startDate;
-    protected EditText endDate;
-    protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
     private View listViewLayout;
     private View advancedSearchForm;
     private ImageButton backButton;
     private Button searchButton;
     private Button advancedSearchToolbarSearchButton;
+
     private RadioButton outsideInside;
     private RadioButton myCatchment;
+
+
     private TextView searchCriteria;
     private TextView matchingResults;
+
+
     private boolean listMode = false;
     private boolean isLocal = false;
+
     private BroadcastReceiver connectionChangeReciever;
     private boolean registeredConnectionChangeReceiver = false;
+    protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
+    protected HashMap<String, String> searchFormData = new HashMap<>();
+
+    protected CheckBox active;
+    protected CheckBox inactive;
+    protected CheckBox lostToFollowUp;
+    protected EditText startDate;
+    protected EditText endDate;
+
     private Button qrCodeButton;
+    protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
+
     private ProgressDialog progressDialog;
+
+    public static final String START_DATE = "start_date";
+    public static final String END_DATE = "end_date";
+
+    @Override
+    protected void initializePresenter() {
+        presenter = getPresenter();
+        initProgressDialog();
+
+    }
+
+    private void initProgressDialog() {
+
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
+    }
+
+    protected abstract BaseChildAdvancedSearchPresenter getPresenter();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -116,24 +128,110 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected void initializePresenter() {
-        presenter = getPresenter();
-        initProgressDialog();
-
-    }
-
-    protected abstract BaseChildAdvancedSearchPresenter getPresenter();
-
-    private void initProgressDialog() {
-
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCancelable(false);
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            switchViews(false);
+            updateSearchLimits();
+            resetForm();
+        }
     }
 
     @Override
-    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
-        this.searchFormData = advancedSearchFormData;
+    public void onPause() {
+        super.onPause();
+
+        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
+            getActivity().unregisterReceiver(connectionChangeReciever);
+            registeredConnectionChangeReceiver = false;
+        }
     }
+
+    @Override
+    public boolean onBackPressed() {
+        goBack();
+        return true;
+    }
+
+    @Override
+    protected void goBack() {
+        if (listMode) {
+            switchViews(false);
+        } else {
+            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+        }
+    }
+
+    @Override
+    protected void onViewClicked(View view) {
+        if (view.getId() == R.id.search) {
+            search();
+        } else if (view.getId() == R.id.advanced_form_search_btn) {
+            search();
+        } else if (view.getId() == R.id.back_button) {
+            switchViews(false);
+        } /*else if (view.getId() == R.id.undo_button) {
+            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+            ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
+            ((BaseRegisterActivity) getActivity()).setSearchTerm("");
+        } */ else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout) && view.getTag() != null) {
+
+            RegisterClickables registerClickables = new RegisterClickables();
+            if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
+
+                registerClickables.setRecordWeight(Constants.RECORD_ACTION.GROWTH.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+                registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+                registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
+
+            }
+            BaseChildImmunizationActivity.launchActivity(getActivity(), (CommonPersonObjectClient) view.getTag(), registerClickables);
+
+        }/* else if (view.getId() == R.id.sync) {
+            // SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
+
+TO DO ? , sync unsynced records within catchment
+
+        }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag() != null && view.getTag() instanceof List) {
+
+            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
+            moveToMyCatchmentArea(ids);
+
+        }
+    }
+
+
+    private void moveToMyCatchmentArea(final List<String> ids) {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
+                .setMessage(R.string.move_to_catchment_confirm_dialog_message)
+                .setTitle(R.string.move_to_catchment_confirm_dialog_title)
+                .setCancelable(false)
+                .setPositiveButton(R.string.no_button_label, null)
+                .setNegativeButton(R.string.yes_button_label,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
+                                progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
+                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
+                            }
+                        }).create();
+
+        dialog.show();
+    }
+
+    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
+        public void onEvent(final JSONObject jsonObject) {
+            if (jsonObject != null) {
+                if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
+                    clientAdapter.notifyDataSetChanged();
+                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public void setupViews(View view) {
@@ -153,176 +251,20 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         outsideInside = view.findViewById(R.id.out_and_inside);
         myCatchment = view.findViewById(R.id.my_catchment);
 
-        populateSearchableFields(view);
 
         populateFormViews(view);
 
+        populateSearchableFields(view);
+
+        resetForm();
+
     }
 
-    @Override
-    protected abstract String getMainCondition();
-
-    @Override
-    protected void onViewClicked(View view) {
-        if (view.getId() == R.id.search) {
-            search();
-        } else if (view.getId() == R.id.advanced_form_search_btn) {
-            search();
-        } else if (view.getId() == R.id.back_button) {
-            switchViews(false);
-        } /*else if (view.getId() == R.id.undo_button) {
-            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-            ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_clients);
-            ((BaseRegisterActivity) getActivity()).setSearchTerm("");
-        } */ else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout) &&
-                view.getTag() != null) {
-
-            RegisterClickables registerClickables = new RegisterClickables();
-            if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
-
-                registerClickables.setRecordWeight(
-                        Constants.RECORD_ACTION.GROWTH.equals(view.getTag(org.smartregister.child.R.id.record_action)));
-                registerClickables.setRecordAll(
-                        Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
-                registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ?
-                        String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
-
-            }
-            BaseChildImmunizationActivity
-                    .launchActivity(getActivity(), (CommonPersonObjectClient) view.getTag(), registerClickables);
-
-        }/* else if (view.getId() == R.id.sync) {
-            // SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
-
-TO DO ? , sync unsynced records within catchment
-
-        }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag() != null && view.getTag() instanceof List) {
-
-            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
-            moveToMyCatchmentArea(ids);
-
-        }
-    }
-
-    private void search() {
-
-        if (myCatchment.isChecked()) {
-            isLocal = true;
-        } else if (outsideInside.isChecked()) {
-            isLocal = false;
-        }
-
-
-        ((ChildAdvancedSearchContract.Presenter) presenter).search(getSearchMap(), isLocal);
-    }
-
-    @Override
-    public void switchViews(boolean showList) {
-        if (showList) {
-            Utils.hideKeyboard(getActivity());
-
-            advancedSearchForm.setVisibility(View.GONE);
-            listViewLayout.setVisibility(View.VISIBLE);
-            clientsView.setVisibility(View.VISIBLE);
-            backButton.setVisibility(View.VISIBLE);
-            searchButton.setVisibility(View.GONE);
-            advancedSearchToolbarSearchButton.setVisibility(View.GONE);
-
-            if (titleLabelView != null) {
-                titleLabelView.setText(getString(R.string.search_results));
-            }
-
-            updateMatchingResults(0);
-            showProgressView();
-            listMode = true;
-        } else {
-            clearSearchCriteria();
-            advancedSearchForm.setVisibility(View.VISIBLE);
-            listViewLayout.setVisibility(View.GONE);
-            clientsView.setVisibility(View.INVISIBLE);
-            backButton.setVisibility(View.GONE);
-            searchButton.setVisibility(View.VISIBLE);
-            advancedSearchToolbarSearchButton.setVisibility(View.VISIBLE);
-
-            if (titleLabelView != null) {
-                titleLabelView.setText(getString(R.string.advanced_search));
-            }
-
-
-            listMode = false;
-        }
-    }
-
-    private void moveToMyCatchmentArea(final List<String> ids) {
-        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
-                .setMessage(R.string.move_to_catchment_confirm_dialog_message)
-                .setTitle(R.string.move_to_catchment_confirm_dialog_title).setCancelable(false)
-                .setPositiveButton(R.string.no_button_label, null)
-                .setNegativeButton(R.string.yes_button_label, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
-                        progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
-                        MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
-                    }
-                }).create();
-
-        dialog.show();
-    }
-
-    protected abstract Map<String, String> getSearchMap();
-
-    public void updateMatchingResults(int count) {
-        if (matchingResults != null) {
-            matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
-            matchingResults.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void updateSearchCriteria(String searchCriteriaString) {
-        if (searchCriteria != null) {
-            searchCriteria.setText(searchCriteriaString);
-            searchCriteria.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public String filterAndSortQuery() {
-        SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
-
-        String query = "";
-        try {
-            sqb.addCondition(filters);
-            query = sqb.orderbyCondition(Sortqueries);
-            query = sqb.Endquery(
-                    sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
-        }
-
-        return query;
-    }
-
-    @Override
-    public Cursor getRawCustomQueryForAdapter(String query) {
-        return commonRepository().rawCustomQueryForAdapter(query);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        assignedValuesBeforeBarcode();
-    }
-
-    public abstract void assignedValuesBeforeBarcode();
-
-    @Override
-    public void showNotFoundPopup(String opensrpID) {
-        //Todo implement this
-    }
+    public abstract void populateSearchableFields(View view);
 
     @Override
     public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+
         RepositoryHolder repoHolder = new RepositoryHolder();
 
         repoHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
@@ -330,52 +272,11 @@ TO DO ? , sync unsynced records within catchment
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repoHolder.setCommonRepository(commonRepository());
 
-        AdvancedSearchClientsProvider advancedSearchProvider =
-                new AdvancedSearchClientsProvider(getActivity(), repoHolder, visibleColumns, registerActionHandler,
-                        paginationViewHandler, ChildLibrary.getInstance().context().alertService());
-        clientAdapter =
-                new RecyclerViewPaginatedAdapter(null, advancedSearchProvider, context().commonrepository(this.tablename));
+        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder, visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
+
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider, context().commonrepository(this.tablename));
         clientsView.setAdapter(clientAdapter);
     }
-
-    @Override
-    public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
-        super.recalculatePagination(matrixCursor);
-        updateMatchingResults(clientAdapter.getTotalcount());
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case LOADER_ID:
-                // Returns a new CursorLoader
-                return new CursorLoader(getActivity()) {
-                    @Override
-                    public Cursor loadInBackground() {
-                        AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) presenter).getMatrixCursor();
-                        if (isLocal || matrixCursor == null) {
-                            String query = filterAndSortQuery();
-                            Cursor cursor = commonRepository().rawCustomQueryForAdapter(query);
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    hideProgressView();
-                                }
-                            });
-
-                            return cursor;
-                        } else {
-                            return matrixCursor;
-                        }
-                    }
-                };
-            default:
-                // An invalid id was passed in
-                return null;
-        }
-    }
-
-    public abstract void populateSearchableFields(View view);
 
     protected void populateFormViews(View view) {
 
@@ -449,22 +350,10 @@ TO DO ? , sync unsynced records within catchment
                 lostToFollowUp.toggle();
             }
         });
-
-        resetForm();
     }
 
-    private void setUpSearchButtons() {
-        advancedSearchToolbarSearchButton.setEnabled(false);
-        advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-        advancedSearchToolbarSearchButton.setOnClickListener(registerActionHandler);
-
-
-        searchButton.setEnabled(false);
-        searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
-        searchButton.setOnClickListener(registerActionHandler);
-    }
-
-    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment, final RadioButton outsideInside, int p) {
+    private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
+                                          final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -486,14 +375,20 @@ TO DO ? , sync unsynced records within catchment
         });
     }
 
-    private void setDatePicker(final EditText editText) {
-        editText.setOnClickListener(new DatePickerListener(getActivity(), editText, true));
+    private void setUpSearchButtons() {
+        advancedSearchToolbarSearchButton.setEnabled(false);
+        advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        advancedSearchToolbarSearchButton.setOnClickListener(registerActionHandler);
+
+
+        searchButton.setEnabled(false);
+        searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        searchButton.setOnClickListener(registerActionHandler);
     }
 
     private void setUpQRCodeButton(View view) {
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        if (!ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) ||
-                ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
             qrCodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -532,44 +427,76 @@ TO DO ? , sync unsynced records within catchment
         }
     }
 
-    private void resetForm() {
-        clearSearchCriteria();
-        clearMatchingResults();
-        clearFormFields();
-    }
+    public abstract void assignedValuesBeforeBarcode();
 
     protected abstract HashMap<String, String> createSelectedFieldMap();
 
-    private void clearSearchCriteria() {
-        if (searchCriteria != null) {
-            searchCriteria.setVisibility(View.GONE);
-            searchCriteria.setText("");
+    private void checkTextFields() {
+        if (anySearchableFieldHasValue()) {
+            advancedSearchToolbarSearchButton.setEnabled(true);
+            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.white));
+
+
+            searchButton.setEnabled(true);
+            searchButton.setTextColor(getResources().getColor(R.color.white));
+        } else {
+            advancedSearchToolbarSearchButton.setEnabled(false);
+            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+
+            searchButton.setEnabled(false);
+            searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
         }
     }
 
-    private void clearMatchingResults() {
-        if (matchingResults != null) {
-            matchingResults.setVisibility(View.GONE);
-            matchingResults.setText("");
+    private boolean anySearchableFieldHasValue() {
+
+        for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
+
+            if (entry.getValue() instanceof TextView && !TextUtils.isEmpty(((TextView) entry.getValue()).getText())) {
+                return true;
+            }
+
+
         }
+        return false;
+
     }
 
-    protected void clearFormFields() {
-        active.setChecked(true);
-        inactive.setChecked(false);
-        lostToFollowUp.setChecked(false);
-
-        startDate.setText("");
-        endDate.setText("");
-    }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            switchViews(false);
-            updateSearchLimits();
-            resetForm();
+    public void switchViews(boolean showList) {
+        if (showList) {
+            Utils.hideKeyboard(getActivity());
+
+            advancedSearchForm.setVisibility(View.GONE);
+            listViewLayout.setVisibility(View.VISIBLE);
+            clientsView.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.VISIBLE);
+            searchButton.setVisibility(View.GONE);
+            advancedSearchToolbarSearchButton.setVisibility(View.GONE);
+
+            if (titleLabelView != null) {
+                titleLabelView.setText(getString(R.string.search_results));
+            }
+
+            updateMatchingResults(0);
+            showProgressView();
+            listMode = true;
+        } else {
+            clearSearchCriteria();
+            advancedSearchForm.setVisibility(View.VISIBLE);
+            listViewLayout.setVisibility(View.GONE);
+            clientsView.setVisibility(View.INVISIBLE);
+            backButton.setVisibility(View.GONE);
+            searchButton.setVisibility(View.VISIBLE);
+            advancedSearchToolbarSearchButton.setVisibility(View.VISIBLE);
+
+            if (titleLabelView != null) {
+                titleLabelView.setText(getString(R.string.advanced_search));
+            }
+
+
+            listMode = false;
         }
     }
 
@@ -601,36 +528,56 @@ TO DO ? , sync unsynced records within catchment
 
     }
 
-    private void checkTextFields() {
-        if (anySearchableFieldHasValue()) {
-            advancedSearchToolbarSearchButton.setEnabled(true);
-            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.white));
+    private void resetForm() {
+        clearSearchCriteria();
+        clearMatchingResults();
+        clearFormFields();
+    }
 
 
-            searchButton.setEnabled(true);
-            searchButton.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            advancedSearchToolbarSearchButton.setEnabled(false);
-            advancedSearchToolbarSearchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+    protected void clearFormFields() {
 
-            searchButton.setEnabled(false);
-            searchButton.setTextColor(getResources().getColor(R.color.contact_complete_grey_border));
+        active.setChecked(true);
+        inactive.setChecked(false);
+        lostToFollowUp.setChecked(false);
+
+        startDate.setText("");
+        endDate.setText("");
+    }
+
+    private void clearSearchCriteria() {
+        if (searchCriteria != null) {
+            searchCriteria.setVisibility(View.GONE);
+            searchCriteria.setText("");
         }
     }
 
-    private boolean anySearchableFieldHasValue() {
-
-        for (Map.Entry<String, View> entry : advancedFormSearchableFields.entrySet()) {
-
-            if (entry.getValue() instanceof MaterialEditText &&
-                    !TextUtils.isEmpty(((MaterialEditText) entry.getValue()).getText())) {
-                return true;
-            }
-
-
+    private void clearMatchingResults() {
+        if (matchingResults != null) {
+            matchingResults.setVisibility(View.GONE);
+            matchingResults.setText("");
         }
-        return false;
+    }
 
+
+    public void updateMatchingResults(int count) {
+        if (matchingResults != null) {
+            matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
+            matchingResults.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void updateSearchCriteria(String searchCriteriaString) {
+        if (searchCriteria != null) {
+            searchCriteria.setText(Html.fromHtml(searchCriteriaString));
+            searchCriteria.setVisibility(View.VISIBLE);
+        }
+    }
+
+
+    private void setDatePicker(final EditText editText) {
+        editText.setOnClickListener(new DatePickerListener(getActivity(), editText, true));
     }
 
     @Override
@@ -639,12 +586,43 @@ TO DO ? , sync unsynced records within catchment
     }
 
     @Override
-    protected void goBack() {
-        if (listMode) {
-            switchViews(false);
-        } else {
-            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider
+            () {
+        return null;
+    }
+
+    @Override
+    protected abstract String getMainCondition();
+
+    private void search() {
+
+        if (myCatchment.isChecked()) {
+            isLocal = true;
+        } else if (outsideInside.isChecked()) {
+            isLocal = false;
         }
+
+        Map<String, String> editMap = getSearchMap(!isLocal);
+
+        ((ChildAdvancedSearchContract.Presenter) presenter).search(editMap, isLocal);
+    }
+
+    protected abstract Map<String, String> getSearchMap(boolean outOfarea);
+
+    @Override
+    public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
+        super.recalculatePagination(matrixCursor);
+        updateMatchingResults(clientAdapter.getTotalcount());
+    }
+
+    @Override
+    public void showNotFoundPopup(String opensrpID) {
+        //Todo implement this
+    }
+
+    @Override
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        this.searchFormData = advancedSearchFormData;
     }
 
     @Override
@@ -680,24 +658,63 @@ TO DO ? , sync unsynced records within catchment
     }
 
     @Override
-    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
-        return null;
-    }
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case LOADER_ID:
+                // Returns a new CursorLoader
+                return new CursorLoader(getActivity()) {
+                    @Override
+                    public Cursor loadInBackground() {
+                        AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) presenter).getMatrixCursor();
+                        if (isLocal || matrixCursor == null) {
+                            String query = filterAndSortQuery();
+                            Cursor cursor = commonRepository().rawCustomQueryForAdapter(query);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideProgressView();
+                                }
+                            });
 
-    @Override
-    public boolean onBackPressed() {
-        goBack();
-        return true;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
-            getActivity().unregisterReceiver(connectionChangeReciever);
-            registeredConnectionChangeReceiver = false;
+                            return cursor;
+                        } else {
+                            return matrixCursor;
+                        }
+                    }
+                };
+            default:
+                // An invalid id was passed in
+                return null;
         }
+    }
+
+
+    @Override
+    public String filterAndSortQuery() {
+        SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
+
+        String query = "";
+        try {
+            sqb.addCondition(filters);
+            query = sqb.orderbyCondition(Sortqueries);
+            query = sqb.Endquery(
+                    sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.toString(), e);
+        }
+
+        return query;
+    }
+
+    @Override
+    public Cursor getRawCustomQueryForAdapter(String query) {
+        return commonRepository().rawCustomQueryForAdapter(query);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        assignedValuesBeforeBarcode();
     }
 
     private class AdvancedSearchTextWatcher implements TextWatcher {

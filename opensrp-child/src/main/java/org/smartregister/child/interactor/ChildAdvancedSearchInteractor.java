@@ -7,6 +7,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.Constants;
 import org.smartregister.domain.Response;
 import org.smartregister.service.HTTPAgent;
 
@@ -60,6 +61,13 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
+
+                if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                    key = Constants.CHILD_STATUS.INACTIVE;
+                    boolean v = !Boolean.valueOf(value);
+                    value = Boolean.toString(v);
+                }
+
                 if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
                     value = urlEncode(value);
                     String param = key.trim() + "=" + value.trim();
@@ -71,8 +79,9 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
                 }
 
             }
+
         }
-        String uri = baseUrl + SEARCH_URL + paramString;
+        String uri = baseUrl + "/rest/search/path" + paramString;
 
         return getHttpAgent().fetch(uri);
     }

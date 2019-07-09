@@ -72,7 +72,7 @@
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Child's home health facility",
+        "hint": "Child's home health facility ",
         "tree": [],
         "v_required": {
           "value": true,
@@ -86,7 +86,7 @@
         "openmrs_entity_id": "ZEIR_ID",
         "type": "barcode",
         "barcode_type": "qrcode",
-        "hint": "Child's ZEIR ID",
+        "hint": "Child's ZEIR ID ",
         "scanButtonText": "Scan QR Code",
         "value": "0",
         "v_numeric": {
@@ -123,7 +123,7 @@
         "hint": "First name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -133,14 +133,14 @@
         "openmrs_entity": "person",
         "openmrs_entity_id": "last_name",
         "type": "edit_text",
-        "hint": "Last name",
+        "hint": "Last name ",
         "edit_type": "name",
         "v_required": {
           "value": "true",
           "err": "Please enter the last name"
         },
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -150,7 +150,7 @@
         "openmrs_entity": "person",
         "openmrs_entity_id": "gender",
         "type": "spinner",
-        "hint": "Sex",
+        "hint": "Sex ",
         "values": [
           "Male",
           "Female"
@@ -166,7 +166,7 @@
         "openmrs_entity": "person",
         "openmrs_entity_id": "birthdate",
         "type": "date_picker",
-        "hint": "Child's DOB",
+        "hint": "Child's DOB ",
         "expanded": false,
         "duration": {
           "label": "Age"
@@ -185,7 +185,7 @@
         "openmrs_entity_id": "163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "date",
         "type": "date_picker",
-        "hint": "Date first seen",
+        "hint": "Date first seen ",
         "expanded": false,
         "min_date": "today-5y",
         "max_date": "today",
@@ -208,7 +208,7 @@
         "openmrs_entity_id": "5916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Birth weight (kg)",
+        "hint": "Birth weight (kg) ",
         "v_min": {
           "value": "0.1",
           "err": "Weight must be greater than 0"
@@ -250,7 +250,7 @@
         "openmrs_entity_id": "first_name",
         "entity_id": "mother",
         "type": "edit_text",
-        "hint": "Mother/guardian first name",
+        "hint": "Mother/guardian first name ",
         "edit_type": "name",
         "look_up": "true",
         "v_required": {
@@ -258,7 +258,7 @@
           "err": "Please enter the mother/guardian's first name"
         },
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -269,7 +269,7 @@
         "openmrs_entity_id": "last_name",
         "entity_id": "mother",
         "type": "edit_text",
-        "hint": "Mother/guardian last name",
+        "hint": "Mother/guardian last name ",
         "edit_type": "name",
         "look_up": "true",
         "v_required": {
@@ -277,7 +277,7 @@
           "err": "Please enter the mother/guardian's last name"
         },
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -295,7 +295,11 @@
           "label": "Age"
         },
         "min_date": "01-01-1900",
-        "max_date": "today-10y"
+        "max_date": "today-10y",
+        "v_required": {
+          "value": "true",
+          "err": "Please enter the mother/guardian's DOB"
+        }
       },
       {
         "key": "Mother_Guardian_NRC",
@@ -303,7 +307,6 @@
         "openmrs_entity": "person_attribute",
         "openmrs_entity_id": "NRC_Number",
         "entity_id": "mother",
-        "look_up": "true",
         "type": "edit_text",
         "hint": "Mother/guardian NRC number",
         "v_regex": {
@@ -312,13 +315,12 @@
         }
       },
       {
-        "key": "Mother_Guardian_Phone_Number",
+        "key": "Mother_Guardian_Number",
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",
         "openmrs_entity_id": "159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "type": "edit_text",
         "hint": "Mother/guardian phone number",
-        "look_up": "true",
         "v_numeric": {
           "value": "true",
           "err": "Number must begin with 095, 096, or 097 and must be a total of 10 digits in length"
@@ -338,7 +340,7 @@
         "hint": "Father/guardian full name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -361,7 +363,7 @@
         "openmrs_entity_id": "1572AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "select one",
         "type": "spinner",
-        "hint": "Place of birth",
+        "hint": "Place of birth ",
         "values": [
           "Health facility",
           "Home"
@@ -382,7 +384,7 @@
         "openmrs_entity_id": "163531AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "text",
         "type": "tree",
-        "hint": "Which health facility was the child born in?",
+        "hint": "Which health facility was the child born in? ",
         "tree": [],
         "v_required": {
           "value": true,
@@ -401,7 +403,7 @@
         "openmrs_entity": "concept",
         "openmrs_entity_id": "160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "type": "edit_text",
-        "hint": "Other health facility",
+        "hint": "Other health facility ",
         "edit_type": "name",
         "v_required": {
           "value": true,
@@ -421,10 +423,10 @@
         "openmrs_entity_id": "address3",
         "openmrs_data_type": "text",
         "type": "tree",
-        "hint": "Child's residential area",
+        "hint": "Child's residential area ",
         "tree": [],
         "v_required": {
-          "value": true,
+          "value": false,
           "err": "Please enter the child's residential area"
         }
       },
@@ -434,7 +436,7 @@
         "openmrs_entity": "person_address",
         "openmrs_entity_id": "address5",
         "type": "edit_text",
-        "hint": "Other residential area",
+        "hint": "Other residential area ",
         "edit_type": "name",
         "v_required": {
           "value": true,
@@ -453,7 +455,7 @@
         "openmrs_entity": "person_address",
         "openmrs_entity_id": "address2",
         "type": "edit_text",
-        "hint": "Home address",
+        "hint": "Home address ",
         "edit_type": "name",
         "v_required": {
           "value": true,
@@ -478,7 +480,7 @@
         "hint": "CHW name",
         "edit_type": "name",
         "v_regex": {
-          "value": "[A-Za-zÀ-ÿ\\u0621-\u064A\\s\\.\\-]*",
+          "value": "[A-Za-z\\s\.\-]*",
           "err": "Please enter a valid name"
         }
       },
@@ -515,14 +517,6 @@
           "MSU": "1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "CNE": "664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         }
-      },
-      {
-        "key": "nfc_card_identifier",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "person_attribute",
-        "openmrs_entity_id": "NFC_Card_Identifier",
-        "type": "hidden",
-        "value": ""
       }
     ]
   }

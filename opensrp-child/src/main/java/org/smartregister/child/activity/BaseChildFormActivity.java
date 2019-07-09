@@ -7,10 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +52,25 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+
+            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
+
+            confirmCloseTitle = getString(R.string.confirm_form_close);
+            confirmCloseMessage = et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation);
+
+            setConfirmCloseTitle(confirmCloseTitle);
+            setConfirmCloseMessage(confirmCloseMessage);
+
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    @Override
     public void initializeFormFragment() {
         initializeFormFragmentCore();
     }
@@ -83,7 +100,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
     @Override
     public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value,
                            String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup)
-    throws JSONException {
+            throws JSONException {
         super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity,
                 openMrsEntityId, popup);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
@@ -135,23 +152,6 @@ public class BaseChildFormActivity extends JsonFormActivity {
             BaseChildFormActivity.this.finish();
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        try {
-
-            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
-            setConfirmCloseTitle(this.getString(R.string.confirm_form_close));
-            setConfirmCloseMessage(
-                    et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) :
-                            this.getString(R.string.confirm_form_close_explanation));
-
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-    }
-
 
     public void validateActivateNext() {
         Fragment fragment = getVisibleFragment();
