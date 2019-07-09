@@ -1265,7 +1265,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
             EditGrowthDialogFragment editWeightDialogFragment =
-                    EditGrowthDialogFragment.newInstance(getActivity(), dob, weightWrapper, heightWrapper);
+                    EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         } else {
             RecordGrowthDialogFragment recordWeightDialogFragment =
@@ -1643,8 +1643,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 Double birthWeight =
                         Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
 
-                Weight weight = new Weight(-1L, null, (float) birthWeight.doubleValue(), dob, null, null, null,
-                        Calendar.getInstance().getTimeInMillis(), null, null, 0);
+                Weight weight = getWeight(dob, birthWeight);
                 allWeights.add(weight);
             }
         } catch (Exception e) {
@@ -1652,6 +1651,23 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         return allWeights;
+    }
+
+    @NotNull
+    private Weight getWeight(Date dob, Double birthWeight) {
+        Weight weight = new Weight();
+        weight.setId(-1L);
+        weight.setBaseEntityId(null);
+        weight.setKg((float) birthWeight.doubleValue());
+        weight.setDate(dob);
+        weight.setAnmId(null);
+        weight.setLocationId(null);
+        weight.setSyncStatus(null);
+        weight.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+        weight.setEventId(null);
+        weight.setFormSubmissionId(null);
+        weight.setOutOfCatchment(0);
+        return weight;
     }
 
     private List<Height> getAllHeights() {
@@ -1665,18 +1681,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 Double birthHeight =
                         Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
 
-                Height height = new Height();
-                height.setId(-1L);
-                height.setBaseEntityId(null);
-                height.setCm((float) birthHeight.doubleValue());
-                height.setDate(dob);
-                height.setAnmId(null);
-                height.setLocationId(null);
-                height.setSyncStatus(null);
-                height.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
-                height.setEventId(null);
-                height.setFormSubmissionId(null);
-                height.setOutOfCatchment(0);
+                Height height = getHeight(dob, birthHeight);
                 allHeights.add(height);
             }
         } catch (Exception e) {
@@ -1684,6 +1689,23 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         return allHeights;
+    }
+
+    @NotNull
+    private Height getHeight(Date dob, Double birthHeight) {
+        Height height = new Height();
+        height.setId(-1L);
+        height.setBaseEntityId(null);
+        height.setCm((float) birthHeight.doubleValue());
+        height.setDate(dob);
+        height.setAnmId(null);
+        height.setLocationId(null);
+        height.setSyncStatus(null);
+        height.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+        height.setEventId(null);
+        height.setFormSubmissionId(null);
+        height.setOutOfCatchment(0);
+        return height;
     }
 
     private class UpdateViewTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {

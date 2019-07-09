@@ -476,7 +476,7 @@ public class ChildUnderFiveFragment extends Fragment {
         HeightWrapper heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
 
         EditGrowthDialogFragment editWeightDialogFragment =
-                EditGrowthDialogFragment.newInstance(getActivity(), dob, weightWrapper, heightWrapper);
+                EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
         editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
     }
