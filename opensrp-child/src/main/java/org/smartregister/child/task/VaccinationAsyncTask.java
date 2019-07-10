@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.CoreLibrary;
@@ -29,7 +30,14 @@ import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
@@ -50,9 +58,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             "6 weeks",
             "10 weeks",
             "14 weeks",
+            "5 months",
+            "6 months",
+            "7 months",
             "9 months",
             "15 months",
             "18 months",
+            "22 months",
             "After LMP",
             "4 Weeks after TT 1",
             "26 Weeks after TT 2",
@@ -409,16 +421,31 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 localizedKey = context.getString(R.string.fourteen_weeks);
                 break;
 
+            case "5 months":
+                localizedKey = context.getString(R.string.five_months);
+                break;
+
+            case "6 months":
+                localizedKey = context.getString(R.string.six_months);
+                break;
+
+            case "7 months":
+                localizedKey = context.getString(R.string.seven_months);
+                break;
+
             case "9 months":
                 localizedKey = context.getString(R.string.nine_months);
                 break;
-
             case "15 months":
                 localizedKey = context.getString(R.string.fifteen_months);
                 break;
 
             case "18 months":
                 localizedKey = context.getString(R.string.eighteen_months);
+                break;
+
+            case "22 months":
+                localizedKey = context.getString(R.string.twenty_two_months);
                 break;
 
             case "After LMP":

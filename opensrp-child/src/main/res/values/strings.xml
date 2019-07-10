@@ -315,9 +315,13 @@
     <string name="six_weeks">6 weeks</string>
     <string name="ten_weeks">10 weeks</string>
     <string name="fourteen_weeks">14 weeks</string>
+    <string name="five_months">5 months</string>
+    <string name="six_months">6 months</string>
+    <string name="seven_months">7 months</string>
     <string name="nine_months">9 months</string>
     <string name="fifteen_months">15 months</string>
     <string name="eighteen_months">18 months</string>
+    <string name="twenty_two_months">22 months</string>
     <string name="after_lmp">After LMP</string>
     <string name="after_tt1">4 Weeks after TT 1</string>
     <string name="after_tt2">26 Weeks after TT 2</string>
