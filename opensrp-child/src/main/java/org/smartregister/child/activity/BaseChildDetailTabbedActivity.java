@@ -88,6 +88,7 @@ import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
+import org.smartregister.util.LangUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -575,7 +576,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         if (isDataOk()) {
             name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true), getValue(detailsMap, Constants.KEY.LAST_NAME, true));
         }
-        return String.format("%s's %s", name, getString(R.string.health_details));
+        if (LangUtils.getLanguage(getContext()).compareToIgnoreCase("en") == 0) {
+            return String.format("%s's %s", name, getString(R.string.health_details));
+        }
+        else {
+            return String.format("%s %s", name, getString(R.string.health_details));
+        }
     }
 
     private void updateProfilePicture(Gender gender) {
