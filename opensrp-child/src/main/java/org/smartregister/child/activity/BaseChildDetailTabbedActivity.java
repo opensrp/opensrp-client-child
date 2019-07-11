@@ -88,7 +88,6 @@ import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
-import org.smartregister.util.LangUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.PermissionUtils;
 import org.smartregister.view.activity.DrishtiApplication;
