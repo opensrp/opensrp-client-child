@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
@@ -20,13 +21,15 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
+import java.lang.ref.WeakReference;
+
 import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
 public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
-    private final View convertView;
+    private final WeakReference<View> convertView;
     private final String entityId;
     private final String lostToFollowUp;
     private final String inactive;
@@ -36,13 +39,13 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     private WeightRepository weightRepository;
     private HeightRepository heightRepository;
     private CommonRepository commonRepository;
-    private Context context;
+    private WeakReference<Context> context;
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
 
     public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                      WeightRepository weightRepository, HeightRepository heightRepository, Context context) {
-        this.convertView = recordActionParams.getConvertView();
+        this.convertView = new WeakReference<>(recordActionParams.getConvertView());
         this.entityId = recordActionParams.getEntityId();
         this.lostToFollowUp = recordActionParams.getLostToFollowUp();
         this.inactive = recordActionParams.getInactive();
@@ -52,7 +55,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         this.weightRepository = weightRepository;
         this.heightRepository = heightRepository;
         this.commonRepository = commonRepository;
-        this.context = context;
+        this.context = new WeakReference<>(context);
     }
 
 
@@ -71,7 +74,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         wrapper.setLostToFollowUp(lostToFollowUp);
         wrapper.setInactive(inactive);
         wrapper.setClient(client);
-        wrapper.setConvertView(convertView);
+        wrapper.setConvertView(convertView.get());
         updateRecordWeight(wrapper, updateOutOfCatchment);
 
     }
@@ -99,9 +102,9 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
 
             recordGrowthCheck.setVisibility(View.VISIBLE);
             recordGrowth.setClickable(false);
-            recordGrowth.setBackground(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
+            recordGrowth.setBackground(new ColorDrawable(context.get().getResources().getColor(android.R.color.transparent)));
         } else {
-            recordGrowthText.setText(context.getString(R.string.record_growth_with_nl));
+            recordGrowthText.setText(context.get().getString(R.string.record_growth_with_nl));
             recordGrowthCheck.setVisibility(View.GONE);
             recordGrowth.setClickable(true);
         }
@@ -119,7 +122,6 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
-
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
         if (commonRepository != null) {
@@ -136,7 +138,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
                 catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utils.showShortToast(context, context.getString(R.string.show_vaccine_card_disabled));
+                        Utils.showShortToast(context.get(), context.get().getString(R.string.show_vaccine_card_disabled));
                     }
                 });
 
@@ -146,7 +148,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
                 String openSrpId = getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
                 View recordWeight = catchmentView.findViewById(R.id.record_growth);
-                recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
+                recordWeight.setBackground(context.get().getResources().getDrawable(R.drawable.record_growth_bg));
                 recordWeight.setTag(openSrpId);
                 recordWeight.setClickable(true);
                 recordWeight.setEnabled(true);

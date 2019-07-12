@@ -33,6 +33,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -42,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.AllConstants;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
@@ -49,6 +51,7 @@ import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
+import org.smartregister.child.task.SaveAdverseEventTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
@@ -128,7 +131,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
-    //////////////////////////////////////////////////
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
     private static final String CHILD = "child";
     private static Gender gender;
@@ -136,15 +138,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     protected ViewPager viewPager;
     protected TextView saveButton;
     protected Map<String, String> detailsMap;
-    private ChildDetailsToolbar detailtoolbar;
+    private ChildDetailsToolbar childDetailsToolbar;
     private TabLayout tabLayout;
     private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
-    private File currentfile;
-    ////////////////////////////////////////////////
+    private File currentFile;
     private String locationId = "";
+    private String providerId = "";
     private ViewPagerAdapter adapter;
-    // Data
     private CommonPersonObjectClient childDetails;
     private Uri sharedFileUri;
     private ImageView profileImageIV;
@@ -163,6 +164,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         }
 
         locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
+        if (detailsMap.containsKey(Constants.INTENT_KEY.PROVIDER_ID)) {
+            providerId = detailsMap.get(Constants.INTENT_KEY.PROVIDER_ID);
+        }
 
         setContentView(getContentView());
 
@@ -172,9 +176,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
 
-        detailtoolbar = findViewById(R.id.child_detail_toolbar);
+        childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
 
-        saveButton = detailtoolbar.findViewById(R.id.save);
+        saveButton = childDetailsToolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,9 +187,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
         });
 
-        detailtoolbar.showOverflowMenu();
+        childDetailsToolbar.showOverflowMenu();
 
-        setSupportActionBar(detailtoolbar);
+        setSupportActionBar(childDetailsToolbar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -214,7 +218,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         });
         setupViewPager(viewPager);
 
-        detailtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        childDetailsToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
@@ -230,7 +234,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
 
     private void resetOptionsMenu() {
-        detailtoolbar.showOverflowMenu();
+        childDetailsToolbar.showOverflowMenu();
         invalidateOptionsMenu();
 
         saveButton.setVisibility(View.INVISIBLE);
@@ -245,13 +249,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     }
 
     protected void setActivityTitle() {
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getActivityTitle());
+        ((TextView) childDetailsToolbar.findViewById(R.id.title)).setText(getActivityTitle());
     }
 
     public void setupViews() {
         profileImageIV = findViewById(R.id.profile_image_iv);
-
-
         if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
@@ -269,7 +271,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             });
         }
 
-
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
         if (mDrawerLayout != null &&
                 (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) &&
@@ -284,7 +285,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
     private String getActivityTitle() {
         String name = "";
-
         if (isDataOk()) {
             name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true),
                     getValue(detailsMap, Constants.KEY.LAST_NAME, true));
@@ -316,7 +316,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
                         StrictMode.setVmPolicy(builder.build());
                     }
 
-                    currentfile = photoFile;
+                    currentFile = photoFile;
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                     startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 }
@@ -379,17 +379,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         int darkShade = colors[0];
         int normalShade = colors[1];
         int lightSade = colors[2];
-        detailtoolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
+        childDetailsToolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
         tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
         try {
             Field field = TabLayout.class.getDeclaredField("mTabStrip");
             field.setAccessible(true);
-            Object ob = field.get(tabLayout);
+            Object object = field.get(tabLayout);
             Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
             Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
             method.setAccessible(true);
-            method.invoke(ob, getResources().getColor(normalShade)); //now its ok
+            method.invoke(object, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
             Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
@@ -471,7 +471,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
-
             overflow.findItem(R.id.write_to_card).setVisible(true);
             overflow.findItem(R.id.register_card).setVisible(true);
         }
@@ -512,8 +511,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    //   JsonFormUtils.saveAdverseEvent(jsonString, locationId,
-                    //         childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
+                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), providerId, CoreLibrary.getInstance().context().getEventClientRepository()), null);
                 }
 
 
@@ -522,7 +520,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
 
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            String imageLocation = currentfile.getAbsolutePath();
+            String imageLocation = currentFile.getAbsolutePath();
 
             JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
@@ -575,9 +573,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 builder.dismiss();
-
             }
         });
 
@@ -588,12 +584,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         negativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 saveReportDeceasedJson(json, allSharedPreferences);
                 builder.dismiss();
 
                 navigateToRegisterActivity();
-
             }
         });
 
@@ -602,7 +596,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     }
 
     private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
-
         JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(),
                 locationId, childDetails.entityId());
 
@@ -764,21 +757,19 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     }
 
     @Override
-    public void onUndoVaccination(VaccineWrapper tag, View view) {
-        if (tag != null && tag.getDbKey() != null) {
+    public void onUndoVaccination(VaccineWrapper vaccineWrapper, View view) {
+        if (vaccineWrapper != null && vaccineWrapper.getDbKey() != null) {
             final VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-            Long dbKey = tag.getDbKey();
+            Long dbKey = vaccineWrapper.getDbKey();
             vaccineRepository.deleteVaccine(dbKey);
 
-
-            tag.setUpdatedVaccineDate(null, false);
-            tag.setDbKey(null);
-
+            vaccineWrapper.setUpdatedVaccineDate(null, false);
+            vaccineWrapper.setDbKey(null);
 
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
             ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
-            wrappers.add(tag);
+            wrappers.add(vaccineWrapper);
             updateVaccineGroupViews(view, wrappers, vaccineList, true);
 
             Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
@@ -829,16 +820,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         }
     }
 
-    private void saveVaccine(VaccineWrapper tag) {
-
+    private void saveVaccine(VaccineWrapper vaccineWrapper) {
         Vaccine vaccine = new Vaccine();
-        if (tag.getDbKey() != null) {
-            vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(tag.getDbKey());
+        if (vaccineWrapper.getDbKey() != null) {
+            vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(vaccineWrapper.getDbKey());
         }
         vaccine.setBaseEntityId(childDetails.entityId());
-        vaccine.setName(tag.getName());
-        vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
-        vaccine.setUpdatedAt(tag.getUpdatedVaccineDate().toDate().getTime());
+        vaccine.setName(vaccineWrapper.getName());
+        vaccine.setDate(vaccineWrapper.getUpdatedVaccineDate().toDate());
+        vaccine.setUpdatedAt(vaccineWrapper.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
         if (StringUtils.isNotBlank(locationId)) {
             vaccine.setLocationId(locationId);
@@ -851,10 +841,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             vaccine.setCalculation(-1);
         }
         Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
-        tag.setDbKey(vaccine.getId());
+        vaccineWrapper.setDbKey(vaccine.getId());
 
 
-        if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
+        if (vaccineWrapper.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             resetOptionsMenu();
         }
     }
@@ -884,7 +874,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         updateHeightWrapper(heightWrapper);
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
-
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
@@ -1024,30 +1013,30 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
     //Recurring Service
     @Override
-    public void onGiveToday(ServiceWrapper tag, View view) {
-        if (tag != null) {
-            saveService(tag, view);
+    public void onGiveToday(ServiceWrapper serviceWrapper, View view) {
+        if (serviceWrapper != null) {
+            saveService(serviceWrapper, view);
         }
     }
 
     @Override
-    public void onGiveEarlier(ServiceWrapper tag, View view) {
-        if (tag != null) {
-            saveService(tag, view);
+    public void onGiveEarlier(ServiceWrapper serviceWrapper, View view) {
+        if (serviceWrapper != null) {
+            saveService(serviceWrapper, view);
         }
     }
 
     @Override
-    public void onUndoService(ServiceWrapper tag, View view) {
-        Utils.startAsyncTask(new UndoServiceTask(tag, view), null);
+    public void onUndoService(ServiceWrapper serviceWrapper, View view) {
+        Utils.startAsyncTask(new UndoServiceTask(serviceWrapper, view), null);
     }
 
-    private void saveService(ServiceWrapper tag, final View view) {
-        if (tag == null) {
+    private void saveService(ServiceWrapper serviceWrapper, final View view) {
+        if (serviceWrapper == null) {
             return;
         }
 
-        ServiceWrapper[] arrayTags = {tag};
+        ServiceWrapper[] arrayTags = {serviceWrapper};
         SaveServiceTask backgroundTask = new SaveServiceTask();
 
         backgroundTask.setView(view);
@@ -1071,27 +1060,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         }
     }
 
-/*
-    private Map<String, String> getCleanMap() {
-        Map<String, String> detailsMap = new HashMap<>();
-        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils
-        .metadata().childRegister.tableName, new String[]{});
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            String[] columnNames = cursor.getColumnNames();
-
-            for (int i = 0; i < columnNames.length; i++) {
-
-                detailsMap.put(columnNames[i], cursor.getString(cursor.getColumnIndex(columnNames[i])));
-
-            }
-        }
-
-        return detailsMap;
-
-    }*/
-
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -1104,10 +1072,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
     @Override
     public void onRegistrationSaved(boolean isEdit) {
-
         if (isEdit) {//On edit mode refresh view
-
-
             Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
 
             //To Do optimize with
@@ -1280,6 +1245,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             updateRegisterParams.setEditMode(true);
 
             saveForm(jsonString, updateRegisterParams);
+            onRegistrationSaved(true);
             return null;
         }
 

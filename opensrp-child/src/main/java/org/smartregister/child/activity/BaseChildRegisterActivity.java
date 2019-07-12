@@ -115,25 +115,17 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         intent.putExtra(Constants.INTENT_KEY.JSON, jsonForm.toString());
 
         Form form = new Form();
-        // form.setName(getString(R.string.add_child));
-        //form.setActionBarBackground(R.color.child_actionbar);
-        //form.setNavigationBackground(R.color.child_navigation);
-        //form.setHomeAsUpIndicator(R.mipmap.ic_arrow_forward);
-
         form.setWizard(false);
         form.setHideSaveLabel(true);
         form.setNextLabel("");
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
-
         startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (requestCode == AllConstants.BARCODE.BARCODE_REQUEST_CODE && resultCode == RESULT_OK && isAdvancedSearch) {
-
             Barcode barcode = data.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY);
             String barcodeSearchTerm = barcode.displayValue;
             barcodeSearchTerm =
@@ -142,7 +134,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
             //Set value and refresh form values!
             advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
-
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -180,7 +171,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     protected void onChildRegisterResumption() {
         if (isAdvancedSearch) {
-
             refreshAdvancedSearchFormValues();
             switchToAdvancedSearchFromRegister();
 
@@ -199,7 +189,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
      * closed (as long as it was opened from the advanced search page)
      */
     protected void switchToAdvancedSearchFromRegister() {
-
         if (ChildLibrary.getInstance().getProperties()
                 .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
             setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);

@@ -98,7 +98,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
-
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -108,7 +107,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
     @Override
     protected void navigateToRegisterActivity() {
-
         Intent intent = new Intent(getApplicationContext(), ChildRegisterActivity.class);
         intent.putExtra(AllConstants.INTENT_KEY.IS_REMOTE_LOGIN, false);
         startActivity(intent);

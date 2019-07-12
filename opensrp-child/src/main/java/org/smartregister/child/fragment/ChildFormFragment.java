@@ -119,7 +119,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
         ValidationStatus validationStatus = null;
         for (View dataView : getJsonApi().getFormDataViews()) {
-
             validationStatus = getPresenter().validate(this, dataView, false);
             if (!validationStatus.isValid()) {
                 break;
@@ -127,15 +126,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
 
         if (validationStatus != null && validationStatus.isValid()) {
-            if (getPresenter().intermediatePage()) {
-                //getMenu().findItem(com.vijay.jsonwizard.R.id.action_next).setVisible(true);
-            } else {
+            if (!getPresenter().intermediatePage()) {
                 getMenu().findItem(com.vijay.jsonwizard.R.id.action_save).setVisible(true);
             }
         } else {
-            if (getPresenter().intermediatePage()) {
-                //getMenu().findItem(com.vijay.jsonwizard.R.id.action_next).setVisible(false);
-            } else {
+            if (!getPresenter().intermediatePage()) {
                 getMenu().findItem(com.vijay.jsonwizard.R.id.action_save).setVisible(false);
             }
         }

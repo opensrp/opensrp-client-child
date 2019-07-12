@@ -28,6 +28,7 @@ public class Constants extends AllConstants {
     public static final String BIRTH_WEIGHT = "Birth_Weight";
     public static final String BIRTH_HEIGHT = "Birth_Height";
     public static final String SEX = "Sex";
+    public static final String DATE_REACTION = "Date_Reaction";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -97,6 +98,7 @@ public class Constants extends AllConstants {
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
         public static final String LOCATION_ID = "location_id";
+        public static final String PROVIDER_ID = "provider_id";
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 

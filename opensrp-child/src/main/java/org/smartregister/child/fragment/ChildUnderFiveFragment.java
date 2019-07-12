@@ -52,7 +52,6 @@ import static org.smartregister.child.util.Utils.updateGrowthValue;
  * Created by ndegwamartin on 06/03/2019.
  */
 public class ChildUnderFiveFragment extends Fragment {
-
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
