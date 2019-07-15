@@ -566,16 +566,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     }
 
     protected void setActivityTitle() {
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getActivityTitle());
-    }
-
-    private String getActivityTitle() {
-        String name = "";
-
-        if (isDataOk()) {
-            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true), getValue(detailsMap, Constants.KEY.LAST_NAME, true));
-        }
-        return String.format("%s's %s", name, getString(R.string.health_details));
+        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getString(R.string.health_details));
     }
 
     private void updateProfilePicture(Gender gender) {

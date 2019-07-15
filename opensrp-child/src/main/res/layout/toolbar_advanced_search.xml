@@ -39,6 +39,7 @@
 					            android:background="@android:color/transparent"
 					            android:paddingStart="@dimen/advanced_search_toolbar_drawable_padding"
 					            android:paddingEnd="@dimen/advanced_search_toolbar_padding"
+								android:rotationY="@integer/locale_mirror_flip"
 					            android:src="@drawable/ic_back" />
                     </LinearLayout>
 
