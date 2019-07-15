@@ -149,10 +149,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private CommonPersonObjectClient childDetails;
     private Uri sharedFileUri;
     private ImageView profileImageIV;
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+
+
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
@@ -871,7 +879,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     @Override
     public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         updateWeightWrapper(weightWrapper);
-        updateHeightWrapper(heightWrapper);
+        if (hasProperty && monitorGrowth) {
+            updateHeightWrapper(heightWrapper);
+        }
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
     }
@@ -1126,11 +1136,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
             map.put(weightNamedObject.name, weightNamedObject);
 
-            List<Height> heightList =
-                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
+            if (hasProperty && monitorGrowth) {
+                List<Height> heightList =
+                        GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
 
-            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
-            map.put(heightNamedObject.name, heightNamedObject);
+                NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+                map.put(heightNamedObject.name, heightNamedObject);
+            }
 
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
@@ -1199,7 +1211,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
-            List<Height> heightList = AsyncTaskUtils.extractHeights(map);
+            List<Height> heightList = null;
+            if (hasProperty && monitorGrowth) {
+                heightList = AsyncTaskUtils.extractHeights(map);
+            }
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);

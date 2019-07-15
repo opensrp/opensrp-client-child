@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -27,10 +28,15 @@ import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
+import org.smartregister.growthmonitoring.util.AppProperties;
 import org.smartregister.growthmonitoring.util.HeightUtils;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.domain.*;
+import org.smartregister.immunization.domain.ServiceRecord;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.ServiceWrapper;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.fragment.ServiceEditDialogFragment;
 import org.smartregister.immunization.fragment.VaccinationEditDialogFragment;
@@ -44,7 +50,13 @@ import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.smartregister.child.util.Utils.updateGrowthValue;
 
@@ -57,10 +69,14 @@ public class ChildUnderFiveFragment extends Fragment {
     private CommonPersonObjectClient childDetails;
     private Map<String, String> detailsMap;
     private LinearLayout fragmentContainer;
+    private View heightWidgetLayout;
 
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
     private Boolean curGrowthMonitoringMode;
+
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -79,6 +95,10 @@ public class ChildUnderFiveFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH);
+        }
     }
 
     @Override
@@ -93,6 +113,11 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
+
+        if (hasProperty && monitorGrowth) {
+            heightWidgetLayout = underFiveFragment.findViewById(R.id.height_widget_layout);
+            heightWidgetLayout.setVisibility(View.VISIBLE);
+        }
 
         return underFiveFragment;
     }
@@ -113,26 +138,27 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void createGrowthLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer,
                                     boolean editMode) {
-        ArrayList<Boolean> weightEditMode = new ArrayList<>();
-        ArrayList<Boolean> heightEditMode = new ArrayList<>();
+        WidgetFactory widgetFactory = new WidgetFactory();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
+        ArrayList<Boolean> weightEditMode = new ArrayList<>();
         List<Weight> weightList = getWeights(weights);
-        List<Height> heightList = getHeights(heights);
-
         LinkedHashMap<Long, Pair<String, String>> weightMap =
                 updateWeightMap(editMode, weightEditMode, listeners, weightList);
-        LinkedHashMap<Long, Pair<String, String>> heightMap =
-                updateHeightMap(editMode, heightEditMode, listeners, heightList);
-
-        WidgetFactory widgetFactory = new WidgetFactory();
         if (weightMap.size() > 0) {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
 
-        if (heightMap.size() > 0) {
-            widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, listeners, heightEditMode);
+        if (hasProperty && monitorGrowth) {
+            ArrayList<Boolean> heightEditMode = new ArrayList<>();
+            List<Height> heightList = getHeights(heights);
+            LinkedHashMap<Long, Pair<String, String>> heightMap =
+                    updateHeightMap(editMode, heightEditMode, listeners, heightList);
+            if (heightMap.size() > 0) {
+                widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, listeners, heightEditMode);
+            }
         }
+
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode,
@@ -405,12 +431,12 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Fragment fragmentByTag = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (fragmentByTag != null) {
+            transaction.remove(fragmentByTag);
         }
-        ft.addToBackStack(null);
+        transaction.addToBackStack(null);
 
         String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
@@ -426,7 +452,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         ServiceEditDialogFragment serviceEditDialogFragment =
                 ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
-        serviceEditDialogFragment.show(ft, DIALOG_TAG);
+        serviceEditDialogFragment.show(transaction, DIALOG_TAG);
     }
 
     public void showGrowthMonitoringDialog(int growthRecordPosition) {

@@ -3,6 +3,8 @@ package org.smartregister.child.sample.fragment;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.util.SampleConstants;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.util.AppProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,8 @@ import java.util.Map;
  */
 public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFragment {
 
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
     /*
      * The map is such that key is the key defined in the registration form json while the value is the strings resource id
      * e.g. Key "First_Name" and Value "R.string.first_name"
@@ -24,13 +28,19 @@ public class ChildRegistrationDataFragment extends BaseChildRegistrationDataFrag
     @Override
     protected Map<String, Integer> getDataRowLabelResourceIds() {
         Map<String, Integer> resourceIds = new HashMap<>();
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH);
+        }
 
         resourceIds.put("First_Name", R.string.first_name);
         resourceIds.put("Last_Name", R.string.last_name);
         resourceIds.put("Sex", R.string.sex);
         resourceIds.put("Date_Birth", R.string.child_dob);
         resourceIds.put("Birth_Weight", R.string.birth_weight);
-        resourceIds.put("Birth_Height", R.string.birth_height);
+        if (hasProperty && monitorGrowth) {
+            resourceIds.put("Birth_Height", R.string.birth_height);
+        }
         resourceIds.put("Birth_Tetanus_Protection", R.string.birth_tetanus_protection);
         resourceIds.put("Child_Register_Card_Number", R.string.child_register_card_number);
         resourceIds.put("Home_Facility", R.string.child_home_health_facility);

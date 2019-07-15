@@ -14,6 +14,7 @@ import org.smartregister.child.wrapper.GrowthMonitoringViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
@@ -42,6 +43,8 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     private WeakReference<Context> context;
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
     public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                      WeightRepository weightRepository, HeightRepository heightRepository, Context context) {
@@ -56,13 +59,20 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         this.heightRepository = heightRepository;
         this.commonRepository = commonRepository;
         this.context = new WeakReference<>(context);
+
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
     }
 
 
     @Override
     protected Void doInBackground(Void... params) {
         weight = weightRepository.findUnSyncedByEntityId(entityId);
-        height = heightRepository.findUnSyncedByEntityId(entityId);
+        if (hasProperty && monitorGrowth) {
+            height = heightRepository.findUnSyncedByEntityId(entityId);
+        }
         return null;
     }
 
@@ -70,7 +80,9 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void param) {
         GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
         wrapper.setWeight(weight);
-        wrapper.setHeight(height);
+        if (hasProperty && monitorGrowth) {
+            wrapper.setHeight(height);
+        }
         wrapper.setLostToFollowUp(lostToFollowUp);
         wrapper.setInactive(inactive);
         wrapper.setClient(client);
@@ -89,15 +101,21 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
 
         if (updateWrapper.getWeight() != null || updateWrapper.getHeight() != null) {
             String weightString = "";
-            String heightString = "";
             if (updateWrapper.getWeight() != null) {
                 weightString = Utils.kgStringSuffix(updateWrapper.getWeight().getKg());
             }
-            if (updateWrapper.getHeight() != null) {
-                heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
+            String growthString;
+            if (hasProperty && monitorGrowth) {
+                String heightString = "";
+                if (updateWrapper.getHeight() != null) {
+                    heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
+                }
+
+                growthString = heightString.isEmpty() ? weightString : weightString + ", " + heightString;
+            } else {
+                growthString = weightString;
             }
 
-            String growthString = weightString + ", " + heightString;
             recordGrowthText.setText(growthString);
 
             recordGrowthCheck.setVisibility(View.VISIBLE);

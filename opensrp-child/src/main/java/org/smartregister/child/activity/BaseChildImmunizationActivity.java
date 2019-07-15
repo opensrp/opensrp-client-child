@@ -21,8 +21,15 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.gson.Gson;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -38,7 +45,11 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.*;
+import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.AsyncTaskUtils;
+import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -58,8 +69,18 @@ import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.domain.*;
-import org.smartregister.immunization.fragment.*;
+import org.smartregister.immunization.domain.ServiceRecord;
+import org.smartregister.immunization.domain.ServiceSchedule;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.ServiceWrapper;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.fragment.ActivateChildStatusDialogFragment;
+import org.smartregister.immunization.fragment.ServiceDialogFragment;
+import org.smartregister.immunization.fragment.UndoServiceDialogFragment;
+import org.smartregister.immunization.fragment.UndoVaccinationDialogFragment;
+import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.listener.VaccineCardAdapterLoadingListener;
@@ -86,7 +107,15 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -133,6 +162,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
                                       RegisterClickables registerClickables) {
@@ -160,6 +191,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
 
         detailsRepository = getOpenSRPContext().detailsRepository();
 
@@ -352,7 +388,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        if (hasProperty && monitorGrowth) {
+            updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        }
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
         updateViewTask
@@ -1063,8 +1101,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Photo photo = ImageUtils.profilePhotoByClient(childDetails);
 
         WeightWrapper weightWrapper = getWeightWrapper(lastUnsyncedWeight, childName, gender, openSrpId, duration, photo);
-        HeightWrapper heightWrapper = getHeightWrapper(lastUnsyncedHeight, childName, gender, openSrpId, duration, photo);
-
+        HeightWrapper heightWrapper = null;
+        if (hasProperty && monitorGrowth) {
+            heightWrapper = getHeightWrapper(lastUnsyncedHeight, childName, gender, openSrpId, duration, photo);
+        }
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
         ImageButton growthChartButton = findViewById(R.id.growth_chart_button);
@@ -1134,8 +1174,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         recordWeightCheck.setVisibility(View.GONE);
 
         updateWeightWrapper(weightWrapper, recordWeight, recordWeightText, recordWeightCheck);
-        updateHeightWrapper(heightWrapper, recordWeight, recordWeightText, recordWeightCheck);
-
+        if (hasProperty & monitorGrowth) {
+            updateHeightWrapper(heightWrapper, recordWeight, recordWeightText, recordWeightCheck);
+        }
         String weight = "";
         String height = "";
         if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
@@ -1143,14 +1184,22 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
-            if (heightWrapper != null && heightWrapper.getHeight() != null) {
-                height = Utils.cmStringSuffix(heightWrapper.getHeight());
+            if (hasProperty & monitorGrowth) {
+                if (heightWrapper != null && heightWrapper.getHeight() != null) {
+                    height = Utils.cmStringSuffix(heightWrapper.getHeight());
+                }
             }
             isGrowthEdit = true;
-            recordWeightText.setText(weight + ", " + height);
+            if (hasProperty & monitorGrowth) {
+                recordWeightText.setText(!height.isEmpty() ? weight + ", " + height : weight);
+            } else {
+                recordWeightText.setText(weight);
+            }
         }
         recordWeight.setTag(R.id.weight_wrapper, weightWrapper);
-        recordWeight.setTag(R.id.height_wrapper, heightWrapper);
+        if (hasProperty && monitorGrowth) {
+            recordWeight.setTag(R.id.height_wrapper, heightWrapper);
+        }
         recordWeight.setTag(R.id.growth_edit_flag, isGrowthEdit);
 
         recordWeight.setOnClickListener(new View.OnClickListener() {
@@ -1209,7 +1258,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     heightWrapper.setDbKey(null);
                     recordGrowth.setClickable(true);
                     recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
-                    recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
                 }
             }
@@ -1231,8 +1279,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         WeightWrapper weightWrapper = (WeightWrapper) view.getTag(R.id.weight_wrapper);
-        HeightWrapper heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
-
+        HeightWrapper heightWrapper = null;
+        if (hasProperty && monitorGrowth) {
+            heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
+        }
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
             EditGrowthDialogFragment editWeightDialogFragment =
@@ -1300,10 +1350,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     BaseRepository.TYPE_Unsynced);
         }
 
-        if (heightWrapper != null) {
-            heightWrapper.setGender(genderString);
-            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
-                    BaseRepository.TYPE_Unsynced);
+        if (hasProperty && monitorGrowth) {
+            if (heightWrapper != null) {
+                heightWrapper.setGender(genderString);
+                Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
+                        BaseRepository.TYPE_Unsynced);
+            }
         }
 
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
