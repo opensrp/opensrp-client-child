@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import org.opensrp.api.constants.Gender;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;

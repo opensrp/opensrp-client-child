@@ -1,6 +1,7 @@
 package org.smartregister.child.util;
 
 import android.content.Context;
+
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 

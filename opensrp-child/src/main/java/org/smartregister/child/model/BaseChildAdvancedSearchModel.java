@@ -8,7 +8,10 @@ import org.smartregister.child.util.Utils;
 import java.util.Map;
 
 import static org.smartregister.child.util.Constants.CHILD_STATUS.ACTIVE;
-import static org.smartregister.child.util.Constants.KEY.*;
+import static org.smartregister.child.util.Constants.KEY.FIRST_NAME;
+import static org.smartregister.child.util.Constants.KEY.INACTIVE;
+import static org.smartregister.child.util.Constants.KEY.LAST_NAME;
+import static org.smartregister.child.util.Constants.KEY.LOST_TO_FOLLOW_UP;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
         implements ChildAdvancedSearchContract.Model {

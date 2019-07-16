@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
@@ -25,7 +26,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewProvider;
-import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -146,18 +146,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
                 .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
-
-        /*
-        ConfigurableViewsHelper helper = ConfigurableViewsLibrary.getInstance().getConfigurableViewsHelper();
-        if (helper.isJsonViewsEnabled()) {
-
-            ViewConfiguration viewConfiguration = helper.getViewConfiguration(Constants.CONFIGURATION.HOME_REGISTER_ROW);
-            ViewConfiguration commonConfiguration = helper.getViewConfiguration(COMMON_REGISTER_ROW);
-
-            if (viewConfiguration != null) {
-                return helper.inflateDynamicView(viewConfiguration, commonConfiguration, view, R.id.register_columns, false);
-            }
-        }*/
 
         return new RegisterViewHolder(view);
     }
@@ -302,16 +290,16 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     public static class RegisterViewHolder extends RecyclerView.ViewHolder {
-        TextView patientName;
-        TextView childOpensrpID;
-        TextView childMotherName;
-        TextView childAge;
-        TextView childCardNumnber;
-        View childProfileInfoLayout;
-        ImageView imageView;
-        View recordGrowth;
-        View recordVaccination;
-        View registerColumns;
+        private TextView patientName;
+        private TextView childOpensrpID;
+        private TextView childMotherName;
+        private TextView childAge;
+        private TextView childCardNumnber;
+        private View childProfileInfoLayout;
+        private ImageView imageView;
+        private View recordGrowth;
+        private View recordVaccination;
+        private View registerColumns;
 
         RegisterViewHolder(View itemView) {
             super(itemView);

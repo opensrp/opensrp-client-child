@@ -1,6 +1,7 @@
 package org.smartregister.child.model;
 
 import android.util.Log;
+
 import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;

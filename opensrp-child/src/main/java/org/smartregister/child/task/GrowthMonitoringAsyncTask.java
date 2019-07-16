@@ -43,8 +43,8 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     private WeakReference<Context> context;
     private Boolean updateOutOfCatchment;
     private View.OnClickListener onClickListener;
-    private static Boolean hasProperty;
-    private static Boolean monitorGrowth = false;
+    private boolean hasProperty;
+    private boolean monitorGrowth = false;
 
     public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                      WeightRepository weightRepository, HeightRepository heightRepository, Context context) {

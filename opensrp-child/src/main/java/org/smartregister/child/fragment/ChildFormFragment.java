@@ -11,7 +11,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -21,6 +26,7 @@ import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
+
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -34,7 +40,11 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.event.Listener;
 import org.smartregister.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
 
@@ -208,7 +218,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v;
                 if (convertView == null) {
-                    v = motherLookUpSmartClientsProvider.inflatelayoutForCursorAdapter();
+                    v = motherLookUpSmartClientsProvider.inflateLayoutForCursorAdapter();
                 } else {
                     v = convertView;
                 }

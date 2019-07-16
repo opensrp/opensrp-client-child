@@ -165,6 +165,23 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
 
+    private View recordGrowth;
+    private TextView recordWeightText;
+    private ImageView profileImageIV;
+    private TextView childSiblingsTV;
+    private ImageView recordWeightCheck;
+    private TextView dobTV;
+    private TextView ageTV;
+    private TextView nameTV;
+    private TextView childIdTV;
+    private LinearLayout vaccineGroupCanvasLL;
+    private LinearLayout profileNamelayout;
+    private LinearLayout serviceGroupCanvasLL;
+    private LinearLayout someLayout;
+    private CustomFontTextView nextAppointmentDateView;
+    private ImageButton growthChartButton;
+    private SiblingPicturesGroup siblingPicturesGroup;
+
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
                                       RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
@@ -200,6 +217,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         detailsRepository = getOpenSRPContext().detailsRepository();
 
         setUpToolbar();
+        setUpViews();
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
@@ -229,6 +247,27 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         setUpFloatingActionButton();
     }
 
+    private void setUpViews() {
+        recordGrowth = findViewById(R.id.record_growth);
+        recordWeightText = findViewById(R.id.record_growth_text);
+        profileNamelayout = findViewById(R.id.profile_name_layout);
+        childSiblingsTV = findViewById(R.id.child_siblings_tv);
+        recordWeightCheck = findViewById(R.id.record_growth_check);
+        dobTV = findViewById(R.id.dob_tv);
+        ageTV = findViewById(R.id.age_tv);
+        vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
+        serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
+        profileImageIV = findViewById(R.id.profile_image_iv);
+        nameTV = findViewById(R.id.name_tv);
+        childIdTV = findViewById(R.id.child_id_tv);
+        floatingActionButton = findViewById(R.id.fab);
+        someLayout = findViewById(R.id.content_base_inner);
+        nextAppointmentDateView = findViewById(R.id.next_appointment_date);
+        growthChartButton = findViewById(R.id.growth_chart_button);
+        siblingPicturesGroup = findViewById(R.id.sibling_pictures);
+
+    }
+
     private void setUpToolbar() {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -249,7 +288,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void setUpFloatingActionButton() {
-        floatingActionButton = findViewById(R.id.fab);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
 
@@ -258,7 +296,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)),
                     null);
 
-            LinearLayout someLayout = findViewById(R.id.content_base_inner);
             someLayout.setPadding(someLayout.getPaddingLeft(), someLayout.getPaddingTop(), someLayout.getPaddingRight(),
                     someLayout.getPaddingBottom() + 80);
         }
@@ -331,12 +368,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         toolbar.updateSeparatorView(toolbarResource);
-
-        TextView childSiblingsTV = findViewById(R.id.child_siblings_tv);
         childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
 
         updateProfilePicture(gender);
-
         return selectedColor;
     }
 
@@ -344,13 +378,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     protected void onResume() {
         super.onResume();
         if (vaccineGroups != null) {
-            LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
             vaccineGroupCanvasLL.removeAllViews();
             vaccineGroups = null;
         }
 
         if (serviceGroups != null) {
-            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
             serviceGroupCanvasLL.removeAllViews();
             serviceGroups = null;
         }
@@ -360,7 +392,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void updateViews() {
-        findViewById(R.id.profile_name_layout).setOnClickListener(new View.OnClickListener() {
+        profileNamelayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 launchDetailActivity(getActivity(), childDetails, null);
@@ -451,9 +483,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
         }
-        TextView dobTV = findViewById(R.id.dob_tv);
+
         dobTV.setText(String.format("%s: %s", getString(R.string.birthdate), formattedDob));
-        TextView ageTV = findViewById(R.id.age_tv);
         ageTV.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
     }
 
@@ -465,18 +496,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         }
 
-        TextView nameTV = findViewById(R.id.name_tv);
         nameTV.setText(name);
-        TextView childIdTV = findViewById(R.id.child_id_tv);
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
 
         Utils.startAsyncTask(new GetSiblingsTask(), null);
     }
 
     private void updateNextAppointmentDateView() {
-
         if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
-            CustomFontTextView nextAppointmentDateView = findViewById(R.id.next_appointment_date);
             ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
             nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
         }
@@ -494,8 +521,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateProfilePicture(Gender gender) {
         if (isDataOk()) {
-            ImageView profileImageIV = findViewById(R.id.profile_image_iv);
-
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then
                 // download and save locally
@@ -556,71 +581,21 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     continue;
                 }
 
-                for (ServiceRecord serviceRecord : serviceRecordList) {
-                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
-                            serviceRecord.getType().equals(type)) {
-                        foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                        break;
-                    }
-                }
+                getServiceTypes(serviceTypeMap, serviceRecordList, foundServiceTypeMap, type);
 
                 if (foundServiceTypeMap.containsKey(type)) {
                     continue;
                 }
 
-                for (Alert a : alerts) {
-                    if (StringUtils.containsIgnoreCase(a.scheduleName(), type) ||
-                            StringUtils.containsIgnoreCase(a.visitCode(), type)) {
-                        foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                        break;
-                    }
-                }
-
+                getAlerts(serviceTypeMap, alerts, foundServiceTypeMap, type);
             }
 
             if (foundServiceTypeMap.isEmpty()) {
                 return;
             }
 
-
             serviceGroups = new ArrayList<>();
-            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
-
-            ServiceGroup curGroup = new ServiceGroup(this);
-            curGroup.setChildActive(isChildActive);
-            curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
-            curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
-                @Override
-                public void onClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-
-                    dialogOpen = true;
-                    if (isChildActive) {
-                        addServiceDialogFragment(serviceWrapper, serviceGroup);
-                    } else {
-                        showActivateChildStatusDialogBox();
-                    }
-                }
-            });
-            curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
-                @Override
-                public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-
-                    dialogOpen = true;
-                    if (isChildActive) {
-                        addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
-                    } else {
-                        showActivateChildStatusDialogBox();
-                    }
-                }
-            });
-            serviceGroupCanvasLL.addView(curGroup);
-            serviceGroups.add(curGroup);
+            createServiceGroupCanvas(serviceRecordList, alerts, foundServiceTypeMap);
         } else {
             for (ServiceGroup serviceGroup : serviceGroups) {
                 try {
@@ -632,6 +607,72 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
+    }
+
+    private void getServiceTypes(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, Map<String, List<ServiceType>> foundServiceTypeMap, String type) {
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
+                    serviceRecord.getType().equals(type)) {
+                foundServiceTypeMap.put(type, serviceTypeMap.get(type));
+                break;
+            }
+        }
+    }
+
+    private void getAlerts(Map<String, List<ServiceType>> serviceTypeMap, List<Alert> alerts, Map<String, List<ServiceType>> foundServiceTypeMap, String type) {
+        for (Alert alert : alerts) {
+            if (StringUtils.containsIgnoreCase(alert.scheduleName(), type) ||
+                    StringUtils.containsIgnoreCase(alert.visitCode(), type)) {
+                foundServiceTypeMap.put(type, serviceTypeMap.get(type));
+                break;
+            }
+        }
+    }
+
+    private void createServiceGroupCanvas(List<ServiceRecord> serviceRecordList, List<Alert> alerts, Map<String, List<ServiceType>> foundServiceTypeMap) {
+        ServiceGroup curGroup = new ServiceGroup(this);
+        curGroup.setChildActive(isChildActive);
+        curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
+        serviceOnClickListener(curGroup);
+        undoServiceOnClickListener(curGroup);
+        serviceGroupCanvasLL.addView(curGroup);
+        serviceGroups.add(curGroup);
+    }
+
+    private void undoServiceOnClickListener(ServiceGroup curGroup) {
+        curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
+            @Override
+            public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
+                if (isChildActive) {
+                    addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
+            }
+        });
+    }
+
+    private void serviceOnClickListener(ServiceGroup curGroup) {
+        curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
+            @Override
+            public void onClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
+                if (isChildActive) {
+                    addServiceDialogFragment(serviceWrapper, serviceGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
+            }
+        });
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
@@ -866,7 +907,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void addVaccineGroup(int canvasId,
                                  org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData,
                                  List<Vaccine> vaccineList, List<Alert> alerts) {
-        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, Constants.KEY.CHILD);
@@ -1075,7 +1115,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 break;
         }
 
-        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
         vaccineGroupCanvasLL.removeAllViews();
         vaccineGroups = null;
         updateViews();
@@ -1107,7 +1146,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
-        ImageButton growthChartButton = findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1158,11 +1196,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper,
                                                    final boolean isActive) {
-        View recordWeight = findViewById(R.id.record_growth);
-        recordWeight.setClickable(true);
-        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
 
-        TextView recordWeightText = findViewById(R.id.record_growth_text);
         recordWeightText.setText(R.string.record_growth);
         if (!isActive) {
             recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
@@ -1170,12 +1204,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
         }
 
-        ImageView recordWeightCheck = findViewById(R.id.record_growth_check);
         recordWeightCheck.setVisibility(View.GONE);
 
-        updateWeightWrapper(weightWrapper, recordWeight, recordWeightText, recordWeightCheck);
+        updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         if (hasProperty & monitorGrowth) {
-            updateHeightWrapper(heightWrapper, recordWeight, recordWeightText, recordWeightCheck);
+            updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
         String weight = "";
         String height = "";
@@ -1184,10 +1217,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
-            if (hasProperty & monitorGrowth) {
-                if (heightWrapper != null && heightWrapper.getHeight() != null) {
-                    height = Utils.cmStringSuffix(heightWrapper.getHeight());
-                }
+            if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
+                height = Utils.cmStringSuffix(heightWrapper.getHeight());
             }
             isGrowthEdit = true;
             if (hasProperty & monitorGrowth) {
@@ -1196,13 +1227,20 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 recordWeightText.setText(weight);
             }
         }
-        recordWeight.setTag(R.id.weight_wrapper, weightWrapper);
-        if (hasProperty && monitorGrowth) {
-            recordWeight.setTag(R.id.height_wrapper, heightWrapper);
-        }
-        recordWeight.setTag(R.id.growth_edit_flag, isGrowthEdit);
 
-        recordWeight.setOnClickListener(new View.OnClickListener() {
+        updateRecordGrowth(weightWrapper, heightWrapper, isActive);
+
+    }
+
+    private void updateRecordGrowth(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
+        recordGrowth.setClickable(true);
+        recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
+        recordGrowth.setTag(R.id.weight_wrapper, weightWrapper);
+        if (hasProperty && monitorGrowth) {
+            recordGrowth.setTag(R.id.height_wrapper, heightWrapper);
+        }
+        recordGrowth.setTag(R.id.growth_edit_flag, isGrowthEdit);
+        recordGrowth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isActive) {
@@ -1212,7 +1250,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
         });
-
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
@@ -1240,8 +1277,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, TextView recordWeightText,
-                                     ImageView recordWeightCheck) {
+    private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, ImageView recordWeightCheck) {
         if (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
             recordWeightCheck.setVisibility(View.VISIBLE);
 
@@ -1350,12 +1386,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     BaseRepository.TYPE_Unsynced);
         }
 
-        if (hasProperty && monitorGrowth) {
-            if (heightWrapper != null) {
+        if (hasProperty && monitorGrowth && heightWrapper != null) {
                 heightWrapper.setGender(genderString);
                 Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
                         BaseRepository.TYPE_Unsynced);
-            }
         }
 
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
@@ -1413,11 +1447,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void performRegisterActions() {
         if (registerClickables != null) {
             if (registerClickables.isRecordWeight()) {
-                final View recordWeight = findViewById(R.id.record_growth);
-                recordWeight.post(new Runnable() {
+                recordGrowth.post(new Runnable() {
                     @Override
                     public void run() {
-                        recordWeight.performClick();
+                        recordGrowth.performClick();
                     }
                 });
             } else if (registerClickables.isRecordAll()) {
@@ -1526,8 +1559,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            View recordWeight = findViewById(R.id.record_growth);
-                            showGrowthDialog(recordWeight);
+                            showGrowthDialog(recordGrowth);
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
@@ -1582,14 +1614,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
 
-            for (VaccineGroup curGroup : affectedGroups.keySet()) {
-                try {
-                    vaccineGroups.remove(curGroup);
-                    addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            curGroup.getVaccineData(), vaccineList, alerts);
-                } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
+            addVaccineGroups(vaccineList, alerts, affectedGroups);
+        }
+    }
+
+    private void addVaccineGroups(List<Vaccine> vaccineList, List<Alert> alerts, HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups) {
+        for (VaccineGroup curGroup : affectedGroups.keySet()) {
+            try {
+                vaccineGroups.remove(curGroup);
+                addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
+                        curGroup.getVaccineData(), vaccineList, alerts);
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
     }
@@ -1994,12 +2030,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(Map<String, List> growthMonitoring) {
             super.onPostExecute(growthMonitoring);
             hideProgressDialog();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
             if (prev != null) {
-                ft.remove(prev);
+                fragmentTransaction.remove(prev);
             }
-            ft.addToBackStack(null);
+            fragmentTransaction.addToBackStack(null);
 
             List<Weight> weights = new ArrayList<>();
             List<Height> heights = new ArrayList<>();
@@ -2020,7 +2056,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
 
             GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
-            growthDialogFragment.show(ft, DIALOG_TAG);
+            growthDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
     }
 
@@ -2075,9 +2111,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(ArrayList<VaccineWrapper> list) {
             hideProgressDialog();
             updateVaccineGroupViews(view, list, vaccineList);
-            View recordGrowth = findViewById(R.id.record_growth);
             WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
-            HeightWrapper heightWrapper = (HeightWrapper) recordGrowth.getTag(R.id.height_wrapper);
             if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) &&
                     ChildLibrary.getInstance().getProperties()
                             .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) &&
@@ -2190,7 +2224,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             Collections.reverse(ids);
 
-            SiblingPicturesGroup siblingPicturesGroup = getActivity().findViewById(R.id.sibling_pictures);
             siblingPicturesGroup.setSiblingBaseEntityIds((BaseActivity) getActivity(), ids);
         }
     }

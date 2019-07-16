@@ -1,6 +1,7 @@
 package org.smartregister.child.interactor;
 
 import android.support.annotation.VisibleForTesting;
+
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;

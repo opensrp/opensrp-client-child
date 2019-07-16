@@ -1,6 +1,7 @@
 package org.smartregister.child.contract;
 
 import android.database.Cursor;
+
 import org.smartregister.domain.Response;
 
 import java.util.Map;

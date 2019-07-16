@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;
@@ -17,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static org.smartregister.util.Utils.*;
 
 /**
  * Created by Ahmed on 13-Oct-15.
@@ -42,7 +41,7 @@ public class MotherLookUpSmartClientsProvider {
 
         String childName = name(pc);
 
-        fillValue((TextView) convertView.findViewById(R.id.name), childName);
+        Utils.fillValue((TextView) convertView.findViewById(R.id.name), childName);
 
         String birthDateString = "Birthdate missing";
         DateTime birthDateTime = dob(pc);
@@ -69,17 +68,17 @@ public class MotherLookUpSmartClientsProvider {
 
         }
 
-        fillValue((TextView) convertView.findViewById(R.id.details), birthDateString + " - " + childListString);
+        Utils.fillValue((TextView) convertView.findViewById(R.id.details), birthDateString + " - " + childListString);
     }
 
     private String name(CommonPersonObjectClient pc) {
-        String firstName = getValue(pc.getColumnmaps(), "first_name", true);
-        String lastName = getValue(pc.getColumnmaps(), "last_name", true);
-        return getName(firstName, lastName);
+        String firstName = Utils.getValue(pc.getColumnmaps(), "first_name", true);
+        String lastName = Utils.getValue(pc.getColumnmaps(), "last_name", true);
+        return Utils.getName(firstName, lastName);
     }
 
     private DateTime dob(CommonPersonObjectClient pc) {
-        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = Utils.getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
         return Utils.dobStringToDateTime(dobString);
     }
 
@@ -110,7 +109,7 @@ public class MotherLookUpSmartClientsProvider {
         });
     }
 
-    public View inflatelayoutForCursorAdapter() {
+    public View inflateLayoutForCursorAdapter() {
         return inflater().inflate(R.layout.mother_child_lookup_client, null);
     }
 

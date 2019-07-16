@@ -1,6 +1,7 @@
 package org.smartregister.child.domain;
 
 import android.view.View;
+
 import org.smartregister.view.contract.SmartRegisterClient;
 
 /**

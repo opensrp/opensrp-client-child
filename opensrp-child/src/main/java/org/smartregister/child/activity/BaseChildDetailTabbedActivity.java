@@ -424,12 +424,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private void updateProfilePicture(Gender gender) {
         BaseChildDetailTabbedActivity.gender = gender;
         if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
-            //set profile image by passing the client id.If the image doesn't exist in the image repository then download
-            // and save locally
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader
-                    .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
-                            ImageUtils.profileImageResourceByGender(gender)));
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
         }
 
@@ -644,7 +641,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
         boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
 
-        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
+        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
     }
 
     private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
@@ -672,8 +669,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
     }
 
-    private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit,
-                                   boolean showRecordBcg2) {
+    private void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
         overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
         overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
         overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
@@ -707,7 +703,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
         } else {
             updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
+            hideDisplayImmunizationMenu(isChildActive, isChildActive, isChildActive);
         }
     }
 

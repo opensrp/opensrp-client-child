@@ -1,6 +1,7 @@
 package org.smartregister.child.model;
 
 import android.util.Log;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;

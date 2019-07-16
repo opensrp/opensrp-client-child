@@ -3,9 +3,11 @@ package org.smartregister.child.widgets;
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
+
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.widgets.EditTextFactory;
+
 import org.json.JSONObject;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.watchers.LookUpTextWatcher;

@@ -3,6 +3,7 @@ package org.smartregister.child.provider;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
+
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.service.AlertService;
