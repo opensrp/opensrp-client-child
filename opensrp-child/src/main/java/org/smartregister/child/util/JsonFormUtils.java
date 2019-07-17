@@ -634,7 +634,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                         String key = Boolean.valueOf(val) ? prefix + jsonObject.getString(JsonFormUtils.KEY) : "";
 
-                        if (val != null && key != null) {
+                        if (!TextUtils.isEmpty(val) && !TextUtils.isEmpty(key)) {
 
                             JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
                             jsonObject.put(JsonFormConstants.VALUE, array);
