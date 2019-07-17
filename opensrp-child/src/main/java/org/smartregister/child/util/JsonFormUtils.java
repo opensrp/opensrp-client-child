@@ -634,10 +634,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                         String key = Boolean.valueOf(val) ? prefix + jsonObject.getString(JsonFormUtils.KEY) : "";
 
-                        JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
+                        if (val != null && key != null) {
 
-
-                        jsonObject.put(JsonFormConstants.VALUE, array);
+                            JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
+                            jsonObject.put(JsonFormConstants.VALUE, array);
+                        }
 
 
                     } else {
@@ -740,8 +741,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     private static String getMappedValue(String key, Map<String, String> childDetails) {
 
-        String value = Utils.getValue(childDetails, key, true);
-        return !TextUtils.isEmpty(value) ? value : Utils.getValue(childDetails, key.toLowerCase(), true);
+        String value = Utils.getValue(childDetails, key, false);
+        return !TextUtils.isEmpty(value) ? value : Utils.getValue(childDetails, key.toLowerCase(), false);
     }
 
     private static void saveStaticImageToDisk(Bitmap image, String providerId, String entityId) {
