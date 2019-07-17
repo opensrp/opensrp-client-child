@@ -149,8 +149,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private CommonPersonObjectClient childDetails;
     private Uri sharedFileUri;
     private ImageView profileImageIV;
-    private static Boolean hasProperty;
-    private static Boolean monitorGrowth = false;
+    private boolean hasProperty;
+    private boolean monitorGrowth = false;
 
 
     @Override
@@ -1118,7 +1118,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
             Map<String, NamedObject<?>> map = new HashMap<>();
-
             DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
 
             detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
@@ -1194,7 +1193,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog(getString(R.string.refreshing), null);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showProgressDialog(getString(R.string.refreshing), null);
+                }
+            });
         }
 
         @Override
@@ -1235,9 +1239,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
                 updateStatus(true);
             }
 
-            renderProfileWidget(detailsMap);
 
-            hideProgressDialog();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    renderProfileWidget(detailsMap);
+                    hideProgressDialog();
+                }
+            });
+
         }
     }
 

@@ -180,10 +180,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
-        if (!StringUtils.isNotBlank(motherName)) {
+        if (StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
-
 
         fillValue(viewHolder.childMotherName, motherName);
 

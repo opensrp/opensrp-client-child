@@ -1213,7 +1213,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         String weight = "";
         String height = "";
         if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
-                (heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
+                (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }

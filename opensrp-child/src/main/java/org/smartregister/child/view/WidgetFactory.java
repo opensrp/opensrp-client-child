@@ -59,6 +59,10 @@ public class WidgetFactory {
         LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
         tableLayout.removeAllViews();
 
+        if (lastFiveHeightMap.isEmpty()){
+            tableLayout.setVisibility(View.GONE);
+        }
+
         int i = 0;
         for (Map.Entry<Long, Pair<String, String>> entry : lastFiveHeightMap.entrySet()) {
             Pair<String, String> pair = entry.getValue();
