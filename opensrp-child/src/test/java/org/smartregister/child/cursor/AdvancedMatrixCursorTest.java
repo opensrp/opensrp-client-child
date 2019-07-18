@@ -19,7 +19,7 @@ public class AdvancedMatrixCursorTest extends BaseUnitTest {
     @Test
     public void testAdvancedMatrixCursorInstantiatesCorrectly() {
 
-        AdvancedMatrixCursor advancedMatrixCursor = new AdvancedMatrixCursor(new String[] {"column1", "column2"});
+        AdvancedMatrixCursor advancedMatrixCursor = new AdvancedMatrixCursor(new String[]{"column1", "column2"});
         Assert.assertNotNull(advancedMatrixCursor);
 
     }

@@ -15,6 +15,7 @@ import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.util.Utils;
 
 /**
@@ -51,7 +52,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_VACCINE),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_VACCINE, detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -64,7 +65,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_SERVICE),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_SERVICE,  detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -76,7 +77,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new BaseChildDetailTabbedActivity.LoadAsyncTask(BaseChildDetailTabbedActivity.STATUS.EDIT_GROWTH),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_GROWTH,  detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -113,7 +114,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         finish();
     }
 
-    protected void startFormActivity(String formData) {
+    public void startFormActivity(String formData) {
 
         Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
 

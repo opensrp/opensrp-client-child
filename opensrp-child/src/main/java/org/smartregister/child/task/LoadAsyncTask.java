@@ -1,20 +1,23 @@
 package org.smartregister.child.task;
 
-/**
- * Created by ndegwamartin on 07/03/2019.
- */
-
 import android.os.AsyncTask;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import org.smartregister.CoreLibrary;
+import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
-import org.smartregister.child.domain.RepositoryHolder;
+import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.fragment.ChildUnderFiveFragment;
+import org.smartregister.child.util.AsyncTaskUtils;
+import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
-import org.smartregister.growthmonitoring.repository.HeightRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.Vaccine;
@@ -30,67 +33,93 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by ndegwamartin on 07/03/2019.
- */
+import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
-
-    private BaseChildDetailTabbedActivity.STATUS status;
+    private static Menu overflow;
+    private org.smartregister.child.enums.Status status;
     private boolean fromUpdateStatus = false;
-    private RepositoryHolder repositoryHolder;
-    private String baseEntityId;
+    private boolean hasProperty;
+    private boolean monitorGrowth = false;
+    private Map<String, String> detailsMap;
+    private CommonPersonObjectClient childDetails;
+    private BaseChildDetailTabbedActivity activity;
+    private BaseChildRegistrationDataFragment childDataFragment;
+    private ChildUnderFiveFragment childUnderFiveFragment;
 
-    private LoadAsyncTask(String baseEntityId, RepositoryHolder repositoryHolder) {
-        this.status = BaseChildDetailTabbedActivity.STATUS.NONE;
-        this.repositoryHolder = repositoryHolder;
-        this.baseEntityId = baseEntityId;
+    public LoadAsyncTask(Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
+        this.status = org.smartregister.child.enums.Status.NONE;
+        checkProperties();
+        this.detailsMap = detailsMap;
+        this.childDetails = childDetails;
+        this.activity = activity;
+        this.childDataFragment = childDataFragment;
+        this.childUnderFiveFragment = childUnderFiveFragment;
+        LoadAsyncTask.overflow = overflow;
     }
 
-    private LoadAsyncTask(String baseEntityId, BaseChildDetailTabbedActivity.STATUS status) {
+    public LoadAsyncTask(org.smartregister.child.enums.Status status, Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
+        checkProperties();
         this.status = status;
+        this.activity = activity;
+        this.detailsMap = detailsMap;
+        this.childDetails = childDetails;
+        this.activity = activity;
+        this.childDataFragment = childDataFragment;
+        this.childUnderFiveFragment = childUnderFiveFragment;
+        LoadAsyncTask.overflow = overflow;
     }
 
-    public void setFromUpdateStatus(boolean fromUpdateStatus, RepositoryHolder repositoryHolder) {
+    private void checkProperties() {
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+    }
+
+    public void setFromUpdateStatus(boolean fromUpdateStatus) {
         this.fromUpdateStatus = fromUpdateStatus;
-        this.repositoryHolder = repositoryHolder;
     }
 
     @Override
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         Map<String, NamedObject<?>> map = new HashMap<>();
+        DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
 
-        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
-        Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(baseEntityId);
+        detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);
 
-        WeightRepository weightRepository = repositoryHolder.getWeightRepository();
-        List<Weight> weightList = weightRepository.findLast5(baseEntityId);
+        List<Weight> weightList =
+                GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
 
         NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
         map.put(weightNamedObject.name, weightNamedObject);
 
-        HeightRepository heightRepository = repositoryHolder.getHeightRepository();
-        List<Height> heightList = heightRepository.findLast5(baseEntityId);
+        if (hasProperty && monitorGrowth) {
+            List<Height> heightList =
+                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
 
-        NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
-        map.put(heightNamedObject.name, heightNamedObject);
+            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+            map.put(heightNamedObject.name, heightNamedObject);
+        }
 
-        VaccineRepository vaccineRepository = repositoryHolder.getVaccineRepository();
-        List<Vaccine> vaccineList = vaccineRepository.findByEntityId(baseEntityId);
+        VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+        List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
         NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
         map.put(vaccineNamedObject.name, vaccineNamedObject);
 
         List<ServiceRecord> serviceRecords = new ArrayList<>();
 
-        RecurringServiceTypeRepository recurringServiceTypeRepository = repositoryHolder.getRecurringServiceTypeRepository();
+        RecurringServiceTypeRepository recurringServiceTypeRepository =
+                ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
         RecurringServiceRecordRepository recurringServiceRecordRepository =
-                repositoryHolder.getRecurringServiceRecordRepository();
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
 
         if (recurringServiceRecordRepository != null) {
-            serviceRecords = recurringServiceRecordRepository.findByEntityId(baseEntityId);
+            serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
         }
 
         NamedObject<List<ServiceRecord>> serviceNamedObject =
@@ -116,9 +145,9 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
 
         List<Alert> alertList = new ArrayList<>();
-        AlertService alertService = CoreLibrary.getInstance().context().alertService();
+        AlertService alertService = getOpenSRPContext().alertService();
         if (alertService != null) {
-            alertList = alertService.findByEntityId(baseEntityId);
+            alertList = alertService.findByEntityId(childDetails.entityId());
         }
 
         NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
@@ -130,39 +159,60 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        //    showProgressDialog(getString(R.string.updating_dialog_title), null);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.showProgressDialog(activity.getString(R.string.refreshing), null);
+            }
+        });
     }
 
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
-/*
-        detailsMap = AsyncTaskUtils.extractDetailsMap(map);
-        Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+        MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
+
+        if (writeToCard != null) {
+            writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+        }
 
         List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+        List<Height> heightList = null;
+        if (hasProperty && monitorGrowth) {
+            heightList = AsyncTaskUtils.extractHeights(map);
+        }
         List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
         Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
         List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
         List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
-        boolean editVaccineMode = BaseChildDetailTabbedActivity.STATUS.EDIT_VACCINE.equals(status);
-        boolean editServiceMode = BaseChildDetailTabbedActivity.STATUS.EDIT_SERVICE.equals(status);
-        boolean editWeightMode = BaseChildDetailTabbedActivity.STATUS.EDIT_GROWTH.equals(status);
+        boolean editVaccineMode = org.smartregister.child.enums.Status.EDIT_VACCINE.equals(status);
+        boolean editServiceMode = org.smartregister.child.enums.Status.EDIT_SERVICE.equals(status);
+        boolean editWeightMode = org.smartregister.child.enums.Status.EDIT_GROWTH.equals(status);
 
-        if (BaseChildDetailTabbedActivity.STATUS.NONE.equals(status)) {
-            updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-            childDataFragment.loadData(detailsMap);
+        if (org.smartregister.child.enums.Status.NONE.equals(status)) {
+            BaseChildDetailTabbedActivity.updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
         }
 
+        childDataFragment.loadData(detailsMap);
+
         childUnderFiveFragment.setDetailsMap(detailsMap);
-        childUnderFiveFragment.loadGrowthMonitoringView(weightList, editWeightMode);
+        childUnderFiveFragment.loadGrowthMonitoringView(weightList, heightList, editWeightMode);
         childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
         childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
 
         if (!fromUpdateStatus) {
-            updateStatus(true);
+            activity.updateStatus(true);
         }
 
-        hideProgressDialog();*/
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.renderProfileWidget(detailsMap);
+                activity.hideProgressDialog();
+            }
+        });
+
     }
 }

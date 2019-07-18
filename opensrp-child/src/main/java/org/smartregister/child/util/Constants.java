@@ -29,6 +29,11 @@ public class Constants extends AllConstants {
     public static final String BIRTH_HEIGHT = "Birth_Height";
     public static final String SEX = "Sex";
     public static final String DATE_REACTION = "Date_Reaction";
+    public static final String ENTITY_ID = "entityId";
+    public static final String FIRST_NAME = "firstName";
+    public static final String MIDDLE_NAME = "middleName";
+    public static final String LAST_NAME = "lastName";
+    public static final String BIND_TYPE = "bindType";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 

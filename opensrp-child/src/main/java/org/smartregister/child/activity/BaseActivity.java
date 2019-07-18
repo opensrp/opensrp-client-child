@@ -685,11 +685,11 @@ toggle.syncState();
         }
     }
 
-    protected void showProgressDialog() {
+    public void showProgressDialog() {
         showProgressDialog(getString(R.string.saving_dialog_title), getString(R.string.please_wait_message));
     }
 
-    protected void showProgressDialog(String title, String message) {
+    public void showProgressDialog(String title, String message) {
         if (progressDialog != null) {
             if (StringUtils.isNotBlank(title)) {
                 progressDialog.setTitle(title);
@@ -703,7 +703,7 @@ toggle.syncState();
         }
     }
 
-    protected void hideProgressDialog() {
+    public void hideProgressDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
