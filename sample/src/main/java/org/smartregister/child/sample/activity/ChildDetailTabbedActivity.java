@@ -26,7 +26,7 @@ import java.util.List;
 public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID");
+    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

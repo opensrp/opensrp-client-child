@@ -89,7 +89,7 @@ android {
 
 dependencies {
 
-    implementation('org.smartregister:opensrp-client-core:1.6.43-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.6.48-SNAPSHOT@aar') {
 
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
@@ -101,7 +101,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'design'
     }
 
-    implementation('org.smartregister:opensrp-client-native-form:1.6.21-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-native-form:1.6.25-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'appcompat-v7'
