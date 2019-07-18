@@ -99,8 +99,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", ZEIR_ID, "isConsented");
-
     public static JSONObject getFormAsJson(JSONObject form,
                                            String formName, String id,
                                            String currentLocationId) throws Exception {
@@ -570,7 +568,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
+
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
+        return getMetadataForEditForm(context, childDetails, new ArrayList<String>());
+    }
+
+    public static String getMetadataForEditForm(Context context, Map<String, String> childDetails, List<String> nonEditableFields) {
         try {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
 
@@ -630,11 +633,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
 
 
-                        String val = getMappedValue(prefix + jsonObject.getString(JsonFormUtils.KEY), childDetails).toLowerCase();
+                        String val = getMappedValue(prefix + jsonObject.getString(JsonFormUtils.KEY), childDetails);
 
-                        String key = Boolean.valueOf(val) ? prefix + jsonObject.getString(JsonFormUtils.KEY) : "";
+                        String key = prefix + jsonObject.getString(JsonFormUtils.KEY);
 
-                        if (!TextUtils.isEmpty(val) && !TextUtils.isEmpty(key)) {
+                        if (!TextUtils.isEmpty(val)) {
 
                             JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
                             jsonObject.put(JsonFormConstants.VALUE, array);
