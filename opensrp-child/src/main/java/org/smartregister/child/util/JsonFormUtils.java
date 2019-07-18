@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -43,6 +42,7 @@ import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
@@ -77,7 +77,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.smartregister.child.util.MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT;
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -118,7 +118,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
                 entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
                 if (entityId.isEmpty()) {
-                    Log.e(TAG, "UniqueIds are empty");
+                    Timber.e("JsonFormUtils --> UniqueIds are empty");
                     return null;
                 }
             }
@@ -167,9 +167,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             JsonFormUtils.addAddAvailableVaccines(ChildLibrary.getInstance().context().applicationContext(), form);
 
         } else {
-            Log.w(TAG, "Unsupported form requested for launch " + formName);
+            Timber.w("JsonFormUtils --> Unsupported form requested for launch %s", formName);
         }
-        Log.d(TAG, "form is " + form.toString());
+        Timber.d("JsonFormUtils --> form is %s", form.toString());
         return form;
     }
 
@@ -207,7 +207,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             updateLocationTree(widgetKey, locationHierarchy, questions, defaultLocationString, defaultFacilityString,
                     upToFacilitiesString, upToFacilitiesWithOtherString, entireTreeString);
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> addChildRegLocHierarchyQuestions");
         }
     }
 
@@ -216,15 +216,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
             // For each of the vaccine groups, create a checkbox question
             try {
-                JSONArray questionList = form.getJSONObject("step1").getJSONArray("fields");
-                JSONObject vaccinationLabel = new JSONObject();
-                vaccinationLabel.put("key", "Vaccines_Provided_Label");
-                vaccinationLabel.put("type", "label");
-                vaccinationLabel.put("text", "Which vaccinations were provided?");
-                vaccinationLabel.put("openmrs_entity_parent", "-");
-                vaccinationLabel.put("openmrs_entity", "-");
-                vaccinationLabel.put("openmrs_entity_id", "-");
-                questionList.put(vaccinationLabel);
+                JSONArray questionList = getQuestionList(form);
 
                 HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = new HashMap<>();
                 for (VaccineGroup curVaccineGroup : supportedVaccines) {
@@ -234,37 +226,23 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         }
                         ArrayList<String> vaccineNamesDefined = new ArrayList<>();
                         if (curVaccine.vaccine_separator != null) {
-                            String unsplitNames = curVaccine.name;
+                            String unSplitNames = curVaccine.name;
                             String separator = curVaccine.vaccine_separator;
-                            String[] splitValues = unsplitNames.split(separator);
-                            for (String splitValue : splitValues) {
-                                vaccineNamesDefined.add(splitValue);
-                            }
+                            String[] splitValues = unSplitNames.split(separator);
+                            vaccineNamesDefined.addAll(Arrays.asList(splitValues));
                         } else {
                             vaccineNamesDefined.add(curVaccine.name);
                         }
 
                         for (String curVaccineName : vaccineNamesDefined) {
-                            JSONObject curConstraint = new JSONObject();
-                            curConstraint.put("vaccine", curVaccineName);
-                            curConstraint.put("type", "array");
-                            curConstraint.put("ex",
-                                    "notEqualTo(step1:" + curVaccineGroup.id + ", \"[\"" + curVaccineName + "\"]\")");
-                            curConstraint.put("err", "Cannot be given with the other " + curVaccine.type + " dose");
+                            JSONObject curConstraint = getCurConstraint(curVaccineGroup, curVaccine, curVaccineName);
                             vaccineTypeConstraints.get(curVaccine.type).add(curConstraint);
                         }
                     }
                 }
 
                 for (VaccineGroup curVaccineGroup : supportedVaccines) {
-                    JSONObject curQuestion = new JSONObject();
-                    curQuestion.put("key", curVaccineGroup.id);
-                    curQuestion.put("type", "check_box");
-                    curQuestion.put("is_vaccine_group", true);
-                    curQuestion.put("label", curVaccineGroup.name);
-                    curQuestion.put("openmrs_entity_parent", "-");
-                    curQuestion.put("openmrs_entity", "-");
-                    curQuestion.put("openmrs_entity_id", "-");
+                    JSONObject curQuestion = getCurQuestion(curVaccineGroup);
 
                     JSONArray options = new JSONArray();
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine curVaccine : curVaccineGroup.vaccines) {
@@ -273,9 +251,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             String rawNames = curVaccine.name;
                             String separator = curVaccine.vaccine_separator;
                             String[] split = rawNames.split(separator);
-                            for (String aSplit : split) {
-                                definedVaccineNames.add(aSplit);
-                            }
+                            definedVaccineNames.addAll(Arrays.asList(split));
                         } else {
                             definedVaccineNames.add(curVaccine.name);
                         }
@@ -310,9 +286,46 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     questionList.put(curQuestion);
                 }
             } catch (JSONException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Timber.e(e, "JsonFormUtils --> addAddAvailableVaccines");
             }
         }
+    }
+
+    @NotNull
+    private static JSONArray getQuestionList(JSONObject form) throws JSONException {
+        JSONArray questionList = form.getJSONObject("step1").getJSONArray("fields");
+        JSONObject vaccinationLabel = new JSONObject();
+        vaccinationLabel.put("key", "Vaccines_Provided_Label");
+        vaccinationLabel.put("type", "label");
+        vaccinationLabel.put("text", "Which vaccinations were provided?");
+        vaccinationLabel.put("openmrs_entity_parent", "-");
+        vaccinationLabel.put("openmrs_entity", "-");
+        vaccinationLabel.put("openmrs_entity_id", "-");
+        questionList.put(vaccinationLabel);
+        return questionList;
+    }
+
+    @NotNull
+    private static JSONObject getCurConstraint(VaccineGroup curVaccineGroup, Vaccine curVaccine, String curVaccineName) throws JSONException {
+        JSONObject curConstraint = new JSONObject();
+        curConstraint.put("vaccine", curVaccineName);
+        curConstraint.put("type", "array");
+        curConstraint.put("ex",
+                "notEqualTo(step1:" + curVaccineGroup.id + ", \"[\"" + curVaccineName + "\"]\")");
+        curConstraint.put("err", "Cannot be given with the other " + curVaccine.type + " dose");
+        return curConstraint;
+    }
+
+    private static JSONObject getCurQuestion(VaccineGroup curVaccineGroup) throws JSONException {
+        JSONObject curQuestion = new JSONObject();
+        curQuestion.put("key", curVaccineGroup.id);
+        curQuestion.put("type", "check_box");
+        curQuestion.put("is_vaccine_group", true);
+        curQuestion.put("label", curVaccineGroup.name);
+        curQuestion.put("openmrs_entity_parent", "-");
+        curQuestion.put("openmrs_entity", "-");
+        curQuestion.put("openmrs_entity_id", "-");
+        return curQuestion;
     }
 
     @NotNull
@@ -370,6 +383,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         addLocationDefault(widgetKey, widgets, defaultLocationString);
                     }
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -380,7 +395,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 widget.put("tree", new JSONArray(updateString));
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Timber.e(e, "JsonFormUtils --> addLocationTree");
         }
     }
 
@@ -390,16 +405,14 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 widget.put("default", new JSONArray(updateString));
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Timber.e(e, "JsonFormUtils --> addLocationDefault");
         }
     }
 
     public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext, String jsonString,
                                           String providerId, String locationId, String entityId) {
         try {
-
             EventClientRepository db = ChildLibrary.getInstance().eventClientRepository();
-
             JSONObject jsonForm = new JSONObject(jsonString);
 
             JSONArray fields = fields(jsonForm);
@@ -422,10 +435,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
             }
 
-            Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
-                    .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
-                    .withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
-                    .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+            Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, Constants.CHILD_TYPE);
 
             for (int i = 0; i < fields.length(); i++) {
                 JSONObject jsonObject = getJSONObject(fields, i);
@@ -464,62 +474,75 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
             if (event != null) {
-                JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
-
-                //After saving, Unsync(remove) this event's details
-                //List<JSONObject> jsonEvents = new ArrayList<>();
-                ///jsonEvents.add(eventJson);
-
-                //Update client to deceased
-                JSONObject client = db.getClientByBaseEntityId(eventJson.getString(ClientProcessor.baseEntityIdJSONKey));
-                client.put(FormEntityConstants.Person.deathdate.name(), encounterDateTimeString);
-                client.put(FormEntityConstants.Person.deathdate_estimated.name(), false);
-                client.put(Constants.JSON_FORM_KEY.DEATH_DATE_APPROX, false);
-
-                db.addorUpdateClient(entityId, client);
-
-                //Add Death Event for child to flag for Server delete
-                db.addEvent(event.getBaseEntityId(), eventJson);
-
-                //Update Child Entity to include death date
-                Event updateChildDetailsEvent =
-                        (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
-                                .withEventDate(encounterDate)
-                                .withEventType(JsonFormUtils.updateBirthRegistrationDetailsEncounter)
-                                .withLocationId(locationId).withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
-                                .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
-
-                addMetaData(context, updateChildDetailsEvent, new Date());
-
-                JsonFormUtils.tagSyncMetadata(updateChildDetailsEvent);
-
-                JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
-
-                db.addEvent(entityId, eventJsonUpdateChildEvent); //Add event to flag server update
-
-                //Update REGISTER and FTS Tables
-                String tableName = Utils.metadata().childRegister.tableName;
-                AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
-                if (allCommonsRepository != null) {
-                    ContentValues values = new ContentValues();
-                    values.put(Constants.KEY.DOD, encounterDateField);
-                    values.put(Constants.KEY.DATE_REMOVED, Utils.getTodaysDate());
-                    allCommonsRepository.update(tableName, values, entityId);
-                    allCommonsRepository.updateSearch(entityId);
-
-                }
+                createEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
+                updateFTSTables(openSrpContext, entityId, encounterDateField);
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
             }
 
-            long lastSyncTimeStamp = Utils.getAllSharedPreferences().fetchLastUpdatedAtDate(0);
-            Date lastSyncDate = new Date(lastSyncTimeStamp);
-            ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(
-                    ChildLibrary.getInstance().getEcSyncHelper().getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-            Utils.getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
+            processClients(context, Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
         } catch (Exception e) {
-            Log.e(TAG, "", e);
+            Timber.e(e, "JsonFormUtils --> saveReportDeceased");
+        }
+    }
+
+    private static void processClients(Context context, AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
+        long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
+        Date lastSyncDate = new Date(lastSyncTimeStamp);
+        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(
+                ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+        allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+    }
+
+    private static Event getEvent(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
+        return (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
+                .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
+                .withProviderId(providerId).withEntityType(childType)
+                .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+    }
+
+    private static void createEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
+        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
+
+        //After saving, Unsync(remove) this event's details
+        //List<JSONObject> jsonEvents = new ArrayList<>();
+        ///jsonEvents.add(eventJson);
+
+        //Update client to deceased
+        JSONObject client = db.getClientByBaseEntityId(eventJson.getString(ClientProcessor.baseEntityIdJSONKey));
+        client.put(FormEntityConstants.Person.deathdate.name(), encounterDateTimeString);
+        client.put(FormEntityConstants.Person.deathdate_estimated.name(), false);
+        client.put(Constants.JSON_FORM_KEY.DEATH_DATE_APPROX, false);
+
+        db.addorUpdateClient(entityId, client);
+
+        //Add Death Event for child to flag for Server delete
+        db.addEvent(event.getBaseEntityId(), eventJson);
+
+        //Update Child Entity to include death date
+        Event updateChildDetailsEvent = getEvent(providerId, locationId, entityId, JsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
+
+        addMetaData(context, updateChildDetailsEvent, new Date());
+
+        JsonFormUtils.tagSyncMetadata(updateChildDetailsEvent);
+
+        JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
+
+        db.addEvent(entityId, eventJsonUpdateChildEvent); //Add event to flag server update
+    }
+
+    private static void updateFTSTables(org.smartregister.Context openSrpContext, String entityId, String encounterDateField) {
+        //Update REGISTER and FTS Tables
+        String tableName = Utils.metadata().childRegister.tableName;
+        AllCommonsRepository allCommonsRepository = openSrpContext.allCommonsRepositoryobjects(tableName);
+        if (allCommonsRepository != null) {
+            ContentValues values = new ContentValues();
+            values.put(Constants.KEY.DOD, encounterDateField);
+            values.put(Constants.KEY.DATE_REMOVED, Utils.getTodaysDate());
+            allCommonsRepository.update(tableName, values, entityId);
+            allCommonsRepository.updateSearch(entityId);
+
         }
     }
 
@@ -629,7 +652,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> processChildDetailsForm");
             return null;
         }
     }
@@ -639,9 +662,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         JSONObject jsonForm = toJSONObject(jsonString);
         JSONArray fields = fields(jsonForm);
 
-        Triple<Boolean, JSONObject, JSONArray> registrationFormParams =
-                Triple.of(jsonForm != null && fields != null, jsonForm, fields);
-        return registrationFormParams;
+        return Triple.of(jsonForm != null && fields != null, jsonForm, fields);
     }
 
     protected static void processGender(JSONArray fields) {
@@ -671,24 +692,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             genderObject.put(Constants.KEY.VALUE, genderValue);
         } catch (JSONException e) {
-            Log.e(TAG, "", e);
+            Timber.e(e, "JsonFormUtils --> processGender");
         }
     }
 
     protected static void processLocationFields(JSONArray fields) throws JSONException {
         for (int i = 0; i < fields.length(); i++) {
             if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) &&
-                    fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE)) try {
-                String rawValue = fields.getJSONObject(i).getString(JsonFormConstants.VALUE);
-                JSONArray valueArray = new JSONArray(rawValue);
-                if (valueArray.length() > 0) {
-                    String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                    String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
-                    fields.getJSONObject(i).put(JsonFormConstants.VALUE, lastLocationId);
+                    fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE))
+                try {
+                    String rawValue = fields.getJSONObject(i).getString(JsonFormConstants.VALUE);
+                    JSONArray valueArray = new JSONArray(rawValue);
+                    if (valueArray.length() > 0) {
+                        String lastLocationName = valueArray.getString(valueArray.length() - 1);
+                        String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
+                        fields.getJSONObject(i).put(JsonFormConstants.VALUE, lastLocationId);
+                    }
+                } catch (Exception e) {
+                    Timber.e(e, "JsonFormUitls --> processLocationFields");
                 }
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
         }
     }
 
@@ -699,7 +721,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             lastInteractedWith.put(Constants.KEY.VALUE, Calendar.getInstance().getTimeInMillis());
             fields.put(lastInteractedWith);
         } catch (JSONException e) {
-            Log.e(TAG, "", e);
+            Timber.e(e, "JsonFormUtils --> lastInteractedWith");
         }
     }
 
@@ -729,32 +751,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
             }
         } catch (JSONException e) {
-            Log.e(TAG, "", e);
+            Timber.e(e, "JsonFormUtils --> dobUnknownUpdateFromAge");
         }
     }
 
     public static void mergeAndSaveClient(Client baseClient) throws Exception {
-
         JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
-
         JSONObject originalClientJsonObject =
                 ChildLibrary.getInstance().getEcSyncHelper().getClient(baseClient.getBaseEntityId());
-
         JSONObject mergedJson = org.smartregister.util.JsonFormUtils.merge(originalClientJsonObject, updatedClientJson);
-
         //TODO Save edit log ?
-
         ChildLibrary.getInstance().getEcSyncHelper().addClient(baseClient.getBaseEntityId(), mergedJson);
     }
 
     public static void saveImage(String providerId, String entityId, String imageLocation) {
-
         if (StringUtils.isBlank(imageLocation)) {
             return;
         }
 
         File file = new File(imageLocation);
-
         if (!file.exists()) {
             return;
         }
@@ -797,13 +812,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
 
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "Failed to save static image to disk");
+            Timber.e(e, "JsonFormUtils --> Failed to save static image to disk");
         } finally {
             if (os != null) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "Failed to close static images output stream after attempting to write image");
+                    Timber.e(e, "JsonFormUtils --> Failed to close static images output stream after attempting to write image");
                 }
             }
         }
@@ -815,7 +830,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
             JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
 
-            Log.d(TAG, "Form is " + form.toString());
+            Timber.d("Form is %s", form.toString());
             if (form != null) {
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
                 form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
@@ -964,7 +979,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 return form.toString();
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> getMetadataForEditForm");
         }
 
         return "";
@@ -974,7 +989,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
 
         if (StringUtils.isNotBlank(photo.getFilePath())) {
-
             jsonObject.put(JsonFormUtils.VALUE, photo.getFilePath());
 
         }
@@ -1008,9 +1022,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         JSONObject jsonForm = toJSONObject(jsonString);
         JSONArray fields = fields(jsonForm, step);
 
-        Triple<Boolean, JSONObject, JSONArray> registrationFormParams =
-                Triple.of(jsonForm != null && fields != null, jsonForm, fields);
-        return registrationFormParams;
+        return Triple.of(jsonForm != null && fields != null, jsonForm, fields);
     }
 
     public static JSONArray fields(JSONObject jsonForm, String step) {
@@ -1024,7 +1036,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return step1.has(FIELDS) ? step1.getJSONArray(FIELDS) : null;
 
         } catch (JSONException e) {
-            Log.e(TAG, "", e);
+            Timber.e(e, "JsonFormUtils --> fields");
         }
         return null;
     }
@@ -1117,7 +1129,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             return new ChildEventClient(subformClient, subformEvent);
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
@@ -1138,7 +1150,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                   } */
             }
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Timber.e(e, "JsonFormUtils --> addRelationship");
         }
     }
 
@@ -1167,13 +1179,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         String dd = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathdate = formatDate(dd, true);
         String aproxbd = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
-        Boolean birthdateApprox = false;
+        boolean birthdateApprox = false;
         if (!StringUtils.isEmpty(aproxbd) && NumberUtils.isNumber(aproxbd)) {
             int bde = 0;
             try {
                 bde = Integer.parseInt(aproxbd);
             } catch (Exception e) {
-                Log.e(TAG, e.toString(), e);
+                Timber.e(e);
             }
             birthdateApprox = bde > 0;
         }
@@ -1184,26 +1196,31 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             try {
                 dde = Integer.parseInt(aproxdd);
             } catch (Exception e) {
-                Log.e(TAG, e.toString(), e);
+                Timber.e(e);
             }
             deathdateApprox = dde > 0;
         }
 
         List<Address> addresses = new ArrayList<>(extractAddresses(fields, bindType).values());
 
-        Client c = (Client) new Client(entityId).withFirstName(firstName).withMiddleName(middleName).withLastName(lastName)
+        return getClient(context, fields, parent, bindType, entityId, firstName, gender, idents, middleName, lastName, birthdate, deathdate, birthdateApprox, deathdateApprox, addresses);
+    }
+
+    @NotNull
+    private static Client getClient(Context context, JSONArray fields, Client parent, String bindType, String entityId, String firstName, String gender, Map<String, String> idents, String middleName, String lastName, Date birthdate, Date deathdate, boolean birthdateApprox, Boolean deathdateApprox, List<Address> addresses) {
+        Client client = (Client) new Client(entityId).withFirstName(firstName).withMiddleName(middleName).withLastName(lastName)
                 .withBirthdate(birthdate, birthdateApprox).withDeathdate(deathdate, deathdateApprox).withGender(gender)
                 .withDateCreated(new Date());
 
-        c.withAddresses(addresses).withAttributes(extractAttributes(fields, bindType)).withIdentifiers(idents);
+        client.withAddresses(addresses).withAttributes(extractAttributes(fields, bindType)).withIdentifiers(idents);
 
         if (addresses.isEmpty()) {
-            c.withAddresses(parent.getAddresses());
+            client.withAddresses(parent.getAddresses());
         }
 
-        addRelationship(context, c, parent);
+        addRelationship(context, client, parent);
 
-        return c;
+        return client;
     }
 
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId,
@@ -1215,19 +1232,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         boolean alreadyExists = eventClients.size() > 0;
         org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
-        Event e = (Event) new Event().withBaseEntityId(
-                alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
-                .withEventDate(parent.getEventDate()).withEventType(encounterType).withEntityType(bindType)
-                .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
-                .withDateCreated(new Date());
+        Event event = getEvent(parent, entityId, encounterType, bindType, alreadyExists, domainEvent);
 
-        if (fields != null && fields.length() != 0) for (int i = 0; i < fields.length(); i++) {
-            JSONObject jsonObject = getJSONObject(fields, i);
-            String value = getString(jsonObject, VALUE);
-            if (StringUtils.isNotBlank(value)) {
-                addObservation(e, jsonObject);
-            }
-        }
+        addSubFormEventObservations(fields, event);
 
         if (metadata != null) {
             Iterator<?> keys = metadata.keys();
@@ -1241,13 +1248,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     if (entityVal != null) {
                         if (entityVal.equals(CONCEPT)) {
                             addToJSONObject(jsonObject, KEY, key);
-                            addObservation(e, jsonObject);
+                            addObservation(event, jsonObject);
                         } else if (entityVal.equals(ENCOUNTER)) {
                             String entityIdVal = getString(jsonObject, OPENMRS_ENTITY_ID);
                             if (entityIdVal.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                 Date eDate = formatDate(value, false);
                                 if (eDate != null) {
-                                    e.setEventDate(eDate);
+                                    event.setEventDate(eDate);
                                 }
                             }
                         }
@@ -1256,7 +1263,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         }
 
-        return e;
+        return event;
+    }
+
+    private static void addSubFormEventObservations(JSONArray fields, Event event) {
+        if (fields != null && fields.length() != 0) for (int i = 0; i < fields.length(); i++) {
+            JSONObject jsonObject = getJSONObject(fields, i);
+            String value = getString(jsonObject, VALUE);
+            if (StringUtils.isNotBlank(value)) {
+                addObservation(event, jsonObject);
+            }
+        }
+    }
+
+    private static Event getEvent(Event parent, String entityId, String encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.db.Event domainEvent) {
+        return (Event) new Event().withBaseEntityId(
+                alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
+                .withEventDate(parent.getEventDate()).withEventType(encounterType).withEntityType(bindType)
+                .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
+                .withDateCreated(new Date());
     }
 
     private static JSONArray getMotherFields(JSONArray fields) throws JSONException {
@@ -1278,7 +1303,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         org.smartregister.util.Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
     }
 
-    public static boolean processMoveToCatchment(android.content.Context context, AllSharedPreferences allSharedPreferences,
+    public static boolean processMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences,
                                                  JSONObject jsonObject) {
 
         try {
@@ -1307,7 +1332,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
 
                 // Skip previous move to catchment events
-                if (MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
+                if (MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
                     continue;
                 }
 
@@ -1327,33 +1352,15 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 String fromLocationId = null;
                 if (Utils.metadata().childRegister.registerEventType.equals(event.getEventType())) {
-                    // Update home facility
-                    for (Obs obs : event.getObs()) {
-                        if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
-                            fromLocationId = obs.getValue().toString();
-                            List<Object> values = new ArrayList<>();
-                            values.add(toLocationId);
-                            obs.setValues(values);
-                        }
-                    }
+                    fromLocationId = updateHomeFacility(HOME_FACILITY, toLocationId, event, fromLocationId);
 
                 }
 
 
                 if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) ||
                         Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+                    createMoveToCatchmentEvent(context, toProviderId, toLocationId, event, fromLocationId);
 
-                    //Create move to catchment event;
-                    org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils
-                            .createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
-                    if (moveToCatchmentEvent != null) {
-                        JSONObject moveToCatchmentJsonEvent =
-                                ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
-                        if (moveToCatchmentJsonEvent != null) {
-                            ChildLibrary.getInstance().getEcSyncHelper()
-                                    .addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
-                        }
-                    }
                 }
 
                 // Update providerId, locationId and Save unsynced event
@@ -1366,18 +1373,41 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
             }
 
-            long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
-            Date lastSyncDate = new Date(lastSyncTimeStamp);
-            ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(
-                    ChildLibrary.getInstance().getEcSyncHelper().getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-            allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+            processClients(context, allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
             return true;
         } catch (Exception e) {
-            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+            Timber.e(e, "JsonFormUtils --> processMoveToCatchment");
         }
 
         return false;
+    }
+
+    private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
+        //Create move to catchment event;
+        Event moveToCatchmentEvent = JsonFormUtils
+                .createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+        if (moveToCatchmentEvent != null) {
+            JSONObject moveToCatchmentJsonEvent =
+                    ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
+            if (moveToCatchmentJsonEvent != null) {
+                ChildLibrary.getInstance().getEcSyncHelper()
+                        .addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+            }
+        }
+    }
+
+    private static String updateHomeFacility(String HOME_FACILITY, String toLocationId, Event event, String fromLocationId) {
+        // Update home facility
+        for (Obs obs : event.getObs()) {
+            if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
+                fromLocationId = obs.getValue().toString();
+                List<Object> values = new ArrayList<>();
+                values.add(toLocationId);
+                obs.setValues(values);
+            }
+        }
+        return fromLocationId;
     }
 
     public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId,
@@ -1393,10 +1423,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             final String FORM_SUBMISSION_FIELD = "formsubmissionField";
             final String DATA_TYPE = "text";
 
-            Event event = (Event) new Event().withBaseEntityId(referenceEvent.getBaseEntityId()).withEventDate(new Date())
-                    .withEventType(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT).withLocationId(fromLocationId)
-                    .withProviderId(referenceEvent.getProviderId()).withEntityType("child")
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
+            Event event = getEvent(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), "child");
 
 
             String formSubmissionField = "From_ProviderId";
@@ -1429,7 +1456,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return event;
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> createMoveToCatchmentEvent");
             return null;
         }
     }
@@ -1517,11 +1544,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 JsonFormUtils.addAddAvailableVaccines(context, form);
             } else {
-                Log.w(TAG, "Unsupported form requested for launch " + formName);
+                Timber.w("Unsupported form requested for launch %s", formName);
             }
 
             intent.putExtra("json", form.toString());
-            Log.d(TAG, "form is " + form.toString());
+            Timber.d("JsonFormUtils --> form is %s", form.toString());
             context.startActivityForResult(intent, jsonFormActivityRequestCode);
         }
     }
@@ -1530,10 +1557,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         try {
 
-            Event event = (Event) new Event().withBaseEntityId(baseEntityId).withEventDate(new Date())
-                    .withEventType(BCG_SCAR_EVENT).withLocationId(locationId).withProviderId(providerId)
-                    .withEntityType("child").withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
-                    .withDateCreated(new Date());
+            Event event = getEvent(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), "child");
 
 
             final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -1554,12 +1578,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "JsonFormUtils --> createBCGScarEvent");
         }
     }
 
 
-    public static Map<String, String> updateClientAttribute(android.content.Context context,
+    public static Map<String, String> updateClientAttribute(Context context,
                                                             CommonPersonObjectClient childDetails, String attributeName,
                                                             Object attributeValue) throws Exception {
 
@@ -1591,20 +1615,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             locationName = LocationHelper.getInstance().getDefaultLocation();
         }
 
-        Event event = (Event) new Event().withBaseEntityId(childDetails.entityId()).withEventDate(new Date())
-                .withEventType(JsonFormUtils.updateBirthRegistrationDetailsEncounter)
-                .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
-                .withProviderId(allSharedPreferences.fetchRegisteredANM()).withEntityType(Constants.CHILD_TYPE)
-                .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
+        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), LocationHelper.getInstance().getOpenMrsLocationId(locationName), childDetails.entityId(), JsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
         JsonFormUtils.addMetaData(context, event, date);
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
-        Date lastSyncDate = new Date(lastSyncTimeStamp);
-        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context)
-                .processClient(ECSyncHelper.getInstance(context).getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-        allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+        processClients(context, allSharedPreferences, ECSyncHelper.getInstance(context));
 
         //update details
         Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());

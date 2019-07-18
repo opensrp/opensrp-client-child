@@ -133,6 +133,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -162,9 +164,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
-    private static Boolean hasProperty;
-    private static Boolean monitorGrowth = false;
-
     private View recordGrowth;
     private TextView recordWeightText;
     private ImageView profileImageIV;
@@ -520,17 +519,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     private void updateProfilePicture(Gender gender) {
-        if (isDataOk()) {
-            if (childDetails.entityId() != null) { //image already in local storage most likey ):
-                //set profile image by passing the client id.If the image doesn't exist in the image repository then
-                // download and save locally
-                profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
-                        OpenSRPImageLoader
-                                .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
-                                        ImageUtils.profileImageResourceByGender(gender)));
+        if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likey ):
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then
+            // download and save locally
+            profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
+                    OpenSRPImageLoader
+                            .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
+                                    ImageUtils.profileImageResourceByGender(gender)));
 
-            }
         }
     }
 
@@ -1198,18 +1195,20 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                                                    final boolean isActive) {
 
         recordWeightText.setText(R.string.record_growth);
-        if (!isActive) {
-            recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
-        } else {
-            recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
-        }
-
+        recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
         recordWeightCheck.setVisibility(View.GONE);
 
         updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         if (hasProperty & monitorGrowth) {
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
+
+        updateRecordWeightText(weightWrapper, heightWrapper);
+        updateRecordGrowth(weightWrapper, heightWrapper, isActive);
+
+    }
+
+    private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         String weight = "";
         String height = "";
         if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
@@ -1227,9 +1226,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 recordWeightText.setText(weight);
             }
         }
-
-        updateRecordGrowth(weightWrapper, heightWrapper, isActive);
-
     }
 
     private void updateRecordGrowth(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
@@ -1387,9 +1383,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         if (hasProperty && monitorGrowth && heightWrapper != null) {
-                heightWrapper.setGender(genderString);
-                Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
-                        BaseRepository.TYPE_Unsynced);
+            heightWrapper.setGender(genderString);
+            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
+                    BaseRepository.TYPE_Unsynced);
         }
 
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
@@ -1767,6 +1763,42 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         return height;
     }
 
+    private void updateScheduleDate() {
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        DateTime dateTime = Utils.dobStringToDateTime(dobString);
+        if (dateTime != null) {
+            VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+            ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
+        }
+    }
+
+    @NotNull
+    private Map<String, NamedObject<?>> getStringNamedObjectMap(List<Vaccine> vaccineList, Weight weight, Height height, Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecords, List<Alert> alertList) {
+        Map<String, NamedObject<?>> map = new HashMap<>();
+
+        NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+        map.put(vaccineNamedObject.name, vaccineNamedObject);
+
+        NamedObject<Weight> weightNamedObject = new NamedObject<>(Weight.class.getName(), weight);
+        map.put(weightNamedObject.name, weightNamedObject);
+
+        NamedObject<Height> heightNamedObject = new NamedObject<>(Height.class.getName(), height);
+        map.put(heightNamedObject.name, heightNamedObject);
+
+        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+        map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+
+        NamedObject<List<ServiceRecord>> serviceRecordNamedObject =
+                new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+        map.put(serviceRecordNamedObject.name, serviceRecordNamedObject);
+
+        NamedObject<List<Alert>> alertsNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+        map.put(alertsNamedObject.name, alertsNamedObject);
+
+        return map;
+    }
+
     private class UpdateViewTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private VaccineRepository vaccineRepository;
@@ -1802,12 +1834,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... voids) {
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            DateTime dateTime = Utils.dobStringToDateTime(dobString);
-            if (dateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-                ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
-            }
+            updateScheduleDate();
 
             List<Vaccine> vaccineList = new ArrayList<>();
             Weight weight = null;
@@ -1850,29 +1877,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 alertList = alertService.findByEntityId(childDetails.entityId());
             }
 
-            Map<String, NamedObject<?>> map = new HashMap<>();
-
-            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
-            map.put(vaccineNamedObject.name, vaccineNamedObject);
-
-            NamedObject<Weight> weightNamedObject = new NamedObject<>(Weight.class.getName(), weight);
-            map.put(weightNamedObject.name, weightNamedObject);
-
-            NamedObject<Height> heightNamedObject = new NamedObject<>(Height.class.getName(), height);
-            map.put(heightNamedObject.name, heightNamedObject);
-
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
-                    new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
-
-            NamedObject<List<ServiceRecord>> serviceRecordNamedObject =
-                    new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-            map.put(serviceRecordNamedObject.name, serviceRecordNamedObject);
-
-            NamedObject<List<Alert>> alertsNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
-            map.put(alertsNamedObject.name, alertsNamedObject);
-
-            return map;
+            return getStringNamedObjectMap(vaccineList, weight, height, serviceTypeMap, serviceRecords, alertList);
         }
 
         @Override

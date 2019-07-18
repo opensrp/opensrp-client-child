@@ -65,18 +65,16 @@ import static org.smartregister.child.util.Utils.updateGrowthValue;
  */
 public class ChildUnderFiveFragment extends Fragment {
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
     private Map<String, String> detailsMap;
     private LinearLayout fragmentContainer;
     private View heightWidgetLayout;
-
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
     private Boolean curGrowthMonitoringMode;
-
-    private static Boolean hasProperty;
-    private static Boolean monitorGrowth = false;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor

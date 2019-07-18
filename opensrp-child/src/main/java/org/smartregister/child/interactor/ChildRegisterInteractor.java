@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
@@ -134,7 +136,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                             try {
                                 JsonFormUtils.mergeAndSaveClient(baseClient);
                             } catch (Exception e) {
-                                Log.e(TAG, e.getMessage());
+                                Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
                             }
                         } else {
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
@@ -144,52 +146,11 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         }
                     }
 
-                    if (baseEvent != null) {
-                        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
-                        getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
-                        currentFormSubmissionIds
-                                .add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
-                    }
-
-                    if (params.isEditMode()) {
-                        // Unassign current OPENSRP ID
-                        if (baseClient != null) {
-                            try {
-                                String newOpenSRPId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID).replace("-", "");
-                                String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
-                                if (!newOpenSRPId.equals(currentOpenSRPId)) {
-                                    //OPENSRP ID was changed
-                                    getUniqueIdRepository().open(currentOpenSRPId);
-                                }
-                            } catch (Exception e) {//might crash if M_ZEIR
-                                Log.d(TAG, e.getMessage());
-                            }
-                        }
-
-                    } else {
-                        if (baseClient != null) {
-                            String opensrpId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID);
-
-                            //mark OPENSRP ID as used
-                            getUniqueIdRepository().close(opensrpId);
-                        }
-                    }
-
-                    if (baseClient != null || baseEvent != null) {
-                        String imageLocation = null;
-                        if (i == 0) {
-                            imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
-                        } else if (i == 1) {
-                            imageLocation =
-                                    JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
-                        }
-
-                        if (StringUtils.isNotBlank(imageLocation)) {
-                            JsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
-                        }
-                    }
+                    addEvent(params, currentFormSubmissionIds, baseEvent);
+                    updateOpenSRPId(jsonString, params, baseClient);
+                    addImageLocation(jsonString, i, baseClient, baseEvent);
                 } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
+                    Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
             }
 
@@ -198,7 +159,58 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e, "ChildRegisterInteractor --> saveRegistration");
+        }
+    }
+
+    private void addImageLocation(String jsonString, int i, Client baseClient, Event baseEvent) {
+        if (baseClient != null || baseEvent != null) {
+            String imageLocation = null;
+            if (i == 0) {
+                imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
+            } else if (i == 1) {
+                imageLocation =
+                        JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+            }
+
+            if (StringUtils.isNotBlank(imageLocation)) {
+                JsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
+            }
+        }
+    }
+
+    private void updateOpenSRPId(String jsonString, UpdateRegisterParams params, Client baseClient) {
+        if (params.isEditMode()) {
+            // Unassign current OPENSRP ID
+            if (baseClient != null) {
+                try {
+                    String newOpenSRPId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID).replace("-", "");
+                    String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
+                    if (!newOpenSRPId.equals(currentOpenSRPId)) {
+                        //OPENSRP ID was changed
+                        getUniqueIdRepository().open(currentOpenSRPId);
+                    }
+                } catch (Exception e) {//might crash if M_ZEIR
+                    Timber.d(e, "ChildRegisterInteractor --> unassign opensrp id");
+                }
+            }
+
+        } else {
+            if (baseClient != null) {
+                String opensrpId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID);
+
+                //mark OPENSRP ID as used
+                getUniqueIdRepository().close(opensrpId);
+            }
+        }
+    }
+
+    private void addEvent(UpdateRegisterParams params, List<String> currentFormSubmissionIds, Event baseEvent) throws JSONException {
+        if (baseEvent != null) {
+            JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
+            getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
+            currentFormSubmissionIds
+                    .add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
         }
     }
 

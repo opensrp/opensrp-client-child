@@ -317,9 +317,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     }
 
     public class FooterViewHolder extends RecyclerView.ViewHolder {
-        TextView pageInfoView;
-        Button nextPageView;
-        Button previousPageView;
+        private TextView pageInfoView;
+        private Button nextPageView;
+        private Button previousPageView;
 
         FooterViewHolder(View view) {
             super(view);

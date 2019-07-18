@@ -42,6 +42,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected Map<String, String> childDetails;
     protected View fragmentView;
     private ChildRegistrationDataAdapter mAdapter;
+    private List<Field> fields;
+    private Map<String, Integer> stringResourceIds;
 
     public ChildRegistrationDataAdapter getmAdapter() {
         return mAdapter;
@@ -58,10 +60,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     public void setFields(List<Field> fields) {
         this.fields = fields;
     }
-
-    private List<Field> fields;
-    private Map<String, Integer> stringResourceIds;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

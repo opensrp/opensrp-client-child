@@ -26,7 +26,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
     private final EventClientRepository eventClientRepository;
 
     public SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId, String providerId,
-                                 EventClientRepository eventClientRepository) {
+                                EventClientRepository eventClientRepository) {
         this.jsonString = jsonString;
         this.locationId = locationId;
         this.baseEntityId = baseEntityId;

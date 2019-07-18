@@ -59,7 +59,7 @@ public class WidgetFactory {
         LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
         tableLayout.removeAllViews();
 
-        if (lastFiveHeightMap.isEmpty()){
+        if (lastFiveHeightMap.isEmpty()) {
             tableLayout.setVisibility(View.GONE);
         }
 

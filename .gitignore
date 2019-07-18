@@ -16,3 +16,5 @@ jacoco.exec
 .externalNativeBuild
 jacoco.exec
 .idea/
+sample/debug/
+sample/release/
