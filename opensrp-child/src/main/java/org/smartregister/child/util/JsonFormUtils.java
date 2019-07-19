@@ -1233,8 +1233,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 return false;
             }
 
-            JSONArray events = jsonObject.has(Constants.EVENTS) ? jsonObject.getJSONArray(Constants.EVENTS) : new JSONArray();
-            JSONArray clients = jsonObject.has(Constants.CLIENTS) ? jsonObject.getJSONArray(Constants.CLIENTS) : new JSONArray();
+            JSONArray events = getOutOFCatchmentJsonArray(jsonObject, Constants.EVENTS);
+            JSONArray clients = getOutOFCatchmentJsonArray(jsonObject, Constants.CLIENTS);
 
             ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
             addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
@@ -1246,6 +1246,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
 
         return false;
+    }
+
+    private static JSONArray getOutOFCatchmentJsonArray(JSONObject jsonObject, String clients) throws JSONException {
+        return jsonObject.has(clients) ? jsonObject.getJSONArray(clients) : new JSONArray();
     }
 
     private static List<Pair<Event, JSONObject>> createEventList(JSONArray events) throws JSONException {
