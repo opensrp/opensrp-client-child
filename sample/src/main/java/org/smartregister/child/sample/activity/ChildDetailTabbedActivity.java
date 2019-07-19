@@ -17,17 +17,24 @@ import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
 public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
+
+
+    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.registration_data:
 
-                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap);
+                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap, nonEditableFields);
                 startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
