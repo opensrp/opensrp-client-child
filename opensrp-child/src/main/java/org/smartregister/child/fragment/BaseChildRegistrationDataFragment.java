@@ -45,12 +45,27 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     private List<Field> fields;
     private Map<String, Integer> stringResourceIds;
 
+    public ChildRegistrationDataAdapter getmAdapter() {
+        return mAdapter;
+    }
+
+    public void setmAdapter(ChildRegistrationDataAdapter mAdapter) {
+        this.mAdapter = mAdapter;
+    }
+
+    public List<Field> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<Field> fields) {
+        this.fields = fields;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Form form = getForm();
-        fields = form.getStep1().getFields();
+        setFields(form.getStep1().getFields());
         stringResourceIds = getDataRowLabelResourceIds();
     }
 
@@ -67,88 +82,75 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         return fragmentView;
     }
 
+    protected Form getForm() {
+        try {
+            return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(),
+                    Form.class);
+        } catch (Exception e) {
+            Log.e(BaseChildRegistrationDataFragment.class.getCanonicalName(), e.getMessage());
+            return null;
+        }
+    }
+
+    protected abstract Map<String, Integer> getDataRowLabelResourceIds();
+
+    protected abstract String getRegistrationForm();
 
     public void updateChildDetails(Map<String, String> childDetails) {
         this.childDetails = childDetails;
     }
 
     public void loadData(Map<String, String> detailsMap) {
-
         RecyclerView mRecyclerView1 = getActivity().findViewById(R.id.recyclerView);
-
         resetAdapterData(detailsMap);
 
         mRecyclerView1.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView1.setItemAnimator(new DefaultItemAnimator());
-        //  mRecyclerView1.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         mRecyclerView1.setAdapter(mAdapter);
 
     }
 
-    protected abstract Map<String, Integer> getDataRowLabelResourceIds();
-
-    protected Form getForm() {
-        try {
-
-            return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(), Form.class);
-        } catch (Exception e) {
-            Log.e(BaseChildRegistrationDataFragment.class.getCanonicalName(), e.getMessage());
-            return null;
-        }
-
-    }
-
-    protected abstract String getRegistrationForm();
-
-    private void resetAdapterData(Map<String, String> detailsMap) {
+    public void resetAdapterData(Map<String, String> detailsMap) {
         List<KeyValueItem> mArrayList = new ArrayList<>();
 
         String key;
         String value;
 
-        for (int i = 0; i < fields.size(); i++) {
-            key = fields.get(i).getKey();
-
+        for (int i = 0; i < getFields().size(); i++) {
+            key = getFields().get(i).getKey();
             value = detailsMap.get(key);
-
-            value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(fields.get(i).getEntityId()) + cleanOpenMRSEntityId(fields.get(i).getOpenmrsEntityId().toLowerCase()));
+            value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(getFields().get(i).getEntityId()) +
+                    cleanOpenMRSEntityId(getFields().get(i).getOpenmrsEntityId().toLowerCase()));
             String label = cleanLabel(key);
+
             if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label)) {
-                mArrayList.add(new KeyValueItem(label, cleanValue(fields.get(i), value)));
+                mArrayList.add(new KeyValueItem(label, cleanValue(getFields().get(i), value)));
             }
 
         }
 
-        mAdapter = new ChildRegistrationDataAdapter(mArrayList);
+        setmAdapter(new ChildRegistrationDataAdapter(mArrayList));
     }
 
-    private String cleanOpenMRSEntityId(String rawEntityId) {
-        return Client.birth_date_key.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
-    }
-
-    private String getPrefix(String entityId) {
-
+    public String getPrefix(String entityId) {
         return !TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase("mother") ? "mother_" : "";
     }
 
-    private String cleanLabel(String raw) {
+    public String cleanOpenMRSEntityId(String rawEntityId) {
+        return Client.birth_date_key.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
+    }
 
+    public String cleanLabel(String raw) {
         String label = null;
-
         if (stringResourceIds != null && stringResourceIds.size() > 0) {
-
             Integer resourceId = stringResourceIds.get(raw);
-
             label = resourceId != null ? getResources().getString(resourceId) : null;
         }
-
-        label = label != null ? label : null;
-
 
         return label;
     }
 
-    private String cleanValue(Field field, String raw) {
+    public String cleanValue(Field field, String raw) {
         String result = raw;
         String type = field.getType();
 
@@ -156,48 +158,37 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.DATE_PICKER:
                 Date date = JsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
-                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN).format(date);
+                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN)
+                            .format(date);
                 }
                 break;
-
-
             case JsonFormConstants.SPINNER:
-
                 if (field.getKeys() != null && field.getKeys().size() > 0) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
                 }
 
                 break;
-
             case JsonFormConstants.TREE:
-                result = LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
-
-               /* if (LocationHelper.getInstance().getOpenMrsReadableName(raw).equalsIgnoreCase("other")) {
-                    raw = Utils.getValue(detailsMap, "address5", true);
-                }*/
+                result = LocationHelper.getInstance()
+                        .getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
                 break;
-
             default:
                 break;
-
         }
 
         return cleanResult(result.trim());
     }
 
-    public void refreshRecyclerViewData(Map<String, String> detailsMap) {
-
-        resetAdapterData(detailsMap);
-        mAdapter.notifyDataSetChanged();
-    }
-
     private String cleanResult(String result) {
-
         if (NumberUtils.isNumber(result)) {
             return Utils.formatNumber(result);
         } else {
             return result;
         }
     }
-}
 
+    public void refreshRecyclerViewData(Map<String, String> detailsMap) {
+        resetAdapterData(detailsMap);
+        mAdapter.notifyDataSetChanged();
+    }
+}

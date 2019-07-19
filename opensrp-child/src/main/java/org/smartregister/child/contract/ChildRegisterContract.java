@@ -54,7 +54,9 @@ public interface ChildRegisterContract {
 
         void getNextUniqueId(Triple<String, String, String> triple, ChildRegisterContract.InteractorCallBack callBack);
 
-        void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString, final UpdateRegisterParams updateRegisterParams, final ChildRegisterContract.InteractorCallBack callBack);
+        void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString,
+                              final UpdateRegisterParams updateRegisterParams,
+                              final ChildRegisterContract.InteractorCallBack callBack);
 
         void removeChildFromRegister(String closeFormJsonString, String providerId);
 

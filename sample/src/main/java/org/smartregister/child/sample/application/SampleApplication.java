@@ -1,9 +1,8 @@
 package org.smartregister.child.sample.application;
 
+import android.content.Intent;
 import android.util.Log;
-
 import com.evernote.android.job.JobManager;
-
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
@@ -21,9 +20,11 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
-import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.HeightZScoreRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.growthmonitoring.repository.WeightZScoreRepository;
+import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.VaccineSchedule;
@@ -45,74 +46,8 @@ import java.util.Random;
 
 public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
-
     private static CommonFtsObject commonFtsObject;
-
     private boolean lastModified;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        mInstance = this;
-        context = Context.getInstance();
-        context.updateApplicationContext(getApplicationContext());
-        context.updateCommonFtsObject(createCommonFtsObject());
-
-        //Initialize Modules
-        CoreLibrary.init(context, new SampleSyncConfiguration());
-        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
-        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
-        ConfigurableViewsLibrary.init(context, getRepository());
-        ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
-
-        initRepositories();
-
-
-        //Auto login by default
-        context.session().start(context.session().lengthInMilliseconds());
-        context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
-        context.session().setPassword(SampleRepository.PASSWORD);
-
-        SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
-
-        //init Job Manager
-        JobManager.create(this).addJobCreator(new SampleJobCreator());
-
-        sampleUniqueIds();
-
-        initOfflineSchedules();
-
-        ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
-
-    }
-
-    @Override
-    public void logoutCurrentUser() {
-    }
-
-    public static synchronized SampleApplication getInstance() {
-        return (SampleApplication) mInstance;
-    }
-
-    @Override
-    public Repository getRepository() {
-        try {
-            if (repository == null) {
-                repository = new SampleRepository(getInstance().getApplicationContext(), context);
-            }
-        } catch (UnsatisfiedLinkError e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return repository;
-    }
-
-    private void initRepositories() {
-        weightRepository();
-        vaccineRepository();
-        zScoreRepository();
-    }
 
     public static CommonFtsObject createCommonFtsObject() {
         if (commonFtsObject == null) {
@@ -158,15 +93,115 @@ public class SampleApplication extends DrishtiApplication {
         return null;
     }
 
+    public static synchronized SampleApplication getInstance() {
+        return (SampleApplication) mInstance;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mInstance = this;
+        context = Context.getInstance();
+        context.updateApplicationContext(getApplicationContext());
+        context.updateCommonFtsObject(createCommonFtsObject());
+
+        //Initialize Modules
+        CoreLibrary.init(context, new SampleSyncConfiguration());
+        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE,
+                BuildConfig.DATABASE_VERSION);
+        ConfigurableViewsLibrary.init(context, getRepository());
+        ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+
+        initRepositories();
+
+        //Auto login by default
+        context.session().start(context.session().lengthInMilliseconds());
+        context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
+        context.session().setPassword(SampleRepository.PASSWORD);
+
+        SyncStatusBroadcastReceiver.init(this);
+        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
+
+        //init Job Manager
+        JobManager.create(this).addJobCreator(new SampleJobCreator());
+        sampleUniqueIds();
+        initOfflineSchedules();
+        startZscoreRefreshService();
+    }
+
+    @Override
+    public void logoutCurrentUser() {
+    }
+
+    @Override
+    public Repository getRepository() {
+        try {
+            if (repository == null) {
+                repository = new SampleRepository(getInstance().getApplicationContext(), context);
+            }
+        } catch (UnsatisfiedLinkError e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return repository;
+    }
+
     private ChildMetadata getMetadata() {
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class, ChildImmunizationActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD, SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION, SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER, SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
+                ChildImmunizationActivity.class, true);
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD,
+                SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION,
+                SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.CONFIGURATION.CHILD_REGISTER,
+                SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         return metadata;
+    }
+
+    private void initRepositories() {
+        weightRepository();
+        heightRepository();
+        vaccineRepository();
+        weightZScoreRepository();
+        heightZScoreRepository();
     }
 
     private void sampleUniqueIds() {
         List<String> ids = generateIds(20);
         ChildLibrary.getInstance().getUniqueIdRepository().bulkInserOpenmrsIds(ids);
+    }
+
+    private void initOfflineSchedules() {
+        try {
+            List<VaccineGroup> childVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            List<Vaccine> specialVaccines = VaccinatorUtils.getSpecialVaccines(this);
+            VaccineSchedule.init(childVaccines, specialVaccines, "child");
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    public void startZscoreRefreshService() {
+        Intent intent = new Intent(this.getApplicationContext(), ZScoreRefreshIntentService.class);
+        this.getApplicationContext().startService(intent);
+    }
+
+    public WeightRepository weightRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightRepository();
+    }
+
+    public HeightRepository heightRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightRepository();
+    }
+
+    public VaccineRepository vaccineRepository() {
+        return ImmunizationLibrary.getInstance().vaccineRepository();
+    }
+
+    public HeightZScoreRepository weightZScoreRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightZScoreRepository();
+    }
+
+    public WeightZScoreRepository heightZScoreRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightZScoreRepository();
     }
 
     private List<String> generateIds(int size) {
@@ -187,22 +222,9 @@ public class SampleApplication extends DrishtiApplication {
         return openmrsId.substring(0, lastIndex) + "-" + tail;
     }
 
-    public WeightRepository weightRepository() {
-        return GrowthMonitoringLibrary.getInstance().weightRepository();
-    }
-
     public Context context() {
         return context;
     }
-
-    public VaccineRepository vaccineRepository() {
-        return ImmunizationLibrary.getInstance().vaccineRepository();
-    }
-
-    public ZScoreRepository zScoreRepository() {
-        return GrowthMonitoringLibrary.getInstance().zScoreRepository();
-    }
-
 
     public RecurringServiceTypeRepository recurringServiceTypeRepository() {
         return ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
@@ -218,15 +240,5 @@ public class SampleApplication extends DrishtiApplication {
 
     public void setLastModified(boolean lastModified) {
         this.lastModified = lastModified;
-    }
-
-    private void initOfflineSchedules() {
-        try {
-            List<VaccineGroup> childVaccines = VaccinatorUtils.getSupportedVaccines(this);
-            List<Vaccine> specialVaccines = VaccinatorUtils.getSpecialVaccines(this);
-            VaccineSchedule.init(childVaccines, specialVaccines, "child");
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
     }
 }

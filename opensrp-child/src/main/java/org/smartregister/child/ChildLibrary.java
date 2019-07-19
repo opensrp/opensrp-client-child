@@ -36,23 +36,8 @@ public class ChildLibrary {
     private LocationPickerView locationPickerView;
     private AppProperties properties;
 
-    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
-        if (instance == null) {
-            instance = new ChildLibrary(context, repository, metadataArg, applicationVersion, databaseVersion);
-        }
-    }
-
-    public static ChildLibrary getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException(" Instance does not exist!!! Call "
-                    + CoreLibrary.class.getName()
-                    + ".init method in the onCreate method of "
-                    + "your Application class ");
-        }
-        return instance;
-    }
-
-    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
+    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion,
+                         int databaseVersion) {
         this.context = contextArg;
         repository = repositoryArg;
         this.metadata = metadataArg;
@@ -61,16 +46,23 @@ public class ChildLibrary {
         this.properties = Utils.getProperties(this.context.applicationContext());
     }
 
+    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion,
+                            int databaseVersion) {
+        if (instance == null) {
+            instance = new ChildLibrary(context, repository, metadataArg, applicationVersion, databaseVersion);
+        }
+    }
+
+    public static ChildLibrary getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException(" Instance does not exist!!! Call " + CoreLibrary.class.getName() +
+                    ".init method in the onCreate method of " + "your Application class ");
+        }
+        return instance;
+    }
+
     public ChildMetadata metadata() {
         return metadata;
-    }
-
-    public Context context() {
-        return context;
-    }
-
-    public Repository getRepository() {
-        return repository;
     }
 
     public int getApplicationVersion() {
@@ -88,6 +80,10 @@ public class ChildLibrary {
         return uniqueIdRepository;
     }
 
+    public Repository getRepository() {
+        return repository;
+    }
+
     public EventClientRepository eventClientRepository() {
         if (eventClientRepository == null) {
             eventClientRepository = new EventClientRepository(getRepository());
@@ -102,6 +98,9 @@ public class ChildLibrary {
         return syncHelper;
     }
 
+    public Context context() {
+        return context;
+    }
 
     public ClientProcessorForJava getClientProcessorForJava() {
         if (clientProcessorForJava == null) {

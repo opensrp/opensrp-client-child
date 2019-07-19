@@ -22,15 +22,14 @@ import static org.smartregister.child.util.Constants.CHILD_STATUS.INACTIVE;
 import static org.smartregister.child.util.Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
 
 public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
-
-    AdvancedSearchPresenter presenter;
-    private MaterialEditText firstName;
-    private MaterialEditText lastName;
     protected MaterialEditText openSrpId;
     protected MaterialEditText motherGuardianFirstName;
     protected MaterialEditText motherGuardianLastName;
     protected MaterialEditText motherGuardianNrc;
     protected MaterialEditText motherGuardianPhoneNumber;
+    AdvancedSearchPresenter presenter;
+    private MaterialEditText firstName;
+    private MaterialEditText lastName;
 
     @Override
     protected BaseChildAdvancedSearchPresenter getPresenter() {
@@ -44,9 +43,28 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
-    public boolean onBackPressed() {
-        ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_home);
-        return super.onBackPressed();
+    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
+
+        this.searchFormData = formData;
+
+    }
+
+    @Override
+    protected String getMainCondition() {
+        return DBQueryHelper.getHomeRegisterCondition();
+    }
+
+    @Override
+    public void assignedValuesBeforeBarcode() {
+        if (searchFormData.size() > 0) {
+            firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
+            lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
+            motherGuardianFirstName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
+            motherGuardianLastName.setText(searchFormData.get(DBConstants.KEY.MOTHER_LAST_NAME));
+            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
+            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
+            openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
+        }
     }
 
     @Override
@@ -73,7 +91,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         motherGuardianPhoneNumber = view.findViewById(org.smartregister.child.R.id.mother_guardian_phone_number);
         motherGuardianPhoneNumber.addTextChangedListener(advancedSearchTextwatcher);
 
-//Defaults
+        //Defaults
         startDate.addTextChangedListener(advancedSearchTextwatcher);
         endDate.addTextChangedListener(advancedSearchTextwatcher);
 
@@ -86,41 +104,6 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
         advancedFormSearchableFields.put(START_DATE, startDate);
         advancedFormSearchableFields.put(END_DATE, endDate);
-    }
-
-    @Override
-    protected String getDefaultSortQuery() {
-        return presenter.getDefaultSortQuery();
-    }
-
-    @Override
-    protected String filterSelectionCondition(boolean urgentOnly) {
-        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
-    }
-
-    @Override
-    public void setAdvancedSearchFormData(HashMap<String, String> formData) {
-
-        this.searchFormData = formData;
-
-    }
-
-    @Override
-    public void onClick(View view) {
-        view.toString();
-    }
-
-    @Override
-    public void assignedValuesBeforeBarcode() {
-        if (searchFormData.size() > 0) {
-            firstName.setText(searchFormData.get(DBConstants.KEY.FIRST_NAME));
-            lastName.setText(searchFormData.get(DBConstants.KEY.LAST_NAME));
-            motherGuardianFirstName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
-            motherGuardianLastName.setText(searchFormData.get(DBConstants.KEY.MOTHER_LAST_NAME));
-            motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
-            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
-            openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
-        }
     }
 
     @Override
@@ -139,6 +122,27 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
+    public boolean onBackPressed() {
+        ((BaseRegisterActivity) getActivity()).setSelectedBottomBarMenuItem(R.id.action_home);
+        return super.onBackPressed();
+    }
+
+    @Override
+    protected String getDefaultSortQuery() {
+        return presenter.getDefaultSortQuery();
+    }
+
+    @Override
+    protected String filterSelectionCondition(boolean urgentOnly) {
+        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
+    }
+
+    @Override
+    public void onClick(View view) {
+        view.toString();
+    }
+
+    @Override
     protected void clearFormFields() {
         super.clearFormFields();
 
@@ -153,28 +157,16 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     }
 
     @Override
-    protected String getMainCondition() {
-        return DBQueryHelper.getHomeRegisterCondition();
-    }
-
-    @Override
     protected Map<String, String> getSearchMap(boolean outOfArea) {
-
         Map<String, String> searchParams = new HashMap<>();
-
 
         String fn = firstName.getText().toString();
         String ln = lastName.getText().toString();
 
-
         String motherGuardianFirstNameString = motherGuardianFirstName.getText().toString();
-
         String motherGuardianLastNameString = motherGuardianLastName.getText().toString();
-
         String motherGuardianNrcString = motherGuardianNrc.getText().toString();
-
         String motherGuardianPhoneNumberString = motherGuardianPhoneNumber.getText().toString();
-
         String zeir = openSrpId.getText().toString();
 
 
@@ -229,17 +221,11 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
 
         if (isActive == isInactive && isActive == isLostToFollowUp) {
 
-            if (searchParams.containsKey(INACTIVE)) {
-                searchParams.remove(INACTIVE);
-            }
+            searchParams.remove(INACTIVE);
 
-            if (searchParams.containsKey(ACTIVE)) {
-                searchParams.remove(ACTIVE);
-            }
+            searchParams.remove(ACTIVE);
 
-            if (searchParams.containsKey(LOST_TO_FOLLOW_UP)) {
-                searchParams.remove(LOST_TO_FOLLOW_UP);
-            }
+            searchParams.remove(LOST_TO_FOLLOW_UP);
 
         }
 
@@ -252,22 +238,6 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         if (StringUtils.isNotBlank(endDateString)) {
             searchParams.put(END_DATE, endDateString.trim());
         }
-
-        /*
-
-
-        if (StringUtils.isNotBlank(startDateString) && StringUtils.isNotBlank(endDateString)) {
-            String dateFormat = "yyyy-MM-dd";
-            Date startDate = Utils.getDateFromString(startDateString, dateFormat);
-            Date endDate = Utils.getDateFromString(endDateString, dateFormat);
-
-            if (startDate.compareTo(endDate) > 0) {
-                Utils.showToast(getActivity(),"For birth range please select an End Date which IS NOT earlier than the Start Date");
-                return;
-            }
-        }
-
-        */
 
         return searchParams;
     }

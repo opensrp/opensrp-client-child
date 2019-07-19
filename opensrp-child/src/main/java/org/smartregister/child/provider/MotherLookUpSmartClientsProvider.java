@@ -19,10 +19,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.smartregister.util.Utils.fillValue;
-import static org.smartregister.util.Utils.getName;
-import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by Ahmed on 13-Oct-15.
  */
@@ -45,7 +41,7 @@ public class MotherLookUpSmartClientsProvider {
 
         String childName = name(pc);
 
-        fillValue((TextView) convertView.findViewById(R.id.name), childName);
+        Utils.fillValue((TextView) convertView.findViewById(R.id.name), childName);
 
         String birthDateString = "Birthdate missing";
         DateTime birthDateTime = dob(pc);
@@ -72,16 +68,18 @@ public class MotherLookUpSmartClientsProvider {
 
         }
 
-        fillValue((TextView) convertView.findViewById(R.id.details), birthDateString + " - " + childListString);
+        Utils.fillValue((TextView) convertView.findViewById(R.id.details), birthDateString + " - " + childListString);
     }
 
-
-    public View inflatelayoutForCursorAdapter() {
-        return inflater().inflate(R.layout.mother_child_lookup_client, null);
+    private String name(CommonPersonObjectClient pc) {
+        String firstName = Utils.getValue(pc.getColumnmaps(), "first_name", true);
+        String lastName = Utils.getValue(pc.getColumnmaps(), "last_name", true);
+        return Utils.getName(firstName, lastName);
     }
 
-    private LayoutInflater inflater() {
-        return inflater;
+    private DateTime dob(CommonPersonObjectClient pc) {
+        String dobString = Utils.getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
+        return Utils.dobStringToDateTime(dobString);
     }
 
     private void sortList(List<CommonPersonObjectClient> childList) {
@@ -111,15 +109,12 @@ public class MotherLookUpSmartClientsProvider {
         });
     }
 
-    private DateTime dob(CommonPersonObjectClient pc) {
-        String dobString = getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
-        return Utils.dobStringToDateTime(dobString);
+    public View inflateLayoutForCursorAdapter() {
+        return inflater().inflate(R.layout.mother_child_lookup_client, null);
     }
 
-    private String name(CommonPersonObjectClient pc) {
-        String firstName = getValue(pc.getColumnmaps(), "first_name", true);
-        String lastName = getValue(pc.getColumnmaps(), "last_name", true);
-        return getName(firstName, lastName);
+    private LayoutInflater inflater() {
+        return inflater;
     }
 
 }

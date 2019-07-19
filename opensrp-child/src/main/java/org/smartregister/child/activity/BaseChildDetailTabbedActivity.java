@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,9 +16,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -35,57 +31,56 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.lang3.tuple.Triple;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.AllConstants;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.child.domain.NamedObject;
-import org.smartregister.child.domain.UpdateRegisterParams;
+import org.smartregister.child.adapter.ViewPagerAdapter;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
+import org.smartregister.child.task.LaunchAdverseEventFormTask;
+import org.smartregister.child.task.LoadAsyncTask;
+import org.smartregister.child.task.SaveAdverseEventTask;
+import org.smartregister.child.task.SaveRegistrationDetailsTask;
+import org.smartregister.child.task.SaveServiceTask;
+import org.smartregister.child.task.SaveVaccinesTask;
+import org.smartregister.child.task.UndoServiceTask;
+import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.AppProperties;
-import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
-import org.smartregister.growthmonitoring.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
-import org.smartregister.immunization.domain.ServiceSchedule;
-import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
-import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
-import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.ImageUtils;
-import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.DetailsRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -101,12 +96,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import timber.log.Timber;
 
 import static org.smartregister.util.Utils.getValue;
 
@@ -114,186 +109,39 @@ import static org.smartregister.util.Utils.getValue;
  * Created by raihan on 1/03/2017.
  */
 
-public abstract class BaseChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener, WeightActionListener, StatusChangeListener, ServiceActionListener {
+public abstract class BaseChildDetailTabbedActivity extends BaseActivity
+        implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
-    protected Menu overflow;
-    private ChildDetailsToolbar detailtoolbar;
-    private TabLayout tabLayout;
-    protected ViewPager viewPager;
-    protected TextView saveButton;
+    public static final String EXTRA_CHILD_DETAILS = "child_details";
+    public static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
+    public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
+    public static final int PHOTO_TAKING_PERMISSION =
+            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
-    private static Gender gender;
-    //////////////////////////////////////////////////
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
-    public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    protected static Menu overflow;
+    private static Gender gender;
+    protected ViewPager viewPager;
+    protected TextView saveButton;
+    protected Map<String, String> detailsMap;
+    private ChildDetailsToolbar childDetailsToolbar;
+    private TabLayout tabLayout;
     private BaseChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
-    public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
-
-    private File currentfile;
+    private File currentFile;
     private String locationId = "";
-
-    private ViewPagerAdapter adapter;
-
-    // Data
+    private String providerId = "";
     private CommonPersonObjectClient childDetails;
-    protected Map<String, String> detailsMap;
-    ////////////////////////////////////////////////
-
-    public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
-
-    private static final String CHILD = "child";
-
     private Uri sharedFileUri;
-    public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     private ImageView profileImageIV;
+    private boolean hasProperty;
+    private boolean monitorGrowth = false;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
-            Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-                detailsMap = childDetails.getColumnmaps();
-            }
-        }
-
-        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
-
-        setContentView(getContentView());
-
-        childDataFragment = getChildRegistrationDataFragment();
-        childDataFragment.setArguments(this.getIntent().getExtras());
-
-        childUnderFiveFragment = new ChildUnderFiveFragment();
-        childUnderFiveFragment.setArguments(this.getIntent().getExtras());
-
-        detailtoolbar = findViewById(R.id.child_detail_toolbar);
-
-        saveButton = detailtoolbar.findViewById(R.id.save);
-        saveButton.setVisibility(View.INVISIBLE);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetOptionsMenu();
-            }
-        });
-
-        detailtoolbar.showOverflowMenu();
-
-        setSupportActionBar(detailtoolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        tabLayout = findViewById(R.id.tabs);
-
-        viewPager = findViewById(R.id.viewpager);
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position == 0 && saveButton.getVisibility() == View.VISIBLE) {
-                    resetOptionsMenu();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-        setupViewPager(viewPager);
-
-        detailtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-        setActivityTitle();
-
-        tabLayout.setupWithViewPager(viewPager);
-
-        setupViews();
-    }
-
-    public void setupViews() {
-        profileImageIV = findViewById(R.id.profile_image_iv);
-
-
-        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
-            profileImageIV.setOnClickListener(null);
-            findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
-
-        } else {
-            findViewById(R.id.profile_image_edit_icon).setVisibility(View.VISIBLE);
-            profileImageIV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
-                        dispatchTakePictureIntent();
-                    }
-                }
-            });
-        }
-
-
-        DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
-        if (mDrawerLayout != null && (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) && !ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
-
-        renderProfileWidget(detailsMap);
-        updateGenderViews();
-    }
-
-    protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_child_detail_settings, menu);
-        overflow = menu;
-
-        //Defaults
-        overflow.findItem(R.id.immunization_data).setEnabled(false);
-        overflow.findItem(R.id.recurring_services_data).setEnabled(false);
-        overflow.findItem(R.id.weight_data).setEnabled(false);
-
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
-
-            overflow.findItem(R.id.write_to_card).setVisible(true);
-            overflow.findItem(R.id.register_card).setVisible(true);
-        }
-
-        Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
-
-        return true;
-    }
-
-    private void resetOptionsMenu() {
-        detailtoolbar.showOverflowMenu();
-        invalidateOptionsMenu();
-
-        saveButton.setVisibility(View.INVISIBLE);
-    }
-
-    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList,
+                                         List<Alert> alertList) {
         boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
@@ -323,187 +171,211 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             }
         }
 
-        boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
-
-        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
+        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
     }
 
-    private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
-            return false;
-        }
-
-        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
-        if (bcg == null) {
-            return false;
-        }
-
-        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
-        if (alert == null || alert.isComplete()) {
-            return false;
-        }
-
-        int bcgOffsetInWeeks = 12;
-        Calendar twelveWeeksLaterDate = Calendar.getInstance();
-        twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
-
-        Calendar today = Calendar.getInstance();
-
-        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
-    }
-
-    private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
+    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
         overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
         overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
         overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+    public static Menu getOverflow() {
+        return overflow;
     }
 
-    protected boolean launchAdverseEventForm() {
-        LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask();
-        task.execute();
-        return true;
-    }
-
-    protected abstract void startFormActivity(String formData);
-
-    @Override
-    public void onBackPressed() {
-        finish();
+    public static void setOverflow(Menu overflow) {
+        BaseChildDetailTabbedActivity.overflow = overflow;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
-        if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
-            try {
-                String jsonString = data.getStringExtra("json");
-                Log.d("JSONResult", jsonString);
-
-                JSONObject form = new JSONObject(jsonString);
-                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
-                    confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
-                    SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask();
-                    saveRegistrationDetailsTask.setJsonString(jsonString);
-                    Utils.startAsyncTask(saveRegistrationDetailsTask, null);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    //   JsonFormUtils.saveAdverseEvent(jsonString, locationId,
-                    //         childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
-                }
+    protected void onCreate(Bundle savedInstanceState) {
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
 
 
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+        super.onCreate(savedInstanceState);
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+            Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
+            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+                childDetails = (CommonPersonObjectClient) serializable;
+                detailsMap = childDetails.getColumnmaps();
+            }
+        }
+
+        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
+        if (detailsMap.containsKey(Constants.INTENT_KEY.PROVIDER_ID)) {
+            providerId = detailsMap.get(Constants.INTENT_KEY.PROVIDER_ID);
+        }
+
+        setContentView(getContentView());
+
+        childDataFragment = getChildRegistrationDataFragment();
+        childDataFragment.setArguments(this.getIntent().getExtras());
+
+        childUnderFiveFragment = new ChildUnderFiveFragment();
+        childUnderFiveFragment.setArguments(this.getIntent().getExtras());
+
+        childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
+
+        saveButton = childDetailsToolbar.findViewById(R.id.save);
+        saveButton.setVisibility(View.INVISIBLE);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetOptionsMenu();
+            }
+        });
+
+        childDetailsToolbar.showOverflowMenu();
+
+        setSupportActionBar(childDetailsToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        tabLayout = findViewById(R.id.tabs);
+
+        viewPager = findViewById(R.id.viewpager);
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //Todo
             }
 
-        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            String imageLocation = currentfile.getAbsolutePath();
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0 && saveButton.getVisibility() == View.VISIBLE) {
+                    resetOptionsMenu();
+                }
+            }
 
-            JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
-            updateProfilePicture(gender);
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        setupViewPager(viewPager);
+
+        childDetailsToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        setActivityTitle();
+        tabLayout.setupWithViewPager(viewPager);
+        setupViews();
+    }
+
+    protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
+
+    private void resetOptionsMenu() {
+        childDetailsToolbar.showOverflowMenu();
+        invalidateOptionsMenu();
+
+        saveButton.setVisibility(View.INVISIBLE);
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        adapter.addFragment(childDataFragment, getString(R.string.registration_data));
+        adapter.addFragment(childUnderFiveFragment, getString(R.string.under_five_history));
+        viewPager.setAdapter(adapter);
+    }
+
+    protected void setActivityTitle() {
+        ((TextView) childDetailsToolbar.findViewById(R.id.title)).setText(getActivityTitle());
+    }
+
+    public void setupViews() {
+        profileImageIV = findViewById(R.id.profile_image_iv);
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
+            profileImageIV.setOnClickListener(null);
+            findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
+
+        } else {
+            findViewById(R.id.profile_image_edit_icon).setVisibility(View.VISIBLE);
+            profileImageIV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (PermissionUtils.isPermissionGranted(BaseChildDetailTabbedActivity.this,
+                            new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+                        dispatchTakePictureIntent();
+                    }
+                }
+            });
+        }
+
+        DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
+        if (mDrawerLayout != null &&
+                (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
+
+        renderProfileWidget(detailsMap);
+        updateGenderViews();
+    }
+
+    private String getActivityTitle() {
+        String name = "";
+        if (isDataOk()) {
+            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true),
+                    getValue(detailsMap, Constants.KEY.LAST_NAME, true));
+        }
+        return String.format("%s's %s", name, getString(R.string.health_details));
+    }
+
+    private void dispatchTakePictureIntent() {
+        if (PermissionUtils.isPermissionGranted(this,
+                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                // Create the File where the photo should go
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    Timber.e(ex, "BaseChildDetailTabbedActivity --> dispatchTakePictureIntent");
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+
+                    //We need this for backward compatibility
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                        StrictMode.setVmPolicy(builder.build());
+                    }
+
+                    currentFile = photoFile;
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                }
+            }
         }
     }
 
-    private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
-
-        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), locationId, childDetails.entityId());
-
-    }
-
-    private void confirmReportDeceased(final String json, final AllSharedPreferences allSharedPreferences) {
-
-        final AlertDialog builder = new AlertDialog.Builder(this).setCancelable(false).create();
-
-        LayoutInflater inflater = getLayoutInflater();
-        View notificationsLayout = inflater.inflate(R.layout.notification_base, null);
-        notificationsLayout.setVisibility(View.VISIBLE);
-
-        ImageView notificationIcon = notificationsLayout.findViewById(R.id.noti_icon);
-        notificationIcon.setTag("confirm_deceased_icon");
-        notificationIcon.setImageResource(R.drawable.ic_deceased);
-        notificationIcon.getLayoutParams().height = 165;
-
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) notificationIcon.getLayoutParams();
-        params.setMargins(55, params.topMargin, params.rightMargin, params.bottomMargin);
-        notificationIcon.setLayoutParams(params);
-
-        TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased, Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME), childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
-        notificationMessage.setTextColor(getResources().getColor(R.color.black));
-        notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
-
-        Button positiveButton = notificationsLayout.findViewById(R.id.noti_positive_button);
-        positiveButton.setVisibility(View.VISIBLE);
-        positiveButton.setText(getResources().getString(R.string.undo));
-        positiveButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
-        positiveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                builder.dismiss();
-
-            }
-        });
-
-        Button negativeButton = notificationsLayout.findViewById(R.id.noti_negative_button);
-        negativeButton.setVisibility(View.VISIBLE);
-        negativeButton.setText(getResources().getString(R.string.confirm_button_label));
-        negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
-        negativeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                saveReportDeceasedJson(json, allSharedPreferences);
-                builder.dismiss();
-
-                navigateToRegisterActivity();
-
-            }
-        });
-
-        builder.setView(notificationsLayout);
-        builder.show();
-    }
-
-    protected abstract void navigateToRegisterActivity();
-
-    @Override
-    protected int getContentView() {
-        return R.layout.child_detail_activity_simple_tabs;
-    }
-
-    @Override
-    protected int getDrawerLayoutId() {
-        return R.id.drawer_layout;
-    }
-
-    @Override
-    protected int getToolbarId() {
-        return R.id.child_detail_toolbar;
-    }
-
-    @Override
-    protected Class onBackActivity() {
-        return Utils.metadata().childImmunizationActivity;
-    }
-
-    protected void renderProfileWidget(Map<String, String> childDetails) {
+    public void renderProfileWidget(Map<String, String> childDetails) {
         TextView profilename = findViewById(R.id.name);
         TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
-        String dobString = "";
+        String dobString;
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true)
-                    + " " + getValue(childDetails, Constants.KEY.LAST_NAME, true);
+            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true) + " " +
+                    getValue(childDetails, Constants.KEY.LAST_NAME, true);
             childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
@@ -534,39 +406,50 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         updateProfilePicture(gender);
     }
 
-    @Override
-    public void updateStatus() {
-        updateStatus(false);
-    }
-
-    private void updateStatus(boolean fromAsyncTask) {
-        String status = getHumanFriendlyChildsStatus(detailsMap);
-        showChildsStatus(status);
-
-        boolean isChildActive = isActiveStatus(status);
-        if (isChildActive) {
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-
-            if (!fromAsyncTask) {
-                LoadAsyncTask loadAsyncTask = new LoadAsyncTask();
-                loadAsyncTask.setFromUpdateStatus(true);
-                Utils.startAsyncTask(loadAsyncTask, null);
+    private void updateGenderViews() {
+        Gender gender = Gender.UNKNOWN;
+        if (isDataOk()) {
+            String genderString = getValue(childDetails, "gender", false);
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
             }
-        } else {
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
+        }
+        int[] colors = updateGenderViews(gender);
+        int normalShade = colors[1];
+        childDetailsToolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
+        tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
+        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
+        try {
+            Field field = TabLayout.class.getDeclaredField("mTabStrip");
+            field.setAccessible(true);
+            Object object = field.get(tabLayout);
+            Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
+            Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
+            method.setAccessible(true);
+            method.invoke(object, getResources().getColor(normalShade)); //now its ok
+        } catch (Exception e) {
+            Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
     }
 
-    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
-        //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
-        overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
-        overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
-        overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
+    private boolean isDataOk() {
+        return childDetails != null && childDetails.getDetails() != null;
     }
 
-    protected void setActivityTitle() {
-        ((TextView) detailtoolbar.findViewById(R.id.title)).setText(getString(R.string.health_details));
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        if (isStoragePermissionGranted()) {
+            return File.createTempFile(imageFileName,  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */);
+        }
+
+        return null;
     }
 
     private void updateProfilePicture(Gender gender) {
@@ -580,85 +463,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     }
 
-    private void setupViewPager(ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-
-        adapter.addFragment(childDataFragment, getString(R.string.registration_data));
-        adapter.addFragment(childUnderFiveFragment, getString(R.string.under_five_history));
-        viewPager.setAdapter(adapter);
-    }
-
-    private void dispatchTakePictureIntent() {
-        if (PermissionUtils.isPermissionGranted(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                // Create the File where the photo should go
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                } catch (IOException ex) {
-                    // Error occurred while creating the File
-                    Log.e(TAG, Log.getStackTraceString(ex));
-                }
-                // Continue only if the File was successfully created
-                if (photoFile != null) {
-
-                    //We need this for backward compatibility
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                        StrictMode.setVmPolicy(builder.build());
-                    }
-
-                    currentfile = photoFile;
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                            Uri.fromFile(photoFile));
-                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "Permission callback called-------");
-
-        if (grantResults.length == 0) {
-            return;
-        }
-        switch (requestCode) {
-            case PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE:
-                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    dispatchTakePictureIntent();
-                }
-                break;
-            default:
-                break;
-
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        if (isStoragePermissionGranted()) {
-            return File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-        }
-
-        return null;
-    }
-
     public boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG, "Permission is granted");
                 return true;
             } else {
@@ -673,45 +481,263 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
+    @Override
+    protected int getContentView() {
+        return R.layout.child_detail_activity_simple_tabs;
+    }
+
+    @Override
+    protected int getToolbarId() {
+        return R.id.child_detail_toolbar;
+    }
+
+    @Override
+    protected int getDrawerLayoutId() {
+        return R.id.drawer_layout;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_child_detail_settings, menu);
+        overflow = menu;
+
+        //Defaults
+        overflow.findItem(R.id.immunization_data).setEnabled(false);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(false);
+        overflow.findItem(R.id.weight_data).setEnabled(false);
+
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+            overflow.findItem(R.id.write_to_card).setVisible(true);
+            overflow.findItem(R.id.register_card).setVisible(true);
         }
-        int[] colors = updateGenderViews(gender);
-        int darkShade = colors[0];
-        int normalShade = colors[1];
-        int lightSade = colors[2];
-        detailtoolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
-        tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
-        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
+
+        Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);//Loading data here because we affect state of the menu item
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void startJsonForm(String formName, String entityId) {
         try {
-            Field field = TabLayout.class.getDeclaredField("mTabStrip");
-            field.setAccessible(true);
-            Object ob = field.get(tabLayout);
-            Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
-            Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
-            method.setAccessible(true);
-            method.invoke(ob, getResources().getColor(normalShade)); //now its ok
+            startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
-            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 
-    private boolean isDataOk() {
-        return childDetails != null && childDetails.getDetails() != null;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
+        if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+            try {
+                String jsonString = data.getStringExtra("json");
+                Log.d("JSONResult", jsonString);
+
+                JSONObject form = new JSONObject(jsonString);
+                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
+                    confirmReportDeceased(jsonString, allSharedPreferences);
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) ||
+                        form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                    SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
+                    saveRegistrationDetailsTask.setJsonString(jsonString);
+                    Utils.startAsyncTask(saveRegistrationDetailsTask, null);
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
+                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), providerId, CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                }
+
+
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+
+        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            String imageLocation = currentFile.getAbsolutePath();
+
+            JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
+            updateProfilePicture(gender);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected Class onBackActivity() {
+        return Utils.metadata().childImmunizationActivity;
+    }
+
+    private void confirmReportDeceased(final String json, final AllSharedPreferences allSharedPreferences) {
+
+        final AlertDialog builder = new AlertDialog.Builder(this).setCancelable(false).create();
+
+        LayoutInflater inflater = getLayoutInflater();
+        View notificationsLayout = inflater.inflate(R.layout.notification_base, null);
+        notificationsLayout.setVisibility(View.VISIBLE);
+
+        ImageView notificationIcon = notificationsLayout.findViewById(R.id.noti_icon);
+        notificationIcon.setTag("confirm_deceased_icon");
+        notificationIcon.setImageResource(R.drawable.ic_deceased);
+        notificationIcon.getLayoutParams().height = 165;
+
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) notificationIcon.getLayoutParams();
+        params.setMargins(55, params.topMargin, params.rightMargin, params.bottomMargin);
+        notificationIcon.setLayoutParams(params);
+
+        TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
+        notificationMessage.setText(getString(R.string.marked_as_deceased,
+                Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME),
+                        childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
+        notificationMessage.setTextColor(getResources().getColor(R.color.black));
+        notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
+
+        Button positiveButton = notificationsLayout.findViewById(R.id.noti_positive_button);
+        positiveButton.setVisibility(View.VISIBLE);
+        positiveButton.setText(getResources().getString(R.string.undo));
+        positiveButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.dismiss();
+            }
+        });
+
+        Button negativeButton = notificationsLayout.findViewById(R.id.noti_negative_button);
+        negativeButton.setVisibility(View.VISIBLE);
+        negativeButton.setText(getResources().getString(R.string.confirm_button_label));
+        negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveReportDeceasedJson(json, allSharedPreferences);
+                builder.dismiss();
+
+                navigateToRegisterActivity();
+            }
+        });
+
+        builder.setView(notificationsLayout);
+        builder.show();
+    }
+
+    private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
+        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(),
+                locationId, childDetails.entityId());
+
+    }
+
+    protected abstract void navigateToRegisterActivity();
+
+    /*private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return false;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return false;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return false;
+        }
+
+        int bcgOffsetInWeeks = 12;
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
+
+        Calendar today = Calendar.getInstance();
+
+        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
+    }*/
+
+    protected boolean launchAdverseEventForm() {
+        LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask(this);
+        task.execute();
+        return true;
+    }
+
+    public abstract void startFormActivity(String formData);
+
+    @Override
+    public void updateStatus() {
+        updateStatus(false);
+    }
+
+    public void updateStatus(boolean fromAsyncTask) {
+        String status = getHumanFriendlyChildsStatus(detailsMap);
+        showChildsStatus(status);
+
+        boolean isChildActive = isActiveStatus(status);
+        if (isChildActive) {
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+
+            if (!fromAsyncTask) {
+                LoadAsyncTask loadAsyncTask = new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow);
+                loadAsyncTask.setFromUpdateStatus(true);
+                Utils.startAsyncTask(loadAsyncTask, null);
+            }
+        } else {
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+            hideDisplayImmunizationMenu(isChildActive, isChildActive, isChildActive);
+        }
+    }
+
+    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased,
+                                   boolean canReportAdverseEvent) {
+        //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
+        overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
+        overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
+        overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
+    }
+
+    @Override
+    public void updateClientAttribute(String attributeName, Object attributeValue) {
+        try {
+            detailsMap = JsonFormUtils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "Permission callback called-------");
+
+        if (grantResults.length == 0) {
+            return;
+        }
+        switch (requestCode) {
+            case PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE:
+                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
+                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    dispatchTakePictureIntent();
+                }
+                break;
+            default:
+                break;
+
+        }
     }
 
     @Override
     public void onVaccinateToday(ArrayList<VaccineWrapper> tags, View view) {
         if (tags != null && !tags.isEmpty()) {
             saveVaccine(tags, view);
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
+            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
         }
     }
 
@@ -719,105 +745,32 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
     public void onVaccinateEarlier(ArrayList<VaccineWrapper> tags, View view) {
         if (tags != null && !tags.isEmpty()) {
             saveVaccine(tags, view);
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
+            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
         }
     }
 
     @Override
-    public void onUndoVaccination(VaccineWrapper tag, View view) {
-        if (tag != null && tag.getDbKey() != null) {
+    public void onUndoVaccination(VaccineWrapper vaccineWrapper, View view) {
+        if (vaccineWrapper != null && vaccineWrapper.getDbKey() != null) {
             final VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-            Long dbKey = tag.getDbKey();
+            Long dbKey = vaccineWrapper.getDbKey();
             vaccineRepository.deleteVaccine(dbKey);
 
-
-            tag.setUpdatedVaccineDate(null, false);
-            tag.setDbKey(null);
-
+            vaccineWrapper.setUpdatedVaccineDate(null, false);
+            vaccineWrapper.setDbKey(null);
 
             List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
             ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
-            wrappers.add(tag);
+            wrappers.add(vaccineWrapper);
             updateVaccineGroupViews(view, wrappers, vaccineList, true);
 
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
+            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
         }
     }
 
-    @Override
-    public void onWeightTaken(WeightWrapper tag) {
-        if (tag != null) {
-            WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
-            Weight weight = new Weight();
-            if (tag.getDbKey() != null) {
-                weight = weightRepository.find(tag.getDbKey());
-            }
-            weight.setBaseEntityId(childDetails.entityId());
-            weight.setKg(tag.getWeight());
-            weight.setDate(tag.getUpdatedWeightDate().toDate());
-            weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (StringUtils.isNotBlank(locationId)) {
-                weight.setLocationId(locationId);
-            }
-
-            Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-
-            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            Date dob = Utils.dobStringToDate(dobString);
-
-            if (dob != null && gender != Gender.UNKNOWN) {
-                weightRepository.add(dob, gender, weight);
-            } else {
-                weightRepository.add(weight);
-            }
-
-            tag.setDbKey(weight.getId());
-        }
-
-        Utils.startAsyncTask(new LoadAsyncTask(), null);
-    }
-
-    private void saveVaccine(List<VaccineWrapper> tags, final View view) {
-        if (tags != null && !tags.isEmpty()) {
-            if (tags.size() == 1) {
-                saveVaccine(tags.get(0));
-                updateVaccineGroupViews(view);
-            } else {
-                VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
-                SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
-                backgroundTask.setView(view);
-                backgroundTask.execute(arrayTags);
-            }
-        }
-    }
-
-    private void updateVaccineGroupViews(View view) {
-        if (view == null || !(view instanceof ImmunizationRowGroup)) {
-            return;
-        }
-        final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
-
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            vaccineGroup.updateViews();
-        } else {
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    vaccineGroup.updateViews();
-                }
-            });
-        }
-    }
-
-    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, final List<Vaccine> vaccineList, final boolean undo) {
+    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
+                                         final List<Vaccine> vaccineList, final boolean undo) {
         if (view == null || !(view instanceof ImmunizationRowGroup)) {
             return;
         }
@@ -846,16 +799,29 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    private void saveVaccine(VaccineWrapper tag) {
+    private void saveVaccine(List<VaccineWrapper> tags, final View view) {
+        if (tags != null && !tags.isEmpty()) {
+            if (tags.size() == 1) {
+                saveVaccine(tags.get(0));
+                updateVaccineGroupViews(view);
+            } else {
+                VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
+                SaveVaccinesTask backgroundTask = new SaveVaccinesTask(this);
+                backgroundTask.setView(view);
+                backgroundTask.execute(arrayTags);
+            }
+        }
+    }
 
+    public void saveVaccine(VaccineWrapper vaccineWrapper) {
         Vaccine vaccine = new Vaccine();
-        if (tag.getDbKey() != null) {
-            vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(tag.getDbKey());
+        if (vaccineWrapper.getDbKey() != null) {
+            vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(vaccineWrapper.getDbKey());
         }
         vaccine.setBaseEntityId(childDetails.entityId());
-        vaccine.setName(tag.getName());
-        vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
-        vaccine.setUpdatedAt(tag.getUpdatedVaccineDate().toDate().getTime());
+        vaccine.setName(vaccineWrapper.getName());
+        vaccine.setDate(vaccineWrapper.getUpdatedVaccineDate().toDate());
+        vaccine.setUpdatedAt(vaccineWrapper.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
         if (StringUtils.isNotBlank(locationId)) {
             vaccine.setLocationId(locationId);
@@ -868,11 +834,112 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
             vaccine.setCalculation(-1);
         }
         Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
-        tag.setDbKey(vaccine.getId());
+        vaccineWrapper.setDbKey(vaccine.getId());
 
 
-        if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
+        if (vaccineWrapper.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             resetOptionsMenu();
+        }
+    }
+
+    public void updateVaccineGroupViews(View view) {
+        if (view == null || !(view instanceof ImmunizationRowGroup)) {
+            return;
+        }
+        final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
+
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            vaccineGroup.updateViews();
+        } else {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    vaccineGroup.updateViews();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
+        updateWeightWrapper(weightWrapper);
+        if (hasProperty && monitorGrowth) {
+            updateHeightWrapper(heightWrapper);
+        }
+
+        Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
+    }
+
+    private void updateWeightWrapper(WeightWrapper weightWrapper) {
+        if (weightWrapper != null) {
+            WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
+            Weight weight = new Weight();
+            if (weightWrapper.getDbKey() != null) {
+                weight = weightRepository.find(weightWrapper.getDbKey());
+            }
+            weight.setBaseEntityId(childDetails.entityId());
+            weight.setKg(weightWrapper.getWeight());
+            weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
+            weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+            if (StringUtils.isNotBlank(locationId)) {
+                weight.setLocationId(locationId);
+            }
+
+            Gender gender = Gender.UNKNOWN;
+            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+
+            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+
+            if (dob != null && gender != Gender.UNKNOWN) {
+                weightRepository.add(dob, gender, weight);
+            } else {
+                weightRepository.add(weight);
+            }
+
+            weightWrapper.setDbKey(weight.getId());
+        }
+    }
+
+    private void updateHeightWrapper(HeightWrapper heightWrapper) {
+        if (heightWrapper != null) {
+            HeightRepository heightRepository = GrowthMonitoringLibrary.getInstance().heightRepository();
+            Height height = new Height();
+            if (heightWrapper.getDbKey() != null) {
+                height = heightRepository.find(heightWrapper.getDbKey());
+            }
+            height.setBaseEntityId(childDetails.entityId());
+            height.setCm(heightWrapper.getHeight());
+            height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+            height.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+            if (StringUtils.isNotBlank(locationId)) {
+                height.setLocationId(locationId);
+            }
+
+            Gender gender = Gender.UNKNOWN;
+            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+
+            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+
+            if (dob != null && gender != Gender.UNKNOWN) {
+                heightRepository.add(dob, gender, height);
+            } else {
+                heightRepository.add(height);
+            }
+
+            heightWrapper.setDbKey(height.getId());
         }
     }
 
@@ -886,7 +953,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+                        SimpleDateFormat simpleDateFormat =
+                                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                                        Locale.ENGLISH);
                         String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
@@ -904,19 +973,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return "";
     }
 
-    private boolean insertVaccinesGivenAsOptions(JSONObject question) throws JSONException {
+    public boolean insertVaccinesGivenAsOptions(JSONObject question) throws JSONException {
         JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList =
+                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getVaccineDisplayName(this, curVaccine.getName())
-                        + " (" + DATE_FORMAT.format(curVaccine.getDate()) + ")";
+                String name = VaccinatorUtils.getVaccineDisplayName(this, curVaccine.getName()) + " (" +
+                        DATE_FORMAT.format(curVaccine.getDate()) + ")";
                 choices.put(name);
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
@@ -936,42 +1006,33 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         return ok;
     }
 
-    @Override
-    public void updateClientAttribute(String attributeName, Object attributeValue) {
-        try {
-            detailsMap = JsonFormUtils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-    }
-
     //Recurring Service
     @Override
-    public void onGiveToday(ServiceWrapper tag, View view) {
-        if (tag != null) {
-            saveService(tag, view);
+    public void onGiveToday(ServiceWrapper serviceWrapper, View view) {
+        if (serviceWrapper != null) {
+            saveService(serviceWrapper, view);
         }
     }
 
     @Override
-    public void onGiveEarlier(ServiceWrapper tag, View view) {
-        if (tag != null) {
-            saveService(tag, view);
+    public void onGiveEarlier(ServiceWrapper serviceWrapper, View view) {
+        if (serviceWrapper != null) {
+            saveService(serviceWrapper, view);
         }
     }
 
     @Override
-    public void onUndoService(ServiceWrapper tag, View view) {
-        Utils.startAsyncTask(new UndoServiceTask(tag, view), null);
+    public void onUndoService(ServiceWrapper serviceWrapper, View view) {
+        Utils.startAsyncTask(new UndoServiceTask(serviceWrapper, view, this, childDetails), null);
     }
 
-    private void saveService(ServiceWrapper tag, final View view) {
-        if (tag == null) {
+    private void saveService(ServiceWrapper serviceWrapper, final View view) {
+        if (serviceWrapper == null) {
             return;
         }
 
-        ServiceWrapper[] arrayTags = {tag};
-        SaveServiceTask backgroundTask = new SaveServiceTask();
+        ServiceWrapper[] arrayTags = {serviceWrapper};
+        SaveServiceTask backgroundTask = new SaveServiceTask(this, childDetails);
 
         backgroundTask.setView(view);
         Utils.startAsyncTask(backgroundTask, arrayTags);
@@ -979,20 +1040,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
-    }
-
-    public ViewPagerAdapter getViewPagerAdapter() {
-        return adapter;
-    }
-
-
-    @Override
-    protected void startJsonForm(String formName, String entityId) {
-        try {
-            startJsonForm(formName, entityId, locationId);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
     }
 
     @Override
@@ -1004,26 +1051,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-/*
-    private Map<String, String> getCleanMap() {
-        Map<String, String> detailsMap = new HashMap<>();
-        Cursor cursor = ChildLibrary.getInstance().getRepository().getReadableDatabase().rawQuery("Select * from " + Utils.metadata().childRegister.tableName, new String[]{});
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            String[] columnNames = cursor.getColumnNames();
-
-            for (int i = 0; i < columnNames.length; i++) {
-
-                detailsMap.put(columnNames[i], cursor.getString(cursor.getColumnIndex(columnNames[i])));
-
-            }
-        }
-
-        return detailsMap;
-
-    }*/
-
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -1034,171 +1061,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
 
     }
 
-    ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
-    public enum STATUS {
-        NONE, EDIT_WEIGHT, EDIT_VACCINE, EDIT_SERVICE
-    }
-
-    public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
-
-        private STATUS status;
-        private boolean fromUpdateStatus = false;
-
-        private LoadAsyncTask() {
-            this.status = STATUS.NONE;
-        }
-
-        public LoadAsyncTask(STATUS status) {
-            this.status = status;
-        }
-
-        public void setFromUpdateStatus(boolean fromUpdateStatus) {
-            this.fromUpdateStatus = fromUpdateStatus;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showProgressDialog(getString(R.string.refreshing), null);
-        }
-
-        @Override
-        protected Map<String, NamedObject<?>> doInBackground(Void... params) {
-            Map<String, NamedObject<?>> map = new HashMap<>();
-
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-
-            detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
-
-            NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
-            map.put(detailsNamedObject.name, detailsNamedObject);
-
-            List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
-
-            NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
-            map.put(weightNamedObject.name, weightNamedObject);
-
-            VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-
-            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
-            map.put(vaccineNamedObject.name, vaccineNamedObject);
-
-            List<ServiceRecord> serviceRecords = new ArrayList<>();
-
-            RecurringServiceTypeRepository recurringServiceTypeRepository = ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
-            RecurringServiceRecordRepository recurringServiceRecordRepository = ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
-
-            if (recurringServiceRecordRepository != null) {
-                serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
-            }
-
-            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-            map.put(serviceNamedObject.name, serviceNamedObject);
-
-            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-            if (recurringServiceTypeRepository != null) {
-                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                for (ServiceType serviceType : serviceTypes) {
-                    String type = serviceType.getType();
-                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
-                    if (serviceTypeList == null) {
-                        serviceTypeList = new ArrayList<>();
-                    }
-                    serviceTypeList.add(serviceType);
-                    serviceTypeMap.put(type, serviceTypeList);
-                }
-            }
-
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
-
-            List<Alert> alertList = new ArrayList<>();
-            AlertService alertService = getOpenSRPContext().alertService();
-            if (alertService != null) {
-                alertList = alertService.findByEntityId(childDetails.entityId());
-            }
-
-            NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
-            map.put(alertNamedObject.name, alertNamedObject);
-
-            return map;
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, NamedObject<?>> map) {
-
-            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
-
-            if (writeToCard != null) {
-                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
-
-            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
-            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
-            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
-            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
-            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-
-            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
-            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
-            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
-
-            if (STATUS.NONE.equals(status)) {
-                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-            }
-
-            childDataFragment.loadData(detailsMap);
-
-            childUnderFiveFragment.setDetailsMap(detailsMap);
-            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
-            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
-            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
-
-            if (!fromUpdateStatus) {
-                updateStatus(true);
-            }
-
-            setActivityTitle();
-            renderProfileWidget(detailsMap);
-            hideProgressDialog();
-        }
-    }
-
-    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Void> {
-
-        private String jsonString;
-
-        public void setJsonString(String jsonString) {
-            this.jsonString = jsonString;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showProgressDialog(getString(R.string.updating_dialog_title), getString(R.string.please_wait_message));
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
-            updateRegisterParams.setEditMode(true);
-
-            saveForm(jsonString, updateRegisterParams);
-            return null;
-        }
-    }
-
     @Override
     public void onRegistrationSaved(boolean isEdit) {
-
         if (isEdit) {//On edit mode refresh view
-
-
-            Utils.startAsyncTask(new LoadAsyncTask(), null);//Loading data here because we affect state of the menu item
+            Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);//Loading data here because we affect state of the menu item
 
             //To Do optimize with
             // childDataFragment.refreshRecyclerViewData(detailsMap);
@@ -1206,208 +1072,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity impleme
         }
     }
 
-    public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
-
-        private View view;
-
-        public void setView(View view) {
-            this.view = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple) {
-            hideProgressDialog();
-            RecurringServiceUtils.updateServiceGroupViews(view, triple.getLeft(), triple.getMiddle(), triple.getRight());
-        }
-
-        @Override
-        protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(ServiceWrapper... params) {
-
-            ArrayList<ServiceWrapper> list = new ArrayList<>();
-
-            for (ServiceWrapper tag : params) {
-                RecurringServiceUtils.saveService(tag, childDetails.entityId(), null, null);
-                list.add(tag);
-
-                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
-            }
-
-            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
-
-            AlertService alertService = getOpenSRPContext().alertService();
-            List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
-
-            return Triple.of(list, serviceRecordList, alertList);
-
-        }
-    }
-
-    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Void> {
-
-        private View view;
-
-        public void setView(View view) {
-            this.view = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            hideProgressDialog();
-            updateVaccineGroupViews(view);
-        }
-
-        @Override
-        protected Void doInBackground(VaccineWrapper... vaccineWrappers) {
-            for (VaccineWrapper tag : vaccineWrappers) {
-                saveVaccine(tag);
-            }
-            return null;
-        }
-
-    }
-
-    private class UpdateOfflineAlertsTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            DateTime birthDateTime = Utils.dobToDateTime(childDetails);
-            if (birthDateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, CHILD);
-            }
-            return null;
-        }
-
-    }
-
-    private class UndoServiceTask extends AsyncTask<Void, Void, Void> {
-
-        private final View view;
-        private final ServiceWrapper tag;
-        private List<ServiceRecord> serviceRecordList;
-        private ArrayList<ServiceWrapper> wrappers;
-        private List<Alert> alertList;
-
-        private UndoServiceTask(ServiceWrapper tag, View view) {
-            this.tag = tag;
-            this.view = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (tag != null) {
-
-                if (tag.getDbKey() != null) {
-                    Long dbKey = tag.getDbKey();
-                    ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
-
-                    serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
-
-                    wrappers = new ArrayList<>();
-                    wrappers.add(tag);
-
-                    ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
-
-                    AlertService alertService = getOpenSRPContext().alertService();
-                    alertList = alertService.findByEntityId(childDetails.entityId());
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void params) {
-            super.onPostExecute(params);
-            hideProgressDialog();
-
-            tag.setUpdatedVaccineDate(null, false);
-            tag.setDbKey(null);
-
-            RecurringServiceUtils.updateServiceGroupViews(view, wrappers, serviceRecordList, alertList, true);
-        }
-    }
-
-    private class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
-
-        @Override
-        protected String doInBackground(Void... params) {
-            try {
-                JSONObject form = FormUtils.getInstance(getApplicationContext())
-                        .getFormJson("adverse_event");
-                if (form != null) {
-                    JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
-                    for (int i = 0; i < fields.length(); i++) {
-                        if (fields.getJSONObject(i).getString("key").equals("Reaction_Vaccine")) {
-                            boolean result = insertVaccinesGivenAsOptions(fields.getJSONObject(i));
-                            if (!result) {
-                                return null;
-                            }
-                        }
-                    }
-                    return form.toString();
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String metaData) {
-            super.onPostExecute(metaData);
-            if (metaData != null) {
-                startFormActivity(metaData);
-            } else {
-                Utils.showToast(getContext(), getContext().getString(R.string.no_vaccine_record_found));
-            }
-        }
-    }
-
     public Context getContext() {
         return this;
     }
 
-    public class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+    public BaseChildRegistrationDataFragment getChildDataFragment() {
+        return childDataFragment;
+    }
 
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
+    public ChildUnderFiveFragment getChildUnderFiveFragment() {
+        return childUnderFiveFragment;
     }
 }

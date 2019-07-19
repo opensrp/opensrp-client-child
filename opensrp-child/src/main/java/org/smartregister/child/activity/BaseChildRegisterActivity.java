@@ -49,9 +49,53 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
-    public void startRegistration() {
-        //setSelectedBottomBarMenuItem(R.id.action_register);
-        startFormActivity(getRegistrationForm(), null, null);
+    protected void registerBottomNavigation() {
+
+        bottomNavigationHelper = new BottomNavigationHelper();
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setVisibility(ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
+
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+
+            //Bottom nav supports 5 items max, so we remove em first , then inflate
+            bottomNavigationView.getMenu().removeItem(R.id.action_clients);
+            bottomNavigationView.getMenu().removeItem(R.id.action_register);
+            bottomNavigationView.getMenu().removeItem(R.id.action_search);
+            bottomNavigationView.getMenu().removeItem(R.id.action_library);
+
+            bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
+            bottomNavigationHelper.disableShiftMode(bottomNavigationView);
+
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
+                bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
+            }
+
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+                bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
+            }
+
+            ChildBottomNavigationListener childBottomNavigationListener = new ChildBottomNavigationListener(this);
+            bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);
+
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentPage == 0) {
+            super.onBackPressed();
+        } else {
+            switchToBaseFragment();
+            setSelectedBottomBarMenuItem(R.id.action_home);
+        }
+    }
+
+    @Override
+    protected Fragment[] getOtherFragments() {
+
+        return null;
     }
 
     @Override
@@ -68,103 +112,30 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        onChildRegisterResumption();
-    }
-
-    protected void onChildRegisterResumption() {
-        if (isAdvancedSearch) {
-
-            refreshAdvancedSearchFormValues();
-            switchToAdvancedSearchFromRegister();
-
-        } else {
-            setSelectedBottomBarMenuItem(R.id.action_home);
-        }
-    }
-
-    /**
-     * Forces the Home register activity to open the the Advanced search fragment after the barcode or other activity is closed (as
-     * long as it was opened from the advanced search page)
-     */
-    protected void switchToAdvancedSearchFromRegister() {
-
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
-            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
-        } else {
-
-            switchToFragment(ADVANCED_SEARCH_POSITION);
-        }
-
-        setFormData(advancedSearchFormData);
-        isAdvancedSearch = false;
-        advancedSearchFormData = new HashMap<>();
-
-    }
-
-
-    public void setAdvancedSearch(boolean advancedSearch) {
-        isAdvancedSearch = advancedSearch;
-    }
-
-    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
-        this.advancedSearchFormData = advancedSearchFormData;
-    }
-
-    protected void refreshAdvancedSearchFormValues() {
-        setFormData(this.advancedSearchFormData);
-        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).assignedValuesBeforeBarcode();
-    }
-
-    private void setFormData(HashMap<String, String> formData) {
-        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).setAdvancedSearchFormData(formData);
-    }
-
-
-    public void startAdvancedSearch() {
-        try {
-            // mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
-            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-    }
-
-
-    @Override
     public void startFormActivity(JSONObject jsonForm) {
         Intent intent = new Intent(this, Utils.metadata().childFormActivity);
         intent.putExtra(Constants.INTENT_KEY.JSON, jsonForm.toString());
 
         Form form = new Form();
-        // form.setName(getString(R.string.add_child));
-        //form.setActionBarBackground(R.color.child_actionbar);
-        //form.setNavigationBackground(R.color.child_navigation);
-        //form.setHomeAsUpIndicator(R.mipmap.ic_arrow_forward);
-
         form.setWizard(false);
         form.setHideSaveLabel(true);
         form.setNextLabel("");
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
-
         startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (requestCode == AllConstants.BARCODE.BARCODE_REQUEST_CODE && resultCode == RESULT_OK && isAdvancedSearch) {
-
             Barcode barcode = data.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY);
             String barcodeSearchTerm = barcode.displayValue;
-            barcodeSearchTerm = barcodeSearchTerm.contains("/") ? barcodeSearchTerm.substring(barcodeSearchTerm.lastIndexOf('/') + 1) : barcodeSearchTerm;
+            barcodeSearchTerm =
+                    barcodeSearchTerm.contains("/") ? barcodeSearchTerm.substring(barcodeSearchTerm.lastIndexOf('/') + 1) :
+                            barcodeSearchTerm;
 
             //Set value and refresh form values!
             advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
-
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -195,39 +166,48 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
-    protected void registerBottomNavigation() {
+    public void onResume() {
+        super.onResume();
+        onChildRegisterResumption();
+    }
 
-        bottomNavigationHelper = new BottomNavigationHelper();
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setVisibility(ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
+    protected void onChildRegisterResumption() {
+        if (isAdvancedSearch) {
+            refreshAdvancedSearchFormValues();
+            switchToAdvancedSearchFromRegister();
 
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
-
-            //Bottom nav supports 5 items max, so we remove em first , then inflate
-            bottomNavigationView.getMenu().removeItem(R.id.action_clients);
-            bottomNavigationView.getMenu().removeItem(R.id.action_register);
-            bottomNavigationView.getMenu().removeItem(R.id.action_search);
-            bottomNavigationView.getMenu().removeItem(R.id.action_library);
-
-            bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
-            bottomNavigationHelper.disableShiftMode(bottomNavigationView);
-
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
-                bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
-            }
-
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
-                bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
-            }
-
-            ChildBottomNavigationListener childBottomNavigationListener = new ChildBottomNavigationListener(this);
-            bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);
-
+        } else {
+            setSelectedBottomBarMenuItem(R.id.action_home);
         }
     }
 
-    public abstract void startNFCCardScanner();
+    protected void refreshAdvancedSearchFormValues() {
+        setFormData(this.advancedSearchFormData);
+        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).assignedValuesBeforeBarcode();
+    }
+
+    /**
+     * Forces the Home register activity to open the the Advanced search fragment after the barcode or other activity is
+     * closed (as long as it was opened from the advanced search page)
+     */
+    protected void switchToAdvancedSearchFromRegister() {
+        if (ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
+        } else {
+
+            switchToFragment(ADVANCED_SEARCH_POSITION);
+        }
+
+        setFormData(advancedSearchFormData);
+        isAdvancedSearch = false;
+        advancedSearchFormData = new HashMap<>();
+
+    }
+
+    private void setFormData(HashMap<String, String> formData) {
+        ((BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION)).setAdvancedSearchFormData(formData);
+    }
 
     @Override
     public List<String> getViewIdentifiers() {
@@ -240,32 +220,41 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
-    protected Fragment[] getOtherFragments() {
-
-        return null;
+    public void startRegistration() {
+        //setSelectedBottomBarMenuItem(R.id.action_register);
+        startFormActivity(getRegistrationForm(), null, null);
     }
 
     public abstract String getRegistrationForm();
 
+    public void setAdvancedSearch(boolean advancedSearch) {
+        isAdvancedSearch = advancedSearch;
+    }
+
+    public void setAdvancedSearchFormData(HashMap<String, String> advancedSearchFormData) {
+        this.advancedSearchFormData = advancedSearchFormData;
+    }
+
+    public void startAdvancedSearch() {
+        try {
+            // mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
+            setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+    }
+
+    public abstract void startNFCCardScanner();
 
     public void updateAdvancedSearchFilterCount(int count) {
-       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
+       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition
+       (ADVANCED_SEARCH_POSITION);
         if (advancedSearchFragment != null) {
             advancedSearchFragment.updateFilterCount(count);
         }*/
 
         //To remove comment
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        if (currentPage == 0) {
-            super.onBackPressed();
-        } else {
-            switchToBaseFragment();
-            setSelectedBottomBarMenuItem(R.id.action_home);
-        }
     }
 
     public void filterSelection() {

@@ -19,13 +19,12 @@ import java.util.Map;
 public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegisterFragmentPresenter
         implements ChildAdvancedSearchContract.Presenter, ChildAdvancedSearchContract.InteractorCallBack {
 
+    public static final String TABLE_NAME = Utils.metadata().childRegister.tableName;
     private WeakReference<ChildAdvancedSearchContract.View> viewReference;
-
     private ChildAdvancedSearchContract.Model model;
 
-    public static final String TABLE_NAME = Utils.metadata().childRegister.tableName;
-
-    public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier, BaseChildAdvancedSearchModel advancedSearchModel) {
+    public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier,
+                                            BaseChildAdvancedSearchModel advancedSearchModel) {
         super(view, advancedSearchModel, viewConfigurationIdentifier);
         this.viewReference = new WeakReference<>(view);
         interactor = new ChildAdvancedSearchInteractor();
@@ -71,6 +70,11 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
         }
     }
 
+    protected ChildAdvancedSearchContract.View getView() {
+        if (viewReference != null) return viewReference.get();
+        else return null;
+    }
+
     private void localQueryInitialize(Map<String, String> editMap) {
         String mainCondition = model.getMainConditionString(editMap);
 
@@ -79,6 +83,11 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
         getView().initializeQueryParams(TABLE_NAME, countSelect, mainSelect);
         getView().initializeAdapter(visibleColumns);
+    }
+
+    @Override
+    public String getDefaultSortQuery() {
+        return TABLE_NAME + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC";
     }
 
     @Override
@@ -97,25 +106,12 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     protected abstract AdvancedMatrixCursor getRemoteLocalMatrixCursor(AdvancedMatrixCursor matrixCursor);
 
-
-    protected ChildAdvancedSearchContract.View getView() {
-        if (viewReference != null)
-            return viewReference.get();
-        else
-            return null;
-    }
-
     public void setModel(ChildAdvancedSearchContract.Model model) {
         this.model = model;
     }
 
     public void setInteractor(ChildAdvancedSearchContract.Interactor interactor) {
         this.interactor = interactor;
-    }
-
-    @Override
-    public String getDefaultSortQuery() {
-        return TABLE_NAME + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC";
     }
 
 

@@ -81,7 +81,6 @@ allprojects {
 }
 
 dependencies {
-
     implementation('org.smartregister:opensrp-client-core:1.6.48-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
@@ -109,7 +108,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'design'
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    implementation('org.smartregister:opensrp-client-immunization:1.4.15-SNAPSHOT@aar') {
+
+    implementation('org.smartregister:opensrp-client-immunization:1.4.16-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -117,7 +117,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.5-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.6-SNAPSHOT@aar') {
 
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
@@ -131,7 +131,8 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.1.3@aar'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.android.support:leanback-v17:28.0.0'
     implementation 'org.pcollections:pcollections:3.0.3'
@@ -142,21 +143,30 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:3.8') {
-
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'org.apache.maven', module: 'maven-model'
+        exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    testImplementation("org.robolectric:shadows-multidex:3.8") {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.+') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'junit', module: 'junit'
+    }
 
     // PowerMock
     def powerMockVersion = '1.7.1'
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
+    testImplementation("org.powermock:powermock-classloading-xstream:$powerMockVersion")
+    testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
+    testImplementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {

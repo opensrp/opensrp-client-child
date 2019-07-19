@@ -14,8 +14,8 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
  */
 
 public class SimpleToolbar extends BaseToolbar {
-    private static final String TAG = SimpleToolbar.class.getName();
     public static final int TOOLBAR_ID = R.id.simple_toolbar;
+    private static final String TAG = SimpleToolbar.class.getName();
     private final Context context;
     private String title;
 
@@ -39,6 +39,18 @@ public class SimpleToolbar extends BaseToolbar {
         refreshTitleView();
     }
 
+    private void refreshTitleView() {
+        try {
+
+            CustomFontTextView titleTV = findViewById(R.id.title);
+            titleTV.setText(title);
+        } catch (Exception e) {
+            Log.e(TAG, "***************************************");
+            Log.e(TAG, Log.getStackTraceString(e));
+            Log.e(TAG, "***************************************");
+        }
+    }
+
     @Override
     public int getSupportedMenu() {
         return 0;
@@ -47,18 +59,6 @@ public class SimpleToolbar extends BaseToolbar {
     @Override
     public void prepareMenu() {
         refreshTitleView();
-    }
-
-    private void refreshTitleView() {
-        try {
-
-            CustomFontTextView titleTV = (CustomFontTextView) findViewById(R.id.title);
-            titleTV.setText(title);
-        } catch (Exception e) {
-            Log.e(TAG, "***************************************");
-            Log.e(TAG, Log.getStackTraceString(e));
-            Log.e(TAG, "***************************************");
-        }
     }
 
     @Override

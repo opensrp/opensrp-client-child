@@ -179,7 +179,7 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirm move</string>
     <string name="move_to_catchment_confirm_dialog_message">Are you sure you want to move this record to your catchment area?</string>
     <string name="mother_lookup_results">Matching records</string>
-    <string name="dismiss">Cancel</string>
+    <string name="dismiss">Dismiss</string>
     <string name="change_status">Change status</string>
     <string name="write_to_card">Write to card</string>
     <string name="title_activity_stock_control">StockControlActivity</string>
@@ -274,6 +274,7 @@
     <string name="child_dob">Child\'s DOB</string>
     <string name="child_age">Age</string>
     <string name="birth_weight">Birth weight (kg)</string>
+    <string name="birth_height">Birth height (cm)</string>
     <string name="birth_tetanus_protection">Neonatal tetanus protection</string>
     <string name="mother_first_name">Mother/guardian first name</string>
     <string name="mother_second_name">Mother/guardian last name</string>
@@ -289,7 +290,8 @@
     <string name="home_address">Home address</string>
     <string name="physical_landmark">Landmark</string>
     <string name="preferred_language">Preferred language</string>
-    <string name="health_details">Health Details</string>
+    <string name="health_details">Health details</string>
+    <string name="vaccine_group_birth_name" translatable="false">Birth</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>
     <string name="tap_to_view">Tap to see</string>
     <string name="undo_lookup">Undo Lookup.</string>
@@ -313,9 +315,13 @@
     <string name="six_weeks">6 weeks</string>
     <string name="ten_weeks">10 weeks</string>
     <string name="fourteen_weeks">14 weeks</string>
+    <string name="five_months">5 months</string>
+    <string name="six_months">6 months</string>
+    <string name="seven_months">7 months</string>
     <string name="nine_months">9 months</string>
     <string name="fifteen_months">15 months</string>
     <string name="eighteen_months">18 months</string>
+    <string name="twenty_two_months">22 months</string>
     <string name="after_lmp">After LMP</string>
     <string name="after_tt1">4 Weeks after TT 1</string>
     <string name="after_tt2">26 Weeks after TT 2</string>
@@ -329,5 +335,8 @@
     <string name="search_criteria_includes">search criteria includes:&#032;</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
+
+    <string name="record_growth">Record Growth</string>
+    <string name="growth_monitoring">Growth Monitoring</string>
 
 </resources>

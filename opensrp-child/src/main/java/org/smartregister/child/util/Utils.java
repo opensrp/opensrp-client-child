@@ -19,8 +19,11 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
@@ -62,7 +65,8 @@ public class Utils extends org.smartregister.util.Utils {
         TableRow tr = row;
         if (row == null) {
             tr = new TableRow(context);
-            TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            TableRow.LayoutParams trlp =
+                    new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             tr.setLayoutParams(trlp);
             tr.setPadding(10, 5, 10, 5);
         }
@@ -86,11 +90,13 @@ public class Utils extends org.smartregister.util.Utils {
         return tr;
     }
 
-    public static TableRow getDataRow(android.content.Context context, String label, String value, String field, TableRow row) {
+    public static TableRow getDataRow(android.content.Context context, String label, String value, String field,
+                                      TableRow row) {
         TableRow tr = row;
         if (row == null) {
             tr = new TableRow(context);
-            TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            TableRow.LayoutParams trlp =
+                    new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             tr.setLayoutParams(trlp);
             tr.setPadding(10, 5, 10, 5);
         }
@@ -122,7 +128,8 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static TableRow getDataRow(android.content.Context context) {
         TableRow tr = new TableRow(context);
-        TableRow.LayoutParams trlp = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        TableRow.LayoutParams trlp =
+                new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tr.setLayoutParams(trlp);
         tr.setPadding(0, 0, 0, 0);
         // tr.setBackgroundColor(Color.BLUE);
@@ -200,6 +207,31 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
+    public static Date getDateFromString(String date, String dateFormatPattern) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            Log.e(Utils.class.getCanonicalName(), e.getMessage());
+            return null;
+        }
+    }
+
+    public static int yearFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
+    }
+
+    public static Date getCohortEndDate(VaccineRepo.Vaccine vaccine, Date startDate) {
+        if (vaccine == null || startDate == null) {
+            return null;
+        }
+        String vaccineName = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
+        return getCohortEndDate(vaccineName, startDate);
+
+    }
+
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
         if (StringUtils.isBlank(vaccine) || startDate == null) {
@@ -230,6 +262,7 @@ public class Utils extends org.smartregister.util.Utils {
         return endDateCalendar.getTime();
     }
 
+
     public static Date dobStringToDate(String dobString) {
         DateTime dateTime = dobStringToDateTime(dobString);
         if (dateTime != null) {
@@ -254,26 +287,26 @@ public class Utils extends org.smartregister.util.Utils {
         return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
     }
 
-
     public static String convertDateFormat(Date date, SimpleDateFormat formatter) {
 
         return formatter.format(date);
     }
 
-    public static void recordWeight(WeightRepository weightRepository, WeightWrapper tag, String dobString, String syncStatus) {
+    public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String dobString,
+                                    String syncStatus) {
 
         Weight weight = new Weight();
-        if (tag.getDbKey() != null) {
-            weight = weightRepository.find(tag.getDbKey());
+        if (weightWrapper.getDbKey() != null) {
+            weight = weightRepository.find(weightWrapper.getDbKey());
         }
-        weight.setBaseEntityId(tag.getId());
-        weight.setKg(tag.getWeight());
-        weight.setDate(tag.getUpdatedWeightDate().toDate());
+        weight.setBaseEntityId(weightWrapper.getId());
+        weight.setKg(weightWrapper.getWeight());
+        weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
         weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
         weight.setSyncStatus(syncStatus);
 
         Gender gender = Gender.UNKNOWN;
-        String genderString = tag.getGender();
+        String genderString = weightWrapper.getGender();
         if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
             gender = Gender.FEMALE;
         } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
@@ -288,7 +321,40 @@ public class Utils extends org.smartregister.util.Utils {
             weightRepository.add(weight);
         }
 
-        tag.setDbKey(weight.getId());
+        weightWrapper.setDbKey(weight.getId());
+    }
+
+    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String dobString,
+                                    String syncStatus) {
+        if (heightWrapper != null && heightWrapper.getHeight() != null && heightWrapper.getId() != null) {
+            Height height = new Height();
+            if (heightWrapper.getDbKey() != null) {
+                height = heightRepository.find(heightWrapper.getDbKey());
+            }
+            height.setBaseEntityId(heightWrapper.getId());
+            height.setCm(heightWrapper.getHeight());
+            height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+            height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+            height.setSyncStatus(syncStatus);
+
+            Gender gender = Gender.UNKNOWN;
+            String genderString = heightWrapper.getGender();
+            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
+            }
+
+            Date dob = Utils.dobStringToDate(dobString);
+
+            if (dob != null && gender != Gender.UNKNOWN) {
+                heightRepository.add(dob, gender, height);
+            } else {
+                heightRepository.add(height);
+            }
+
+            heightWrapper.setDbKey(height.getId());
+        }
     }
 
     public static Context context() {
@@ -313,12 +379,20 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
+    public static String updateGrowthValue(String value) {
+        String growthValue = value;
+        if (!value.contains(".")) {
+            growthValue = value + ".0";
+        }
+        return growthValue;
+    }
 
     public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
         Map<String, String> clean = new HashMap<>();
 
         try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient(getChildDetails().getCaseId());
+            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient
+            //    (getChildDetails().getCaseId());
 
             Map<String, String> old = rawDetails;
             for (Map.Entry<String, String> entry : old.entrySet()) {

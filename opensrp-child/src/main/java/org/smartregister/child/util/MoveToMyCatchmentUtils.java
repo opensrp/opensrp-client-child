@@ -25,7 +25,8 @@ import java.util.List;
 public class MoveToMyCatchmentUtils {
     public static final String MOVE_TO_CATCHMENT_EVENT = "Move To Catchment";
 
-    public static void moveToMyCatchment(final List<String> ids, final Listener<JSONObject> listener, final ProgressDialog progressDialog) {
+    public static void moveToMyCatchment(final List<String> ids, final Listener<JSONObject> listener,
+                                         final ProgressDialog progressDialog) {
 
         org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONObject>() {
             @Override
@@ -45,14 +46,14 @@ public class MoveToMyCatchmentUtils {
             }
 
             @Override
-            protected void onProgressUpdate(Void... values) {
-                progressDialog.show();
-            }
-
-            @Override
             protected void onPostExecute(JSONObject result) {
                 listener.onEvent(result);
                 progressDialog.dismiss();
+            }
+
+            @Override
+            protected void onProgressUpdate(Void... values) {
+                progressDialog.show();
             }
         }, null);
     }
@@ -82,7 +83,8 @@ public class MoveToMyCatchmentUtils {
         }
     }
 
-    public static boolean processMoveToCatchment(android.content.Context context, AllSharedPreferences allSharedPreferences, JSONObject jsonObject) {
+    public static boolean processMoveToCatchment(android.content.Context context, AllSharedPreferences allSharedPreferences,
+                                                 JSONObject jsonObject) {
         return JsonFormUtils.processMoveToCatchment(context, allSharedPreferences, jsonObject);
     }
 

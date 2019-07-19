@@ -37,11 +37,6 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     }
 
     @Override
-    protected String filterSelectionCondition(boolean urgentOnly) {
-        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
-    }
-
-    @Override
     protected void onViewClicked(View view) {
 
         super.onViewClicked(view);
@@ -50,9 +45,12 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
         if (view.getTag(org.smartregister.child.R.id.record_action) != null) {
 
-            registerClickables.setRecordWeight(Constants.RECORD_ACTION.WEIGHT.equals(view.getTag(org.smartregister.child.R.id.record_action)));
-            registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
-            registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
+            registerClickables.setRecordWeight(
+                    Constants.RECORD_ACTION.GROWTH.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+            registerClickables.setRecordAll(
+                    Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
+            registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String
+                    .valueOf(view.getTag(R.id.next_appointment_date)) : "");
 
         }
 
@@ -96,6 +94,10 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
 
     }
 
+    @Override
+    protected String filterSelectionCondition(boolean urgentOnly) {
+        return DBQueryHelper.getFilterSelectionCondition(urgentOnly);
+    }
 
     @Override
     public void onClick(View view) {

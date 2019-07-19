@@ -8,10 +8,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import org.smartregister.child.R;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,24 +19,30 @@ import java.util.Map;
  * Created by raihan on 2/26/17.
  */
 public class WidgetFactory {
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
+                                   HashMap<Long, Pair<String, String>> lastFiveWeightMap,
+                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
+        LinearLayout tableLayout = fragmentContainer.findViewById(R.id.weightvalues);
+        tableLayout.removeAllViews();
 
-    public View createTableRow(LayoutInflater inflater, ViewGroup container, String labelString, String valueString) {
-        View rows = inflater.inflate(R.layout.tablerows, container, false);
-        TextView label = (TextView) rows.findViewById(R.id.label);
-        TextView value = (TextView) rows.findViewById(R.id.value);
+        int i = 0;
+        for (Map.Entry<Long, Pair<String, String>> entry : lastFiveWeightMap.entrySet()) {
+            Pair<String, String> pair = entry.getValue();
+            View view = createTableRowForGrowthMonitoring(inflater, tableLayout, pair.first, pair.second, editEnabled.get(i),
+                    listeners.get(i));
 
-        label.setText(labelString);
-        value.setText(valueString);
-        return rows;
+            tableLayout.addView(view);
+            i++;
+        }
     }
 
-    private View createTableRowForWeight(LayoutInflater inflater, ViewGroup container, String labelString, String valueString, boolean editenabled, View.OnClickListener listener) {
+    private View createTableRowForGrowthMonitoring(LayoutInflater inflater, ViewGroup container, String labelString,
+                                                   String valueString, boolean editEnabled, View.OnClickListener listener) {
         View rows = inflater.inflate(R.layout.tablerows_weight, container, false);
         TextView label = rows.findViewById(R.id.label);
-        TextView value =  rows.findViewById(R.id.value);
-        Button edit =  rows.findViewById(R.id.edit);
-        if (editenabled) {
+        TextView value = rows.findViewById(R.id.value);
+        Button edit = rows.findViewById(R.id.edit);
+        if (editEnabled) {
             edit.setVisibility(View.VISIBLE);
             edit.setOnClickListener(listener);
         } else {
@@ -49,14 +53,21 @@ public class WidgetFactory {
         return rows;
     }
 
-    public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String, String>> last_five_weight_map, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
-        LinearLayout tableLayout =fragmentContainer.findViewById(R.id.weightvalues);
+    public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
+                                   HashMap<Long, Pair<String, String>> lastFiveHeightMap,
+                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
+        LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
         tableLayout.removeAllViews();
 
+        if (lastFiveHeightMap.isEmpty()) {
+            tableLayout.setVisibility(View.GONE);
+        }
+
         int i = 0;
-        for (Map.Entry<Long, Pair<String, String>> entry : last_five_weight_map.entrySet()) {
+        for (Map.Entry<Long, Pair<String, String>> entry : lastFiveHeightMap.entrySet()) {
             Pair<String, String> pair = entry.getValue();
-            View view = createTableRowForWeight(inflater, tableLayout, pair.first, pair.second, editenabled.get(i), listeners.get(i));
+            View view = createTableRowForGrowthMonitoring(inflater, tableLayout, pair.first, pair.second, editEnabled.get(i),
+                    listeners.get(i));
 
             tableLayout.addView(view);
             i++;

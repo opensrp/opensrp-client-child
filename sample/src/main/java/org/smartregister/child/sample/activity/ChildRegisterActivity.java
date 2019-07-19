@@ -21,23 +21,8 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     }
 
     @Override
-    protected Fragment[] getOtherFragments() {
-        ADVANCED_SEARCH_POSITION = 1;
-
-        Fragment[] fragments = new Fragment[1];
-        fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
-
-        return fragments;
-    }
-
-    @Override
     protected BaseRegisterFragment getRegisterFragment() {
         return new ChildRegisterFragment();
-    }
-
-    @Override
-    public String getRegistrationForm() {
-        return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
     }
 
     @Override
@@ -52,8 +37,22 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     }
 
     @Override
-    public void startNFCCardScanner() {
+    protected Fragment[] getOtherFragments() {
+        ADVANCED_SEARCH_POSITION = 1;
 
+        Fragment[] fragments = new Fragment[1];
+        fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
+
+        return fragments;
+    }
+
+    @Override
+    public String getRegistrationForm() {
+        return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
+    }
+
+    @Override
+    public void startNFCCardScanner() {
         Utils.showToast(this, this.getResources().getString(org.smartregister.child.R.string.scan_card));
     }
 }

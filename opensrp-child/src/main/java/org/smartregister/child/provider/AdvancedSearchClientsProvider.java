@@ -16,7 +16,9 @@ import java.util.Set;
  */
 public class AdvancedSearchClientsProvider extends ChildRegisterProvider {
 
-    public AdvancedSearchClientsProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns, View.OnClickListener onClickListener, View.OnClickListener paginationClickListener, AlertService alertService) {
+    public AdvancedSearchClientsProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
+                                         View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
+                                         AlertService alertService) {
         super(context, repositoryHolder, visibleColumns, onClickListener, paginationClickListener, alertService);
 
     }

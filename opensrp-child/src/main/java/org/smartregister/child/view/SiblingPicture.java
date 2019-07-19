@@ -21,7 +21,9 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
     }
 
     public void setChildBaseEntityId(BaseActivity baseActivity, String baseEntityId) {
-        Utils.startAsyncTask(new GetChildDetailsTask(baseActivity, baseEntityId, CoreLibrary.getInstance().context().detailsRepository(), itemView), null);
+        Utils.startAsyncTask(
+                new GetChildDetailsTask(baseActivity, baseEntityId, CoreLibrary.getInstance().context().detailsRepository(),
+                        itemView), null);
     }
 
 

@@ -38,8 +38,7 @@ public class LocationActionView extends LinearLayout {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public LocationActionView(Context context,
-                              AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public LocationActionView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.context = context;
         init();
@@ -48,10 +47,11 @@ public class LocationActionView extends LinearLayout {
     private void init() {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.action_location_switcher, this, true);
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams layoutParams =
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         setLayoutParams(layoutParams);
 
-        itemText = (LocationPickerView) findViewById(R.id.item_text);
+        itemText = findViewById(R.id.item_text);
         itemText.init();
     }
 

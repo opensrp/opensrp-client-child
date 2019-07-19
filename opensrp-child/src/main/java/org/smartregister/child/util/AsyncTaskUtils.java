@@ -2,6 +2,7 @@ package org.smartregister.child.util;
 
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.domain.Alert;
+import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
@@ -61,11 +62,21 @@ public class AsyncTaskUtils {
     }
 
 
-    public static Weight retriveWeight(Map<String, NamedObject<?>> map) {
+    public static Weight retrieveWeight(Map<String, NamedObject<?>> map) {
         if (map.containsKey(Weight.class.getName())) {
             NamedObject<?> namedObject = map.get(Weight.class.getName());
             if (namedObject != null) {
                 return (Weight) namedObject.object;
+            }
+        }
+        return null;
+    }
+
+    public static Height retrieveHeight(Map<String, NamedObject<?>> map) {
+        if (map.containsKey(Height.class.getName())) {
+            NamedObject<?> namedObject = map.get(Height.class.getName());
+            if (namedObject != null) {
+                return (Height) namedObject.object;
             }
         }
         return null;
@@ -76,6 +87,16 @@ public class AsyncTaskUtils {
             NamedObject<?> namedObject = map.get(Weight.class.getName());
             if (namedObject != null) {
                 return (List<Weight>) namedObject.object;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public static List<Height> extractHeights(Map<String, NamedObject<?>> map) {
+        if (map.containsKey(Height.class.getName())) {
+            NamedObject<?> namedObject = map.get(Height.class.getName());
+            if (namedObject != null) {
+                return (List<Height>) namedObject.object;
             }
         }
         return new ArrayList<>();

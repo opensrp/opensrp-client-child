@@ -27,7 +27,8 @@ public class ChildRegistrationDataAdapter extends RecyclerView.Adapter<ChildRegi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parentViewGroup, int i) {
-        View itemView = LayoutInflater.from(parentViewGroup.getContext()).inflate(R.layout.key_value_data_recycler_view_item, parentViewGroup, false);
+        View itemView = LayoutInflater.from(parentViewGroup.getContext())
+                .inflate(R.layout.key_value_data_recycler_view_item, parentViewGroup, false);
 
         return new ViewHolder(itemView);
     }

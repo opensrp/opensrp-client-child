@@ -13,8 +13,8 @@ import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 /**
- * To use this toolbar in your activity, include the following line as the first child in your
- * activity's main {@link android.support.design.widget.CoordinatorLayout}
+ * To use this toolbar in your activity, include the following line as the first child in your activity's main {@link
+ * android.support.design.widget.CoordinatorLayout}
  * <p/>
  * <include layout="@layout/toolbar_location_switcher" />
  * <p/>
@@ -46,8 +46,8 @@ public class LocationSwitcherToolbar extends BaseToolbar {
 
     public String getCurrentLocation() {
         if (baseActivity != null && baseActivity.getMenu() != null) {
-            return ((LocationActionView) baseActivity.getMenu().findItem(R.id.location_switcher)
-                    .getActionView()).getSelectedItem();
+            return ((LocationActionView) baseActivity.getMenu().findItem(R.id.location_switcher).getActionView())
+                    .getSelectedItem();
         }
 
         return null;
@@ -81,7 +81,7 @@ public class LocationSwitcherToolbar extends BaseToolbar {
                             }
                         }
                     });
-            CustomFontTextView titleTV = (CustomFontTextView) baseActivity.findViewById(R.id.title);
+            CustomFontTextView titleTV = baseActivity.findViewById(R.id.title);
             View separatorV = baseActivity.findViewById(R.id.separator_v);
             titleTV.setText(title);
             baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);

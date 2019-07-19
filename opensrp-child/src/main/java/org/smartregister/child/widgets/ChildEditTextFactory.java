@@ -20,14 +20,15 @@ import java.util.Map;
 /**
  * Created by keyman on 11/04/2017.
  */
-public class WellnessEditTextFactory extends EditTextFactory {
+public class ChildEditTextFactory extends EditTextFactory {
 
     @Override
     public void attachLayout(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject,
                              MaterialEditText editText, ImageView editable) throws Exception {
         super.attachLayout(stepName, context, formFragment, jsonObject, editText, editable);
 
-        if (jsonObject.has(Constants.KEY.LOOK_UP) && jsonObject.get(Constants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (jsonObject.has(Constants.KEY.LOOK_UP) &&
+                jsonObject.get(Constants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
             String entityId = jsonObject.getString(Constants.KEY.ENTITY_ID);
 

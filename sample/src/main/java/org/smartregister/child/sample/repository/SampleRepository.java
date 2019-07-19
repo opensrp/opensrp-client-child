@@ -12,8 +12,10 @@ import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.repository.ConfigurableViewsRepository;
 import org.smartregister.domain.db.Column;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.HeightZScoreRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.growthmonitoring.repository.WeightZScoreRepository;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -35,21 +37,24 @@ public class SampleRepository extends Repository {
 
 
     private static final String TAG = SampleRepository.class.getCanonicalName();
+    public static String PASSWORD = "Sample_PASS";
     protected SQLiteDatabase readableDatabase;
     protected SQLiteDatabase writableDatabase;
     private Context context;
-    public static String PASSWORD = "Sample_PASS";
 
     public SampleRepository(Context context, org.smartregister.Context openSRPContext) {
-        super(context, AllConstants.DATABASE_NAME, BuildConfig.DATABASE_VERSION, openSRPContext.session(), SampleApplication.createCommonFtsObject(), openSRPContext.sharedRepositoriesArray());
+        super(context, AllConstants.DATABASE_NAME, BuildConfig.DATABASE_VERSION, openSRPContext.session(),
+                SampleApplication.createCommonFtsObject(), openSRPContext.sharedRepositoriesArray());
         this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase database) {
         super.onCreate(database);
-        EventClientRepository.createTable(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
-        EventClientRepository.createTable(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
+        EventClientRepository
+                .createTable(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
+        EventClientRepository
+                .createTable(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
 
         ConfigurableViewsRepository.createTable(database);
         UniqueIdRepository.createTable(database);
@@ -57,6 +62,7 @@ public class SampleRepository extends Repository {
         SettingsRepository.onUpgrade(database);
 
         WeightRepository.createTable(database);
+        HeightRepository.createTable(database);
         VaccineRepository.createTable(database);
 
         runLegacyUpgrades(database);
@@ -95,6 +101,17 @@ public class SampleRepository extends Repository {
     }
 
     @Override
+    public synchronized SQLiteDatabase getWritableDatabase(String password) {
+        if (writableDatabase == null || !writableDatabase.isOpen()) {
+            if (writableDatabase != null) {
+                writableDatabase.close();
+            }
+            writableDatabase = super.getWritableDatabase(password);
+        }
+        return writableDatabase;
+    }
+
+    @Override
     public synchronized SQLiteDatabase getReadableDatabase(String password) {
         try {
             if (readableDatabase == null || !readableDatabase.isOpen()) {
@@ -112,17 +129,6 @@ public class SampleRepository extends Repository {
     }
 
     @Override
-    public synchronized SQLiteDatabase getWritableDatabase(String password) {
-        if (writableDatabase == null || !writableDatabase.isOpen()) {
-            if (writableDatabase != null) {
-                writableDatabase.close();
-            }
-            writableDatabase = super.getWritableDatabase(password);
-        }
-        return writableDatabase;
-    }
-
-    @Override
     public synchronized void close() {
         if (readableDatabase != null) {
             readableDatabase.close();
@@ -134,6 +140,22 @@ public class SampleRepository extends Repository {
         super.close();
     }
 
+    private void runLegacyUpgrades(SQLiteDatabase database) {
+        upgradeToVersion2(database);
+        upgradeToVersion3(database);
+        upgradeToVersion4(database);
+        upgradeToVersion5(database);
+        upgradeToVersion6(database);
+        upgradeToVersion7OutOfArea(database);
+        upgradeToVersion8RecurringServiceUpdate(database);
+        upgradeToVersion8ReportDeceased(database);
+        //upgradeToVersion9(database);
+        upgradeToVersion12(database);
+        upgradeToVersion13(database);
+        upgradeToVersion14(database);
+        upgradeToVersion15RemoveUnnecessaryTables(database);
+
+    }
 
     /**
      * Version 2 added some columns to the ec_child table
@@ -148,7 +170,8 @@ public class SampleRepository extends Repository {
             newlyAddedFields.add("inactive");
             newlyAddedFields.add("lost_to_follow_up");
 
-            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName, newlyAddedFields);
+            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName,
+                    newlyAddedFields);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion2 " + Log.getStackTraceString(e));
         }
@@ -160,10 +183,14 @@ public class SampleRepository extends Repository {
             db.execSQL(VaccineRepository.EVENT_ID_INDEX);
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_EVENT_ID_COL);
             db.execSQL(WeightRepository.EVENT_ID_INDEX);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_EVENT_ID_COL);
+            db.execSQL(HeightRepository.EVENT_ID_INDEX);
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_FORMSUBMISSION_ID_COL);
             db.execSQL(VaccineRepository.FORMSUBMISSION_INDEX);
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_FORMSUBMISSION_ID_COL);
             db.execSQL(WeightRepository.FORMSUBMISSION_INDEX);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_FORMSUBMISSION_ID_COL);
+            db.execSQL(HeightRepository.FORMSUBMISSION_INDEX);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion3 " + Log.getStackTraceString(e));
         }
@@ -183,7 +210,8 @@ public class SampleRepository extends Repository {
             RecurringServiceTypeRepository.createTable(db);
             RecurringServiceRecordRepository.createTable(db);
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = SampleApplication.getInstance().recurringServiceTypeRepository();
+            RecurringServiceTypeRepository recurringServiceTypeRepository = SampleApplication.getInstance()
+                    .recurringServiceTypeRepository();
             IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion5 " + Log.getStackTraceString(e));
@@ -192,8 +220,11 @@ public class SampleRepository extends Repository {
 
     private void upgradeToVersion6(SQLiteDatabase db) {
         try {
-            ZScoreRepository.createTable(db);
+            WeightZScoreRepository.createTable(db);
             db.execSQL(WeightRepository.ALTER_ADD_Z_SCORE_COLUMN);
+
+            HeightZScoreRepository.createTable(db);
+            db.execSQL(HeightRepository.ALTER_ADD_Z_SCORE_COLUMN);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion6" + Log.getStackTraceString(e));
         }
@@ -205,6 +236,8 @@ public class SampleRepository extends Repository {
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL_INDEX);
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL);
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL_INDEX);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL_INDEX);
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_HIA2_STATUS_COL);
 
         } catch (Exception e) {
@@ -216,7 +249,8 @@ public class SampleRepository extends Repository {
         try {
 
             // Recurring service json changed. update
-            RecurringServiceTypeRepository recurringServiceTypeRepository = SampleApplication.getInstance().recurringServiceTypeRepository();
+            RecurringServiceTypeRepository recurringServiceTypeRepository = SampleApplication.getInstance()
+                    .recurringServiceTypeRepository();
             IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
 
         } catch (Exception e) {
@@ -227,38 +261,18 @@ public class SampleRepository extends Repository {
     private void upgradeToVersion8ReportDeceased(SQLiteDatabase database) {
         try {
 
-            String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Utils.metadata().childRegister.tableName + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
-            database.execSQL(ALTER_ADD_DEATHDATE_COLUMN);
+          /*  String ALTER_ADD_DEATHDATE_COLUMN = "ALTER TABLE " + Utils.metadata().childRegister.tableName + " ADD COLUMN " + DBConstants.KEY.DOD + " VARCHAR";
+            database.execSQL(ALTER_ADD_DEATHDATE_COLUMN);*/
 
             ArrayList<String> newlyAddedFields = new ArrayList<>();
             newlyAddedFields.add(DBConstants.KEY.DOD);
 
-            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName, newlyAddedFields);
+            DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName,
+                    newlyAddedFields);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion8ReportDeceased " + e.getMessage());
         }
     }
-
-    private void upgradeToVersion9(SQLiteDatabase database) {
-        try {
-            String ALTER_EVENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.event + " ADD COLUMN " + EventClientRepository.event_column.validationStatus + " VARCHAR";
-            database.execSQL(ALTER_EVENT_TABLE_VALIDATE_COLUMN);
-
-            String ALTER_CLIENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.client + " ADD COLUMN " + EventClientRepository.client_column.validationStatus + " VARCHAR";
-            database.execSQL(ALTER_CLIENT_TABLE_VALIDATE_COLUMN);
-
-            String ALTER_REPORT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + Hia2ReportRepository.Table.hia2_report + " ADD COLUMN " + Hia2ReportRepository.report_column.validationStatus + " VARCHAR";
-            database.execSQL(ALTER_REPORT_TABLE_VALIDATE_COLUMN);
-
-            EventClientRepository.createIndex(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
-            EventClientRepository.createIndex(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
-            EventClientRepository.createIndex(database, Hia2ReportRepository.Table.hia2_report, Hia2ReportRepository.report_column.values());
-
-        } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
-        }
-    }
-
 
     private void upgradeToVersion12(SQLiteDatabase db) {
         try {
@@ -267,6 +281,9 @@ public class SampleRepository extends Repository {
 
             db.execSQL(WeightRepository.ALTER_ADD_CREATED_AT_COLUMN);
             WeightRepository.migrateCreatedAt(db);
+
+            db.execSQL(HeightRepository.ALTER_ADD_CREATED_AT_COLUMN);
+            HeightRepository.migrateCreatedAt(db);
 
             db.execSQL(VaccineRepository.ALTER_ADD_CREATED_AT_COLUMN);
             VaccineRepository.migrateCreatedAt(db);
@@ -297,9 +314,14 @@ public class SampleRepository extends Repository {
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_TEAM_COL);
 
+
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_TEAM_COL);
+
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
 
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
+            db.execSQL(HeightRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
 
             db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
         } catch (Exception e) {
@@ -324,21 +346,27 @@ public class SampleRepository extends Repository {
         }
     }
 
-    private void runLegacyUpgrades(SQLiteDatabase database) {
-        upgradeToVersion2(database);
-        upgradeToVersion3(database);
-        upgradeToVersion4(database);
-        upgradeToVersion5(database);
-        upgradeToVersion6(database);
-        upgradeToVersion7OutOfArea(database);
-        upgradeToVersion8RecurringServiceUpdate(database);
-        upgradeToVersion8ReportDeceased(database);
-        upgradeToVersion9(database);
-        upgradeToVersion12(database);
-        upgradeToVersion13(database);
-        upgradeToVersion14(database);
-        upgradeToVersion15RemoveUnnecessaryTables(database);
+    private void upgradeToVersion9(SQLiteDatabase database) {
+        try {
+            String ALTER_EVENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.event + " ADD COLUMN " + EventClientRepository.event_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_EVENT_TABLE_VALIDATE_COLUMN);
 
+            String ALTER_CLIENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.client + " ADD COLUMN " + EventClientRepository.client_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_CLIENT_TABLE_VALIDATE_COLUMN);
+
+            String ALTER_REPORT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + Hia2ReportRepository.Table.hia2_report + " ADD COLUMN " + Hia2ReportRepository.report_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_REPORT_TABLE_VALIDATE_COLUMN);
+
+            EventClientRepository
+                    .createIndex(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
+            EventClientRepository
+                    .createIndex(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
+            EventClientRepository.createIndex(database, Hia2ReportRepository.Table.hia2_report,
+                    Hia2ReportRepository.report_column.values());
+
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
+        }
     }
 
 }

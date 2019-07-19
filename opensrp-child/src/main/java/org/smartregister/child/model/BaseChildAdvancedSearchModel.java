@@ -13,7 +13,8 @@ import static org.smartregister.child.util.Constants.KEY.INACTIVE;
 import static org.smartregister.child.util.Constants.KEY.LAST_NAME;
 import static org.smartregister.child.util.Constants.KEY.LOST_TO_FOLLOW_UP;
 
-public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel implements ChildAdvancedSearchContract.Model {
+public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
+        implements ChildAdvancedSearchContract.Model {
 
 
     public static final String AND = "AND";
@@ -62,7 +63,9 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                 String key = entry.getKey();
                 key = key.startsWith("mother_") ? parentTableName + "." + key : tableName + "." + key;
                 String value = entry.getValue();
-                if (!key.contains(startDateKey) && !key.contains(endDateKey) && !key.contains(ACTIVE) && !key.contains(INACTIVE) && !key.contains(LOST_TO_FOLLOW_UP) && !key.contains(motherFirstNameKey) && !key.contains(motherLastNameKey)) {
+                if (!key.contains(startDateKey) && !key.contains(endDateKey) && !key.contains(ACTIVE) && !key
+                        .contains(INACTIVE) && !key.contains(LOST_TO_FOLLOW_UP) && !key.contains(motherFirstNameKey) && !key
+                        .contains(motherLastNameKey)) {
                     if (StringUtils.isBlank(mainConditionString)) {
                         mainConditionString += " " + key + " Like '%" + value + "%'";
                     } else {
@@ -74,7 +77,8 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
             if (StringUtils.isBlank(mainConditionString)) {
                 if (editMap.containsKey(startDateKey) && editMap.containsKey(endDateKey)) {
-                    mainConditionString += " " + tableName + ".dob BETWEEN '" + editMap.get(startDateKey) + "' AND '" + editMap.get(endDateKey) + "'";
+                    mainConditionString += " " + tableName + ".dob BETWEEN '" + editMap
+                            .get(startDateKey) + "' AND '" + editMap.get(endDateKey) + "'";
                 } else if (editMap.containsKey(startDateKey)) {
                     mainConditionString += " " + tableName + ".dob >= '" + editMap.get(startDateKey) + "'";
 
@@ -83,7 +87,8 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                 }
             } else {
                 if (editMap.containsKey(startDateKey) && editMap.containsKey(endDateKey)) {
-                    mainConditionString += " AND " + tableName + ".dob BETWEEN '" + editMap.get(startDateKey) + "' AND '" + editMap.get(endDateKey) + "'";
+                    mainConditionString += " AND " + tableName + ".dob BETWEEN '" + editMap
+                            .get(startDateKey) + "' AND '" + editMap.get(endDateKey) + "'";
                 } else if (editMap.containsKey(startDateKey)) {
                     mainConditionString += " AND " + tableName + ".dob >= '" + editMap.get(startDateKey) + "'";
 
@@ -94,21 +99,29 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
             if (editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
                 if (StringUtils.isBlank(mainConditionString)) {
-                    mainConditionString += " " + parentTableName + "." + FIRST_NAME + " Like '%" + editMap.get(motherFirstNameKey) + "%' AND " + parentTableName + "." + LAST_NAME + " Like '%" + editMap.get(motherLastNameKey) + "%'";
+                    mainConditionString += " " + parentTableName + "." + FIRST_NAME + " Like '%" + editMap
+                            .get(motherFirstNameKey) + "%' AND " + parentTableName + "." + LAST_NAME + " Like '%" + editMap
+                            .get(motherLastNameKey) + "%'";
                 } else {
-                    mainConditionString += " AND  (" + parentTableName + "." + FIRST_NAME + " Like '%" + editMap.get(motherFirstNameKey) + "%' AND " + parentTableName + "." + LAST_NAME + " Like '%" + editMap.get(motherLastNameKey) + "%' ) ";
+                    mainConditionString += " AND  (" + parentTableName + "." + FIRST_NAME + " Like '%" + editMap
+                            .get(motherFirstNameKey) + "%' AND " + parentTableName + "." + LAST_NAME + " Like '%" + editMap
+                            .get(motherLastNameKey) + "%' ) ";
                 }
             } else if (editMap.containsKey(motherFirstNameKey) && !editMap.containsKey(motherLastNameKey)) {
                 if (StringUtils.isBlank(mainConditionString)) {
-                    mainConditionString += " " + parentTableName + "." + FIRST_NAME + " Like '%" + editMap.get(motherFirstNameKey) + "%'";
+                    mainConditionString += " " + parentTableName + "." + FIRST_NAME + " Like '%" + editMap
+                            .get(motherFirstNameKey) + "%'";
                 } else {
-                    mainConditionString += " AND  (" + parentTableName + "." + FIRST_NAME + " Like '%" + editMap.get(motherFirstNameKey) + "%') ";
+                    mainConditionString += " AND  (" + parentTableName + "." + FIRST_NAME + " Like '%" + editMap
+                            .get(motherFirstNameKey) + "%') ";
                 }
             } else if (!editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
                 if (StringUtils.isBlank(mainConditionString)) {
-                    mainConditionString += " " + parentTableName + "." + LAST_NAME + " Like '%" + editMap.get(motherLastNameKey) + "%'";
+                    mainConditionString += " " + parentTableName + "." + LAST_NAME + " Like '%" + editMap
+                            .get(motherLastNameKey) + "%'";
                 } else {
-                    mainConditionString += " AND  (" + parentTableName + "." + LAST_NAME + " Like '%" + editMap.get(motherLastNameKey) + "%' ) ";
+                    mainConditionString += " AND  (" + parentTableName + "." + LAST_NAME + " Like '%" + editMap
+                            .get(motherLastNameKey) + "%' ) ";
                 }
             }
 
@@ -121,15 +134,19 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
                     if (StringUtils.isBlank(statusConditionString)) {
                         if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                            statusConditionString += " ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' ) " +
-                                    " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "' ) ) ";
+                            statusConditionString += " ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE
+                                    .toString() + "' ) " +
+                                    " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
+                                    .toString() + "' ) ) ";
                         } else {
                             statusConditionString += " " + key + " = '" + value + "'";
                         }
                     } else {
                         if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                            statusConditionString += " OR ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' ) " +
-                                    " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "' ) ) ";
+                            statusConditionString += " OR ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE
+                                    .toString() + "' ) " +
+                                    " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
+                                    .toString() + "' ) ) ";
 
                         } else {
                             statusConditionString += " OR " + key + " = '" + value + "'";
@@ -146,7 +163,6 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                     mainConditionString += " AND (" + statusConditionString + ")";
                 }
             }
-
 
             return mainConditionString;
 

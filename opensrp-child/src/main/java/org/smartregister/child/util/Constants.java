@@ -2,14 +2,44 @@ package org.smartregister.child.util;
 
 import org.smartregister.AllConstants;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Constants extends AllConstants {
 
+    public static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
+    public static final String DEFAULT_DATE_STRING = "1970-1-1";
+    public static final String WEIGHT = "weight";
+    public static final String HEIGHT = "height";
+    public static final String BALANCE = "Balance";
+    public static final String NEW_BALANCE = "New balance";
+    public static final String NEW_BALANCE_ = "New balance:";
+    public static final String STEP_1 = "step1";
+    public static final String TITLE = "title";
+    public static final String FIELDS = "fields";
+    public static final String IS_VACCINE_GROUP = "is_vaccine_group";
+    public static final String VALUE = "value";
+    public static final String WEIGHT_KG = "Weight_Kg";
+    public static final String DATE_BIRTH = "Date_Birth";
+    public static final String BIRTH_WEIGHT = "Birth_Weight";
+    public static final String BIRTH_HEIGHT = "Birth_Height";
+    public static final String SEX = "Sex";
+    public static final String DATE_REACTION = "Date_Reaction";
+    public static final String ENTITY_ID = "entityId";
+    public static final String FIRST_NAME = "firstName";
+    public static final String MIDDLE_NAME = "middleName";
+    public static final String LAST_NAME = "lastName";
+    public static final String BIND_TYPE = "bindType";
+    public static final String NO_OF_EVENTS = "no_of_events";
+    public static final String EVENTS = "events";
+    public static final String CLIENTS = "clients";
+    public static final String HOME_FACILITY = "Home_Facility";
 
-    public enum RECORD_ACTION {WEIGHT, VACCINATION, NONE}
+    public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
     public static class JSON_FORM_KEY {
         public static final String OPTIONS = "options";
@@ -44,6 +74,7 @@ public class Constants extends AllConstants {
         public static final String CHILD = "child";
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
+        public static final String BIRTH_HEIGHT = "Birth_Height";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
@@ -76,6 +107,7 @@ public class Constants extends AllConstants {
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
         public static final String LOCATION_ID = "location_id";
+        public static final String PROVIDER_ID = "provider_id";
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 
@@ -117,6 +149,26 @@ public class Constants extends AllConstants {
         public static final String ACTIVE = "active";
         public static final String INACTIVE = "inactive";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+
+    }
+
+    public static class PROPERTY {
+        public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
+        public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
+
+        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";
+        public static final String FEATURE_NFC_CARD_ENABLED = "feature.nfc.card.enabled";
+
+        public static final String HOME_NEXT_VISIT_DATE_ENABLED = "home.next.visit.date.enabled";
+        public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
+        public static final String HOME_TOOLBAR_SCAN_CARD_ENABLED = "home.toolbar.scan.card.enabled";
+        public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
+
+        public static final String FEATURE_BOTTOM_NAVIGATION_ENABLED = "feature.bottom.navigation.enabled";
+        public static final String FEATURE_SCAN_QR_ENABLED = "feature.scan.qr.enabled";
+
+        public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
+
 
     }
 

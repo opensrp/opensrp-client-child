@@ -22,7 +22,8 @@ public class SampleSyncConfiguration extends SyncConfiguration {
 
     @Override
     public String getSyncFilterValue() {
-        AllSharedPreferences sharedPreferences = SampleApplication.getInstance().context().userService().getAllSharedPreferences();
+        AllSharedPreferences sharedPreferences = SampleApplication.getInstance().context().userService()
+                .getAllSharedPreferences();
         return sharedPreferences.fetchDefaultTeamId(sharedPreferences.fetchRegisteredANM());
     }
 

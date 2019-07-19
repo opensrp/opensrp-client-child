@@ -13,6 +13,7 @@ import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.Utils;
 
@@ -24,13 +25,42 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     }
 
     @Override
-    protected int getDrawerLayoutId() {
-        return 0;
+    protected void goToRegisterPage() {
+
+        Intent intent = new Intent(this, ChildRegisterActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     @Override
     protected int getToolbarId() {
         return LocationSwitcherToolbar.TOOLBAR_ID;
+    }
+
+    @Override
+    protected int getDrawerLayoutId() {
+        return 0;
+    }
+
+    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails,
+                                     RegisterClickables registerClickables) {
+
+        Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.INTENT_KEY.LOCATION_ID,
+                LocationHelper.getInstance().getOpenMrsLocationId(getCurrentLocation()));
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        intent.putExtras(bundle);
+
+        fromContext.startActivity(intent);
+    }
+
+    @Override
+    protected Activity getActivity() {
+        return this;
+
     }
 
     @Override
@@ -50,6 +80,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public void onClick(View view) {
         Utils.showToast(this, "Floating Action Button clicked...");
+        ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
     }
 
     @Override
@@ -63,34 +94,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     }
 
     @Override
-    protected Activity getActivity() {
-        return this;
-
-    }
-
-    @Override
-    protected void goToRegisterPage() {
-
-        Intent intent = new Intent(this, ChildRegisterActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-    }
-
-    @Override
     public void onRegistrationSaved(boolean isEdit) {
 
-    }
-
-    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-
-        Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.INTENT_KEY.LOCATION_ID, LocationHelper.getInstance().getOpenMrsLocationId(getCurrentLocation()));
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-        intent.putExtras(bundle);
-
-        fromContext.startActivity(intent);
     }
 }

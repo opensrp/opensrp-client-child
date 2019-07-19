@@ -1,8 +1,6 @@
 package org.smartregister.child.activity;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +12,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -26,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
@@ -55,11 +57,15 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
-import org.smartregister.growthmonitoring.fragment.RecordWeightDialogFragment;
-import org.smartregister.growthmonitoring.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.fragment.RecordGrowthDialogFragment;
+import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -99,6 +105,7 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,22 +122,19 @@ import java.util.concurrent.TimeUnit;
  * Created by ndegwamartin on 06/03/2019.
  */
 public abstract class BaseChildImmunizationActivity extends BaseActivity
-        implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener, View.OnClickListener {
+        implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
+        VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
+    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
-    private ArrayList<VaccineGroup> vaccineGroups;
-    private ArrayList<ServiceGroup> serviceGroups;
     private static final ArrayList<String> COMBINED_VACCINES;
     private static final HashMap<String, String> COMBINED_VACCINES_MAP;
-    private boolean bcgScarNotificationShown;
-    private boolean weightNotificationShown;
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
-    private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
-    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
-
+    private static Boolean hasProperty;
+    private static Boolean monitorGrowth = false;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -145,24 +149,74 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         COMBINED_VACCINES_MAP.put("MR 2", "Measles 2 / MR 2");
     }
 
+    private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
+    protected LinearLayout floatingActionButton;
+    private ArrayList<VaccineGroup> vaccineGroups;
+    private ArrayList<ServiceGroup> serviceGroups;
+    private boolean bcgScarNotificationShown;
+    private boolean weightNotificationShown;
     // Views
     private LocationSwitcherToolbar toolbar;
-
     // Data
     private CommonPersonObjectClient childDetails;
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
+    private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
-    protected LinearLayout floatingActionButton;
+    private View recordGrowth;
+    private TextView recordWeightText;
+    private ImageView profileImageIV;
+    private TextView childSiblingsTV;
+    private ImageView recordWeightCheck;
+    private TextView dobTV;
+    private TextView ageTV;
+    private TextView nameTV;
+    private TextView childIdTV;
+    private LinearLayout vaccineGroupCanvasLL;
+    private LinearLayout profileNamelayout;
+    private LinearLayout serviceGroupCanvasLL;
+    private LinearLayout someLayout;
+    private CustomFontTextView nextAppointmentDateView;
+    private ImageButton growthChartButton;
+    private SiblingPicturesGroup siblingPicturesGroup;
+
+    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
+                                      RegisterClickables registerClickables) {
+        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
+                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
+                        registerClickables.getNextAppointmentDate() : "");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtras(bundle);
+
+        fromContext.startActivity(intent);
+    }
+
+    public static Object clone(@NonNull Object object) {
+
+        Gson gson = new Gson();
+        String serializedOject = gson.toJson(object);
+
+        return gson.fromJson(serializedOject, object.getClass());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+
         detailsRepository = getOpenSRPContext().detailsRepository();
 
         setUpToolbar();
+        setUpViews();
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
@@ -178,12 +232,39 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
-        bcgScarNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) ? !ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) : false;
-        weightNotificationShown = ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+        bcgScarNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                        ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
         setLastModified(false);
 
         setUpFloatingActionButton();
+    }
+
+    private void setUpViews() {
+        recordGrowth = findViewById(R.id.record_growth);
+        recordWeightText = findViewById(R.id.record_growth_text);
+        profileNamelayout = findViewById(R.id.profile_name_layout);
+        childSiblingsTV = findViewById(R.id.child_siblings_tv);
+        recordWeightCheck = findViewById(R.id.record_growth_check);
+        dobTV = findViewById(R.id.dob_tv);
+        ageTV = findViewById(R.id.age_tv);
+        vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
+        serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
+        profileImageIV = findViewById(R.id.profile_image_iv);
+        nameTV = findViewById(R.id.name_tv);
+        childIdTV = findViewById(R.id.child_id_tv);
+        floatingActionButton = findViewById(R.id.fab);
+        someLayout = findViewById(R.id.content_base_inner);
+        nextAppointmentDateView = findViewById(R.id.next_appointment_date);
+        growthChartButton = findViewById(R.id.growth_chart_button);
+        siblingPicturesGroup = findViewById(R.id.sibling_pictures);
+
     }
 
     private void setUpToolbar() {
@@ -199,25 +280,27 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         });
         toolbar.setOnLocationChangeListener(this);
-//       View view= toolbar.findViewById(R.id.immunization_separator);
-//        view.setBackground(R.drawable.vertical_seperator_female);
+        //       View view= toolbar.findViewById(R.id.immunization_separator);
+        //        view.setBackground(R.drawable.vertical_seperator_female);
 
         toolbar.init(this);
     }
 
     private void setUpFloatingActionButton() {
-        floatingActionButton = findViewById(R.id.fab);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
 
             floatingActionButton.setOnClickListener(this);
 
-            configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)), null);
+            configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)),
+                    null);
 
-            LinearLayout someLayout = findViewById(R.id.content_base_inner);
-            someLayout.setPadding(someLayout.getPaddingLeft(), someLayout.getPaddingTop(), someLayout.getPaddingRight(), someLayout.getPaddingBottom() + 80);
+            someLayout.setPadding(someLayout.getPaddingLeft(), someLayout.getPaddingTop(), someLayout.getPaddingRight(),
+                    someLayout.getPaddingBottom() + 80);
         }
     }
+
+    protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
 
@@ -238,37 +321,67 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         floatingActionButton.setVisibility(View.VISIBLE);
     }
 
-    protected abstract Activity getActivity();
+    protected int getGenderButtonColor(String gender) {
+        int imageResource;
 
-    protected abstract void goToRegisterPage();
+        switch (gender.toLowerCase()) {
+            case Constants.GENDER.MALE:
+                imageResource = R.drawable.pill_background_male_blue;
+                break;
+            case Constants.GENDER.FEMALE:
+                imageResource = R.drawable.pill_background_female_pink;
+                break;
+            default:
+                imageResource = R.drawable.pill_background_gender_neutral_green;
+                break;
+        }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        return imageResource;
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+    protected int getContentView() {
+        return R.layout.activity_child_immunization;
+    }
 
-        Serializable serializable = savedInstanceState.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-            childDetails = (CommonPersonObjectClient) serializable;
+    @Override
+    protected int getToolbarId() {
+        return LocationSwitcherToolbar.TOOLBAR_ID;
+    }
+
+    @Override
+    protected abstract int getDrawerLayoutId();//Navigation drawer ID ?
+
+    @Override
+    protected int[] updateGenderViews(Gender gender) {
+        int[] selectedColor = super.updateGenderViews(gender);
+
+        String identifier = getString(R.string.neutral_sex_id);
+        int toolbarResource = R.drawable.vertical_separator_neutral;
+        if (gender.equals(Gender.FEMALE)) {
+            toolbarResource = R.drawable.vertical_separator_female;
+            identifier = getString(R.string.female_sex_id);
+        } else if (gender.equals(Gender.MALE)) {
+            toolbarResource = R.drawable.vertical_separator_male;
+            identifier = getString(R.string.male_sex_id);
         }
+
+        toolbar.updateSeparatorView(toolbarResource);
+        childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
+
+        updateProfilePicture(gender);
+        return selectedColor;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (vaccineGroups != null) {
-            LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
             vaccineGroupCanvasLL.removeAllViews();
             vaccineGroups = null;
         }
 
         if (serviceGroups != null) {
-            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
             serviceGroupCanvasLL.removeAllViews();
             serviceGroups = null;
         }
@@ -277,12 +390,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     }
 
-    private boolean isDataOk() {
-        return childDetails != null && childDetails.getDetails() != null;
-    }
-
     private void updateViews() {
-        findViewById(R.id.profile_name_layout).setOnClickListener(new View.OnClickListener() {
+        profileNamelayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 launchDetailActivity(getActivity(), childDetails, null);
@@ -310,49 +419,49 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
+        if (hasProperty && monitorGrowth) {
+            updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        }
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
-        updateViewTask.setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
+        updateViewTask
+                .setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
         updateViewTask.setAlertService(alertService);
         Utils.startAsyncTask(updateViewTask, null);
     }
 
-    private void updateProfilePicture(Gender gender) {
+    public abstract void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails,
+                                              RegisterClickables registerClickables);
+
+    protected abstract Activity getActivity();
+
+    private void showChildsStatus(CommonPersonObjectClient child) {
+        String status = getHumanFriendlyChildsStatus(child);
+        showChildsStatus(status);
+    }
+
+    private void updateGenderViews() {
+        Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            ImageView profileImageIV = findViewById(R.id.profile_image_iv);
-
-            if (childDetails.entityId() != null) { //image already in local storage most likey ):
-                //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-                profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
-
+            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
+                gender = Gender.FEMALE;
+            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
+                gender = Gender.MALE;
             }
         }
+
+        updateGenderViews(gender);
     }
 
-    private void updateChildIdViews() {
+    private String updateActivityTitle() {
         String name = "";
-        String childId = "";
         if (isDataOk()) {
             name = constructChildName();
-            childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         }
+        //        return String.format("%s > %s", getString(R.string.app_name), name.trim());
+        return name.trim();
 
-        TextView nameTV = findViewById(R.id.name_tv);
-        nameTV.setText(name);
-        TextView childIdTV = findViewById(R.id.child_id_tv);
-        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
-
-        Utils.startAsyncTask(new GetSiblingsTask(), null);
-    }
-
-    private void updateNextAppointmentDateView() {
-
-        if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
-            CustomFontTextView nextAppointmentDateView = findViewById(R.id.next_appointment_date);
-            ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
-            nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
-        }
     }
 
     private void updateAgeViews() {
@@ -373,51 +482,95 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
         }
-        TextView dobTV = findViewById(R.id.dob_tv);
+
         dobTV.setText(String.format("%s: %s", getString(R.string.birthdate), formattedDob));
-        TextView ageTV = findViewById(R.id.age_tv);
         ageTV.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
     }
 
-    private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
+    private void updateChildIdViews() {
+        String name = "";
+        String childId = "";
         if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
+            name = constructChildName();
+            childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
         }
 
-        updateGenderViews(gender);
+        nameTV.setText(name);
+        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
+
+        Utils.startAsyncTask(new GetSiblingsTask(), null);
+    }
+
+    private void updateNextAppointmentDateView() {
+        if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
+            ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
+            nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
+        }
+    }
+
+    private boolean isDataOk() {
+        return childDetails != null && childDetails.getDetails() != null;
+    }
+
+    private String constructChildName() {
+        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
+        return Utils.getName(firstName, lastName).trim();
+    }
+
+    private void updateProfilePicture(Gender gender) {
+        if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likey ):
+            //set profile image by passing the client id.If the image doesn't exist in the image repository then
+            // download and save locally
+            profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(),
+                    OpenSRPImageLoader
+                            .getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender),
+                                    ImageUtils.profileImageResourceByGender(gender)));
+
+        }
     }
 
     @Override
-    protected int[] updateGenderViews(Gender gender) {
-        int[] selectedColor = super.updateGenderViews(gender);
-
-        String identifier = getString(R.string.neutral_sex_id);
-        int toolbarResource = R.drawable.vertical_separator_neutral;
-        if (gender.equals(Gender.FEMALE)) {
-            toolbarResource = R.drawable.vertical_separator_female;
-            identifier = getString(R.string.female_sex_id);
-        } else if (gender.equals(Gender.MALE)) {
-            toolbarResource = R.drawable.vertical_separator_male;
-            identifier = getString(R.string.male_sex_id);
-        }
-
-        toolbar.updateSeparatorView(toolbarResource);
-
-        TextView childSiblingsTV = findViewById(R.id.child_siblings_tv);
-        childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
-
-        updateProfilePicture(gender);
-
-        return selectedColor;
+    protected Class onBackActivity() {
+        return BaseChildRegisterActivity.class;
     }
 
-    private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, List<Alert> alerts) {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        Serializable serializable = savedInstanceState.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+            childDetails = (CommonPersonObjectClient) serializable;
+        }
+    }
+
+    @Override
+    public void finish() {
+        if (isLastModified()) {
+            String tableName = Utils.metadata().childRegister.tableName;
+            AllCommonsRepository allCommonsRepository = getOpenSRPContext().allCommonsRepositoryobjects(tableName);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, (new Date()).getTime());
+            allCommonsRepository.update(tableName, contentValues, childDetails.entityId());
+            allCommonsRepository.updateSearch(childDetails.entityId());
+        }
+        super.finish();
+    }
+
+    public abstract boolean isLastModified();
+
+    public abstract void setLastModified(boolean lastModified);
+
+    private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList,
+                                    List<Alert> alerts) {
         Map<String, List<ServiceType>> foundServiceTypeMap = new LinkedHashMap<>();
         if (serviceGroups == null) {
             for (String type : serviceTypeMap.keySet()) {
@@ -425,71 +578,21 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     continue;
                 }
 
-                for (ServiceRecord serviceRecord : serviceRecordList) {
-                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) && serviceRecord.getType().equals(type)) {
-                        foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                        break;
-                    }
-                }
+                getServiceTypes(serviceTypeMap, serviceRecordList, foundServiceTypeMap, type);
 
                 if (foundServiceTypeMap.containsKey(type)) {
                     continue;
                 }
 
-                for (Alert a : alerts) {
-                    if (StringUtils.containsIgnoreCase(a.scheduleName(), type)
-                            || StringUtils.containsIgnoreCase(a.visitCode(), type)) {
-                        foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                        break;
-                    }
-                }
-
+                getAlerts(serviceTypeMap, alerts, foundServiceTypeMap, type);
             }
 
             if (foundServiceTypeMap.isEmpty()) {
                 return;
             }
 
-
             serviceGroups = new ArrayList<>();
-            LinearLayout serviceGroupCanvasLL = findViewById(R.id.service_group_canvas_ll);
-
-            ServiceGroup curGroup = new ServiceGroup(this);
-            curGroup.setChildActive(isChildActive);
-            curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
-            curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
-                @Override
-                public void onClick(ServiceGroup serviceGroup, ServiceWrapper
-                        serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-
-                    dialogOpen = true;
-                    if (isChildActive) {
-                        addServiceDialogFragment(serviceWrapper, serviceGroup);
-                    } else {
-                        showActivateChildStatusDialogBox();
-                    }
-                }
-            });
-            curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
-                @Override
-                public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-
-                    dialogOpen = true;
-                    if (isChildActive) {
-                        addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
-                    } else {
-                        showActivateChildStatusDialogBox();
-                    }
-                }
-            });
-            serviceGroupCanvasLL.addView(curGroup);
-            serviceGroups.add(curGroup);
+            createServiceGroupCanvas(serviceRecordList, alerts, foundServiceTypeMap);
         } else {
             for (ServiceGroup serviceGroup : serviceGroups) {
                 try {
@@ -501,6 +604,166 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             }
         }
 
+    }
+
+    private void getServiceTypes(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, Map<String, List<ServiceType>> foundServiceTypeMap, String type) {
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
+                    serviceRecord.getType().equals(type)) {
+                foundServiceTypeMap.put(type, serviceTypeMap.get(type));
+                break;
+            }
+        }
+    }
+
+    private void getAlerts(Map<String, List<ServiceType>> serviceTypeMap, List<Alert> alerts, Map<String, List<ServiceType>> foundServiceTypeMap, String type) {
+        for (Alert alert : alerts) {
+            if (StringUtils.containsIgnoreCase(alert.scheduleName(), type) ||
+                    StringUtils.containsIgnoreCase(alert.visitCode(), type)) {
+                foundServiceTypeMap.put(type, serviceTypeMap.get(type));
+                break;
+            }
+        }
+    }
+
+    private void createServiceGroupCanvas(List<ServiceRecord> serviceRecordList, List<Alert> alerts, Map<String, List<ServiceType>> foundServiceTypeMap) {
+        ServiceGroup curGroup = new ServiceGroup(this);
+        curGroup.setChildActive(isChildActive);
+        curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
+        serviceOnClickListener(curGroup);
+        undoServiceOnClickListener(curGroup);
+        serviceGroupCanvasLL.addView(curGroup);
+        serviceGroups.add(curGroup);
+    }
+
+    private void undoServiceOnClickListener(ServiceGroup curGroup) {
+        curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
+            @Override
+            public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
+                if (isChildActive) {
+                    addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
+            }
+        });
+    }
+
+    private void serviceOnClickListener(ServiceGroup curGroup) {
+        curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
+            @Override
+            public void onClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
+                if (isChildActive) {
+                    addServiceDialogFragment(serviceWrapper, serviceGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
+            }
+        });
+    }
+
+    private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+
+        ft.addToBackStack(null);
+        serviceGroup.setModalOpen(true);
+
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        DateTime dob = Utils.dobStringToDateTime(dobString);
+        if (dob == null) {
+            dob = DateTime.now();
+        }
+
+        List<ServiceRecord> serviceRecordList =
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
+        if (serviceRecordList == null) {
+            serviceRecordList = new ArrayList<>();
+        }
+
+        ServiceDialogFragment serviceDialogFragment =
+                ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
+        serviceDialogFragment.show(ft, DIALOG_TAG);
+        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+    }
+
+    private void showActivateChildStatusDialogBox() {
+        String thirdPersonPronoun = getChildsThirdPersonPronoun(childDetails);
+        String childsCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment
+                .newInstance(thirdPersonPronoun, childsCurrentStatus, R.style.PathAlertDialog);
+        activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
+                    Utils.startAsyncTask(saveChildsStatusTask, null);
+                }
+            }
+        });
+        activateChildStatusFragmentDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+        activateChildStatusFragmentDialog.show(ft, DIALOG_TAG);
+    }
+
+    private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+
+        ft.addToBackStack(null);
+        serviceGroup.setModalOpen(true);
+
+        UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
+        undoServiceDialogFragment.show(ft, DIALOG_TAG);
+        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+    }
+
+    private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            return getString(R.string.her);
+        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            return getString(R.string.him);
+        }
+
+        return getString(R.string.her) + "/" + getString(R.string.him);
     }
 
     private void updateVaccinationViews(List<Vaccine> vaccineList, List<Alert> alerts) {
@@ -516,21 +779,26 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> compiledVaccineGroups;
 
             vaccineGroups = new ArrayList<>();
-            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines =
+                    VaccinatorUtils.getSupportedVaccines(this);
 
-            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) && Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
+            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) &&
+                    Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
             boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
 
-            org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup = (org.smartregister.immunization.domain.jsonmapping.VaccineGroup)
-                    clone(getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
+            org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup =
+                    (org.smartregister.immunization.domain.jsonmapping.VaccineGroup) clone(
+                            getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
 
             if (showBcg2Reminder) {
 
-                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
+                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX)
+                        .plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
                 updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines, BCG_NAME), BCG_NO_SCAR_NAME);
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
+                        VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
@@ -543,17 +811,20 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             } else if (showBcgScar) {
 
-                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
+                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX)
+                        .plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
                 final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
 
-                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
+                        VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
                 if (specialVaccines != null && !specialVaccines.isEmpty()) {
                     for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
                             vaccine.name = BCG_SCAR_NAME;
                             birthVaccineGroup.vaccines.add(vaccine);
-                            vaccineList.add(createDummyVaccine(BCG_SCAR_NAME, new Date(DATE), VaccineRepository.TYPE_Synced));
+                            vaccineList
+                                    .add(createDummyVaccine(BCG_SCAR_NAME, new Date(DATE), VaccineRepository.TYPE_Synced));
                             break;
                         }
                     }
@@ -567,7 +838,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 try {
                     addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
                 } catch (Exception e) {
-
                     Log.e(TAG, e.getMessage(), e);
                 }
             }
@@ -585,47 +855,55 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         showVaccineNotifications(vaccineList, alerts);
     }
 
-    private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
+    public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(
+            @NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList,
+            @NonNull String name) {
 
-        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-
-        if (details.containsKey(SHOW_BCG2_REMINDER) || details.containsKey(SHOW_BCG_SCAR)) {
-            return;
+        for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : vaccineGroupList) {
+            if (vaccineGroup.id.equals(name)) return vaccineGroup;
         }
-
-        if (registerClickables != null) {
-            return;
-        }
-
-        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
-            return;
-        }
-
-        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
-        if (bcg == null) {
-            return;
-        }
-
-        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
-        if (alert == null || alert.isComplete()) {
-            return;
-        }
-
-        int bcgOffsetInWeeks = 12;
-        Calendar twelveWeeksLaterDate = Calendar.getInstance();
-        twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
-
-        Calendar today = Calendar.getInstance();
-
-        if (today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today)) {
-            showCheckBcgScarNotification(alert);
-        }
+        return null;
     }
 
-    private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
-        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
+    public void updateVaccineName(org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine,
+                                  @NonNull String newName) {
+
+        if (vaccine != null) vaccine.name = newName;
+    }
+
+    public org.smartregister.immunization.domain.jsonmapping.Vaccine getVaccineByName(
+            @NonNull List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccineList, @NonNull String name) {
+
+        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccineList) {
+            if (vaccine.name.equals(name)) return vaccine;
+        }
+        return null;
+    }
+
+    private Vaccine createDummyVaccine(String name, Date date, String syncStatus) {
+        Vaccine vaccine = new Vaccine();
+        vaccine.setId(-1l);
+        vaccine.setBaseEntityId(childDetails.entityId());
+        vaccine.setName(name);
+        vaccine.setDate(date);
+        vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        vaccine.setSyncStatus(syncStatus);
+        vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
+        vaccine.setUpdatedAt(new Date().getTime());
+
+        String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
+        if (StringUtils.isNumeric(lastChar)) {
+            vaccine.setCalculation(Integer.valueOf(lastChar));
+        } else {
+            vaccine.setCalculation(-1);
+        }
+        return vaccine;
+    }
+
+    private void addVaccineGroup(int canvasId,
+                                 org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData,
+                                 List<Vaccine> vaccineList, List<Alert> alerts) {
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, Constants.KEY.CHILD);
@@ -695,18 +973,92 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         vaccineGroups.add(curGroup);
     }
 
-    private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
+    private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
+
+        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
+        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+        if (details.containsKey(SHOW_BCG2_REMINDER) || details.containsKey(SHOW_BCG_SCAR)) {
+            return;
+        }
+
+        if (registerClickables != null) {
+            return;
+        }
+
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return;
+        }
+
+        int bcgOffsetInWeeks = 12;
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
+
+        Calendar today = Calendar.getInstance();
+
+        if (today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today)) {
+            showCheckBcgScarNotification(alert);
+        }
+    }
+
+    private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
+
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
             ft.remove(prev);
         }
 
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        Date dob = Utils.dobStringToDate(dobString);
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
+        }
 
-        UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
-        undoVaccinationDialogFragment.show(ft, DIALOG_TAG);
+        List<Vaccine> vaccineList =
+                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
+
+        VaccinationDialogFragment vaccinationDialogFragment =
+                VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
+        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+
+    }
+
+    private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            fragmentTransaction.remove(prev);
+        }
+
+        fragmentTransaction.addToBackStack(null);
+        vaccineGroup.setModalOpen(true);
+
+        UndoVaccinationDialogFragment undoVaccinationDialogFragment =
+                UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
+        undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -715,27 +1067,57 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         });
     }
 
-    private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+    private void showCheckBcgScarNotification(Alert alert) {
+        if (!bcgScarNotificationShown) {
+            bcgScarNotificationShown = true;
+            final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+
+            new BCGNotificationDialog(this, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    onBcgReminderOptionSelected(SHOW_BCG_SCAR);
+                    Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
+                }
+            }, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    onBcgReminderOptionSelected(SHOW_BCG2_REMINDER);
+                    Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
+                }
+            }).show();
         }
-
-        ft.addToBackStack(null);
-        serviceGroup.setModalOpen(true);
-
-        UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
-        undoServiceDialogFragment.show(ft, DIALOG_TAG);
-        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
     }
 
-    private void updateWeightViews(Weight lastUnsyncedWeight, final boolean isActive) {
+    public void onBcgReminderOptionSelected(String option) {
+
+        final long DATE = new Date().getTime();
+
+        switch (option) {
+
+            case SHOW_BCG2_REMINDER:
+                detailsRepository.add(childDetails.entityId(), SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), DATE);
+                break;
+
+            case SHOW_BCG_SCAR:
+                detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
+
+                String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+                JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
+                break;
+
+            default:
+                break;
+        }
+
+        vaccineGroupCanvasLL.removeAllViews();
+        vaccineGroups = null;
+        updateViews();
+    }
+
+    private void updateGrowthViews(Weight lastUnsyncedWeight, Height lastUnsyncedHeight, final boolean isActive) {
 
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
@@ -754,6 +1136,24 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         Photo photo = ImageUtils.profilePhotoByClient(childDetails);
 
+        WeightWrapper weightWrapper = getWeightWrapper(lastUnsyncedWeight, childName, gender, openSrpId, duration, photo);
+        HeightWrapper heightWrapper = null;
+        if (hasProperty && monitorGrowth) {
+            heightWrapper = getHeightWrapper(lastUnsyncedHeight, childName, gender, openSrpId, duration, photo);
+        }
+        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
+
+        growthChartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.startAsyncTask(new ShowGrowthChartTask(), null);
+            }
+        });
+    }
+
+    @NotNull
+    private WeightWrapper getWeightWrapper(Weight lastUnsyncedWeight, String childName, String gender, String openSrpId,
+                                           String duration, Photo photo) {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
         weightWrapper.setGender(gender);
@@ -768,46 +1168,89 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             weightWrapper.setDbKey(lastUnsyncedWeight.getId());
             weightWrapper.setUpdatedWeightDate(new DateTime(lastUnsyncedWeight.getDate()), false);
         }
-
-        updateRecordWeightViews(weightWrapper, isActive);
-
-        ImageButton growthChartButton = findViewById(R.id.growth_chart_button);
-        growthChartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.startAsyncTask(new ShowGrowthChartTask(), null);
-            }
-        });
+        return weightWrapper;
     }
 
-    private void updateRecordWeightViews(WeightWrapper weightWrapper, final boolean isActive) {
-        View recordWeight = findViewById(R.id.record_weight);
-        recordWeight.setClickable(true);
-        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+    @NotNull
+    private HeightWrapper getHeightWrapper(Height lastUnsyncedHeight, String childName, String gender, String openSrpId,
+                                           String duration, Photo photo) {
+        HeightWrapper heightWrapper = new HeightWrapper();
+        heightWrapper.setId(childDetails.entityId());
+        heightWrapper.setGender(gender);
+        heightWrapper.setPatientName(childName);
+        heightWrapper.setPatientNumber(openSrpId);
+        heightWrapper.setPatientAge(duration);
+        heightWrapper.setPhoto(photo);
+        heightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.PMTCT_STATUS, false));
 
-        TextView recordWeightText = findViewById(R.id.record_weight_text);
-        recordWeightText.setText(R.string.record_weight);
-        if (!isActive) {
-            recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
-        } else {
-            recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
+        if (lastUnsyncedHeight != null) {
+            heightWrapper.setHeight(lastUnsyncedHeight.getCm());
+            heightWrapper.setDbKey(lastUnsyncedHeight.getId());
+            heightWrapper.setUpdatedHeightDate(new DateTime(lastUnsyncedHeight.getDate()), false);
+        }
+        return heightWrapper;
+    }
+
+    private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper,
+                                                   final boolean isActive) {
+
+        recordWeightText.setText(R.string.record_growth);
+        recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
+        recordWeightCheck.setVisibility(View.GONE);
+
+        updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
+        if (hasProperty & monitorGrowth) {
+            updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
 
-        ImageView recordWeightCheck = findViewById(R.id.record_weight_check);
-        recordWeightCheck.setVisibility(View.GONE);
-        recordWeight.setOnClickListener(new View.OnClickListener() {
+        updateRecordWeightText(weightWrapper, heightWrapper);
+        updateRecordGrowth(weightWrapper, heightWrapper, isActive);
+
+    }
+
+    private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
+        String weight = "";
+        String height = "";
+        if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
+                (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
+            if (weightWrapper.getWeight() != null) {
+                weight = Utils.kgStringSuffix(weightWrapper.getWeight());
+            }
+            if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
+                height = Utils.cmStringSuffix(heightWrapper.getHeight());
+            }
+            isGrowthEdit = true;
+            if (hasProperty & monitorGrowth) {
+                recordWeightText.setText(!height.isEmpty() ? weight + ", " + height : weight);
+            } else {
+                recordWeightText.setText(weight);
+            }
+        }
+    }
+
+    private void updateRecordGrowth(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
+        recordGrowth.setClickable(true);
+        recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
+        recordGrowth.setTag(R.id.weight_wrapper, weightWrapper);
+        if (hasProperty && monitorGrowth) {
+            recordGrowth.setTag(R.id.height_wrapper, heightWrapper);
+        }
+        recordGrowth.setTag(R.id.growth_edit_flag, isGrowthEdit);
+        recordGrowth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isActive) {
-                    showWeightDialog(view);
+                    showGrowthDialog(view);
                 } else {
                     showActivateChildStatusDialogBox();
                 }
             }
         });
+    }
 
-        if (weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
-            recordWeightText.setText(Utils.kgStringSuffix(weightWrapper.getWeight()));
+    private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
+                                     ImageView recordWeightCheck) {
+        if (weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (weightWrapper.getUpdatedWeightDate() != null) {
@@ -815,32 +1258,51 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
-                    recordWeight.setClickable(false);
-                    recordWeight.setBackground(new ColorDrawable(getResources()
-                            .getColor(android.R.color.transparent)));
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
                 } else {
                     //reset state
                     weightWrapper.setWeight(null);
                     weightWrapper.setDbKey(null);
-                    recordWeight.setClickable(true);
-                    recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
-                    recordWeightText.setText(R.string.record_weight);
+                    recordGrowth.setClickable(true);
+                    recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
+                    recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
                 }
             }
         }
-
-        recordWeight.setTag(weightWrapper);
-
     }
 
-    private void showWeightDialog(View view) {
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+    private void updateHeightWrapper(HeightWrapper heightWrapper, View recordGrowth, ImageView recordWeightCheck) {
+        if (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null) {
+            recordWeightCheck.setVisibility(View.VISIBLE);
+
+            if (heightWrapper.getUpdatedHeightDate() != null) {
+                long timeDiff = Calendar.getInstance().getTimeInMillis() - heightWrapper.getUpdatedHeightDate().getMillis();
+
+                if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
+                    //disable the button
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+                } else {
+                    //reset state
+                    heightWrapper.setHeight(null);
+                    heightWrapper.setDbKey(null);
+                    recordGrowth.setClickable(true);
+                    recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
+                    recordWeightCheck.setVisibility(View.GONE);
+                }
+            }
         }
-        ft.addToBackStack(null);
+    }
+
+    private void showGrowthDialog(View view) {
+        FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
+        Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            fragmentTransaction.remove(prev);
+        }
+        fragmentTransaction.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -848,61 +1310,40 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             dob = Calendar.getInstance().getTime();
         }
 
-        WeightWrapper weightWrapper = (WeightWrapper) view.getTag();
-        RecordWeightDialogFragment recordWeightDialogFragment = RecordWeightDialogFragment.newInstance(dob, weightWrapper);
-        recordWeightDialogFragment.show(ft, DIALOG_TAG);
-
-    }
-
-    private void showActivateChildStatusDialogBox() {
-        String thirdPersonPronoun = getChildsThirdPersonPronoun(childDetails);
-        String childsCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+        WeightWrapper weightWrapper = (WeightWrapper) view.getTag(R.id.weight_wrapper);
+        HeightWrapper heightWrapper = null;
+        if (hasProperty && monitorGrowth) {
+            heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
         }
-        ft.addToBackStack(null);
-
-        ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childsCurrentStatus, R.style.PathAlertDialog);
-        activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
-                    Utils.startAsyncTask(saveChildsStatusTask, null);
-                }
-            }
-        });
-        activateChildStatusFragmentDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
-        activateChildStatusFragmentDialog.show(ft, DIALOG_TAG);
-    }
-
-    private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
-        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-            return getString(R.string.her);
-        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-            return getString(R.string.him);
+        boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
+        if (isGrowthEdit) {
+            EditGrowthDialogFragment editWeightDialogFragment =
+                    EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+            editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
+        } else {
+            RecordGrowthDialogFragment recordWeightDialogFragment =
+                    RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+            recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
 
-        return getString(R.string.her) + "/" + getString(R.string.him);
+
     }
 
     private void activateChildsStatus() {
         try {
             Map<String, String> details = childDetails.getColumnmaps();
-            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) && details.get(Constants.CHILD_STATUS.INACTIVE) != null && details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
+            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(
+                        JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
 
-            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) && details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null && details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
+            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(JsonFormUtils
+                        .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -917,41 +1358,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            fileContents = new String(buffer, "UTF-8");
+            fileContents = new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             Log.e(TAG, ex.toString(), ex);
         }
 
         return fileContents;
-    }
-
-    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE, registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ? registerClickables.getNextAppointmentDate() : "");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtras(bundle);
-
-        fromContext.startActivity(intent);
-    }
-
-    public abstract void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables);
-
-    private String updateActivityTitle() {
-        String name = "";
-        if (isDataOk()) {
-            name = constructChildName();
-        }
-//        return String.format("%s > %s", getString(R.string.app_name), name.trim());
-        return name.trim();
-
-    }
-
-    private void showChildsStatus(CommonPersonObjectClient child) {
-        String status = getHumanFriendlyChildsStatus(child);
-        showChildsStatus(status);
     }
 
     @Override
@@ -960,37 +1372,24 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     }
 
     @Override
-    protected int getContentView() {
-        return R.layout.activity_child_immunization;
-    }
+    public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
 
-    @Override
-    protected abstract int getDrawerLayoutId();//Navigation drawer ID ?
-
-    @Override
-    protected int getToolbarId() {
-        return LocationSwitcherToolbar.TOOLBAR_ID;
-    }
-
-    @Override
-    protected Class onBackActivity() {
-        return BaseChildRegisterActivity.class;
-    }
-
-    @Override
-    public void onWeightTaken(WeightWrapper tag) {
-        if (tag != null) {
-
-            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            tag.setGender(genderString);
-
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), tag, dobString, BaseRepository.TYPE_Unsynced);
-
-            updateRecordWeightViews(tag, isActiveStatus(childDetails));
-            setLastModified(true);
+        if (weightWrapper != null) {
+            weightWrapper.setGender(genderString);
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, dobString,
+                    BaseRepository.TYPE_Unsynced);
         }
+
+        if (hasProperty && monitorGrowth && heightWrapper != null) {
+            heightWrapper.setGender(genderString);
+            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
+                    BaseRepository.TYPE_Unsynced);
+        }
+
+        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
+        setLastModified(true);
     }
 
     @Override
@@ -1014,78 +1413,40 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Utils.startAsyncTask(new UndoVaccineTask(tag, v), null);
     }
 
-    private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
-
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+    private VaccineGroup getLastOpenedView() {
+        if (vaccineGroups == null) {
+            return null;
         }
 
-        ft.addToBackStack(null);
-        vaccineGroup.setModalOpen(true);
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        Date dob = Utils.dobStringToDate(dobString);
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
-        if (vaccineList == null) {
-            vaccineList = new ArrayList<>();
-        }
-
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
-        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
+        for (VaccineGroup vaccineGroup : vaccineGroups) {
+            if (vaccineGroup.isModalOpen()) {
+                return vaccineGroup;
             }
-        });
+        }
 
+        return null;
     }
 
-    private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+    private void saveVaccine(ArrayList<VaccineWrapper> tags, final View view) {
+        if (tags.isEmpty()) {
+            return;
         }
 
-        ft.addToBackStack(null);
-        serviceGroup.setModalOpen(true);
+        VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
+        SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
+        backgroundTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
+        backgroundTask.setView(view);
+        Utils.startAsyncTask(backgroundTask, arrayTags);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        DateTime dob = Utils.dobStringToDateTime(dobString);
-        if (dob == null) {
-            dob = DateTime.now();
-        }
-
-        List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
-        if (serviceRecordList == null) {
-            serviceRecordList = new ArrayList<>();
-        }
-
-        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
-        serviceDialogFragment.show(ft, DIALOG_TAG);
-        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
     }
 
     private void performRegisterActions() {
         if (registerClickables != null) {
             if (registerClickables.isRecordWeight()) {
-                final View recordWeight = findViewById(R.id.record_weight);
-                recordWeight.post(new Runnable() {
+                recordGrowth.post(new Runnable() {
                     @Override
                     public void run() {
-                        recordWeight.performClick();
+                        recordGrowth.performClick();
                     }
                 });
             } else if (registerClickables.isRecordAll()) {
@@ -1126,19 +1487,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void saveVaccine(ArrayList<VaccineWrapper> tags, final View view) {
-        if (tags.isEmpty()) {
-            return;
-        }
-
-        VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
-        SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
-        backgroundTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
-        backgroundTask.setView(view);
-        Utils.startAsyncTask(backgroundTask, arrayTags);
-
-    }
-
     private void saveVaccine(VaccineRepository vaccineRepository, VaccineWrapper tag) {
         if (tag.getUpdatedVaccineDate() == null) {
             return;
@@ -1166,32 +1514,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         setLastModified(true);
     }
 
-    private Vaccine createDummyVaccine(String name, Date date, String syncStatus) {
-        Vaccine vaccine = new Vaccine();
-        vaccine.setId(-1l);
-        vaccine.setBaseEntityId(childDetails.entityId());
-        vaccine.setName(name);
-        vaccine.setDate(date);
-        vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
-        vaccine.setSyncStatus(syncStatus);
-        vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
-        vaccine.setUpdatedAt(new Date().getTime());
-
-        String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
-        if (StringUtils.isNumeric(lastChar)) {
-            vaccine.setCalculation(Integer.valueOf(lastChar));
-        } else {
-            vaccine.setCalculation(-1);
-        }
-        return vaccine;
-    }
-
     private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, List<Vaccine> vaccineList) {
         updateVaccineGroupViews(view, wrappers, vaccineList, false);
     }
 
-    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, final List<Vaccine> vaccineList, final boolean undo) {
+    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
+                                         final List<Vaccine> vaccineList, final boolean undo) {
         if (view == null || !(view instanceof VaccineGroup)) {
             return;
         }
@@ -1223,13 +1551,11 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private void showRecordWeightNotification() {
         if (!weightNotificationShown) {
             weightNotificationShown = true;
-            showNotification(R.string.record_weight_notification, R.drawable.ic_weight_notification,
-                    R.string.record_weight,
+            showNotification(R.string.record_growth_notification, R.drawable.ic_weight_notification, R.string.record_growth,
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            View recordWeight = findViewById(R.id.record_weight);
-                            showWeightDialog(recordWeight);
+                            showGrowthDialog(recordGrowth);
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
@@ -1241,67 +1567,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void showCheckBcgScarNotification(Alert alert) {
-        if (!bcgScarNotificationShown) {
-            bcgScarNotificationShown = true;
-            final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-
-            new BCGNotificationDialog(this, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    onBcgReminderOptionSelected(SHOW_BCG_SCAR);
-                    Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
-                }
-            }, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    onBcgReminderOptionSelected(SHOW_BCG2_REMINDER);
-                    Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
-                }
-            }).show();
-        }
-    }
-
-    private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
-        return Utils.getName(firstName, lastName).trim();
-    }
-
-    @Override
-    public void finish() {
-        if (isLastModified()) {
-            String tableName = Utils.metadata().childRegister.tableName;
-            AllCommonsRepository allCommonsRepository = getOpenSRPContext().allCommonsRepositoryobjects(tableName);
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, (new Date()).getTime());
-            allCommonsRepository.update(tableName, contentValues, childDetails.entityId());
-            allCommonsRepository.updateSearch(childDetails.entityId());
-        }
-        super.finish();
-    }
-
-    public abstract boolean isLastModified();
-
-    public abstract void setLastModified(boolean lastModified);
-
-    private VaccineGroup getLastOpenedView() {
-        if (vaccineGroups == null) {
-            return null;
-        }
-
-        for (VaccineGroup vaccineGroup : vaccineGroups) {
-            if (vaccineGroup.isModalOpen()) {
-                return vaccineGroup;
-            }
-        }
-
-        return null;
-    }
-
-    private void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList, List<Alert> alerts) {
+    private void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList,
+                                                List<Alert> alerts) {
         if (affectedVaccines != null && vaccineList != null) {
             // Update all other affected vaccine groups
             HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups = new HashMap<>();
@@ -1343,15 +1610,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 }
             }
 
-            for (VaccineGroup curGroup : affectedGroups.keySet()) {
-                try {
-                    vaccineGroups.remove(curGroup);
-                    addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            curGroup.getVaccineData(),
-                            vaccineList, alerts);
-                } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
+            addVaccineGroups(vaccineList, alerts, affectedGroups);
+        }
+    }
+
+    private void addVaccineGroups(List<Vaccine> vaccineList, List<Alert> alerts, HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups) {
+        for (VaccineGroup curGroup : affectedGroups.keySet()) {
+            try {
+                vaccineGroups.remove(curGroup);
+                addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
+                        curGroup.getVaccineData(), vaccineList, alerts);
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
     }
@@ -1394,74 +1664,12 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
 
-    public void onBcgReminderOptionSelected(String option) {
-
-        final long DATE = new Date().getTime();
-
-        switch (option) {
-
-            case SHOW_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), DATE);
-                break;
-
-            case SHOW_BCG_SCAR:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
-
-                String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
-                JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
-                break;
-
-            default:
-                break;
-        }
-
-        LinearLayout vaccineGroupCanvasLL = findViewById(R.id.vaccine_group_canvas_ll);
-        vaccineGroupCanvasLL.removeAllViews();
-        vaccineGroups = null;
-        updateViews();
-    }
-
-    public org.smartregister.immunization.domain.jsonmapping.Vaccine getVaccineByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccineList, @NonNull String name) {
-
-        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccineList) {
-            if (vaccine.name.equals(name))
-                return vaccine;
-        }
-        return null;
-    }
-
     public Vaccine getVaccineAquiredByName(@NonNull List<Vaccine> vaccineList, @NonNull String name) {
 
         for (Vaccine vaccine : vaccineList) {
-            if (vaccine.getName().equals(name))
-                return vaccine;
+            if (vaccine.getName().equals(name)) return vaccine;
         }
         return null;
-    }
-
-
-    public void updateVaccineName(org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, @NonNull String newName) {
-
-        if (vaccine != null)
-            vaccine.name = newName;
-    }
-
-    public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList, @NonNull String name) {
-
-        for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : vaccineGroupList) {
-            if (vaccineGroup.id.equals(name))
-                return vaccineGroup;
-        }
-        return null;
-    }
-
-    public static Object clone(@NonNull Object object) {
-
-        Gson gson = new Gson();
-        String serializedOject = gson.toJson(object);
-
-        return gson.fromJson(serializedOject, object.getClass());
     }
 
     public String getCurrentLocation() {
@@ -1471,24 +1679,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     @Override
     public abstract void onClick(View view);
 
-    protected int getGenderButtonColor(String gender) {
-        int imageResource;
-
-        switch (gender.toLowerCase()) {
-            case Constants.GENDER.MALE:
-                imageResource = R.drawable.pill_background_male_blue;
-                break;
-            case Constants.GENDER.FEMALE:
-                imageResource = R.drawable.pill_background_female_pink;
-                break;
-            default:
-                imageResource = R.drawable.pill_background_gender_neutral_green;
-                break;
-        }
-
-        return imageResource;
-    }
-
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
     }
@@ -1497,10 +1687,123 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     // Inner classes
     ////////////////////////////////////////////////////////////////
 
+    private List<Weight> getAllWeights() {
+        List<Weight> allWeights =
+                GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
+        try {
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false)) &&
+                    dob != null) {
+                Double birthWeight =
+                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
+
+                Weight weight = getWeight(dob, birthWeight);
+                allWeights.add(weight);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+
+        return allWeights;
+    }
+
+    @NotNull
+    private Weight getWeight(Date dob, Double birthWeight) {
+        Weight weight = new Weight();
+        weight.setId(-1L);
+        weight.setBaseEntityId(null);
+        weight.setKg((float) birthWeight.doubleValue());
+        weight.setDate(dob);
+        weight.setAnmId(null);
+        weight.setLocationId(null);
+        weight.setSyncStatus(null);
+        weight.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+        weight.setEventId(null);
+        weight.setFormSubmissionId(null);
+        weight.setOutOfCatchment(0);
+        return weight;
+    }
+
+    private List<Height> getAllHeights() {
+        List<Height> allHeights =
+                GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(childDetails.entityId());
+        try {
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            Date dob = Utils.dobStringToDate(dobString);
+            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false)) &&
+                    dob != null) {
+                Double birthHeight =
+                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
+
+                Height height = getHeight(dob, birthHeight);
+                allHeights.add(height);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+
+        return allHeights;
+    }
+
+    @NotNull
+    private Height getHeight(Date dob, Double birthHeight) {
+        Height height = new Height();
+        height.setId(-1L);
+        height.setBaseEntityId(null);
+        height.setCm((float) birthHeight.doubleValue());
+        height.setDate(dob);
+        height.setAnmId(null);
+        height.setLocationId(null);
+        height.setSyncStatus(null);
+        height.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+        height.setEventId(null);
+        height.setFormSubmissionId(null);
+        height.setOutOfCatchment(0);
+        return height;
+    }
+
+    private void updateScheduleDate() {
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        DateTime dateTime = Utils.dobStringToDateTime(dobString);
+        if (dateTime != null) {
+            VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+            ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
+        }
+    }
+
+    @NotNull
+    private Map<String, NamedObject<?>> getStringNamedObjectMap(List<Vaccine> vaccineList, Weight weight, Height height, Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecords, List<Alert> alertList) {
+        Map<String, NamedObject<?>> map = new HashMap<>();
+
+        NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+        map.put(vaccineNamedObject.name, vaccineNamedObject);
+
+        NamedObject<Weight> weightNamedObject = new NamedObject<>(Weight.class.getName(), weight);
+        map.put(weightNamedObject.name, weightNamedObject);
+
+        NamedObject<Height> heightNamedObject = new NamedObject<>(Height.class.getName(), height);
+        map.put(heightNamedObject.name, heightNamedObject);
+
+        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+        map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+
+        NamedObject<List<ServiceRecord>> serviceRecordNamedObject =
+                new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+        map.put(serviceRecordNamedObject.name, serviceRecordNamedObject);
+
+        NamedObject<List<Alert>> alertsNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+        map.put(alertsNamedObject.name, alertsNamedObject);
+
+        return map;
+    }
+
     private class UpdateViewTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private VaccineRepository vaccineRepository;
         private WeightRepository weightRepository;
+        private HeightRepository heightRepository;
         private RecurringServiceTypeRepository recurringServiceTypeRepository;
         private RecurringServiceRecordRepository recurringServiceRecordRepository;
         private AlertService alertService;
@@ -1511,6 +1814,10 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         public void setWeightRepository(WeightRepository weightRepository) {
             this.weightRepository = weightRepository;
+        }
+
+        public void setHeightRepository(HeightRepository heightRepository) {
+            this.heightRepository = heightRepository;
         }
 
         public void setRecurringServiceTypeRepository(RecurringServiceTypeRepository recurringServiceTypeRepository) {
@@ -1525,41 +1832,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             this.alertService = alertService;
         }
 
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void onPostExecute(Map<String, NamedObject<?>> map) {
-
-            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
-            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
-            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
-            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-            Weight weight = AsyncTaskUtils.retriveWeight(map);
-
-            updateWeightViews(weight, isChildActive);
-            updateServiceViews(serviceTypeMap, serviceRecords, alertList);
-            updateVaccinationViews(vaccineList, alertList);
-            performRegisterActions();
-
-            hideProgressDialog();
-        }
-
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... voids) {
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            DateTime dateTime = Utils.dobStringToDateTime(dobString);
-            if (dateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-                ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
-            }
+            updateScheduleDate();
 
             List<Vaccine> vaccineList = new ArrayList<>();
             Weight weight = null;
+            Height height = null;
 
             Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
             List<ServiceRecord> serviceRecords = new ArrayList<>();
@@ -1567,10 +1846,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             List<Alert> alertList = new ArrayList<>();
             if (vaccineRepository != null) {
                 vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-
             }
+
             if (weightRepository != null) {
                 weight = weightRepository.findUnSyncedByEntityId(childDetails.entityId());
+            }
+
+            if (heightRepository != null) {
+                height = heightRepository.findUnSyncedByEntityId(childDetails.entityId());
             }
 
             if (recurringServiceRecordRepository != null) {
@@ -1594,28 +1877,36 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 alertList = alertService.findByEntityId(childDetails.entityId());
             }
 
-            Map<String, NamedObject<?>> map = new HashMap<>();
+            return getStringNamedObjectMap(vaccineList, weight, height, serviceTypeMap, serviceRecords, alertList);
+        }
 
-            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
-            map.put(vaccineNamedObject.name, vaccineNamedObject);
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
+        }
 
-            NamedObject<Weight> weightNamedObject = new NamedObject<>(Weight.class.getName(), weight);
-            map.put(weightNamedObject.name, weightNamedObject);
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+            Weight weight = AsyncTaskUtils.retrieveWeight(map);
+            Height height = AsyncTaskUtils.retrieveHeight(map);
 
-            NamedObject<List<ServiceRecord>> serviceRecordNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-            map.put(serviceRecordNamedObject.name, serviceRecordNamedObject);
+            updateGrowthViews(weight, height, isChildActive);
+            updateServiceViews(serviceTypeMap, serviceRecords, alertList);
+            updateVaccinationViews(vaccineList, alertList);
+            performRegisterActions();
 
-            NamedObject<List<Alert>> alertsNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
-            map.put(alertsNamedObject.name, alertsNamedObject);
-
-            return map;
+            hideProgressDialog();
         }
     }
 
-    public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
+    public class SaveServiceTask
+            extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
 
         private View view;
         private String providerId;
@@ -1634,18 +1925,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple) {
-            hideProgressDialog();
-            RecurringServiceUtils.updateServiceGroupViews(view, triple.getLeft(), triple.getMiddle(), triple.getRight());
-        }
-
-        @Override
-        protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(ServiceWrapper... params) {
+        protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(
+                ServiceWrapper... params) {
 
             ArrayList<ServiceWrapper> list = new ArrayList<>();
 
@@ -1654,17 +1935,29 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                 setLastModified(true);
                 list.add(tag);
 
-
-                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                ServiceSchedule
+                        .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
             }
 
-            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
+            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                    .findByEntityId(childDetails.entityId());
 
             AlertService alertService = getOpenSRPContext().alertService();
             List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
 
             return Triple.of(list, serviceRecordList, alertList);
 
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog();
+        }
+
+        @Override
+        protected void onPostExecute(Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple) {
+            hideProgressDialog();
+            RecurringServiceUtils.updateServiceGroupViews(view, triple.getLeft(), triple.getMiddle(), triple.getRight());
         }
     }
 
@@ -1682,28 +1975,30 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected void onPreExecute() {
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
-        }
-
-        @Override
         protected Void doInBackground(Void... params) {
             if (tag != null && tag.getDbKey() != null) {
                 Long dbKey = tag.getDbKey();
                 ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
+                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                        .findByEntityId(childDetails.entityId());
 
                 wrappers = new ArrayList<>();
                 wrappers.add(tag);
 
-                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                ServiceSchedule
+                        .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
                 AlertService alertService = getOpenSRPContext().alertService();
                 alertList = alertService.findByEntityId(childDetails.entityId());
 
             }
             return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1718,7 +2013,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private class ShowGrowthChartTask extends AsyncTask<Void, Void, List<Weight>> {
+    private class ShowGrowthChartTask extends AsyncTask<Void, Void, Map<String, List>> {
+        @Override
+        protected Map<String, List> doInBackground(Void... params) {
+            Map<String, List> growthMonitoring = new HashMap<>();
+            List<Weight> allWeights = getAllWeights();
+            List<Height> allHeights = getAllHeights();
+            growthMonitoring.put(Constants.HEIGHT, allHeights);
+            growthMonitoring.put(Constants.WEIGHT, allWeights);
+
+            return growthMonitoring;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -1726,39 +2032,36 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected List<Weight> doInBackground(Void... params) {
-            List<Weight> allWeights = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
-            try {
-                String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-                Date dob = Utils.dobStringToDate(dobString);
-                if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false))
-                        && dob != null) {
-                    Double birthWeight = Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
-
-                    Weight weight = new Weight(-1l, null, (float) birthWeight.doubleValue(), dob, null, null, null, Calendar.getInstance().getTimeInMillis(), null, null, 0);
-                    allWeights.add(weight);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-
-            return allWeights;
-        }
-
-        @Override
-        protected void onPostExecute(List<Weight> allWeights) {
-            super.onPostExecute(allWeights);
+        protected void onPostExecute(Map<String, List> growthMonitoring) {
+            super.onPostExecute(growthMonitoring);
             hideProgressDialog();
-            FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-            Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
             if (prev != null) {
-                ft.remove(prev);
+                fragmentTransaction.remove(prev);
             }
-            ft.addToBackStack(null);
+            fragmentTransaction.addToBackStack(null);
+
+            List<Weight> weights = new ArrayList<>();
+            List<Height> heights = new ArrayList<>();
+            if (growthMonitoring == null || growthMonitoring.isEmpty()) {
+                Toast.makeText(BaseChildImmunizationActivity.this,
+                        "Record at least one set of growth details (height, Weight)", Toast.LENGTH_LONG).show();
+            } else {
+
+                if (growthMonitoring.containsKey(Constants.WEIGHT)) {
+                    weights = growthMonitoring.get(Constants.WEIGHT);
+                }
+
+                if (growthMonitoring.containsKey(Constants.HEIGHT)) {
+                    heights = growthMonitoring.get(Constants.HEIGHT);
+                }
 
 
-            GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, allWeights);
-            growthDialogFragment.show(ft, DIALOG_TAG);
+            }
+
+            GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
+            growthDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
     }
 
@@ -1782,25 +2085,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<VaccineWrapper> list) {
-            hideProgressDialog();
-            updateVaccineGroupViews(view, list, vaccineList);
-            View recordWeight = findViewById(R.id.record_weight);
-            WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) && (weightWrapper == null || weightWrapper.getWeight() == null)) {
-                showRecordWeightNotification();
-            }
-
-            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
-            showVaccineNotifications(vaccineList, alertList);
-        }
-
-        @Override
         protected ArrayList<VaccineWrapper> doInBackground(VaccineWrapper... vaccineWrappers) {
 
             ArrayList<VaccineWrapper> list = new ArrayList<>();
@@ -1814,12 +2098,34 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
-                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                affectedVaccines =
+                        VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());
 
             return list;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<VaccineWrapper> list) {
+            hideProgressDialog();
+            updateVaccineGroupViews(view, list, vaccineList);
+            WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) &&
+                    ChildLibrary.getInstance().getProperties()
+                            .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) &&
+                    (weightWrapper == null || weightWrapper.getWeight() == null)) {
+                showRecordWeightNotification();
+            }
+
+            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
+            showVaccineNotifications(vaccineList, alertList);
         }
     }
 
@@ -1842,11 +2148,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected void onPreExecute() {
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
-        }
-
-        @Override
         protected Void doInBackground(Void... params) {
             if (tag != null) {
 
@@ -1858,13 +2159,19 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                     String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
                     DateTime dateTime = Utils.dobStringToDateTime(dobString);
                     if (dateTime != null) {
-                        affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                        affectedVaccines =
+                                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
                         vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
                         alertList = alertService.findByEntityId(childDetails.entityId());
                     }
                 }
             }
             return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1894,7 +2201,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
-                List<CommonPersonObject> children = getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName).findByRelational_IDs(motherBaseEntityId);
+                List<CommonPersonObject> children =
+                        getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName)
+                                .findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
@@ -1920,7 +2229,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
             Collections.reverse(ids);
 
-            SiblingPicturesGroup siblingPicturesGroup = getActivity().findViewById(R.id.sibling_pictures);
             siblingPicturesGroup.setSiblingBaseEntityIds((BaseActivity) getActivity(), ids);
         }
     }
@@ -1928,15 +2236,15 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     private class SaveChildsStatusTask extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected void onPreExecute() {
-            showProgressDialog(getResources().getString(R.string.updating_dialog_title), "");
-        }
-
-        @Override
         protected Void doInBackground(Void... params) {
             activateChildsStatus();
 
             return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog(getResources().getString(R.string.updating_dialog_title), "");
         }
 
         @Override
@@ -1989,14 +2297,14 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                             ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
                             selectedOption.put(SELECTED_OPTION, selectedIndex);
                         }
-                    })
-                    .setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
+                    }).setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
 
-                            alertDialog = new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
-                                    .getAlertDialogInstance();
+                            alertDialog =
+                                    new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
+                                            .getAlertDialogInstance();
 
                             if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
                                 subDialogPositive.show();
@@ -2006,29 +2314,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
                                 increaseBtnTextSizeTabletDevice(subDialogNegative);
                             }
                         }
-                    })
-                    .setNegativeButton(R.string.dismiss_button_label, null)
-                    .create();
+                    }).setNegativeButton(R.string.dismiss_button_label, null).create();
 
-            subDialogPositive = new AlertDialog.Builder(context, THEME)
-                    .setCancelable(false)
+            subDialogPositive = new AlertDialog.Builder(context, THEME).setCancelable(false)
                     .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_turn_off, null))
                     .setPositiveButton(R.string.turn_off_reminder_button_label, subDialogPositiveListener)
-                    .setNegativeButton(R.string.go_back_button_label, backListener)
-                    .create();
+                    .setNegativeButton(R.string.go_back_button_label, backListener).create();
 
-            subDialogNegative = new AlertDialog.Builder(context, THEME)
-                    .setCancelable(false)
-                    .setTitle(R.string.create_reminder_label)
-                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
-                    .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
-                    .setNegativeButton(R.string.go_back_button_label, backListener)
-                    .create();
-        }
-
-        private void show() {
-            showDisablePositiveButton(alertDialog);
-            increaseBtnTextSizeTabletDevice(alertDialog);
+            subDialogNegative =
+                    new AlertDialog.Builder(context, THEME).setCancelable(false).setTitle(R.string.create_reminder_label)
+                            .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
+                            .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
+                            .setNegativeButton(R.string.go_back_button_label, backListener).create();
         }
 
         private AlertDialog getAlertDialogInstance() {
@@ -2054,9 +2351,18 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
                 positiveButton.setTextSize(TEXT_SIZE);
                 negativeButton.setTextSize(TEXT_SIZE);
-                positiveButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING, DEFAULT_DIALOG_BUTTON_PADDING);
-                negativeButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING, DEFAULT_DIALOG_BUTTON_PADDING);
+                positiveButton
+                        .setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING,
+                                DEFAULT_DIALOG_BUTTON_PADDING);
+                negativeButton
+                        .setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING,
+                                DEFAULT_DIALOG_BUTTON_PADDING);
             }
+        }
+
+        private void show() {
+            showDisablePositiveButton(alertDialog);
+            increaseBtnTextSizeTabletDevice(alertDialog);
         }
 
         public void showDisablePositiveButton(@NonNull AlertDialog alertDialog) {

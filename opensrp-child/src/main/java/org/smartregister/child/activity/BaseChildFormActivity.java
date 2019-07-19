@@ -28,10 +28,9 @@ import java.util.List;
  * Created by ndegwamartin on 01/03/2019.
  */
 public class BaseChildFormActivity extends JsonFormActivity {
-
+    private ChildFormFragment childFormFragment;
     private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
-    private ChildFormFragment childFormFragment;
     private JSONObject form;
 
     @Override
@@ -78,6 +77,11 @@ public class BaseChildFormActivity extends JsonFormActivity {
         initializeFormFragmentCore();
     }
 
+    protected void initializeFormFragmentCore() {
+        childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
+        getSupportFragmentManager().beginTransaction().add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
+    }
+
     @Override
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
         if (toolbar != null) {
@@ -86,22 +90,9 @@ public class BaseChildFormActivity extends JsonFormActivity {
         super.setSupportActionBar(toolbar);
     }
 
-    protected void initializeFormFragmentCore() {
-        childFormFragment = ChildFormFragment.getFormFragment(JsonFormConstants.FIRST_STEP_NAME);
-        getSupportFragmentManager().beginTransaction()
-                .add(com.vijay.jsonwizard.R.id.container, childFormFragment).commit();
-    }
-
     @Override
-    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup) throws JSONException {
-        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity, openMrsEntityId, popup);
-        if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
-            validateActivateNext();
-        }
-    }
-
-    @Override
-    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup) throws JSONException {
+    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity,
+                           String openMrsEntityId, boolean popup) throws JSONException {
         super.writeValue(stepName, key, value, openMrsEntityParent, openMrsEntity, openMrsEntityId, popup);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
@@ -109,7 +100,19 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     @Override
-    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
+    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value,
+                           String openMrsEntityParent, String openMrsEntity, String openMrsEntityId, boolean popup)
+            throws JSONException {
+        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity,
+                openMrsEntityId, popup);
+        if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
+            validateActivateNext();
+        }
+    }
+
+    @Override
+    public void writeValue(String stepName, String key, String value, String openMrsEntityParent, String openMrsEntity,
+                           String openMrsEntityId) throws JSONException {
         super.writeValue(stepName, key, value, openMrsEntityParent, openMrsEntity, openMrsEntityId);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
@@ -117,29 +120,13 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     @Override
-    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value, String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
-        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity, openMrsEntityId);
+    public void writeValue(String stepName, String parentKey, String childObjectKey, String childKey, String value,
+                           String openMrsEntityParent, String openMrsEntity, String openMrsEntityId) throws JSONException {
+        super.writeValue(stepName, parentKey, childObjectKey, childKey, value, openMrsEntityParent, openMrsEntity,
+                openMrsEntityId);
         if (ChildLibrary.getInstance().metadata().formWizardValidateRequiredFieldsBefore) {
             validateActivateNext();
         }
-    }
-
-    public void validateActivateNext() {
-        Fragment fragment = getVisibleFragment();
-        if (fragment != null && fragment instanceof ChildFormFragment) {
-            ((ChildFormFragment) fragment).validateActivateNext();
-        }
-    }
-
-    public Fragment getVisibleFragment() {
-        List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null && fragment.isVisible())
-                    return fragment;
-            }
-        }
-        return null;
     }
 
     /**
@@ -168,12 +155,29 @@ public class BaseChildFormActivity extends JsonFormActivity {
         }
     }
 
+    public void validateActivateNext() {
+        Fragment fragment = getVisibleFragment();
+        if (fragment != null && fragment instanceof ChildFormFragment) {
+            ((ChildFormFragment) fragment).validateActivateNext();
+        }
+    }
+
+    public Fragment getVisibleFragment() {
+        List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null && fragment.isVisible()) return fragment;
+            }
+        }
+        return null;
+    }
+
     public boolean checkIfBalanceNegative() {
         boolean balancecheck = true;
-        String balancestring = childFormFragment.getRelevantTextViewString("Balance");
+        String balancestring = childFormFragment.getRelevantTextViewString(Constants.BALANCE);
 
-        if (balancestring.contains("New balance") && StringUtils.isNumeric(balancestring)) {
-            int balance = Integer.parseInt(balancestring.replace("New balance:", "").trim());
+        if (balancestring.contains(Constants.NEW_BALANCE) && StringUtils.isNumeric(balancestring)) {
+            int balance = Integer.parseInt(balancestring.replace(Constants.NEW_BALANCE_, "").trim());
             if (balance < 0) {
                 balancecheck = false;
             }
@@ -183,23 +187,25 @@ public class BaseChildFormActivity extends JsonFormActivity {
     }
 
     public boolean checkIfAtLeastOneServiceGiven() {
-        JSONObject object = getStep("step1");
+        JSONObject object = getStep(Constants.STEP_1);
         try {
-            if (object.getString("title").contains("Record out of catchment area service")) {
-                JSONArray fields = object.getJSONArray("fields");
+            if (object.getString(Constants.TITLE).contains("Record out of catchment area service")) {
+                JSONArray fields = object.getJSONArray(Constants.FIELDS);
                 for (int i = 0; i < fields.length(); i++) {
                     JSONObject vaccineGroup = fields.getJSONObject(i);
-                    if (vaccineGroup.has("key") && vaccineGroup.has("is_vaccine_group")) {
-                        if (vaccineGroup.getBoolean("is_vaccine_group") && vaccineGroup.has("options")) {
-                            JSONArray vaccineOptions = vaccineGroup.getJSONArray("options");
+                    if (vaccineGroup.has(Constants.KEY.KEY) && vaccineGroup.has(Constants.IS_VACCINE_GROUP)) {
+                        if (vaccineGroup.getBoolean(Constants.IS_VACCINE_GROUP) && vaccineGroup.has(Constants.OPTIONS)) {
+                            JSONArray vaccineOptions = vaccineGroup.getJSONArray(Constants.OPTIONS);
                             for (int j = 0; j < vaccineOptions.length(); j++) {
                                 JSONObject vaccineOption = vaccineOptions.getJSONObject(j);
-                                if (vaccineOption.has("value") && vaccineOption.getBoolean("value")) {
+                                if (vaccineOption.has(Constants.VALUE) && vaccineOption.getBoolean(Constants.VALUE)) {
                                     return true;
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg") && vaccineGroup.has("value") && vaccineGroup.getString("value").length() > 0) {
+                    } else if (vaccineGroup.has(Constants.KEY.KEY) &&
+                            vaccineGroup.getString(Constants.KEY.KEY).equals(Constants.WEIGHT_KG) &&
+                            vaccineGroup.has(Constants.VALUE) && vaccineGroup.getString(Constants.VALUE).length() > 0) {
                         return true;
                     }
                 }

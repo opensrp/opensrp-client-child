@@ -223,6 +223,27 @@
         }
       },
       {
+        "key": "Birth_Height",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "concept",
+        "openmrs_entity_id": "5916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "openmrs_data_type": "text",
+        "type": "edit_text",
+        "hint": "Birth Height (cm)",
+        "v_min": {
+          "value": "0.1",
+          "err": "Height must be greater than 0"
+        },
+        "v_numeric": {
+          "value": "true",
+          "err": "Enter a valid height"
+        },
+        "v_required": {
+          "value": "true",
+          "err": "Enter the child's birth height"
+        }
+      },
+      {
         "key": "Mother_Guardian_First_Name",
         "openmrs_entity_parent": "",
         "openmrs_entity": "person",
@@ -405,7 +426,7 @@
         "hint": "Child's residential area ",
         "tree": [],
         "v_required": {
-          "value": true,
+          "value": false,
           "err": "Please enter the child's residential area"
         }
       },

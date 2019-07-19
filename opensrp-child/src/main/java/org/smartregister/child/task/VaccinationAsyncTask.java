@@ -48,27 +48,28 @@ import static org.smartregister.util.Utils.getValue;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
-
-    private List<String> vaccineGroups = Arrays.asList(new String[]{"at birth",
-            "6 weeks",
-            "10 weeks",
-            "14 weeks",
-            "9 months",
-            "15 months",
-            "18 months",
-            "After LMP",
-            "4 Weeks after TT 1",
-            "26 Weeks after TT 2",
-            "1 Year after TT 3 ",
-            "1 Year after TT 4 "});
-
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
-
     private final View convertView;
     private final String entityId;
     private final String dobString;
     private final String lostToFollowUp;
     private final String inactive;
+    private List<String> vaccineGroups = Arrays.asList("at birth",
+            "6 weeks",
+            "10 weeks",
+            "14 weeks",
+            "5 months",
+            "6 months",
+            "7 months",
+            "9 months",
+            "15 months",
+            "18 months",
+            "22 months",
+            "After LMP",
+            "4 Weeks after TT 1",
+            "26 Weeks after TT 2",
+            "1 Year after TT 3 ",
+            "1 Year after TT 4 ");
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;
@@ -81,7 +82,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View childProfileInfoLayout;
 
 
-    public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository, VaccineRepository vaccineRepository, AlertService alertService, Context context) {
+    public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
+                                VaccineRepository vaccineRepository, AlertService alertService, Context context) {
 
         this.convertView = recordActionParams.getConvertView();
         this.entityId = recordActionParams.getEntityId();
@@ -132,7 +134,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
-        List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
+        List<Map<String, Object>> sch =
+                VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
@@ -173,11 +176,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         String vaccine;
         for (int i = 0; i < sch_.size(); i++) {
-//To Refactor remove
+            //To Refactor remove
             vaccine = String.valueOf(sch_.get(i).get("vaccine")); //eg penta1
             vaccine = "yf".equals(vaccine) ? "yellowfever" : vaccine;
             if (mapHasVaccine(vaccine, vaccines)) {
-                sch.remove(sch.indexOf(sch_.get(i)));
+                sch.remove(sch_.get(i));
             }
 
         }
@@ -220,7 +223,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         Map<String, Object> nv = updateWrapper.getNv();
 
         Object dueDateRawObject = nv.get(Constants.KEY.DATE);
-        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+        DateTime dueDate =
+                dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
 
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
@@ -245,7 +249,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 today.set(Calendar.MILLISECOND, 0);
 
 
-                if (dueDate != null && dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
+                if (dueDate != null &&
+                        dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) &&
+                        dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
                     state = State.UPCOMING_NEXT_7_DAYS;
                 } else {
                     state = State.UPCOMING;
@@ -260,8 +266,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         TextView nextAppointmentDate = convertView.findViewById(R.id.child_next_appointment);
 
         if (nextAppointmentDate != null) {
-
-            SimpleDateFormat UI_DF = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, CoreLibrary.getInstance().context().applicationContext().getResources().getConfiguration().locale);
+            SimpleDateFormat UI_DF =
+                    new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                            CoreLibrary.getInstance().context().applicationContext().getResources()
+                                    .getConfiguration().locale);
 
             if (dueDate != null) {
                 String nextAppointment = UI_DF.format(dueDate.toDate());
@@ -328,32 +336,39 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+            recordVaccinationText
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+            recordVaccinationText
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+            recordVaccinationText
+                    .setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.OVERDUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+            recordVaccinationText
+                    .setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
-            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) && !updateWrapper.getVaccines().isEmpty()) {
-                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
+            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) ||
+                    StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) &&
+                    !updateWrapper.getVaccines().isEmpty()) {
+                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null :
+                        updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
                 if (!TextUtils.isEmpty(previousStateKey)) {
                     recordVaccinationText.setText(localizeStateKey(previousStateKey));
@@ -363,7 +378,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
                 recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
-                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+                recordVaccinationText
+                        .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
             }
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
@@ -381,65 +397,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (updateOutOfCatchment) {
             updateViews(updateWrapper.getConvertView(), updateWrapper.getClient());
         }
-    }
-
-    protected void updateViews(View catchmentView, SmartRegisterClient client) {
-
-        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
-
-        if (commonRepository != null) {
-            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
-
-            View recordVaccination = catchmentView.findViewById(R.id.record_vaccination);
-            recordVaccination.setVisibility(View.VISIBLE);
-
-            View moveToCatchment = catchmentView.findViewById(R.id.move_to_catchment);
-            moveToCatchment.setVisibility(View.GONE);
-
-            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-
-                catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(context, context.getString(R.string.show_vaccine_card_disabled), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
-                moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
-
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + Constants.KEY.BASE_ENTITY_ID, false);
-                String entityId = pc.entityId();
-
-                List<String> ids = new ArrayList<>();
-                ids.add(motherBaseEntityId);
-                ids.add(entityId);
-
-                moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                moveToCatchment.setTag(ids);
-                moveToCatchment.setClickable(true);
-                moveToCatchment.setEnabled(true);
-                moveToCatchment.setOnClickListener(onClickListener);
-
-                moveToCatchment.setVisibility(View.VISIBLE);
-                recordVaccination.setVisibility(View.GONE);
-            }
-
-
-        }
-    }
-
-    private enum State {
-        DUE,
-        OVERDUE,
-        UPCOMING_NEXT_7_DAYS,
-        UPCOMING,
-        INACTIVE,
-        LOST_TO_FOLLOW_UP,
-        EXPIRED,
-        WAITING,
-        NO_ALERT,
-        FULLY_IMMUNIZED
     }
 
     private String localizeStateKey(String stateKey) {
@@ -464,16 +421,31 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 localizedKey = context.getString(R.string.fourteen_weeks);
                 break;
 
+            case "5 months":
+                localizedKey = context.getString(R.string.five_months);
+                break;
+
+            case "6 months":
+                localizedKey = context.getString(R.string.six_months);
+                break;
+
+            case "7 months":
+                localizedKey = context.getString(R.string.seven_months);
+                break;
+
             case "9 months":
                 localizedKey = context.getString(R.string.nine_months);
                 break;
-
             case "15 months":
                 localizedKey = context.getString(R.string.fifteen_months);
                 break;
 
             case "18 months":
                 localizedKey = context.getString(R.string.eighteen_months);
+                break;
+
+            case "22 months":
+                localizedKey = context.getString(R.string.twenty_two_months);
                 break;
 
             case "After LMP":
@@ -502,4 +474,55 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         return localizedKey;
     }
 
+    protected void updateViews(View catchmentView, SmartRegisterClient client) {
+
+        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
+
+        if (commonRepository != null) {
+            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
+
+            View recordVaccination = catchmentView.findViewById(R.id.record_vaccination);
+            recordVaccination.setVisibility(View.VISIBLE);
+
+            View moveToCatchment = catchmentView.findViewById(R.id.move_to_catchment);
+            moveToCatchment.setVisibility(View.GONE);
+
+            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+
+                catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, context.getString(R.string.show_vaccine_card_disabled), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+
+                TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
+                moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
+
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + Constants.KEY.BASE_ENTITY_ID, false);
+                String entityId = pc.entityId();
+
+                List<String> ids = new ArrayList<>();
+                ids.add(motherBaseEntityId);
+                ids.add(entityId);
+
+                moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
+                moveToCatchment.setTag(ids);
+                moveToCatchment.setClickable(true);
+                moveToCatchment.setEnabled(true);
+                moveToCatchment.setOnClickListener(onClickListener);
+
+                moveToCatchment.setVisibility(View.VISIBLE);
+                recordVaccination.setVisibility(View.GONE);
+            }
+
+
+        }
+    }
+
+    private enum State {
+        DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
+        FULLY_IMMUNIZED
+    }
 }

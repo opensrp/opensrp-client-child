@@ -7,6 +7,9 @@ import android.util.Log;
 import com.evernote.android.job.Job;
 import com.evernote.android.job.JobCreator;
 
+import org.smartregister.growthmonitoring.job.HeightIntentServiceJob;
+import org.smartregister.growthmonitoring.job.WeightIntentServiceJob;
+import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.job.ExtendedSyncServiceJob;
 import org.smartregister.job.PullUniqueIdsServiceJob;
 import org.smartregister.job.SyncServiceJob;
@@ -29,8 +32,15 @@ public class SampleJobCreator implements JobCreator {
                 return new PullUniqueIdsServiceJob();
             case ValidateSyncDataServiceJob.TAG:
                 return new ValidateSyncDataServiceJob();
+            case HeightIntentServiceJob.TAG:
+                return new HeightIntentServiceJob();
+            case WeightIntentServiceJob.TAG:
+                return new WeightIntentServiceJob();
+            case ZScoreRefreshIntentServiceJob.TAG:
+                return new ZScoreRefreshIntentServiceJob();
             default:
-                Log.d(SampleJobCreator.class.getCanonicalName(), "Looks like you tried to create a job " + tag + " that is not declared in the Anc Job Creator");
+                Log.d(SampleJobCreator.class.getCanonicalName(),
+                        "Looks like you tried to create a job " + tag + " that is not declared in the Anc Job Creator");
                 return null;
         }
     }
