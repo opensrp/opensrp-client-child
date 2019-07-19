@@ -102,6 +102,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -121,7 +123,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
-    private static final String CHILD = "child";
     protected static Menu overflow;
     private static Gender gender;
     protected ViewPager viewPager;
@@ -134,7 +135,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private File currentFile;
     private String locationId = "";
     private String providerId = "";
-    private ViewPagerAdapter adapter;
     private CommonPersonObjectClient childDetails;
     private Uri sharedFileUri;
     private ImageView profileImageIV;
@@ -245,7 +245,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                //Todo
             }
 
             @Override
@@ -269,9 +269,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
         });
         setActivityTitle();
-
         tabLayout.setupWithViewPager(viewPager);
-
         setupViews();
     }
 
@@ -285,7 +283,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         adapter.addFragment(childDataFragment, getString(R.string.registration_data));
         adapter.addFragment(childUnderFiveFragment, getString(R.string.under_five_history));
@@ -349,7 +347,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
                     photoFile = createImageFile();
                 } catch (IOException ex) {
                     // Error occurred while creating the File
-                    Log.e(TAG, Log.getStackTraceString(ex));
+                    Timber.e(ex, "BaseChildDetailTabbedActivity --> dispatchTakePictureIntent");
                 }
                 // Continue only if the File was successfully created
                 if (photoFile != null) {
@@ -374,7 +372,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         TextView profileage = findViewById(R.id.ageforclient);
         String name = "";
         String childId = "";
-        String dobString = "";
+        String dobString;
         String formattedAge = "";
         if (isDataOk()) {
             name = getValue(childDetails, Constants.KEY.FIRST_NAME, true) + " " +
@@ -420,9 +418,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             }
         }
         int[] colors = updateGenderViews(gender);
-        int darkShade = colors[0];
         int normalShade = colors[1];
-        int lightSade = colors[2];
         childDetailsToolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
         tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
@@ -435,7 +431,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             method.setAccessible(true);
             method.invoke(object, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
-            Log.d(TAG, "No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+            Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
     }
 
@@ -644,7 +640,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
     protected abstract void navigateToRegisterActivity();
 
-    private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
+    /*private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
         if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
             return false;
         }
@@ -667,7 +663,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         Calendar today = Calendar.getInstance();
 
         return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
-    }
+    }*/
 
     protected boolean launchAdverseEventForm() {
         LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask(this);

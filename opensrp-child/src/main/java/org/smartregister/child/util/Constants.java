@@ -34,6 +34,10 @@ public class Constants extends AllConstants {
     public static final String MIDDLE_NAME = "middleName";
     public static final String LAST_NAME = "lastName";
     public static final String BIND_TYPE = "bindType";
+    public static final String NO_OF_EVENTS = "no_of_events";
+    public static final String EVENTS = "events";
+    public static final String CLIENTS = "clients";
+    public static final String HOME_FACILITY = "Home_Facility";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 

@@ -36,7 +36,7 @@ import java.util.Map;
 import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
-    private static Menu overflow;
+    private Menu overflow;
     private org.smartregister.child.enums.Status status;
     private boolean fromUpdateStatus = false;
     private boolean hasProperty;
@@ -55,7 +55,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         this.activity = activity;
         this.childDataFragment = childDataFragment;
         this.childUnderFiveFragment = childUnderFiveFragment;
-        LoadAsyncTask.overflow = overflow;
+        this.overflow = overflow;
     }
 
     public LoadAsyncTask(org.smartregister.child.enums.Status status, Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
@@ -67,7 +67,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         this.activity = activity;
         this.childDataFragment = childDataFragment;
         this.childUnderFiveFragment = childUnderFiveFragment;
-        LoadAsyncTask.overflow = overflow;
+        this.overflow = overflow;
     }
 
     private void checkProperties() {

@@ -38,24 +38,21 @@ public class UndoServiceTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        if (serviceWrapper != null) {
+        if (serviceWrapper != null && serviceWrapper.getDbKey() != null) {
+            Long dbKey = serviceWrapper.getDbKey();
+            ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-            if (serviceWrapper.getDbKey() != null) {
-                Long dbKey = serviceWrapper.getDbKey();
-                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
+            serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                    .findByEntityId(childDetails.entityId());
 
-                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                        .findByEntityId(childDetails.entityId());
+            wrappers = new ArrayList<>();
+            wrappers.add(serviceWrapper);
 
-                wrappers = new ArrayList<>();
-                wrappers.add(serviceWrapper);
+            ServiceSchedule
+                    .updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
-                ServiceSchedule
-                        .updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
-
-                AlertService alertService = getOpenSRPContext().alertService();
-                alertList = alertService.findByEntityId(childDetails.entityId());
-            }
+            AlertService alertService = getOpenSRPContext().alertService();
+            alertList = alertService.findByEntityId(childDetails.entityId());
         }
         return null;
     }
