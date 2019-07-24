@@ -1,5 +1,8 @@
 package org.smartregister.child.utils;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,11 +20,14 @@ import org.smartregister.child.util.Utils;
 @PrepareForTest({Utils.class})
 public class JsonFormUtilsTests extends BaseUnitTest {
 
-    private JSONObject jsonObject = new JSONObject();
+    private JSONObject jsonObject;
+    private static final String MY_KEY = "my_key";
+    private static final String MY_LOCATION_ID = "mylo-cati-onid-endt-ifie-r00";
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        jsonObject = new JSONObject();
     }
 
     @Test
@@ -50,5 +56,16 @@ public class JsonFormUtilsTests extends BaseUnitTest {
         Assert.assertTrue(jsonObject.has(JsonFormUtils.VALUE));
         Assert.assertNotNull(jsonObject.get(JsonFormUtils.VALUE));
         Assert.assertEquals(2, jsonObject.get(JsonFormUtils.VALUE));
+    }
+
+    @Test
+    public void testAddLocationDefault() throws Exception {
+        jsonObject.put(JsonFormConstants.KEY, MY_KEY);
+        JSONArray array = new JSONArray();
+        array.put(MY_LOCATION_ID);
+        Whitebox.invokeMethod(JsonFormUtils.class, "addLocationDefault", MY_KEY, jsonObject, array.toString());
+        Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
+        Assert.assertNotNull(jsonObject.get(JsonFormConstants.DEFAULT));
+        Assert.assertEquals(array, jsonObject.get(JsonFormConstants.DEFAULT));
     }
 }

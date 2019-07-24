@@ -1,6 +1,5 @@
 package org.smartregister.child.util;
 
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.InputType;
@@ -29,7 +28,6 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 
-import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

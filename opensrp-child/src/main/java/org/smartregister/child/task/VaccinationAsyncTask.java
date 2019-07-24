@@ -90,13 +90,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View.OnClickListener onClickListener;
     private AlertService alertService;
     private View childProfileInfoLayout;
-    boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
+    private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
     private Map<String, String> reverseLookupGroupMap = new HashMap<>();
     private Map<String, GroupVaccineCount> groupVaccineMap = new HashMap<>();
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private List<String> actualVaccines = new ArrayList<>();//To Do decouple Immunization lib hardcoded vaccines to only load a specific implementation vaccine
-
-    Date lastVaccineDate = null;
+    private Date lastVaccineDate = null;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
