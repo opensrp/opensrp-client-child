@@ -3,16 +3,22 @@ package org.smartregister.child.task;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.domain.GroupVaccineCount;
 import org.smartregister.child.domain.RegisterActionParams;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -20,8 +26,10 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
@@ -36,10 +44,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 import static org.smartregister.util.Utils.getValue;
@@ -80,7 +90,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View.OnClickListener onClickListener;
     private AlertService alertService;
     private View childProfileInfoLayout;
+    boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
+    private Map<String, String> reverseLookupGroupMap = new HashMap<>();
+    private Map<String, GroupVaccineCount> groupVaccineMap = new HashMap<>();
+    protected String IS_GROUP_PARTIAL = "isGroupPartial";
+    private List<String> actualVaccines = new ArrayList<>();//To Do decouple Immunization lib hardcoded vaccines to only load a specific implementation vaccine
 
+    Date lastVaccineDate = null;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -99,12 +115,57 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.alertService = alertService;
         this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
 
-
     }
 
 
     @Override
     protected Void doInBackground(Void... params) {
+
+        List<VaccineGroup> groupList = (List<VaccineGroup>) ImmunizationLibrary.getInstance().getVaccinesConfigJsonMap().get("vaccines.json");
+
+        List<org.smartregister.immunization.domain.jsonmapping.Vaccine> groupVaccines;
+        String vaccineName;
+        for (int i = 0; i < groupList.size(); i++) {
+
+            groupVaccines = groupList.get(i).vaccines;
+
+            for (int j = 0; j < groupVaccines.size(); j++) {
+
+                vaccineName = groupVaccines.get(j).name.replaceAll(" ", "").toLowerCase();
+
+                String[] arr = vaccineName.split("/");
+                for (int k = 0; k < arr.length; k++) {
+
+                    actualVaccines.add(arr[k]);
+                }
+
+            }
+        }
+
+
+        ArrayList<VaccineRepo.Vaccine> childVaccineRepo = VaccineRepo.getVaccines(Constants.CHILD_TYPE);
+        VaccineRepo.Vaccine repoVaccine;
+        String repoGroup;
+        String repoVaccineName;
+
+        for (int i = 0; i < childVaccineRepo.size(); i++) {
+            repoVaccine = childVaccineRepo.get(i);
+            repoVaccineName = repoVaccine.toString().toLowerCase();
+            repoVaccineName = "yf".equals(repoVaccineName) ? "yellowfever" : repoVaccineName;
+            repoGroup = VaccinateActionUtils.stateKey(repoVaccine);
+            reverseLookupGroupMap.put(repoVaccineName, repoGroup);
+            GroupVaccineCount groupVaccineCount = groupVaccineMap.get(repoGroup);
+            if (groupVaccineCount == null) {
+                groupVaccineCount = new GroupVaccineCount(0, 0);
+            }
+
+            groupVaccineCount.setGiven(groupVaccineCount.getGiven() + 1);
+            groupVaccineCount.setRemaining(groupVaccineCount.getRemaining() + 1);
+
+            groupVaccineMap.put(repoGroup, groupVaccineCount);
+
+        }
+
         vaccines = vaccineRepository.findByEntityId(entityId);
 
         Collections.sort(vaccines, new Comparator<Vaccine>() {
@@ -120,7 +181,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     return vaccineGroups.indexOf(stateKey1) - vaccineGroups.indexOf(stateKey2);
                 } catch (Exception e) {
 
-                    e.getMessage();
+                    Log.e(VaccinationAsyncTask.class.getCanonicalName(), Log.getStackTraceString(e));
                     return 0;
 
 
@@ -134,8 +195,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
-        List<Map<String, Object>> sch =
-                VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
+        List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
@@ -145,6 +205,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             key = key.contains("/") ? key.substring(0, key.indexOf("/")) : key;
             key = key.trim().replaceAll(" ", "").toLowerCase();
             receivedVaccinesList.add(key);
+            GroupVaccineCount groupVaccineCount = groupVaccineMap.get(reverseLookupGroupMap.get(key));
+            groupVaccineCount.setRemaining(groupVaccineCount.getRemaining() - 1);
+            groupVaccineMap.put(reverseLookupGroupMap.get(key), groupVaccineCount);
         }
 
 
@@ -156,17 +219,22 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (nv == null) {
-            Date lastVaccine = null;
             if (!vaccines.isEmpty()) {
                 Vaccine vaccine = vaccines.get(vaccines.size() - 1);
-                lastVaccine = vaccine.getDate();
+                lastVaccineDate = vaccine.getDate();
             }
 
-            nv = nextVaccineDue(sch, lastVaccine);
+            nv = nextVaccineDue(sch, lastVaccineDate);
+            nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get("vaccine").toString().toLowerCase()));
 
         }
 
         return null;
+    }
+
+    private Boolean getIsGroupPartial(String vaccine) {
+        GroupVaccineCount groupVaccineCount = groupVaccineMap.get(reverseLookupGroupMap.get(vaccine));
+        return groupVaccineCount.getGiven() != groupVaccineCount.getRemaining();
     }
 
     private List<Map<String, Object>> cleanMap(List<Map<String, Object>> sch_, List<String> vaccines) {
@@ -176,10 +244,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         String vaccine;
         for (int i = 0; i < sch_.size(); i++) {
+
             //To Refactor remove
-            vaccine = String.valueOf(sch_.get(i).get("vaccine")); //eg penta1
+            vaccine = String.valueOf(sch_.get(i).get("vaccine")).toLowerCase(); //eg penta1
             vaccine = "yf".equals(vaccine) ? "yellowfever" : vaccine;
-            if (mapHasVaccine(vaccine, vaccines)) {
+            if (mapHasVaccine(vaccine, vaccines) || !actualVaccines.contains(vaccine)) {
                 sch.remove(sch_.get(i));
             }
 
@@ -213,23 +282,28 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         recordVaccination.setVisibility(View.VISIBLE);
 
         TextView recordVaccinationText = updateWrapper.getConvertView().findViewById(R.id.record_vaccination_text);
+        recordVaccinationText.setAllCaps(false);
+
         ImageView recordVaccinationCheck = updateWrapper.getConvertView().findViewById(R.id.record_vaccination_check);
         recordVaccinationCheck.setVisibility(View.GONE);
 
+        ImageView recordVaccinationHarveyBall = updateWrapper.getConvertView().findViewById(R.id.record_vaccination_harvey_ball);
+        recordVaccinationHarveyBall.setVisibility(View.GONE);
+
+        ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.HORIZONTAL);
 
         State state = State.WAITING;
-        String stateKey = "";
+        String groupName = "";
 
         Map<String, Object> nv = updateWrapper.getNv();
 
         Object dueDateRawObject = nv.get(Constants.KEY.DATE);
-        DateTime dueDate =
-                dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
 
         if (nv != null) {
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
-                stateKey = VaccinateActionUtils.stateKey(vaccine);
+                groupName = VaccinateActionUtils.stateKey(vaccine);
             }
 
             Alert alert = null;
@@ -238,24 +312,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             if (alert == null) {
-                state = State.NO_ALERT;
+                state = lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) > MILLIS_PER_DAY ? getUpcomingState(dueDate) : State.NO_ALERT;
             } else if (AlertStatus.normal.equals(alert.status())) {
                 state = State.DUE;
             } else if (AlertStatus.upcoming.equals(alert.status())) {
-                Calendar today = Calendar.getInstance();
-                today.set(Calendar.HOUR_OF_DAY, 0);
-                today.set(Calendar.MINUTE, 0);
-                today.set(Calendar.SECOND, 0);
-                today.set(Calendar.MILLISECOND, 0);
-
-
-                if (dueDate != null &&
-                        dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) &&
-                        dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
-                    state = State.UPCOMING_NEXT_7_DAYS;
-                } else {
-                    state = State.UPCOMING;
-                }
+                state = getUpcomingState(dueDate);
             } else if (AlertStatus.urgent.equals(alert.status())) {
                 state = State.OVERDUE;
             } else if (AlertStatus.expired.equals(alert.status())) {
@@ -296,8 +357,15 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccinationText.setText(R.string.fully_immunized_label);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
-            recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
-            recordVaccinationCheck.setVisibility(View.VISIBLE);
+            if (isLegacyAlerts) {
+                recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
+                recordVaccinationCheck.setVisibility(View.VISIBLE);
+            } else {
+                ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
+                recordVaccinationCheck.setImageResource(R.drawable.ic_harvey_100);
+                recordVaccinationCheck.setVisibility(View.VISIBLE);
+
+            }
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
@@ -337,52 +405,69 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
             recordVaccinationText
-                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
             recordVaccinationText
-                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-            recordVaccinationText
-                    .setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
-            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
+            recordVaccinationText.setText(getAlertMessage(state, groupName));
+            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
+            recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
+
+            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts) {
+
+                ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
+                recordVaccinationHarveyBall.setImageResource(R.drawable.ic_harvey_75);
+                recordVaccinationHarveyBall.setVisibility(View.VISIBLE);
+
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
+                recordVaccinationText.setText(getAlertMessage(State.UPCOMING_NEXT_7_DAYS, groupName));
+                recordVaccinationText.setAllCaps(false);
+
+            }
         } else if (state.equals(State.OVERDUE)) {
-            recordVaccinationText
-                    .setText(context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
+
+            recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
+            recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
-            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, Constants.KEY.WEEK) ||
-                    StringUtils.containsIgnoreCase(stateKey, Constants.KEY.MONTH)) &&
+            if (StringUtils.isNotBlank(groupName) && (StringUtils.containsIgnoreCase(groupName, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(groupName, Constants.KEY.MONTH)) &&
                     !updateWrapper.getVaccines().isEmpty()) {
-                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null :
-                        updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
+                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
-                if (!TextUtils.isEmpty(previousStateKey)) {
-                    recordVaccinationText.setText(localizeStateKey(previousStateKey));
-                } else {
-                    recordVaccinationText.setText(localizeStateKey(stateKey));
-                }
-                recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
-                recordVaccinationCheck.setVisibility(View.VISIBLE);
-            } else {
-                recordVaccinationText
-                        .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(stateKey));
-            }
-            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+                String alertStateKey = !TextUtils.isEmpty(previousStateKey) ? previousStateKey : groupName;
 
+                recordVaccinationText.setText(getAlertMessage(state, alertStateKey));
+
+                if (isLegacyAlerts) {
+                    recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
+                    recordVaccinationCheck.setVisibility(View.VISIBLE);
+                } else {
+                    ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
+                    recordVaccinationCheck.setImageResource(R.drawable.ic_harvey_100);
+                    recordVaccinationCheck.setVisibility(View.VISIBLE);
+
+                }
+            } else {
+                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
+            }
+
+            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else {
@@ -397,6 +482,31 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (updateOutOfCatchment) {
             updateViews(updateWrapper.getConvertView(), updateWrapper.getClient());
         }
+    }
+
+    @NotNull
+    private VaccinationAsyncTask.State getUpcomingState(DateTime dueDate) {
+
+        State state;
+        try {
+            Calendar today = Calendar.getInstance();
+            today.set(Calendar.HOUR_OF_DAY, 0);
+            today.set(Calendar.MINUTE, 0);
+            today.set(Calendar.SECOND, 0);
+            today.set(Calendar.MILLISECOND, 0);
+
+
+            if (dueDate != null &&
+                    dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) &&
+                    dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
+                state = State.UPCOMING_NEXT_7_DAYS;
+            } else {
+                state = State.UPCOMING;
+            }
+        } catch (Exception e) {
+            state = State.NO_ALERT;//fallback old behaviour
+        }
+        return state;
     }
 
     private String localizeStateKey(String stateKey) {
@@ -525,4 +635,30 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
         FULLY_IMMUNIZED
     }
+
+    protected String getAlertMessage(State state, String stateKey) {
+
+        String message;
+        switch (state) {
+            case DUE:
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : context.getString(R.string.due);
+                break;
+
+            case OVERDUE:
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : context.getString(R.string.overdue);
+                break;
+
+            case NO_ALERT:
+                message = isLegacyAlerts ? localizeStateKey(stateKey) : context.getString(R.string.done_today);
+                break;
+
+            default:
+                message = context.getString(R.string.done);
+                break;
+
+        }
+
+        return message;
+    }
+
 }

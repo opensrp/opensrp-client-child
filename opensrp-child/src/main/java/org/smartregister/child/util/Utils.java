@@ -49,7 +49,6 @@ public class Utils extends org.smartregister.util.Utils {
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
     public static final String FACILITY = "Facility";
-    public static final String APP_PROPERTIES_FILE = "app.properties";
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -363,20 +362,6 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static ChildMetadata metadata() {
         return ChildLibrary.getInstance().metadata();
-    }
-
-    public static AppProperties getProperties(android.content.Context context) {
-
-        AppProperties properties = new AppProperties();
-        try {
-            AssetManager assetManager = context.getAssets();
-            InputStream inputStream = assetManager.open(APP_PROPERTIES_FILE);
-            properties.load(inputStream);
-        } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
-        }
-        return properties;
-
     }
 
     public static String updateGrowthValue(String value) {

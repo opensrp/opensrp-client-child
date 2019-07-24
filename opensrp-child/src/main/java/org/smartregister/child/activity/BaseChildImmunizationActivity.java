@@ -45,7 +45,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
@@ -233,13 +233,13 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         }
 
         bcgScarNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
                         !ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
         weightNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
                         ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
 
         setLastModified(false);
 
@@ -288,7 +288,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
     private void setUpFloatingActionButton() {
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
 
             floatingActionButton.setOnClickListener(this);
 
@@ -2117,9 +2117,9 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             hideProgressDialog();
             updateVaccineGroupViews(view, list, vaccineList);
             WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
-            if ((ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) &&
+            if ((ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) &&
                     ChildLibrary.getInstance().getProperties()
-                            .getPropertyBoolean(AppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) &&
+                            .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)) &&
                     (weightWrapper == null || weightWrapper.getWeight() == null)) {
                 showRecordWeightNotification();
             }

@@ -20,7 +20,7 @@ import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
-import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -54,7 +54,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         bottomNavigationHelper = new BottomNavigationHelper();
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setVisibility(ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
+                .getPropertyBoolean(ChildAppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED) ? View.VISIBLE : View.GONE);
 
         if (bottomNavigationView != null) {
             bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
@@ -68,11 +68,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             bottomNavigationView.inflateMenu(R.menu.bottom_nav_child_menu);
             bottomNavigationHelper.disableShiftMode(bottomNavigationView);
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
             }
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
             }
 
@@ -192,7 +192,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
      */
     protected void switchToAdvancedSearchFromRegister() {
         if (ChildLibrary.getInstance().getProperties()
-                .getPropertyBoolean(AppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
+                .getPropertyBoolean(ChildAppProperties.KEY.FEATURE_BOTTOM_NAVIGATION_ENABLED)) {
             setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
         } else {
 

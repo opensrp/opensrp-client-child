@@ -1,21 +1,9 @@
 package org.smartregister.child.util;
 
-import java.util.Properties;
-
 /**
  * Created by ndegwamartin on 2019-06-07.
  */
-public class AppProperties extends Properties {
-
-    public Boolean getPropertyBoolean(String key) {
-
-        return Boolean.valueOf(getProperty(key));
-    }
-
-    public Boolean hasProperty(String key) {
-
-        return getProperty(key) != null;
-    }
+public class ChildAppProperties extends org.smartregister.util.AppProperties {
 
     public static class KEY {
         //Notifications
@@ -33,6 +21,9 @@ public class AppProperties extends Properties {
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
         public static final String HOME_TOOLBAR_SCAN_CARD_ENABLED = "home.toolbar.scan.card.enabled";
         public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
+
+        //Home styling
+        public static final String HOME_ALERT_STYLE_LEGACY = "home.alert.style.legacy";
 
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";

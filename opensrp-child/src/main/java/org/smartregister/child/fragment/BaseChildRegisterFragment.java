@@ -26,7 +26,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
-import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
@@ -143,12 +143,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         if (!(this instanceof BaseAdvancedSearchFragment)) {
             view.findViewById(R.id.child_next_appointment_header_wrapper).setVisibility(
                     ChildLibrary.getInstance().getProperties()
-                            .getPropertyBoolean(AppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+                            .getPropertyBoolean(ChildAppProperties.KEY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
 
-            if (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
+            if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
                 view.findViewById(R.id.child_weight_header_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
-                        .getPropertyBoolean(AppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
+                        .getPropertyBoolean(ChildAppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
             }
         }
     }
@@ -208,9 +208,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
         if (qrCodeScanImageView != null) {
 
-            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) &&
+            if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED) &&
                     ChildLibrary.getInstance().getProperties()
-                            .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
+                            .getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_QR_ENABLED)) {
                 qrCodeScanImageView.setOnClickListener(this);
             } else {
                 qrCodeScanImageView.setVisibility(View.GONE);
@@ -221,9 +221,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private void setUpScanCardButtonView(View view) {
         FrameLayout scanCardView = view.findViewById(R.id.scan_card);
         if (scanCardView != null &&
-                ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED) &&
+                ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) &&
                 ChildLibrary.getInstance().getProperties()
-                        .getPropertyBoolean(AppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+                        .getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
             scanCardView.setOnClickListener(this);
             scanCardView.setVisibility(View.VISIBLE);
 

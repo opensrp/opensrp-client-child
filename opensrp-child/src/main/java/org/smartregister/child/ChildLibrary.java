@@ -3,13 +3,12 @@ package org.smartregister.child;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.child.util.AppProperties;
-import org.smartregister.child.util.Utils;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
 
 import id.zelory.compressor.Compressor;
@@ -34,7 +33,6 @@ public class ChildLibrary {
     private ClientProcessorForJava clientProcessorForJava;
     private Compressor compressor;
     private LocationPickerView locationPickerView;
-    private AppProperties properties;
 
     private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion,
                          int databaseVersion) {
@@ -43,7 +41,6 @@ public class ChildLibrary {
         this.metadata = metadataArg;
         this.applicationVersion = applicationVersion;
         this.databaseVersion = databaseVersion;
-        this.properties = Utils.getProperties(this.context.applicationContext());
     }
 
     public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion,
@@ -129,11 +126,6 @@ public class ChildLibrary {
     }
 
     public AppProperties getProperties() {
-        return properties;
+        return CoreLibrary.getInstance().context().getAppProperties();
     }
-
-    public void setProperties(AppProperties properties) {
-        this.properties = properties;
-    }
-
 }
