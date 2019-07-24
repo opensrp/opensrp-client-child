@@ -1,10 +1,12 @@
 package org.smartregister.child.model;
 
+import android.content.ContentValues;
 import android.util.Log;
 
 import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
@@ -59,17 +61,21 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         childEventClientList.add(childEventClient);
 
-        ChildEventClient childHeadEventClient = JsonFormUtils
-                .processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
-                        childEventClient);
+        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
+                childEventClient);
         if (childHeadEventClient == null) {
             return childEventClientList;
         }
 
         // Update the child mother
         Client childClient = childEventClient.getClient();
-        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey,
-                childHeadEventClient.getClient().getBaseEntityId());
+        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
+
+        // Add search by mother
+        ContentValues values = new ContentValues();
+        values.put(Constants.KEY.MOTHER_FIRST_NAME, childHeadEventClient.getClient().getFirstName());
+        values.put(Constants.KEY.MOTHER_LAST_NAME, childHeadEventClient.getClient().getLastName());
+        JsonFormUtils.updateChildFTSTables(values, childClient.getBaseEntityId());
 
         childEventClientList.add(childHeadEventClient);
         return childEventClientList;

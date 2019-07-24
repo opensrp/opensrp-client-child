@@ -52,7 +52,7 @@ import org.smartregister.child.task.SaveVaccinesTask;
 import org.smartregister.child.task.UndoServiceTask;
 import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
-import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -139,6 +139,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private ImageView profileImageIV;
     private boolean hasProperty;
     private boolean monitorGrowth = false;
+
+    private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
+    private List<Long> dbKeysForDelete = new ArrayList<>();
+    private VaccineRepository vaccineRepository;
 
     public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList,
                                          List<Alert> alertList) {
@@ -227,6 +231,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
             @Override
             public void onClick(View v) {
                 resetOptionsMenu();
+                processEditedServices();
             }
         });
 
@@ -270,6 +275,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         setActivityTitle();
         tabLayout.setupWithViewPager(viewPager);
         setupViews();
+        vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
     }
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
@@ -279,6 +285,22 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         invalidateOptionsMenu();
 
         saveButton.setVisibility(View.INVISIBLE);
+    }
+
+    protected void processEditedServices() {
+
+        for (VaccineWrapper vaccineWrapper : editImmunizationCacheMap) {
+            saveVaccine(vaccineWrapper);
+        }
+
+        for (int i = 0; i < dbKeysForDelete.size(); i++) {
+
+            vaccineRepository.deleteVaccine(dbKeysForDelete.get(i));
+        }
+
+        //clean up
+        editImmunizationCacheMap.clear();
+        dbKeysForDelete.clear();
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -295,7 +317,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
     public void setupViews() {
         profileImageIV = findViewById(R.id.profile_image_iv);
-        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
 
@@ -314,9 +336,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
 
         DrawerLayout mDrawerLayout = findViewById(getDrawerLayoutId());
         if (mDrawerLayout != null &&
-                (ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) &&
+                (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED) &&
                         !ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(AppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
+                                .getPropertyBoolean(ChildAppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED))) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
@@ -506,7 +528,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
             overflow.findItem(R.id.write_to_card).setVisible(true);
             overflow.findItem(R.id.register_card).setVisible(true);
         }
@@ -696,8 +718,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         }
     }
 
-    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased,
-                                   boolean canReportAdverseEvent) {
+    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
         //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
@@ -752,9 +773,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     @Override
     public void onUndoVaccination(VaccineWrapper vaccineWrapper, View view) {
         if (vaccineWrapper != null && vaccineWrapper.getDbKey() != null) {
-            final VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-            Long dbKey = vaccineWrapper.getDbKey();
-            vaccineRepository.deleteVaccine(dbKey);
+
+            dbKeysForDelete.add(vaccineWrapper.getDbKey());
 
             vaccineWrapper.setUpdatedVaccineDate(null, false);
             vaccineWrapper.setDbKey(null);
@@ -802,7 +822,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private void saveVaccine(List<VaccineWrapper> tags, final View view) {
         if (tags != null && !tags.isEmpty()) {
             if (tags.size() == 1) {
-                saveVaccine(tags.get(0));
+                editImmunizationCacheMap.add(tags.get(0));
                 updateVaccineGroupViews(view);
             } else {
                 VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);

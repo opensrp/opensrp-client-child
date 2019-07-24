@@ -3,6 +3,7 @@ package org.smartregister.child.fragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -65,7 +66,6 @@ import static org.smartregister.child.util.Utils.updateGrowthValue;
  */
 public class ChildUnderFiveFragment extends Fragment {
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
-    private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
@@ -93,10 +93,8 @@ public class ChildUnderFiveFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH);
-        }
+        monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH);
+
     }
 
     @Override
@@ -112,7 +110,7 @@ public class ChildUnderFiveFragment extends Fragment {
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
 
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             heightWidgetLayout = underFiveFragment.findViewById(R.id.height_widget_layout);
             heightWidgetLayout.setVisibility(View.VISIBLE);
         }
@@ -147,7 +145,7 @@ public class ChildUnderFiveFragment extends Fragment {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
 
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             ArrayList<Boolean> heightEditMode = new ArrayList<>();
             List<Height> heightList = getHeights(heights);
             LinkedHashMap<Long, Pair<String, String>> heightMap =
@@ -157,6 +155,7 @@ public class ChildUnderFiveFragment extends Fragment {
             }
         }
 
+        ((NestedScrollView) ((View) fragmentContainer.getParent()).findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode,
@@ -485,10 +484,14 @@ public class ChildUnderFiveFragment extends Fragment {
         Photo photo = getProfilePhotoByClient();
 
         WeightWrapper weightWrapper = getWeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
-        HeightWrapper heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
 
-        EditGrowthDialogFragment editWeightDialogFragment =
-                EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+        HeightWrapper heightWrapper = null;
+
+        if (GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH)) {
+            heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
+        }
+
+        EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
         editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
     }

@@ -203,6 +203,13 @@
                 android:src="@drawable/ic_action_check"
                 android:visibility="gone" />
 
+            <ImageView
+                android:id="@+id/record_vaccination_harvey_ball"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_harvey_100"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/record_vaccination_text"
                 android:layout_width="wrap_content"

@@ -44,7 +44,7 @@ import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.listener.DatePickerListener;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
-import org.smartregister.child.util.AppProperties;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.MoveToMyCatchmentUtils;
 import org.smartregister.child.util.Utils;
@@ -376,7 +376,7 @@ TO DO ? , sync unsynced records within catchment
 
     private void setUpQRCodeButton(View view) {
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
-        if (!ChildLibrary.getInstance().getProperties().hasProperty(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
             qrCodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -398,7 +398,7 @@ TO DO ? , sync unsynced records within catchment
     private void setUpScanCardButton(View view) {
         Button scanCardButton = view.findViewById(R.id.scanCardButton);
 
-        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(AppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
             scanCardButton.setVisibility(View.VISIBLE);//should be visible
 
             //If QR code button not visible send to right

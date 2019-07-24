@@ -23,7 +23,7 @@
     <string name="child_profile">CHILD </string>
     <string name="child_DOB">Date Of Birth</string>
     <string name="child_reminder">REMINDER</string>
-    <string name="child_next_vaccine">VACCINE DUE</string>
+    <string name="child_next_vaccine">VACCINE STATUS</string>
     <string name="child_register_title">Child Register</string>
     <string name="register_search_hint">Search</string>
     <string name="child_title">Child</string>
@@ -335,6 +335,9 @@
     <string name="search_criteria_includes">search criteria includes:&#032;</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
+    <string name="due">Due</string>
+    <string name="overdue">Overdue</string>
+    <string name="done_today">Done Today</string>
 
     <string name="record_growth">Record Growth</string>
     <string name="growth_monitoring">Growth Monitoring</string>

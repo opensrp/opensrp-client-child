@@ -1,6 +1,5 @@
 package org.smartregister.child.util;
 
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.InputType;
@@ -29,7 +28,6 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 
-import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +47,6 @@ public class Utils extends org.smartregister.util.Utils {
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
     public static final String FACILITY = "Facility";
-    public static final String APP_PROPERTIES_FILE = "app.properties";
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -363,20 +360,6 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static ChildMetadata metadata() {
         return ChildLibrary.getInstance().metadata();
-    }
-
-    public static AppProperties getProperties(android.content.Context context) {
-
-        AppProperties properties = new AppProperties();
-        try {
-            AssetManager assetManager = context.getAssets();
-            InputStream inputStream = assetManager.open(APP_PROPERTIES_FILE);
-            properties.load(inputStream);
-        } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
-        }
-        return properties;
-
     }
 
     public static String updateGrowthValue(String value) {
