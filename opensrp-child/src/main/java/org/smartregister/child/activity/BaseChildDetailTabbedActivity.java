@@ -642,7 +642,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         negativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveReportDeceasedJson(json, allSharedPreferences);
+                saveReportDeceasedJson(json);
                 builder.dismiss();
 
                 navigateToRegisterActivity();
@@ -653,9 +653,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         builder.show();
     }
 
-    private void saveReportDeceasedJson(String jsonString, AllSharedPreferences allSharedPreferences) {
-        JsonFormUtils.saveReportDeceased(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(),
-                locationId, childDetails.entityId());
+    private void saveReportDeceasedJson(String jsonString) {
+        JsonFormUtils.saveReportDeceased(this, jsonString, locationId, childDetails.entityId());
 
     }
 

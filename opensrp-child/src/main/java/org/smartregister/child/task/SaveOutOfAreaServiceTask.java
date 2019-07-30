@@ -7,6 +7,7 @@ import android.util.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -23,15 +24,13 @@ import java.util.ArrayList;
 public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
     private final Context context;
-    private final org.smartregister.Context openSrpContext;
     private final String formString;
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
 
-    public SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString,
+    public SaveOutOfAreaServiceTask(Context context, String formString,
                                     WeightRepository weightRepository, VaccineRepository vaccineRepository) {
         this.context = context;
-        this.openSrpContext = openSrpContext;
         this.formString = formString;
         this.weightRepository = weightRepository;
         this.vaccineRepository = vaccineRepository;
@@ -211,13 +210,13 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             JSONObject form = new JSONObject(formString);
 
             // Create a weight object if weight was recorded
-            Weight weight = getWeightObject(openSrpContext, form);
+            Weight weight = getWeightObject(ChildLibrary.getInstance().context(), form);
             if (weight != null) {
                 weightRepository.add(weight);
             }
 
             // Create a vaccine object for all recorded vaccines
-            ArrayList<Vaccine> vaccines = getVaccineObjects(context, openSrpContext, form);
+            ArrayList<Vaccine> vaccines = getVaccineObjects(context, ChildLibrary.getInstance().context(), form);
             if (vaccines.size() > 0) {
                 for (Vaccine curVaccine : vaccines) {
                     addVaccine(vaccineRepository, curVaccine);

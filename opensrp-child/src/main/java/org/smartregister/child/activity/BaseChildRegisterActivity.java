@@ -157,6 +157,13 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveForm(jsonString, updateRegisterParam);
+                }else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
+                    UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
+                    updateRegisterParam.setEditMode(false);
+                    updateRegisterParam.setFormTag(JsonFormUtils.formTag(Utils.context().allSharedPreferences()));
+
+                    showProgressDialog(R.string.saving_dialog_title);
+                    presenter().saveForm(jsonString, updateRegisterParam);
                 }
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));

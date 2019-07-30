@@ -28,6 +28,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
+import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
@@ -40,8 +41,10 @@ import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
@@ -258,7 +261,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
 
                 for (VaccineGroup curVaccineGroup : supportedVaccines) {
-                    JSONObject curQuestion = getCurQuestion(curVaccineGroup);
+                    JSONObject curQuestion = getCurQuestion(context, curVaccineGroup);
 
                     JSONArray options = new JSONArray();
                     for (Vaccine curVaccine : curVaccineGroup.vaccines) {
@@ -275,7 +278,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         for (String curVaccineName : definedVaccineNames) {
                             JSONObject curVaccines = new JSONObject();
                             curVaccines.put("key", curVaccineName);
-                            curVaccines.put("text", curVaccineName);
+                            curVaccines.put("text", VaccinatorUtils.getTranslatedVaccineName(context, curVaccineName));
                             curVaccines.put("value", "false");
                             JSONArray constraints = new JSONArray();
 
@@ -332,12 +335,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return curConstraint;
     }
 
-    private static JSONObject getCurQuestion(VaccineGroup curVaccineGroup) throws JSONException {
+    private static JSONObject getCurQuestion(Context context, VaccineGroup curVaccineGroup) throws JSONException {
         JSONObject curQuestion = new JSONObject();
         curQuestion.put("key", curVaccineGroup.id);
         curQuestion.put("type", "check_box");
         curQuestion.put("is_vaccine_group", true);
-        curQuestion.put("label", curVaccineGroup.name);
+        curQuestion.put("label", VaccinatorUtils.getTranslatedGroupName(context, curVaccineGroup));
         curQuestion.put("openmrs_entity_parent", "-");
         curQuestion.put("openmrs_entity", "-");
         curQuestion.put("openmrs_entity_id", "-");
@@ -425,9 +428,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext, String jsonString,
-                                          String providerId, String locationId, String entityId) {
+    public static void saveReportDeceased(Context context, String jsonString, String locationId, String entityId) {
         try {
+
+            String providerId = ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             EventClientRepository db = ChildLibrary.getInstance().eventClientRepository();
             JSONObject jsonForm = new JSONObject(jsonString);
 
@@ -1238,13 +1242,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return array;
     }
 
-    /*public static void saveOutOfAreaService(Context context, org.smartregister.Context openSrpContext, String jsonString,
-                                            WeightRepository weightRepository, VaccineRepository vaccineRepository) {
-        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask =
-                new SaveOutOfAreaServiceTask(context, openSrpContext, jsonString, weightRepository, vaccineRepository);
-
-        org.smartregister.util.Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
-    }*/
+    public static void saveOutOfAreaService(Context context, String jsonString, WeightRepository weightRepository, VaccineRepository vaccineRepository) {
+        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(context, jsonString, weightRepository, vaccineRepository);
+        Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
+    }
 
     public static boolean processMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences,
                                                  JSONObject jsonObject) {

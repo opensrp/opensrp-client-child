@@ -27,10 +27,10 @@ public class ChildMetadata {
     }
 
     public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
-                                    String updateEventType, String config, String childCareGiverRelationKey,
+                                    String updateEventType, String outOfCatchmentServiceEventType, String config, String childCareGiverRelationKey,
                                     String outOfCatchmentFormName) {
         this.childRegister =
-                new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType, config,
+                new ChildRegister(formName, tableName, parentTableName, registerEventType, updateEventType, outOfCatchmentServiceEventType, config,
                         childCareGiverRelationKey, outOfCatchmentFormName);
     }
 
@@ -46,6 +46,8 @@ public class ChildMetadata {
 
         public final String updateEventType;
 
+        public final String outOfCatchmentServiceEventType;
+
         public final String config;
 
         public final String childCareGiverRelationKey;
@@ -54,13 +56,14 @@ public class ChildMetadata {
 
 
         public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
-                             String updateEventType, String config, String childCareGiverRelationKey,
+                             String updateEventType, String outOfCatchmentServiceEventType, String config, String childCareGiverRelationKey,
                              String outOfCatchmentFormName) {
             this.formName = formName;
             this.tableName = tableName;
             this.motherTableName = parentTableName;
             this.registerEventType = registerEventType;
             this.updateEventType = updateEventType;
+            this.outOfCatchmentServiceEventType = outOfCatchmentServiceEventType;
             this.config = config;
             this.childCareGiverRelationKey = childCareGiverRelationKey;
             this.outOfCatchmentFormName = outOfCatchmentFormName;
