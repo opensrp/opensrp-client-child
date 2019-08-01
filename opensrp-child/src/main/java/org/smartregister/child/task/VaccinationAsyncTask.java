@@ -233,7 +233,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private Boolean getIsGroupPartial(String vaccine) {
         GroupVaccineCount groupVaccineCount = groupVaccineMap.get(reverseLookupGroupMap.get(vaccine));
-        return groupVaccineCount.getGiven() != groupVaccineCount.getRemaining();
+        return (groupVaccineCount != null) && groupVaccineCount.getGiven() != groupVaccineCount.getRemaining();
     }
 
     private List<Map<String, Object>> cleanMap(List<Map<String, Object>> sch_, List<String> vaccines) {
