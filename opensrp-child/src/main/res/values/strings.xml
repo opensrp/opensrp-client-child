@@ -330,6 +330,7 @@
     <string name="move_to_catchment">Move to my\ncatchment</string>
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
     <string name="system_id_colon">System Id :</string>
+    <string name="zeir_id">System Id</string>
     <string name="age_colon">Age :</string>
     <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
     <string name="search_criteria_includes">search criteria includes:&#032;</string>
@@ -338,13 +339,9 @@
     <string name="due">Due</string>
     <string name="overdue">Overdue</string>
     <string name="done_today">Done Today</string>
-
     <string name="record_growth">Record Growth</string>
     <string name="growth_monitoring">Growth Monitoring</string>
-
-
     <string name="which_vaccinations_were_provided">Which vaccinations were provided?</string>
-    <string name="cannot_be_given_with_the_other_dose">Cannot be given with the other %1$s dose</string>
-
+    <string name="cannot_be_given_with_the_other_dose">Cannot be given with the other %1$s dose.</string>
 
 </resources>

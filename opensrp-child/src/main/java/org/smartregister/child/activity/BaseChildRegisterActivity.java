@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterActivity extends BaseRegisterActivity implements ChildRegisterContract.View {
+public abstract class BaseChildRegisterActivity extends BaseRegisterActivity implements ChildRegisterContract.View, ChildRegisterContract.ProgressDialogCallback {
     public static final String TAG = BaseChildRegisterActivity.class.getCanonicalName();
 
 
@@ -157,13 +157,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveForm(jsonString, updateRegisterParam);
-                }else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
-                    UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
-                    updateRegisterParam.setEditMode(false);
-                    updateRegisterParam.setFormTag(JsonFormUtils.formTag(Utils.context().allSharedPreferences()));
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
 
                     showProgressDialog(R.string.saving_dialog_title);
-                    presenter().saveForm(jsonString, updateRegisterParam);
+                    presenter().saveOutOfCatchmentService(jsonString,this);
+
                 }
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
@@ -277,5 +275,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     //To be overriden
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
         presenter().saveForm(jsonString, updateRegisterParam);
+    }
+
+    @Override
+    public void dissmissProgressDialog() {
+        hideProgressDialog();
+
     }
 }

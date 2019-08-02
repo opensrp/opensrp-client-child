@@ -12,6 +12,7 @@ import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.repository.AllSharedPreferences;
 
@@ -115,6 +116,11 @@ public class BaseChildRegisterPresenter
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
+    }
+
+    @Override
+    public void saveOutOfCatchmentService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
+        JsonFormUtils.processOutOfAreaService(jsonString, progressDialogCallback);
     }
 
     @Override

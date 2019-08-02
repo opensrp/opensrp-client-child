@@ -26,6 +26,8 @@ public interface ChildRegisterContract {
 
         void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam);
 
+        void saveOutOfCatchmentService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback);
+
         void closeChildRecord(String jsonString);
 
     }
@@ -70,5 +72,9 @@ public interface ChildRegisterContract {
 
         void onRegistrationSaved(boolean isEdit);
 
+    }
+
+    interface ProgressDialogCallback {
+        void dissmissProgressDialog();
     }
 }

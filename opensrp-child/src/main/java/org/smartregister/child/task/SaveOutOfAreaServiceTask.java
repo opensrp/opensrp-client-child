@@ -4,12 +4,19 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -27,13 +34,14 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     private final String formString;
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
+    private ChildRegisterContract.ProgressDialogCallback progressDialogCallback;
 
-    public SaveOutOfAreaServiceTask(Context context, String formString,
-                                    WeightRepository weightRepository, VaccineRepository vaccineRepository) {
+    public SaveOutOfAreaServiceTask(Context context, String formString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
         this.context = context;
         this.formString = formString;
-        this.weightRepository = weightRepository;
-        this.vaccineRepository = vaccineRepository;
+        this.weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
+        this.vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+        this.progressDialogCallback = progressDialogCallback;
     }
 
     /**
@@ -47,29 +55,32 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm)
             throws Exception {
         Weight weight = null;
-        JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
+        JSONArray fields = outOfAreaForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         String serviceDate = null;
         String openSrpId = null;
+        String cardId = null;
 
         int foundFields = 0;
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
-            if (curField.getString("key").equals("Weight_Kg")) {
+            if (curField.getString(JsonFormConstants.KEY).equals("Weight_Kg")) {
                 foundFields++;
-                if (StringUtils.isNotEmpty(curField.getString("value"))) {
+                if (StringUtils.isNotEmpty(curField.getString(JsonFormConstants.VALUE))) {
                     weight = new Weight();
                     weight.setBaseEntityId("");
-                    weight.setKg(Float.parseFloat(curField.getString("value")));
+                    weight.setKg(Float.parseFloat(curField.getString(JsonFormConstants.VALUE)));
                     weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(outOfAreaForm.getJSONObject("metadata").getString("encounter_location"));
+                    weight.setLocationId(outOfAreaForm.getJSONObject(JsonFormUtils.METADATA).getString(JsonFormUtils.ENCOUNTER_LOCATION));
                     weight.setUpdatedAt(null);
                 }
-            } else if (curField.getString("key").equals("OA_Service_Date")) {
+            } else if (curField.getString(JsonFormConstants.KEY).equals("OA_Service_Date")) {
                 foundFields++;
-                serviceDate = curField.getString("value");
-            } else if (curField.getString("key").equals("ZEIR_ID")) {
+                serviceDate = curField.getString(JsonFormConstants.VALUE);
+            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.ZEIR_ID)) {
                 foundFields++;
-                openSrpId = formatChildUniqueId(curField.getString("value"));
+                openSrpId = formatChildUniqueId(curField.getString(JsonFormConstants.VALUE));
+            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
+                cardId = curField.getString(JsonFormConstants.VALUE);
             }
 
             if (foundFields == 3) {
@@ -87,6 +98,10 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             weight.setProgramClientId(openSrpId);
         }
 
+        if (weight != null && cardId != null) {
+            weight.setProgramClientId(cardId);
+        }
+
         return weight;
     }
 
@@ -100,33 +115,34 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     private static ArrayList<Vaccine> getVaccineObjects(Context context, org.smartregister.Context openSrpContext,
                                                         JSONObject outOfAreaForm) throws Exception {
         ArrayList<Vaccine> vaccines = new ArrayList<>();
-        JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
+        JSONArray fields = outOfAreaForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         String serviceDate = null;
         String openSrpId = null;
+        String cardId = null;
 
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
-            if (curField.has("is_vaccine_group") && curField.getBoolean("is_vaccine_group") &&
-                    curField.getString("type").equals("check_box")) {
-                JSONArray options = curField.getJSONArray("options");
+            if (curField.has(Constants.IS_VACCINE_GROUP) && curField.getBoolean(Constants.IS_VACCINE_GROUP) &&
+                    curField.getString(JsonFormConstants.TYPE).equals(JsonFormConstants.CHECK_BOX)) {
+                JSONArray options = curField.getJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
                 for (int j = 0; j < options.length(); j++) {
                     JSONObject curOption = options.getJSONObject(j);
-                    if (curOption.getString("value").equalsIgnoreCase(Boolean.TRUE.toString())) {
+                    if (curOption.getString(JsonFormConstants.VALUE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         Vaccine curVaccine = new Vaccine();
                         curVaccine.setBaseEntityId("");
-                        curVaccine.setName(curOption.getString("key"));
+                        curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
                         curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                        curVaccine.setLocationId(outOfAreaForm.getJSONObject("metadata").getString("encounter_location"));
+                        curVaccine.setLocationId(outOfAreaForm.getJSONObject(JsonFormUtils.METADATA).getString(JsonFormUtils.ENCOUNTER_LOCATION));
                         curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
                         curVaccine.setUpdatedAt(null);
 
                         vaccines.add(curVaccine);
                     }
                 }
-            } else if (curField.getString("key").equals("OA_Service_Date")) {
-                serviceDate = curField.getString("value");
-            } else if (curField.getString("key").equals("ZEIR_ID")) {
-                openSrpId = formatChildUniqueId(curField.getString("value"));
+            } else if (curField.getString(JsonFormConstants.KEY).equals("OA_Service_Date")) {
+                serviceDate = curField.getString(JsonFormConstants.VALUE);
+            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
+                cardId = curField.getString(JsonFormConstants.VALUE);
             }
         }
 
@@ -139,6 +155,10 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
             if (openSrpId != null) {
                 curVaccine.setProgramClientId(openSrpId);
+            }
+
+            if (cardId != null) {
+                curVaccine.setProgramClientId(cardId);
             }
         }
 
@@ -226,5 +246,12 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void result) {
+        if (progressDialogCallback != null) {
+            progressDialogCallback.dissmissProgressDialog();
+        }
     }
 }

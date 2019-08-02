@@ -26,6 +26,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
+import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
@@ -41,10 +42,8 @@ import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
@@ -1242,8 +1241,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return array;
     }
 
-    public static void saveOutOfAreaService(Context context, String jsonString, WeightRepository weightRepository, VaccineRepository vaccineRepository) {
-        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(context, jsonString, weightRepository, vaccineRepository);
+    public static void processOutOfAreaService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
+        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(ChildLibrary.getInstance().context().applicationContext(), jsonString, progressDialogCallback);
         Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
     }
 
