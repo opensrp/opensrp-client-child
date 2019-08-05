@@ -13,8 +13,8 @@ public class SampleConstants {
 
     public static final class EventType {
         public static final String CHILD_REGISTRATION = "Birth Registration";
-
         public static final String UPDATE_CHILD_REGISTRATION = "Update Birth Registration";
+        public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
     }
 
     public static class JSON_FORM {

@@ -5,7 +5,7 @@ def sonatypeRepositoryURL
 def mavenLocalFlag = hasProperty('mavenLocal') ? mavenLocal.toBoolean() : true
 def timestampMsg = " at " + getDate()
 if (isReleaseBuild()) {
-    println 'PROCESSING MAVEN ' + (mavenLocalFlag ? 'LOCAL' : 'REMOTE') + ' RELEASE BUILD VERSION ' + project.VERSION_NAME + timestampMsg +'...'
+    println 'PROCESSING MAVEN ' + (mavenLocalFlag ? 'LOCAL' : 'REMOTE') + ' RELEASE BUILD VERSION ' + project.VERSION_NAME + timestampMsg + '...'
     sonatypeRepositoryURL = hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
             : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 } else {

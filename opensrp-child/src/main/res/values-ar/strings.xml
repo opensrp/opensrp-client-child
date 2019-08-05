@@ -328,6 +328,7 @@
 
     <string name="activate_new_card">تنشيط البطاقة</string>
     <string name="system_id_colon">معرف النظام :</string>
+    <string name="zeir_id">معرف النظام</string>
     <string name="age_colon">العمر :</string>
     <string name="search_criteria_includes">تتضمن معايير البحث</string>
     <string name="start_date">تاريخ البدء</string>
@@ -337,5 +338,9 @@
     <string name="done_today">إنتهت اليوم</string>
     <string name="record_growth">نمو قياسي</string>
     <string name="growth_monitoring">رصد النمو</string>
+
+    <string name="which_vaccinations_were_provided"> ماهي اللقاحات المعطاة؟ </string>
+    <string name="cannot_be_given_with_the_other_dose">  لا يمكن ان يعطى مع جرعة %1$s الأخرى</string>
+
 
 </resources>

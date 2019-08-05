@@ -17,7 +17,6 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         implements ChildAdvancedSearchContract.Model {
 
 
-    public static final String AND = "AND";
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
 
@@ -37,7 +36,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
             if (!StringUtils.isBlank(searchCriteria)) {
 
-                searchCriteria += " " + AND;
+                searchCriteria += " ;";
             }
 
             searchCriteria += " " + Utils.getTranslatedIdentifier(key) + " " + Utils.bold(value) + "";

@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.interactor.ChildRegisterInteractor;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -56,7 +57,11 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
     @Test
     public void testSetInteractorFunctionsCorrectly() {
 
+        ChildRegisterContract.Interactor interactor = new ChildRegisterInteractor();
+        Assert.assertNotNull(interactor);
         Assert.assertNotNull(baseChildRegisterPresenter);
+        baseChildRegisterPresenter.setInteractor(interactor);
+        Assert.assertNotNull(baseChildRegisterPresenter.interactor);
 
     }
 }
