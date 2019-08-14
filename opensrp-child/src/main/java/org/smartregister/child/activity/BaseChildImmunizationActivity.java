@@ -45,8 +45,8 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.AsyncTaskUtils;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -460,7 +460,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             name = constructChildName();
         }
         //        return String.format("%s > %s", getString(R.string.app_name), name.trim());
-        return name.trim();
+        return name != null ? name.trim() : "";
 
     }
 

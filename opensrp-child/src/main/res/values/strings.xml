@@ -216,7 +216,7 @@
     <string name="expired_label">Expired</string>
     <string name="record_label">Record</string>
     <string name="waiting_label">Waiting</string>
-    <string name="fully_immunized_label">Fully\nimmunized</string>
+    <string name="fully_immunized_label">Completed</string>
     <string name="all_changes_saved">All changes saved</string>
     <string name="record_service">Record\nservice</string>
     <string name="url_separator">/</string>

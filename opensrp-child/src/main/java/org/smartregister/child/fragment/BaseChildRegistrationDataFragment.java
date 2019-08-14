@@ -163,7 +163,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 }
                 break;
             case JsonFormConstants.SPINNER:
-                if (field.getKeys() != null && field.getKeys().size() > 0) {
+                if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
                 }
 

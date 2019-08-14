@@ -217,7 +217,7 @@
     <string name="expired_label">Périmé</string>
     <string name="record_label">Enregistrer</string>
     <string name="waiting_label">En attente</string>
-    <string name="fully_immunized_label">Complètement\nimmunisé</string>
+    <string name="fully_immunized_label">Terminé</string>
     <string name="all_changes_saved">Tous changements enrégistrés</string>
     <string name="record_service">Service\nd\'enregistrement</string>
     <string name="url_separator">/</string>
