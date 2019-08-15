@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -105,7 +106,6 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -121,7 +121,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
-public abstract class BaseChildImmunizationActivity extends BaseActivity
+public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
         VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
@@ -158,7 +158,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
     // Views
     private LocationSwitcherToolbar toolbar;
     // Data
-    private CommonPersonObjectClient childDetails;
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
@@ -408,8 +407,8 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
 
         updateGenderViews();
 
-        toolbar.setTitle(updateActivityTitle());
-        ((TextView) toolbar.findViewById(R.id.title)).setText(updateActivityTitle());//Called differently Fixes wierd bug
+        toolbar.setTitle(getActivityTitle());
+        ((TextView) toolbar.findViewById(R.id.title)).setText(getActivityTitle());//Called differently Fixes wierd bug
 
         updateAgeViews();
         updateChildIdViews();
@@ -454,16 +453,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
         updateGenderViews(gender);
     }
 
-    private String updateActivityTitle() {
-        String name = "";
-        if (isDataOk()) {
-            name = constructChildName();
-        }
-        //        return String.format("%s > %s", getString(R.string.app_name), name.trim());
-        return name != null ? name.trim() : "";
-
-    }
-
     private void updateAgeViews() {
         String dobString;
         String formattedAge = "";
@@ -506,16 +495,6 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
             nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
         }
-    }
-
-    private boolean isDataOk() {
-        return childDetails != null && childDetails.getDetails() != null;
-    }
-
-    private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
-        return Utils.getName(firstName, lastName).trim();
     }
 
     private void updateProfilePicture(Gender gender) {
@@ -1358,7 +1337,7 @@ public abstract class BaseChildImmunizationActivity extends BaseActivity
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            fileContents = new String(buffer, StandardCharsets.UTF_8);
+            fileContents = new String(buffer, CharEncoding.UTF_8);
         } catch (IOException ex) {
             Log.e(TAG, ex.toString(), ex);
         }
