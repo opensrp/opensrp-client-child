@@ -109,7 +109,7 @@ import static org.smartregister.util.Utils.getValue;
  * Created by raihan on 1/03/2017.
  */
 
-public abstract class BaseChildDetailTabbedActivity extends BaseActivity
+public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
     public static final String EXTRA_CHILD_DETAILS = "child_details";
@@ -134,7 +134,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
     private File currentFile;
     private String locationId = "";
     private String providerId = "";
-    private CommonPersonObjectClient childDetails;
     private Uri sharedFileUri;
     private ImageView profileImageIV;
     private boolean hasProperty;
@@ -346,15 +345,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         updateGenderViews();
     }
 
-    private String getActivityTitle() {
-        String name = "";
-        if (isDataOk()) {
-            name = Utils.getName(getValue(detailsMap, Constants.KEY.FIRST_NAME, true),
-                    getValue(detailsMap, Constants.KEY.LAST_NAME, true));
-        }
-        return String.format("%s's %s", name, getString(R.string.health_details));
-    }
-
     private void dispatchTakePictureIntent() {
         if (PermissionUtils.isPermissionGranted(this,
                 new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -454,10 +444,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseActivity
         } catch (Exception e) {
             Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
         }
-    }
-
-    private boolean isDataOk() {
-        return childDetails != null && childDetails.getDetails() != null;
     }
 
     private File createImageFile() throws IOException {

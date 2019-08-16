@@ -861,10 +861,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         try {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
 
-            Timber.d("Form is %s", form.toString());
             if (form != null) {
+
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form, "", LocationHierarchy.ENTIRE_TREE);
+                Timber.d("Form is %s", form.toString());
+
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
                 form.put(JsonFormUtils.ENCOUNTER_TYPE, Utils.metadata().childRegister.updateEventType);
                 form.put(JsonFormUtils.RELATIONAL_ID, childDetails.get(RELATIONAL_ID));

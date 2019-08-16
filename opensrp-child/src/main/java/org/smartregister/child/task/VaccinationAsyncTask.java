@@ -224,7 +224,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             nv = nextVaccineDue(sch, lastVaccineDate);
-            nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get("vaccine").toString().toLowerCase()));
+            if (nv != null && nv.containsKey("vaccine")) {
+                nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get("vaccine").toString().toLowerCase()));
+            }
 
         }
 
@@ -295,11 +297,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String groupName = "";
 
         Map<String, Object> nv = updateWrapper.getNv();
-
-        Object dueDateRawObject = nv.get(Constants.KEY.DATE);
-        DateTime dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
-
+        DateTime dueDate = null;
         if (nv != null) {
+
+
+            Object dueDateRawObject = nv.get(Constants.KEY.DATE);
+            dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
                 groupName = VaccinateActionUtils.stateKey(vaccine);
