@@ -28,6 +28,10 @@ public class ChildAppProperties extends org.smartregister.util.AppProperties {
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
 
+        // Search by mother
+        // This field affects if mother_first_name & mother_last_name fields are assumed to be in the ec_childs table
+        public static final String SEARCH_BY_MOTHER = "search_by_mother";
+
 
     }
 }

@@ -4,8 +4,10 @@ import android.content.ContentValues;
 import android.util.Log;
 
 import org.json.JSONObject;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -71,11 +73,16 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         Client childClient = childEventClient.getClient();
         childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
 
-        // Add search by mother
-        ContentValues values = new ContentValues();
-        values.put(Constants.KEY.MOTHER_FIRST_NAME, childHeadEventClient.getClient().getFirstName());
-        values.put(Constants.KEY.MOTHER_LAST_NAME, childHeadEventClient.getClient().getLastName());
-        JsonFormUtils.updateChildFTSTables(values, childClient.getBaseEntityId());
+        // This is optional in case the project has the mother_first_name & mother_last_name fields
+        if (!ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.SEARCH_BY_MOTHER) ||
+                ChildLibrary.getInstance().getProperties()
+                        .getPropertyBoolean(ChildAppProperties.KEY.SEARCH_BY_MOTHER)) {
+            // Add search by mother
+            ContentValues values = new ContentValues();
+            values.put(Constants.KEY.MOTHER_FIRST_NAME, childHeadEventClient.getClient().getFirstName());
+            values.put(Constants.KEY.MOTHER_LAST_NAME, childHeadEventClient.getClient().getLastName());
+            JsonFormUtils.updateChildFTSTables(values, childClient.getBaseEntityId());
+        }
 
         childEventClientList.add(childHeadEventClient);
         return childEventClientList;
