@@ -1,17 +1,22 @@
 package org.smartregister.child.task;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -88,6 +93,15 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
 
+        String motherId = detailsMap.get("relational_id");
+
+        if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.SEARCH_BY_MOTHER) ||
+                !ChildLibrary.getInstance().getProperties()
+                        .getPropertyBoolean(ChildAppProperties.KEY.SEARCH_BY_MOTHER) &&
+                motherId != null) {
+            detailsMap.putAll(Utils.getCleanMap(fetchMotherDetails(motherId)));
+        }
+
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);
 
@@ -154,6 +168,27 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         map.put(alertNamedObject.name, alertNamedObject);
 
         return map;
+    }
+
+    private Map<String, String> fetchMotherDetails(String motherBaseEntityId) {
+        HashMap<String, String> motherDetails = new HashMap<>();
+
+        if (!TextUtils.isEmpty(motherBaseEntityId)) {
+            CommonPersonObject rawMotherDetails =
+                    CoreLibrary.getInstance().context().commonrepository(Utils.metadata().childRegister.motherTableName)
+                            .findByBaseEntityId(motherBaseEntityId);
+            if (rawMotherDetails != null) {
+                motherDetails
+                        .put("mother_first_name", Utils.getValue(rawMotherDetails.getColumnmaps(), Constants.MotherTable.FIRST_NAME, false));
+                motherDetails
+                        .put("mother_last_name", Utils.getValue(rawMotherDetails.getColumnmaps(), Constants.MotherTable.LAST_NAME, false));
+                motherDetails.put("mother_dob", Utils.getValue(rawMotherDetails.getColumnmaps(), Constants.MotherTable.DOB, false));
+                motherDetails.put("mother_hiv_status", Utils.getValue(rawMotherDetails.getColumnmaps(), Constants.MotherTable.MOTHER_HIV_STATUS, false));
+                motherDetails.put("mother_guardian_number", Utils.getValue(rawMotherDetails.getColumnmaps(), Constants.MotherTable.MOTHER_GUARDIAN_NUMBER, false));
+            }
+        }
+
+        return motherDetails;
     }
 
     @Override

@@ -101,6 +101,15 @@ public class Constants extends AllConstants {
         public static final String RELATIONALID = "relationalid";
     }
 
+    public static final class MotherTable {
+
+        public static final String FIRST_NAME = "first_name";
+        public static final String LAST_NAME = "last_name";
+        public static final String DOB = "dob";
+        public static final String MOTHER_HIV_STATUS = "mother_hiv_status";
+        public static final String MOTHER_GUARDIAN_NUMBER = "mother_guardian_number";
+    }
+
     public static final class INTENT_KEY {
         public static final String JSON = "json";
         public static final String BASE_ENTITY_ID = "base_entity_id";
@@ -169,7 +178,6 @@ public class Constants extends AllConstants {
         public static final String FEATURE_SCAN_QR_ENABLED = "feature.scan.qr.enabled";
 
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
-
 
     }
 
