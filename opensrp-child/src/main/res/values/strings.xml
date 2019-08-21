@@ -343,5 +343,7 @@
     <string name="growth_monitoring">Growth Monitoring</string>
     <string name="which_vaccinations_were_provided">Which vaccinations were provided?</string>
     <string name="cannot_be_given_with_the_other_dose">Cannot be given with the other %1$s dose.</string>
+    <string name="n_weeks_due">%1$d Weeks\nDue</string>
+    <string name="n_weeks_overdue">%1$d Weeks\nOverdue</string>
 
 </resources>
