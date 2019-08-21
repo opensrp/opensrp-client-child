@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Weeks;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
@@ -418,5 +419,10 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String bold(String textToBold) {
         return "<b>" + textToBold + "</b>";
+    }
+
+    public static Integer getWeeksDue(DateTime dueDate) {
+
+        return dueDate != null ? Math.abs(Weeks.weeksBetween(new DateTime(), dueDate).getWeeks()) : null;
     }
 }

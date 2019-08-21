@@ -341,6 +341,10 @@
 
     <string name="which_vaccinations_were_provided"> ماهي اللقاحات المعطاة؟ </string>
     <string name="cannot_be_given_with_the_other_dose">  لا يمكن ان يعطى مع جرعة %1$s الأخرى</string>
+    <string name="n_weeks_due"> أسابيع متوقع
+    \n%1$s</string>
 
+    <string name="n_weeks_overdue"> أسابيع متأخر
+    \n%1$s</string>
 
 </resources>

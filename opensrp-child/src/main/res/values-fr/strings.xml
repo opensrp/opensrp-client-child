@@ -339,6 +339,7 @@
     <string name="growth_monitoring">Surveillance de la croissance</string>
     <string name="which_vaccinations_were_provided">Quels vaccins ont étés donnés?</string>
     <string name="cannot_be_given_with_the_other_dose"> Ne peut être donné avec la dose %1$s déjà donnée.</string>
-
+    <string name="n_weeks_due">%1$d Semaines\nAttendu</string>
+    <string name="n_weeks_overdue">%1$d Semaines\nÀ rendre</string>
 
 </resources>
