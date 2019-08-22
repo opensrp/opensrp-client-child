@@ -68,7 +68,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.MOTHER_FIRST_NAME, DBConstants.KEY.MOTHER_LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER};
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.MOTHER_FIRST_NAME, DBConstants.KEY.MOTHER_LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.LOST_TO_FOLLOW_UP, DBConstants.KEY.INACTIVE};
         }
         return null;
     }

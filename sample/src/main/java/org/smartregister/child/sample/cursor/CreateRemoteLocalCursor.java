@@ -15,6 +15,8 @@ public class CreateRemoteLocalCursor {
     private String openSrpId;
     private String motherFirstName;
     private String motherLastName;
+    private String inactive;
+    private String lostToFollowUp;
 
     private String phoneNumber;
     private String altName;
@@ -33,6 +35,8 @@ public class CreateRemoteLocalCursor {
         gender = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.GENDER));
         motherFirstName = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.MOTHER_FIRST_NAME));
         motherLastName = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.MOTHER_LAST_NAME));
+        inactive = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.INACTIVE));
+        lostToFollowUp = cursor.getString(cursor.getColumnIndex(DBConstants.KEY.LOST_TO_FOLLOW_UP));
     }
 
     public String getId() {
@@ -77,5 +81,21 @@ public class CreateRemoteLocalCursor {
 
     public String getMotherLastName() {
         return motherLastName;
+    }
+
+    public String getInactive() {
+        return inactive;
+    }
+
+    public void setInactive(String inactive) {
+        this.inactive = inactive;
+    }
+
+    public String getLostToFollowUp() {
+        return lostToFollowUp;
+    }
+
+    public void setLostToFollowUp(String lostToFollowUp) {
+        this.lostToFollowUp = lostToFollowUp;
     }
 }
