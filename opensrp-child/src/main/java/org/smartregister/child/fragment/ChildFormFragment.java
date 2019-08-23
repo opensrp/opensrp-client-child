@@ -325,7 +325,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             }
                         }
 
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC_NUMBER)) {
+                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.NRC_NUMBER)) {
                             text = getValue(pc.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true).replaceAll("/", "");
                         }
 
