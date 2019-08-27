@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
-        android:layout_weight="6.1"
+        android:layout_weight="5.8"
         android:orientation="horizontal">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
@@ -109,7 +109,7 @@
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2">
+        android:layout_weight="2.4">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_due_header"
