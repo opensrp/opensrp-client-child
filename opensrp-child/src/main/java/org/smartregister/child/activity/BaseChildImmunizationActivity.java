@@ -587,11 +587,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void getServiceTypes(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, Map<String, List<ServiceType>> foundServiceTypeMap, String type) {
         for (ServiceRecord serviceRecord : serviceRecordList) {
-            if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
-                    serviceRecord.getType().equals(type)) {
+            //if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) &&
+            //        serviceRecord.getType().equals(type)) {
                 foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                break;
-            }
+            //    break;
+            //}
         }
     }
 
@@ -1937,6 +1937,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         protected void onPostExecute(Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple) {
             hideProgressDialog();
             RecurringServiceUtils.updateServiceGroupViews(view, triple.getLeft(), triple.getMiddle(), triple.getRight());
+            recreate();
         }
     }
 
@@ -1989,6 +1990,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             tag.setDbKey(null);
 
             RecurringServiceUtils.updateServiceGroupViews(view, wrappers, serviceRecordList, alertList, true);
+            recreate();
         }
     }
 
