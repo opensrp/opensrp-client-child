@@ -16,7 +16,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-09-02
@@ -99,7 +100,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
         Expiry expiry = new Expiry();
         expiry.offset = "+50d";
-        expiry.reference = "dob";;
+        expiry.reference = "dob";
 
         Calendar expiryCalendar = (Calendar) dobCalendar.clone();
         expiryCalendar.add(Calendar.DAY_OF_MONTH, 50);
