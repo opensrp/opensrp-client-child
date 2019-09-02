@@ -10,7 +10,6 @@ import org.smartregister.immunization.domain.jsonmapping.Expiry;
 import org.smartregister.immunization.domain.jsonmapping.Schedule;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -61,9 +60,8 @@ public class VaccineCalculator {
             }
 
             for (Schedule schedule: schedules) {
-
                 if (schedule.due != null && schedule.due.size() > 0) {
-                    return VaccineTrigger.init(Constants.CHILD_TYPE, vaccineMapping.schedule.due.get(0))
+                    return VaccineTrigger.init(Constants.CHILD_TYPE, schedule.due.get(0))
                             .getFireDate(issuedVaccines, dob);
                 }
             }
@@ -92,10 +90,10 @@ public class VaccineCalculator {
                     return getVaccineExpiryDate(dob, schedule.expiry.get(0));
                 }
             }
-        } else if (vaccine.schedule != null) {
-            if (vaccine.schedule.expiry != null && vaccine.schedule.expiry.size() > 0) {
+        } else if (vaccine.schedule != null
+                && vaccine.schedule.expiry != null
+                && vaccine.schedule.expiry.size() > 0) {
                 return getVaccineExpiryDate(dob, vaccine.schedule.expiry.get(0));
-            }
         }
 
         return null;
