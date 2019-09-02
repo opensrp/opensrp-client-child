@@ -80,6 +80,8 @@ import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
+import org.smartregister.immunization.view.ServiceRowCard;
+import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
@@ -140,6 +142,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private boolean monitorGrowth = false;
 
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
+    private List<ServiceHolder> editServicesList = new ArrayList<>();
+    private List<ServiceHolder> removeServicesList = new ArrayList<>();
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
@@ -288,6 +292,23 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected void processEditedServices() {
 
+        //Services
+        for (ServiceHolder serviceHolder : editServicesList) {
+
+            saveService(serviceHolder.wrapper, serviceHolder.view);
+
+        }
+        editServicesList.clear();
+
+        //REmove service
+        for (ServiceHolder serviceHolder : removeServicesList) {
+
+            saveService(serviceHolder.wrapper, serviceHolder.view);
+
+        }
+        removeServicesList.clear();
+
+        //Vaccinations
         for (VaccineWrapper vaccineWrapper : editImmunizationCacheMap) {
             saveVaccine(vaccineWrapper);
         }
@@ -1015,14 +1036,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void onGiveToday(ServiceWrapper serviceWrapper, View view) {
         if (serviceWrapper != null) {
-            saveService(serviceWrapper, view);
+            editServicesList.add(new ServiceHolder(serviceWrapper, view));
         }
     }
 
     @Override
     public void onGiveEarlier(ServiceWrapper serviceWrapper, View view) {
         if (serviceWrapper != null) {
-            saveService(serviceWrapper, view);
+            ((ServiceRowGroup)view).getServicesGV().getAdapter().notify();
+            editServicesList.add(new ServiceHolder(serviceWrapper, view));
         }
     }
 
@@ -1087,5 +1109,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public ChildUnderFiveFragment getChildUnderFiveFragment() {
         return childUnderFiveFragment;
+    }
+
+    public class ServiceHolder {
+        public View view;
+        public ServiceWrapper wrapper;
+
+        public ServiceHolder(ServiceWrapper wrapper, View view) {
+            this.view = view;
+            this.wrapper = wrapper;
+        }
     }
 }

@@ -151,7 +151,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                         }
                     }
 
-                    zeirId = getJsonString(getJsonObject(child, "identifiers"), JsonFormUtils.ZEIR_ID);
+                    zeirId = getJsonString(getJsonObject(child, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
                     if (StringUtils.isNotBlank(zeirId)) {
                         zeirId = zeirId.replace("-", "");
                     }

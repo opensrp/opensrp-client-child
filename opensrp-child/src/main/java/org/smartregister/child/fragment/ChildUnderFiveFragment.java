@@ -1,5 +1,6 @@
 package org.smartregister.child.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -58,8 +59,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.smartregister.child.util.Utils.updateGrowthValue;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -139,8 +138,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
         List<Weight> weightList = getWeights(weights);
-        LinkedHashMap<Long, Pair<String, String>> weightMap =
-                updateWeightMap(editMode, weightEditMode, listeners, weightList);
+        LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners, weightList);
         if (weightMap.size() > 0) {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
@@ -158,9 +156,7 @@ public class ChildUnderFiveFragment extends Fragment {
         ((NestedScrollView) ((View) fragmentContainer.getParent()).findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
     }
 
-    private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode,
-                                                                      ArrayList<View.OnClickListener> listeners,
-                                                                      List<Weight> weightList) {
+    private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode, ArrayList<View.OnClickListener> listeners, List<Weight> weightList) {
         LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
         for (int i = 0; i < weightList.size(); i++) {
             Weight weight = weightList.get(i);
@@ -179,33 +175,40 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
             }
 
-            if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(
-                        org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
-                boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
-                weightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
+            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
-                final long weightTaken = weight.getId();
-                View.OnClickListener onClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showGrowthMonitoringDialog((int) weightTaken);
-                    }
-                };
-                listeners.add(onClickListener);
-            }
+            boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
+            weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
+            final long weightTaken = weight.getId();
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showGrowthMonitoringDialog((int) weightTaken);
+                }
+            };
+            listeners.add(onClickListener);
         }
 
-        if (weightMap.size() < 5) {
-            weightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    updateGrowthValue(Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true)) + " kg"));
-            weightEditMode.add(false);
-            listeners.add(null);
-        }
 
         return weightMap;
+    }
+
+    public static String getDuration(Context context, DateTime dateTime, DateTime referenceDate) {
+        if (dateTime != null && referenceDate != null) {
+            Calendar dateCalendar = Calendar.getInstance();
+            dateCalendar.setTime(dateTime.toDate());
+            dateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            dateCalendar.set(Calendar.MINUTE, 0);
+            dateCalendar.set(Calendar.SECOND, 0);
+            dateCalendar.set(Calendar.MILLISECOND, 0);
+
+
+            long timeDiff = Math.abs(dateCalendar.getTimeInMillis() - referenceDate.toDate().getTime());
+            return DateUtil.getDuration(context, timeDiff);
+        }
+        return null;
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode, ArrayList<Boolean> heightEditMode,
@@ -228,29 +231,21 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
             }
 
-            if (!formattedAge.equalsIgnoreCase("0d")) {
-                heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
+            heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
 
-                boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
-                heightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
+            boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
+            heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
-                final long heightTaken = height.getId();
-                View.OnClickListener onClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showGrowthMonitoringDialog((int) heightTaken);
-                    }
-                };
-                listeners.add(onClickListener);
-            }
+            final long heightTaken = height.getId();
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showGrowthMonitoringDialog((int) heightTaken);
+                }
+            };
+            listeners.add(onClickListener);
 
-        }
 
-        String initialHeight = Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true);
-        if (heightMap.size() < 5 && !initialHeight.isEmpty()) {
-            heightMap.put(0L, Pair.create(DateUtil.getDuration(0), updateGrowthValue(initialHeight) + " cm"));
-            heightEditMode.add(false);
-            listeners.add(null);
         }
 
         return heightMap;

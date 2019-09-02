@@ -164,7 +164,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     // Views
     private LocationSwitcherToolbar toolbar;
     // Data
-    private RegisterClickables registerClickables;
+    protected RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
