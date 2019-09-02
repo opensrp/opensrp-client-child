@@ -961,7 +961,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             return;
         }
 
-        if (registerClickables != null) {
+        // This fixes the possibility of multiple popups
+        if (registerClickables != null && (registerClickables.isRecordAll()
+                || registerClickables.isRecordWeight())) {
             return;
         }
 
