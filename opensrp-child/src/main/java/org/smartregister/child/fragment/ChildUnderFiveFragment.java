@@ -1,6 +1,5 @@
 package org.smartregister.child.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -193,22 +192,6 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
         return weightMap;
-    }
-
-    public static String getDuration(Context context, DateTime dateTime, DateTime referenceDate) {
-        if (dateTime != null && referenceDate != null) {
-            Calendar dateCalendar = Calendar.getInstance();
-            dateCalendar.setTime(dateTime.toDate());
-            dateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-            dateCalendar.set(Calendar.MINUTE, 0);
-            dateCalendar.set(Calendar.SECOND, 0);
-            dateCalendar.set(Calendar.MILLISECOND, 0);
-
-
-            long timeDiff = Math.abs(dateCalendar.getTimeInMillis() - referenceDate.toDate().getTime());
-            return DateUtil.getDuration(context, timeDiff);
-        }
-        return null;
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode, ArrayList<Boolean> heightEditMode,

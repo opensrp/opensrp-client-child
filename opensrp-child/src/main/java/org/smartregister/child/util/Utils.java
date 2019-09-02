@@ -13,12 +13,15 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -435,5 +438,16 @@ public class Utils extends org.smartregister.util.Utils {
     public static Integer getWeeksDue(DateTime dueDate) {
 
         return dueDate != null ? Math.abs(Weeks.weeksBetween(new DateTime(), dueDate).getWeeks()) : null;
+    }
+
+    public static String getChildBirthDate(JSONObject jsonObject) throws JSONException{
+        String childBirthDate = "";
+
+            if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {
+                childBirthDate = jsonObject.getString(FormEntityConstants.Person.birthdate.toString());
+            }
+
+
+        return childBirthDate;
     }
 }

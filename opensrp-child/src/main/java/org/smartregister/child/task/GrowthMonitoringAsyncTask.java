@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.joda.time.LocalDate;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
@@ -66,12 +67,15 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-
     @Override
     protected Void doInBackground(Void... params) {
         weight = weightRepository.findUnSyncedByEntityId(entityId);
+        String rawDob = ((CommonPersonObjectClient) this.client).getColumnmaps().get(Constants.KEY.DOB);
+        LocalDate dob = new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
+        weight = weight != null && new LocalDate(weight.getDate()).isEqual(dob) ? null : weight;
         if (hasProperty && monitorGrowth) {
             height = heightRepository.findUnSyncedByEntityId(entityId);
+            height = height != null && new LocalDate(height.getDate()).isEqual(dob) ? null : height;
         }
         return null;
     }

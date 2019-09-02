@@ -36,6 +36,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
@@ -1140,9 +1141,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Photo photo = ImageUtils.profilePhotoByClient(childDetails);
 
         WeightWrapper weightWrapper = getWeightWrapper(lastUnsyncedWeight, childName, gender, openSrpId, duration, photo);
+        if (weightWrapper != null) {
+            weightWrapper.setDob(dobString);
+        }
+
         HeightWrapper heightWrapper = null;
         if (hasProperty && monitorGrowth) {
             heightWrapper = getHeightWrapper(lastUnsyncedHeight, childName, gender, openSrpId, duration, photo);
+            heightWrapper.setDob(dobString);
         }
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
@@ -1199,13 +1205,22 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         recordWeightText.setText(R.string.record_growth);
         recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
-        recordWeightCheck.setVisibility(View.GONE);
+
+
+        //Checking if the growth point is also a birth date point by comparing DOB. We wont allow edits for such
+
+        String rawDob = weightWrapper.getDob();
+        LocalDate dob = new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
+        weightWrapper = weightWrapper != null && new LocalDate(weightWrapper.getUpdatedWeightDate()).isEqual(dob) ? null : weightWrapper;
 
         updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         if (hasProperty & monitorGrowth) {
+
+            heightWrapper = heightWrapper != null && new LocalDate(heightWrapper.getUpdatedHeightDate()).isEqual(dob) ? null : heightWrapper;
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
 
+        recordWeightCheck.setVisibility((weightWrapper == null || weightWrapper.getWeight() == null) && (heightWrapper == null || heightWrapper.getHeight() == null) ? View.GONE : View.VISIBLE);
         updateRecordWeightText(weightWrapper, heightWrapper);
         updateRecordGrowth(weightWrapper, heightWrapper, isActive);
 
@@ -1214,7 +1229,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         String weight = "";
         String height = "";
-        if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
+        if ((weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
                 (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
             if (weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
@@ -1251,8 +1266,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         });
     }
 
-    private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText,
-                                     ImageView recordWeightCheck) {
+    private void updateWeightWrapper(WeightWrapper weightWrapper, View recordGrowth, TextView recordWeightText, ImageView recordWeightCheck) {
         if (weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
             recordWeightCheck.setVisibility(View.VISIBLE);
 
@@ -1381,12 +1395,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         if (weightWrapper != null) {
             weightWrapper.setGender(genderString);
+            weightWrapper.setDob(dobString);
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, dobString,
                     BaseRepository.TYPE_Unsynced);
         }
 
         if (hasProperty && monitorGrowth && heightWrapper != null) {
             heightWrapper.setGender(genderString);
+            heightWrapper.setDob(dobString);
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
                     BaseRepository.TYPE_Unsynced);
         }
