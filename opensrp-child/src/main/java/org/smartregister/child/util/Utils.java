@@ -166,7 +166,7 @@ public class Utils extends org.smartregister.util.Utils {
             if (vaccineRepository == null || vaccine == null) {
                 return;
             }
-
+            vaccine.setName(vaccine.getName().trim());
             // Add the vaccine
             vaccineRepository.add(vaccine);
 
@@ -188,6 +188,10 @@ public class Utils extends org.smartregister.util.Utils {
                 ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
             } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(name)) {
                 ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
+            } else if (VaccineRepo.Vaccine.opv3.display().equalsIgnoreCase(name)) {
+                ftsVaccineName = VaccineRepo.Vaccine.ipv.display();
+            } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(name.substring(0,3))) {
+                ftsVaccineName = VaccineRepo.Vaccine.opv3.display();
             }
 
             if (ftsVaccineName != null) {
