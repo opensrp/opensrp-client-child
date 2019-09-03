@@ -1563,8 +1563,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     ArrayList<VaccineWrapper> groupWrappers = curGroup.getAllVaccineWrappers();
                     if (groupWrappers == null) groupWrappers = new ArrayList<>();
                     for (VaccineWrapper curWrapper : groupWrappers) {
-                        String curWrapperName = curWrapper.getName();
-
+                        String curWrapperName = curWrapper.getName().trim();
                         // Check if current wrapper is one of the combined vaccines
                         if (COMBINED_VACCINES.contains(curWrapperName)) {
                             // Check if any of the sister vaccines is currAffectedVaccineName
