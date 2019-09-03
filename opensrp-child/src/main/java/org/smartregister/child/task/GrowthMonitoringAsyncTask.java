@@ -3,11 +3,11 @@ package org.smartregister.child.task;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.joda.time.LocalDate;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
@@ -30,7 +30,7 @@ import static org.smartregister.util.Utils.getValue;
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
-public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
+public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonitoringViewRecordUpdateWrapper> {
     private final WeakReference<View> convertView;
     private final String entityId;
     private final String lostToFollowUp;
@@ -68,20 +68,14 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected GrowthMonitoringViewRecordUpdateWrapper doInBackground(Void... params) {
+
         weight = weightRepository.findUnSyncedByEntityId(entityId);
-        String rawDob = ((CommonPersonObjectClient) this.client).getColumnmaps().get(Constants.KEY.DOB);
-        LocalDate dob = new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
-        weight = weight != null && new LocalDate(weight.getDate()).isEqual(dob) ? null : weight;
+
         if (hasProperty && monitorGrowth) {
             height = heightRepository.findUnSyncedByEntityId(entityId);
-            height = height != null && new LocalDate(height.getDate()).isEqual(dob) ? null : height;
         }
-        return null;
-    }
 
-    @Override
-    protected void onPostExecute(Void param) {
         GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
         wrapper.setWeight(weight);
         if (hasProperty && monitorGrowth) {
@@ -91,6 +85,13 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         wrapper.setInactive(inactive);
         wrapper.setClient(client);
         wrapper.setConvertView(convertView.get());
+
+        return wrapper;
+    }
+
+    @Override
+    protected void onPostExecute(GrowthMonitoringViewRecordUpdateWrapper wrapper) {
+
         updateRecordWeight(wrapper, updateOutOfCatchment);
 
     }
@@ -109,13 +110,12 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
                 weightString = Utils.kgStringSuffix(updateWrapper.getWeight().getKg());
             }
             String growthString;
-            if (hasProperty && monitorGrowth) {
-                String heightString = "";
-                if (updateWrapper.getHeight() != null) {
-                    heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
-                }
+            String heightString;
+            if (hasProperty && monitorGrowth && updateWrapper.getHeight() != null) {
 
-                growthString = heightString.isEmpty() ? weightString : weightString + ", " + heightString;
+                heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
+
+                growthString = getGrowthMonitoringValues(heightString, weightString);
             } else {
                 growthString = weightString;
             }
@@ -141,6 +141,11 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         if (updateOutOfCatchment) {
             updateViews(updateWrapper.getConvertView(), updateWrapper.getClient());
         }
+    }
+
+    private String getGrowthMonitoringValues(String height, String weight) {
+        String seperator = !TextUtils.isEmpty(height) && !TextUtils.isEmpty(weight) ? ", " : "";
+        return weight + seperator + height;
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {

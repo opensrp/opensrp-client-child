@@ -165,7 +165,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 String birthDate = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
                 Date birth = Utils.dobStringToDate(birthDate);
                 if (birth != null) {
-                    long timeDiff = weightDate.getTime() - birth.getTime();
+                    long timeDiff = Math.abs(weightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff);
@@ -173,7 +173,6 @@ public class ChildUnderFiveFragment extends Fragment {
                     }
                 }
             }
-
 
             weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
@@ -205,7 +204,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 Date heightDate = height.getDate();
                 Date birth = getBirthDate();
                 if (birth != null) {
-                    long timeDiff = heightDate.getTime() - birth.getTime();
+                    long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff);
@@ -496,8 +495,7 @@ public class ChildUnderFiveFragment extends Fragment {
         weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(
-                Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
+        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
         return weightWrapper;
     }
 

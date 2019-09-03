@@ -230,8 +230,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             weightWrapper.setUpdatedWeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));//This is the weight of birth so reference date should be the DOB
             weightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            weightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, Utils.getChildBirthDate(clientJson), params.getStatus());
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, params.getStatus());
         }
     }
 
@@ -242,11 +243,12 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             HeightWrapper heightWrapper = new HeightWrapper();
             heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
             heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : 0);
-            heightWrapper.setUpdatedHeightDate(new DateTime(), true);
+            LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
+            heightWrapper.setUpdatedHeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));
             heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            heightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
-            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper,
-                    Utils.getChildBirthDate(clientJson), params.getStatus());
+            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, params.getStatus());
         }
     }
 

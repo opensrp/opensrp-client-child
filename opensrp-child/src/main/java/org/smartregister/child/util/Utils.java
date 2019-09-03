@@ -304,8 +304,7 @@ public class Utils extends org.smartregister.util.Utils {
         return formatter.format(date);
     }
 
-    public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String dobString,
-                                    String syncStatus) {
+    public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String syncStatus) {
 
         Weight weight = new Weight();
         if (weightWrapper.getDbKey() != null) {
@@ -325,7 +324,7 @@ public class Utils extends org.smartregister.util.Utils {
             gender = Gender.MALE;
         }
 
-        Date dob = Utils.dobStringToDate(dobString);
+        Date dob = Utils.dobStringToDate(weightWrapper.getDob());
 
         if (dob != null && gender != Gender.UNKNOWN) {
             weightRepository.add(dob, gender, weight);
@@ -336,8 +335,7 @@ public class Utils extends org.smartregister.util.Utils {
         weightWrapper.setDbKey(weight.getId());
     }
 
-    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String dobString,
-                                    String syncStatus) {
+    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String syncStatus) {
         if (heightWrapper != null && heightWrapper.getHeight() != null && heightWrapper.getId() != null) {
             Height height = new Height();
             if (heightWrapper.getDbKey() != null) {
@@ -357,7 +355,7 @@ public class Utils extends org.smartregister.util.Utils {
                 gender = Gender.MALE;
             }
 
-            Date dob = Utils.dobStringToDate(dobString);
+            Date dob = Utils.dobStringToDate(heightWrapper.getDob());
 
             if (dob != null && gender != Gender.UNKNOWN) {
                 heightRepository.add(dob, gender, height);

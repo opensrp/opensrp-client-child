@@ -1200,38 +1200,42 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return heightWrapper;
     }
 
-    private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper,
-                                                   final boolean isActive) {
+    private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
 
         recordWeightText.setText(R.string.record_growth);
         recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
+        recordWeightCheck.setVisibility(View.GONE);
 
 
         //Checking if the growth point is also a birth date point by comparing DOB. We wont allow edits for such
 
-        String rawDob = weightWrapper.getDob();
-        LocalDate dob = new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
-        weightWrapper = weightWrapper != null && new LocalDate(weightWrapper.getUpdatedWeightDate()).isEqual(dob) ? null : weightWrapper;
+        if (weightWrapper != null) {
 
-        updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
-        if (hasProperty & monitorGrowth) {
-
-            heightWrapper = heightWrapper != null && new LocalDate(heightWrapper.getUpdatedHeightDate()).isEqual(dob) ? null : heightWrapper;
-            updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
+            LocalDate dob = getLocalDateFromDateString(weightWrapper.getDob());
+            //     weightWrapper = weightWrapper.getUpdatedWeightDate() != null && new LocalDate(weightWrapper.getUpdatedWeightDate()).isEqual(dob) ? null : weightWrapper;
+            updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         }
 
-        recordWeightCheck.setVisibility((weightWrapper == null || weightWrapper.getWeight() == null) && (heightWrapper == null || heightWrapper.getHeight() == null) ? View.GONE : View.VISIBLE);
+        if (hasProperty & monitorGrowth) {
+
+            LocalDate dob = getLocalDateFromDateString(heightWrapper.getDob());
+            //    heightWrapper = heightWrapper != null && heightWrapper.getUpdatedHeightDate() != null && new LocalDate(heightWrapper.getUpdatedHeightDate()).isEqual(dob) && dob.isEqual(new LocalDate()) ? null : heightWrapper;
+            updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
+        }
         updateRecordWeightText(weightWrapper, heightWrapper);
         updateRecordGrowth(weightWrapper, heightWrapper, isActive);
 
     }
 
+    private LocalDate getLocalDateFromDateString(String rawDob) {
+        return new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
+    }
+
     private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         String weight = "";
         String height = "";
-        if ((weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
-                (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
-            if (weightWrapper.getWeight() != null) {
+        if ((weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) || (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
+            if (weightWrapper != null && weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
             if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
@@ -1239,11 +1243,16 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             }
             isGrowthEdit = true;
             if (hasProperty & monitorGrowth) {
-                recordWeightText.setText(!height.isEmpty() ? weight + ", " + height : weight);
+                recordWeightText.setText(getGrowthMonitoringValues(height, weight));
             } else {
                 recordWeightText.setText(weight);
             }
         }
+    }
+
+    private String getGrowthMonitoringValues(String height, String weight) {
+        String seperator = !TextUtils.isEmpty(height) && !TextUtils.isEmpty(weight) ? ", " : "";
+        return weight + seperator + height;
     }
 
     private void updateRecordGrowth(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
@@ -1334,12 +1343,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
-            EditGrowthDialogFragment editWeightDialogFragment =
-                    EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+            EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         } else {
-            RecordGrowthDialogFragment recordWeightDialogFragment =
-                    RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+            RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
 
@@ -1393,18 +1400,16 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
 
-        if (weightWrapper != null) {
+        if (weightWrapper != null && weightWrapper.getUpdatedWeightDate() != null) {
             weightWrapper.setGender(genderString);
             weightWrapper.setDob(dobString);
-            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, dobString,
-                    BaseRepository.TYPE_Unsynced);
+            Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        if (hasProperty && monitorGrowth && heightWrapper != null) {
+        if (hasProperty && monitorGrowth && heightWrapper != null && heightWrapper.getUpdatedHeightDate() != null) {
             heightWrapper.setGender(genderString);
             heightWrapper.setDob(dobString);
-            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, dobString,
-                    BaseRepository.TYPE_Unsynced);
+            Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
@@ -1999,14 +2004,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 Long dbKey = tag.getDbKey();
                 ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
 
-                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                        .findByEntityId(childDetails.entityId());
+                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository().findByEntityId(childDetails.entityId());
 
                 wrappers = new ArrayList<>();
                 wrappers.add(tag);
 
-                ServiceSchedule
-                        .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
                 AlertService alertService = getOpenSRPContext().alertService();
                 alertList = alertService.findByEntityId(childDetails.entityId());
