@@ -440,14 +440,13 @@ public class Utils extends org.smartregister.util.Utils {
         return dueDate != null ? Math.abs(Weeks.weeksBetween(new DateTime(), dueDate).getWeeks()) : null;
     }
 
-    public static String getChildBirthDate(JSONObject jsonObject) throws JSONException{
+    public static String getChildBirthDate(JSONObject jsonObject) throws JSONException {
         String childBirthDate = "";
 
-            if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {
-                childBirthDate = jsonObject.getString(FormEntityConstants.Person.birthdate.toString());
-            }
+        if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {
+            childBirthDate = jsonObject.getString(FormEntityConstants.Person.birthdate.toString());
+        }
 
-
-        return childBirthDate;
+        return childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
     }
 }
