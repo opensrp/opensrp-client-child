@@ -50,6 +50,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.VaccineCalculator;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -966,7 +967,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             return;
         }
 
-        if (registerClickables != null) {
+        // This fixes the possibility of multiple popups
+        if (registerClickables != null && (registerClickables.isRecordAll()
+                || registerClickables.isRecordWeight())) {
             return;
         }
 
@@ -984,7 +987,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             return;
         }
 
-        int bcgOffsetInWeeks = 12;
+        /*int bcgOffsetInWeeks = 12;
         Calendar twelveWeeksLaterDate = Calendar.getInstance();
         twelveWeeksLaterDate.setTime(bcg.getDate());
         twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
@@ -993,6 +996,22 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         if (today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today)) {
             showCheckBcgScarNotification(alert);
+        }*/
+
+        ArrayList<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccinesMapping = ((ArrayList<org.smartregister.immunization.domain.jsonmapping.Vaccine>) ImmunizationLibrary.getInstance().getVaccinesConfigJsonMap().get("special_vaccines.json"));
+
+
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+        Date dob = Utils.dobStringToDate(dobString);
+
+        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine: vaccinesMapping) {
+            if (vaccine.getType().equalsIgnoreCase("BCG")) {
+                Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
+                Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
+                if (dueDate != null && (expiryDate == null || expiryDate.after(Calendar.getInstance().getTime()))) {
+                    showCheckBcgScarNotification(null);
+                }
+            }
         }
     }
 
