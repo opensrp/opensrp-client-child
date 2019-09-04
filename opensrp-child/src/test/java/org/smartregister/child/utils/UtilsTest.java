@@ -24,10 +24,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 @PrepareForTest({Utils.class, VaccineRepo.class})
 public class UtilsTest{
     @Mock
-    SQLiteDatabase sqLiteDatabase;
+    private SQLiteDatabase sqLiteDatabase;
 
     @Mock
-    VaccineRepository vaccineRepository;
+    private VaccineRepository vaccineRepository;
 
     @Before
     public void setUp(){
