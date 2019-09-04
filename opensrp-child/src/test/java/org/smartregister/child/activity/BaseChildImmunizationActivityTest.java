@@ -21,20 +21,20 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
 
     @Test
     public void getVaccineByName(){
-        org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine = new Vaccine();
+        Vaccine vaccine = new Vaccine();
         vaccine.name = "some";
         BaseChildImmunizationActivity baseChildImmunizationActivity = Mockito.spy(BaseChildImmunizationActivity.class);
-        List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccines = new ArrayList<>();
+        List<Vaccine> vaccines = new ArrayList<>();
         vaccines.add(vaccine);
         Assert.assertEquals(baseChildImmunizationActivity.getVaccineByName(vaccines, "some").name, "some");
     }
 
     @Test
     public void getVaccineGroupName(){
-        org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup = new VaccineGroup();
+        VaccineGroup vaccineGroup = new VaccineGroup();
         vaccineGroup.id = "some";
         BaseChildImmunizationActivity baseChildImmunizationActivity = Mockito.spy(BaseChildImmunizationActivity.class);
-        List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroups = new ArrayList<>();
+        List<VaccineGroup> vaccineGroups = new ArrayList<>();
         vaccineGroups.add(vaccineGroup);
         Assert.assertEquals(baseChildImmunizationActivity.getVaccineGroupByName(vaccineGroups, "some").id,"some");
 
