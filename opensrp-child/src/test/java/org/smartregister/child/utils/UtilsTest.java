@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +25,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class UtilsTest{
     @Mock
     SQLiteDatabase sqLiteDatabase;
+
+    @Mock
+    VaccineRepository vaccineRepository;
 
     @Before
     public void setUp(){
@@ -46,9 +50,57 @@ public class UtilsTest{
     }
 
     @Test
-    public void testAddVaccineShouldCallAddMethod() throws Exception {
+    public void testAddVaccineShouldCallVaccineRepositoryAddFunction() {
         PowerMockito.spy(Utils.class);
-        PowerMockito.doReturn(true).when(Utils.class,"getCombinedVaccine", anyString());
+        Vaccine vaccine = new Vaccine();
+        vaccine.setName("testvaccine");
+        Utils.addVaccine(vaccineRepository, vaccine);
+        Mockito.verify(vaccineRepository, Mockito.times(1)).add(vaccine);
 
+        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
+        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
+
+        PowerMockito.verifyStatic(Utils.class);
+
+        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
+
+        Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
+        Assert.assertEquals(vaccine, vaccineArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testAddVaccineShouldNotCallVaccineRepositoryAddFunction() {
+        PowerMockito.spy(Utils.class);
+        Utils.addVaccine(null, null);
+        Mockito.verify(vaccineRepository, Mockito.times(0)).add(null);
+
+        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
+        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
+
+        PowerMockito.verifyStatic(Utils.class);
+
+        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
+
+        Assert.assertNull(vaccineRepositoryArgumentCaptor.getValue());
+        Assert.assertNull(vaccineArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testAddVaccineShouldReturnExceptionWhenVaccineNameIsNull() {
+        PowerMockito.spy(Utils.class);
+        Vaccine vaccine = new Vaccine();
+        Utils.addVaccine(vaccineRepository, vaccine);
+
+        Mockito.verify(vaccineRepository, Mockito.times(0)).add(vaccine);
+
+        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
+        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
+
+        PowerMockito.verifyStatic(Utils.class);
+
+        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
+
+        Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
+        Assert.assertNull(vaccineArgumentCaptor.getValue().getName());
     }
 }
