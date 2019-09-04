@@ -401,16 +401,6 @@ TO DO ? , sync unsynced records within catchment
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
             scanCardButton.setVisibility(View.VISIBLE);//should be visible
 
-            //If QR code button not visible send to right
-            if (qrCodeButton.getVisibility() == View.GONE) {
-
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) scanCardButton.getLayoutParams();
-                params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                params.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                scanCardButton.setLayoutParams(params);
-            }
-
-
             ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
         }
     }
