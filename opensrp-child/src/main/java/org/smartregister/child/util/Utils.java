@@ -210,7 +210,7 @@ public class Utils extends org.smartregister.util.Utils {
             ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
         } else if (VaccineRepo.Vaccine.opv3.display().equalsIgnoreCase(name)) {
             ftsVaccineName = VaccineRepo.Vaccine.ipv.display();
-        } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(name.substring(0,3))) {
+        } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(name)) {
             ftsVaccineName = VaccineRepo.Vaccine.opv3.display();
         }
         return ftsVaccineName;
