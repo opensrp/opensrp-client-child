@@ -8,13 +8,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.location.helper.LocationHelper;
+import org.smartregister.repository.AllSharedPreferences;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class})
@@ -67,5 +71,30 @@ public class JsonFormUtilsTests extends BaseUnitTest {
         Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
         Assert.assertNotNull(jsonObject.get(JsonFormConstants.DEFAULT));
         Assert.assertEquals(array, jsonObject.get(JsonFormConstants.DEFAULT));
+    }
+
+    @Test
+    public void getChildLocationIdShouldReturnNullWhenCurrentLocalityIsNull() {
+        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+
+        Assert.assertNull(JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+    }
+
+    @Test
+    public void getChildLocationIdShouldReturnCurrentLocalityIdWhenCurrentLocalityIsDifferentFromDefaultLocality() {
+        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+        String currentLocality = "Kilimani";
+        String currentLocalityId = "9943-43534-2dsfs";
+
+        Mockito.doReturn(currentLocality)
+                .when(allSharedPreferences)
+                .fetchCurrentLocality();
+
+        LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        Mockito.doReturn(currentLocalityId).when(locationHelper).getOpenMrsLocationId(Mockito.eq(currentLocality));
+
+        Assert.assertEquals(currentLocalityId, JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
     }
 }
