@@ -490,95 +490,16 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @NotNull
     private String getGroupName(VaccineRepo.Vaccine vaccine) {
-        if (vaccine.display().equalsIgnoreCase("MR 2")) {
-            return "15 months";
-        } else {
-            String key;
+        if (vaccine != null) {
+            HashMap<String, String> vaccineGroupings = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
 
-            switch (vaccine) {
-                case opv0:
-                case bcg:
-                case HepB:
-                    key = "at birth";
-                    break;
-                case opv1:
-                case penta1:
-                case pcv1:
-                case rota1:
-                    key = "6 weeks";
-                    break;
-
-                case opv2:
-                case penta2:
-                case pcv2:
-                case rota2:
-                    key = "10 weeks";
-                    break;
-
-                case opv3:
-                case penta3:
-                case pcv3:
-                case ipv:
-                case rota3:
-                    key = "14 weeks";
-                    break;
-
-                case mv1:
-                    key = "5 Months";
-                    break;
-
-                case mv2:
-                    key = "6 Months";
-                    break;
-
-                case mv3:
-                    key = "7 Months";
-                    break;
-
-                case measles1:
-                case mr1:
-                case opv4:
-                case yf:
-                case mcv1:
-                case rubella1:
-                case menA:
-                case meningococcal:
-                    key = "9 months";
-                    break;
-
-                case mcv2:
-                case rubella2:
-                    key = "15 months";
-                    break;
-                case measles2:
-                case mr2:
-                    key = "18 months";
-                    break;
-                case tt1:
-                    key = "After LMP";
-                    break;
-                case tt2:
-                    key = "4 Weeks after TT 1";
-                    break;
-                case tt3:
-                    key = "26 Weeks after TT 2";
-                    break;
-                case tt4:
-                    key = " 1 Year after  TT 3 ";
-                    break;
-                case tt5:
-                    key = " 1 Year after  TT 4 ";
-                    break;
-                case mv4:
-                    key = "22 Months";
-                    break;
-                default:
-                    key = "";
-                    break;
+            String groupName = vaccineGroupings.get(vaccine.name());
+            if (groupName != null) {
+                return groupName;
             }
-
-            return key;
         }
+
+        return "";
     }
 
     @NotNull
