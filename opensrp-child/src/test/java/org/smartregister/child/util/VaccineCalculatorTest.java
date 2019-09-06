@@ -3,7 +3,11 @@ package org.smartregister.child.util;
 import com.google.gson.Gson;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.jsonmapping.Due;
@@ -27,7 +31,6 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
     @Test
     public void getVaccineDueDateShouldReturnNullWhenNoScheduleIsDefined() {
-
         Date today = Calendar.getInstance().getTime();
         org.smartregister.immunization.domain.jsonmapping.Vaccine vaccineJsonMapping = new org.smartregister.immunization.domain.jsonmapping.Vaccine();
         vaccineJsonMapping.setName("BCG");
@@ -37,6 +40,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
     @Test
     public void getVaccineDueDateShouldReturnNullWhenOneConditionInScheduleIsNotMet() {
+        mockImmunicationLibraryToUseHardcodedVaccines();
 
         Date today = Calendar.getInstance().getTime();
         org.smartregister.immunization.domain.jsonmapping.Vaccine vaccineJsonMapping = new org.smartregister.immunization.domain.jsonmapping.Vaccine();
@@ -57,6 +61,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
     @Test
     public void getVaccineDueDateShouldReturnNullWhenOneConditionInTheSchedulesIsNotMet() {
+        mockImmunicationLibraryToUseHardcodedVaccines();
 
         Date today = Calendar.getInstance().getTime();
         org.smartregister.immunization.domain.jsonmapping.Vaccine vaccineJsonMapping = new org.smartregister.immunization.domain.jsonmapping.Vaccine();
@@ -84,6 +89,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
     @Test
     public void getVaccineExpiryDateShouldReturnNullWhenNoExpiryIsDefined() {
+        mockImmunicationLibraryToUseHardcodedVaccines();
 
         Date dob = Calendar.getInstance().getTime();
         Expiry expiry = null;
@@ -157,5 +163,12 @@ public class VaccineCalculatorTest extends BaseUnitTest {
         VaccineSchedule.standardiseCalendarDate(expiryCalendar);
 
         assertEquals(expiryCalendar.getTime(), VaccineCalculator.getVaccineExpiryDate(dob, vaccine));
+    }
+
+    private void mockImmunicationLibraryToUseHardcodedVaccines() {
+        ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
+
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();
     }
 }

@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
-import static org.joda.time.DateTimeConstants.PM;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 import static org.smartregister.util.Utils.getValue;
