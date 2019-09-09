@@ -27,11 +27,14 @@ import static org.junit.Assert.assertEquals;
 public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     private VaccinationAsyncTask vaccinationAsyncTask;
+    private ImmunizationLibrary immunizationLibrary;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
 
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
@@ -56,10 +59,6 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @Test
     public void getGroupNameShouldCallImmunizationLibrary() {
-        ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
-
-        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-
         HashMap<String, String> vaccineGrouping = new HashMap<>();
         vaccineGrouping.put("bcg", "At Birth");
         vaccineGrouping.put("opv0", "6 weeks");
@@ -73,5 +72,15 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
                 , ReflectionHelpers.ClassParameter.from(VaccineRepo.Vaccine.class, VaccineRepo.Vaccine.opv2)));
         Mockito.verify(immunizationLibrary, Mockito.times(1))
                 .getVaccineGroupings(Mockito.any(Context.class));
+    }
+
+    @Test
+    public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
+        String localizedStateKey = ReflectionHelpers.callInstanceMethod(vaccinationAsyncTask
+                , "localizeStateKey"
+                , ReflectionHelpers.ClassParameter.from(String.class, "6 WEEKS"));
+
+        assertEquals("6 weeks", localizedStateKey);
+
     }
 }
