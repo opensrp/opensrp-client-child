@@ -147,6 +147,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String repoGroup;
         String repoVaccineName;
 
+
         for (int i = 0; i < childVaccineRepo.size(); i++) {
             repoVaccine = childVaccineRepo.get(i);
             repoVaccineName = repoVaccine.toString().toLowerCase();
@@ -528,8 +529,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private String localizeStateKey(String stateKey) {
         String localizedKey = "";
+        stateKey = stateKey.toLowerCase().trim();
+
         switch (stateKey) {
-            case "Birth":
+            case "birth":
                 localizedKey = context.getString(R.string.birth);
                 break;
             case "at birth":
@@ -575,23 +578,23 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 localizedKey = context.getString(R.string.twenty_two_months);
                 break;
 
-            case "After LMP":
+            case "after lmp":
                 localizedKey = context.getString(R.string.after_lmp);
                 break;
 
-            case "4 Weeks after TT 1":
+            case "4 weeks after tt 1":
                 localizedKey = context.getString(R.string.after_tt1);
                 break;
 
-            case "26 Weeks after TT 2":
+            case "26 weeks after tt 2":
                 localizedKey = context.getString(R.string.after_tt2);
                 break;
 
-            case " 1 Year after  TT 3 ":
+            case "1 year after tt 3 ":
                 localizedKey = context.getString(R.string.after_tt3);
                 break;
 
-            case " 1 Year after  TT 4 ":
+            case "1 year after tt 4 ":
                 localizedKey = context.getString(R.string.after_tt4);
                 break;
 
