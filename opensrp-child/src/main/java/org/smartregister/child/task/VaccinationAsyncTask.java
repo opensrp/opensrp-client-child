@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -528,80 +529,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     private String localizeStateKey(String stateKey) {
-        String localizedKey = "";
-        stateKey = stateKey.toLowerCase().trim();
+        stateKey = stateKey.trim();
 
-        switch (stateKey) {
-            case "birth":
-                localizedKey = context.getString(R.string.birth);
-                break;
-            case "at birth":
-                localizedKey = context.getString(R.string.at_birth);
-                break;
-
-            case "6 weeks":
-                localizedKey = context.getString(R.string.six_weeks);
-                break;
-
-            case "10 weeks":
-                localizedKey = context.getString(R.string.ten_weeks);
-                break;
-
-            case "14 weeks":
-                localizedKey = context.getString(R.string.fourteen_weeks);
-                break;
-
-            case "5 months":
-                localizedKey = context.getString(R.string.five_months);
-                break;
-
-            case "6 months":
-                localizedKey = context.getString(R.string.six_months);
-                break;
-
-            case "7 months":
-                localizedKey = context.getString(R.string.seven_months);
-                break;
-
-            case "9 months":
-                localizedKey = context.getString(R.string.nine_months);
-                break;
-            case "15 months":
-                localizedKey = context.getString(R.string.fifteen_months);
-                break;
-
-            case "18 months":
-                localizedKey = context.getString(R.string.eighteen_months);
-                break;
-
-            case "22 months":
-                localizedKey = context.getString(R.string.twenty_two_months);
-                break;
-
-            case "after lmp":
-                localizedKey = context.getString(R.string.after_lmp);
-                break;
-
-            case "4 weeks after tt 1":
-                localizedKey = context.getString(R.string.after_tt1);
-                break;
-
-            case "26 weeks after tt 2":
-                localizedKey = context.getString(R.string.after_tt2);
-                break;
-
-            case "1 year after tt 3 ":
-                localizedKey = context.getString(R.string.after_tt3);
-                break;
-
-            case "1 year after tt 4 ":
-                localizedKey = context.getString(R.string.after_tt4);
-                break;
-
-            default:
-                break;
+        if (stateKey.matches("^\\d")) {
+            stateKey = "_" + stateKey;
         }
-        return localizedKey;
+
+        return translate(context, stateKey);
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
