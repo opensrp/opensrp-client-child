@@ -204,9 +204,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             key = key.contains("/") ? key.substring(0, key.indexOf("/")) : key;
             key = key.trim().replaceAll(" ", "").toLowerCase();
             receivedVaccinesList.add(key);
-            GroupVaccineCount groupVaccineCount = groupVaccineMap.get(reverseLookupGroupMap.get(key));
+            String groupVaccineMapKey = reverseLookupGroupMap.get(key) == null ? "" : reverseLookupGroupMap.get(key);
+            GroupVaccineCount groupVaccineCount = groupVaccineMap.get(groupVaccineMapKey);
             groupVaccineCount.setRemaining(groupVaccineCount.getRemaining() - 1);
-            groupVaccineMap.put(reverseLookupGroupMap.get(key), groupVaccineCount);
+            groupVaccineMap.put(groupVaccineMapKey, groupVaccineCount);
         }
 
 
