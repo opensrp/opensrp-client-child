@@ -177,8 +177,6 @@ public class Utils extends org.smartregister.util.Utils {
                 return;
             }
 
-            name = VaccineRepository.removeHyphen(name);
-
             // Update vaccines in the same group where either can be given
             // For example measles 1 / mr 1
             String ftsVaccineName = getCombinedVaccine(name);
@@ -199,18 +197,19 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String getCombinedVaccine(String name){
         String ftsVaccineName = null;
+        String vaccine_name = VaccineRepository.removeHyphen(name);
 
-        if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(name)) {
+        if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
-        } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(name)) {
+        } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
-        } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(name)) {
+        } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
-        } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(name)) {
+        } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
-        } else if (VaccineRepo.Vaccine.opv3.display().equalsIgnoreCase(name)) {
+        } else if (VaccineRepo.Vaccine.opv3.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.ipv.display();
-        } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(name)) {
+        } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(vaccine_name)) {
             ftsVaccineName = VaccineRepo.Vaccine.opv3.display();
         }
         return ftsVaccineName;
