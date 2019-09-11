@@ -2,6 +2,7 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -528,14 +529,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         return state;
     }
 
-    private String localizeStateKey(String stateKey) {
-        stateKey = stateKey.trim();
+    private String localizeStateKey(@NonNull String stateKey) {
+        String correctedStateKey = stateKey.trim();
 
-        if (stateKey.matches("^\\d")) {
-            stateKey = "_" + stateKey;
+        if (correctedStateKey.matches("^\\d.*\\n*")) {
+            correctedStateKey = "_" + correctedStateKey;
         }
 
-        return translate(context, stateKey);
+        return translate(context, correctedStateKey);
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {

@@ -24,7 +24,6 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `home.toolbar.scan.card.enabled`    | Boolean | false   | Show Scan Card in home register toolbar       |
 | `details.side.navigation.enabled`   | Boolean | true    | Enable side navigation drawer on details page |
 
-
 ### Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
 
 You can enable multi-language support for Group Names shown on the register for upcoming statuses eg. `Upcoming 10 weeks`. :frowning: This means you need to add multiple string for the same group name [since this](https://github.com/OpenSRP/opensrp-client-immunization#multi-language-support) is also supported.
