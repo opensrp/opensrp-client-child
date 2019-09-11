@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -613,13 +615,30 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
         event.setLocationId(locationId(allSharedPreferences));
-        event.setChildLocationId(allSharedPreferences.fetchCurrentLocality());
+
+        String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
+        event.setChildLocationId(childLocationId);
+
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
         return event;
+    }
+
+    @Nullable
+    public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
+        String currentLocality = allSharedPreferences.fetchCurrentLocality();
+
+        if (currentLocality != null) {
+            String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+            if (currentLocalityId != null && !defaultLocationId.equals(currentLocalityId)) {
+                return currentLocalityId;
+            }
+        }
+
+        return null;
     }
 
     public static void updateDateOfRemoval(String baseEntityId, String dateOfRemovalString) {
@@ -635,7 +654,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    protected static String locationId(AllSharedPreferences allSharedPreferences) {
+    public static String locationId(AllSharedPreferences allSharedPreferences) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
         if (StringUtils.isBlank(userLocationId)) {
