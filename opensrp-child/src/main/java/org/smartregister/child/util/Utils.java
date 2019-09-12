@@ -4,7 +4,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
@@ -18,6 +17,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -199,7 +201,7 @@ public class Utils extends org.smartregister.util.Utils {
             }
 
         } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
     }
@@ -209,7 +211,7 @@ public class Utils extends org.smartregister.util.Utils {
             SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
             return dateFormat.parse(date);
         } catch (ParseException e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage());
+            Timber.e(e);
             return null;
         }
     }
@@ -228,6 +230,11 @@ public class Utils extends org.smartregister.util.Utils {
         return getCohortEndDate(vaccineName, startDate);
 
     }
+    public static boolean isFirstGrowthMonitoringRecord(String entityId){
+        //using weight since its a required field in all registration forms
+        return GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(entityId).size() == 1;
+    }
+
 
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
@@ -385,7 +392,7 @@ public class Utils extends org.smartregister.util.Utils {
                 }
             }
         } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
+            Timber.e(e);
         }
 
         return clean;

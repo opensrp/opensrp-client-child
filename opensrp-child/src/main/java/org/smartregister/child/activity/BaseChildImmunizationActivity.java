@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,6 @@ import com.google.gson.Gson;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -118,6 +116,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -579,7 +579,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     serviceGroup.setChildActive(isChildActive);
                     serviceGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         }
@@ -818,7 +818,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 try {
                     addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         } else {
@@ -827,7 +827,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     vaccineGroup.setChildActive(isChildActive);
                     vaccineGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         }
@@ -1207,7 +1207,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
-        String weight = "";
+        String weight = "+";
         String height = "";
         if ((weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) ||
                 (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
@@ -1254,11 +1254,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (weightWrapper.getUpdatedWeightDate() != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - weightWrapper.getUpdatedWeightDate().getMillis();
 
-                if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
-                    //disable the button
-                    recordGrowth.setClickable(false);
-                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-                } else {
+                if ((timeDiff >= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) || Utils.isFirstGrowthMonitoringRecord(weightWrapper.getId())) {
                     //reset state
                     weightWrapper.setWeight(null);
                     weightWrapper.setDbKey(null);
@@ -1266,6 +1262,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
+                } else {
+                    //disable the button
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
                 }
             }
         }
@@ -1278,17 +1278,17 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (heightWrapper.getUpdatedHeightDate() != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - heightWrapper.getUpdatedHeightDate().getMillis();
 
-                if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
-                    //disable the button
-                    recordGrowth.setClickable(false);
-                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-                } else {
+                if ((timeDiff >= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) || Utils.isFirstGrowthMonitoringRecord(heightWrapper.getId())) {
                     //reset state
                     heightWrapper.setHeight(null);
                     heightWrapper.setDbKey(null);
                     recordGrowth.setClickable(true);
                     recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightCheck.setVisibility(View.GONE);
+                } else {
+                    //disable the button
+                    recordGrowth.setClickable(false);
+                    recordGrowth.setBackground(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
                 }
             }
         }
@@ -1344,7 +1344,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
     }
 
@@ -1358,7 +1358,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             is.close();
             fileContents = new String(buffer, CharEncoding.UTF_8);
         } catch (IOException ex) {
-            Log.e(TAG, ex.toString(), ex);
+            Timber.e(ex);
         }
 
         return fileContents;
@@ -1620,7 +1620,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
                         curGroup.getVaccineData(), vaccineList, alerts);
             } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Timber.e(e);
             }
         }
     }
@@ -1701,7 +1701,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 allWeights.add(weight);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
         return allWeights;
@@ -1739,7 +1739,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 allHeights.add(height);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
         return allHeights;

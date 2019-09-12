@@ -99,7 +99,12 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
         ImageView recordGrowthCheck = updateWrapper.getConvertView().findViewById(R.id.record_growth_check);
         recordGrowth.setVisibility(View.VISIBLE);
 
-        if (updateWrapper.getWeight() != null || updateWrapper.getHeight() != null) {
+        if ((updateWrapper.getWeight() == null || updateWrapper.getHeight() == null) || org.smartregister.child.util.Utils.isFirstGrowthMonitoringRecord(entityId)) {
+            recordGrowthText.setText(context.get().getString(R.string.record_growth_with_nl));
+            recordGrowthCheck.setVisibility(View.GONE);
+            recordGrowth.setClickable(true);
+
+        } else {
             String weightString = "";
             if (updateWrapper.getWeight() != null) {
                 weightString = Utils.kgStringSuffix(updateWrapper.getWeight().getKg());
@@ -121,10 +126,6 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, Void> {
             recordGrowthCheck.setVisibility(View.VISIBLE);
             recordGrowth.setClickable(false);
             recordGrowth.setBackground(new ColorDrawable(context.get().getResources().getColor(android.R.color.transparent)));
-        } else {
-            recordGrowthText.setText(context.get().getString(R.string.record_growth_with_nl));
-            recordGrowthCheck.setVisibility(View.GONE);
-            recordGrowth.setClickable(true);
         }
 
         // Update active/inactive/lostToFollowup status
