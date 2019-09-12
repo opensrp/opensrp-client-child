@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -457,7 +456,11 @@ TO DO ? , sync unsynced records within catchment
                 titleLabelView.setText(getString(R.string.search_results));
             }
 
-            updateMatchingResults(0);
+            // hide result count , should be dynamic
+            if (matchingResults != null) {
+                matchingResults.setVisibility(View.GONE);
+            }
+
             showProgressView();
             listMode = true;
         } else {
