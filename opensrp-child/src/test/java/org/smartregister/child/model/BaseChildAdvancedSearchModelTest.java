@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class BaseChildAdvancedSearchModelTest {
     @Mock
-    BaseChildAdvancedSearchModel baseChildAdvancedSearchModel;
+    private BaseChildAdvancedSearchModel baseChildAdvancedSearchModel;
 
     @Before
     public void setUp(){

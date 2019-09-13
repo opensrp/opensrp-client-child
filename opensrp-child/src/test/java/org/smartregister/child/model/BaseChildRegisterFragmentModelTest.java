@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.smartregister.configurableviews.model.Field;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 
@@ -22,10 +23,10 @@ import org.smartregister.domain.ResponseStatus;
 @PrepareForTest(Log.class)
 public class BaseChildRegisterFragmentModelTest {
     @Mock
-    BaseChildRegisterFragmentModel baseChildRegisterFragmentModel;
+    private BaseChildRegisterFragmentModel baseChildRegisterFragmentModel;
 
     @Mock
-    Response<String> response;
+    private Response<String> response;
 
     @Before
     public void setUp(){
@@ -60,12 +61,17 @@ public class BaseChildRegisterFragmentModelTest {
         baseChildRegisterFragmentModel = Mockito.spy(BaseChildRegisterFragmentModel.class);
 
         JSONObject jsonObject = new JSONObject().put("test","test");
+        JSONObject jsonObjectWithValueEmpty = new JSONObject().put("test","");
+
 
         //Json Object Null
         Assert.assertEquals(baseChildRegisterFragmentModel.getJsonString(null,null),"");
 
         //Json Object not null but has no field
         Assert.assertEquals(baseChildRegisterFragmentModel.getJsonString(jsonObject,"some"),"");
+
+        //Json Object not null but has field but string blank
+        Assert.assertEquals(baseChildRegisterFragmentModel.getJsonString(jsonObjectWithValueEmpty,"test"),"");
 
         //Json Object not null but has field
         Assert.assertEquals(baseChildRegisterFragmentModel.getJsonString(jsonObject,"test"), "test");
@@ -83,5 +89,43 @@ public class BaseChildRegisterFragmentModelTest {
         Assert.assertNotNull(baseChildRegisterFragmentModel.getJsonArray(response));
     }
 
+    @Test
+    public void testGetFilterTextWithListAndFilterTitleNull(){
+        String result = "<font color=#727272></font> <font color=#f0ab41>()</font>";
+        Mockito.when(baseChildRegisterFragmentModel.getFilterText(null, null))
+                .thenReturn(result);
+        Assert.assertEquals(baseChildRegisterFragmentModel.getFilterText(null, null), result);
+    }
+
+    @Test
+    public void testGetFilterTextWithListAndFilterTitleNonNull(){
+        String result = "<font color=#727272>test</font> <font color=#f0ab41>(0)</font>";
+        Mockito.when(baseChildRegisterFragmentModel.getFilterText(null, "test"))
+                .thenReturn(result);
+        Assert.assertEquals(baseChildRegisterFragmentModel.getFilterText(null, "test"), result);
+    }
+
+    @Test
+    public void testGetSortTextWithFieldNull() {
+        Assert.assertEquals(baseChildRegisterFragmentModel.getSortText(null),"");
+    }
+
+    @Test
+    public void testGetSortTextWithFieldNotNull(){
+        Field field = new Field();
+        Mockito.when(baseChildRegisterFragmentModel.getSortText(field)).thenReturn("");
+        Assert.assertEquals(baseChildRegisterFragmentModel.getSortText(field),"");
+
+        //With displayName
+        field.setDisplayName("test");
+        Mockito.when(baseChildRegisterFragmentModel.getSortText(field)).thenReturn("(Sort: " + field.getDisplayName() + ")");
+        Assert.assertEquals(baseChildRegisterFragmentModel.getSortText(field),"(Sort: " + field.getDisplayName() + ")");
+
+        //With alias
+        field.setDisplayName("");
+        field.setDbAlias("test");
+        Mockito.when(baseChildRegisterFragmentModel.getSortText(field)).thenReturn("(Sort: " + field.getDbAlias() + ")");
+        Assert.assertEquals(baseChildRegisterFragmentModel.getSortText(field),"(Sort: " + field.getDbAlias() + ")");
+    }
 
 }
