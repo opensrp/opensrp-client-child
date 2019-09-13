@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
@@ -171,7 +173,7 @@ public class Utils extends org.smartregister.util.Utils {
             if (vaccineRepository == null || vaccine == null) {
                 return;
             }
-
+            vaccine.setName(vaccine.getName().trim());
             // Add the vaccine
             vaccineRepository.add(vaccine);
 
@@ -182,18 +184,7 @@ public class Utils extends org.smartregister.util.Utils {
 
             // Update vaccines in the same group where either can be given
             // For example measles 1 / mr 1
-            name = VaccineRepository.removeHyphen(name);
-            String ftsVaccineName = null;
-
-            if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
-            } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
-            } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
-            } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
-            }
+            String ftsVaccineName = getCombinedVaccine(name);
 
             if (ftsVaccineName != null) {
                 ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
@@ -207,6 +198,26 @@ public class Utils extends org.smartregister.util.Utils {
             Timber.e(e);
         }
 
+    }
+
+    public static String getCombinedVaccine(String name){
+        String ftsVaccineName = null;
+        String vaccine_name = VaccineRepository.removeHyphen(name);
+
+        if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
+        } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
+        } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
+        } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
+        } else if (VaccineRepo.Vaccine.opv3.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.ipv.display();
+        } else if (VaccineRepo.Vaccine.ipv.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.opv3.display();
+        }
+        return ftsVaccineName;
     }
 
     public static Date getDateFromString(String date, String dateFormatPattern) {
