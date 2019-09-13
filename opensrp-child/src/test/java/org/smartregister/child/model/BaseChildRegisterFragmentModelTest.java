@@ -107,6 +107,7 @@ public class BaseChildRegisterFragmentModelTest {
 
     @Test
     public void testGetSortTextWithFieldNull() {
+        Mockito.when(baseChildRegisterFragmentModel.getSortText(null)).thenReturn("");
         Assert.assertEquals(baseChildRegisterFragmentModel.getSortText(null),"");
     }
 
