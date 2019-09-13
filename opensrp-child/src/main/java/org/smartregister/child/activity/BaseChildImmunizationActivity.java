@@ -119,6 +119,8 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
+import static org.smartregister.child.util.Utils.RECORD_WEIGHT_BUTTON_ACTIVE_MIN;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -133,7 +135,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static final HashMap<String, String> COMBINED_VACCINES_MAP;
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
-    private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
     private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
 

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
@@ -49,6 +50,8 @@ public class Utils extends org.smartregister.util.Utils {
     public static final ArrayList<String> ALLOWED_LEVELS;
     public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
     public static final String FACILITY = "Facility";
+    public static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
+
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -230,11 +233,17 @@ public class Utils extends org.smartregister.util.Utils {
         return getCohortEndDate(vaccineName, startDate);
 
     }
+
     public static boolean isFirstGrowthMonitoringRecord(String entityId){
         //using weight since its a required field in all registration forms
-        return GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(entityId).size() == 1;
+        return GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(entityId).size() == 1 && hasGrowthTimeLimitPassedDob(entityId);
     }
 
+    private static boolean hasGrowthTimeLimitPassedDob(String entityId){
+        long timediffBtwNowAndDob = new Date().getTime() - ChildLibrary.getInstance().eventClientRepository().fetchClientByBaseEntityId(entityId).getBirthdate().getMillis();
+        return timediffBtwNowAndDob
+                >= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS);
+    }
 
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
