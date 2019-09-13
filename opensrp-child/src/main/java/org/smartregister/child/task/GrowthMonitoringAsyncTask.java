@@ -35,7 +35,6 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
     private final String entityId;
     private final String lostToFollowUp;
     private final String inactive;
-    private Weight weight;
     private Height height;
     private SmartRegisterClient client;
     private WeightRepository weightRepository;
@@ -70,7 +69,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
     @Override
     protected GrowthMonitoringViewRecordUpdateWrapper doInBackground(Void... params) {
 
-        weight = weightRepository.findUnSyncedByEntityId(entityId);
+        Weight weight = weightRepository.findUnSyncedByEntityId(entityId);
 
         if (hasProperty && monitorGrowth) {
             height = heightRepository.findUnSyncedByEntityId(entityId);

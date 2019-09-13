@@ -32,11 +32,9 @@ import com.google.gson.Gson;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
@@ -1005,7 +1003,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
 
-        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine: vaccinesMapping) {
+        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccinesMapping) {
             if (vaccine.getType().equalsIgnoreCase("BCG")) {
                 Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
                 Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
@@ -1206,29 +1204,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
         recordWeightCheck.setVisibility(View.GONE);
 
-
         //Checking if the growth point is also a birth date point by comparing DOB. We wont allow edits for such
 
         if (weightWrapper != null) {
 
-            LocalDate dob = getLocalDateFromDateString(weightWrapper.getDob());
-            //     weightWrapper = weightWrapper.getUpdatedWeightDate() != null && new LocalDate(weightWrapper.getUpdatedWeightDate()).isEqual(dob) ? null : weightWrapper;
             updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         }
 
         if (hasProperty & monitorGrowth) {
-
-            LocalDate dob = getLocalDateFromDateString(heightWrapper.getDob());
-            //    heightWrapper = heightWrapper != null && heightWrapper.getUpdatedHeightDate() != null && new LocalDate(heightWrapper.getUpdatedHeightDate()).isEqual(dob) && dob.isEqual(new LocalDate()) ? null : heightWrapper;
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
         updateRecordWeightText(weightWrapper, heightWrapper);
         updateRecordGrowth(weightWrapper, heightWrapper, isActive);
 
-    }
-
-    private LocalDate getLocalDateFromDateString(String rawDob) {
-        return new LocalDate(rawDob.contains("T") ? rawDob.substring(0, rawDob.indexOf('T')) : rawDob);
     }
 
     private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
