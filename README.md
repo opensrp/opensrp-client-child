@@ -30,10 +30,10 @@ You can enable multi-language support for Group Names shown on the register for 
 
 You do this by adding a **lowercase & underscored(for spaces)** string-id eg.
 
-- **At Birth** - It's string resource id will be `at_birth`
+-   **At Birth** - It's string resource id will be `at_birth`
 
 For group names starting with a number, you do the same as above and then add an underscore before the first character eg.
 
-- **6 Weeks** - It's string resource id will be `_6_weeks`
-- **10 Weeks** - It's string resource id will be `_10_weeks`
-- **1 Year after  TT 4** It's string resource id will be `_1_year_after_tt_4`
+-   **6 Weeks** - It's string resource id will be `_6_weeks`
+-   **10 Weeks** - It's string resource id will be `_10_weeks`
+-   **1 Year after  TT 4** It's string resource id will be `_1_year_after_tt_4`
