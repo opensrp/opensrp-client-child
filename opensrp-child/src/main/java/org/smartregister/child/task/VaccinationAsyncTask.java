@@ -421,29 +421,23 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
 
-            Integer weeks = org.smartregister.child.util.Utils.getWeeksDue(dueDate);
-            recordVaccinationText.setText(getAlertMessage(state, groupName, weeks));
+            recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
-            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts) {
+            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts && !(lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) < MILLIS_PER_DAY)) {
 
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationHarveyBall.setImageResource(R.drawable.ic_harvey_75);
                 recordVaccinationHarveyBall.setVisibility(View.VISIBLE);
 
-                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
-                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
-                recordVaccinationText.setText(getAlertMessage(State.UPCOMING_NEXT_7_DAYS, groupName, null));
-                recordVaccinationText.setAllCaps(false);
 
             }
         } else if (state.equals(State.OVERDUE)) {
 
-            Integer weeks = org.smartregister.child.util.Utils.getWeeksDue(dueDate);
-            recordVaccinationText.setText(getAlertMessage(state, groupName, weeks));
+            recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
@@ -456,7 +450,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
                 String alertStateKey = !TextUtils.isEmpty(previousStateKey) ? previousStateKey : groupName;
 
-                recordVaccinationText.setText(getAlertMessage(state, alertStateKey, null));
+                recordVaccinationText.setText(getAlertMessage(state, alertStateKey));
 
                 if (isLegacyAlerts) {
                     recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
@@ -640,17 +634,17 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         FULLY_IMMUNIZED
     }
 
-    protected String getAlertMessage(State state, String stateKey, Integer period) {
+    protected String getAlertMessage(State state, String stateKey) {
 
         String message;
         switch (state) {
             case DUE:
-                String due = period != null ? context.getString(R.string.n_weeks_due, period) : context.getString(R.string.due);
+                String due = stateKey != null ? context.getString(R.string.n_period_due, localizeStateKey(stateKey)) : context.getString(R.string.due);
                 message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : due;
                 break;
 
             case OVERDUE:
-                String overdue = period != null ? context.getString(R.string.n_weeks_overdue, period) : context.getString(R.string.due);
+                String overdue = stateKey != null ? context.getString(R.string.n_period_overdue, localizeStateKey(stateKey)) : context.getString(R.string.overdue);
                 message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : overdue;
                 break;
 
