@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,6 +118,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -148,6 +149,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         COMBINED_VACCINES_MAP.put("Measles 2", "Measles 2 / MR 2");
         COMBINED_VACCINES.add("MR 2");
         COMBINED_VACCINES_MAP.put("MR 2", "Measles 2 / MR 2");
+        COMBINED_VACCINES.add("OPV 3");
+        COMBINED_VACCINES_MAP.put("OPV 3", "OPV 3 / IPV");
+        COMBINED_VACCINES.add("IPV");
+        COMBINED_VACCINES_MAP.put("IPV", "OPV 3 / IPV");
     }
 
     private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
@@ -579,7 +584,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     serviceGroup.setChildActive(isChildActive);
                     serviceGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         }
@@ -818,7 +823,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 try {
                     addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         } else {
@@ -827,7 +832,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     vaccineGroup.setChildActive(isChildActive);
                     vaccineGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Timber.e(e);
                 }
             }
         }
@@ -1344,7 +1349,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
     }
 
@@ -1358,7 +1363,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             is.close();
             fileContents = new String(buffer, CharEncoding.UTF_8);
         } catch (IOException ex) {
-            Log.e(TAG, ex.toString(), ex);
+            Timber.e(ex);
         }
 
         return fileContents;
@@ -1578,8 +1583,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     ArrayList<VaccineWrapper> groupWrappers = curGroup.getAllVaccineWrappers();
                     if (groupWrappers == null) groupWrappers = new ArrayList<>();
                     for (VaccineWrapper curWrapper : groupWrappers) {
-                        String curWrapperName = curWrapper.getName();
-
+                        String curWrapperName = curWrapper.getName().trim();
                         // Check if current wrapper is one of the combined vaccines
                         if (COMBINED_VACCINES.contains(curWrapperName)) {
                             // Check if any of the sister vaccines is currAffectedVaccineName
@@ -1620,7 +1624,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
                         curGroup.getVaccineData(), vaccineList, alerts);
             } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Timber.e(e);
             }
         }
     }
@@ -1701,7 +1705,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 allWeights.add(weight);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
         return allWeights;
@@ -1739,7 +1743,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 allHeights.add(height);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
         return allHeights;
