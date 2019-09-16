@@ -149,10 +149,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         COMBINED_VACCINES_MAP.put("Measles 2", "Measles 2 / MR 2");
         COMBINED_VACCINES.add("MR 2");
         COMBINED_VACCINES_MAP.put("MR 2", "Measles 2 / MR 2");
-        COMBINED_VACCINES.add("OPV 3");
-        COMBINED_VACCINES_MAP.put("OPV 3", "OPV 3 / IPV");
-        COMBINED_VACCINES.add("IPV");
-        COMBINED_VACCINES_MAP.put("IPV", "OPV 3 / IPV");
     }
 
     private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
