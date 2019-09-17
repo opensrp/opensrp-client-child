@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class, VaccineRepo.class})
-public class UtilsTest{
+public class UtilsTest {
     @Mock
     private SQLiteDatabase sqLiteDatabase;
 
@@ -30,17 +30,17 @@ public class UtilsTest{
     private VaccineRepository vaccineRepository;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         Assert.assertNotNull(sqLiteDatabase);
         sqLiteDatabase = Mockito.mock(SQLiteDatabase.class);
     }
 
     @Test
-    public void getCombinedVaccineWithNonNullArgument() throws Exception{
+    public void getCombinedVaccineWithNonNullArgument() throws Exception {
         PowerMockito.spy(Utils.class);
-        PowerMockito.doReturn("any").when(Utils.class, "getCombinedVaccine", "something");
-        PowerMockito.doCallRealMethod().when(Utils.class,"getCombinedVaccine", anyString());
+        PowerMockito.doReturn("any").when(Utils.class, "getCombinedVaccine", "something"); 
+        PowerMockito.doCallRealMethod().when(Utils.class, "getCombinedVaccine", anyString()); 
         Assert.assertEquals(Utils.getCombinedVaccine("mr 1"), VaccineRepo.Vaccine.measles1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("measles 1"), VaccineRepo.Vaccine.mr1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("mr 2"), VaccineRepo.Vaccine.measles2.display());
@@ -118,5 +118,17 @@ public class UtilsTest{
 
         Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
         Assert.assertNull(vaccineArgumentCaptor.getValue().getName());
+    }
+
+
+    @Test
+    public void testReverseHyphenatedStringReturnsCorrectValueForHyphenatedParameter() {
+
+        String testString = "20-05-2012";
+
+        String answer = Utils.reverseHyphenatedString(testString);
+
+        Assert.assertEquals("2012-05-20", answer);
+
     }
 }
