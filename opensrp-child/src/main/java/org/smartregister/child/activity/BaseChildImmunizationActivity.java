@@ -540,11 +540,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public void finish() {
         if (isLastModified()) {
             String tableName = Utils.metadata().childRegister.tableName;
-            AllCommonsRepository allCommonsRepository = getOpenSRPContext().allCommonsRepositoryobjects(tableName);
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, (new Date()).getTime());
-            allCommonsRepository.update(tableName, contentValues, childDetails.entityId());
-            allCommonsRepository.updateSearch(childDetails.entityId());
+            Utils.updateLastInteractionWith(childDetails.entityId(), tableName);
         }
         super.finish();
     }

@@ -688,6 +688,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             dobUnknownUpdateFromAge(fields);
 
+            JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
+
+            String date = dobUnknownObject.getString(Constants.KEY.VALUE);
+            dobUnknownObject.put(Constants.KEY.VALUE, Utils.reverseHyphenatedString(date) + " 12:00:00");
+
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
 

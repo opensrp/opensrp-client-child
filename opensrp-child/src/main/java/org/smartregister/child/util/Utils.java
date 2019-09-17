@@ -1,15 +1,16 @@
 package org.smartregister.child.util;
 
+import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
@@ -22,6 +23,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -199,7 +201,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
-    public static String getCombinedVaccine(String name){
+    public static String getCombinedVaccine(String name) {
         String ftsVaccineName = null;
         String vaccine_name = VaccineRepository.removeHyphen(name);
 
@@ -446,5 +448,25 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         return childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
+    }
+
+    public static void updateLastInteractionWith(String baseEntityId, String tableName) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+        updateLastInteractionWith(baseEntityId, tableName, contentValues);
+    }
+
+    public static void updateLastInteractionWith(String baseEntityId, String tableName, ContentValues contentValues) {
+        AllCommonsRepository allCommonsRepository = ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName);
+        allCommonsRepository.update(tableName, contentValues, baseEntityId);
+        allCommonsRepository.updateSearch(baseEntityId);
+    }
+
+    public static String reverseHyphenatedString(String date) {
+
+        String[] dateArray = date.split("-");
+        ArrayUtils.reverse(dateArray);
+
+        return StringUtils.join(dateArray, "-");
     }
 }
