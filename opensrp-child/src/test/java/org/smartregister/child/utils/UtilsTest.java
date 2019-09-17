@@ -39,8 +39,8 @@ public class UtilsTest {
     @Test
     public void getCombinedVaccineWithNonNullArgument() throws Exception {
         PowerMockito.spy(Utils.class);
-        PowerMockito.doReturn("any").when(Utils.class, "getCombinedVaccine", "something");
-        PowerMockito.doCallRealMethod().when(Utils.class, "getCombinedVaccine", anyString());
+        PowerMockito.doReturn("any").when(Utils.class, "getCombinedVaccine", "something"); 
+        PowerMockito.doCallRealMethod().when(Utils.class, "getCombinedVaccine", anyString()); 
         Assert.assertEquals(Utils.getCombinedVaccine("mr 1"), VaccineRepo.Vaccine.measles1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("measles 1"), VaccineRepo.Vaccine.mr1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("mr 2"), VaccineRepo.Vaccine.measles2.display());
