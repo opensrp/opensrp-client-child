@@ -485,7 +485,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    @NotNull
+    @NonNull
     private String getGroupName(VaccineRepo.Vaccine vaccine) {
         if (vaccine != null) {
             HashMap<String, String> vaccineGroupings = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
@@ -499,7 +499,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         return "";
     }
 
-    @NotNull
+    @NonNull
     private VaccinationAsyncTask.State getUpcomingState(DateTime dueDate) {
 
         State state;

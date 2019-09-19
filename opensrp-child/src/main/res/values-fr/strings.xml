@@ -308,16 +308,12 @@
     <string name="refreshing">Rafraîchissante&#8230;</string>
 
     <string name="at_birth">à la naissance</string>
-    <string name="six_weeks">6 semaines</string>
-    <string name="ten_weeks">10 semaines</string>
-    <string name="fourteen_weeks">14 semaines</string>
-    <string name="nine_months">9 mois</string>
-    <string name="five_months">5 mois</string>
-    <string name="six_months">6 mois</string>
-    <string name="seven_months">7 mois</string>
-    <string name="fifteen_months">15 mois</string>
-    <string name="eighteen_months">18 mois</string>
-    <string name="twenty_two_months">22 mois</string>
+    <string name="_6_weeks">6 semaines</string>
+    <string name="_10_weeks">10 semaines</string>
+    <string name="_14_weeks">14 semaines</string>
+    <string name="_9_months">9 mois</string>
+    <string name="_5_months">5 mois</string>
+    <string name="_6_months">6 mois</string>
     <string name="after_lmp">Après LMP</string>
     <string name="after_tt1">4 semaines après le TT 1</string>
     <string name="after_tt2">26 semaines après le TT 2</string>
