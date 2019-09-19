@@ -1,6 +1,7 @@
 package org.smartregister.child.interactor;
 
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.CoreLibrary;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContract.Interactor {
 
-    public static final String SEARCH_URL = "/rest/search/search";
+    public static final String SEARCH_URL = "/rest/search/path";
     private AppExecutors appExecutors;
     private HTTPAgent httpAgent;
     private DristhiConfiguration dristhiConfiguration;
@@ -74,8 +75,9 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             }
 
         }
-        String uri = baseUrl + "/rest/search/path" + paramString;
+        String uri = baseUrl + SEARCH_URL + paramString;
 
+        Log.d(ChildAdvancedSearchInteractor.class.getCanonicalName(), uri);
         return getHttpAgent().fetch(uri);
     }
 

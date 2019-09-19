@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -401,16 +400,6 @@ TO DO ? , sync unsynced records within catchment
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
             scanCardButton.setVisibility(View.VISIBLE);//should be visible
 
-            //If QR code button not visible send to right
-            if (qrCodeButton.getVisibility() == View.GONE) {
-
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) scanCardButton.getLayoutParams();
-                params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                params.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                scanCardButton.setLayoutParams(params);
-            }
-
-
             ((View) view.findViewById(R.id.card_id).getParent()).setVisibility(View.VISIBLE);
         }
     }
@@ -467,7 +456,11 @@ TO DO ? , sync unsynced records within catchment
                 titleLabelView.setText(getString(R.string.search_results));
             }
 
-            updateMatchingResults(0);
+            // hide result count , should be dynamic
+            if (matchingResults != null) {
+                matchingResults.setVisibility(View.GONE);
+            }
+
             showProgressView();
             listMode = true;
         } else {

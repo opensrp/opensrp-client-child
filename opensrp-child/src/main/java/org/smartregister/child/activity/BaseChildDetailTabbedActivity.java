@@ -77,9 +77,11 @@ import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.ImageUtils;
+import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
+import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
@@ -138,13 +140,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private ImageView profileImageIV;
     private boolean hasProperty;
     private boolean monitorGrowth = false;
-
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
+    private List<ServiceHolder> editServicesList = new ArrayList<>();
+    private List<ServiceHolder> removeServicesList = new ArrayList<>();
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
-    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList,
-                                         List<Alert> alertList) {
+    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
         boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
@@ -288,6 +290,23 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected void processEditedServices() {
 
+        //Services
+        for (ServiceHolder serviceHolder : editServicesList) {
+
+            saveService(serviceHolder.wrapper, serviceHolder.view);
+
+        }
+        editServicesList.clear();
+
+        //REmove service
+        for (ServiceHolder serviceHolder : removeServicesList) {
+
+            undoService(serviceHolder.wrapper, serviceHolder.view);
+
+        }
+        removeServicesList.clear();
+
+        //Vaccinations
         for (VaccineWrapper vaccineWrapper : editImmunizationCacheMap) {
             saveVaccine(vaccineWrapper);
         }
@@ -1015,20 +1034,74 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void onGiveToday(ServiceWrapper serviceWrapper, View view) {
         if (serviceWrapper != null) {
-            saveService(serviceWrapper, view);
+
+            final ServiceRowGroup serviceRowGroup = (ServiceRowGroup) view;
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+
+                serviceRowGroup.setServiceRecordList(serviceRowGroup.getServiceRecordList());
+                serviceRowGroup.updateWrapperStatus(serviceWrapper);
+
+                ArrayList<ServiceWrapper> arrayList = new ArrayList();
+                arrayList.add(serviceWrapper);
+                serviceRowGroup.updateViews(arrayList);
+
+            }
+
+            editServicesList.add(new ServiceHolder(serviceWrapper, view));
         }
     }
 
     @Override
     public void onGiveEarlier(ServiceWrapper serviceWrapper, View view) {
         if (serviceWrapper != null) {
-            saveService(serviceWrapper, view);
+
+            final ServiceRowGroup serviceRowGroup = (ServiceRowGroup) view;
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+
+                serviceRowGroup.setServiceRecordList(serviceRowGroup.getServiceRecordList());
+                serviceRowGroup.updateWrapperStatus(serviceWrapper);
+
+                ArrayList<ServiceWrapper> arrayList = new ArrayList();
+                arrayList.add(serviceWrapper);
+                serviceRowGroup.updateViews(arrayList);
+
+            }
+
+            editServicesList.add(new ServiceHolder(serviceWrapper, view));
         }
     }
 
     @Override
     public void onUndoService(ServiceWrapper serviceWrapper, View view) {
+
+        if (serviceWrapper != null) {
+
+            //Create delete clone
+            ServiceWrapper serviceWrapperClone = new ServiceWrapper();
+
+            serviceWrapperClone.setId(serviceWrapper.getId());
+            serviceWrapperClone.setDbKey(serviceWrapper.getDbKey());
+            serviceWrapperClone.setServiceType(serviceWrapper.getServiceType());
+
+            final ServiceRowGroup serviceRowGroup = (ServiceRowGroup) view;
+
+            ArrayList wrappers = new ArrayList<>();
+            wrappers.add(serviceWrapper);
+
+            serviceWrapper.setUpdatedVaccineDate(null, false);
+            serviceWrapper.setDbKey(null);
+
+            RecurringServiceUtils.updateServiceGroupViews(view, wrappers, serviceRowGroup.getServiceRecordList(), serviceRowGroup.getAlertList(), true);
+
+            removeServicesList.add(new ServiceHolder(serviceWrapperClone, view));
+        }
+
+    }
+
+    private void undoService(ServiceWrapper serviceWrapper, View view) {
+
         Utils.startAsyncTask(new UndoServiceTask(serviceWrapper, view, this, childDetails), null);
+
     }
 
     private void saveService(ServiceWrapper serviceWrapper, final View view) {
@@ -1087,5 +1160,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public ChildUnderFiveFragment getChildUnderFiveFragment() {
         return childUnderFiveFragment;
+    }
+
+    public class ServiceHolder {
+        public View view;
+        public ServiceWrapper wrapper;
+
+        public ServiceHolder(ServiceWrapper wrapper, View view) {
+            this.view = view;
+            this.wrapper = wrapper;
+        }
     }
 }

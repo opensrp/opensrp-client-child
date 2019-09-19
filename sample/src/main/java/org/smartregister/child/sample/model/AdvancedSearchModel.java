@@ -40,7 +40,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
     @Override
     protected String[] mainColumns(String tableName, String parentTableName) {
         {
-            String[] columns = new String[] {
+            String[] columns = new String[]{
 
                     tableName + "." + DBConstants.KEY.RELATIONALID,
                     tableName + "." + DBConstants.KEY.DETAILS,
@@ -66,6 +66,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                     tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                     tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                     tableName + "." + DBConstants.KEY.INACTIVE,
+                    tableName + "." + DBConstants.KEY.LOST_TO_FOLLOW_UP,
             };
             return columns;
         }
@@ -100,29 +101,10 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                     JSONObject lhsChild = getJsonObject(lhs, "child");
                     JSONObject rhsChild = getJsonObject(rhs, "child");
 
-                    String lhsInactive = getJsonString(getJsonObject(lhsChild, "attributes"), "inactive");
-                    String rhsInactive = getJsonString(getJsonObject(rhsChild, "attributes"), "inactive");
+                    String lhsZeirId = getJsonString(getJsonObject(lhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
+                    String rhsZeirId = getJsonString(getJsonObject(rhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
 
-                    int aComp = 0;
-                    if (lhsInactive.equalsIgnoreCase(Boolean.TRUE.toString()) && !rhsInactive.equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        aComp = 1;
-                    } else if (!lhsInactive.equalsIgnoreCase(Boolean.TRUE.toString()) && rhsInactive.equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        aComp = -1;
-                    }
-
-                    if (aComp != 0) {
-                        return aComp;
-                    } else {
-                        String lhsLostToFollowUp = getJsonString(getJsonObject(lhsChild, "attributes"), "lost_to_follow_up");
-                        String rhsLostToFollowUp = getJsonString(getJsonObject(rhsChild, "attributes"), "lost_to_follow_up");
-                        if (lhsLostToFollowUp.equalsIgnoreCase(Boolean.TRUE.toString()) && !rhsLostToFollowUp.equalsIgnoreCase(Boolean.TRUE.toString())) {
-                            return 1;
-                        } else if (!lhsLostToFollowUp.equalsIgnoreCase(Boolean.TRUE.toString()) && rhsLostToFollowUp.equalsIgnoreCase(Boolean.TRUE.toString())) {
-                            return -1;
-                        }
-                    }
-
-                    return 0;
+                    return lhsZeirId.compareTo(rhsZeirId);
 
                 }
             });
@@ -169,7 +151,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                         }
                     }
 
-                    zeirId = getJsonString(getJsonObject(child, "identifiers"), JsonFormUtils.ZEIR_ID);
+                    zeirId = getJsonString(getJsonObject(child, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
                     if (StringUtils.isNotBlank(zeirId)) {
                         zeirId = zeirId.replace("-", "");
                     }

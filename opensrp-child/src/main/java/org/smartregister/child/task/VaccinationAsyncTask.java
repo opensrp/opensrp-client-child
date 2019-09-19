@@ -14,7 +14,6 @@ import android.widget.Toast;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.GroupVaccineCount;
@@ -47,6 +46,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -334,10 +334,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         TextView nextAppointmentDate = convertView.findViewById(R.id.child_next_appointment);
 
         if (nextAppointmentDate != null) {
-            SimpleDateFormat UI_DF =
-                    new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-                            CoreLibrary.getInstance().context().applicationContext().getResources()
-                                    .getConfiguration().locale);
+            SimpleDateFormat UI_DF = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
 
             if (dueDate != null) {
                 String nextAppointment = UI_DF.format(dueDate.toDate());
@@ -422,7 +419,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
-            recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
+            //recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
+            recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
 
@@ -432,16 +430,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setEnabled(true);
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
-            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts) {
+            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts && !(lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) < MILLIS_PER_DAY)) {
 
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationHarveyBall.setImageResource(R.drawable.ic_harvey_75);
                 recordVaccinationHarveyBall.setVisibility(View.VISIBLE);
 
-                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
-                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
-                recordVaccinationText.setText(getAlertMessage(State.UPCOMING_NEXT_7_DAYS, groupName));
-                recordVaccinationText.setAllCaps(false);
 
             }
         } else if (state.equals(State.OVERDUE)) {
@@ -597,11 +591,13 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String message;
         switch (state) {
             case DUE:
-                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : context.getString(R.string.due);
+                String due = stateKey != null ? context.getString(R.string.n_period_due, localizeStateKey(stateKey)) : context.getString(R.string.due);
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : due;
                 break;
 
             case OVERDUE:
-                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : context.getString(R.string.overdue);
+                String overdue = stateKey != null ? context.getString(R.string.n_period_overdue, localizeStateKey(stateKey)) : context.getString(R.string.overdue);
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : overdue;
                 break;
 
             case NO_ALERT:

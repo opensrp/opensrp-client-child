@@ -45,6 +45,7 @@ public class ChildRegisterFragmentModel extends BaseChildRegisterFragmentModel {
                 tableName + "." + DBConstants.KEY.CLIENT_REG_DATE,
                 tableName + "." + DBConstants.KEY.LAST_INTERACTED_WITH,
                 tableName + "." + DBConstants.KEY.INACTIVE,
+                tableName + "." + DBConstants.KEY.LOST_TO_FOLLOW_UP,
         };
         return columns;
     }

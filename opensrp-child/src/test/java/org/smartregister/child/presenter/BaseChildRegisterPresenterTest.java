@@ -55,6 +55,18 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
     }
 
     @Test
+    public void testUnRegisterViewConfigurationsInvokesModelMethodWithCorrectParameters() {
+        List<String> viewIds = new ArrayList<>();
+        viewIds.add("123");
+        viewIds.add("456");
+
+        baseChildRegisterPresenter.unregisterViewConfiguration(viewIds);
+
+        Mockito.verify(model).unregisterViewConfiguration(viewIds);
+
+    }
+
+    @Test
     public void testSetInteractorFunctionsCorrectly() {
 
         ChildRegisterContract.Interactor interactor = new ChildRegisterInteractor();
