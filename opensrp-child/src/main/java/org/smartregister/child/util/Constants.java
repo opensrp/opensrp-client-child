@@ -25,8 +25,6 @@ public class Constants extends AllConstants {
     public static final String VALUE = "value";
     public static final String WEIGHT_KG = "Weight_Kg";
     public static final String DATE_BIRTH = "Date_Birth";
-    public static final String BIRTH_WEIGHT = "Birth_Weight";
-    public static final String BIRTH_HEIGHT = "Birth_Height";
     public static final String SEX = "Sex";
     public static final String DATE_REACTION = "Date_Reaction";
     public static final String ENTITY_ID = "entityId";
@@ -48,6 +46,7 @@ public class Constants extends AllConstants {
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String DOB = "dob";
+        public static final String DATE_BIRTH = "Date_Birth";
         public static final String DOB_UNKNOWN = "dob_unknown";
         public static final String AGE = "age";
 

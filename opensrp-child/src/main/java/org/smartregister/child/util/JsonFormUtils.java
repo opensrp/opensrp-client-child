@@ -74,6 +74,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -95,12 +96,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String ZEIR_ID = "ZEIR_ID";
     public static final String updateBirthRegistrationDetailsEncounter = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
-    public static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
     public static final String GENDER = "gender";
     private static final String ENCOUNTER = "encounter";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
-    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
     public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
             throws Exception {
@@ -687,6 +687,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             lastInteractedWith(fields);
 
             dobUnknownUpdateFromAge(fields);
+
+            JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
+
+            String date = dobUnknownObject.getString(Constants.KEY.VALUE);
+            dobUnknownObject.put(Constants.KEY.VALUE, Utils.reverseHyphenatedString(date) + " 12:00:00");
 
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama

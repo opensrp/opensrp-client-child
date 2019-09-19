@@ -34,7 +34,6 @@
 
         <activity
             android:name=".activity.ChildImmunizationActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/ChildTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
