@@ -14,8 +14,8 @@ import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.task.LoadAsyncTask;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_VACCINE, detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_VACCINE, detailsMap, getChildDetails(), this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -70,7 +70,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_SERVICE,  detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_SERVICE, detailsMap, getChildDetails(), this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -82,12 +82,17 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                     viewPager.setCurrentItem(1);
                 }
                 Utils.startAsyncTask(
-                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_GROWTH,  detailsMap, getChildDetails(),this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
+                        new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_GROWTH, detailsMap, getChildDetails(), this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
+
+
+               /*  Disable hide menu items feature for Weight
+
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
-                }
+                }*/
+
                 return true;
 
             case R.id.report_deceased:

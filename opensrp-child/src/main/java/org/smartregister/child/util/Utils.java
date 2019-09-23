@@ -1,23 +1,29 @@
 package org.smartregister.child.util;
 
+import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Weeks;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -38,6 +44,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -166,7 +174,7 @@ public class Utils extends org.smartregister.util.Utils {
             if (vaccineRepository == null || vaccine == null) {
                 return;
             }
-
+            vaccine.setName(vaccine.getName().trim());
             // Add the vaccine
             vaccineRepository.add(vaccine);
 
@@ -177,18 +185,7 @@ public class Utils extends org.smartregister.util.Utils {
 
             // Update vaccines in the same group where either can be given
             // For example measles 1 / mr 1
-            name = VaccineRepository.removeHyphen(name);
-            String ftsVaccineName = null;
-
-            if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
-            } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
-            } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
-            } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(name)) {
-                ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
-            }
+            String ftsVaccineName = getCombinedVaccine(name);
 
             if (ftsVaccineName != null) {
                 ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
@@ -199,9 +196,26 @@ public class Utils extends org.smartregister.util.Utils {
             }
 
         } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(e);
         }
 
+    }
+
+    public static String getCombinedVaccine(String name) {
+        String ftsVaccineName = null;
+        String vaccine_name = VaccineRepository.removeHyphen(name);
+
+        if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
+        } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
+        } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
+        } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(vaccine_name)) {
+            ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
+        }
+
+        return ftsVaccineName;
     }
 
     public static Date getDateFromString(String date, String dateFormatPattern) {
@@ -209,7 +223,7 @@ public class Utils extends org.smartregister.util.Utils {
             SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
             return dateFormat.parse(date);
         } catch (ParseException e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage());
+            Timber.e(e);
             return null;
         }
     }
@@ -289,8 +303,7 @@ public class Utils extends org.smartregister.util.Utils {
         return formatter.format(date);
     }
 
-    public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String dobString,
-                                    String syncStatus) {
+    public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String syncStatus) {
 
         Weight weight = new Weight();
         if (weightWrapper.getDbKey() != null) {
@@ -310,7 +323,7 @@ public class Utils extends org.smartregister.util.Utils {
             gender = Gender.MALE;
         }
 
-        Date dob = Utils.dobStringToDate(dobString);
+        Date dob = Utils.dobStringToDate(weightWrapper.getDob());
 
         if (dob != null && gender != Gender.UNKNOWN) {
             weightRepository.add(dob, gender, weight);
@@ -321,8 +334,7 @@ public class Utils extends org.smartregister.util.Utils {
         weightWrapper.setDbKey(weight.getId());
     }
 
-    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String dobString,
-                                    String syncStatus) {
+    public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String syncStatus) {
         if (heightWrapper != null && heightWrapper.getHeight() != null && heightWrapper.getId() != null) {
             Height height = new Height();
             if (heightWrapper.getDbKey() != null) {
@@ -342,7 +354,7 @@ public class Utils extends org.smartregister.util.Utils {
                 gender = Gender.MALE;
             }
 
-            Date dob = Utils.dobStringToDate(dobString);
+            Date dob = Utils.dobStringToDate(heightWrapper.getDob());
 
             if (dob != null && gender != Gender.UNKNOWN) {
                 heightRepository.add(dob, gender, height);
@@ -385,7 +397,7 @@ public class Utils extends org.smartregister.util.Utils {
                 }
             }
         } catch (Exception e) {
-            Log.e(Utils.class.getCanonicalName(), e.getMessage(), e);
+            Timber.e(e);
         }
 
         return clean;
@@ -418,5 +430,40 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String bold(String textToBold) {
         return "<b>" + textToBold + "</b>";
+    }
+
+    public static Integer getWeeksDue(DateTime dueDate) {
+
+        return dueDate != null ? Math.abs(Weeks.weeksBetween(new DateTime(), dueDate).getWeeks()) : null;
+    }
+
+    public static String getChildBirthDate(JSONObject jsonObject) throws JSONException {
+        String childBirthDate = "";
+
+        if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {
+            childBirthDate = jsonObject.getString(FormEntityConstants.Person.birthdate.toString());
+        }
+
+        return childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
+    }
+
+    public static void updateLastInteractionWith(String baseEntityId, String tableName) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+        updateLastInteractionWith(baseEntityId, tableName, contentValues);
+    }
+
+    public static void updateLastInteractionWith(String baseEntityId, String tableName, ContentValues contentValues) {
+        AllCommonsRepository allCommonsRepository = ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName);
+        allCommonsRepository.update(tableName, contentValues, baseEntityId);
+        allCommonsRepository.updateSearch(baseEntityId);
+    }
+
+    public static String reverseHyphenatedString(String date) {
+
+        String[] dateArray = date.split("-");
+        ArrayUtils.reverse(dateArray);
+
+        return StringUtils.join(dateArray, "-");
     }
 }

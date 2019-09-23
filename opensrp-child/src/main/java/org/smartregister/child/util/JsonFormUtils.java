@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,6 +74,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -93,12 +96,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String ZEIR_ID = "ZEIR_ID";
     public static final String updateBirthRegistrationDetailsEncounter = "Update Birth Registration";
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
-    public static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
     public static final String GENDER = "gender";
     private static final String ENCOUNTER = "encounter";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
-    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
     public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
             throws Exception {
@@ -613,13 +615,30 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
         event.setLocationId(locationId(allSharedPreferences));
-        event.setChildLocationId(allSharedPreferences.fetchCurrentLocality());
+
+        String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
+        event.setChildLocationId(childLocationId);
+
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
         return event;
+    }
+
+    @Nullable
+    public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
+        String currentLocality = allSharedPreferences.fetchCurrentLocality();
+
+        if (currentLocality != null) {
+            String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+            if (currentLocalityId != null && !defaultLocationId.equals(currentLocalityId)) {
+                return currentLocalityId;
+            }
+        }
+
+        return null;
     }
 
     public static void updateDateOfRemoval(String baseEntityId, String dateOfRemovalString) {
@@ -635,7 +654,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    protected static String locationId(AllSharedPreferences allSharedPreferences) {
+    public static String locationId(AllSharedPreferences allSharedPreferences) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
         if (StringUtils.isBlank(userLocationId)) {
@@ -668,6 +687,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             lastInteractedWith(fields);
 
             dobUnknownUpdateFromAge(fields);
+
+            JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
+
+            String date = dobUnknownObject.getString(Constants.KEY.VALUE);
+            dobUnknownObject.put(Constants.KEY.VALUE, Utils.reverseHyphenatedString(date) + " 12:00:00");
 
             Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama

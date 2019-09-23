@@ -48,8 +48,7 @@ public class UndoServiceTask extends AsyncTask<Void, Void, Void> {
             wrappers = new ArrayList<>();
             wrappers.add(serviceWrapper);
 
-            ServiceSchedule
-                    .updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+            ServiceSchedule.updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
             AlertService alertService = getOpenSRPContext().alertService();
             alertList = alertService.findByEntityId(childDetails.entityId());

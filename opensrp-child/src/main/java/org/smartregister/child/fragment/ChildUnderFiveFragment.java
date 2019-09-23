@@ -59,8 +59,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.smartregister.child.util.Utils.updateGrowthValue;
-
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -139,8 +137,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
         List<Weight> weightList = getWeights(weights);
-        LinkedHashMap<Long, Pair<String, String>> weightMap =
-                updateWeightMap(editMode, weightEditMode, listeners, weightList);
+        LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners, weightList);
         if (weightMap.size() > 0) {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
@@ -158,9 +155,7 @@ public class ChildUnderFiveFragment extends Fragment {
         ((NestedScrollView) ((View) fragmentContainer.getParent()).findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
     }
 
-    private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode,
-                                                                      ArrayList<View.OnClickListener> listeners,
-                                                                      List<Weight> weightList) {
+    private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode, ArrayList<View.OnClickListener> listeners, List<Weight> weightList) {
         LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
         for (int i = 0; i < weightList.size(); i++) {
             Weight weight = weightList.get(i);
@@ -170,7 +165,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 String birthDate = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
                 Date birth = Utils.dobStringToDate(birthDate);
                 if (birth != null) {
-                    long timeDiff = weightDate.getTime() - birth.getTime();
+                    long timeDiff = Math.abs(weightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff);
@@ -179,31 +174,21 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
             }
 
-            if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(
-                        org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
+            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
-                boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
-                weightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
+            boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
+            weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
-                final long weightTaken = weight.getId();
-                View.OnClickListener onClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showGrowthMonitoringDialog((int) weightTaken);
-                    }
-                };
-                listeners.add(onClickListener);
-            }
-
+            final long weightTaken = weight.getId();
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showGrowthMonitoringDialog((int) weightTaken);
+                }
+            };
+            listeners.add(onClickListener);
         }
 
-        if (weightMap.size() < 5) {
-            weightMap.put(0L, Pair.create(DateUtil.getDuration(0),
-                    updateGrowthValue(Utils.getValue(detailsMap, Constants.KEY.BIRTH_WEIGHT, true)) + " kg"));
-            weightEditMode.add(false);
-            listeners.add(null);
-        }
 
         return weightMap;
     }
@@ -219,7 +204,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 Date heightDate = height.getDate();
                 Date birth = getBirthDate();
                 if (birth != null) {
-                    long timeDiff = heightDate.getTime() - birth.getTime();
+                    long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff);
@@ -228,29 +213,21 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
             }
 
-            if (!formattedAge.equalsIgnoreCase("0d")) {
-                heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
+            heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
 
-                boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
-                heightEditMode.add(lessThanThreeMonthsEventCreated && editMode);
+            boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
+            heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
-                final long heightTaken = height.getId();
-                View.OnClickListener onClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showGrowthMonitoringDialog((int) heightTaken);
-                    }
-                };
-                listeners.add(onClickListener);
-            }
+            final long heightTaken = height.getId();
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showGrowthMonitoringDialog((int) heightTaken);
+                }
+            };
+            listeners.add(onClickListener);
 
-        }
 
-        String initialHeight = Utils.getValue(detailsMap, Constants.KEY.BIRTH_HEIGHT, true);
-        if (heightMap.size() < 5 && !initialHeight.isEmpty()) {
-            heightMap.put(0L, Pair.create(DateUtil.getDuration(0), updateGrowthValue(initialHeight) + " cm"));
-            heightEditMode.add(false);
-            listeners.add(null);
         }
 
         return heightMap;
@@ -518,8 +495,7 @@ public class ChildUnderFiveFragment extends Fragment {
         weightWrapper.setPatientNumber(openSrpId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(
-                Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
+        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
         return weightWrapper;
     }
 
