@@ -17,23 +17,4 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
-    <style name="CustomFontTextViewStyle">
-        <item  name="fontVariant">regular</item>
-
-        <item name="android:textSize">20sp</item>
-        <item name="android:paddingTop">55dp</item></style>
-    <style name="CustomFontTextViewStyle.Home">
-        <item  name="fontVariant">regular</item>
-
-        <item name="android:textSize">20sp</item>
-        <item name="android:paddingTop">55dp</item></style>
-    <style name="Material">
-    </style>
-    <style name="Material.Drawable">
-    </style>
-
-    <style name="Material.Drawable.CheckBox">
-    </style>
-
 </resources>
