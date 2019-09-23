@@ -18,7 +18,7 @@ import org.smartregister.configurableviews.model.RegisterConfiguration;
 public class ConfigHelperTest {
 
     @Mock
-    Context context;
+    private Context context;
 
     @Before
     public void setUp(){
