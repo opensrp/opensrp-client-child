@@ -1213,7 +1213,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateRecordWeightText(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
-        String weight = "+";
+        String weight = "";
         String height = "";
         if ((weightWrapper != null && weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) || (heightWrapper != null && heightWrapper.getDbKey() != null && heightWrapper.getHeight() != null)) {
             if (weightWrapper != null && weightWrapper.getWeight() != null) {

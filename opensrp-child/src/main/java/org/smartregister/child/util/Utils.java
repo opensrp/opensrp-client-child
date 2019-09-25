@@ -251,13 +251,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static boolean isFirstGrowthMonitoringRecord(String entityId){
         //using weight since its a required field in all registration forms
-        return GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(entityId).size() == 1 && hasGrowthTimeLimitPassedDob(entityId);
-    }
-
-    private static boolean hasGrowthTimeLimitPassedDob(String entityId){
-        long timediffBtwNowAndDob = new Date().getTime() - ChildLibrary.getInstance().eventClientRepository().fetchClientByBaseEntityId(entityId).getBirthdate().getMillis();
-        return timediffBtwNowAndDob
-                >= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS);
+        return GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(entityId).size() == 1;// && hasGrowthTimeLimitPassedDob(entityId);
     }
 
     public static Date getCohortEndDate(String vaccine, Date startDate) {
