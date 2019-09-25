@@ -31,6 +31,7 @@ import org.smartregister.util.FormUtils;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     private ChildRegistrationDataAdapter mAdapter;
     private List<Field> fields;
     private Map<String, Integer> stringResourceIds;
+    private List<String> unformattedNumberFields;
 
     public ChildRegistrationDataAdapter getmAdapter() {
         return mAdapter;
@@ -66,6 +68,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Form form = getForm();
         setFields(form.getStep1().getFields());
+        unformattedNumberFields = addUnFormattedNumberFields("");
         stringResourceIds = getDataRowLabelResourceIds();
     }
 
@@ -176,7 +179,14 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 break;
         }
 
-        return cleanResult(result.trim());
+        if(unformattedNumberFields.contains(field.getKey())){
+            result = result.trim();
+        }
+        else{
+            result = cleanResult(result.trim());
+        }
+
+        return result;
     }
 
     private String cleanResult(String result) {
@@ -186,6 +196,16 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             return result;
         }
     }
+
+    /**
+     * Add number fields that should not be formatted by the number format e.g mothers phone number
+     ***/
+    protected List<String> addUnFormattedNumberFields(String...key) {
+        unformattedNumberFields = new ArrayList<>();
+        unformattedNumberFields.addAll(Arrays.asList(key));
+        return unformattedNumberFields;
+    }
+
 
     public void refreshRecyclerViewData(Map<String, String> detailsMap) {
         resetAdapterData(detailsMap);
