@@ -173,7 +173,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         String motherFirstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
-            childName = "B/o " + motherFirstName.trim();
+            childName = String.format(context.getString(R.string.child_name), motherFirstName.trim());
         }
 
         fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
@@ -181,7 +181,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (StringUtils.isNotBlank(motherName)) {
-            motherName = "M/G: " + motherName.trim();
+            motherName = String.format(context.getString(R.string.mother_name), motherName.trim());
         }
 
         fillValue(viewHolder.childMotherName, motherName);
