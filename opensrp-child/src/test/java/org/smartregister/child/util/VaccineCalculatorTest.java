@@ -2,13 +2,25 @@ package org.smartregister.child.util;
 
 import com.google.gson.Gson;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.jsonmapping.Due;
 import org.smartregister.immunization.domain.jsonmapping.Expiry;
 import org.smartregister.immunization.domain.jsonmapping.Schedule;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,14 +28,34 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-09-02
  */
 
+@PrepareForTest({ImmunizationLibrary.class})
 public class VaccineCalculatorTest extends BaseUnitTest {
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
+
+    @Mock
+    private ImmunizationLibrary immunizationLibrary;
+    @Mock
+    private VaccineRepository vaccineRepository;
+    @Mock
+    private Context context;
+    @Mock
+    private AlertService alertService;
+
+    @Before
+    public void setUp() {
+
+        MockitoAnnotations.initMocks(this);
+        mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();
+    }
 
     @Test
     public void getVaccineDueDateShouldReturnNullWhenNoScheduleIsDefined() {
