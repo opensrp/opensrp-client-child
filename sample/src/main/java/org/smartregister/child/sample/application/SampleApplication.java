@@ -75,7 +75,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private static String[] getFtsSortFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD);
+            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD, true);
             List<String> names = new ArrayList<>();
             names.add(DBConstants.KEY.FIRST_NAME);
             names.add(DBConstants.KEY.DOB);
@@ -110,8 +110,7 @@ public class SampleApplication extends DrishtiApplication {
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
         GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
-        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE,
-                BuildConfig.DATABASE_VERSION);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 

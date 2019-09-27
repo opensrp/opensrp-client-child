@@ -2,6 +2,7 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -147,11 +149,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String repoGroup;
         String repoVaccineName;
 
+
         for (int i = 0; i < childVaccineRepo.size(); i++) {
             repoVaccine = childVaccineRepo.get(i);
             repoVaccineName = repoVaccine.toString().toLowerCase();
             repoVaccineName = "yf".equals(repoVaccineName) ? "yellowfever" : repoVaccineName;
-            repoGroup = VaccinateActionUtils.stateKey(repoVaccine);
+            repoGroup = getGroupName(repoVaccine);
             reverseLookupGroupMap.put(repoVaccineName, repoGroup);
             GroupVaccineCount groupVaccineCount = groupVaccineMap.get(repoGroup);
             if (groupVaccineCount == null) {
@@ -174,8 +177,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     VaccineRepo.Vaccine v1 = VaccineRepo.getVaccine(vaccineA.getName(), Constants.CHILD_TYPE);
                     VaccineRepo.Vaccine v2 = VaccineRepo.getVaccine(vaccineB.getName(), Constants.CHILD_TYPE);
 
-                    String stateKey1 = VaccinateActionUtils.stateKey(v1);
-                    String stateKey2 = VaccinateActionUtils.stateKey(v2);
+                    String stateKey1 = getGroupName(v1);
+                    String stateKey2 = getGroupName(v2);
 
                     return vaccineGroups.indexOf(stateKey1) - vaccineGroups.indexOf(stateKey2);
                 } catch (Exception e) {
@@ -307,7 +310,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
-                groupName = VaccinateActionUtils.stateKey(vaccine);
+                groupName = getGroupName(vaccine);
             }
 
             Alert alert = null;
@@ -482,7 +485,21 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    @NotNull
+    @NonNull
+    private String getGroupName(VaccineRepo.Vaccine vaccine) {
+        if (vaccine != null) {
+            HashMap<String, String> vaccineGroupings = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
+
+            String groupName = vaccineGroupings.get(vaccine.name());
+            if (groupName != null) {
+                return groupName;
+            }
+        }
+
+        return "";
+    }
+
+    @NonNull
     private VaccinationAsyncTask.State getUpcomingState(DateTime dueDate) {
 
         State state;
@@ -507,79 +524,18 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         return state;
     }
 
-    private String localizeStateKey(String stateKey) {
-        String localizedKey = "";
-        switch (stateKey) {
-            case "Birth":
-                localizedKey = context.getString(R.string.birth);
-                break;
-            case "at birth":
-                localizedKey = context.getString(R.string.at_birth);
-                break;
+    private String localizeStateKey(@NonNull String stateKey) {
+        String correctedStateKey = stateKey.trim();
 
-            case "6 weeks":
-                localizedKey = context.getString(R.string.six_weeks);
-                break;
-
-            case "10 weeks":
-                localizedKey = context.getString(R.string.ten_weeks);
-                break;
-
-            case "14 weeks":
-                localizedKey = context.getString(R.string.fourteen_weeks);
-                break;
-
-            case "5 months":
-                localizedKey = context.getString(R.string.five_months);
-                break;
-
-            case "6 months":
-                localizedKey = context.getString(R.string.six_months);
-                break;
-
-            case "7 months":
-                localizedKey = context.getString(R.string.seven_months);
-                break;
-
-            case "9 months":
-                localizedKey = context.getString(R.string.nine_months);
-                break;
-            case "15 months":
-                localizedKey = context.getString(R.string.fifteen_months);
-                break;
-
-            case "18 months":
-                localizedKey = context.getString(R.string.eighteen_months);
-                break;
-
-            case "22 months":
-                localizedKey = context.getString(R.string.twenty_two_months);
-                break;
-
-            case "After LMP":
-                localizedKey = context.getString(R.string.after_lmp);
-                break;
-
-            case "4 Weeks after TT 1":
-                localizedKey = context.getString(R.string.after_tt1);
-                break;
-
-            case "26 Weeks after TT 2":
-                localizedKey = context.getString(R.string.after_tt2);
-                break;
-
-            case " 1 Year after  TT 3 ":
-                localizedKey = context.getString(R.string.after_tt3);
-                break;
-
-            case " 1 Year after  TT 4 ":
-                localizedKey = context.getString(R.string.after_tt4);
-                break;
-
-            default:
-                break;
+        if (correctedStateKey.equalsIgnoreCase("birth")) {
+            correctedStateKey = "at_" + stateKey;
         }
-        return localizedKey;
+
+        if (correctedStateKey.matches("^\\d.*\\n*")) {
+            correctedStateKey = "_" + correctedStateKey;
+        }
+
+        return translate(context, correctedStateKey);
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
