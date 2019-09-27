@@ -308,21 +308,6 @@
     <string name="refreshing">جارى التحديث&#8230;</string>
     <string name="next_visit_colon">التالى :</string>
     <string name="at_birth">عند الولادة</string>
-    <string name="six_weeks">6 أسابيع</string>
-    <string name="ten_weeks">10 أسابيع</string>
-    <string name="fourteen_weeks">14 أسبوعا</string>
-    <string name="nine_months">9 أشهر</string>
-    <string name="five_months">5 شهور</string>
-    <string name="six_months">6 اشهر</string>
-    <string name="seven_months">7 شهور</string>
-    <string name="fifteen_months">15 أشهر</string>
-    <string name="eighteen_months">18 أشهر</string>
-    <string name="twenty_two_months">22 شهر</string>
-    <string name="after_lmp">After LMP</string>
-    <string name="after_tt1">4 Weeks after TT 1</string>
-    <string name="after_tt2">26 Weeks after TT 2</string>
-    <string name="after_tt3"> 1 Year after  TT 3 </string>
-    <string name="after_tt4"> 1 Year after  TT 4 </string>
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
     <string name="unable_to_move_to_my_catchment">غير قادر على الحركة إلى منطقتي</string>
 
