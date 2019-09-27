@@ -113,6 +113,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -462,13 +463,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
-                formattedDob = new SimpleDateFormat("dd/MM/yyyy").format(dob);
+                formattedDob = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).format(dob);
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtil.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
                 } else {
-                    formattedAge = DateUtil.getDuration(0);
+                    formattedAge = DateUtil.getDurationInArabicNumerals(0);
                 }
             }
         }

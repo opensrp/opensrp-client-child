@@ -115,8 +115,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
     public static final String EXTRA_CHILD_DETAILS = "child_details";
-    public static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
     public static final int PHOTO_TAKING_PERMISSION =
@@ -969,7 +967,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected String getReportDeceasedMetadata() {
         try {
-            JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("report_deceased");
+            JSONObject form = FormUtils.getInstance(getContext()).getFormJson("report_deceased");
             if (form != null) {
                 //inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
@@ -1009,7 +1007,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getTranslatedVaccineName (this, curVaccine.getName()) + " (" + DATE_FORMAT.format(curVaccine.getDate()) + ")";
+                String name = VaccinatorUtils.getTranslatedVaccineName (this,
+                        curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
+                        Locale.ENGLISH).format(curVaccine.getDate()) + ")";
                 choices.put(name);
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
