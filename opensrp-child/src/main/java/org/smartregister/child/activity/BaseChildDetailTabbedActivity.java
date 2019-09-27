@@ -1009,8 +1009,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getVaccineDisplayName(this, curVaccine.getName()) + " (" +
-                        DATE_FORMAT.format(curVaccine.getDate()) + ")";
+                String name = VaccinatorUtils.getTranslatedVaccineName (this, curVaccine.getName()) + " (" + DATE_FORMAT.format(curVaccine.getDate()) + ")";
                 choices.put(name);
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
