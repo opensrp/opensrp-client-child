@@ -168,7 +168,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     long timeDiff = Math.abs(weightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
-                        formattedAge = DateUtil.getDuration(timeDiff);
+                        formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
                         Log.v("age is ", formattedAge);
                     }
                 }
@@ -207,7 +207,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
-                        formattedAge = DateUtil.getDuration(timeDiff);
+                        formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
                         Log.v("age is ", formattedAge);
                     }
                 }
