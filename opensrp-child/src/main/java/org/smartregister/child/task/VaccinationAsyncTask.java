@@ -527,6 +527,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private String localizeStateKey(@NonNull String stateKey) {
         String correctedStateKey = stateKey.trim();
 
+        if (correctedStateKey.equalsIgnoreCase("birth")) {
+            correctedStateKey = "at_" + stateKey;
+        }
+
         if (correctedStateKey.matches("^\\d.*\\n*")) {
             correctedStateKey = "_" + correctedStateKey;
         }
