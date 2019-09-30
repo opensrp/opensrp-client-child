@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -430,11 +429,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setEnabled(true);
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
-            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts && !(lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) < MILLIS_PER_DAY)) {
+            if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts && (lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) < MILLIS_PER_DAY)) {
 
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationHarveyBall.setImageResource(R.drawable.ic_harvey_75);
                 recordVaccinationHarveyBall.setVisibility(View.VISIBLE);
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
 
 
             }
@@ -490,7 +492,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (vaccine != null) {
             HashMap<String, String> vaccineGroupings = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
 
-            String groupName = vaccineGroupings.get(vaccine.name());
+            String groupName = vaccineGroupings.get(vaccine.name().toLowerCase(Locale.ENGLISH));
             if (groupName != null) {
                 return groupName;
             }

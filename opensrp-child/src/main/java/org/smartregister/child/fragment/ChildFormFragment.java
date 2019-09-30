@@ -40,6 +40,7 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.event.Listener;
 import org.smartregister.util.Utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -211,7 +212,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
             @Override
             public long getItemId(int position) {
-                return Long.valueOf(mothers.get(position).getCaseId().replaceAll("\\D+", ""));
+                return new BigInteger(mothers.get(position).getCaseId().replaceAll("\\D+", "")).longValue();
             }
 
             @Override
