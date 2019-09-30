@@ -467,9 +467,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff, Locale.ENGLISH);
                 } else {
-                    formattedAge = DateUtil.getDurationInArabicNumerals(0);
+                    formattedAge = DateUtil.getDuration(0, Locale.ENGLISH);
                 }
             }
         }

@@ -57,6 +57,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -168,7 +169,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     long timeDiff = Math.abs(weightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
-                        formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
+                        formattedAge = DateUtil.getDuration(timeDiff, Locale.ENGLISH);
                         Log.v("age is ", formattedAge);
                     }
                 }
@@ -207,7 +208,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
                     Log.v("timeDiff is ", timeDiff + "");
                     if (timeDiff >= 0) {
-                        formattedAge = DateUtil.getDurationInArabicNumerals(timeDiff);
+                        formattedAge = DateUtil.getDuration(timeDiff, Locale.ENGLISH);
                         Log.v("age is ", formattedAge);
                     }
                 }
