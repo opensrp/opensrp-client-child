@@ -463,7 +463,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
             if (event != null) {
-                createEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
+                createDeathEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
 
 
                 ContentValues values = new ContentValues();
@@ -535,7 +535,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
     }
 
-    private static void createEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
+    private static void createDeathEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
 
         //After saving, Unsync(remove) this event's details
