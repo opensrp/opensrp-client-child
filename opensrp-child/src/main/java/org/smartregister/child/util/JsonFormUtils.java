@@ -236,7 +236,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
             // For each of the vaccine groups, create a checkbox question
             try {
-                JSONArray questionList = getQuestionList(form);
+                JSONArray questionList = getQuestionList(context, form);
 
                 HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = new HashMap<>();
                 for (VaccineGroup curVaccineGroup : supportedVaccines) {
@@ -312,12 +312,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     @NotNull
-    private static JSONArray getQuestionList(JSONObject form) throws JSONException {
+    private static JSONArray getQuestionList(Context context, JSONObject form) throws JSONException {
         JSONArray questionList = form.getJSONObject("step1").getJSONArray("fields");
         JSONObject vaccinationLabel = new JSONObject();
         vaccinationLabel.put("key", "Vaccines_Provided_Label");
         vaccinationLabel.put("type", "label");
-        vaccinationLabel.put("text", "Which vaccinations were provided?");
+        vaccinationLabel.put("text", context.getString(R.string.which_vaccinations_were_provided));
         vaccinationLabel.put("openmrs_entity_parent", "-");
         vaccinationLabel.put("openmrs_entity", "-");
         vaccinationLabel.put("openmrs_entity_id", "-");

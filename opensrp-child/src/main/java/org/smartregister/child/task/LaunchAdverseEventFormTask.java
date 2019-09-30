@@ -21,7 +21,7 @@ public class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         try {
-            JSONObject form = FormUtils.getInstance(activity.getApplicationContext()).getFormJson("adverse_event");
+            JSONObject form = FormUtils.getInstance(activity.getContext()).getFormJson("adverse_event");
             if (form != null) {
                 JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
                 for (int i = 0; i < fields.length(); i++) {

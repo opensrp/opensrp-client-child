@@ -407,7 +407,7 @@ public class Utils extends org.smartregister.util.Utils {
     public static String formatNumber(String raw) {
         try {
 
-            NumberFormat nf = NumberFormat.getInstance();
+            NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
             nf.setGroupingUsed(false);
             return nf.format(NumberFormat.getInstance(Locale.ENGLISH).parse(raw));
 
