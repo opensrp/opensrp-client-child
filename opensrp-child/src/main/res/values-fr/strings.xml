@@ -11,20 +11,19 @@
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
     <string name="add_child">Ajouter enfant</string>
-    <string name="scan_card"> Scanner Carte</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
     <string name="any_changes_you_make">Toutes les modifications que vous avez effectué seront perdus</string>
 
-    <string name="invalid_device_date">La dateheure de l\'appareil doit être après la dernière syncronisation dateheure du serveur qui a eu lieu</string>
+    <string name="invalid_device_date">La date et heure de l\'appareil doivent être après la dernière synchronisation date et heure du serveur qui a eu lieu</string>
     <string name="home_women_label">Femme</string>
     <string name="home_field_monitor_label">Stock</string>
     <string name="child_entries">Enfant</string>
     <string name="child_profile">ENFANT</string>
     <string name="child_DOB">Date de naissance</string>
     <string name="child_reminder">Rappel</string>
-    <string name="child_next_vaccine">VACCIN STATUT</string>
+    <string name="child_next_vaccine">Vaccination dûe</string>
     <string name="child_register_title">Registre d\'enfants</string>
     <string name="register_search_hint">Recherche</string>
     <string name="child_title">Enfant</string>
@@ -52,7 +51,6 @@
     <string name="woman_last_vaccine">Dernier vaccin</string>
     <string name="woman_next_vaacine">Prochain vaccin attendu</string>
     <string name="woman_alphabetical_sort">Alphabétique (Nom)</string>
-    <string name="id_sort">ID du système</string>
     <string name="woman_details_title">Profil de la femme</string>
     <string name="day">JOUR\n</string>
     <string name="bcg">BCG\n</string>
@@ -66,7 +64,7 @@
     <string name="used">UTILISÉS</string>
     <string name="wasted">GASPILLÉS</string>
     <string name="month">MOIS</string>
-    <string name="month_target">BUT MENSUEL</string>
+    <string name="month_target">OBJECTIF MENSUEL</string>
     <string name="month_received">STOCK REÇU</string>
     <string name="month_used">STOCK UTILISÉ</string>
     <string name="month_wasted">STOCK GASPILLÉ</string>
@@ -79,7 +77,7 @@
     <string name="str_field_search_hint">Rechercher le régistre</string>
     <string name="pick_report">Rapport</string>
     <string name="field_details_title">Position du stock</string>
-    <string name="title_activity_vaccine_report">RapportdesVaccins</string>
+    <string name="title_activity_vaccine_report">Rapport de Vaccination</string>
     <string name="action_settings">Paramètres</string>
     <string name="section_format">Salut le monde! de la section : %1$d</string>
     <string name="userNameText">Nom de l\'utilisateur</string>
@@ -155,17 +153,13 @@
     <string name="lost_to_follow_up">Perdu au suivi</string>
     <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
     <string name="status">état</string>
-    <string name="opensrp_id">ID du système</string>
-    <string name="iz_id_hint">Numéro d\'identification</string>
-    <string name="card_id_hint"> Carte d\'identité</string>
+    <string name="iz_id_hint">numéro d\'identification</string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
     <string name="last_name_hint">Nom</string>
     <string name="mother_guardian_name">Nom de la mère/gardienne</string>
     <string name="mother_guardian_name_hint">Nom de la mère/gardienne</string>
-    <string name="mother_guardian_first_name_hint">Prénom de la mère /gardienne</string>
-    <string name="mother_guardian_last_name_hint">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc_hint">CNE de la mère/gardienne</string>
     <string name="mother_guardian_phone_number">Numéro CNE de la mère/gardienne</string>
@@ -190,7 +184,7 @@
     <string name="hia2_daily_tallies">Fiches de pointage quotidienne</string>
     <string name="hia2_draft_monthly">Rapport préliminaire mensuel</string>
     <string name="hia2_draft_monthly_with_count">Rapport préliminaire mensuel (%1$d)</string>
-    <string name="hia2_sent_monthly">&#160;&#160;&#160;Soumis par mois&#160;&#160;&#160;</string>
+    <string name="hia2_sent_monthly">Soumis par mois</string>
     <string name="start_new_report">Lancer un nouveau rapport</string>
     <string name="no_draft_reports">Aucun rapport provisoir</string>
     <string name="no_monthly_ready">Aucun Rapport ÉIS2 mensuel prêt pour être finalisé.</string>
@@ -217,9 +211,9 @@
     <string name="expired_label">Périmé</string>
     <string name="record_label">Enregistrer</string>
     <string name="waiting_label">En attente</string>
-    <string name="fully_immunized_label">Terminé</string>
+    <string name="fully_immunized_label">Complètement\nimmunisé</string>
     <string name="all_changes_saved">Tous changements enrégistrés</string>
-    <string name="record_service">Service\nd\'enregistrement</string>
+    <string name="record_service">Enregistrer service</string>
     <string name="url_separator">/</string>
     <string name="clients_key">clients</string>
     <string name="events_key">événements</string>
@@ -258,41 +252,44 @@
     <string name="him">lui</string>
     <string name="her">elle</string>
 
-    <string name="scan_nfc_card">Lancer le Carte NFC scan&#8230;</string>
-    <string name="register_card">Carte d\'enregistre</string>
-    <string name="registering_card">Enregistrement de la carte pour %1$s </string>
+    <string name="scan_nfc_card">Lancer le scan NFC de la carte &#8230</string>
+    <string name="register_card">Enregistrer carte</string>
+    <string name="registering_card">Enregistrement de la carte pour %1$s&#8230; </string>
+
+    <string name="scan_card">Scanner la carte</string>
     <string name="father_guardian_full_name">Le nom du père</string>
 
-    <string name="registration_data">Données d\'inscription</string>
-    <string name="under_five_history">Histoire</string>
+
+    <string name="registration_data">Données d\'enregistrement</string>
+    <string name="under_five_history">Historique</string>
     <string name="child_home_health_facility">Structure sanitaire</string>
-    <string name="child_opensrp_id">Notez ce numéro sur le carnet de santé de l\'enfant</string>
+    <string name="child_opensrp_id">ID de vaccination enfant</string>
     <string name="child_register_card_number">No Ordre de registre de vaccine de lenfant</string>
     <string name="sex">Sexe</string>
     <string name="child_dob">Date de naissance de l\'enfant</string>
     <string name="child_age">âge</string>
     <string name="birth_weight">Poids à la naissance</string>
-    <string name="birth_tetanus_protection">Protection contre le tétanos néonatal</string>
+    <string name="birth_tetanus_protection">Protection contre le tétanos néo-natal</string>
     <string name="mother_first_name">Prénom mère</string>
     <string name="mother_second_name">Nom mère</string>
-    <string name="mother_last_name">Nom mère</string>
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
     <string name="father_guardian_date_birth">Date de naissance de la père</string>
     <string name="father_guardian_phone_number">Numéro de téléphone du père/personne</string>
     <string name="place_of_birth">Lieu de naissance</string>
-    <string name="health_facility_the_child_was_in">Structure sanitaire de l\'enfant était en</string>
-    <string name="other_birth_facility">Autre Structure sanitaire</string>
-    <string name="residential_area">Commune</string>
-    <string name="residential_area_other">Autre commune</string>
+    <string name="health_facility_the_child_was_in">Structure de naissance</string>
+    <string name="other_birth_facility">Autre stucture de naissance</string>
+    <string name="child_residential_area">Commune</string>
+    <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
-    <string name="physical_landmark">Point de repère</string>
-    <string name="preferred_language">Langue Préférée</string>
-    <string name="neutral_sex_id">lui ou elle</string>
+    <string name="landmark">Point de repère</string>
+    <string name="preferred_language">Langue préferée</string>
     <string name="health_details">détails sur la santé</string>
     <string name="weight_for_age">POIDS-POUR-L\'AGE</string>
+    <string name="vaccine_group_birth_name">Naissance</string>
     <string name="tap_to_view">Tapez pour voir</string>
     <string name="undo_lookup">Annuler la recherche.</string>
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
+    <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
     <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications allumer.</string>
@@ -303,33 +300,21 @@
 
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
-    <string name="next_visit">Prochain</string>
-    <string name="next_visit_colon">Prochain :</string>
-    <string name="refreshing">Rafraîchissante&#8230;</string>
+    <string name="next_visit">Prochaine visite</string>
+    <string name="refreshing">Mise à jour&#8230;</string>
 
-    <string name="at_birth">à la naissance</string>
-    <string name="after_lmp">Après LMP</string>
-    <string name="after_tt1">4 semaines après le TT 1</string>
-    <string name="after_tt2">26 semaines après le TT 2</string>
-    <string name="after_tt3"> 1 an après TT 3 </string>
-    <string name="after_tt4"> 1 an après TT 4 </string>
-    <string name="move_to_catchment">Déplacer vers mon\nbassin</string>
-    <string name="unable_to_move_to_my_catchment">Impossible de se déplacer dans mon bassin</string>
-    <string name="activate_new_card">ACTIVER LA CARTE</string>
-    <string name="age_colon">Âge : </string>
-    <string name="system_id_colon">Id système :</string>
-    <string name="zeir_id">Id système</string>
-    <string name="search_criteria_includes">Les critères de recherche incluent:</string>
-    <string name="start_date">La date de début</string>
-    <string name="end_date">La date de fin</string>
-    <string name="due">Attendu</string>
-    <string name="overdue">À rendre </string>
-    <string name="done_today">Aujourd\'hui</string>
-    <string name="record_growth">Croissance record</string>
-    <string name="growth_monitoring">Surveillance de la croissance</string>
-    <string name="which_vaccinations_were_provided">Quels vaccins ont étés donnés?</string>
-    <string name="cannot_be_given_with_the_other_dose"> Ne peut être donné avec la dose %1$s déjà donnée.</string>
-    <string name="n_period_due">%1$s\nAttendu</string>
-    <string name="n_period_overdue">%1$s\nÀ rendre</string>
+    <string name="at_birth">A la naissance</string>
+    <string name="six_weeks">6 semaines</string>
+    <string name="ten_weeks">10 semaines</string>
+    <string name="fourteen_weeks">14 semaines</string>
+    <string name="nine_months">9 mois</string>
+    <string name="fifteen_months">15 mois</string>
+    <string name="eighteen_months">18 mois</string>
+    <string name="after_lmp">Après dernières règles</string>
+    <string name="after_tt1">4 semaines après TT 1</string>
+    <string name="after_tt2">26 semaines après TT 2</string>
+    <string name="after_tt3">1 an après TT 3</string>
+    <string name="after_tt4">1 après TT 4</string>
+    <string name="move_to_catchment">Aller à ma zone\nde captage</string>
 
 </resources>
