@@ -252,7 +252,7 @@
     <string name="him">lui</string>
     <string name="her">elle</string>
 
-    <string name="scan_nfc_card">Lancer le scan NFC de la carte &#8230</string>
+    <string name="scan_nfc_card">Lancer le scan NFC de la carte &#8230;</string>
     <string name="register_card">Enregistrer carte</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s&#8230; </string>
 

@@ -332,4 +332,6 @@
     <string name="n_period_overdue"> متأخر
     \n%1$s</string>
 
+    <string name="mother_name">الأم/ الحاضن: %1$s</string>
+
 </resources>
