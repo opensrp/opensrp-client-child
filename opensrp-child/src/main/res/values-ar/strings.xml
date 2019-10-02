@@ -307,7 +307,14 @@
     <string name="next_visit">الزيارة القادمة</string>
     <string name="refreshing">جارى التحديث&#8230;</string>
     <string name="next_visit_colon">التالى :</string>
+
     <string name="at_birth">عند الولادة</string>
+    <string name="_6_weeks">6 أسابيع</string>
+    <string name="_10_weeks">10 أسابيع</string>
+    <string name="_14_weeks">14 أسابي</string>
+    <string name="_9_months">9 أشهر</string>
+    <string name="_18_months">18 شهرا</string>
+
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
     <string name="unable_to_move_to_my_catchment">غير قادر على الحركة إلى منطقتي</string>
 
@@ -331,5 +338,7 @@
 
     <string name="n_period_overdue"> متأخر
     \n%1$s</string>
+
+    <string name="mother_name">الأم/ الحاضن: %1$s</string>
 
 </resources>
