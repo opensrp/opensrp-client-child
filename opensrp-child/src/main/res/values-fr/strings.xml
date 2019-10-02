@@ -302,19 +302,36 @@
     <string name="qr_code_label">Le code QR</string>
     <string name="next_visit">Prochaine visite</string>
     <string name="refreshing">Mise à jour&#8230;</string>
-
-    <string name="at_birth">A la naissance</string>
-    <string name="six_weeks">6 semaines</string>
-    <string name="ten_weeks">10 semaines</string>
-    <string name="fourteen_weeks">14 semaines</string>
-    <string name="nine_months">9 mois</string>
-    <string name="fifteen_months">15 mois</string>
-    <string name="eighteen_months">18 mois</string>
+    <string name="at_birth">à la naissance</string>
     <string name="after_lmp">Après dernières règles</string>
-    <string name="after_tt1">4 semaines après TT 1</string>
-    <string name="after_tt2">26 semaines après TT 2</string>
-    <string name="after_tt3">1 an après TT 3</string>
-    <string name="after_tt4">1 après TT 4</string>
+
+    <string name="_6_weeks">6 semaines</string>
+    <string name="_10_weeks">10 semaines</string>
+    <string name="_14_weeks">14 semaines</string>
+    <string name="_15_months">15 mois</string>
+    <string name="_9_months">9 mois</string>
+    <string name="_18_months">18 mois</string>
+    <string name="_4_weeks_after_tt_1">4 semaines après le TT 1</string>
+    <string name="_26_weeks_after_tt_2">26 semaines après le TT 2</string>
+    <string name="_1_year_after_tt_3"> 1 an après TT 3 </string>
+    <string name="_1_year_after_tt_4"> 1 an après TT 4 </string>
     <string name="move_to_catchment">Aller à ma zone\nde captage</string>
+    <string name="unable_to_move_to_my_catchment">Impossible de se déplacer dans mon bassin</string>
+    <string name="activate_new_card">ACTIVER LA CARTE</string>
+    <string name="age_colon">Âge : </string>
+    <string name="system_id_colon">Id système :</string>
+    <string name="zeir_id">Id système</string>
+    <string name="search_criteria_includes">Les critères de recherche incluent:</string>
+    <string name="start_date">La date de début</string>
+    <string name="end_date">La date de fin</string>
+    <string name="due">Attendu</string>
+    <string name="overdue">À rendre </string>
+    <string name="done_today">Aujourd\'hui</string>
+    <string name="record_growth">Croissance record</string>
+    <string name="growth_monitoring">Surveillance de la croissance</string>
+    <string name="which_vaccinations_were_provided">Quels vaccins ont étés donnés?</string>
+    <string name="cannot_be_given_with_the_other_dose"> Ne peut être donné avec la dose %1$s déjà donnée.</string>
+    <string name="n_period_due">%1$s\nAttendu</string>
+    <string name="n_period_overdue">%1$s\nÀ rendre</string>
 
 </resources>
