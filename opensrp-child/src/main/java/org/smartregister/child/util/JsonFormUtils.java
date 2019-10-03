@@ -341,7 +341,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         curQuestion.put("key", curVaccineGroup.id);
         curQuestion.put("type", "check_box");
         curQuestion.put("is_vaccine_group", true);
-        curQuestion.put("label", VaccinatorUtils.getTranslatedGroupName(context, curVaccineGroup));
+        curQuestion.put("label", VaccinatorUtils.translate(context, curVaccineGroup.name));
         curQuestion.put("openmrs_entity_parent", "-");
         curQuestion.put("openmrs_entity", "-");
         curQuestion.put("openmrs_entity_id", "-");
