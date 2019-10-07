@@ -341,7 +341,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         curQuestion.put("key", curVaccineGroup.id);
         curQuestion.put("type", "check_box");
         curQuestion.put("is_vaccine_group", true);
-        curQuestion.put("label", VaccinatorUtils.getTranslatedGroupName(context, curVaccineGroup));
+        curQuestion.put("label", VaccinatorUtils.translate(context, curVaccineGroup.name));
         curQuestion.put("openmrs_entity_parent", "-");
         curQuestion.put("openmrs_entity", "-");
         curQuestion.put("openmrs_entity_id", "-");
@@ -463,7 +463,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
 
             if (event != null) {
-                createEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
+                createDeathEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
 
 
                 ContentValues values = new ContentValues();
@@ -535,7 +535,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
     }
 
-    private static void createEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
+    private static void createDeathEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
 
         //After saving, Unsync(remove) this event's details
