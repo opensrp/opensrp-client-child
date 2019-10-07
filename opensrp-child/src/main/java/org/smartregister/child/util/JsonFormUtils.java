@@ -1330,22 +1330,31 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void addProcessMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+
         for (Pair<Event, JSONObject> pair : eventList) {
             Event event = pair.first;
             JSONObject jsonEvent = pair.second;
 
             String fromLocationId = null;
             if (Utils.metadata().childRegister.registerEventType.equals(event.getEventType())) {
-                fromLocationId = updateHomeFacility(locationId, event, fromLocationId);
+                fromLocationId = updateHomeFacility(locationId, event);
 
             }
 
-
-            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) ||
-                    Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
                 createMoveToCatchmentEvent(context, providerId, locationId, event, fromLocationId);
 
             }
+
+            if (Constants.EventType.VACCINATION.equals(event.getEventType())) {
+                for (Obs obs : event.getObs()) {
+                    if (obs.getFieldCode().equals(Constants.CONCEPT.VACCINE_DATE)) {
+                        String vaccineName = obs.getFormSubmissionField();
+                        setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+                    }
+                }
+            }
+
 
             // Update providerId, locationId and Save unsynced event
             event.setProviderId(providerId);
@@ -1358,23 +1367,49 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
+    private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
+
+
+        // To Do publish Vaccine Saved Event or Update Reports, process reporting updates on the implementing up
+
+         /*
+        try {
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            if (cumulativePatientRepository == null) {
+                return;
+            }
+
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                cumulativePatient = new CumulativePatient();
+                cumulativePatient.setBaseEntityId(baseEntityId);
+                cumulativePatientRepository.add(cumulativePatient);
+            }
+
+            List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            if (!inValidVaccines.contains(vaccineName)) {
+                inValidVaccines.add(vaccineName);
+                cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
+            }
+        } catch (Exception e) {
+            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+        }*/
+    }
+
     private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
         //Create move to catchment event;
-        Event moveToCatchmentEvent = JsonFormUtils
-                .createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+        Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
         if (moveToCatchmentEvent != null) {
-            JSONObject moveToCatchmentJsonEvent =
-                    ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
+            JSONObject moveToCatchmentJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
             if (moveToCatchmentJsonEvent != null) {
-                ChildLibrary.getInstance().getEcSyncHelper()
-                        .addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                ChildLibrary.getInstance().getEcSyncHelper().addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
             }
         }
     }
 
-    private static String updateHomeFacility(String toLocationId, Event event, String fromLocationId) {
+    private static String updateHomeFacility(String toLocationId, Event event) {
         // Update home facility
-        String locationId = fromLocationId;
+        String locationId = null;
         for (Obs obs : event.getObs()) {
             if (obs.getFormSubmissionField().equals(Constants.HOME_FACILITY)) {
                 locationId = obs.getValue().toString();

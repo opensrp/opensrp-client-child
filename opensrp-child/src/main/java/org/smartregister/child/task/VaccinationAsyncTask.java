@@ -564,7 +564,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_" + Constants.KEY.BASE_ENTITY_ID, false);
+                String motherBaseEntityId = getValue(pc.getColumnmaps(),  org.smartregister.child.util.Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
@@ -572,7 +572,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 ids.add(entityId);
 
                 moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
-                moveToCatchment.setTag(ids);
+                moveToCatchment.setTag(R.id.move_to_catchment_ids, ids);
                 moveToCatchment.setClickable(true);
                 moveToCatchment.setEnabled(true);
                 moveToCatchment.setOnClickListener(onClickListener);
@@ -580,7 +580,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 moveToCatchment.setVisibility(View.VISIBLE);
                 recordVaccination.setVisibility(View.GONE);
             }
-
 
         }
     }
