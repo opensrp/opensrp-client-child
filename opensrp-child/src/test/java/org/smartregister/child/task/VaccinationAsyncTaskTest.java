@@ -5,7 +5,6 @@ import android.content.Context;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RuntimeEnvironment;
@@ -35,9 +34,6 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     private VaccinationAsyncTask vaccinationAsyncTask;
     private ImmunizationLibrary immunizationLibrary;
-
-    @Mock
-    private Context context;
 
     @Before
     public void setUp() {
