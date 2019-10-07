@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -65,22 +66,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private final String dobString;
     private final String lostToFollowUp;
     private final String inactive;
-    private List<String> vaccineGroups = Arrays.asList("at birth",
-            "6 weeks",
-            "10 weeks",
-            "14 weeks",
-            "5 months",
-            "6 months",
-            "7 months",
-            "9 months",
-            "15 months",
-            "18 months",
-            "22 months",
-            "After LMP",
-            "4 Weeks after TT 1",
-            "26 Weeks after TT 2",
-            "1 Year after TT 3 ",
-            "1 Year after TT 4 ");
+    private final List<String> vaccineGroups = new ArrayList<>();
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;
@@ -92,7 +78,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private AlertService alertService;
     private View childProfileInfoLayout;
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
-    private Map<String, String> reverseLookupGroupMap = new HashMap<>();
+    private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineMap = new HashMap<>();
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private List<String> actualVaccines = new ArrayList<>();//To Do decouple Immunization lib hardcoded vaccines to only load a specific implementation vaccine
@@ -114,47 +100,27 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.context = context;
         this.alertService = alertService;
         this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
+        this.reverseLookupGroupMap = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
+
+        initVaccinesData();
 
     }
-
 
     @Override
     protected Void doInBackground(Void... params) {
 
-        List<VaccineGroup> groupList = (List<VaccineGroup>) ImmunizationLibrary.getInstance().getVaccinesConfigJsonMap().get("vaccines.json");
-
-        List<org.smartregister.immunization.domain.jsonmapping.Vaccine> groupVaccines;
-        String vaccineName;
-        for (int i = 0; i < groupList.size(); i++) {
-
-            groupVaccines = groupList.get(i).vaccines;
-
-            for (int j = 0; j < groupVaccines.size(); j++) {
-
-                vaccineName = groupVaccines.get(j).name.replaceAll(" ", "").toLowerCase();
-
-                String[] arr = vaccineName.split("/");
-                for (int k = 0; k < arr.length; k++) {
-
-                    actualVaccines.add(arr[k]);
-                }
-
-            }
-        }
-
-
         ArrayList<VaccineRepo.Vaccine> childVaccineRepo = VaccineRepo.getVaccines(Constants.CHILD_TYPE);
         VaccineRepo.Vaccine repoVaccine;
         String repoGroup;
-        String repoVaccineName;
 
 
         for (int i = 0; i < childVaccineRepo.size(); i++) {
             repoVaccine = childVaccineRepo.get(i);
-            repoVaccineName = repoVaccine.toString().toLowerCase();
-            repoVaccineName = "yf".equals(repoVaccineName) ? "yellowfever" : repoVaccineName;
             repoGroup = getGroupName(repoVaccine);
-            reverseLookupGroupMap.put(repoVaccineName, repoGroup);
+
+            if (TextUtils.isEmpty(repoGroup)) {
+                continue;
+            }
             GroupVaccineCount groupVaccineCount = groupVaccineMap.get(repoGroup);
             if (groupVaccineCount == null) {
                 groupVaccineCount = new GroupVaccineCount(0, 0);
@@ -227,8 +193,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             nv = nextVaccineDue(sch, lastVaccineDate);
-            if (nv != null && nv.containsKey("vaccine")) {
-                nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get("vaccine").toString().toLowerCase()));
+            if (nv != null && nv.containsKey(Constants.KEY.VACCINE)) {
+                nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get(Constants.KEY.VACCINE).toString().toLowerCase()));
             }
 
         }
@@ -249,9 +215,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String vaccine;
         for (int i = 0; i < sch_.size(); i++) {
 
-            //To Refactor remove
-            vaccine = String.valueOf(sch_.get(i).get("vaccine")).toLowerCase(); //eg penta1
-            vaccine = "yf".equals(vaccine) ? "yellowfever" : vaccine;
+            vaccine = String.valueOf(sch_.get(i).get(Constants.KEY.VACCINE)).toLowerCase();
+
             if (mapHasVaccine(vaccine, vaccines) || !actualVaccines.contains(vaccine)) {
                 sch.remove(sch_.get(i));
             }
@@ -265,6 +230,33 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         return vaccines.contains(vaccine);
 
+    }
+
+    private void initVaccinesData() {
+        List<VaccineGroup> groupList = (List<VaccineGroup>) ImmunizationLibrary.getInstance().getVaccinesConfigJsonMap().get("vaccines.json");
+
+        List<org.smartregister.immunization.domain.jsonmapping.Vaccine> groupVaccines;
+        String vaccineName;
+        for (int i = 0; i < groupList.size(); i++) {
+
+            groupVaccines = groupList.get(i).vaccines;
+
+            vaccineGroups.add(groupList.get(i).name);//populate vaccine groups
+
+            for (int j = 0; j < groupVaccines.size(); j++) {
+
+                vaccineName = groupVaccines.get(j).name.replaceAll(" ", "").toLowerCase();
+
+                String[] arr = vaccineName.split("/");
+                for (int k = 0; k < arr.length; k++) {
+
+                    //To Do remove after child immunization refactor to decouple Vaccine enum from immunization library
+
+                    actualVaccines.add(arr[k]);
+                }
+
+            }
+        }
     }
 
     @Override
@@ -490,9 +482,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     @NonNull
     private String getGroupName(VaccineRepo.Vaccine vaccine) {
         if (vaccine != null) {
-            HashMap<String, String> vaccineGroupings = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
 
-            String groupName = vaccineGroupings.get(vaccine.name().toLowerCase(Locale.ENGLISH));
+            String groupName = reverseLookupGroupMap.get(vaccine.name().toLowerCase(Locale.ENGLISH));
             if (groupName != null) {
                 return groupName;
             }
@@ -527,17 +518,24 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     private String localizeStateKey(@NonNull String stateKey) {
-        String correctedStateKey = stateKey.trim();
 
-        if (correctedStateKey.equalsIgnoreCase("birth")) {
-            correctedStateKey = "at_" + stateKey;
-        }
+        String correctedStateKey = formatAtBirthKey(stateKey);
 
         if (correctedStateKey.matches("^\\d.*\\n*")) {
             correctedStateKey = "_" + correctedStateKey;
         }
 
         return translate(context, correctedStateKey);
+    }
+
+    @NotNull
+    private String formatAtBirthKey(@NonNull String stateKey) {
+        String correctedStateKey = stateKey.trim();
+
+        if (correctedStateKey.equalsIgnoreCase("birth")) {
+            correctedStateKey = "at_" + stateKey;
+        }
+        return correctedStateKey;
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
