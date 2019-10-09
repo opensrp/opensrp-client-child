@@ -71,7 +71,7 @@
         "openmrs_entity": "",
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
-        "type": "edit_text",
+        "type": "tree",
         "hint": "Child's home health facility ",
         "tree": [],
         "v_required": {
