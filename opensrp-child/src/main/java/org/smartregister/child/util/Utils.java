@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.json.JSONException;
@@ -376,21 +377,21 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String updateGrowthValue(String value) {
         String growthValue = value;
-        if (!value.contains(".")) {
-            growthValue = value + ".0";
+        if(NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
+            if (!value.contains(".")) {
+                growthValue = value + ".0";
+            }
+            return growthValue;
         }
-        return growthValue;
+
+        throw new IllegalArgumentException(value + "is not a positive number");
     }
 
     public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
         Map<String, String> clean = new HashMap<>();
 
         try {
-            //    Map<String, String> old = CoreLibrary.getInstance().context().detailsRepository().getAllDetailsForClient
-            //    (getChildDetails().getCaseId());
-
-            Map<String, String> old = rawDetails;
-            for (Map.Entry<String, String> entry : old.entrySet()) {
+            for (Map.Entry<String, String> entry : rawDetails.entrySet()) {
                 String val = entry.getValue();
                 if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
                     clean.put(entry.getKey(), entry.getValue());
