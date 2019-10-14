@@ -1,46 +1,75 @@
 package org.smartregister.child.utils;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
+import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.smartregister.Context;
+import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.BuildConfig;
+import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.Repository;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Utils.class, VaccineRepo.class})
-public class UtilsTest {
-    @Mock
-    private SQLiteDatabase sqLiteDatabase;
+@PrepareForTest({VaccineRepo.class})
+public class UtilsTest extends BaseUnitTest {
 
     @Mock
     private VaccineRepository vaccineRepository;
 
+    @Mock
+    private WeightRepository weightRepository;
+
+    @Mock
+    private HeightRepository heightRepository;
+
+    @Captor
+    private ArgumentCaptor<Vaccine> vaccineArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor weightArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor heightArgumentCaptor;
+
+    private String dobString = "2017-09-09";
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Assert.assertNotNull(sqLiteDatabase);
-        sqLiteDatabase = Mockito.mock(SQLiteDatabase.class);
     }
 
     @Test
-    public void getCombinedVaccineWithNonNullArgument() throws Exception {
-        PowerMockito.spy(Utils.class);
-        PowerMockito.doReturn("any").when(Utils.class, "getCombinedVaccine", "something"); 
-        PowerMockito.doCallRealMethod().when(Utils.class, "getCombinedVaccine", anyString()); 
+    public void getCombinedVaccineWithNonNullArgument() {
         Assert.assertEquals(Utils.getCombinedVaccine("mr 1"), VaccineRepo.Vaccine.measles1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("measles 1"), VaccineRepo.Vaccine.mr1.display());
         Assert.assertEquals(Utils.getCombinedVaccine("mr 2"), VaccineRepo.Vaccine.measles2.display());
@@ -49,86 +78,266 @@ public class UtilsTest {
 
     @Test
     public void addVaccineWithVaccineRepositoryOrVaccineNotNull() {
-        PowerMockito.spy(Utils.class);
         Vaccine vaccine = new Vaccine();
         vaccine.setName("testvaccine");
         Utils.addVaccine(vaccineRepository, vaccine);
-        Mockito.verify(vaccineRepository, Mockito.times(1)).add(vaccine);
-
-        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
-        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
-
-        PowerMockito.verifyStatic(Utils.class);
-
-        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
-
-        Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
+        Mockito.verify(vaccineRepository, Mockito.times(1)).add(vaccineArgumentCaptor.capture());
         Assert.assertEquals(vaccine, vaccineArgumentCaptor.getValue());
     }
 
     @Test
     public void addVaccineWithVaccineRepositoryIsNull() {
-        PowerMockito.spy(Utils.class);
         Vaccine vaccine = new Vaccine();
         Utils.addVaccine(null, vaccine);
-        Mockito.verify(vaccineRepository, Mockito.times(0)).add(vaccine);
-
-        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
-        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
-
-        PowerMockito.verifyStatic(Utils.class);
-
-        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
-
-        Assert.assertNull(vaccineRepositoryArgumentCaptor.getValue());
-        Assert.assertEquals(vaccine, vaccineArgumentCaptor.getValue());
+        Mockito.verify(vaccineRepository, Mockito.times(0)).add(vaccineArgumentCaptor.capture());
     }
 
     @Test
     public void addVaccineWithVaccineIsNull() {
-        PowerMockito.spy(Utils.class);
         Utils.addVaccine(vaccineRepository, null);
         Mockito.verify(vaccineRepository, Mockito.times(0)).add(null);
-
-        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
-        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
-
-        PowerMockito.verifyStatic(Utils.class);
-
-        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
-
-        Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
-        Assert.assertNull(vaccineArgumentCaptor.getValue());
     }
 
     @Test
-    public void testAddVaccineShouldReturnExceptionWhenVaccineNameIsNull() {
-        PowerMockito.spy(Utils.class);
+    public void testAddVaccineShouldCatchNullPointerException() {
         Vaccine vaccine = new Vaccine();
         Utils.addVaccine(vaccineRepository, vaccine);
-
         Mockito.verify(vaccineRepository, Mockito.times(0)).add(vaccine);
-
-        ArgumentCaptor<VaccineRepository> vaccineRepositoryArgumentCaptor = ArgumentCaptor.forClass(VaccineRepository.class);
-        ArgumentCaptor<Vaccine> vaccineArgumentCaptor = ArgumentCaptor.forClass(Vaccine.class);
-
-        PowerMockito.verifyStatic(Utils.class);
-
-        Utils.addVaccine(vaccineRepositoryArgumentCaptor.capture(), vaccineArgumentCaptor.capture());
-
-        Assert.assertEquals(vaccineRepository, vaccineRepositoryArgumentCaptor.getValue());
-        Assert.assertNull(vaccineArgumentCaptor.getValue().getName());
     }
 
+    @Test
+    public void testGetCohortEndDateShouldReturnNull() {
+        Date result = Utils.getCohortEndDate("", new Date());
+        Assert.assertNull(result);
+    }
 
     @Test
-    public void testReverseHyphenatedStringReturnsCorrectValueForHyphenatedParameter() {
+    public void testGetCohortEndDateForOpv0() {
+        Calendar calendar = Calendar.getInstance();
+        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.opv0.display().toLowerCase()), calendar.getTime());
+        calendar.add(Calendar.DATE, 13);
+        Assert.assertEquals(result, calendar.getTime());
+    }
 
-        String testString = "20-05-2012";
+    @Test
+    public void testGetCohortEndDateForRota1() {
+        Calendar calendar = Calendar.getInstance();
+        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota1.display().toLowerCase()), calendar.getTime());
+        calendar.add(Calendar.MONTH, 8);
+        Assert.assertEquals(result, calendar.getTime());
+    }
 
-        String answer = Utils.reverseHyphenatedString(testString);
+    @Test
+    public void testGetCohortEndDateForRota2() {
+        Calendar calendar = Calendar.getInstance();
+        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota2.display().toLowerCase()), calendar.getTime());
+        calendar.add(Calendar.MONTH, 8);
+        Assert.assertEquals(result, calendar.getTime());
+    }
 
-        Assert.assertEquals("2012-05-20", answer);
+    @Test
+    public void testGetCohortEndDateForMr2() {
+        Calendar calendar = Calendar.getInstance();
+        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr2.display().toLowerCase()), calendar.getTime());
+        calendar.add(Calendar.YEAR, 2);
+        Assert.assertEquals(result, calendar.getTime());
+    }
 
+    @Test
+    public void testDobStringToDateTimeBlankString() {
+        DateTime result = Utils.dobStringToDateTime("");
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void testDobStringToDateTimeShouldCatchException() {
+        DateTime result = Utils.dobStringToDateTime("Test");
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void testDobStringToDateTime() {
+        DateTime result = Utils.dobStringToDateTime(dobString);
+        Assert.assertEquals(new DateTime(dobString), result);
+    }
+
+    @Test
+    public void testDobStringToDateShouldReturnNull() {
+        Date result = Utils.dobStringToDate("test");
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void testDobStringToDate() {
+        Date result = Utils.dobStringToDate(dobString);
+        Assert.assertEquals(new DateTime(dobString).toDate(), result);
+    }
+
+    @Test
+    public void testRecordWeightWithFemaleValidGenderAndNullDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Weight weight = new Weight();
+        WeightWrapper weightWrapper = new WeightWrapper();
+        weightWrapper.setUpdatedWeightDate(new DateTime(), true);
+        weightWrapper.setGender(Constants.GENDER.FEMALE);
+        weightWrapper.setWeight(20.0f);
+        Mockito.when(weightRepository.find(weightWrapper.getDbKey())).thenReturn(weight);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordWeight(weightRepository, weightWrapper, null);
+        Mockito.verify(weightRepository, Mockito.times(1)).add((Weight) weightArgumentCaptor.capture());
+        Assert.assertNotNull(weightArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testRecordWeightWithValidFemaleGenderAndValidDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Weight weight = new Weight();
+        WeightWrapper weightWrapper = new WeightWrapper();
+        weightWrapper.setUpdatedWeightDate(new DateTime(), true);
+        weightWrapper.setGender(Constants.GENDER.FEMALE);
+        weightWrapper.setWeight(20.0f);
+        weightWrapper.setDob(dobString);
+        Mockito.when(weightRepository.find(weightWrapper.getDbKey())).thenReturn(weight);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordWeight(weightRepository, weightWrapper, null);
+        Mockito.verify(weightRepository, Mockito.times(1)).add((Date) weightArgumentCaptor.capture(), (Gender) weightArgumentCaptor.capture(), (Weight) weightArgumentCaptor.capture());
+        Assert.assertEquals(3, weightArgumentCaptor.getAllValues().size());
+        Assert.assertEquals(Gender.FEMALE, weightArgumentCaptor.getAllValues().get(1));
+        Assert.assertEquals(Utils.dobStringToDate(dobString), weightArgumentCaptor.getAllValues().get(0));
+        Assert.assertNotNull(weightArgumentCaptor.getAllValues().get(2));
+    }
+
+    @Test
+    public void testRecordWeightWithValidMaleGenderAndValidDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Weight weight = new Weight();
+        WeightWrapper weightWrapper = new WeightWrapper();
+        weightWrapper.setUpdatedWeightDate(new DateTime(), true);
+        weightWrapper.setGender(Constants.GENDER.MALE);
+        weightWrapper.setWeight(20.0f);
+        weightWrapper.setDob(dobString);
+        Mockito.when(weightRepository.find(weightWrapper.getDbKey())).thenReturn(weight);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordWeight(weightRepository, weightWrapper, null);
+        Mockito.verify(weightRepository, Mockito.times(1)).add((Date) weightArgumentCaptor.capture(), (Gender) weightArgumentCaptor.capture(), (Weight) weightArgumentCaptor.capture());
+        Assert.assertEquals(3, weightArgumentCaptor.getAllValues().size());
+        Assert.assertEquals(Gender.MALE, weightArgumentCaptor.getAllValues().get(1));
+        Assert.assertEquals(Utils.dobStringToDate(dobString), weightArgumentCaptor.getAllValues().get(0));
+        Assert.assertNotNull(weightArgumentCaptor.getAllValues().get(2));
+    }
+
+    @Test
+    public void testRecordHeightWithFemaleValidGenderAndNullDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Height height = new Height();
+        HeightWrapper heightWrapper = new HeightWrapper();
+        heightWrapper.setUpdatedHeightDate(new DateTime(), true);
+        heightWrapper.setGender(Constants.GENDER.FEMALE);
+        heightWrapper.setHeight(20.0f);
+        heightWrapper.setId("213");
+        Mockito.when(heightRepository.find(heightWrapper.getDbKey())).thenReturn(height);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordHeight(heightRepository, heightWrapper, null);
+        Mockito.verify(heightRepository, Mockito.times(1)).add((Height) heightArgumentCaptor.capture());
+        Assert.assertNotNull(heightArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testRecordHeightWithValidFemaleGenderAndValidDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Height height = new Height();
+        HeightWrapper heightWrapper = new HeightWrapper();
+        heightWrapper.setUpdatedHeightDate(new DateTime(), true);
+        heightWrapper.setGender(Constants.GENDER.FEMALE);
+        heightWrapper.setHeight(20.0f);
+        heightWrapper.setId("213");
+        heightWrapper.setDob(dobString);
+        Mockito.when(heightRepository.find(heightWrapper.getDbKey())).thenReturn(height);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordHeight(heightRepository, heightWrapper, null);
+        Mockito.verify(heightRepository, Mockito.times(1)).add((Date) heightArgumentCaptor.capture(), (Gender) heightArgumentCaptor.capture(), (Height) heightArgumentCaptor.capture());
+        Assert.assertEquals(3, heightArgumentCaptor.getAllValues().size());
+        Assert.assertEquals(Gender.FEMALE, heightArgumentCaptor.getAllValues().get(1));
+        Assert.assertEquals(Utils.dobStringToDate(dobString), heightArgumentCaptor.getAllValues().get(0));
+        Assert.assertNotNull(heightArgumentCaptor.getAllValues().get(2));
+    }
+
+    @Test
+    public void testRecordHeightWithValidMaleGenderAndValidDobString() {
+        Context context = Mockito.mock(Context.class);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        Height height = new Height();
+        HeightWrapper heightWrapper = new HeightWrapper();
+        heightWrapper.setHeight(20.0f);
+        heightWrapper.setId("213");
+        heightWrapper.setUpdatedHeightDate(new DateTime(), true);
+        heightWrapper.setGender(Constants.GENDER.MALE);
+        heightWrapper.setDob(dobString);
+        Mockito.when(heightRepository.find(heightWrapper.getDbKey())).thenReturn(height);
+        Mockito.when(context.allSharedPreferences()).thenReturn(Mockito.mock(AllSharedPreferences.class));
+        Utils.recordHeight(heightRepository, heightWrapper, null);
+        Mockito.verify(heightRepository, Mockito.times(1)).add((Date) heightArgumentCaptor.capture(), (Gender) heightArgumentCaptor.capture(), (Height) heightArgumentCaptor.capture());
+        Assert.assertEquals(3, heightArgumentCaptor.getAllValues().size());
+        Assert.assertEquals(Gender.MALE, heightArgumentCaptor.getAllValues().get(1));
+        Assert.assertEquals(Utils.dobStringToDate(dobString), heightArgumentCaptor.getAllValues().get(0));
+        Assert.assertNotNull(heightArgumentCaptor.getAllValues().get(2));
+    }
+
+    @Test
+    public void testGetCleanMapShouldCatchException(){
+        Assert.assertEquals(new HashMap<>(), Utils.getCleanMap(null));
+    }
+
+    @Test
+    public void testGetCleanMapWithDirtyValues(){
+        Map<String, String> rawDetails = new HashMap<>();
+        rawDetails.put("key", "");
+        rawDetails.put("key1", "null");
+        Map<String, String> results = Utils.getCleanMap(rawDetails);
+        Assert.assertEquals(new HashMap<String, String>(), results);
+    }
+
+    @Test
+    public void testGetCleanMapWithCleanValues(){
+        Map<String, String> rawDetails = new HashMap<>();
+        rawDetails.put("key", "value");
+        rawDetails.put("key1", "value");
+        Map<String, String> results = Utils.getCleanMap(rawDetails);
+        Assert.assertEquals(rawDetails, results);
+    }
+
+    @Test
+    public void testUpdateGrowthValueWithFloat(){
+        String result = Utils.updateGrowthValue("20.0");
+        Assert.assertEquals("20.0", result);
+    }
+
+    @Test
+    public void testUpdateGrowthValueWithNonFloat(){
+        String result = Utils.updateGrowthValue("20");
+        Assert.assertEquals("20.0", result);
+    }
+
+    @Test
+    public void testUpdateGrowthValueWithNonNumeric(){
+        expectedException.expect(IllegalArgumentException.class);
+        Utils.updateGrowthValue("23w");
+    }
+
+    @Test
+    public void testFormatNumberShouldCatchParseException(){
+        String raw = "raw";
+        Assert.assertEquals(raw, Utils.formatNumber(raw));
+    }
+
+    @Test
+    public void testFormatNumberWithValidNumber(){
+        String raw = "099787762567";
+        Assert.assertEquals(raw.substring(1), Utils.formatNumber(raw));
     }
 }
