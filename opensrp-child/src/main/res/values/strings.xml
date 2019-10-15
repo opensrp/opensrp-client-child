@@ -287,8 +287,11 @@
     <string name="other_birth_facility">Other birth facility</string>
     <string name="residential_area">Child\'s commune</string>
     <string name="residential_area_other">Other commune</string>
+    <string name="child_residential_area">Child\'s commune</string>
+    <string name="other_residential_area">Other commune</string>
     <string name="home_address">Home address</string>
     <string name="physical_landmark">Landmark</string>
+    <string name="landmark">Landmark</string>
     <string name="preferred_language">Preferred language</string>
     <string name="health_details">Health details</string>
     <string name="vaccine_group_birth_name" translatable="false">Birth</string>

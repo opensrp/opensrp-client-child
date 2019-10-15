@@ -160,6 +160,8 @@
     <string name="last_name_hint">Nom</string>
     <string name="mother_guardian_name">Nom de la mère/gardienne</string>
     <string name="mother_guardian_name_hint">Nom de la mère/gardienne</string>
+    <string name="mother_guardian_first_name_hint">Prenom de la mère/gardienne</string>
+    <string name="mother_guardian_last_name_hint">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc_hint">CNE de la mère/gardienne</string>
     <string name="mother_guardian_phone_number">Numéro CNE de la mère/gardienne</string>
@@ -269,18 +271,23 @@
     <string name="child_dob">Date de naissance de l\'enfant</string>
     <string name="child_age">âge</string>
     <string name="birth_weight">Poids à la naissance</string>
+    <string name="birth_height">Hauteur à la naissance</string>
     <string name="birth_tetanus_protection">Protection contre le tétanos néo-natal</string>
     <string name="mother_first_name">Prénom mère</string>
     <string name="mother_second_name">Nom mère</string>
+    <string name="mother_last_name">Nom mère</string>
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
     <string name="father_guardian_date_birth">Date de naissance de la père</string>
     <string name="father_guardian_phone_number">Numéro de téléphone du père/personne</string>
     <string name="place_of_birth">Lieu de naissance</string>
     <string name="health_facility_the_child_was_in">Structure de naissance</string>
     <string name="other_birth_facility">Autre stucture de naissance</string>
+    <string name="residential_area">Commune</string>
+    <string name="residential_area_other">Autre commune</string>
     <string name="child_residential_area">Commune</string>
     <string name="other_residential_area">Autre commune</string>
     <string name="home_address">Adresse précise</string>
+    <string name="physical_landmark">Point de repère</string>
     <string name="landmark">Point de repère</string>
     <string name="preferred_language">Langue préferée</string>
     <string name="health_details">détails sur la santé</string>
@@ -301,6 +308,7 @@
     <string name="search_results">Résultats de la recherche</string>
     <string name="qr_code_label">Le code QR</string>
     <string name="next_visit">Prochaine visite</string>
+    <string name="next_visit_colon">Prochaine visite :</string>
     <string name="refreshing">Mise à jour&#8230;</string>
     <string name="at_birth">à la naissance</string>
     <string name="after_lmp">Après dernières règles</string>
@@ -308,9 +316,13 @@
     <string name="_6_weeks">6 semaines</string>
     <string name="_10_weeks">10 semaines</string>
     <string name="_14_weeks">14 semaines</string>
-    <string name="_15_months">15 mois</string>
+    <string name="_5_months">5 mois</string>
+    <string name="_6_months">6 mois</string>
+    <string name="_7_months">7 mois</string>
     <string name="_9_months">9 mois</string>
+    <string name="_15_months">15 mois</string>
     <string name="_18_months">18 mois</string>
+    <string name="_22_months">22 mois</string>
     <string name="_4_weeks_after_tt_1">4 semaines après le TT 1</string>
     <string name="_26_weeks_after_tt_2">26 semaines après le TT 2</string>
     <string name="_1_year_after_tt_3"> 1 an après TT 3 </string>
@@ -334,4 +346,5 @@
     <string name="n_period_due">%1$s\nAttendu</string>
     <string name="n_period_overdue">%1$s\nÀ rendre</string>
 
+    <string name="mother_name">M/G: %1$s</string>
 </resources>
