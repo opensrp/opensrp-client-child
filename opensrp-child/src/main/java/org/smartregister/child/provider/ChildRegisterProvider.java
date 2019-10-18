@@ -244,11 +244,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setOnClickListener(onClickListener);
                 params.setProfileInfoView(viewHolder.childProfileInfoLayout);
 
-                Utils.startAsyncTask(
-                        new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context),
-                        null);
-                Utils.startAsyncTask(
-                        new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
+                Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
+                Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
+
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage(), e);
             }

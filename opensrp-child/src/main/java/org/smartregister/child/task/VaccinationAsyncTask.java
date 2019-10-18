@@ -31,7 +31,6 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.Utils;
@@ -444,7 +443,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             if (StringUtils.isNotBlank(groupName) && (StringUtils.containsIgnoreCase(groupName, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(groupName, Constants.KEY.MONTH)) &&
                     !updateWrapper.getVaccines().isEmpty()) {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
-                String previousStateKey = VaccinateActionUtils.previousStateKey(Constants.KEY.CHILD, vaccine);
+
+                String previousStateKey = previousStateKey(vaccine);
+
                 String alertStateKey = !TextUtils.isEmpty(previousStateKey) ? previousStateKey : groupName;
 
                 recordVaccinationText.setText(getAlertMessage(state, alertStateKey));
@@ -477,6 +478,10 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (updateOutOfCatchment) {
             updateViews(updateWrapper.getConvertView(), updateWrapper.getClient());
         }
+    }
+
+    private String previousStateKey(Vaccine vaccine) {
+        return reverseLookupGroupMap.get(vaccine.getName().toLowerCase(Locale.ENGLISH).replace(" ", ""));
     }
 
     @NonNull
@@ -564,7 +569,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(),  org.smartregister.child.util.Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), org.smartregister.child.util.Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
