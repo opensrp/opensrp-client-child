@@ -524,7 +524,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void processClients(Context context, AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
-        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+
+        List<EventClient> eventList = new ArrayList<>();
+        eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unprocessed));
+        eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+
+        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(eventList);
         allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
     }
 
@@ -581,6 +586,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName).updateSearch(entityIds);
     }
 
+    @SuppressLint("MissingPermission")
     public static Event addMetaData(Context context, Event event, Date start) {
         Map<String, String> metaFields = new HashMap<>();
         metaFields.put("deviceid", "163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -597,21 +603,27 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         obs.setFieldDataType("start");
         event.addObs(obs);
 
-
-        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        obs = new Obs();
+        obs.setFieldCode("163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         obs.setValue(end);
         obs.setFieldDataType("end");
         event.addObs(obs);
 
-        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceId = "";
+        try {
 
-        @SuppressLint("MissingPermission") String deviceId =
-                mTelephonyManager.getSimSerialNumber(); //Aready handded by native form
+            TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
 
-        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        } catch (SecurityException e) {
+            Timber.e(e, "JsonFormUtils --> MissingPermission --> getSimSerialNumber");
+        }
+        obs = new Obs();
+        obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         obs.setValue(deviceId);
         obs.setFieldDataType("deviceid");
         event.addObs(obs);
+
         return event;
     }
 
@@ -1384,9 +1396,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
             }
 
-            // Update providerId, locationId and Save unsynced event
-            event.setProviderId(providerId);
-            event.setLocationId(locationId);
+            // Update tags and Save unsynced event
+            JsonFormUtils.tagSyncMetadata(event);
             event.setVersion(System.currentTimeMillis());
             JSONObject updatedJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
             jsonEvent = JsonFormUtils.merge(jsonEvent, updatedJsonEvent);
@@ -1444,13 +1455,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 List<Object> values = new ArrayList<>();
                 values.add(toLocationId);
                 obs.setValues(values);
+                break;
             }
         }
         return locationId;
     }
 
-    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId,
-                                                   String toProviderId, String toLocationId) {
+    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
 
