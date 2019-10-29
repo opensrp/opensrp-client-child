@@ -529,7 +529,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unprocessed));
         eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
 
-        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(eventList);
+        ChildLibrary.getInstance().getClientProcessorForJava().processClient(eventList);
         allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
     }
 

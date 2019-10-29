@@ -31,6 +31,12 @@ public class MoveToMyCatchmentUtils {
                                          final ProgressDialog progressDialog) {
 
         org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONObject>() {
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
             @Override
             protected JSONObject doInBackground(Void... params) {
                 publishProgress();
@@ -51,11 +57,6 @@ public class MoveToMyCatchmentUtils {
             protected void onPostExecute(JSONObject result) {
                 listener.onEvent(result);
                 progressDialog.dismiss();
-            }
-
-            @Override
-            protected void onProgressUpdate(Void... values) {
-                progressDialog.show();
             }
         }, null);
     }
