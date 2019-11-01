@@ -185,7 +185,7 @@
     <string name="title_activity_stock_control">StockControlActivity</string>
     <string name="device_timezone_changed">"The device's timezone changed. Please login again."</string>
     <string name="device_time_changed">"The device's time has changed. Please login again."</string>
-    <string name="side_nav_hia2">HIA 2 Reports</string>
+    <string name="side_nav_hia2">Monthly Reports</string>
     <string name="hia2_daily_tallies">Daily Tallies</string>
     <string name="hia2_draft_monthly">Draft Monthly</string>
     <string name="hia2_draft_monthly_with_count">Draft Monthly (%1$d)</string>
@@ -348,7 +348,7 @@
     <string name="cannot_be_given_with_the_other_dose">Cannot be given with the other %1$s dose.</string>
     <string name="n_period_due">%1$s\nDue</string>
     <string name="n_period_overdue">%1$s\nOverdue</string>
-    
+
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">"B/o %1$s</string>
 

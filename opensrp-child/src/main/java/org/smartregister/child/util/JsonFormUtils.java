@@ -1390,8 +1390,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             if (Constants.EventType.VACCINATION.equals(event.getEventType())) {
                 for (Obs obs : event.getObs()) {
                     if (obs.getFieldCode().equals(Constants.CONCEPT.VACCINE_DATE)) {
-                        String vaccineName = obs.getFormSubmissionField();
-                        setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+
+                        //To do uncomment to handle reports refresh
+                        //String vaccineName = obs.getFormSubmissionField();
+                        //setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
                     }
                 }
             }
@@ -1405,13 +1407,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
         }
     }
-
+/*
     private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
 
 
         // To Do publish Vaccine Saved Event or Update Reports, process reporting updates on the implementing up
 
-         /*
+
         try {
             CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
             if (cumulativePatientRepository == null) {
@@ -1432,8 +1434,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         } catch (Exception e) {
             Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
-        }*/
+        }
     }
+    */
 
     private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
         //Create move to catchment event;
