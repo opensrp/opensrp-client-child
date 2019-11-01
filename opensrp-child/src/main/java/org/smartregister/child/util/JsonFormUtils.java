@@ -1387,16 +1387,20 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             }
 
+            /*
+
+            //To do uncomment to handle reports refresh
+
             if (Constants.EventType.VACCINATION.equals(event.getEventType())) {
                 for (Obs obs : event.getObs()) {
                     if (obs.getFieldCode().equals(Constants.CONCEPT.VACCINE_DATE)) {
 
-                        //To do uncomment to handle reports refresh
-                        //String vaccineName = obs.getFormSubmissionField();
-                        //setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+                        String vaccineName = obs.getFormSubmissionField();
+                        setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
                     }
                 }
             }
+            */
 
             // Update tags and Save unsynced event
             JsonFormUtils.tagSyncMetadata(event);
