@@ -42,7 +42,6 @@ public class MotherLookUpUtils {
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
-    private static final String TAG = MotherLookUpUtils.class.getName();
 
     public static void motherLookUp(final Context context, final EntityLookUp entityLookUp,
                                     final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener,

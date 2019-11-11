@@ -19,7 +19,7 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
 
     @Override
     protected void goToRegisterPage() {
-
+        //Do nothing
     }
 
     @Override
@@ -29,7 +29,7 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
 
     @Override
     public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-
+        //Do nothing
     }
 
     @Override
@@ -44,26 +44,26 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
 
     @Override
     public void setLastModified(boolean lastModified) {
-
+        //Do nothing
     }
 
     @Override
     public void onClick(View view) {
-
+        //Do nothing
     }
 
     @Override
     public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
-
+        //Do nothing
     }
 
     @Override
     public void onNoUniqueId() {
-
+        //Do nothing
     }
 
     @Override
     public void onRegistrationSaved(boolean isEdit) {
-
+        //Do nothing
     }
 }
