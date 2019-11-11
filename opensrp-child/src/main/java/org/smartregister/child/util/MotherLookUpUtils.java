@@ -2,7 +2,6 @@ package org.smartregister.child.util;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -21,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 import static android.view.View.VISIBLE;
 import static org.smartregister.util.Utils.getValue;
@@ -41,7 +42,6 @@ public class MotherLookUpUtils {
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
-    private static final String TAG = MotherLookUpUtils.class.getName();
 
     public static void motherLookUp(final Context context, final EntityLookUp entityLookUp,
                                     final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener,
@@ -110,7 +110,7 @@ public class MotherLookUpUtils {
 
 
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Timber.e(e);
         } finally {
             if (cursor != null) {
                 cursor.close();
