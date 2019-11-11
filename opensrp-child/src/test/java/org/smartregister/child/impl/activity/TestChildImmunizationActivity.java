@@ -1,4 +1,4 @@
-package org.smartregister.child.impl;
+package org.smartregister.child.impl.activity;
 
 import android.app.Activity;
 import android.content.Context;

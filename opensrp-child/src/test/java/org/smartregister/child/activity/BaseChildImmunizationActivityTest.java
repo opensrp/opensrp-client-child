@@ -22,7 +22,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.impl.TestChildImmunizationActivity;
+import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;

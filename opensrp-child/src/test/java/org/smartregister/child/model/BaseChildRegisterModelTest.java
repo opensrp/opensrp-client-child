@@ -1,6 +1,7 @@
 package org.smartregister.child.model;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -32,7 +33,7 @@ import org.smartregister.repository.Repository;
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class})
+@PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class, org.smartregister.util.JsonFormUtils.class, Log.class})
 public class BaseChildRegisterModelTest {
 
     @Mock
@@ -53,15 +54,15 @@ public class BaseChildRegisterModelTest {
     }
 
     @Test
-    public void processRegistrationWithNewChildRegistration() {
+    public void processRegistrationWithNewWomanRegistration() {
         String anm = "providerId";
         PowerMockito.mockStatic(CoreLibrary.class);
         PowerMockito.mockStatic(LocationHelper.class);
+        PowerMockito.mockStatic(Log.class);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(locationHelper.getOpenMrsLocationId("locality")).thenReturn("ssd");
         PowerMockito.when(CoreLibrary.getInstance()).thenReturn(coreLibrary);
-        //ChildLibrary.getInstance().eventClientRepository()
-        //                .getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
+
         PowerMockito.when(coreLibrary.context()).thenReturn(context);
         PowerMockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(anm);
         PowerMockito.when(allSharedPreferences.fetchUserLocalityId(anm)).thenReturn("locality");
@@ -108,10 +109,11 @@ public class BaseChildRegisterModelTest {
                 "\"openmrs_entity_id\":\"inactive\",\"type\":\"hidden\",\"value\":\"\"}]},\"invisible_required_fields\":\"[]\",\"details\":{\"appVersionName\":\"1.6.59-SNAPSHOT\",\"formVersion\":\"\"}}";
         BaseChildRegisterModel baseChildRegisterModel = new BaseChildRegisterModel();
         List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class));
-//        Assert.(actualEvent);
-        //Expect child registration event
-        Assert.assertEquals(1, actualEvent.size());
+        //Expect child and Mother registration event
+        Assert.assertEquals(2, actualEvent.size());
         Assert.assertEquals("ChildRegister", actualEvent.get(0).getEvent().getEventType());
+        Assert.assertEquals("New Woman Registration", actualEvent.get(1).getEvent().getEventType());
+
     }
 
     @After
