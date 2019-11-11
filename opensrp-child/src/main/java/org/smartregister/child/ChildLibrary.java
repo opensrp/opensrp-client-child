@@ -112,7 +112,7 @@ public class ChildLibrary {
 
     public Compressor getCompressor() {
         if (compressor == null) {
-            compressor = Compressor.getDefault(context().applicationContext());
+            compressor = new Compressor(this.context().applicationContext());
         }
         return compressor;
     }

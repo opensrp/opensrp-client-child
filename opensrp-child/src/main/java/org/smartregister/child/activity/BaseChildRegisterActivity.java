@@ -26,7 +26,6 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
-import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -160,7 +159,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
 
                     showProgressDialog(R.string.saving_dialog_title);
-                    presenter().saveOutOfCatchmentService(jsonString,this);
+                    presenter().saveOutOfCatchmentService(jsonString, this);
 
                 }
             } catch (Exception e) {
@@ -251,26 +250,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     public abstract void startNFCCardScanner();
-
-    public void updateAdvancedSearchFilterCount(int count) {
-       /* BaseAdvancedSearchFragment advancedSearchFragment = (BaseAdvancedSearchFragment) findFragmentByPosition
-       (ADVANCED_SEARCH_POSITION);
-        if (advancedSearchFragment != null) {
-            advancedSearchFragment.updateFilterCount(count);
-        }*/
-
-        //To remove comment
-    }
-
-    public void filterSelection() {
-        if (currentPage != 0) {
-            switchToBaseFragment();
-            BaseRegisterFragment registerFragment = (BaseRegisterFragment) findFragmentByPosition(0);
-            if (registerFragment != null && registerFragment instanceof BaseChildRegisterFragment) {
-                ((BaseChildRegisterFragment) registerFragment).triggerFilterSelection();
-            }
-        }
-    }
 
     //To be overriden
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {

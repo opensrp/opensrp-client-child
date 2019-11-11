@@ -3,13 +3,11 @@ package org.smartregister.child.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -47,13 +45,9 @@ import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.job.SyncServiceJob;
 import org.smartregister.location.helper.LocationHelper;
@@ -512,44 +506,6 @@ toggle.syncState();
             });
             notification.startAnimation(slideUpAnimation);
         }
-    }
-
-    protected CommonPersonObjectClient getChildDetails(@NonNull String baseEntityId) {
-        CommonPersonObjectClient client = null;
-        String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = Utils.metadata().childRegister.motherTableName;
-
-        String mainCondition = tableName + "." + Constants.KEY.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
-
-        SmartRegisterQueryBuilder childQueryBuilder = new SmartRegisterQueryBuilder();
-        childQueryBuilder.SelectInitiateMainTable(tableName,
-                new String[]{tableName + ".relationalid", tableName + ".details", tableName + ".zeir_id",
-                        tableName + ".relational_id", tableName + ".first_name", tableName + ".last_name",
-                        tableName + ".gender", parentTableName + ".first_name as mother_first_name",
-                        parentTableName + ".last_name as mother_last_name", parentTableName + ".dob as mother_dob",
-                        parentTableName + ".nrc_number as mother_nrc_number", tableName + ".father_first_name",
-                        tableName + ".dob", tableName + ".epi_card_number", tableName + ".contact_phone_number",
-                        tableName + ".pmtct_status", tableName + ".provider_uc", tableName + ".provider_town",
-                        tableName + ".provider_id", tableName + ".provider_location_id", tableName + ".client_reg_date",
-                        tableName + ".last_interacted_with", tableName + ".inactive", tableName + ".lost_to_follow_up"});
-        childQueryBuilder.customJoin(
-                "LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
-        String mainSelect = childQueryBuilder.mainCondition(mainCondition);
-
-        CommonRepository commonRepository = getOpenSRPContext().commonrepository(tableName);
-        Cursor cursor = commonRepository.rawCustomQueryForAdapter(mainSelect);
-
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            CommonPersonObject person = commonRepository.readAllcommonforCursorAdapter(cursor);
-            client = new CommonPersonObjectClient(person.getCaseId(), person.getDetails(),
-                    person.getDetails().get("FWHOHFNAME"));
-            client.setColumnmaps(person.getColumnmaps());
-        }
-
-        cursor.close();
-
-        return client;
     }
 
     public Context getOpenSRPContext() {

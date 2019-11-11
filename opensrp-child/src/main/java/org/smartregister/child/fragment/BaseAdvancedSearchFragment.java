@@ -50,6 +50,7 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.domain.FetchStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -72,6 +73,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             if (jsonObject != null) {
                 if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
                     clientAdapter.notifyDataSetChanged();
+                    ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
                     ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
                 } else {
                     Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
@@ -194,9 +196,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
 TO DO ? , sync unsynced records within catchment
 
-        }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag() != null && view.getTag() instanceof List) {
+        }*/ else if (view.getId() == R.id.move_to_catchment && view.getTag(R.id.move_to_catchment_ids) != null && view.getTag(R.id.move_to_catchment_ids) instanceof List) {
 
-            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
+            @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag(R.id.move_to_catchment_ids);
             moveToMyCatchmentArea(ids);
 
         }
