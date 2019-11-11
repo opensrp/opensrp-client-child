@@ -31,6 +31,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
+import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -473,9 +474,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 updateChildFTSTables(values, entityId);
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
+
+                Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
             }
 
-            processClients(context, Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
+            processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> saveReportDeceased");
@@ -521,7 +524,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void processClients(Context context, AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
+    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
 
@@ -1306,7 +1309,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
             addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
-            processClients(context, allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
+            processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
             getClientIdsFromClientsJsonArray(clients);
 
@@ -1674,7 +1677,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         JsonFormUtils.addMetaData(context, event, date);
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(context, allSharedPreferences, ECSyncHelper.getInstance(context));
+        processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
 
         //update details
         Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());

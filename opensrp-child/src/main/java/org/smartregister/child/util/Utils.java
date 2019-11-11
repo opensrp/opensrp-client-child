@@ -13,6 +13,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.json.JSONException;
@@ -23,6 +24,8 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.child.event.BaseEvent;
+import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.growthmonitoring.domain.Height;
@@ -31,9 +34,13 @@ import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.service.intent.HeightIntentService;
+import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.repository.BaseRepository;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -196,6 +203,9 @@ public class Utils extends org.smartregister.util.Utils {
                 vaccineRepository.updateFtsSearch(ftsVaccine);
             }
 
+            if (vaccine != null && (BaseRepository.TYPE_Unprocessed.equals(vaccine.getSyncStatus()) || BaseRepository.TYPE_Unsynced.equals(vaccine.getSyncStatus())))
+                Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
+
         } catch (Exception e) {
             Timber.e(e);
         }
@@ -333,6 +343,10 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         weightWrapper.setDbKey(weight.getId());
+
+        if (weight != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+            Utils.postEvent(new ClientDirtyFlagEvent(weight.getBaseEntityId(), WeightIntentService.EVENT_TYPE));
+
     }
 
     public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String syncStatus) {
@@ -364,6 +378,9 @@ public class Utils extends org.smartregister.util.Utils {
             }
 
             heightWrapper.setDbKey(height.getId());
+
+            if (height != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+                Utils.postEvent(new ClientDirtyFlagEvent(height.getBaseEntityId(), HeightIntentService.EVENT_TYPE));
         }
     }
 
@@ -377,7 +394,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String updateGrowthValue(String value) {
         String growthValue = value;
-        if(NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
+        if (NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
             if (!value.contains(".")) {
                 growthValue = value + ".0";
             }
@@ -466,5 +483,13 @@ public class Utils extends org.smartregister.util.Utils {
         ArrayUtils.reverse(dateArray);
 
         return StringUtils.join(dateArray, "-");
+    }
+
+    public static void postEvent(BaseEvent baseEvent) {
+
+        EventBus eventBus = ChildLibrary.getInstance().getEventBus();
+
+        if (eventBus != null)
+            eventBus.post(baseEvent);
     }
 }
