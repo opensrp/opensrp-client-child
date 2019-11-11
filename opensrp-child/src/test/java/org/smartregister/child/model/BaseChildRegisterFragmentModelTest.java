@@ -31,8 +31,4 @@ public class BaseChildRegisterFragmentModelTest {
         String expected = "(Sort: display)";
         Assert.assertEquals(expected, childRegisterFragmentModel.getSortText(field));
     }
-
-    @Test
-    public void getJsonArray() {
-    }
 }
