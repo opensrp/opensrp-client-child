@@ -100,6 +100,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String GENDER = "gender";
     private static final String ENCOUNTER = "encounter";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
+    private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
     public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
@@ -523,8 +524,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void processClients(Context context, AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
-        ChildLibrary.getInstance().getClientProcessorForJava().getInstance(context).processClient(
-                ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+
+        List<EventClient> eventList = new ArrayList<>();
+        eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unprocessed));
+        eventList.addAll(ecSyncHelper.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+
+        ChildLibrary.getInstance().getClientProcessorForJava().processClient(eventList);
         allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
     }
 
@@ -571,12 +576,18 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         AllCommonsRepository allCommonsRepository = ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName);
         if (allCommonsRepository != null) {
             allCommonsRepository.update(tableName, values, entityId);
-            allCommonsRepository.updateSearch(entityId);
-
+            updateChildFTSTablesSearchOnly(tableName, Arrays.asList(new String[]{entityId}));
         }
     }
 
-    public static Event addMetaData(Context context, Event event, Date start) throws JSONException {
+    //Update All FTS for each client
+    public static void updateChildFTSTablesSearchOnly(String tableName, List<String> entityIds) {
+
+        ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName).updateSearch(entityIds);
+    }
+
+    @SuppressLint("MissingPermission")
+    public static Event addMetaData(Context context, Event event, Date start) {
         Map<String, String> metaFields = new HashMap<>();
         metaFields.put("deviceid", "163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         metaFields.put("end", "163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -592,21 +603,27 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         obs.setFieldDataType("start");
         event.addObs(obs);
 
-
-        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        obs = new Obs();
+        obs.setFieldCode("163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         obs.setValue(end);
         obs.setFieldDataType("end");
         event.addObs(obs);
 
-        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceId = "";
+        try {
 
-        @SuppressLint("MissingPermission") String deviceId =
-                mTelephonyManager.getSimSerialNumber(); //Aready handded by native form
+            TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
 
-        obs.setFieldCode("163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        } catch (SecurityException e) {
+            Timber.e(e, "JsonFormUtils --> MissingPermission --> getSimSerialNumber");
+        }
+        obs = new Obs();
+        obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         obs.setValue(deviceId);
         obs.setFieldDataType("deviceid");
         event.addObs(obs);
+
         return event;
     }
 
@@ -817,18 +834,23 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     public static void saveImage(String providerId, String entityId, String imageLocation) {
-        if (StringUtils.isBlank(imageLocation)) {
-            return;
+        try {
+            if (StringUtils.isBlank(imageLocation)) {
+                return;
+            }
+
+            File file = new File(imageLocation);
+            if (!file.exists()) {
+                return;
+            }
+
+            Bitmap compressedImageFile = ChildLibrary.getInstance().getCompressor().compressToBitmap(file);
+            saveStaticImageToDisk(compressedImageFile, providerId, entityId);
+
+        } catch (IOException e) {
+
+            Timber.e(e, JsonFormConstants.class.getCanonicalName());
         }
-
-        File file = new File(imageLocation);
-        if (!file.exists()) {
-            return;
-        }
-
-        Bitmap compressedImageFile = ChildLibrary.getInstance().getCompressor().compressToBitmap(file);
-        saveStaticImageToDisk(compressedImageFile, providerId, entityId);
-
     }
 
     private static void saveStaticImageToDisk(Bitmap image, String providerId, String entityId) {
@@ -1272,8 +1294,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
     }
 
-    public static boolean processMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences,
-                                                 JSONObject jsonObject) {
+    public static boolean processMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, JSONObject jsonObject) {
 
         try {
             int eventsCount = jsonObject.has(Constants.NO_OF_EVENTS) ? jsonObject.getInt(Constants.NO_OF_EVENTS) : 0;
@@ -1288,12 +1309,32 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
             processClients(context, allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
+            getClientIdsFromClientsJsonArray(clients);
+
             return true;
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> processMoveToCatchment");
         }
 
         return false;
+    }
+
+    private static List<String> getClientIdsFromClientsJsonArray(JSONArray clients) throws JSONException {
+
+        List<String> clientBaseEntityIds = new ArrayList<>();
+
+        for (int i = 0; i < clients.length(); i++) {
+
+            if (!clients.getJSONObject(i).getJSONObject(IDENTIFIERS).has(M_ZEIR_ID)) {
+                clientBaseEntityIds.add(clients.getJSONObject(i).getString("baseEntityId"));
+                ContentValues v = new ContentValues();
+                v.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+                updateChildFTSTables(v, clients.getJSONObject(i).getString("baseEntityId"));
+            }
+
+        }
+
+        return clientBaseEntityIds;
     }
 
     private static JSONArray getOutOFCatchmentJsonArray(JSONObject jsonObject, String clients) throws JSONException {
@@ -1330,26 +1371,39 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void addProcessMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+
         for (Pair<Event, JSONObject> pair : eventList) {
             Event event = pair.first;
             JSONObject jsonEvent = pair.second;
 
             String fromLocationId = null;
             if (Utils.metadata().childRegister.registerEventType.equals(event.getEventType())) {
-                fromLocationId = updateHomeFacility(locationId, event, fromLocationId);
+                fromLocationId = updateHomeFacility(locationId, event);
 
             }
 
-
-            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) ||
-                    Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
                 createMoveToCatchmentEvent(context, providerId, locationId, event, fromLocationId);
 
             }
 
-            // Update providerId, locationId and Save unsynced event
-            event.setProviderId(providerId);
-            event.setLocationId(locationId);
+            /*
+
+            //To do uncomment to handle reports refresh
+
+            if (Constants.EventType.VACCINATION.equals(event.getEventType())) {
+                for (Obs obs : event.getObs()) {
+                    if (obs.getFieldCode().equals(Constants.CONCEPT.VACCINE_DATE)) {
+
+                        String vaccineName = obs.getFormSubmissionField();
+                        setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+                    }
+                }
+            }
+            */
+
+            // Update tags and Save unsynced event
+            JsonFormUtils.tagSyncMetadata(event);
             event.setVersion(System.currentTimeMillis());
             JSONObject updatedJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
             jsonEvent = JsonFormUtils.merge(jsonEvent, updatedJsonEvent);
@@ -1357,37 +1411,64 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
         }
     }
+/*
+    private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
+
+
+        // To Do publish Vaccine Saved Event or Update Reports, process reporting updates on the implementing up
+
+
+        try {
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            if (cumulativePatientRepository == null) {
+                return;
+            }
+
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                cumulativePatient = new CumulativePatient();
+                cumulativePatient.setBaseEntityId(baseEntityId);
+                cumulativePatientRepository.add(cumulativePatient);
+            }
+
+            List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            if (!inValidVaccines.contains(vaccineName)) {
+                inValidVaccines.add(vaccineName);
+                cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
+            }
+        } catch (Exception e) {
+            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+        }
+    }
+    */
 
     private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
         //Create move to catchment event;
-        Event moveToCatchmentEvent = JsonFormUtils
-                .createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+        Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
         if (moveToCatchmentEvent != null) {
-            JSONObject moveToCatchmentJsonEvent =
-                    ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
+            JSONObject moveToCatchmentJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
             if (moveToCatchmentJsonEvent != null) {
-                ChildLibrary.getInstance().getEcSyncHelper()
-                        .addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                ChildLibrary.getInstance().getEcSyncHelper().addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
             }
         }
     }
 
-    private static String updateHomeFacility(String toLocationId, Event event, String fromLocationId) {
+    private static String updateHomeFacility(String toLocationId, Event event) {
         // Update home facility
-        String locationId = fromLocationId;
+        String locationId = null;
         for (Obs obs : event.getObs()) {
             if (obs.getFormSubmissionField().equals(Constants.HOME_FACILITY)) {
                 locationId = obs.getValue().toString();
                 List<Object> values = new ArrayList<>();
                 values.add(toLocationId);
                 obs.setValues(values);
+                break;
             }
         }
         return locationId;
     }
 
-    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId,
-                                                   String toProviderId, String toLocationId) {
+    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
 
@@ -1559,9 +1640,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    public static Map<String, String> updateClientAttribute(Context context,
-                                                            CommonPersonObjectClient childDetails, String attributeName,
-                                                            Object attributeValue) throws Exception {
+    public static Map<String, String> updateClientAttribute(Context context, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws Exception {
 
         org.smartregister.Context openSRPContext = CoreLibrary.getInstance().context();
 

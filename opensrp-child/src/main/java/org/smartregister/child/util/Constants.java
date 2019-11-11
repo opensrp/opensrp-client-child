@@ -36,7 +36,6 @@ public class Constants extends AllConstants {
     public static final String EVENTS = "events";
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
-    public static final String CARD_ID = "CARD_ID";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -92,6 +91,7 @@ public class Constants extends AllConstants {
         public static final String INACTIVE = "inactive";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";

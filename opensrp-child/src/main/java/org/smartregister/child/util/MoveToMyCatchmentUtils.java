@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by keyman on 26/01/2017.
  */
@@ -29,6 +31,12 @@ public class MoveToMyCatchmentUtils {
                                          final ProgressDialog progressDialog) {
 
         org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONObject>() {
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
             @Override
             protected JSONObject doInBackground(Void... params) {
                 publishProgress();
@@ -50,11 +58,6 @@ public class MoveToMyCatchmentUtils {
                 listener.onEvent(result);
                 progressDialog.dismiss();
             }
-
-            @Override
-            protected void onProgressUpdate(Void... values) {
-                progressDialog.show();
-            }
         }, null);
     }
 
@@ -71,6 +74,8 @@ public class MoveToMyCatchmentUtils {
 
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
         String uri = baseUrl + SyncIntentService.SYNC_URL + paramString;
+
+        Timber.d(new StringBuilder(MoveToMyCatchmentUtils.class.getCanonicalName()).append(" ").append(uri).toString());
 
         return context.getHttpAgent().fetch(uri);
     }

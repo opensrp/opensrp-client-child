@@ -29,7 +29,6 @@ import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
-import org.smartregister.configurableviews.model.Field;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -44,7 +43,6 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -329,10 +327,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         return (ChildRegisterFragmentContract.Presenter) presenter;
     }
 
-    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
-        ((BaseChildRegisterFragmentPresenter) presenter).updateSortAndFilter(filterList, sortField);
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         final AdvancedMatrixCursor matrixCursor = ((BaseChildRegisterFragmentPresenter) presenter).getMatrixCursor();
@@ -388,12 +382,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             }
         }
         return count;
-    }
-
-    public void triggerFilterSelection() {
-        if (filterSection != null && !filterMode()) {
-            filterSection.performClick();
-        }
     }
 
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
