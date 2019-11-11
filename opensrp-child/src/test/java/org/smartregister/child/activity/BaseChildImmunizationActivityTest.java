@@ -1,5 +1,6 @@
 package org.smartregister.child.activity;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class})
+@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class})
 @RunWith(PowerMockRunner.class)
 public class BaseChildImmunizationActivityTest {
 
@@ -159,7 +160,7 @@ public class BaseChildImmunizationActivityTest {
         weightWrapper.setWeight(45f);
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setHeight(34f);
-
+        PowerMockito.mockStatic(TextUtils.class);
         String weightText = weightWrapper.getWeight() + " kg, " + heightWrapper.getHeight() + " cm";
 
         Whitebox.setInternalState(baseChildImmunizationActivity, "recordWeightText", textView);

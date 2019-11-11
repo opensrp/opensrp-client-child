@@ -1,5 +1,7 @@
 package org.smartregister.child.model;
 
+import android.text.TextUtils;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -24,10 +28,11 @@ import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
+
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CoreLibrary.class, LocationHelper.class})
+@PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class})
 public class BaseChildRegisterModelTest {
 
     @Mock
@@ -48,13 +53,15 @@ public class BaseChildRegisterModelTest {
     }
 
     @Test
-    public void processRegistrationWithNewWomanRegistration() {
+    public void processRegistrationWithNewChildRegistration() {
         String anm = "providerId";
         PowerMockito.mockStatic(CoreLibrary.class);
         PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(locationHelper.getOpenMrsLocationId("locality")).thenReturn("ssd");
         PowerMockito.when(CoreLibrary.getInstance()).thenReturn(coreLibrary);
+        //ChildLibrary.getInstance().eventClientRepository()
+        //                .getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
         PowerMockito.when(coreLibrary.context()).thenReturn(context);
         PowerMockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(anm);
         PowerMockito.when(allSharedPreferences.fetchUserLocalityId(anm)).thenReturn("locality");
@@ -64,7 +71,14 @@ public class BaseChildRegisterModelTest {
                 .thenReturn("teamId");
         PowerMockito.when(context.allCommonsRepositoryobjects("test")).thenReturn(Mockito.mock(AllCommonsRepository.class));
         PowerMockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
-
+        PowerMockito.mockStatic(TextUtils.class);
+        PowerMockito.when(TextUtils.isEmpty(Mockito.<String>any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                String s = invocation.getArgument(0);
+                return s == null || s.length() == 0;
+            }
+        });
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
                 null, true);
         metadata.updateChildRegister("test", "test",
@@ -94,10 +108,10 @@ public class BaseChildRegisterModelTest {
                 "\"openmrs_entity_id\":\"inactive\",\"type\":\"hidden\",\"value\":\"\"}]},\"invisible_required_fields\":\"[]\",\"details\":{\"appVersionName\":\"1.6.59-SNAPSHOT\",\"formVersion\":\"\"}}";
         BaseChildRegisterModel baseChildRegisterModel = new BaseChildRegisterModel();
         List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class));
-        //Expect child and mother event
-        Assert.assertEquals(2, actualEvent.size());
+//        Assert.(actualEvent);
+        //Expect child registration event
+        Assert.assertEquals(1, actualEvent.size());
         Assert.assertEquals("ChildRegister", actualEvent.get(0).getEvent().getEventType());
-        Assert.assertEquals("New Woman Registration", actualEvent.get(1).getEvent().getEventType());
     }
 
     @After
