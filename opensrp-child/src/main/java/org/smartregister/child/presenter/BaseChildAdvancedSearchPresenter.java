@@ -8,10 +8,15 @@ import org.smartregister.child.interactor.ChildAdvancedSearchInteractor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.domain.Response;
 
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.Map;
+
+import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.END_DATE;
+import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.START_DATE;
 
 /**
  * Created by ndegwamartin on 11/04/2019.
@@ -22,6 +27,8 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     public static final String TABLE_NAME = Utils.metadata().childRegister.tableName;
     private WeakReference<ChildAdvancedSearchContract.View> viewReference;
     private ChildAdvancedSearchContract.Model model;
+
+    private static final String BIRTH_DATE = "birth_date";
 
     public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier,
                                             BaseChildAdvancedSearchModel advancedSearchModel) {
@@ -65,9 +72,33 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
                     localQueryInitialize(localMap);
                 }
             }
-            interactor.search(editMap, this, searchMap.get(Constants.KEY.ZEIR_ID));
+            interactor.search(cleanMapForAdvancedSearch(editMap), this, searchMap.get(Constants.KEY.ZEIR_ID));
 
         }
+    }
+
+    protected Map<String, String> cleanMapForAdvancedSearch(Map<String, String> editMap) {
+
+        if (editMap.containsKey(START_DATE) || editMap.containsKey(END_DATE)) {
+
+            Date date0 = new Date(0);
+            String startDate = DateUtil.yyyyMMdd.format(date0);
+
+            Date now = new Date();
+            String endDate = DateUtil.yyyyMMdd.format(now);
+
+            if (editMap.containsKey(START_DATE)) {
+                startDate = editMap.remove(START_DATE);
+            }
+            if (editMap.containsKey(END_DATE)) {
+                endDate = editMap.remove(END_DATE);
+            }
+
+            String bDate = startDate + ":" + endDate;
+            editMap.put(BIRTH_DATE, bDate);
+        }
+
+        return editMap;
     }
 
     protected ChildAdvancedSearchContract.View getView() {

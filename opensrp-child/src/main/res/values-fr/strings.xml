@@ -189,7 +189,7 @@
     <string name="hia2_sent_monthly">Soumis par mois</string>
     <string name="start_new_report">Lancer un nouveau rapport</string>
     <string name="no_draft_reports">Aucun rapport provisoir</string>
-    <string name="no_monthly_ready">Aucun Rapport ÉIS2 mensuel prêt pour être finalisé.</string>
+    <string name="no_monthly_ready">Aucun Rapport mensuel prêt pour être finalisé.</string>
     <string name="reports_available">Rapports disponibles</string>
     <string name="sent_reports_">Rapports envoyés > %1$s</string>
     <string name="submitted_by_">Soumis %1$s par %2$s</string>
