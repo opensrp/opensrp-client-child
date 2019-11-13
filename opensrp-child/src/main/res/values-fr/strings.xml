@@ -3,27 +3,27 @@
     <!-- general -->
     <string name="app_name">opensrp-child</string>
     <string name="no_unique_id">Aucune ids trouvées. Cliquez sur la touche sync pour en obtenir plus et si l\'erreur se reproduit, contactez l\'administrateur du système.</string>
-    <string name="error_unable_to_start_form">Un erreur s\'est produite en lancant le formulaire</string>
+    <string name="error_unable_to_start_form">Un erreur s\'est produite en lancant le formulaire.</string>
     <string name="no_matching_record_found_on_this_device">Aucun records corréspondants retrouvés sur cet apareil.</string>
 
     <!-- menu -->
-    <string name="add_member">Ajouter membre</string>
+    <string name="add_member">Ajouter Membre</string>
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
-    <string name="add_child">Ajouter enfant</string>
+    <string name="add_child">Ajouter Enfant</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
-    <string name="any_changes_you_make">Toutes les modifications que vous avez effectué seront perdus</string>
+    <string name="any_changes_you_make">Toutes les modifications que vous avez effectué seront perdus.</string>
 
-    <string name="invalid_device_date">La date et heure de l\'appareil doivent être après la dernière synchronisation date et heure du serveur qui a eu lieu</string>
+    <string name="invalid_device_date">La date et heure de l\'appareil doivent être après la dernière synchronisation date et heure du serveur qui a eu lieu.</string>
     <string name="home_women_label">Femme</string>
     <string name="home_field_monitor_label">Stock</string>
     <string name="child_entries">Enfant</string>
     <string name="child_profile">ENFANT</string>
-    <string name="child_DOB">Date de naissance</string>
+    <string name="child_DOB">Date de Naissance</string>
     <string name="child_reminder">Rappel</string>
-    <string name="child_next_vaccine">Vaccination dûe</string>
+    <string name="child_next_vaccine">Vaccination Dûe</string>
     <string name="child_register_title">Registre d\'enfants</string>
     <string name="register_search_hint">Recherche</string>
     <string name="child_title">Enfant</string>
@@ -76,12 +76,12 @@
     <string name="field_title">Stock régistre</string>
     <string name="str_field_search_hint">Rechercher le régistre</string>
     <string name="pick_report">Rapport</string>
-    <string name="field_details_title">Position du stock</string>
+    <string name="field_details_title">Position du Stock</string>
     <string name="title_activity_vaccine_report">Rapport de Vaccination</string>
     <string name="action_settings">Paramètres</string>
     <string name="section_format">Salut le monde! de la section : %1$d</string>
     <string name="userNameText">Nom de l\'utilisateur</string>
-    <string name="passwordText">Mot de passe</string>
+    <string name="passwordText">Mot de Passe</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Bonjour fragment vierge</string>
     <string name="undo">Annuler</string>
@@ -93,8 +93,8 @@
     <string name="form_saved_success_dialog_message">Formulaire enregistré!</string>
     <string name="form_saved_failed_dialog_message">Erreur rencontrée  qui empêche l\'enrégistration du formulaire.</string>
     <string name="ok_button_label">OK</string>
-    <string name="forminputerror">Veuillez réviser le formulaire et corriger le ou les informations omises ou eronnées  identifiés dans la case rouge. </string>
-    <string name="okforminputerror">ok</string>
+    <string name="forminputerror">Veuillez réviser le formulaire et corriger le ou les informations omises ou eronnées identifiés dans la case rouge. </string>
+    <string name="okforminputerror">Ok</string>
     <string name="child_followup">Suivi de l\'enfant</string>
     <string name="woman_followup">Suivi de la femme</string>
     <string name="edit">Réviser</string>
@@ -152,8 +152,8 @@
     <string name="inactive">Inactif</string>
     <string name="lost_to_follow_up">Perdu au suivi</string>
     <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
-    <string name="status">état</string>
-    <string name="iz_id_hint">numéro d\'identification</string>
+    <string name="status">État</string>
+    <string name="iz_id_hint">Numéro d\'identification</string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
@@ -278,7 +278,7 @@
     <string name="mother_last_name">Nom mère</string>
     <string name="mother_guardian_dob">Date de naissance de la mère</string>
     <string name="father_guardian_date_birth">Date de naissance de la père</string>
-    <string name="father_guardian_phone_number">Numéro de téléphone du père/personne</string>
+    <string name="father_guardian_phone_number">Numéro de téléphone du père/gardienne</string>
     <string name="place_of_birth">Lieu de naissance</string>
     <string name="health_facility_the_child_was_in">Structure de naissance</string>
     <string name="other_birth_facility">Autre stucture de naissance</string>
@@ -295,13 +295,13 @@
     <string name="vaccine_group_birth_name">Naissance</string>
     <string name="tap_to_view">Tapez pour voir</string>
     <string name="undo_lookup">Annuler la recherche.</string>
-    <string name="mother_guardian_matches">%1$d résultats trouvés mère/personne.</string>
+    <string name="mother_guardian_matches">%1$d résultats trouvés mère/gardienne.</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
     <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications allumer.</string>
-    <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps</string>
-    <string name="notifications_off_child_cannot_be_located">Notifications désactivées. L\'enfant ne peut pas être trouvé</string>
+    <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps.</string>
+    <string name="notifications_off_child_cannot_be_located">Notifications désactivées. L\'enfant ne peut pas être trouvé.</string>
 
     <string name="marked_as_deceased">%1$s marqué comme décédé</string>
 
@@ -313,20 +313,20 @@
     <string name="at_birth">à la naissance</string>
     <string name="after_lmp">Après dernières règles</string>
 
-    <string name="_6_weeks">6 semaines</string>
-    <string name="_10_weeks">10 semaines</string>
-    <string name="_14_weeks">14 semaines</string>
-    <string name="_5_months">5 mois</string>
-    <string name="_6_months">6 mois</string>
-    <string name="_7_months">7 mois</string>
-    <string name="_9_months">9 mois</string>
-    <string name="_15_months">15 mois</string>
-    <string name="_18_months">18 mois</string>
-    <string name="_22_months">22 mois</string>
-    <string name="_4_weeks_after_tt_1">4 semaines après le TT 1</string>
-    <string name="_26_weeks_after_tt_2">26 semaines après le TT 2</string>
-    <string name="_1_year_after_tt_3"> 1 an après TT 3 </string>
-    <string name="_1_year_after_tt_4"> 1 an après TT 4 </string>
+    <string name="_6_weeks">6 Semaines</string>
+    <string name="_10_weeks">10 Semaines</string>
+    <string name="_14_weeks">14 Semaines</string>
+    <string name="_5_months">5 Mois</string>
+    <string name="_6_months">6 Mois</string>
+    <string name="_7_months">7 Mois</string>
+    <string name="_9_months">9 Mois</string>
+    <string name="_15_months">15 Mois</string>
+    <string name="_18_months">18 Mois</string>
+    <string name="_22_months">22 Mois</string>
+    <string name="_4_weeks_after_tt_1">4 Semaines Après le TT 1</string>
+    <string name="_26_weeks_after_tt_2">26 Semaines Après le TT 2</string>
+    <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
+    <string name="_1_year_after_tt_4"> 1 An Après TT 4 </string>
     <string name="move_to_catchment">Aller à ma zone\nde captage</string>
     <string name="unable_to_move_to_my_catchment">Impossible de se déplacer dans mon bassin</string>
     <string name="activate_new_card">ACTIVER LA CARTE</string>
