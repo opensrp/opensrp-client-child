@@ -475,7 +475,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
 
-                Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
+           //     Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
             }
 
             processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
@@ -1174,7 +1174,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
         Map<String, String> identifierMap = getIdentifierMap(fields, parent, bindType);
-        Date birthDate = formatDate(stringBirthDate, true);
+        Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
         String approxBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
@@ -1253,8 +1253,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId,
                                             String encounterType, String bindType) {
 
-        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository()
-                .getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
+        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
 
         boolean alreadyExists = eventClients.size() > 0;
         org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
