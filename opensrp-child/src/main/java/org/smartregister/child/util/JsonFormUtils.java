@@ -99,7 +99,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
     public static final String GENDER = "gender";
     private static final String ENCOUNTER = "encounter";
-    private static final String M_ZEIR_ID = "M_ZEIR_ID";
+    public static final String M_ZEIR_ID = "M_ZEIR_ID";
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
