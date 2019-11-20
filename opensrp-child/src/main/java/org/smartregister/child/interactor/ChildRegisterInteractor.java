@@ -141,8 +141,12 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         } else {
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-                            processWeight(jsonString, params, clientJson);
-                            processHeight(jsonString, params, clientJson);
+                            // This prevents a crash when the birthdate of a mother is not available in the clientJson
+                            // We also don't need to process the mother's weight & height
+                            if (!baseClient.getIdentifiers().containsKey(JsonFormUtils.M_ZEIR_ID)) {
+                                processWeight(jsonString, params, clientJson);
+                                processHeight(jsonString, params, clientJson);
+                            }
                         }
                     }
 

@@ -848,7 +848,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             saveStaticImageToDisk(compressedImageFile, providerId, entityId);
 
         } catch (IOException e) {
-
             Timber.e(e, JsonFormConstants.class.getCanonicalName());
         }
     }
