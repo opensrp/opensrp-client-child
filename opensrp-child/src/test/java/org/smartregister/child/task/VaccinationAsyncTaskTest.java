@@ -117,7 +117,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
                 , "localizeStateKey"
                 , ReflectionHelpers.ClassParameter.from(String.class, "6 WEEKS"));
 
-        assertEquals("6 weeks", localizedStateKey);
+        assertEquals("6 Weeks", localizedStateKey);
 
     }
 }

@@ -478,8 +478,8 @@ public class Utils extends org.smartregister.util.Utils {
      **/
 
     public static String getOpenMrsIdForMother() {
-        SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getWritableDatabase();
         try {
+            SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getWritableDatabase();
             Cursor cursor = sqLiteDatabase.query(Constants.CoreTable.TABLE_NAME,
                     new String[]{Constants.CoreTable.Columns.OPENMRSID}, Constants.CoreTable.Columns.STATUS + " = ?",
                     new String[]{Constants.CoreTable.Columns.NOTUSED},
@@ -492,8 +492,10 @@ public class Utils extends org.smartregister.util.Utils {
             }
             cursor.close();
             return motherZeirId;
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e){
+            Timber.e(e);
+            return null;
+        } catch (NullPointerException e){
             Timber.e(e);
             return null;
         }
