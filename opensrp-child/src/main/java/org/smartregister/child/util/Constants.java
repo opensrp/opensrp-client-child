@@ -172,4 +172,15 @@ public class Constants extends AllConstants {
 
     }
 
+    public interface CoreTable {
+        String TABLE_NAME = "unique_ids";
+
+        interface Columns {
+            String NOTUSED = "not_used";
+            String OPENMRSID = "openmrs_id";
+            String STATUS = "status";
+            String CREATED_AT = "created_at";
+        }
+    }
+
 }

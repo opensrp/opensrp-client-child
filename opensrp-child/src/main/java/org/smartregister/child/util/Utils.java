@@ -10,6 +10,9 @@ import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import net.sqlcipher.Cursor;
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -377,7 +380,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String updateGrowthValue(String value) {
         String growthValue = value;
-        if(NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
+        if (NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
             if (!value.contains(".")) {
                 growthValue = value + ".0";
             }
@@ -466,5 +469,33 @@ public class Utils extends org.smartregister.util.Utils {
         ArrayUtils.reverse(dateArray);
 
         return StringUtils.join(dateArray, "-");
+    }
+
+    /**
+     * fetches first two unused openmrs_ids from unique_ids table
+     *
+     * @return the second openmrs_id to be used in case of a new mother registration
+     **/
+
+    public static String getOpenMrsIdForMother() {
+        SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getWritableDatabase();
+        try {
+            Cursor cursor = sqLiteDatabase.query(Constants.CoreTable.TABLE_NAME,
+                    new String[]{Constants.CoreTable.Columns.OPENMRSID}, Constants.CoreTable.Columns.STATUS + " = ?",
+                    new String[]{Constants.CoreTable.Columns.NOTUSED},
+                    null,
+                    null,
+                    Constants.CoreTable.Columns.CREATED_AT + " ASC", "2");
+            String motherZeirId = null;
+            if (cursor.move(2)) {
+                motherZeirId = cursor.getString(0);
+            }
+            cursor.close();
+            return motherZeirId;
+        }
+        catch (IllegalArgumentException e){
+            Timber.e(e);
+            return null;
+        }
     }
 }
