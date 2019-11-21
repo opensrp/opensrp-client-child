@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
-import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.view.contract.BaseRegisterContract;
 
