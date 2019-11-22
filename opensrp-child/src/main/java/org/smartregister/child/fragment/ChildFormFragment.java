@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatButton;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -264,10 +263,64 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         TextView textView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(Gravity.CENTER);
+        textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_error, 0, 0, 0);
+        textView.setCompoundDrawablePadding(paddingInt);
+        textView.setPadding(paddingInt, 0, 0, 0);
+        textView.setTextColor(getResources().getColor(R.color.white));
+
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 actionView.performClick();
+            }
+        });
+
+        snackbarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionView.performClick();
+            }
+        });
+
+        snackbar.show();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                snackbar.dismiss();
+            }
+        }, duration);
+
+    }
+
+    private void showFinalActionSnackBar(final Snackbar snackbar, int duration) {
+        if (snackbar == null) {
+            return;
+        }
+
+        float drawablePadding = getResources().getDimension(R.dimen.register_drawable_padding);
+        int paddingInt = Float.valueOf(drawablePadding).intValue();
+
+        float textSize = getActivity().getResources().getDimension(R.dimen.snack_bar_text_size);
+
+        View snackbarView = snackbar.getView();
+        snackbarView.setMinimumHeight(Float.valueOf(textSize).intValue());
+        snackbarView.setBackgroundResource(R.color.accent);
+
+        final Button actionView = snackbarView.findViewById(android.support.design.R.id.snackbar_action);
+        actionView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        actionView.setGravity(Gravity.CENTER);
+        actionView.setTextColor(getResources().getColor(R.color.white));
+
+        TextView textView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        textView.setGravity(Gravity.CENTER);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                clearMotherLookUp();
             }
         });
         textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_error, 0, 0, 0);
@@ -278,7 +331,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         snackbarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                snackbar.dismiss();
+                // actionView.performClick();
             }
         });
 
@@ -370,19 +423,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             @Override
             public void onClick(View v) {
 
-                clearMotherLookUp();
+                snackbar.dismiss();
 
             }
         });
-        show(snackbar, 30000);
-    }
-
-    private boolean isDismiss(AppCompatButton v) {
-        try {
-            return v.getText().equals(getMainView().getContext().getString(R.string.dismiss));
-        } catch (Exception e) {
-            return false;
-        }
+        showFinalActionSnackBar(snackbar, 30000);
     }
 
     private void clearMotherLookUp() {

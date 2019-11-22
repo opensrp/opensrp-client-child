@@ -27,6 +27,7 @@ public class ChildLibrary {
     private final ChildMetadata metadata;
 
     private int applicationVersion;
+    private String applicationVersionName;
     private int databaseVersion;
 
     private UniqueIdRepository uniqueIdRepository;
@@ -145,5 +146,13 @@ public class ChildLibrary {
 
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    public String getApplicationVersionName() {
+        return applicationVersionName;
+    }
+
+    public void setApplicationVersionName(String applicationVersionName) {
+        this.applicationVersionName = applicationVersionName;
     }
 }

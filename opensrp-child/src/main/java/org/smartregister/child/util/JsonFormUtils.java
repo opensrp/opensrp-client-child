@@ -31,7 +31,6 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
-import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -475,7 +474,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
 
-           //     Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
+                //     Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
             }
 
             processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
@@ -808,7 +807,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 String ageString = getFieldValue(fields, Constants.JSON_FORM_KEY.AGE);
                 if (StringUtils.isNotBlank(ageString) && NumberUtils.isNumber(ageString)) {
                     int age = Integer.valueOf(ageString);
-                    JSONObject dobJSONObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DOB);
+                    JSONObject dobJSONObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
                     dobJSONObject.put(VALUE, Utils.getDob(age));
 
                     //Mark the birth date as an approximation
@@ -1060,6 +1059,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         FormTag formTag = new FormTag();
         formTag.providerId = allSharedPreferences.fetchRegisteredANM();
         formTag.appVersion = ChildLibrary.getInstance().getApplicationVersion();
+        formTag.appVersionName = ChildLibrary.getInstance().getApplicationVersionName();
         formTag.databaseVersion = ChildLibrary.getInstance().getDatabaseVersion();
         return formTag;
     }

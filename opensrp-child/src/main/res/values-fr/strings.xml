@@ -104,7 +104,7 @@
     <string name="global_search">Recherche globale</string>
     <string name="navigation_drawer_open">Ouvrir le volet de navigation</string>
     <string name="navigation_drawer_close">Fermez le volet de navigation</string>
-    <string name="child_siblings">%s SES FRÈRES ET/OU SOEURS</string>
+    <string name="child_siblings">%s FRÈRES ET/OU SOEURS</string>
     <string name="female_sex_id">elle</string>
     <string name="male_sex_id">lui</string>
     <string name="label_zeir">ID</string>
