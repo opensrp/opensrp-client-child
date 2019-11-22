@@ -1,6 +1,9 @@
 package org.smartregister.child.contract;
 
+import android.support.annotation.NonNull;
+
 import org.apache.commons.lang3.tuple.Triple;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
@@ -8,6 +11,7 @@ import org.smartregister.domain.tag.FormTag;
 import org.smartregister.view.contract.BaseRegisterContract;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -61,6 +65,12 @@ public interface ChildRegisterContract {
                               final ChildRegisterContract.InteractorCallBack callBack);
 
         void removeChildFromRegister(String closeFormJsonString, String providerId);
+
+        void processWeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException;
+
+        void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException;
+
+        boolean isClientMother(@NonNull Map<String, String> identifiers);
 
     }
 
