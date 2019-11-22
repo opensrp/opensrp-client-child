@@ -1229,7 +1229,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         if (motherZeirId == null) {
             return identifiers;
         }
-        identifiers.put(M_ZEIR_ID, motherZeirId);
+        identifiers.put(M_ZEIR_ID, motherZeirId.replace("-",""));
         return identifiers;
     }
 
