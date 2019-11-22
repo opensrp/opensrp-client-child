@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -161,8 +162,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.DATE_PICKER:
                 Date date = JsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
-                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN)
-                            .format(date);
+                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                            Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()).format(date);
                 }
                 break;
             case JsonFormConstants.SPINNER:
@@ -179,10 +180,9 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 break;
         }
 
-        if(unformattedNumberFields.contains(field.getKey())){
+        if (unformattedNumberFields.contains(field.getKey())) {
             result = result.trim();
-        }
-        else{
+        } else {
             result = cleanResult(result.trim());
         }
 
@@ -200,7 +200,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     /**
      * Add number fields that should not be formatted by the number format e.g mothers phone number
      ***/
-    protected List<String> addUnFormattedNumberFields(String...key) {
+    protected List<String> addUnFormattedNumberFields(String... key) {
         unformattedNumberFields = new ArrayList<>();
         unformattedNumberFields.addAll(Arrays.asList(key));
         return unformattedNumberFields;

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -277,7 +278,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         snackbarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                actionView.performClick();
+                snackbar.dismiss();
             }
         });
 
@@ -364,14 +365,24 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     private void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.cancel, new View.OnClickListener() {
+        snackbar.setDuration(10000);
+        snackbar.setAction(R.string.dismiss, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                snackbar.dismiss();
+
                 clearMotherLookUp();
+
             }
         });
         show(snackbar, 30000);
+    }
+
+    private boolean isDismiss(AppCompatButton v) {
+        try {
+            return v.getText().equals(getMainView().getContext().getString(R.string.dismiss));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void clearMotherLookUp() {

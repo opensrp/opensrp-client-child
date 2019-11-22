@@ -24,6 +24,7 @@ import org.smartregister.location.helper.LocationHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -90,7 +91,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (weight != null && serviceDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
             weight.setDate(dateFormat.parse(serviceDate));
         }
 
@@ -147,7 +148,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         SimpleDateFormat dateFormat =
-                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
+                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,Locale.ENGLISH);
         for (Vaccine curVaccine : vaccines) {
             if (serviceDate != null) {
                 curVaccine.setDate(dateFormat.parse(serviceDate));

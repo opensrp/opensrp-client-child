@@ -367,6 +367,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             identifier = getString(R.string.male_sex_id);
         }
 
+        if (Locale.getDefault().toString().equals("ar")) {
+            identifier = "";
+        }
+
         toolbar.updateSeparatorView(toolbarResource);
         childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
 
