@@ -1,5 +1,6 @@
 package org.smartregister.child.interactor;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
@@ -34,6 +35,7 @@ import org.smartregister.sync.helper.ECSyncHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -141,8 +143,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                         } else {
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-                            processWeight(jsonString, params, clientJson);
-                            processHeight(jsonString, params, clientJson);
+                            // This prevents a crash when the birthdate of a mother is not available in the clientJson
+                            // We also don't need to process the mother's weight & height
+                            processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+                            processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
                         }
                     }
 
@@ -223,10 +227,13 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         return ChildLibrary.getInstance().getEcSyncHelper();
     }
 
-    private void processWeight(String jsonString, UpdateRegisterParams params, JSONObject clientJson) throws JSONException {
-        String weight = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
+    @Override
+    public void processWeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull  JSONObject clientJson) throws JSONException {
+        String weight = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
-        if (!TextUtils.isEmpty(weight)) {
+        // This prevents a crash when the birthdate of a mother is not available in the clientJson
+        // We also don't need to process the mother's weight & height
+        if (!TextUtils.isEmpty(weight) && !isClientMother(identifiers)) {
             WeightWrapper weightWrapper = new WeightWrapper();
             weightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
             weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
@@ -239,10 +246,13 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         }
     }
 
-    private void processHeight(String jsonString, UpdateRegisterParams params, JSONObject clientJson) throws JSONException {
-        String height = JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
+    @Override
+    public void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull  JSONObject clientJson) throws JSONException {
+        String height = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
 
-        if (!TextUtils.isEmpty(height)) {
+        // This prevents a crash when the birthdate of a mother is not available in the clientJson
+        // We also don't need to process the mother's weight & height
+        if (!TextUtils.isEmpty(height) && !isClientMother(identifiers)) {
             HeightWrapper heightWrapper = new HeightWrapper();
             heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
             heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : 0);
@@ -253,6 +263,11 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, params.getStatus());
         }
+    }
+
+    @Override
+    public boolean isClientMother(@NonNull Map<String, String> identifiers) {
+        return identifiers.containsKey(JsonFormUtils.M_ZEIR_ID);
     }
 
     public AllSharedPreferences getAllSharedPreferences() {
