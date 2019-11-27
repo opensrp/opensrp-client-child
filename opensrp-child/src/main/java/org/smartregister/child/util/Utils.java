@@ -489,7 +489,7 @@ public class Utils extends org.smartregister.util.Utils {
 
         EventBus eventBus = ChildLibrary.getInstance().getEventBus();
 
-        if (eventBus != null)
+        if (eventBus != null && baseEvent != null)
             eventBus.post(baseEvent);
     }
 }

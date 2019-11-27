@@ -536,10 +536,14 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     private static Event getEvent(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
-        return (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
+        Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
                 .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+
+        JsonFormUtils.tagSyncMetadata(event);
+
+        return event;
     }
 
     private static void createDeathEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
@@ -564,8 +568,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Event updateChildDetailsEvent = getEvent(providerId, locationId, entityId, JsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
 
         addMetaData(context, updateChildDetailsEvent, new Date());
-
-        JsonFormUtils.tagSyncMetadata(updateChildDetailsEvent);
 
         JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
 
@@ -1510,7 +1512,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             addMetaData(context, event, new Date());
 
-            JsonFormUtils.tagSyncMetadata(event);
             return event;
 
         } catch (Exception e) {
