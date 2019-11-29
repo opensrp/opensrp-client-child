@@ -124,8 +124,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             genderLightColor = isDeceased ? R.color.lighter_grey : R.color.male_light_blue;
         }
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false)
-                .equals(Constants.TRUE)) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.TRUE)) {
             profilePhoto.setVisibility(View.VISIBLE);
             initials.setBackgroundColor(baseActivity.getResources().getColor(android.R.color.transparent));
             initials.setTextColor(baseActivity.getResources().getColor(android.R.color.black));
@@ -139,11 +138,14 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             initials.setTextColor(baseActivity.getResources().getColor(genderColor));
         }
 
+        processChildNames(baseActivity, childDetails);
+    }
+
+    private void processChildNames(final BaseActivity baseActivity, final CommonPersonObjectClient childDetails) {
         final String firstName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
         final String lastName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false)
-                .equals("false")) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.FALSE)) {
             initials.setVisibility(View.VISIBLE);
             String initialsString = "";
             if (!TextUtils.isEmpty(firstName)) {

@@ -36,6 +36,7 @@ public final class Constants extends AllConstants {
     public static final String EVENTS = "events";
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
+    public static final String FALSE = "false";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
