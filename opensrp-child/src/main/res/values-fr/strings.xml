@@ -1,7 +1,6 @@
 <resources>
 
     <!-- general -->
-    <string name="app_name">opensrp-child</string>
     <string name="no_unique_id">Aucune ids trouvées. Cliquez sur la touche sync pour en obtenir plus et si l\'erreur se reproduit, contactez l\'administrateur du système.</string>
     <string name="error_unable_to_start_form">Un erreur s\'est produite en lancant le formulaire.</string>
     <string name="no_matching_record_found_on_this_device">Aucun records corréspondants retrouvés sur cet apareil.</string>
@@ -28,7 +27,7 @@
     <string name="register_search_hint">Recherche</string>
     <string name="child_title">Enfant</string>
     <string name="child_alphabetical_sort">Ordre alphabétique (Nom de l\'enfant)</string>
-    <string name="child_id_sort">Id programmatique</string>
+    <string name="child_id_sort">ID Programmatique</string>
     <string name="child_search_hint">Rechercher l\'enfant</string>
     <string name="child_details_title">Détails sur l\'enfant</string>
     <string name="stock_title">Gestion des stocks</string>
@@ -105,26 +104,26 @@
     <string name="global_search">Recherche globale</string>
     <string name="navigation_drawer_open">Ouvrir le volet de navigation</string>
     <string name="navigation_drawer_close">Fermez le volet de navigation</string>
-    <string name="child_siblings">%s frères et sœurs</string>
+    <string name="child_siblings">%s FRÈRES ET/OU SOEURS</string>
     <string name="female_sex_id">elle</string>
     <string name="male_sex_id">lui</string>
     <string name="label_zeir">ID</string>
-    <string name="label_immunization_records">SERVICES D\'IMMUNISATION &amp; </string>
+    <string name="label_immunization_records">IMMUNISATION ET SERVICES </string>
     <string name="str_search_hint">Rechercher nom ou ID</string>
     <string name="scan_qr_code">Scanner le code QR</string>
     <string name="zeir">ID</string>
     <string name="select_location">Selectionner le site</string>
-    <string name="no_openmrs_id">Aucune Id unique retrouvées. Cliquez sur la touche sync pour en obtenir plus de Ids. Si l\'erreur se reproduit contactez l\'administrateur du système.</string>
-    <string name="edit_registration_data">Réviser les données d\'enregistrement</string>
-    <string name="edit_immunization_data">Réviser les données sur l\'immunisation</string>
-    <string name="edit_recurring_services_data">Réviser les données sur les services récurrents</string>
+    <string name="no_openmrs_id">Aucune ID unique retrouvées. Cliquez sur la touche sync pour en obtenir plus de Ids. Si l\'erreur se reproduit contactez l\'administrateur du système.</string>
+    <string name="edit_registration_data">Modifier les données enregistrées</string>
+    <string name="edit_immunization_data">Modifier les données d\'immunization</string>
+    <string name="edit_recurring_services_data">Modifier les données de services récurrents</string>
     <string name="record_bcg_2">Enregistrer BCG 2 (en l\'absence d\'une cicatrice)</string>
     <string name="mark_inactive">Marquer inactif</string>
     <string name="mark_active">Marquer actif</string>
-    <string name="mark_as_lost_to_followup">Marquer perdu au suivi</string>
-    <string name="mark_as_not_lost_to_followup">Marquer non-perdu au suivi</string>
+    <string name="mark_as_lost_to_followup">Marquer perdu de vue</string>
+    <string name="mark_as_not_lost_to_followup">Marquer non-perdu de vue</string>
     <string name="report_deceased">Rapporter un décès</string>
-    <string name="report_adverse_event">Rapporter une évènement indésirable</string>
+    <string name="report_adverse_event">Rapporter une réaction adverse</string>
     <string name="syncing">Synchronisation...</string>
     <string name="sync_failed">Synchronisation échouée</string>
     <string name="retry">Réessayer</string>
@@ -150,8 +149,8 @@
     <string name="client_status">État des clients</string>
     <string name="active">Actif</string>
     <string name="inactive">Inactif</string>
-    <string name="lost_to_follow_up">Perdu au suivi</string>
-    <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
+    <string name="lost_to_follow_up">Perdu de vue</string>
+    <string name="lost_to_follow_up_with_nl">Perdu \nde vue</string>
     <string name="status">État</string>
     <string name="iz_id_hint">Numéro d\'identification</string>
     <string name="first_name">Prénom</string>
@@ -178,7 +177,7 @@
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
     <string name="change_status">Changer le statut</string>
-    <string name="write_to_card">Écrire à la carte</string>
+    <string name="write_to_card">Enregistrer sur la carte</string>
     <string name="title_activity_stock_control">ActivitéGestionStock</string>
     <string name="device_timezone_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
     <string name="device_time_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
@@ -255,7 +254,7 @@
     <string name="her">elle</string>
 
     <string name="scan_nfc_card">Lancer le scan NFC de la carte &#8230;</string>
-    <string name="register_card">Enregistrer carte</string>
+    <string name="register_card">Emettre une carte</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s&#8230; </string>
 
     <string name="scan_card">Scanner la carte</string>
@@ -298,10 +297,10 @@
     <string name="mother_guardian_matches">%1$d résultats trouvés mère/gardienne.</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
-    <string name="child_status">Statut d\'enfant</string>
-    <string name="notifications_on">Notifications allumer.</string>
+    <string name="child_status">Statut de l\'enfant</string>
+    <string name="notifications_on">Notifications activées.</string>
     <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps.</string>
-    <string name="notifications_off_child_cannot_be_located">Notifications désactivées. L\'enfant ne peut pas être trouvé.</string>
+    <string name="notifications_off_child_cannot_be_located">Notifications désactivées; enfant perdu de vue</string>
 
     <string name="marked_as_deceased">%1$s marqué comme décédé</string>
 
@@ -331,8 +330,8 @@
     <string name="unable_to_move_to_my_catchment">Impossible de se déplacer dans mon bassin</string>
     <string name="activate_new_card">ACTIVER LA CARTE</string>
     <string name="age_colon">Âge : </string>
-    <string name="system_id_colon">Id système :</string>
-    <string name="zeir_id">Id système</string>
+    <string name="system_id_colon">ID système :</string>
+    <string name="zeir_id">ID système</string>
     <string name="search_criteria_includes">Les critères de recherche incluent:</string>
     <string name="start_date">La date de début</string>
     <string name="end_date">La date de fin</string>
@@ -347,4 +346,5 @@
     <string name="n_period_overdue">%1$s\nÀ rendre</string>
 
     <string name="mother_name">M/G: %1$s</string>
+    <string name="str_page_info">Page %1$s de %2$s</string>
 </resources>

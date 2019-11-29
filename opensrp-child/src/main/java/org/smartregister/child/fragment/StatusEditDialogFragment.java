@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.smartregister.child.R;
+import org.smartregister.child.event.ClientStatusUpdateEvent;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.util.Constants;
 import org.smartregister.util.Utils;
@@ -259,6 +260,10 @@ public class StatusEditDialogFragment extends DialogFragment {
                         break;
                     default:
                         break;
+                }
+
+                if (status != null) {
+                    org.smartregister.child.util.Utils.postEvent(new ClientStatusUpdateEvent(status.toString()));
                 }
             }
 

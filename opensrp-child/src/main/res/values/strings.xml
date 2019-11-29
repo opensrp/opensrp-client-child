@@ -1,7 +1,6 @@
 <resources>
 
     <!-- general -->
-    <string name="app_name">opensrp-child</string>
     <string name="no_unique_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
     <string name="error_unable_to_start_form">An error occurred when starting the form.</string>
     <string name="no_matching_record_found_on_this_device">No matching record found on this device.</string>
@@ -28,7 +27,7 @@
     <string name="register_search_hint">Search</string>
     <string name="child_title">Child</string>
     <string name="child_alphabetical_sort">Alphabetical (Child Name)</string>
-    <string name="child_id_sort">Program Id </string>
+    <string name="child_id_sort">Program ID </string>
     <string name="child_search_hint">Search Child</string>
     <string name="child_details_title"> Child Details</string>
     <string name="stock_title"> Stock Control</string>
@@ -332,8 +331,8 @@
     <string name="_1_year_after_tt_4"> 1 Year After TT 4 </string>
     <string name="move_to_catchment">Move to My\nCatchment</string>
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
-    <string name="system_id_colon">System Id :</string>
-    <string name="zeir_id">System Id</string>
+    <string name="system_id_colon">System ID :</string>
+    <string name="zeir_id">System ID</string>
     <string name="age_colon">Age :</string>
     <string name="unable_to_move_to_my_catchment">Unable to Move to My Catchment</string>
     <string name="search_criteria_includes">Search Criteria Includes:&#032;</string>
@@ -351,5 +350,6 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">"B/o %1$s</string>
+    <string name="str_page_info">Page %1$s of %2$s</string>
 
 </resources>

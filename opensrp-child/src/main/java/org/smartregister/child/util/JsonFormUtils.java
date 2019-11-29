@@ -473,9 +473,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 updateChildFTSTables(values, entityId);
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
+
+                //     Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
             }
 
-            processClients(context, Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
+            processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> saveReportDeceased");
@@ -521,7 +523,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void processClients(Context context, AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
+    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
 
@@ -534,10 +536,14 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     private static Event getEvent(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
-        return (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
+        Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
                 .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+
+        JsonFormUtils.tagSyncMetadata(event);
+
+        return event;
     }
 
     private static void createDeathEventObject(Context context, String providerId, String locationId, String entityId, EventClientRepository db, Date encounterDate, String encounterDateTimeString, Event event) throws JSONException {
@@ -562,8 +568,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Event updateChildDetailsEvent = getEvent(providerId, locationId, entityId, JsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
 
         addMetaData(context, updateChildDetailsEvent, new Date());
-
-        JsonFormUtils.tagSyncMetadata(updateChildDetailsEvent);
 
         JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
 
@@ -805,7 +809,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 String ageString = getFieldValue(fields, Constants.JSON_FORM_KEY.AGE);
                 if (StringUtils.isNotBlank(ageString) && NumberUtils.isNumber(ageString)) {
                     int age = Integer.valueOf(ageString);
-                    JSONObject dobJSONObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DOB);
+                    JSONObject dobJSONObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
                     dobJSONObject.put(VALUE, Utils.getDob(age));
 
                     //Mark the birth date as an approximation
@@ -1057,6 +1061,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         FormTag formTag = new FormTag();
         formTag.providerId = allSharedPreferences.fetchRegisteredANM();
         formTag.appVersion = ChildLibrary.getInstance().getApplicationVersion();
+        formTag.appVersionName = ChildLibrary.getInstance().getApplicationVersionName();
         formTag.databaseVersion = ChildLibrary.getInstance().getDatabaseVersion();
         return formTag;
     }
@@ -1171,7 +1176,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
         Map<String, String> identifierMap = getIdentifierMap(fields, parent, bindType);
-        Date birthDate = formatDate(stringBirthDate, true);
+        Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
         String approxBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
@@ -1250,8 +1255,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId,
                                             String encounterType, String bindType) {
 
-        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository()
-                .getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
+        List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
 
         boolean alreadyExists = eventClients.size() > 0;
         org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
@@ -1306,7 +1310,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
             addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
-            processClients(context, allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
+            processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
             getClientIdsFromClientsJsonArray(clients);
 
@@ -1508,7 +1512,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             addMetaData(context, event, new Date());
 
-            JsonFormUtils.tagSyncMetadata(event);
             return event;
 
         } catch (Exception e) {
@@ -1674,7 +1677,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         JsonFormUtils.addMetaData(context, event, date);
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(context, allSharedPreferences, ECSyncHelper.getInstance(context));
+        processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
 
         //update details
         Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());

@@ -1,7 +1,6 @@
 <resources>
 
     <!-- general -->
-    <string name="app_name">نظام التسجيل الذكي المفتوح</string>
     <string name="no_unique_id">لم يتم العثورارقام هوية. انقر على زر المزامنة للحصول على المزيد ، وإذا استمر هذا الخطأ ، اتصل بمسؤول النظام.</string>
     <string name="error_unable_to_start_form">حدث خطأ عند بدء الاستمارة</string>
     <string name="no_matching_record_found_on_this_device">لم يتم العثور على أثر مطابق على هذا الجهاز</string>
@@ -115,7 +114,7 @@
     <string name="zeir">رقم الهوية</string>
     <string name="select_location">اختر الموقع</string>
     <string name="no_openmrs_id">لم يتم العثور على هويات فريدة من نوعها. انقر على زر المزامنة للحصول على المزيد ، وإذا استمر هذا الخطأ ، اتصل بمسؤول النظام</string>
-    <string name="edit_registration_data">تعديل ير بطاقة التسجيل</string>
+    <string name="edit_registration_data">تعديل بيانات التسجيل</string>
     <string name="edit_immunization_data">تعديل بيانات التلقيح</string>
     <string name="edit_recurring_services_data">تعديل بيانات الخدمات المتكررة</string>
     <string name="record_bcg_2">سجل لقاح السل2 (إذا لم تكن توجد ندبة)</string>
@@ -123,8 +122,8 @@
     <string name="mark_active">ضع علامة نشط</string>
     <string name="mark_as_lost_to_followup">ضع علامة انقطاع المتابعة</string>
     <string name="mark_as_not_lost_to_followup">ضع اعلامة عدم انقطاع المتابعة</string>
-    <string name="report_deceased">تقد يم تقرير الوفيات</string>
-    <string name="report_adverse_event">تقد يم تقرير المضاعفات الجانبية</string>
+    <string name="report_deceased"> تقرير الوفاة</string>
+    <string name="report_adverse_event">تقريرالمظاهر التحسسية‎</string>
     <string name="syncing">جارى التزامن…</string>
     <string name="sync_failed">فشل التزامن</string>
     <string name="retry">اعاد المحاولة</string>
@@ -179,16 +178,16 @@
     <string name="move_to_catchment_confirm_dialog_message">هل أنت متأكد من أنك تريد نقل هذا السجل إلى منطقة التغطية لديك؟</string>
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
-    <string name="change_status">تغيير الحالة</string>
+    <string name="change_status">تغيير الوضعية</string>
     <string name="write_to_card">كتابة على البطاقة</string>
     <string name="title_activity_stock_control">نشاط مراقبة المخزون</string>
     <string name="device_timezone_changed">لقد تغير النطاق الزمني للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="device_time_changed">لقد تغير وقت للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="side_nav_hia2">Reports</string>
     <string name="hia2_daily_tallies">العد اليومي</string>
-    <string name="hia2_draft_monthly">صياغ شهري</string>
-    <string name="hia2_draft_monthly_with_count">صياغ شهري (%1$d)</string>
-    <string name="hia2_sent_monthly">أرسل شهريا</string>
+    <string name="hia2_draft_monthly">مسودة التقرير الشهري</string>
+    <string name="hia2_draft_monthly_with_count">مسودة التقرير الشهري (%1$d)</string>
+    <string name="hia2_sent_monthly">إرسال التقرير الشهري</string>
     <string name="start_new_report">بداية تقرير جديد</string>
     <string name="no_draft_reports">لا توجد مسودات تقرير</string>
     <string name="no_monthly_ready">لا يوجد تقرير شهري جاهز للإكمال</string>
@@ -232,8 +231,8 @@
 
     <string name="show_vaccine_card_disabled">عرض بطاقة اللقاح تم تعطيله لطفل خارج المنطقة</string>
 
-    <string name="side_nav_add">أضافة طفل جديد</string>
-    <string name="side_nav_out_of_catchment">سجل خارج منطقة تغطية التلقيح</string>
+    <string name="side_nav_add">إضافة طفل جديد</string>
+    <string name="side_nav_out_of_catchment">تسجيل خارج المنطقة</string>
     <string name="side_nav_sync">التزامن</string>
     <string name="side_nav_coverage">تقارير التغطية</string>
     <string name="side_nav_dropout">تقارير التسرب</string>
@@ -315,7 +314,7 @@
     <string name="at_birth">عند الولادة</string>
     <string name="_6_weeks">6 أسابيع</string>
     <string name="_10_weeks">10 أسابيع</string>
-    <string name="_14_weeks">14 أسابي</string>
+    <string name="_14_weeks">14 أسبوعا</string>
     <string name="_5_months">5 أشهر</string>
     <string name="_6_months">6 أشهر</string>
     <string name="_7_months">7 أشهر</string>
@@ -349,5 +348,12 @@
     \nمتأخر</string>
 
     <string name="mother_name">الأم/ الحاضن: %1$s</string>
+    <string name="str_page_info">%2$s
+        من
+
+    %1$s
+        صفحة
+
+    </string>
 
 </resources>

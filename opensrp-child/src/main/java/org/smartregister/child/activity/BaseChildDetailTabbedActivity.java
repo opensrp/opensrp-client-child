@@ -459,13 +459,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             method.setAccessible(true);
             method.invoke(object, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
-            Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+            try {
+                Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+            } catch (Exception ex) {
+
+            }
         }
     }
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         if (isStoragePermissionGranted()) {
@@ -1007,7 +1011,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getTranslatedVaccineName (this,
+                String name = VaccinatorUtils.getTranslatedVaccineName(this,
                         curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
                         Locale.ENGLISH).format(curVaccine.getDate()) + ")";
                 choices.put(name);
