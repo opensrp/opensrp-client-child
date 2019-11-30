@@ -28,7 +28,6 @@ import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;

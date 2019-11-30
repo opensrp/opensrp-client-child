@@ -40,6 +40,7 @@ public class MotherLookUpUtils {
     public static final String RELATIONAL_ID = "relational_id";
     public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
     public static final String NRC_NUMBER = "nrc_number";
+    public static final String PHONE_NUMBER = "number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
 
@@ -173,6 +174,11 @@ public class MotherLookUpUtils {
             if (StringUtils.containsIgnoreCase(key, lastName)) {
                 key = lastName;
             }
+
+            if (StringUtils.equalsIgnoreCase(key, MOTHER_GUARDIAN_PHONE_NUMBER)) {
+                key = CONTACT_PHONE_NUMBER;
+            }
+
 
             if (StringUtils.containsIgnoreCase(key, birthDate)) {
                 if (!isDate(value)) {
