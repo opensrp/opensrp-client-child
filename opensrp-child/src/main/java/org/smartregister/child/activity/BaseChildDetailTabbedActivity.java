@@ -30,6 +30,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -564,14 +567,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
-                String jsonString = data.getStringExtra("json");
+                String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
                 Log.d("JSONResult", jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
-                    confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) ||
-                        form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                    confirmReportDeceased(jsonString);
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
@@ -607,7 +610,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void confirmReportDeceased(final String json, final AllSharedPreferences allSharedPreferences) {
+    private void confirmReportDeceased(final String json) {
 
         final AlertDialog builder = new AlertDialog.Builder(this).setCancelable(false).create();
 
@@ -697,8 +700,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         task.execute();
         return true;
     }
-
-    public abstract void startFormActivity(String formData);
 
     @Override
     public void updateStatus() {
@@ -1163,6 +1164,29 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public ChildUnderFiveFragment getChildUnderFiveFragment() {
         return childUnderFiveFragment;
+    }
+
+    public void startFormActivity(String formData) {
+
+        Form formParam = new Form();
+        formParam.setWizard(false);
+        formParam.setHideSaveLabel(true);
+        formParam.setNextLabel("");
+
+        startFormActivity(formData, formParam);
+
+    }
+
+    public void startFormActivity(String formData, Form formParam) {
+
+        Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
+
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
+
+        startActivityForResult(intent, REQUEST_CODE_GET_JSON);
+
+
     }
 
     public class ServiceHolder {
