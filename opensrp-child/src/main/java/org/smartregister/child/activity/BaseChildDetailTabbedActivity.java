@@ -260,7 +260,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                //Overriden
             }
         });
         setupViewPager(viewPager);
@@ -948,9 +948,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             Gender gender = Gender.UNKNOWN;
             String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.MALE;
             }
 
@@ -976,11 +976,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.DATE_BIRTH)) {
                         SimpleDateFormat simpleDateFormat =
                                 new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
                                         Locale.ENGLISH);
-                        String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
+                        String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
                             jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
@@ -1172,7 +1172,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public void startFormActivity(String formData, Form formParam) {
 
-        Intent intent = new Intent(getApplicationContext(), org.smartregister.child.util.Utils.metadata().childFormActivity);
+        Intent intent = new Intent(getApplicationContext(), Utils.metadata().childFormActivity);
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);

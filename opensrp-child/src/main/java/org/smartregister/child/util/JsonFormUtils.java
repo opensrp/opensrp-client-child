@@ -163,7 +163,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
             }
 
-            JsonFormUtils.addAddAvailableVaccines(ChildLibrary.getInstance().context().applicationContext(), form);
+            JsonFormUtils.addAvailableVaccines(ChildLibrary.getInstance().context().applicationContext(), form);
 
         } else {
             Timber.w("JsonFormUtils --> Unsupported form requested for launch %s", formName);
@@ -232,35 +232,14 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void addAddAvailableVaccines(Context context, JSONObject form) {
+    private static void addAvailableVaccines(Context context, JSONObject form) {
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(context);
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
             // For each of the vaccine groups, create a checkbox question
             try {
                 JSONArray questionList = getQuestionList(context, form);
 
-                HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = new HashMap<>();
-                for (VaccineGroup curVaccineGroup : supportedVaccines) {
-                    for (Vaccine curVaccine : curVaccineGroup.vaccines) {
-                        if (!vaccineTypeConstraints.containsKey(curVaccine.type)) {
-                            vaccineTypeConstraints.put(curVaccine.type, new ArrayList<JSONObject>());
-                        }
-                        ArrayList<String> vaccineNamesDefined = new ArrayList<>();
-                        if (curVaccine.vaccine_separator != null) {
-                            String unSplitNames = curVaccine.name;
-                            String separator = curVaccine.vaccine_separator;
-                            String[] splitValues = unSplitNames.split(separator);
-                            vaccineNamesDefined.addAll(Arrays.asList(splitValues));
-                        } else {
-                            vaccineNamesDefined.add(curVaccine.name);
-                        }
-
-                        for (String curVaccineName : vaccineNamesDefined) {
-                            JSONObject curConstraint = getCurConstraint(curVaccineGroup, curVaccine, curVaccineName);
-                            vaccineTypeConstraints.get(curVaccine.type).add(curConstraint);
-                        }
-                    }
-                }
+                HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = generateVaccineTypeConstraints(supportedVaccines);
 
                 for (VaccineGroup curVaccineGroup : supportedVaccines) {
                     JSONObject curQuestion = getCurQuestion(context, curVaccineGroup);
@@ -307,9 +286,36 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     questionList.put(curQuestion);
                 }
             } catch (JSONException e) {
-                Timber.e(e, "JsonFormUtils --> addAddAvailableVaccines");
+                Timber.e(e, "JsonFormUtils --> addAvailableVaccines");
             }
         }
+    }
+
+    @NotNull
+    private static HashMap<String, ArrayList<JSONObject>> generateVaccineTypeConstraints(List<VaccineGroup> supportedVaccines) throws JSONException {
+        HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = new HashMap<>();
+        for (VaccineGroup curVaccineGroup : supportedVaccines) {
+            for (Vaccine curVaccine : curVaccineGroup.vaccines) {
+                if (!vaccineTypeConstraints.containsKey(curVaccine.type)) {
+                    vaccineTypeConstraints.put(curVaccine.type, new ArrayList<JSONObject>());
+                }
+                ArrayList<String> vaccineNamesDefined = new ArrayList<>();
+                if (curVaccine.vaccine_separator != null) {
+                    String unSplitNames = curVaccine.name;
+                    String separator = curVaccine.vaccine_separator;
+                    String[] splitValues = unSplitNames.split(separator);
+                    vaccineNamesDefined.addAll(Arrays.asList(splitValues));
+                } else {
+                    vaccineNamesDefined.add(curVaccine.name);
+                }
+
+                for (String curVaccineName : vaccineNamesDefined) {
+                    JSONObject curConstraint = getCurConstraint(curVaccineGroup, curVaccine, curVaccineName);
+                    vaccineTypeConstraints.get(curVaccine.type).add(curConstraint);
+                }
+            }
+        }
+        return vaccineTypeConstraints;
     }
 
     @NotNull
@@ -1081,7 +1087,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
         try {
-            android.content.Context context = CoreLibrary.getInstance().context().applicationContext();
+            Context context = CoreLibrary.getInstance().context().applicationContext();
             String subBindType = Constants.KEY.MOTHER;
             Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
 
@@ -1587,7 +1593,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     }
                 }
 
-                JsonFormUtils.addAddAvailableVaccines(context, form);
+                JsonFormUtils.addAvailableVaccines(context, form);
             } else {
                 Timber.w("Unsupported form requested for launch %s", formName);
             }

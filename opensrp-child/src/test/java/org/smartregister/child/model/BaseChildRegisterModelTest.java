@@ -111,7 +111,7 @@ public class BaseChildRegisterModelTest {
         List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class));
         //Expect child and Mother registration event
         Assert.assertEquals(2, actualEvent.size());
-        Assert.assertEquals("ChildRegister", actualEvent.get(0).getEvent().getEventType());
+        Assert.assertEquals("Birth Registration", actualEvent.get(0).getEvent().getEventType());
         Assert.assertEquals("New Woman Registration", actualEvent.get(1).getEvent().getEventType());
 
     }
