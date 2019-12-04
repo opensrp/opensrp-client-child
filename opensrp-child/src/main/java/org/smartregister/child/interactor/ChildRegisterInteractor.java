@@ -148,15 +148,17 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                             processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
                             processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
                         }
-
-                        if (Utils.metadata().childRegister.tableName.equals(baseEvent.getEntityType())) {
-                            Utils.postEvent(new ClientDirtyFlagEvent(baseClient.getBaseEntityId(), baseEvent.getEventType()));
-                        }
                     }
 
                     addEvent(params, currentFormSubmissionIds, baseEvent);
                     updateOpenSRPId(jsonString, params, baseClient);
                     addImageLocation(jsonString, i, baseClient, baseEvent);
+
+                    //Broadcast after all processing is done
+                    if (Constants.CHILD_TYPE.equals(baseEvent.getEntityType())) {
+                        Utils.postEvent(new ClientDirtyFlagEvent(baseClient.getBaseEntityId(), baseEvent.getEventType()));
+                    }
+
                 } catch (Exception e) {
                     Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
@@ -217,8 +219,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         if (baseEvent != null) {
             JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
             getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
-            currentFormSubmissionIds
-                    .add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
+            currentFormSubmissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
         }
     }
 
