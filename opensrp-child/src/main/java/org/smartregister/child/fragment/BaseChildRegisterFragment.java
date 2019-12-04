@@ -188,7 +188,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         super.onSyncComplete(fetchStatus);
-        Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     @Override

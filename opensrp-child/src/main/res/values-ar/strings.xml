@@ -104,7 +104,7 @@
     <string name="global_search">بحث عشامل</string>
     <string name="navigation_drawer_open">فتح درج التنقل</string>
     <string name="navigation_drawer_close">غلق درج التنقل</string>
-    <string name="child_siblings"> %s أشقاء</string>
+    <string name="child_siblings"> %s الأشقاء</string>
     <string name="female_sex_id">لها</string>
     <string name="male_sex_id">له</string>
     <string name="label_zeir">رقم الهوية</string>
@@ -319,7 +319,7 @@
     <string name="_6_months">6 أشهر</string>
     <string name="_7_months">7 أشهر</string>
     <string name="_9_months">9 أشهر</string>
-    <string name="_15_months">15 أشهر</string>
+    <string name="_15_months">15 شهراً</string>
     <string name="_18_months">18 شهرا</string>
     <string name="_22_months"> 22 شهرا</string>
 

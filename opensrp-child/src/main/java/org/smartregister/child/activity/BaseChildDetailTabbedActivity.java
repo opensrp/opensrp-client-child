@@ -120,8 +120,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
-    public static final int PHOTO_TAKING_PERMISSION =
-            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
@@ -137,7 +135,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private File currentFile;
     private String locationId = "";
     private String providerId = "";
-    private Uri sharedFileUri;
     private ImageView profileImageIV;
     private boolean hasProperty;
     private boolean monitorGrowth = false;
@@ -1127,10 +1124,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (sharedFileUri != null) {
-            revokeUriPermission(sharedFileUri, PHOTO_TAKING_PERMISSION);
-        }
     }
 
     @Override
