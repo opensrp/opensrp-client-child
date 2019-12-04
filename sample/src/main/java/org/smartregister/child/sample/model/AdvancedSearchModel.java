@@ -10,7 +10,6 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.domain.Response;
 
@@ -29,8 +28,6 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
     private static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
     private static final String MOTHER_GUARDIAN_FIRST_NAME = "mother_first_name";
     private static final String MOTHER_GUARDIAN_LAST_NAME = "mother_last_name";
-    private static final String MOTHER_GUARDIAN_NRC_NUMBER = "mother_nrc_number";
-    private static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_contact_phone_number";
 
     @Override
     public Map<String, String> createEditMap(Map<String, String> editMap) {
