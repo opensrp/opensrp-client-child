@@ -75,7 +75,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private static String[] getFtsSortFields(String tableName) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines(SampleConstants.VACCINE.CHILD, true);
+            ArrayList<VaccineRepo.Vaccine> vaccines = ChildLibrary.getInstance().cache().childVaccineRepo;
             List<String> names = new ArrayList<>();
             names.add(DBConstants.KEY.FIRST_NAME);
             names.add(DBConstants.KEY.DOB);

@@ -1,5 +1,6 @@
 package org.smartregister.child.sample.util;
 
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.AlertStatus;
@@ -31,7 +32,7 @@ public class DBQueryHelper {
                 AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
                 AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
                 AND + " ( ";
-        ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
+        ArrayList<VaccineRepo.Vaccine> vaccines = ChildLibrary.getInstance().cache().childVaccineRepo;
 
         vaccines.remove(VaccineRepo.Vaccine.bcg2);
         vaccines.remove(VaccineRepo.Vaccine.ipv);

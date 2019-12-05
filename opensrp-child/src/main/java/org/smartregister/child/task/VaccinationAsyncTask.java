@@ -19,6 +19,7 @@ import org.smartregister.child.domain.GroupVaccineCount;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.VaccineUtils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -42,7 +43,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View childProfileInfoLayout;
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
     private Map<String, String> reverseLookupGroupMap;
-    private Map<String, GroupVaccineCount> groupVaccineMap = new HashMap<>();
+    private Map<String, GroupVaccineCount> groupVaccineMap;
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private List<String> actualVaccines = new ArrayList<>();//To Do decouple Immunization lib hardcoded vaccines to only load a specific implementation vaccine
     private Date lastVaccineDate = null;
@@ -98,7 +98,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.context = context;
         this.alertService = alertService;
         this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
-        this.reverseLookupGroupMap = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
+        this.reverseLookupGroupMap = ChildLibrary.getInstance().cache().reverseLookupGroupMap;
+        this.groupVaccineMap = ChildLibrary.getInstance().cache().groupVaccineMap;
 
         // Add BCG 2 to Birth Vaccination group
         // This method handles the multiple loops
@@ -110,30 +111,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
-        ArrayList<VaccineRepo.Vaccine> childVaccineRepo = VaccineRepo.getVaccines(Constants.CHILD_TYPE);
-        VaccineRepo.Vaccine repoVaccine;
-        String repoGroup;
-
-
-        for (int i = 0; i < childVaccineRepo.size(); i++) {
-            repoVaccine = childVaccineRepo.get(i);
-            repoGroup = getGroupName(repoVaccine);
-
-            if (TextUtils.isEmpty(repoGroup)) {
-                continue;
-            }
-            GroupVaccineCount groupVaccineCount = groupVaccineMap.get(repoGroup);
-            if (groupVaccineCount == null) {
-                groupVaccineCount = new GroupVaccineCount(0, 0);
-            }
-
-            groupVaccineCount.setGiven(groupVaccineCount.getGiven() + 1);
-            groupVaccineCount.setRemaining(groupVaccineCount.getRemaining() + 1);
-
-            groupVaccineMap.put(repoGroup, groupVaccineCount);
-
-        }
-
         vaccines = vaccineRepository.findByEntityId(entityId);
 
         Collections.sort(vaccines, new Comparator<Vaccine>() {
@@ -143,15 +120,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     VaccineRepo.Vaccine v1 = VaccineRepo.getVaccine(vaccineA.getName(), Constants.CHILD_TYPE);
                     VaccineRepo.Vaccine v2 = VaccineRepo.getVaccine(vaccineB.getName(), Constants.CHILD_TYPE);
 
-                    String stateKey1 = getGroupName(v1);
-                    String stateKey2 = getGroupName(v2);
+                    String stateKey1 = VaccineUtils.getGroupName(v1);
+                    String stateKey2 = VaccineUtils.getGroupName(v2);
 
                     return vaccineGroups.indexOf(stateKey1) - vaccineGroups.indexOf(stateKey2);
                 } catch (Exception e) {
 
                     Log.e(VaccinationAsyncTask.class.getCanonicalName(), Log.getStackTraceString(e));
                     return 0;
-
 
                 }
 
@@ -302,7 +278,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);
-                groupName = getGroupName(vaccine);
+                groupName = VaccineUtils.getGroupName(vaccine);
             }
 
             Alert alert = null;
@@ -484,19 +460,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private String previousStateKey(Vaccine vaccine) {
         return reverseLookupGroupMap.get(vaccine.getName().toLowerCase(Locale.ENGLISH).replace(" ", ""));
-    }
-
-    @NonNull
-    private String getGroupName(VaccineRepo.Vaccine vaccine) {
-        if (vaccine != null) {
-
-            String groupName = reverseLookupGroupMap.get(vaccine.name().toLowerCase(Locale.ENGLISH));
-            if (groupName != null) {
-                return groupName;
-            }
-        }
-
-        return "";
     }
 
     @NonNull
