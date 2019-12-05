@@ -25,7 +25,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
@@ -76,10 +75,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                     ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
                     ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
                 } else {
-                    Toast.makeText(getActivity(), R.string.an_error_occured, Toast.LENGTH_SHORT).show();
+                    Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
                 }
             } else {
-                Toast.makeText(getActivity(), R.string.unable_to_move_to_my_catchment, Toast.LENGTH_SHORT).show();
+                Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
             }
         }
     };

@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.widget.Toast;
 
 import com.google.common.reflect.TypeToken;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -1549,7 +1548,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     UniqueIdRepository uniqueIdRepo = CoreLibrary.getInstance().context().getUniqueIdRepository();
                     entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
                     if (entityId.isEmpty()) {
-                        Toast.makeText(context, context.getString(R.string.no_openmrs_id), Toast.LENGTH_SHORT).show();
+                        Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
                         return;
                     }
                 }
