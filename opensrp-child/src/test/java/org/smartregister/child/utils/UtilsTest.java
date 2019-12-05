@@ -32,7 +32,6 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,44 +102,6 @@ public class UtilsTest extends BaseUnitTest {
         Vaccine vaccine = new Vaccine();
         Utils.addVaccine(vaccineRepository, vaccine);
         Mockito.verify(vaccineRepository, Mockito.times(0)).add(vaccine);
-    }
-
-    @Test
-    public void testGetCohortEndDateShouldReturnNull() {
-        Date result = Utils.getCohortEndDate("", new Date());
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testGetCohortEndDateForOpv0() {
-        Calendar calendar = Calendar.getInstance();
-        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.opv0.display().toLowerCase()), calendar.getTime());
-        calendar.add(Calendar.DATE, 13);
-        Assert.assertEquals(result, calendar.getTime());
-    }
-
-    @Test
-    public void testGetCohortEndDateForRota1() {
-        Calendar calendar = Calendar.getInstance();
-        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota1.display().toLowerCase()), calendar.getTime());
-        calendar.add(Calendar.MONTH, 8);
-        Assert.assertEquals(result, calendar.getTime());
-    }
-
-    @Test
-    public void testGetCohortEndDateForRota2() {
-        Calendar calendar = Calendar.getInstance();
-        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota2.display().toLowerCase()), calendar.getTime());
-        calendar.add(Calendar.MONTH, 8);
-        Assert.assertEquals(result, calendar.getTime());
-    }
-
-    @Test
-    public void testGetCohortEndDateForMr2() {
-        Calendar calendar = Calendar.getInstance();
-        Date result = Utils.getCohortEndDate(VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr2.display().toLowerCase()), calendar.getTime());
-        calendar.add(Calendar.YEAR, 2);
-        Assert.assertEquals(result, calendar.getTime());
     }
 
     @Test
@@ -289,12 +250,12 @@ public class UtilsTest extends BaseUnitTest {
     }
 
     @Test
-    public void testGetCleanMapShouldCatchException(){
+    public void testGetCleanMapShouldCatchException() {
         Assert.assertEquals(new HashMap<>(), Utils.getCleanMap(null));
     }
 
     @Test
-    public void testGetCleanMapWithDirtyValues(){
+    public void testGetCleanMapWithDirtyValues() {
         Map<String, String> rawDetails = new HashMap<>();
         rawDetails.put("key", "");
         rawDetails.put("key1", "null");
@@ -303,7 +264,7 @@ public class UtilsTest extends BaseUnitTest {
     }
 
     @Test
-    public void testGetCleanMapWithCleanValues(){
+    public void testGetCleanMapWithCleanValues() {
         Map<String, String> rawDetails = new HashMap<>();
         rawDetails.put("key", "value");
         rawDetails.put("key1", "value");
@@ -312,31 +273,31 @@ public class UtilsTest extends BaseUnitTest {
     }
 
     @Test
-    public void testUpdateGrowthValueWithFloat(){
+    public void testUpdateGrowthValueWithFloat() {
         String result = Utils.updateGrowthValue("20.0");
         Assert.assertEquals("20.0", result);
     }
 
     @Test
-    public void testUpdateGrowthValueWithNonFloat(){
+    public void testUpdateGrowthValueWithNonFloat() {
         String result = Utils.updateGrowthValue("20");
         Assert.assertEquals("20.0", result);
     }
 
     @Test
-    public void testUpdateGrowthValueWithNonNumeric(){
+    public void testUpdateGrowthValueWithNonNumeric() {
         expectedException.expect(IllegalArgumentException.class);
         Utils.updateGrowthValue("23w");
     }
 
     @Test
-    public void testFormatNumberShouldCatchParseException(){
+    public void testFormatNumberShouldCatchParseException() {
         String raw = "raw";
         Assert.assertEquals(raw, Utils.formatNumber(raw));
     }
 
     @Test
-    public void testFormatNumberWithValidNumber(){
+    public void testFormatNumberWithValidNumber() {
         String raw = "099787762567";
         Assert.assertEquals(raw.substring(1), Utils.formatNumber(raw));
     }

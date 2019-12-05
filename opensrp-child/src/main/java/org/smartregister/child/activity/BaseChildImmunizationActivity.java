@@ -24,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -2053,8 +2052,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<Weight> weights = new ArrayList<>();
             List<Height> heights = new ArrayList<>();
             if (growthMonitoring == null || growthMonitoring.isEmpty()) {
-                Toast.makeText(BaseChildImmunizationActivity.this,
-                        "Record at least one set of growth details (height, Weight)", Toast.LENGTH_LONG).show();
+                Utils.showToast(BaseChildImmunizationActivity.this,
+                        "Record at least one set of growth details (height, Weight)");
             } else {
 
                 if (growthMonitoring.containsKey(Constants.WEIGHT)) {

@@ -30,6 +30,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.domain.Form;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -117,8 +120,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
-    public static final int PHOTO_TAKING_PERMISSION =
-            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
     protected static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final String TAG = BaseChildDetailTabbedActivity.class.getCanonicalName();
@@ -134,7 +135,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private File currentFile;
     private String locationId = "";
     private String providerId = "";
-    private Uri sharedFileUri;
     private ImageView profileImageIV;
     private boolean hasProperty;
     private boolean monitorGrowth = false;
@@ -260,7 +260,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                //Overriden
             }
         });
         setupViewPager(viewPager);
@@ -564,14 +564,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
-                String jsonString = data.getStringExtra("json");
+                String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
                 Log.d("JSONResult", jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
-                    confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) ||
-                        form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                    confirmReportDeceased(jsonString);
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
@@ -607,7 +607,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void confirmReportDeceased(final String json, final AllSharedPreferences allSharedPreferences) {
+    private void confirmReportDeceased(final String json) {
 
         final AlertDialog builder = new AlertDialog.Builder(this).setCancelable(false).create();
 
@@ -697,8 +697,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         task.execute();
         return true;
     }
-
-    public abstract void startFormActivity(String formData);
 
     @Override
     public void updateStatus() {
@@ -950,9 +948,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             Gender gender = Gender.UNKNOWN;
             String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.MALE;
             }
 
@@ -978,11 +976,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.DATE_BIRTH)) {
                         SimpleDateFormat simpleDateFormat =
                                 new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
                                         Locale.ENGLISH);
-                        String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
+                        String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
                         Date dob = Utils.dobStringToDate(dobString);
                         if (dob != null) {
                             jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
@@ -1126,10 +1124,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (sharedFileUri != null) {
-            revokeUriPermission(sharedFileUri, PHOTO_TAKING_PERMISSION);
-        }
     }
 
     @Override
@@ -1163,6 +1157,29 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public ChildUnderFiveFragment getChildUnderFiveFragment() {
         return childUnderFiveFragment;
+    }
+
+    public void startFormActivity(String formData) {
+
+        Form formParam = new Form();
+        formParam.setWizard(false);
+        formParam.setHideSaveLabel(true);
+        formParam.setNextLabel("");
+
+        startFormActivity(formData, formParam);
+
+    }
+
+    public void startFormActivity(String formData, Form formParam) {
+
+        Intent intent = new Intent(getApplicationContext(), Utils.metadata().childFormActivity);
+
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
+
+        startActivityForResult(intent, REQUEST_CODE_GET_JSON);
+
+
     }
 
     public class ServiceHolder {
