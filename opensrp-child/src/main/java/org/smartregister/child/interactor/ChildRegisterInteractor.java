@@ -14,6 +14,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
+import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
@@ -120,8 +121,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         appExecutors.diskIO().execute(runnable);
     }
 
-    public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString,
-                                 UpdateRegisterParams params) {
+    public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
         try {
             List<String> currentFormSubmissionIds = new ArrayList<>();
 
@@ -153,6 +153,12 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     addEvent(params, currentFormSubmissionIds, baseEvent);
                     updateOpenSRPId(jsonString, params, baseClient);
                     addImageLocation(jsonString, i, baseClient, baseEvent);
+
+                    //Broadcast after all processing is done
+                    if (Constants.CHILD_TYPE.equals(baseEvent.getEntityType())) {
+                        Utils.postEvent(new ClientDirtyFlagEvent(baseClient.getBaseEntityId(), baseEvent.getEventType()));
+                    }
+
                 } catch (Exception e) {
                     Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
@@ -218,8 +224,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         if (baseEvent != null) {
             JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
             getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
-            currentFormSubmissionIds
-                    .add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
+            currentFormSubmissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
         }
     }
 
@@ -228,7 +233,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void processWeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull  JSONObject clientJson) throws JSONException {
+    public void processWeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException {
         String weight = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
@@ -247,7 +252,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull  JSONObject clientJson) throws JSONException {
+    public void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException {
         String height = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson

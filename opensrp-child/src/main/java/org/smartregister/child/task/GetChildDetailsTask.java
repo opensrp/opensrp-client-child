@@ -107,26 +107,24 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         }
     }
 
-    private void updatePicture(final BaseActivity baseActivity, String baseEntityId,
-                               final CommonPersonObjectClient childDetails) {
+    private void updatePicture(final BaseActivity baseActivity, String baseEntityId, final CommonPersonObjectClient childDetails) {
         Gender gender = Gender.UNKNOWN;
         int genderColor = R.color.gender_neutral_green;
         int genderLightColor = R.color.gender_neutral_light_green;
-        String genderString =
-                org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, false);
+        boolean isDeceased = !TextUtils.isEmpty(childDetails.getColumnmaps().get(Constants.KEY.DOD));
 
+        String genderString = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.GENDER, false);
         if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
             gender = Gender.FEMALE;
-            genderColor = R.color.female_pink;
-            genderLightColor = R.color.female_light_pink;
+            genderColor = isDeceased ? R.color.dark_grey : R.color.female_pink;
+            genderLightColor = isDeceased ? R.color.lighter_grey : R.color.female_light_pink;
         } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
             gender = Gender.MALE;
-            genderColor = R.color.male_blue;
-            genderLightColor = R.color.male_light_blue;
+            genderColor = isDeceased ? R.color.dark_grey : R.color.male_blue;
+            genderLightColor = isDeceased ? R.color.lighter_grey : R.color.male_light_blue;
         }
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false)
-                .equals(Constants.TRUE)) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.TRUE)) {
             profilePhoto.setVisibility(View.VISIBLE);
             initials.setBackgroundColor(baseActivity.getResources().getColor(android.R.color.transparent));
             initials.setTextColor(baseActivity.getResources().getColor(android.R.color.black));
@@ -140,11 +138,14 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             initials.setTextColor(baseActivity.getResources().getColor(genderColor));
         }
 
+        processChildNames(baseActivity, childDetails);
+    }
+
+    private void processChildNames(final BaseActivity baseActivity, final CommonPersonObjectClient childDetails) {
         final String firstName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
         final String lastName = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false)
-                .equals("false")) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.FALSE)) {
             initials.setVisibility(View.VISIBLE);
             String initialsString = "";
             if (!TextUtils.isEmpty(firstName)) {
@@ -171,8 +172,15 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BaseChildImmunizationActivity.launchActivity(baseActivity, childDetails, null);
-                baseActivity.finish();
+                if (!TextUtils.isEmpty(childDetails.getColumnmaps().get(Constants.KEY.DOD))) {
+
+                    Utils.showToast(baseActivity, baseActivity.getResources().getString(R.string.marked_as_deceased, firstName + " " + lastName));
+                } else {
+
+                    BaseChildImmunizationActivity.launchActivity(baseActivity, childDetails, null);
+                    baseActivity.finish();
+                }
+
             }
         });
     }

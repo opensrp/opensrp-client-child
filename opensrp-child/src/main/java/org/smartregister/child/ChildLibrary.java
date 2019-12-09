@@ -1,5 +1,8 @@
 package org.smartregister.child;
 
+import android.util.Log;
+
+import org.greenrobot.eventbus.EventBus;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
@@ -24,6 +27,7 @@ public class ChildLibrary {
     private final ChildMetadata metadata;
 
     private int applicationVersion;
+    private String applicationVersionName;
     private int databaseVersion;
 
     private UniqueIdRepository uniqueIdRepository;
@@ -33,6 +37,8 @@ public class ChildLibrary {
     private ClientProcessorForJava clientProcessorForJava;
     private Compressor compressor;
     private LocationPickerView locationPickerView;
+
+    private EventBus eventBus;
 
     private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion,
                          int databaseVersion) {
@@ -127,5 +133,26 @@ public class ChildLibrary {
 
     public AppProperties getProperties() {
         return CoreLibrary.getInstance().context().getAppProperties();
+    }
+
+    public EventBus getEventBus() {
+
+        if (eventBus == null) {
+            Log.e(ChildLibrary.class.getCanonicalName(), " Event Bus instance does not exist!!! Pass the Implementing Application's Eventbus by invoking the " + ChildLibrary.class.getCanonicalName() + ".setEventBus method from the onCreate method of " + "your Application class ");
+        }
+
+        return eventBus;
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    public String getApplicationVersionName() {
+        return applicationVersionName;
+    }
+
+    public void setApplicationVersionName(String applicationVersionName) {
+        this.applicationVersionName = applicationVersionName;
     }
 }

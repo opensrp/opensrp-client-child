@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -561,8 +560,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(context, context.getString(R.string.show_vaccine_card_disabled), Toast.LENGTH_SHORT)
-                                .show();
+                        Utils.showShortToast(context, context.getString(R.string.show_vaccine_card_disabled));
                     }
                 });
 

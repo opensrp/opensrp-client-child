@@ -1,7 +1,6 @@
 package org.smartregister.child.activity;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -43,6 +41,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
+import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
@@ -51,7 +50,6 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.util.VaccineCalculator;
 import org.smartregister.child.view.SiblingPicturesGroup;
-import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -87,6 +85,7 @@ import org.smartregister.immunization.listener.VaccineCardAdapterLoadingListener
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
@@ -367,6 +366,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             identifier = getString(R.string.male_sex_id);
         }
 
+        if (Locale.getDefault().toString().equalsIgnoreCase("ar") || Locale.getDefault().toString().equalsIgnoreCase("fr")) {
+            identifier = "";
+        }
         toolbar.updateSeparatorView(toolbarResource);
         childSiblingsTV.setText(String.format(getString(R.string.child_siblings), identifier).toUpperCase());
 
@@ -1950,6 +1952,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             AlertService alertService = getOpenSRPContext().alertService();
             List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
 
+            Utils.postEvent(new ClientDirtyFlagEvent(childDetails.entityId(), RecurringIntentService.EVENT_TYPE));
+
             return Triple.of(list, serviceRecordList, alertList);
 
         }
@@ -2048,8 +2052,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<Weight> weights = new ArrayList<>();
             List<Height> heights = new ArrayList<>();
             if (growthMonitoring == null || growthMonitoring.isEmpty()) {
-                Toast.makeText(BaseChildImmunizationActivity.this,
-                        "Record at least one set of growth details (height, Weight)", Toast.LENGTH_LONG).show();
+                Utils.showToast(BaseChildImmunizationActivity.this,
+                        "Record at least one set of growth details (height, Weight)");
             } else {
 
                 if (growthMonitoring.containsKey(Constants.WEIGHT)) {

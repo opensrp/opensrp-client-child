@@ -324,7 +324,7 @@ public class JsonFormAssetsUtils {
             "        }\n" +
             "      },\n" +
             "      {\n" +
-            "        \"key\": \"Mother_Guardian_Number\",\n" +
+            "        \"key\": \"Mother_Guardian_Phone_Number\",\n" +
             "        \"openmrs_entity_parent\": \"\",\n" +
             "        \"openmrs_entity\": \"concept\",\n" +
             "        \"openmrs_entity_id\": \"159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\n" +

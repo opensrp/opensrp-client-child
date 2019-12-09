@@ -307,6 +307,7 @@
         "openmrs_entity": "person_attribute",
         "openmrs_entity_id": "NRC_Number",
         "entity_id": "mother",
+        "look_up": "true",
         "type": "edit_text",
         "hint": "Mother/guardian NRC number",
         "v_regex": {
@@ -315,10 +316,12 @@
         }
       },
       {
-        "key": "Mother_Guardian_Number",
+        "key": "Mother_Guardian_Phone_Number",
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",
         "openmrs_entity_id": "159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "entity_id": "mother",
+        "look_up": "true",
         "type": "edit_text",
         "hint": "Mother/guardian phone number",
         "v_numeric": {

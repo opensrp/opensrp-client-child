@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public class Constants extends AllConstants {
+public final class Constants extends AllConstants {
 
     public static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
@@ -36,6 +36,7 @@ public class Constants extends AllConstants {
     public static final String EVENTS = "events";
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
+    public static final String FALSE = "false";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 

@@ -3,9 +3,9 @@ package org.smartregister.child.util;
 /**
  * Created by ndegwamartin on 2019-06-07.
  */
-public class ChildAppProperties extends org.smartregister.util.AppProperties {
+public final class ChildAppProperties extends org.smartregister.util.AppProperties {
 
-    public static class KEY {
+    public final static class KEY {
         //Notifications
         public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
         public static final String NOTIFICATIONS_WEIGHT_ENABLED = "notifications.weight.enabled";

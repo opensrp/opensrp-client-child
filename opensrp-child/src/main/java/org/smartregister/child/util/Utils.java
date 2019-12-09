@@ -16,6 +16,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.json.JSONException;
@@ -26,6 +27,9 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
+import org.smartregister.child.event.BaseEvent;
+import org.smartregister.child.event.ClientDirtyFlagEvent;
+import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.growthmonitoring.domain.Height;
@@ -34,10 +38,15 @@ import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.service.intent.HeightIntentService;
+import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.repository.BaseRepository;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -199,6 +208,9 @@ public class Utils extends org.smartregister.util.Utils {
                 vaccineRepository.updateFtsSearch(ftsVaccine);
             }
 
+            if (vaccine != null && (BaseRepository.TYPE_Unprocessed.equals(vaccine.getSyncStatus()) || BaseRepository.TYPE_Unsynced.equals(vaccine.getSyncStatus())))
+                Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
+
         } catch (Exception e) {
             Timber.e(e);
         }
@@ -221,62 +233,6 @@ public class Utils extends org.smartregister.util.Utils {
 
         return ftsVaccineName;
     }
-
-    public static Date getDateFromString(String date, String dateFormatPattern) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
-            return dateFormat.parse(date);
-        } catch (ParseException e) {
-            Timber.e(e);
-            return null;
-        }
-    }
-
-    public static int yearFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
-    }
-
-    public static Date getCohortEndDate(VaccineRepo.Vaccine vaccine, Date startDate) {
-        if (vaccine == null || startDate == null) {
-            return null;
-        }
-        String vaccineName = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
-        return getCohortEndDate(vaccineName, startDate);
-
-    }
-
-    public static Date getCohortEndDate(String vaccine, Date startDate) {
-
-        if (StringUtils.isBlank(vaccine) || startDate == null) {
-            return null;
-        }
-
-        Calendar endDateCalendar = Calendar.getInstance();
-        endDateCalendar.setTime(startDate);
-
-        final String opv0 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.opv0.display().toLowerCase());
-
-        final String rota1 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota1.display().toLowerCase());
-        final String rota2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota2.display().toLowerCase());
-
-        final String measles2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles2.display().toLowerCase());
-        final String mr2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr2.display().toLowerCase());
-
-        if (vaccine.equals(opv0)) {
-            endDateCalendar.add(Calendar.DATE, 13);
-        } else if (vaccine.equals(rota1) || vaccine.equals(rota2)) {
-            endDateCalendar.add(Calendar.MONTH, 8);
-        } else if (vaccine.equals(measles2) || vaccine.equals(mr2)) {
-            endDateCalendar.add(Calendar.YEAR, 2);
-        } else {
-            endDateCalendar.add(Calendar.YEAR, 1);
-        }
-
-        return endDateCalendar.getTime();
-    }
-
 
     public static Date dobStringToDate(String dobString) {
         DateTime dateTime = dobStringToDateTime(dobString);
@@ -336,6 +292,10 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         weightWrapper.setDbKey(weight.getId());
+
+        if (weight != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+            Utils.postEvent(new ClientDirtyFlagEvent(weight.getBaseEntityId(), WeightIntentService.EVENT_TYPE));
+
     }
 
     public static void recordHeight(HeightRepository heightRepository, HeightWrapper heightWrapper, String syncStatus) {
@@ -352,9 +312,9 @@ public class Utils extends org.smartregister.util.Utils {
 
             Gender gender = Gender.UNKNOWN;
             String genderString = heightWrapper.getGender();
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.MALE;
             }
 
@@ -367,6 +327,9 @@ public class Utils extends org.smartregister.util.Utils {
             }
 
             heightWrapper.setDbKey(height.getId());
+
+            if (height != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+                Utils.postEvent(new ClientDirtyFlagEvent(height.getBaseEntityId(), HeightIntentService.EVENT_TYPE));
         }
     }
 
@@ -469,6 +432,36 @@ public class Utils extends org.smartregister.util.Utils {
         ArrayUtils.reverse(dateArray);
 
         return StringUtils.join(dateArray, "-");
+    }
+
+    public static void postEvent(BaseEvent baseEvent) {
+
+        EventBus eventBus = ChildLibrary.getInstance().getEventBus();
+
+        if (eventBus != null && baseEvent != null)
+            eventBus.post(baseEvent);
+    }
+
+    public static Date getDate(String eventDateStr) {
+        Date date = null;
+        if (StringUtils.isNotBlank(eventDateStr)) {
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", Locale.ENGLISH);
+                date = dateFormat.parse(eventDateStr);
+            } catch (ParseException e) {
+                try {
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH);
+                    date = dateFormat.parse(eventDateStr);
+                } catch (ParseException pe) {
+                    try {
+                        date = DateUtil.parseDate(eventDateStr);
+                    } catch (ParseException pee) {
+                        Timber.e(pee);
+                    }
+                }
+            }
+        }
+        return date;
     }
 
     /**
