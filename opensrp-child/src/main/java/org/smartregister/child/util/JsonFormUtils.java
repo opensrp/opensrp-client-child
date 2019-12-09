@@ -1163,7 +1163,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getIdentifierMap(fields, parent, bindType);
+        Map<String, String> identifierMap = getIdentifierMap();
         Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
@@ -1215,8 +1215,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     @NotNull
-    private static Map<String, String> getIdentifierMap(JSONArray fields, String bindType) {
-        Map<String, String> identifiers = extractIdentifiers(fields, bindType);
+    private static Map<String, String> getIdentifierMap() {
+        Map<String, String> identifiers = new HashMap<>();
         String motherZeirId = Utils.getOpenMrsIdForMother();
         if (motherZeirId == null) {
             return identifiers;
