@@ -468,7 +468,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String getOpenMrsIdForMother() {
         List<String> unusedOpenMrsIds = getUnusedOpenMrsIds(2);
-        if (!unusedOpenMrsIds.isEmpty()) {
+        if (unusedOpenMrsIds.size() > 1) {
             return unusedOpenMrsIds.get(1);
         }
         return null;
@@ -482,6 +482,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     /**
      * fetches first two unused openmrs_ids from unique_ids table
+     *
      * @param limit number of opensrp ids to be fetched
      * @return List of two unused opensrpIds
      **/
