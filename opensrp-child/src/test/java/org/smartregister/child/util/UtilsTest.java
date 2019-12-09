@@ -48,13 +48,6 @@ public class UtilsTest {
         Assert.assertEquals(uuid2, getUnusedOpenMrsIds(uuid1, uuid2).get(1));
     }
 
-    @Test
-    public void getOpenMrsIdForChild() {
-        final String uuid1 = UUID.randomUUID().toString();
-        final String uuid2 = UUID.randomUUID().toString();
-        Assert.assertEquals(uuid1, getUnusedOpenMrsIds(uuid1, uuid2).get(0));
-    }
-
     public List<String> getUnusedOpenMrsIds(final String uuid1, final String uuid2) {
         PowerMockito.mockStatic(ChildLibrary.class);
         PowerMockito.when(cursor.moveToNext()).then(new Answer<Object>() {

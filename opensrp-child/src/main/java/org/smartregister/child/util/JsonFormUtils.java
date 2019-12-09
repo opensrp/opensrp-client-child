@@ -113,9 +113,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         if (Utils.metadata().childRegister.formName.equals(formName)) {
             if (StringUtils.isBlank(entityId)) {
-                entityId = Utils.getOpenMrsIdForChild();
-                if (StringUtils.isBlank(entityId) || Utils.getUnusedOpenMrsIds(2).size() == 2) {
-                    Timber.e("JsonFormUtils --> UniqueIds are empty");
+                entityId = Utils.getNextOpenMrsId();
+                if (StringUtils.isBlank(entityId) || Utils.getUnusedOpenMrsIds(2).size() != 2) {
+                    Timber.e("JsonFormUtils --> UniqueIds are empty or only one unused found");
                     return null;
                 }
             }
@@ -1217,7 +1217,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static Map<String, String> getIdentifierMap() {
         Map<String, String> identifiers = new HashMap<>();
         String motherZeirId = Utils.getOpenMrsIdForMother();
-        if (motherZeirId == null) {
+        if (StringUtils.isBlank(motherZeirId)) {
             return identifiers;
         }
         identifiers.put(M_ZEIR_ID, motherZeirId);
