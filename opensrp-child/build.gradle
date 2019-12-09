@@ -82,7 +82,7 @@ allprojects {
 }
 
 dependencies {
-    api('org.smartregister:opensrp-client-core:1.8.8-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:1.8.11-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'

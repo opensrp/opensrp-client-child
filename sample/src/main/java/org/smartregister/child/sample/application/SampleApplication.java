@@ -168,7 +168,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private void sampleUniqueIds() {
         List<String> ids = generateIds(20);
-        ChildLibrary.getInstance().getUniqueIdRepository().bulkInserOpenmrsIds(ids);
+        ChildLibrary.getInstance().getUniqueIdRepository().bulkInsertOpenmrsIds(ids);
     }
 
     private void initOfflineSchedules() {
