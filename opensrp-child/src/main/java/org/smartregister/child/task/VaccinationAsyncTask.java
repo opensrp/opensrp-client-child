@@ -30,6 +30,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.Utils;
@@ -100,6 +101,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
         this.reverseLookupGroupMap = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
 
+        // Add BCG 2 to Birth Vaccination group
+        // This method handles the multiple loops
+        this.reverseLookupGroupMap.put("bcg2", "Birth");
         initVaccinesData();
 
     }
