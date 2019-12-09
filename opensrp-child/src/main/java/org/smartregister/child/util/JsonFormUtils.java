@@ -113,9 +113,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         if (Utils.metadata().childRegister.formName.equals(formName)) {
             if (StringUtils.isBlank(entityId)) {
-                UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
-                entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
-                if (entityId.isEmpty() || entityId.length() > 2) {
+                entityId = Utils.getOpenMrsIdForChild();
+                if (StringUtils.isBlank(entityId) || Utils.getUnusedOpenMrsIds(2).size() == 2) {
                     Timber.e("JsonFormUtils --> UniqueIds are empty");
                     return null;
                 }

@@ -55,6 +55,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -464,33 +465,50 @@ public class Utils extends org.smartregister.util.Utils {
         return date;
     }
 
+    public static String getOpenMrsIdForMother() {
+        List<String> unusedOpenMrsIds = getUnusedOpenMrsIds(2);
+        if (!unusedOpenMrsIds.isEmpty()) {
+            return unusedOpenMrsIds.get(1);
+        }
+        return null;
+    }
+
+    public static String getOpenMrsIdForChild() {
+        List<String> unusedOpenMrsIds = getUnusedOpenMrsIds(2);
+        if (!unusedOpenMrsIds.isEmpty()) {
+            return unusedOpenMrsIds.get(0);
+        }
+        return null;
+    }
+
+
     /**
      * fetches first two unused openmrs_ids from unique_ids table
-     *
-     * @return the second openmrs_id to be used in case of a new mother registration
+     * @param limit number of opensrp ids to be fetched
+     * @return List of two unused opensrpIds
      **/
 
-    public static String getOpenMrsIdForMother() {
+    public static List<String> getUnusedOpenMrsIds(int limit) {
+        List<String> unusedOpenMrsIds = new ArrayList<>();
         try {
             SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getWritableDatabase();
-            Cursor cursor = sqLiteDatabase.query(Constants.CoreTable.TABLE_NAME,
-                    new String[]{Constants.CoreTable.Columns.OPENMRSID}, Constants.CoreTable.Columns.STATUS + " = ?",
-                    new String[]{Constants.CoreTable.Columns.NOTUSED},
+            Cursor cursor = sqLiteDatabase.query(Constants.UniqueIdsTable.TABLE_NAME,
+                    new String[]{Constants.UniqueIdsTable.Columns.OPENMRSID}, Constants.UniqueIdsTable.Columns.STATUS + " = ?",
+                    new String[]{Constants.UniqueIdsTable.Columns.NOTUSED},
                     null,
                     null,
-                    Constants.CoreTable.Columns.CREATED_AT + " ASC", "2");
-            String motherZeirId = null;
-            if (cursor.move(2)) {
-                motherZeirId = cursor.getString(0);
+                    Constants.UniqueIdsTable.Columns.CREATED_AT + " ASC", String.valueOf(limit));
+            while (cursor.moveToNext()) {
+                unusedOpenMrsIds.add(cursor.getString(0));
             }
             cursor.close();
-            return motherZeirId;
-        } catch (IllegalArgumentException e){
+            return unusedOpenMrsIds;
+        } catch (IllegalArgumentException e) {
             Timber.e(e);
-            return null;
-        } catch (NullPointerException e){
+            return new ArrayList<>();
+        } catch (NullPointerException e) {
             Timber.e(e);
-            return null;
+            return new ArrayList<>();
         }
     }
 }

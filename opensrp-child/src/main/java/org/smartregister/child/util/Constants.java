@@ -173,7 +173,7 @@ public final class Constants extends AllConstants {
 
     }
 
-    public interface CoreTable {
+    public interface UniqueIdsTable {
         String TABLE_NAME = "unique_ids";
 
         interface Columns {

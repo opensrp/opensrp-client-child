@@ -9,11 +9,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.repository.Repository;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ChildLibrary.class)
@@ -37,19 +43,59 @@ public class UtilsTest {
 
     @Test
     public void getOpenMrsIdForMother() {
+        final String uuid1 = UUID.randomUUID().toString();
+        final String uuid2 = UUID.randomUUID().toString();
+        Assert.assertEquals(uuid2, getUnusedOpenMrsIds(uuid1, uuid2).get(1));
+    }
+
+    @Test
+    public void getOpenMrsIdForChild() {
+        final String uuid1 = UUID.randomUUID().toString();
+        final String uuid2 = UUID.randomUUID().toString();
+        Assert.assertEquals(uuid1, getUnusedOpenMrsIds(uuid1, uuid2).get(0));
+    }
+
+    public List<String> getUnusedOpenMrsIds(final String uuid1, final String uuid2) {
         PowerMockito.mockStatic(ChildLibrary.class);
-        PowerMockito.when(cursor.move(2)).thenReturn(true);
-        PowerMockito.when(cursor.getString(0)).thenReturn("some valid id");
-        PowerMockito.when(sqLiteDatabase.query(Constants.CoreTable.TABLE_NAME,
-                new String[]{Constants.CoreTable.Columns.OPENMRSID}, Constants.CoreTable.Columns.STATUS + " = ?",
-                new String[]{Constants.CoreTable.Columns.NOTUSED},
+        PowerMockito.when(cursor.moveToNext()).then(new Answer<Object>() {
+            int count = 0;
+
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                if (count > 1) {
+                    return false;
+                } else {
+                    count++;
+                    return true;
+                }
+
+            }
+        });
+
+
+        PowerMockito.when(cursor.getString(0)).then(new Answer<String>() {
+            List<String> stringsIds = Arrays.asList(uuid1, uuid2);
+            int index = 0;
+
+            @Override
+            public String answer(InvocationOnMock invocation) {
+                String newId = stringsIds.get(index);
+                index++;
+                return newId;
+
+            }
+        });
+        PowerMockito.when(sqLiteDatabase.query(Constants.UniqueIdsTable.TABLE_NAME,
+                new String[]{Constants.UniqueIdsTable.Columns.OPENMRSID}, Constants.UniqueIdsTable.Columns.STATUS + " = ?",
+                new String[]{Constants.UniqueIdsTable.Columns.NOTUSED},
                 null,
                 null,
-                Constants.CoreTable.Columns.CREATED_AT + " ASC", "2")).thenReturn(cursor);
+                Constants.UniqueIdsTable.Columns.CREATED_AT + " ASC", "2")).thenReturn(cursor);
         PowerMockito.when(childLibrary.getRepository()).thenReturn(repository);
         PowerMockito.when(repository.getWritableDatabase()).thenReturn(sqLiteDatabase);
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
-        String result = Utils.getOpenMrsIdForMother();
-        Assert.assertEquals("some valid id", result);
+        List<String> result = Utils.getUnusedOpenMrsIds(2);
+        return result;
     }
+
 }
