@@ -102,7 +102,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         // Add BCG 2 to Birth Vaccination group
         // This method handles the multiple loops
-        this.reverseLookupGroupMap.put("bcg2", "Birth");
+        this.reverseLookupGroupMap.put(Constants.VACCINE.BCG2, Constants.VACCINE_GROUP.BIRTH);
         initVaccinesData();
 
     }
