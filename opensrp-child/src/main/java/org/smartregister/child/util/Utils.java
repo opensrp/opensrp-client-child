@@ -10,9 +10,6 @@ import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -56,7 +53,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -467,47 +463,11 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static String getOpenMrsIdForMother() {
-        List<String> unusedOpenMrsIds = getUnusedOpenMrsIds(2);
-        if (unusedOpenMrsIds.size() > 1) {
-            return unusedOpenMrsIds.get(1);
-        }
-        return null;
+        return getNextOpenMrsId();
     }
 
     public static String getNextOpenMrsId() {
         UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
         return uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
-    }
-
-
-    /**
-     * fetches first two unused openmrs_ids from unique_ids table
-     *
-     * @param limit number of opensrp ids to be fetched
-     * @return List of two unused opensrpIds
-     **/
-
-    public static List<String> getUnusedOpenMrsIds(int limit) {
-        List<String> unusedOpenMrsIds = new ArrayList<>();
-        try {
-            SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getWritableDatabase();
-            Cursor cursor = sqLiteDatabase.query(Constants.UniqueIdsTable.TABLE_NAME,
-                    new String[]{Constants.UniqueIdsTable.Columns.OPENMRSID}, Constants.UniqueIdsTable.Columns.STATUS + " = ?",
-                    new String[]{Constants.UniqueIdsTable.Columns.NOTUSED},
-                    null,
-                    null,
-                    Constants.UniqueIdsTable.Columns.CREATED_AT + " ASC", String.valueOf(limit));
-            while (cursor.moveToNext()) {
-                unusedOpenMrsIds.add(cursor.getString(0));
-            }
-            cursor.close();
-            return unusedOpenMrsIds;
-        } catch (IllegalArgumentException e) {
-            Timber.e(e);
-            return new ArrayList<>();
-        } catch (NullPointerException e) {
-            Timber.e(e);
-            return new ArrayList<>();
-        }
     }
 }
