@@ -100,6 +100,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         this.childProfileInfoLayout = recordActionParams.getProfileInfoView();
         this.reverseLookupGroupMap = ImmunizationLibrary.getInstance().getVaccineGroupings(context);
 
+        // Add BCG 2 to Birth Vaccination group
+        // This method handles the multiple loops
+        this.reverseLookupGroupMap.put(Constants.VACCINE.BCG2, Constants.VACCINE_GROUP.BIRTH);
         initVaccinesData();
 
     }
