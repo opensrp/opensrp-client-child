@@ -173,6 +173,14 @@ public final class Constants extends AllConstants {
 
     }
 
+    public static class VACCINE_GROUP {
+        public static final String BIRTH = "Birth";
+    }
+
+    public static class VACCINE {
+        public static final String BCG2 = "bcg2";
+    }
+
     public interface UniqueIdsTable {
         String TABLE_NAME = "unique_ids";
 

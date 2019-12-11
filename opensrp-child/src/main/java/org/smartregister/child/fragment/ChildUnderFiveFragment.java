@@ -314,10 +314,14 @@ public class ChildUnderFiveFragment extends Fragment {
             title.setText(getString(R.string.immunizations));
             vaccineGroupCanvasLL.addView(title);
 
+            boolean addedBcg2Vaccine = false;
             List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
             for (VaccineGroup vaccineGroup : supportedVaccines) {
 
-                VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
+                if (!addedBcg2Vaccine) {
+                    addedBcg2Vaccine = VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
+                }
+
                 ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editVaccineMode);
                 curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
                 curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
