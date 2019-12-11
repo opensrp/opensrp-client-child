@@ -8,25 +8,37 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.util.ReflectionHelpers;
-import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.sync.helper.ECSyncHelper;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Utils.class})
-public class JsonFormUtilsTests extends BaseUnitTest {
+@PrepareForTest({Utils.class, ChildLibrary.class})
+public class JsonFormUtilsTests {
 
     private JSONObject jsonObject;
     private static final String MY_KEY = "my_key";
     private static final String MY_LOCATION_ID = "mylo-cati-onid-endt-ifie-r00";
+
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Captor
+    private ArgumentCaptor addClientCaptor;
 
     @Before
     public void setUp() {
@@ -70,7 +82,7 @@ public class JsonFormUtilsTests extends BaseUnitTest {
         Whitebox.invokeMethod(JsonFormUtils.class, "addLocationDefault", MY_KEY, jsonObject, array.toString());
         Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
         Assert.assertNotNull(jsonObject.get(JsonFormConstants.DEFAULT));
-        Assert.assertEquals(array, jsonObject.get(JsonFormConstants.DEFAULT));
+        Assert.assertEquals(array.get(0), jsonObject.getJSONArray(JsonFormConstants.DEFAULT).get(0));
     }
 
     @Test
@@ -96,5 +108,28 @@ public class JsonFormUtilsTests extends BaseUnitTest {
         Mockito.doReturn(currentLocalityId).when(locationHelper).getOpenMrsLocationId(Mockito.eq(currentLocality));
 
         Assert.assertEquals(currentLocalityId, JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+    }
+
+    @Test
+    public void mergeAndSaveClient() throws Exception {
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("first_name", "John");
+        PowerMockito.when(ecSyncHelper.getClient("234")).thenReturn(jsonObject);
+        PowerMockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
+
+        Client client = new Client("234");
+        JsonFormUtils.mergeAndSaveClient(client);
+        Mockito.verify(ecSyncHelper, Mockito.times(1))
+                .addClient((String) addClientCaptor.capture(), (JSONObject) addClientCaptor.capture());
+
+        JSONObject expected = new JSONObject();
+        expected.put("baseEntityId", "234");
+        expected.put("type", "Client");
+        expected.put("first_name", "John");
+        Assert.assertEquals("234", addClientCaptor.getAllValues().get(0));
+        Assert.assertEquals(expected.toString(), addClientCaptor.getAllValues().get(1).toString());
     }
 }
