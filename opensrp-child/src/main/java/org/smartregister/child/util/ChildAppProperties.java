@@ -24,6 +24,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
 
         //Home styling
         public static final String HOME_ALERT_STYLE_LEGACY = "home.alert.style.legacy";
+        public static final String HOME_ALERT_UPCOMING_BLUE_DISABLED = "home.alert.upcoming.blue.disabled";
 
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";

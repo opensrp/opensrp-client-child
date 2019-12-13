@@ -44,7 +44,7 @@ public class SampleRepository extends Repository {
 
     public SampleRepository(Context context, org.smartregister.Context openSRPContext) {
         super(context, AllConstants.DATABASE_NAME, BuildConfig.DATABASE_VERSION, openSRPContext.session(),
-                SampleApplication.createCommonFtsObject(), openSRPContext.sharedRepositoriesArray());
+                SampleApplication.createCommonFtsObject(context.getApplicationContext()), openSRPContext.sharedRepositoriesArray());
         this.context = context;
     }
 
