@@ -23,6 +23,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `home.toolbar.scan.qr.enabled`      | Boolean | false   | Show Scan QR Code in home register toolbar    |
 | `home.toolbar.scan.card.enabled`    | Boolean | false   | Show Scan Card in home register toolbar       |
 | `details.side.navigation.enabled`   | Boolean | true    | Enable side navigation drawer on details page |
+| `home.alert.upcoming.blue.disabled` | Boolean | false   | Disable showing light blue alert for upcoming in 7 days |
 
 ### Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
 

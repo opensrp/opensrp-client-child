@@ -76,6 +76,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private AlertService alertService;
     private View childProfileInfoLayout;
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
+    private boolean upcomingLightBlueDisabled = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED);
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineMap;
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
@@ -386,9 +387,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccinationText
                     .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
-
-            //recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
-            recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
+            if (!upcomingLightBlueDisabled) {
+                recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
+            } else {
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
+            }
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
 
