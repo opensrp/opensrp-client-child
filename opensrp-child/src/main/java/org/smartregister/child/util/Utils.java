@@ -462,10 +462,6 @@ public class Utils extends org.smartregister.util.Utils {
         return date;
     }
 
-    public static String getOpenMrsIdForMother() {
-        return getNextOpenMrsId();
-    }
-
     public static String getNextOpenMrsId() {
         UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
         return uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
