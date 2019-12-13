@@ -2,7 +2,6 @@ package org.smartregister.child.task;
 
 import org.joda.time.DateTime;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -124,11 +123,11 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         DateTime dateTime = new DateTime();
         //UPCOMING
         VaccinationAsyncTask.State state = Whitebox.invokeMethod(vaccinationAsyncTask, "getUpcomingState", dateTime);
-        Assert.assertEquals("UPCOMING", state.name());
+        assertEquals("UPCOMING", state.name());
 
         //UPCOMING_NEXT_7_DAYS
         dateTime = dateTime.plusDays(1);
         state = Whitebox.invokeMethod(vaccinationAsyncTask, "getUpcomingState", dateTime);
-        Assert.assertEquals("UPCOMING_NEXT_7_DAYS", state.name());
+        assertEquals("UPCOMING_NEXT_7_DAYS", state.name());
     }
 }
