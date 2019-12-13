@@ -3,6 +3,7 @@ package org.smartregister.child.task;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -473,7 +474,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    private enum State {
+    @VisibleForTesting
+    enum State {
         DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
         FULLY_IMMUNIZED
     }

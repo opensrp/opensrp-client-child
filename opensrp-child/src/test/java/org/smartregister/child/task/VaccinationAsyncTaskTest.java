@@ -1,10 +1,13 @@
 package org.smartregister.child.task;
 
+import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
@@ -113,5 +116,19 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         assertEquals("6 Weeks", localizedStateKey);
 
+    }
+
+
+    @Test
+    public void testGetUpcomingState() throws Exception {
+        DateTime dateTime = new DateTime();
+        //UPCOMING
+        VaccinationAsyncTask.State state = Whitebox.invokeMethod(vaccinationAsyncTask, "getUpcomingState", dateTime);
+        Assert.assertEquals("UPCOMING", state.name());
+
+        //UPCOMING_NEXT_7_DAYS
+        dateTime = dateTime.plusDays(1);
+        state = Whitebox.invokeMethod(vaccinationAsyncTask, "getUpcomingState", dateTime);
+        Assert.assertEquals("UPCOMING_NEXT_7_DAYS", state.name());
     }
 }
