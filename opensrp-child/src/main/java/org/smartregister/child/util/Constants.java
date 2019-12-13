@@ -180,16 +180,4 @@ public final class Constants extends AllConstants {
     public static class VACCINE {
         public static final String BCG2 = "bcg2";
     }
-
-    public interface UniqueIdsTable {
-        String TABLE_NAME = "unique_ids";
-
-        interface Columns {
-            String NOTUSED = "not_used";
-            String OPENMRSID = "openmrs_id";
-            String STATUS = "status";
-            String CREATED_AT = "created_at";
-        }
-    }
-
 }
