@@ -206,7 +206,7 @@ public class Utils extends org.smartregister.util.Utils {
                 vaccineRepository.updateFtsSearch(ftsVaccine);
             }
 
-            if (vaccine != null && (BaseRepository.TYPE_Unprocessed.equals(vaccine.getSyncStatus()) || BaseRepository.TYPE_Unsynced.equals(vaccine.getSyncStatus())))
+            if (vaccine != null && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
                 Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
 
         } catch (Exception e) {
@@ -291,7 +291,7 @@ public class Utils extends org.smartregister.util.Utils {
 
         weightWrapper.setDbKey(weight.getId());
 
-        if (weight != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+        if (weight != null && !BaseRepository.TYPE_Synced.equals(syncStatus))
             Utils.postEvent(new ClientDirtyFlagEvent(weight.getBaseEntityId(), WeightIntentService.EVENT_TYPE));
 
     }
@@ -326,7 +326,7 @@ public class Utils extends org.smartregister.util.Utils {
 
             heightWrapper.setDbKey(height.getId());
 
-            if (height != null && (BaseRepository.TYPE_Unprocessed.equals(syncStatus) || BaseRepository.TYPE_Unsynced.equals(BaseRepository.TYPE_Unsynced)))
+            if (height != null && !BaseRepository.TYPE_Synced.equals(syncStatus))
                 Utils.postEvent(new ClientDirtyFlagEvent(height.getBaseEntityId(), HeightIntentService.EVENT_TYPE));
         }
     }

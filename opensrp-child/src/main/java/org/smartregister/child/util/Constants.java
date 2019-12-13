@@ -37,6 +37,10 @@ public final class Constants extends AllConstants {
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
     public static final String FALSE = "false";
+    public static final String RESIDENTIAL_AREA = "Residential_Area";
+    public static final String RESIDENTIAL_AREA_OTHER = "Residential_Area_Other";
+    public static final String RESIDENTIAL_ADDRESS = "Residential_Address";
+    public static final String PREFERRED_LANGUAGE = "Preferred_Language";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 

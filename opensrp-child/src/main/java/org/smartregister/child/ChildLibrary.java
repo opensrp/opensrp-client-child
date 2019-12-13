@@ -40,10 +40,9 @@ public class ChildLibrary {
 
     private EventBus eventBus;
 
-    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion,
-                         int databaseVersion) {
+    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
         this.context = contextArg;
-        repository = repositoryArg;
+        this.repository = repositoryArg;
         this.metadata = metadataArg;
         this.applicationVersion = applicationVersion;
         this.databaseVersion = databaseVersion;
