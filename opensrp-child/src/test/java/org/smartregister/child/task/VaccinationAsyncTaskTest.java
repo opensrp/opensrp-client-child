@@ -1,7 +1,5 @@
 package org.smartregister.child.task;
 
-import android.content.Context;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +10,11 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.RegisterActionParams;
+import org.smartregister.child.util.Constants;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
+import org.smartregister.immunization.util.VaccineCache;
 import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     private ImmunizationLibrary immunizationLibrary;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
         immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
@@ -69,6 +68,11 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         Mockito.when(immunizationLibrary.getVaccinesConfigJsonMap()).thenReturn(vaccineRepoMap);
 
+        HashMap<String, VaccineCache> vaccineCacheHashMap = new HashMap<>();
+
+        vaccineCacheHashMap.put(Constants.CHILD_TYPE, new VaccineCache());
+
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "vaccineCacheMap", vaccineCacheHashMap);
 
         HashMap<String, String> vaccineGrouping = new HashMap<>();
         vaccineGrouping.put("bcg", "At Birth");
@@ -76,7 +80,6 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         vaccineGrouping.put("opv1", "10 weeks");
         vaccineGrouping.put("opv2", "14 weeks");
 
-        Mockito.doReturn(vaccineGrouping).when(immunizationLibrary).getVaccineGroupings(Mockito.any(Context.class));
 
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
 
@@ -99,15 +102,6 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
-    }
-
-    @Test
-    public void getGroupNameShouldCallImmunizationLibrary() {
-
-        assertEquals("14 weeks", ReflectionHelpers.callInstanceMethod(vaccinationAsyncTask, "getGroupName"
-                , ReflectionHelpers.ClassParameter.from(VaccineRepo.Vaccine.class, VaccineRepo.Vaccine.opv2)));
-        Mockito.verify(immunizationLibrary, Mockito.times(1))
-                .getVaccineGroupings(Mockito.any(Context.class));
     }
 
     @Test
