@@ -393,22 +393,22 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             text = getValue(pc.getColumnmaps(), MotherLookUpUtils.CONTACT_PHONE_NUMBER, true);
                         }
 
-                        if (key.equalsIgnoreCase("Residential_Area")) {
-                            text = getValue(sibling.getColumnmaps(), "Residential_Area", true);
+                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA)) {
+                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
                         }
 
 
-                        if (key.equalsIgnoreCase("Residential_Area_Other")) {
-                            text = getValue(sibling.getColumnmaps(), "Residential_Area_Other", true);
+                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA_OTHER)) {
+                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER, true);
                         }
 
-                        if (key.equalsIgnoreCase("Residential_Address")) {
-                            text = getValue(sibling.getColumnmaps(), "Residential_Address", true);
+                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_ADDRESS)) {
+                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS, true);
                         }
 
 
-                        if (key.equalsIgnoreCase("Preferred_Language")) {
-                            text = getValue(sibling.getColumnmaps(), "Preferred_Language", true);
+                        if (key.equalsIgnoreCase(Constants.PREFERRED_LANGUAGE)) {
+                            text = getValue(sibling.getColumnmaps(), Constants.PREFERRED_LANGUAGE, true);
                         }
 
 
