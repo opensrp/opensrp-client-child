@@ -6,10 +6,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.VaccineUtils;
-import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -43,7 +39,6 @@ public class ChildLibrary {
     private LocationPickerView locationPickerView;
 
     private EventBus eventBus;
-    private final Cache cache = new Cache();
 
     private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
         this.context = contextArg;
@@ -51,8 +46,6 @@ public class ChildLibrary {
         this.metadata = metadataArg;
         this.applicationVersion = applicationVersion;
         this.databaseVersion = databaseVersion;
-
-        initCache();
     }
 
     public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion,
@@ -160,17 +153,5 @@ public class ChildLibrary {
 
     public void setApplicationVersionName(String applicationVersionName) {
         this.applicationVersionName = applicationVersionName;
-    }
-
-    public Cache cache() {
-        return cache;
-    }
-
-    private void initCache() {
-        cache.reverseLookupGroupMap = ImmunizationLibrary.getInstance().getVaccineGroupings(context.applicationContext());
-        cache.childVaccineRepo = VaccineUtils.generateActualVaccines(cache.reverseLookupGroupMap.keySet());
-        cache.groupVaccineMap = VaccineUtils.generateGroupVaccineMap();
-
-
     }
 }
