@@ -28,7 +28,6 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightZScoreRepository;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
@@ -51,12 +50,12 @@ public class SampleApplication extends DrishtiApplication {
     private static CommonFtsObject commonFtsObject;
     private boolean lastModified;
 
-    public static CommonFtsObject createCommonFtsObject() {
+    public static CommonFtsObject createCommonFtsObject(android.content.Context context) {
         if (commonFtsObject == null) {
             commonFtsObject = new CommonFtsObject(getFtsTables());
             for (String ftsTable : commonFtsObject.getTables()) {
                 commonFtsObject.updateSearchFields(ftsTable, getFtsSearchFields(ftsTable));
-                commonFtsObject.updateSortFields(ftsTable, getFtsSortFields(ftsTable));
+                commonFtsObject.updateSortFields(ftsTable, getFtsSortFields(ftsTable, context));
             }
         }
         return commonFtsObject;
@@ -73,9 +72,11 @@ public class SampleApplication extends DrishtiApplication {
         return null;
     }
 
-    private static String[] getFtsSortFields(String tableName) {
+    private static String[] getFtsSortFields(String tableName, android.content.Context context) {
         if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            ArrayList<VaccineRepo.Vaccine> vaccines = ChildLibrary.getInstance().cache().childVaccineRepo;
+
+            List<VaccineGroup> vaccineList = VaccinatorUtils.getVaccineGroupsFromVaccineConfigFile(context, VaccinatorUtils.vaccines_file);
+
             List<String> names = new ArrayList<>();
             names.add(DBConstants.KEY.FIRST_NAME);
             names.add(DBConstants.KEY.DOB);
@@ -86,13 +87,35 @@ public class SampleApplication extends DrishtiApplication {
             names.add(DBConstants.KEY.DOD);
             names.add(DBConstants.KEY.DATE_REMOVED);
 
-            for (VaccineRepo.Vaccine vaccine : vaccines) {
-                names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.display()));
+            for (VaccineGroup vaccineGroup : vaccineList) {
+                populateAlertColumnNames(vaccineGroup.vaccines, names);
             }
 
             return names.toArray(new String[names.size()]);
         }
         return null;
+    }
+
+    private static void populateAlertColumnNames(List<Vaccine> vaccines, List<String> names) {
+
+        for (Vaccine vaccine : vaccines)
+            if (vaccine.getVaccineSeparator() != null && vaccine.getName().contains(vaccine.getVaccineSeparator().trim())) {
+                String[] individualVaccines = vaccine.getName().split(vaccine.getVaccineSeparator().trim());
+
+                List<Vaccine> vaccineList = new ArrayList<>();
+                for (String individualVaccine : individualVaccines) {
+                    Vaccine vaccineClone = new Vaccine();
+                    vaccineClone.setName(individualVaccine.trim());
+                    vaccineList.add(vaccineClone);
+
+                }
+                populateAlertColumnNames(vaccineList, names);
+
+
+            } else {
+
+                names.add("alerts." + VaccinateActionUtils.addHyphen(vaccine.getName()));
+            }
     }
 
     public static synchronized SampleApplication getInstance() {
@@ -105,12 +128,12 @@ public class SampleApplication extends DrishtiApplication {
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
-        context.updateCommonFtsObject(createCommonFtsObject());
+        context.updateCommonFtsObject(createCommonFtsObject(getApplicationContext()));
 
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
         GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
-        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(context.applicationContext()), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context, getRepository());
         ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
 
@@ -168,7 +191,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private void sampleUniqueIds() {
         List<String> ids = generateIds(20);
-        ChildLibrary.getInstance().getUniqueIdRepository().bulkInserOpenmrsIds(ids);
+        ChildLibrary.getInstance().getUniqueIdRepository().bulkInsertOpenmrsIds(ids);
     }
 
     private void initOfflineSchedules() {
@@ -244,7 +267,7 @@ public class SampleApplication extends DrishtiApplication {
         this.lastModified = lastModified;
     }
 
-    public void initializeTestLocationData(){
+    public void initializeTestLocationData() {
         // this function is for test purposes only
         String loc = "{\"locationsHierarchy\":{\"map\":{\"5b854508-42c5-4cc5-9bea-77335687a428\":{\"children\":{\"425b0ac3-05e7-4123-ad27-76f510d96a6a\":{\"children\":{\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\":{\"children\":{\"6ca7788c-d995-4431-a8a3-2f030db1aee0\":{\"id\":\"6ca7788c-d995-4431-a8a3-2f030db1aee0\",\"label\":\"The crypts\",\"node\":{\"locationId\":\"6ca7788c-d995-4431-a8a3-2f030db1aee0\",\"name\":\"The crypts\",\"parentLocation\":{\"locationId\":\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\",\"name\":\"Winterfell\",\"parentLocation\":{\"locationId\":\"425b0ac3-05e7-4123-ad27-76f510d96a6a\",\"name\":\"The North\",\"serverVersion\":0,\"voided\":false},\"serverVersion\":0,\"voided\":false},\"tags\":[\"Facility\"],\"serverVersion\":0,\"voided\":false},\"parent\":\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\"}},\"id\":\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\",\"label\":\"Winterfell\",\"node\":{\"locationId\":\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\",\"name\":\"Winterfell\",\"parentLocation\":{\"locationId\":\"425b0ac3-05e7-4123-ad27-76f510d96a6a\",\"name\":\"The North\",\"parentLocation\":{\"locationId\":\"5b854508-42c5-4cc5-9bea-77335687a428\",\"name\":\"Westeros\",\"serverVersion\":0,\"voided\":false},\"serverVersion\":0,\"voided\":false},\"tags\":[\"Department\"],\"serverVersion\":0,\"voided\":false},\"parent\":\"425b0ac3-05e7-4123-ad27-76f510d96a6a\"}},\"id\":\"425b0ac3-05e7-4123-ad27-76f510d96a6a\",\"label\":\"The North\",\"node\":{\"locationId\":\"425b0ac3-05e7-4123-ad27-76f510d96a6a\",\"name\":\"The North\",\"parentLocation\":{\"locationId\":\"5b854508-42c5-4cc5-9bea-77335687a428\",\"name\":\"Westeros\",\"serverVersion\":0,\"voided\":false},\"tags\":[\"Province\"],\"serverVersion\":0,\"voided\":false},\"parent\":\"5b854508-42c5-4cc5-9bea-77335687a428\"}},\"id\":\"5b854508-42c5-4cc5-9bea-77335687a428\",\"label\":\"Westeros\",\"node\":{\"locationId\":\"5b854508-42c5-4cc5-9bea-77335687a428\",\"name\":\"Westeros\",\"tags\":[\"Country\"],\"serverVersion\":0,\"voided\":false}}},\"parentChildren\":{\"425b0ac3-05e7-4123-ad27-76f510d96a6a\":[\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\"],\"288403dc-e48f-4fa5-9cd2-f2293c07fe8c\":[\"6ca7788c-d995-4431-a8a3-2f030db1aee0\"],\"5b854508-42c5-4cc5-9bea-77335687a428\":[\"425b0ac3-05e7-4123-ad27-76f510d96a6a\"]}}}";
         context.allSettings().saveANMLocation(loc);
