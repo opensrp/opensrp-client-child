@@ -59,6 +59,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private Snackbar snackbar = null;
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
+    private CommonPersonObjectClient sibling;
     private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -68,6 +69,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
                     client = (CommonPersonObjectClient) view.getTag();
                 }
+
+                sibling = (CommonPersonObjectClient) view.getTag(R.id.childKey);
 
                 if (client != null) {
                     lookupDialogDismissed(client);
@@ -232,6 +235,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 v.setOnClickListener(lookUpRecordOnClickLister);
                 v.setTag(Utils.convert(commonPersonObject));
 
+                if (children != null && children.size() > 0)
+                    v.setTag(R.id.childKey, Utils.convert(children.get(0)));
                 return v;
             }
         };
@@ -387,6 +392,25 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
                             text = getValue(pc.getColumnmaps(), MotherLookUpUtils.CONTACT_PHONE_NUMBER, true);
                         }
+
+                        if (key.equalsIgnoreCase("Residential_Area")) {
+                            text = getValue(sibling.getColumnmaps(), "Residential_Area", true);
+                        }
+
+
+                        if (key.equalsIgnoreCase("Residential_Area_Other")) {
+                            text = getValue(sibling.getColumnmaps(), "Residential_Area_Other", true);
+                        }
+
+                        if (key.equalsIgnoreCase("Residential_Address")) {
+                            text = getValue(sibling.getColumnmaps(), "Residential_Address", true);
+                        }
+
+
+                        if (key.equalsIgnoreCase("Preferred_Language")) {
+                            text = getValue(sibling.getColumnmaps(), "Preferred_Language", true);
+                        }
+
 
                         if (view instanceof MaterialEditText) {
                             MaterialEditText materialEditText = (MaterialEditText) view;
