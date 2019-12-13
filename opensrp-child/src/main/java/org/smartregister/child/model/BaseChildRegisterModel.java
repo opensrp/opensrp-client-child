@@ -70,6 +70,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         // Update the child mother
         Client childClient = childEventClient.getClient();
+
         childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
 
         // Add search by mother

@@ -42,6 +42,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.UniqueIdRepository;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -461,4 +462,8 @@ public class Utils extends org.smartregister.util.Utils {
         return date;
     }
 
+    public static String getNextOpenMrsId() {
+        UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
+        return uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
+    }
 }

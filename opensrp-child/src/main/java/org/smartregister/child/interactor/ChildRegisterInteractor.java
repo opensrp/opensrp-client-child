@@ -207,10 +207,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
         } else {
             if (baseClient != null) {
-                String opensrpId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID);
-
                 //mark OPENSRP ID as used
-                getUniqueIdRepository().close(opensrpId);
+                String openSrpId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID);
+                getUniqueIdRepository().close(openSrpId);
+
+                String motherOpenSrpId = baseClient.getIdentifier(JsonFormUtils.M_ZEIR_ID);
+
+                if (motherOpenSrpId != null) {
+                    getUniqueIdRepository().close(motherOpenSrpId);
+                }
             }
         }
     }
