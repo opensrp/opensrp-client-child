@@ -174,7 +174,8 @@ public final class Constants extends AllConstants {
 
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
 
-
+        public static final String MOTHER_LOOKUP_SHOW_RESULTS_DURATION = "mother.lookup.show.results.duration";
+        public static final String MOTHER_LOOKUP_UNDO_DURATION = "mother.lookup.undo.duration";
     }
 
     public static class VACCINE_GROUP {
