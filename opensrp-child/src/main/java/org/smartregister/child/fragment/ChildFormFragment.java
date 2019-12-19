@@ -69,7 +69,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private static final int undoChoiceDuration = Integer.valueOf(ChildLibrary
             .getInstance()
             .getProperties()
-            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, "30000"));
+            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, "10000"));
 
     private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
@@ -359,7 +359,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             public void run() {
                 snackbar.dismiss();
             }
-        }, undoChoiceDuration);
+        }, showResultsDuration);
 
     }
 
@@ -453,7 +453,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     private void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setDuration(10000);
+        snackbar.setDuration(undoChoiceDuration);
         snackbar.setAction(R.string.dismiss, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
