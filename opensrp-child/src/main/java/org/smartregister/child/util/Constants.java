@@ -41,6 +41,8 @@ public final class Constants extends AllConstants {
     public static final String RESIDENTIAL_AREA_OTHER = "Residential_Area_Other";
     public static final String RESIDENTIAL_ADDRESS = "Residential_Address";
     public static final String PREFERRED_LANGUAGE = "Preferred_Language";
+    public static final String MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION = "30000";
+    public static final String MOTHER_LOOKUP_UNDO_DEFAULT_DURATION = "10000";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 

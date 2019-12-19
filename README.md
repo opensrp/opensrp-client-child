@@ -10,20 +10,22 @@ By placing a file named `app.properties` in your implementation assets folder (S
 
 ### Configurable Settings
 
-| Configuration                       | Type    | Default | Description                                             |
-| ----------------------------------- | ------- | ------- | ----------------------------------------------          |
-| `notifications.bcg.enabled`         | Boolean | true    | Show BCG Notifications                                  |
-| `notifications.weight.enabled`      | Boolean | true    | Show Record Weight pop notification up dialog           |
-| `home.next.visit.date.enabled`      | Boolean | false   | Show Next Visit date column in home register            |
-| `home.record.weight.enabled`        | Boolean | true    | Show Record Weight column in home register              |
-| `feature.nfc.card.enabled`          | Boolean | false   | Enable Scan NFC Card feature                            |
-| `feature.scan.qr.enabled`           | Boolean | true    | Enable Scan QR feature                                  |
-| `feature.images.enabled`            | Boolean | true    | Allow profile image capture                             |
-| `feature.bottom.navigation.enabled` | Boolean | false   | Show Bottom Navigation menu                             |
-| `home.toolbar.scan.qr.enabled`      | Boolean | false   | Show Scan QR Code in home register toolbar              |
-| `home.toolbar.scan.card.enabled`    | Boolean | false   | Show Scan Card in home register toolbar                 |
-| `details.side.navigation.enabled`   | Boolean | true    | Enable side navigation drawer on details page           |
-| `home.alert.upcoming.blue.disabled` | Boolean | false   | Disable showing light blue alert for upcoming in 7 days |
+| Configuration                         | Type    | Default | Description                                             |
+| --------------------------------------| ------- | ------- | ----------------------------------------------          |
+| `notifications.bcg.enabled`           | Boolean | true    | Show BCG Notifications                                  |
+| `notifications.weight.enabled`        | Boolean | true    | Show Record Weight pop notification up dialog           |
+| `home.next.visit.date.enabled`        | Boolean | false   | Show Next Visit date column in home register            |
+| `home.record.weight.enabled`          | Boolean | true    | Show Record Weight column in home register              |
+| `feature.nfc.card.enabled`            | Boolean | false   | Enable Scan NFC Card feature                            |
+| `feature.scan.qr.enabled`             | Boolean | true    | Enable Scan QR feature                                  |
+| `feature.images.enabled`              | Boolean | true    | Allow profile image capture                             |
+| `feature.bottom.navigation.enabled`   | Boolean | false   | Show Bottom Navigation menu                             |
+| `home.toolbar.scan.qr.enabled`        | Boolean | false   | Show Scan QR Code in home register toolbar              |
+| `home.toolbar.scan.card.enabled`      | Boolean | false   | Show Scan Card in home register toolbar                 |
+| `details.side.navigation.enabled`     | Boolean | true    | Enable side navigation drawer on details page           |
+| `home.alert.upcoming.blue.disabled`   | Boolean | false   | Disable showing light blue alert for upcoming in 7 days |
+| `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results          |
+| `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view          |   
 
 ### Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
 

@@ -64,12 +64,12 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private static final int showResultsDuration = Integer.valueOf(ChildLibrary
             .getInstance()
             .getProperties()
-            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, "30000"));
+            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, Constants.MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION));
 
     private static final int undoChoiceDuration = Integer.valueOf(ChildLibrary
             .getInstance()
             .getProperties()
-            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, "10000"));
+            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION));
 
     private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
