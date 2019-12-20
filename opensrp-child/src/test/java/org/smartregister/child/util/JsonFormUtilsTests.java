@@ -1,4 +1,6 @@
-package org.smartregister.child.utils;
+package org.smartregister.child.util;
+
+import android.content.Context;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
@@ -18,16 +20,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
-import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.helper.ECSyncHelper;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Utils.class, ChildLibrary.class})
+@PrepareForTest({Utils.class, ChildLibrary.class, ECSyncHelper.class, CoreLibrary.class})
 public class JsonFormUtilsTests {
 
     private JSONObject jsonObject;
@@ -37,8 +38,23 @@ public class JsonFormUtilsTests {
     @Mock
     private ChildLibrary childLibrary;
 
+    @Mock
+    private CoreLibrary coreLibrary;
+
     @Captor
     private ArgumentCaptor addClientCaptor;
+
+    @Captor
+    private ArgumentCaptor ecSyncHelperAddEventCaptor;
+
+    @Mock
+    private ECSyncHelper ecSyncHelper;
+
+    @Mock
+    private org.smartregister.Context opensrpContext;
+
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
 
     @Before
     public void setUp() {
@@ -131,5 +147,50 @@ public class JsonFormUtilsTests {
         expected.put("first_name", "John");
         Assert.assertEquals("234", addClientCaptor.getAllValues().get(0));
         Assert.assertEquals(expected.toString(), addClientCaptor.getAllValues().get(1).toString());
+    }
+
+    @Test
+    public void createBCGScarEvent() throws Exception {
+        PowerMockito.mockStatic(ECSyncHelper.class);
+        Context context = Mockito.mock(Context.class);
+        PowerMockito.mockStatic(CoreLibrary.class);
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        PowerMockito.when(CoreLibrary.getInstance()).thenReturn(coreLibrary);
+        PowerMockito.when(coreLibrary.context()).thenReturn(opensrpContext);
+        PowerMockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        PowerMockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        PowerMockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        PowerMockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        PowerMockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+        PowerMockito.when(ECSyncHelper.getInstance(context)).thenReturn(ecSyncHelper);
+
+        JsonFormUtils jsonFormUtils = new JsonFormUtils();
+        Whitebox.invokeMethod(jsonFormUtils,
+                "createBCGScarEvent", context,
+                "3434-234", providerId, "locationId");
+        Mockito.verify(ecSyncHelper).addEvent((String) ecSyncHelperAddEventCaptor.capture(),
+                (JSONObject) ecSyncHelperAddEventCaptor.capture());
+
+        String baseEntityId = (String) ecSyncHelperAddEventCaptor.getAllValues().get(0);
+        JSONObject eventJson = (JSONObject) ecSyncHelperAddEventCaptor.getAllValues().get(1);
+        JSONObject obsJsonObject = eventJson.optJSONArray("obs").optJSONObject(0);
+        Assert.assertEquals("3434-234", baseEntityId);
+        Assert.assertEquals("bcg_scar", obsJsonObject.optString("formSubmissionField"));
+        Assert.assertEquals("concept", obsJsonObject.optString("fieldType"));
+
+        Assert.assertEquals("160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", obsJsonObject.optString("fieldCode"));
+        Assert.assertEquals("select one", obsJsonObject.optString("fieldDataType"));
+        Assert.assertEquals("Yes", obsJsonObject.optJSONArray("humanReadableValues").optString(0));
+        Assert.assertEquals("1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", obsJsonObject.optJSONArray("values").optString(0));
+
+        Assert.assertEquals(JsonFormUtils.BCG_SCAR_EVENT, eventJson.optString("eventType"));
+        Assert.assertEquals(teamName, eventJson.optString("team"));
+        Assert.assertEquals("child", eventJson.optString("entityType"));
+        Assert.assertEquals(teamId, eventJson.optString("teamId"));
     }
 }
