@@ -3,6 +3,7 @@ package org.smartregister.child.util;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.json.JSONException;
@@ -402,7 +404,8 @@ public class Utils extends org.smartregister.util.Utils {
         return dueDate != null ? Math.abs(Weeks.weeksBetween(new DateTime(), dueDate).getWeeks()) : null;
     }
 
-    public static String getChildBirthDate(JSONObject jsonObject) throws JSONException {
+    @NonNull
+    public static String getChildBirthDate(@Nullable JSONObject jsonObject) throws JSONException {
         String childBirthDate = "";
 
         if (jsonObject != null && jsonObject.has(FormEntityConstants.Person.birthdate.toString())) {

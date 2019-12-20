@@ -635,7 +635,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return event;
     }
 
-    protected static Event tagSyncMetadata(Event event) {
+    protected static Event tagSyncMetadata(@NonNull Event event) {
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
@@ -656,9 +656,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
         String currentLocality = allSharedPreferences.fetchCurrentLocality();
 
-        if (currentLocality != null) {
+        if (StringUtils.isNotBlank(currentLocality)) {
             String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-            if (currentLocalityId != null && !defaultLocationId.equals(currentLocalityId)) {
+            if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
                 return currentLocalityId;
             }
         }

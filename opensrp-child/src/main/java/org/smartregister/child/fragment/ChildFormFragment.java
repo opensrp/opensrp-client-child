@@ -60,6 +60,17 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
     private CommonPersonObjectClient sibling;
+
+    private static final int showResultsDuration = Integer.valueOf(ChildLibrary
+            .getInstance()
+            .getProperties()
+            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, Constants.MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION));
+
+    private static final int undoChoiceDuration = Integer.valueOf(ChildLibrary
+            .getInstance()
+            .getProperties()
+            .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION));
+
     private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -179,7 +190,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 //updateResultTree(map);
             }
         });
-        show(snackbar, 30000);
+        show(snackbar);
 
     }
 
@@ -246,7 +257,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     }
 
-    private void show(final Snackbar snackbar, int duration) {
+    private void show(final Snackbar snackbar) {
         if (snackbar == null) {
             return;
         }
@@ -295,11 +306,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             public void run() {
                 snackbar.dismiss();
             }
-        }, duration);
+        }, showResultsDuration);
 
     }
 
-    private void showFinalActionSnackBar(final Snackbar snackbar, int duration) {
+    private void showFinalActionSnackBar(final Snackbar snackbar) {
         if (snackbar == null) {
             return;
         }
@@ -348,7 +359,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             public void run() {
                 snackbar.dismiss();
             }
-        }, duration);
+        }, showResultsDuration);
 
     }
 
@@ -442,7 +453,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     private void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setDuration(10000);
+        snackbar.setDuration(undoChoiceDuration);
         snackbar.setAction(R.string.dismiss, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -451,7 +462,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
             }
         });
-        showFinalActionSnackBar(snackbar, 30000);
+        showFinalActionSnackBar(snackbar);
     }
 
     private void clearMotherLookUp() {
