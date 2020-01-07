@@ -74,7 +74,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void getCombinedVaccineWithNonNullArgument() {
 
-        Map<String, String> vaccineMap = ImmutableMap.of(VaccineRepo.Vaccine.measles1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles2.display(), VaccineRepo.Vaccine.measles2.display() + "/" + VaccineRepo.Vaccine.mr2.display(), VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), "Tri Vaccine 2", "Tri Vaccine 1 / Tri Vaccine 2 / Tri Vaccine 3 ");
+        Map<String, String> vaccineMap = ImmutableMap.of(VaccineRepo.Vaccine.measles1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.mr2.display(), VaccineRepo.Vaccine.measles2.display() + "/" + VaccineRepo.Vaccine.mr2.display(), VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), "Tri Vaccine 2", "Tri Vaccine 1 / Tri Vaccine 2 / Tri Vaccine 3 ");
 
 
         Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles1.display()), Utils.getAlternativeCombinedVaccines("MR 1", vaccineMap));

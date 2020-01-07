@@ -77,7 +77,7 @@ public class ChildLibrary {
 
     public UniqueIdRepository getUniqueIdRepository() {
         if (uniqueIdRepository == null) {
-            uniqueIdRepository = new UniqueIdRepository();
+            uniqueIdRepository = new UniqueIdRepository(getRepository());
         }
         return uniqueIdRepository;
     }
@@ -88,7 +88,7 @@ public class ChildLibrary {
 
     public EventClientRepository eventClientRepository() {
         if (eventClientRepository == null) {
-            eventClientRepository = new EventClientRepository();
+            eventClientRepository = new EventClientRepository(getRepository());
         }
         return eventClientRepository;
     }

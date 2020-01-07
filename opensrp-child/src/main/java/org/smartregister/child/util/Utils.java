@@ -195,11 +195,10 @@ public class Utils extends org.smartregister.util.Utils {
             vaccineRepository.add(vaccine);
 
             String name = vaccine.getName();
-            if (StringUtils.isBlank(name)) {
-                return;
-            }
+            if (!StringUtils.isBlank(name) && name.contains("/")) {
 
-            updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
+                updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
+            }
 
             if (vaccine != null && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
                 Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
@@ -234,23 +233,25 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     /**
-     * @param vaccineName_ Vaccine whos alternative vaccines names must be found
+     * @param vaccineName_       Vaccine whos alternative vaccines names must be found
      * @param combinedVaccineMap Combined vaccine map
-     *
      * @return list of alternative vaccines to {@code vaccineName_}
-     * */
+     */
 
     public static List<String> getAlternativeCombinedVaccines(String vaccineName_, Map<String, String> combinedVaccineMap) {
-        List<String> comboVaccineList;
+
+        List<String> comboVaccineList = null;
 
         String vaccineName = VaccineRepository.removeHyphen(vaccineName_);
+        String comboVaccinesValue = combinedVaccineMap.get(vaccineName_);
+        if (comboVaccinesValue != null) {
 
-        String[] comboVaccines = StringUtils.stripAll(combinedVaccineMap.get(vaccineName_).split("/"));
+            String[] comboVaccines = StringUtils.stripAll(comboVaccinesValue.split("/"));
 
-        comboVaccineList = Lists.newArrayList(comboVaccines);
+            comboVaccineList = Lists.newArrayList(comboVaccines);
 
-        comboVaccineList.remove(vaccineName);
-
+            comboVaccineList.remove(vaccineName);
+        }
         return comboVaccineList;
 
     }

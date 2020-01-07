@@ -176,7 +176,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             vaccineRepository.add(vaccine);
 
             String name = vaccine.getName();
-            if (StringUtils.isBlank(name)) {
+            if (StringUtils.isBlank(name) || !name.contains("/")) {
                 return;
             }
 
