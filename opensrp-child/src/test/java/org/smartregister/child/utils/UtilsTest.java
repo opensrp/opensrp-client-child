@@ -77,11 +77,11 @@ public class UtilsTest extends BaseUnitTest {
         Map<String, String> vaccineMap = ImmutableMap.of(VaccineRepo.Vaccine.measles1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles2.display(), VaccineRepo.Vaccine.measles2.display() + "/" + VaccineRepo.Vaccine.mr2.display(), VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), "Tri Vaccine 2", "Tri Vaccine 1 / Tri Vaccine 2 / Tri Vaccine 3 ");
 
 
-        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles1.display()), Utils.getCombinedVaccine("MR 1", vaccineMap));
-        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.mr1.display()), Utils.getCombinedVaccine("MEASLES 1", vaccineMap));
-        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles2.display()), Utils.getCombinedVaccine("MR 2", vaccineMap));
-        Assert.assertEquals(Arrays.asList("Tri Vaccine 1", "Tri Vaccine 3"), Utils.getCombinedVaccine("Tri Vaccine 2", vaccineMap));
-        Assert.assertNull(Utils.getCombinedVaccine("other", vaccineMap));
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles1.display()), Utils.getAlternativeCombinedVaccines("MR 1", vaccineMap));
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.mr1.display()), Utils.getAlternativeCombinedVaccines("MEASLES 1", vaccineMap));
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles2.display()), Utils.getAlternativeCombinedVaccines("MR 2", vaccineMap));
+        Assert.assertEquals(Arrays.asList("Tri Vaccine 1", "Tri Vaccine 3"), Utils.getAlternativeCombinedVaccines("Tri Vaccine 2", vaccineMap));
+        Assert.assertNull(Utils.getAlternativeCombinedVaccines("other", vaccineMap));
     }
 
     @Test

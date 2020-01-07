@@ -199,22 +199,7 @@ public class Utils extends org.smartregister.util.Utils {
                 return;
             }
 
-            // Update vaccines in the same group where either can be given
-            // For example measles 1 / mr 1
-            List<String> ftsVaccineNames = getCombinedVaccine(name, ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
-
-            if (ftsVaccineNames != null) {
-
-                for (String ftsVaccineName : ftsVaccineNames) {
-                    ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
-                    Vaccine ftsVaccine = new Vaccine();
-                    ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
-                    ftsVaccine.setName(ftsVaccineName);
-                    vaccineRepository.updateFtsSearch(ftsVaccine);
-                }
-
-
-            }
+            updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
 
             if (vaccine != null && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
                 Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
@@ -225,28 +210,49 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
-    public static List<String> getCombinedVaccine(String name, Map<String, String> combinedVaccineMap) {
-        String vaccine_name = VaccineRepository.removeHyphen(name);
+    /**
+     * Update vaccines in the same group where either can be given. For example measles 1 / mr 1
+     *
+     * @param vaccineRepository
+     * @param vaccine
+     */
+    public static void updateFTSForCombinedVaccineAlternatives(VaccineRepository vaccineRepository, Vaccine vaccine) {
 
-        for (String value : combinedVaccineMap.values()) {
+        List<String> ftsVaccineNames = getAlternativeCombinedVaccines(VaccineRepository.removeHyphen(vaccine.getName()), ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
 
-            String[] comboVaccines = StringUtils.stripAll(value.split("/"));
+        if (ftsVaccineNames != null) {
 
-            for (int i = 0; i < comboVaccines.length; i++) {
-
-
-                if (comboVaccines[i].trim().equals(vaccine_name)) {
-                    List<String> combos = Lists.newArrayList(comboVaccines);
-                    combos.remove(vaccine_name);
-                    return combos;
-
-                }
-
+            for (String ftsVaccineName : ftsVaccineNames) {
+                ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
+                Vaccine ftsVaccine = new Vaccine();
+                ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
+                ftsVaccine.setName(ftsVaccineName);
+                vaccineRepository.updateFtsSearch(ftsVaccine);
             }
 
         }
+    }
 
-        return null;
+    /**
+     * @param vaccineName_ Vaccine whos alternative vaccines names must be found
+     * @param combinedVaccineMap Combined vaccine map
+     *
+     * @return list of alternative vaccines to {@code vaccineName_}
+     * */
+
+    public static List<String> getAlternativeCombinedVaccines(String vaccineName_, Map<String, String> combinedVaccineMap) {
+        List<String> comboVaccineList;
+
+        String vaccineName = VaccineRepository.removeHyphen(vaccineName_);
+
+        String[] comboVaccines = StringUtils.stripAll(combinedVaccineMap.get(vaccineName_).split("/"));
+
+        comboVaccineList = Lists.newArrayList(comboVaccines);
+
+        comboVaccineList.remove(vaccineName);
+
+        return comboVaccineList;
+
     }
 
     public static Date dobStringToDate(String dobString) {

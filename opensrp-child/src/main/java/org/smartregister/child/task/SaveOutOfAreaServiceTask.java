@@ -24,7 +24,6 @@ import org.smartregister.location.helper.LocationHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -181,21 +180,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 return;
             }
 
-            // Update vaccines in the same group where either can be given
-            // For example measles 1 / mr 1
-            name = VaccineRepository.removeHyphen(name);
-
-            List<String> ftsVaccineNames = Utils.getCombinedVaccine(name, ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
-
-            for (String ftsVaccineName : ftsVaccineNames) {
-                if (ftsVaccineName != null) {
-                    ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
-                    Vaccine ftsVaccine = new Vaccine();
-                    ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
-                    ftsVaccine.setName(ftsVaccineName);
-                    vaccineRepository.updateFtsSearch(ftsVaccine);
-                }
-            }
+            Utils.updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
 
         } catch (Exception e) {
             Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
