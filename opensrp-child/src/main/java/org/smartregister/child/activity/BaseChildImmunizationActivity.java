@@ -129,26 +129,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
-    private static final ArrayList<String> COMBINED_VACCINES;
-    private static final HashMap<String, String> COMBINED_VACCINES_MAP;
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
     private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
-
-    static {
-        COMBINED_VACCINES = new ArrayList<>();
-        COMBINED_VACCINES_MAP = new HashMap<>();
-        COMBINED_VACCINES.add("Measles 1");
-        COMBINED_VACCINES_MAP.put("Measles 1", "Measles 1 / MR 1");
-        COMBINED_VACCINES.add("MR 1");
-        COMBINED_VACCINES_MAP.put("MR 1", "Measles 1 / MR 1");
-        COMBINED_VACCINES.add("Measles 2");
-        COMBINED_VACCINES_MAP.put("Measles 2", "Measles 2 / MR 2");
-        COMBINED_VACCINES.add("MR 2");
-        COMBINED_VACCINES_MAP.put("MR 2", "Measles 2 / MR 2");
-    }
 
     private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     protected LinearLayout floatingActionButton;
@@ -1589,9 +1574,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     for (VaccineWrapper curWrapper : groupWrappers) {
                         String curWrapperName = curWrapper.getName().trim();
                         // Check if current wrapper is one of the combined vaccines
-                        if (COMBINED_VACCINES.contains(curWrapperName)) {
+                        if (ImmunizationLibrary.getInstance().COMBINED_VACCINES.contains(curWrapperName)) {
                             // Check if any of the sister vaccines is currAffectedVaccineName
-                            String[] allSisters = COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
+                            String[] allSisters = ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
                             for (String allSister : allSisters) {
                                 if (allSister.replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
                                     curWrapperName = allSister;
