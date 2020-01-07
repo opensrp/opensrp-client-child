@@ -1,5 +1,7 @@
 package org.smartregister.child.utils;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opensrp.api.constants.Gender;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
@@ -26,17 +29,19 @@ import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@PrepareForTest({VaccineRepo.class})
+@PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
 public class UtilsTest extends BaseUnitTest {
 
     @Mock
@@ -69,10 +74,15 @@ public class UtilsTest extends BaseUnitTest {
 
     @Test
     public void getCombinedVaccineWithNonNullArgument() {
-        Assert.assertEquals(Utils.getCombinedVaccine("mr 1"), VaccineRepo.Vaccine.measles1.display());
-        Assert.assertEquals(Utils.getCombinedVaccine("measles 1"), VaccineRepo.Vaccine.mr1.display());
-        Assert.assertEquals(Utils.getCombinedVaccine("mr 2"), VaccineRepo.Vaccine.measles2.display());
-        Assert.assertNull(Utils.getCombinedVaccine("other"));
+
+        Map<String, String> vaccineMap = ImmutableMap.of(VaccineRepo.Vaccine.measles1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles2.display(), VaccineRepo.Vaccine.measles2.display() + "/" + VaccineRepo.Vaccine.mr2.display(), VaccineRepo.Vaccine.mr1.display(), VaccineRepo.Vaccine.measles1.display() + "/" + VaccineRepo.Vaccine.mr1.display(), "Tri Vaccine 2", "Tri Vaccine 1 / Tri Vaccine 2 / Tri Vaccine 3 ");
+
+
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles1.display()), Utils.getCombinedVaccine("MR 1",vaccineMap));
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.mr1.display()), Utils.getCombinedVaccine("MEASLES 1",vaccineMap));
+        Assert.assertEquals(Arrays.asList(VaccineRepo.Vaccine.measles2.display()), Utils.getCombinedVaccine("MR 2",vaccineMap));
+        Assert.assertEquals(Arrays.asList("Tri Vaccine 1","Tri Vaccine 3"), Utils.getCombinedVaccine("Tri Vaccine 2",vaccineMap));
+        Assert.assertNull(Utils.getCombinedVaccine("other",vaccineMap));
     }
 
     @Test

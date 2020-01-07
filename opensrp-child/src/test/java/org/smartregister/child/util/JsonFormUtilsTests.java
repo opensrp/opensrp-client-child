@@ -27,6 +27,9 @@ import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class, ChildLibrary.class, ECSyncHelper.class, CoreLibrary.class})
 public class JsonFormUtilsTests {
@@ -84,10 +87,14 @@ public class JsonFormUtilsTests {
 
     @Test
     public void processAgeTest() throws Exception {
-        Whitebox.invokeMethod(JsonFormUtils.class, "processAge", "2017-01-01", jsonObject);
+        String TEST_DOB = "2017-01-01";
+        LocalDate date = LocalDate.parse(TEST_DOB);
+        Integer expectedDifferenceInYears = Period.between(date, LocalDate.now()).getYears();
+
+        Whitebox.invokeMethod(JsonFormUtils.class, "processAge", TEST_DOB, jsonObject);
         Assert.assertTrue(jsonObject.has(JsonFormUtils.VALUE));
         Assert.assertNotNull(jsonObject.get(JsonFormUtils.VALUE));
-        Assert.assertEquals(2, jsonObject.get(JsonFormUtils.VALUE));
+        Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(JsonFormUtils.VALUE));
     }
 
     @Test

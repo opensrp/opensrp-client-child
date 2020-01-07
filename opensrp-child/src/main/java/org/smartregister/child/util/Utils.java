@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -39,7 +41,7 @@ import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.service.intent.HeightIntentService;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
-import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
@@ -55,6 +57,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -198,14 +201,19 @@ public class Utils extends org.smartregister.util.Utils {
 
             // Update vaccines in the same group where either can be given
             // For example measles 1 / mr 1
-            String ftsVaccineName = getCombinedVaccine(name);
+            List<String> ftsVaccineNames = getCombinedVaccine(name, ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
 
-            if (ftsVaccineName != null) {
-                ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
-                Vaccine ftsVaccine = new Vaccine();
-                ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
-                ftsVaccine.setName(ftsVaccineName);
-                vaccineRepository.updateFtsSearch(ftsVaccine);
+            if (ftsVaccineNames != null) {
+
+                for (String ftsVaccineName : ftsVaccineNames) {
+                    ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
+                    Vaccine ftsVaccine = new Vaccine();
+                    ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
+                    ftsVaccine.setName(ftsVaccineName);
+                    vaccineRepository.updateFtsSearch(ftsVaccine);
+                }
+
+
             }
 
             if (vaccine != null && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
@@ -217,21 +225,28 @@ public class Utils extends org.smartregister.util.Utils {
 
     }
 
-    public static String getCombinedVaccine(String name) {
-        String ftsVaccineName = null;
+    public static List<String> getCombinedVaccine(String name, Map<String, String> combinedVaccineMap) {
         String vaccine_name = VaccineRepository.removeHyphen(name);
 
-        if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(vaccine_name)) {
-            ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
-        } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(vaccine_name)) {
-            ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
-        } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(vaccine_name)) {
-            ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
-        } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(vaccine_name)) {
-            ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
+        for (String value : combinedVaccineMap.values()) {
+
+            String[] comboVaccines = StringUtils.stripAll(value.split("/"));
+
+            for (int i = 0; i < comboVaccines.length; i++) {
+
+
+                if (comboVaccines[i].trim().equals(vaccine_name)) {
+                    List<String> combos = Lists.newArrayList(comboVaccines);
+                    combos.remove(vaccine_name);
+                    return combos;
+
+                }
+
+            }
+
         }
 
-        return ftsVaccineName;
+        return null;
     }
 
     public static Date dobStringToDate(String dobString) {
