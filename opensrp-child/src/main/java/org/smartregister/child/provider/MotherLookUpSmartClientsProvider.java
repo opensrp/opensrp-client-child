@@ -18,13 +18,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Ahmed on 13-Oct-15.
  */
 public class MotherLookUpSmartClientsProvider {
     private final LayoutInflater inflater;
-    private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+    private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH);
 
 
     public MotherLookUpSmartClientsProvider(Context context) {

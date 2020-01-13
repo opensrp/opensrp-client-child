@@ -136,7 +136,7 @@
     <string name="service_location">Site de la structure sanitaire</string>
     <string name="ic_check">&#xe038;</string>
     <string name="no_record">Aucun(s) dossier(s) trouvé(s)!</string>
-    <string name="overdue_due">Attendu/à rendre (%1$s)</string>
+    <string name="overdue_due">Attendu/en retard (%1$s)</string>
     <string name="saving_dialog_title">Enregistration en cours...</string>
     <string name="updating_dialog_title">Mise à jour en cours...</string>
     <string name="please_wait_message">Veuillez patienter</string>
@@ -336,14 +336,14 @@
     <string name="start_date">La date de début</string>
     <string name="end_date">La date de fin</string>
     <string name="due">Attendu</string>
-    <string name="overdue">À rendre </string>
+    <string name="overdue">En retard</string>
     <string name="done_today">Aujourd\'hui</string>
     <string name="record_growth">Croissance record</string>
     <string name="growth_monitoring">Surveillance de la croissance</string>
     <string name="which_vaccinations_were_provided">Quels vaccins ont étés donnés?</string>
     <string name="cannot_be_given_with_the_other_dose"> Ne peut être donné avec la dose %1$s déjà donnée.</string>
     <string name="n_period_due">%1$s\nAttendu</string>
-    <string name="n_period_overdue">%1$s\nÀ rendre</string>
+    <string name="n_period_overdue">%1$s\nEn retard</string>
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="str_page_info">Page %1$s de %2$s</string>
