@@ -166,11 +166,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
 
         boolean showWeightEdit = false;
-        for (int i = 0; i < weightList.size(); i++) {
-            Weight weight = weightList.get(i);
-            showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
-            if (showWeightEdit) {
-                break;
+
+        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
+
+            for (int i = 0; i < weightList.size(); i++) {
+                Weight weight = weightList.get(i);
+                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+                if (showWeightEdit) {
+                    break;
+                }
             }
         }
 
@@ -709,7 +713,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         boolean isChildActive = isActiveStatus(status);
         if (isChildActive) {
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(true, true, true);
 
             if (!fromAsyncTask) {
                 LoadAsyncTask loadAsyncTask = new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow);
@@ -717,8 +721,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 Utils.startAsyncTask(loadAsyncTask, null);
             }
         } else {
-            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            hideDisplayImmunizationMenu(isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(false, false, false);
+            hideDisplayImmunizationMenu(false, false, false);
         }
     }
 

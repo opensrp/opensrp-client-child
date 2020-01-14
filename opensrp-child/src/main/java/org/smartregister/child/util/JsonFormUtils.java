@@ -711,7 +711,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             lastInteractedWith(fields);
 
-            dobUnknownUpdateFromAge(fields);
+            dobUnknownUpdateFromAge(fields, "child");
 
             JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
 
@@ -801,18 +801,21 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    protected static void dobUnknownUpdateFromAge(JSONArray fields) {
+    protected static void dobUnknownUpdateFromAge(JSONArray fields, String entity) {
         try {
-            JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
+
+            String prefix = entity.equalsIgnoreCase("mother") ? "mother_" : "";
+
+            JSONObject dobUnknownObject = getFieldJSONObject(fields, prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN);
             JSONArray options = getJSONArray(dobUnknownObject, Constants.JSON_FORM_KEY.OPTIONS);
             JSONObject option = getJSONObject(options, 0);
             String dobUnKnownString = option != null ? option.getString(VALUE) : null;
             if (StringUtils.isNotBlank(dobUnKnownString) && Boolean.valueOf(dobUnKnownString)) {
 
-                String ageString = getFieldValue(fields, Constants.JSON_FORM_KEY.AGE);
-                if (StringUtils.isNotBlank(ageString) && NumberUtils.isNumber(ageString)) {
+                String ageString = getFieldValue(fields, prefix + Constants.JSON_FORM_KEY.AGE);
+                if (StringUtils.isNotBlank(ageString) && StringUtils.isNumeric(ageString)) {
                     int age = Integer.valueOf(ageString);
-                    JSONObject dobJSONObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
+                    JSONObject dobJSONObject = getFieldJSONObject(fields, entity.equalsIgnoreCase("mother") ? Constants.JSON_FORM_KEY.Mother_Guardian_Date_Birth : Constants.JSON_FORM_KEY.DATE_BIRTH);
                     dobJSONObject.put(VALUE, Utils.getDob(age));
 
                     //Mark the birth date as an approximation
@@ -954,11 +957,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.KEY.PHOTO)) {
             processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
-        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.DOB_UNKNOWN)) {
+        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN)) {
             JSONObject optionsObject = jsonObject.getJSONArray(Constants.JSON_FORM_KEY.OPTIONS).getJSONObject(0);
-            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, Constants.JSON_FORM_KEY.DOB_UNKNOWN, false));
-        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.AGE)) {
-            processAge(Utils.getValue(childDetails, Constants.JSON_FORM_KEY.DOB, false), jsonObject);
+            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN, false));
+        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(prefix + Constants.JSON_FORM_KEY.AGE)) {
+            processAge(Utils.getValue(childDetails, prefix + Constants.JSON_FORM_KEY.DOB, false), jsonObject);
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
             processDate(childDetails, prefix, jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_INDENTIFIER)) {
@@ -1126,7 +1129,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             lastInteractedWith(fields);
 
-            dobUnknownUpdateFromAge(fields);
+            dobUnknownUpdateFromAge(fields, "mother");
 
             return new ChildEventClient(subformClient, subFormEvent);
         } catch (Exception e) {
