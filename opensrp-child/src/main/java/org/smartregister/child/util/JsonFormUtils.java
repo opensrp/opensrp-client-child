@@ -358,6 +358,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         ArrayList<String> allLevels = new ArrayList<>();
         allLevels.add("Country");
         allLevels.add("Province");
+        allLevels.add("District");
+        allLevels.add("Commune");
         allLevels.add("Department");
         allLevels.add("Health Facility");
         allLevels.add("Zone");
@@ -371,6 +373,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         ArrayList<String> healthFacilities = new ArrayList<>();
         healthFacilities.add("Country");
         healthFacilities.add("Province");
+        healthFacilities.add("District");
+        healthFacilities.add("Commune");
         healthFacilities.add("Department");
         healthFacilities.add("Health Facility");
         healthFacilities.add("Facility");

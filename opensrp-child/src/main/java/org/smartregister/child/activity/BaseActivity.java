@@ -655,7 +655,10 @@ toggle.syncState();
                 progressDialog.setMessage(message);
             }
 
-            progressDialog.show();
+            if (!(this).isFinishing()) {
+
+                progressDialog.show();
+            }
         }
     }
 
