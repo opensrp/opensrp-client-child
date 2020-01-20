@@ -211,7 +211,7 @@
     <string name="confirm_button_label">تأكيد</string>
     <string name="due_label">مستحق</string>
     <string name="upcoming_label">قادم</string>
-    <string name="expired_label">منتهية الصلاحية</string>
+    <string name="expired_label">انقضت المدة</string>
     <string name="record_label">سجل</string>
     <string name="waiting_label">جارى اﻹنتظار</string>
     <string name="fully_immunized_label">تحصين\كامل</string>
@@ -303,13 +303,13 @@
     <string name="notifications_off"> الإشعارات قيد التشغيل. طفل متغيب لبعض الوقت</string>
     <string name="notifications_off_child_cannot_be_located"> الإشعارات قيد التشغيل. لا يمكن تحديد مكان الطفل أو الاتصال به.</string>
 
-    <string name="marked_as_deceased">تميزت ميتة %1$s</string>
+    <string name="marked_as_deceased">لقد تم إعلان وفاة %1$s</string>
 
     <string name="search_results">نتائج البحث</string>
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
     <string name="next_visit">الزيارة القادمة</string>
     <string name="refreshing">جارى التحديث&#8230;</string>
-    <string name="next_visit_colon">التالى :</string>
+    <string name="next_visit_colon">الزيارة القادمة :</string>
 
     <string name="at_birth">عند الولادة</string>
     <string name="_6_weeks">6 أسابيع</string>

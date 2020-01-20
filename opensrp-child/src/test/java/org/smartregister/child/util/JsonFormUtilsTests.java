@@ -3,8 +3,10 @@ package org.smartregister.child.util;
 import android.content.Context;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.utils.FormUtils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,12 +25,15 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.clientandeventmodel.Client;
+import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Calendar;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class, ChildLibrary.class, ECSyncHelper.class, CoreLibrary.class})
@@ -199,5 +204,57 @@ public class JsonFormUtilsTests {
         Assert.assertEquals(teamName, eventJson.optString("team"));
         Assert.assertEquals("child", eventJson.optString("entityType"));
         Assert.assertEquals(teamId, eventJson.optString("teamId"));
+    }
+
+    @Test
+    public void testDobUnknownUpdateFromAgeCalculatesDOBCorrectly() throws JSONException {
+
+        JSONArray array = new JSONArray();
+
+        JSONObject isBirthdateApproximate = new JSONObject();
+        isBirthdateApproximate.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
+        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
+        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
+
+        JSONObject dobOptions = new JSONObject();
+        dobOptions.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
+        JSONArray dobUnknownArray = new JSONArray();
+        dobUnknownArray.put("true");
+        dobOptions.put(Constants.KEY.VALUE, dobUnknownArray);
+
+        JSONArray optArray = new JSONArray();
+        optArray.put(dobOptions);
+
+        isBirthdateApproximate.put(Constants.JSON_FORM_KEY.OPTIONS, optArray);
+        array.put(isBirthdateApproximate);
+
+        JSONObject ageJson = new JSONObject();
+        ageJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.AGE);
+        ageJson.put(Constants.KEY.VALUE, "21");
+        ageJson.put(Constants.OPENMRS.ENTITY, "person_attribute");
+        ageJson.put(Constants.OPENMRS.ENTITY_ID, JsonFormConstants.EDIT_TEXT);
+        array.put(ageJson);
+
+        JSONObject dobJson = new JSONObject();
+        dobJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DATE_BIRTH);
+        dobJson.put(Constants.KEY.VALUE, "");
+        dobJson.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
+        dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
+        array.put(dobJson);
+
+        JSONObject dobDateObject = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.DATE_BIRTH);
+
+        JsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.CHILD);
+
+        Assert.assertNotNull(dobDateObject.getString(Constants.KEY.VALUE));
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Calendar.getInstance().getTime());
+        cal.set(Calendar.MONTH, 0);
+        cal.set(Calendar.DATE, 1);
+        cal.add(Calendar.YEAR, -21);
+        String expectedDate = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN).format(cal.getTime());
+
+        Assert.assertEquals(expectedDate, dobDateObject.get(Constants.KEY.VALUE));
     }
 }
