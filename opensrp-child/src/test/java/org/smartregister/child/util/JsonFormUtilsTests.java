@@ -5,7 +5,6 @@ import android.content.Context;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.utils.FormUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,9 +218,9 @@ public class JsonFormUtilsTests {
 
         JSONObject dobOptions = new JSONObject();
         dobOptions.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
-        JSONArray dobUnknownArray =  new JSONArray();
+        JSONArray dobUnknownArray = new JSONArray();
         dobUnknownArray.put("true");
-        dobOptions.put(Constants.KEY.VALUE,dobUnknownArray);
+        dobOptions.put(Constants.KEY.VALUE, dobUnknownArray);
 
         JSONArray optArray = new JSONArray();
         optArray.put(dobOptions);
