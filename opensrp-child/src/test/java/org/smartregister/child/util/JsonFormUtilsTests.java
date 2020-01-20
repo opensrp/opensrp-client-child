@@ -219,7 +219,9 @@ public class JsonFormUtilsTests {
 
         JSONObject dobOptions = new JSONObject();
         dobOptions.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
-        dobOptions.put(Constants.KEY.VALUE, true);
+        JSONArray dobUnknownArray =  new JSONArray();
+        dobUnknownArray.put("true");
+        dobOptions.put(Constants.KEY.VALUE,dobUnknownArray);
 
         JSONArray optArray = new JSONArray();
         optArray.put(dobOptions);
@@ -229,7 +231,7 @@ public class JsonFormUtilsTests {
 
         JSONObject ageJson = new JSONObject();
         ageJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.AGE);
-        ageJson.put(Constants.KEY.VALUE, 21);
+        ageJson.put(Constants.KEY.VALUE, "21");
         ageJson.put(Constants.OPENMRS.ENTITY, "person_attribute");
         ageJson.put(Constants.OPENMRS.ENTITY_ID, JsonFormConstants.EDIT_TEXT);
         array.put(ageJson);
@@ -254,6 +256,6 @@ public class JsonFormUtilsTests {
         cal.add(Calendar.YEAR, -21);
         String expectedDate = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN).format(cal.getTime());
 
-        Assert.assertEquals(expectedDate, dobDateObject.getString(Constants.KEY.VALUE));
+        Assert.assertEquals(expectedDate, dobDateObject.get(Constants.KEY.VALUE));
     }
 }
