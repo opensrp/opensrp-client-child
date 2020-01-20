@@ -212,12 +212,10 @@ public class JsonFormUtilsTests {
 
         JSONArray array = new JSONArray();
 
-
         JSONObject isBirthdateApproximate = new JSONObject();
         isBirthdateApproximate.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
         isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
         isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
-
 
         JSONObject dobOptions = new JSONObject();
         dobOptions.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DOB_UNKNOWN);
@@ -227,33 +225,27 @@ public class JsonFormUtilsTests {
         optArray.put(dobOptions);
 
         isBirthdateApproximate.put(Constants.JSON_FORM_KEY.OPTIONS, optArray);
-
         array.put(isBirthdateApproximate);
-
 
         JSONObject ageJson = new JSONObject();
         ageJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.AGE);
-        ageJson.put(Constants.KEY.VALUE, "21");
+        ageJson.put(Constants.KEY.VALUE, 21);
         ageJson.put(Constants.OPENMRS.ENTITY, "person_attribute");
-        ageJson.put(Constants.OPENMRS.ENTITY_ID, "edit_text");
-
+        ageJson.put(Constants.OPENMRS.ENTITY_ID, JsonFormConstants.EDIT_TEXT);
         array.put(ageJson);
 
         JSONObject dobJson = new JSONObject();
         dobJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.DATE_BIRTH);
         dobJson.put(Constants.KEY.VALUE, "");
-        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
-        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
-
+        dobJson.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
+        dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
         array.put(dobJson);
 
-        JSONObject dobNull = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.DATE_BIRTH);
-        Assert.assertTrue(StringUtils.isBlank(dobNull.getString(Constants.KEY.VALUE)));
+        JSONObject dobDateObject = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.DATE_BIRTH);
 
-        JsonFormUtils.dobUnknownUpdateFromAge(array, "child");
+        JsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.CHILD);
 
-        JSONObject dateObject = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.DATE_BIRTH);
-        Assert.assertNotNull(dateObject.getString(Constants.KEY.VALUE));
+        Assert.assertNotNull(dobDateObject.getString(Constants.KEY.VALUE));
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(Calendar.getInstance().getTime());
@@ -262,6 +254,6 @@ public class JsonFormUtilsTests {
         cal.add(Calendar.YEAR, -21);
         String expectedDate = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN).format(cal.getTime());
 
-        Assert.assertEquals(expectedDate, dateObject.getString(Constants.KEY.VALUE));
+        Assert.assertEquals(expectedDate, dobDateObject.getString(Constants.KEY.VALUE));
     }
 }

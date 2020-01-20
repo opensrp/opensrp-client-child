@@ -465,8 +465,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 }
             }
 
-            Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, Constants.CHILD_TYPE);
-
+            Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, Constants.KEY.CHILD);
             addSaveReportDeceasedObservations(fields, event);
             updateMetadata(metadata, event);
 
