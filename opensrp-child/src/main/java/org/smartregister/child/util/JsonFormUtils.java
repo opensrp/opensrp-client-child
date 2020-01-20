@@ -715,7 +715,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             lastInteractedWith(fields);
 
-            dobUnknownUpdateFromAge(fields, "child");
+            dobUnknownUpdateFromAge(fields, Constants.CHILD_TYPE);
 
             JSONObject dobUnknownObject = getFieldJSONObject(fields, Constants.JSON_FORM_KEY.DATE_BIRTH);
 
