@@ -973,7 +973,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected String getReportDeceasedMetadata() {
         try {
-            JSONObject form = FormUtils.getInstance(getContext()).getFormJson("report_deceased");
+            JSONObject form = new FormUtils(getContext()).getFormJson("report_deceased");
             if (form != null) {
                 //inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
