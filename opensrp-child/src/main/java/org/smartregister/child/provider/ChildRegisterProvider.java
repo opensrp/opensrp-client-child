@@ -43,6 +43,7 @@ import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 import org.smartregister.view.viewholder.OnClickFormLauncher;
 
+import java.text.MessageFormat;
 import java.util.Set;
 
 /**
@@ -103,7 +104,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     public void getFooterView(RecyclerView.ViewHolder viewHolder, int currentPageCount, int totalPageCount, boolean hasNext,
                               boolean hasPrevious) {
         FooterViewHolder footerViewHolder = (FooterViewHolder) viewHolder;
-        footerViewHolder.pageInfoView.setText(context.getString(R.string.str_page_info, currentPageCount, totalPageCount));
+        footerViewHolder.pageInfoView.setText(MessageFormat.format(context.getString(R.string.str_page_info), currentPageCount, totalPageCount));
 
         footerViewHolder.nextPageView.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
         footerViewHolder.previousPageView.setVisibility(hasPrevious ? View.VISIBLE : View.INVISIBLE);

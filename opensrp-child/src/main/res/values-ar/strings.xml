@@ -348,10 +348,10 @@
     \nمتأخر</string>
 
     <string name="mother_name">الأم/ الحاضن: %1$s</string>
-    <string name="str_page_info">%2$s
+    <string name="str_page_info">{1}
         من
 
-    %1$s
+    {0}
         صفحة
 
     </string>
