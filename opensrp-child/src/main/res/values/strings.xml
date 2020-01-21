@@ -350,6 +350,6 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">"B/o %1$s</string>
-    <string name="str_page_info">Page %1$s of %2$s</string>
+    <string name="str_page_info">Page {0} of {1}</string>
 
 </resources>
