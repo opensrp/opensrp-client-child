@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.ConfigHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
@@ -53,7 +52,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public String mainSelect(String tableName, String mainCondition, String parentTableName) {
-        return Utils.metadata().getRegisterRepository().mainRegisterQuery();
+        return Utils.metadata().getRegisterRepository().mainRegisterQuery() + mainCondition;
     }
 
     protected abstract String[] mainColumns(String tableName, String parentTableName);
