@@ -52,7 +52,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public String mainSelect(String tableName, String mainCondition, String parentTableName) {
-        return Utils.metadata().getRegisterRepository().mainRegisterQuery() + mainCondition;
+        return Utils.metadata().getRegisterRepository().mainRegisterQuery() +" where "+ mainCondition;
     }
 
     protected abstract String[] mainColumns(String tableName, String parentTableName);
