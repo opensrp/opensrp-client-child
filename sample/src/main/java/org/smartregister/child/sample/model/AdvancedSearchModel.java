@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
-import org.smartregister.child.sample.util.DBConstants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.domain.Response;

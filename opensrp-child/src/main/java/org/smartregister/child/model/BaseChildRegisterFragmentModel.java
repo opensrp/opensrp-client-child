@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.ConfigHelper;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
@@ -47,16 +48,12 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
     public String countSelect(String tableName, String mainCondition, String parentTableName) {
         SmartRegisterQueryBuilder countQueryBuilder = new SmartRegisterQueryBuilder();
         countQueryBuilder.SelectInitiateMainTableCounts(tableName);
-        countQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
         return countQueryBuilder.mainCondition(mainCondition);
     }
 
     @Override
     public String mainSelect(String tableName, String mainCondition, String parentTableName) {
-        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
-        queryBuilder.SelectInitiateMainTable(tableName, mainColumns(tableName, parentTableName));
-        queryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
-        return queryBuilder.mainCondition(mainCondition);
+        return RegisterRepository.mainRegisterQuery();
     }
 
     protected abstract String[] mainColumns(String tableName, String parentTableName);

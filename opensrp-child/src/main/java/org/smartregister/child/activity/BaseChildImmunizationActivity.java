@@ -41,6 +41,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
@@ -124,7 +125,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
-    private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
@@ -206,6 +206,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {
                 childDetails = (CommonPersonObjectClient) serializable;
+                Map<String, String> details = ChildLibrary.
+                        getInstance()
+                        .context()
+                        .getEventClientRepository()
+                        .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                                RegisterRepository.mainRegisterQuery() +
+                                        " where " + Utils.metadata().childRegister.tableName + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
+                childDetails.setColumnmaps(details);
+                childDetails.setDetails(details);
             }
 
             serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
@@ -384,8 +393,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         });
 
         // TODO: update all views using child data
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
+
+
+        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(childDetails.getDetails()));
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -520,8 +530,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public void finish() {
         if (isLastModified()) {
-            String tableName = Utils.metadata().childRegister.tableName;
-            Utils.updateLastInteractionWith(childDetails.entityId(), tableName);
+            Utils.updateLastInteractionWith(childDetails.entityId(), RegisterRepository.getDemographicTable());
         }
         super.finish();
     }
@@ -1320,18 +1329,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void activateChildsStatus() {
         try {
-            Map<String, String> details = childDetails.getColumnmaps();
+            Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
+            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, "child");
             if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(
+                commonPersonObject.setColumnmaps(
                         JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(JsonFormUtils
+                commonPersonObject.setColumnmaps(JsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
@@ -2175,7 +2185,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
                 List<CommonPersonObject> children =
-                        getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName)
+                        getOpenSRPContext().commonrepository("ec_child_details")
                                 .findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {

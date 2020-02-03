@@ -9,21 +9,24 @@
             "field": "eventType",
             "field_value": "New Woman Registration",
             "creates_case": [
-              "ec_mother"
+              "ec_client",
+              "ec_mother_details"
             ]
           },
           {
             "field": "eventType",
             "field_value": "Birth Registration",
             "creates_case": [
-              "ec_child"
+              "ec_client",
+              "ec_child_details"
             ]
           },
           {
             "field": "eventType",
             "field_value": "Update Birth Registration",
             "creates_case": [
-              "ec_child"
+              "ec_client",
+              "ec_child_details"
             ]
           }
         ]

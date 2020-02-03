@@ -1,4 +1,4 @@
-package org.smartregister.child.sample.util;
+package org.smartregister.child.util;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -41,5 +41,11 @@ public class DBConstants {
         public static final String ENTITY_TYPE = "entity_type";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+    }
+
+    public interface RegisterTable {
+        String CHILD_DETAILS = "ec_child_details";
+        String MOTHER_DEATILS = "ec_mother_details";
+        String CLIENT = "ec_client";
     }
 }

@@ -8,7 +8,9 @@ import android.widget.ProgressBar;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.EntityLookUp;
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
@@ -84,7 +86,6 @@ public class MotherLookUpUtils {
         }
 
         String tableName = Utils.metadata().childRegister.motherTableName;
-        String childTableName = Utils.metadata().childRegister.tableName;
 
 
         List<String> ids = new ArrayList<>();
@@ -121,9 +122,17 @@ public class MotherLookUpUtils {
             return results;
         }
 
-        CommonRepository childRepository = context.commonrepository(childTableName);
-        List<CommonPersonObject> childList = childRepository.findByRelational_IDs(ids.toArray(new String[ids.size()]));
+        StringBuilder relationalIds = new StringBuilder();
+        for (String id : ids) {
+            relationalIds.append("'" + id + "'");
+        }
 
+
+        List<HashMap<String, String>> childList = ChildLibrary.getInstance()
+                .eventClientRepository()
+                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                        RegisterRepository.mainRegisterQuery()
+                                + " where child_details.relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
         }
@@ -135,23 +144,25 @@ public class MotherLookUpUtils {
 
     private static String lookUpQuery(Map<String, String> entityMap, String tableName) {
 
-        SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName,
-                new String[]{RELATIONALID, DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
+        queryBuilder.SelectInitiateMainTable(tableName,
+                new String[]{RegisterRepository.getDemographicTable() + "." + RELATIONALID, RegisterRepository.getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
                         AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
-                        Constants.KEY.BASE_ENTITY_ID}
+                        RegisterRepository.getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
-        String query = queryBUilder.mainCondition(getMainConditionString(entityMap));
-        return queryBUilder.Endquery(query);
+        queryBuilder.customJoin(" join ec_child_details on ec_child_details.relational_id=ec_mother_details.base_entity_id join ec_mother_details on ec_mother_details.base_entity_id = ec_client.base_entity_id ");
+        String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
+        return queryBuilder.Endquery(query);
     }
 
-    private static List<CommonPersonObject> findChildren(List<CommonPersonObject> childList, String motherBaseEnityId) {
+    private static List<CommonPersonObject> findChildren(List<HashMap<String, String>> childList, String motherBaseEnityId) {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
-        for (CommonPersonObject child : childList) {
-            String relationalID = getValue(child.getColumnmaps(), RELATIONAL_ID, false);
+        for (Map<String, String> child : childList) {
+            CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
+            String relationalID = getValue(commonPersonObject.getDetails(), RELATIONAL_ID, false);
             if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
-                foundChildren.add(child);
+                foundChildren.add(commonPersonObject);
             }
         }
 
