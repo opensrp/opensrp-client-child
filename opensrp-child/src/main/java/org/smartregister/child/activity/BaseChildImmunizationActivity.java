@@ -2185,7 +2185,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
                 List<CommonPersonObject> children =
-                        getOpenSRPContext().commonrepository("ec_child_details")
+                        getOpenSRPContext().commonrepository(RegisterRepository.getChildDetailsTable())
                                 .findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {
