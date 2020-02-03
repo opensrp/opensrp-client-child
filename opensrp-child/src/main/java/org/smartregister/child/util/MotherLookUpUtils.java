@@ -151,7 +151,7 @@ public class MotherLookUpUtils {
                         RegisterRepository.getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
-        queryBuilder.customJoin(" join ec_child_details on ec_child_details.relational_id=ec_mother_details.base_entity_id join ec_mother_details on ec_mother_details.base_entity_id = ec_client.base_entity_id ");
+        queryBuilder.customJoin(" join "+RegisterRepository.getChildDetailsTable()+" on "+RegisterRepository.getChildDetailsTable()+".relational_id="+RegisterRepository.getMotherDetailsTable()+".base_entity_id join "+RegisterRepository.getMotherDetailsTable()+" on "+RegisterRepository.getMotherDetailsTable()+".base_entity_id = ec_client.base_entity_id ");
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
         return queryBuilder.Endquery(query);
     }

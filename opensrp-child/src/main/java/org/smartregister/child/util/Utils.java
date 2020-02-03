@@ -34,6 +34,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EditWrapper;
 import org.smartregister.child.event.BaseEvent;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
@@ -557,7 +558,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static CommonPersonObject getEcChildDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository("ec_child_details");
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(RegisterRepository.getChildDetailsTable());
         if (cr != null) {
             return cr.findByBaseEntityId(baseEntityId);
         }
@@ -565,7 +566,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static CommonPersonObject getEcMotherDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository("ec_child_details");
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(RegisterRepository.getChildDetailsTable());
         if (cr != null) {
             return cr.findByBaseEntityId(baseEntityId);
         }

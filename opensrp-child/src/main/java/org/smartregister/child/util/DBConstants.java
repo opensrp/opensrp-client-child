@@ -45,7 +45,7 @@ public class DBConstants {
 
     public interface RegisterTable {
         String CHILD_DETAILS = "ec_child_details";
-        String MOTHER_DEATILS = "ec_mother_details";
+        String MOTHER_DETAILS = "ec_mother_details";
         String CLIENT = "ec_client";
     }
 }

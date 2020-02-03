@@ -20,7 +20,7 @@ public class RegisterRepository {
     }
 
     public static String getMotherDetailsTable() {
-        return DBConstants.RegisterTable.MOTHER_DEATILS;
+        return DBConstants.RegisterTable.MOTHER_DETAILS;
     }
 
     public static String getDemographicTable() {
