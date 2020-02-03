@@ -1,8 +1,8 @@
 package org.smartregister.child.sample.util;
 
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;

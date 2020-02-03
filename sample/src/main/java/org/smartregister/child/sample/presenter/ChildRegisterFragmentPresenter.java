@@ -2,9 +2,9 @@ package org.smartregister.child.sample.presenter;
 
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.sample.util.DBQueryHelper;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
