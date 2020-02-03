@@ -181,8 +181,8 @@ public class SampleApplication extends DrishtiApplication {
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
                 ChildImmunizationActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, RegisterRepository.getDemographicTable(),
-                RegisterRepository.getDemographicTable(), SampleConstants.EventType.CHILD_REGISTRATION,
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, Utils.metadata().getRegisterRepository().getDemographicTable(),
+                Utils.metadata().getRegisterRepository().getDemographicTable(), SampleConstants.EventType.CHILD_REGISTRATION,
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,
                 SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         return metadata;

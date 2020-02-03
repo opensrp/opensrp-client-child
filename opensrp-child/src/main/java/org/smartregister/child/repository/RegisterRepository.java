@@ -4,7 +4,7 @@ import org.smartregister.child.util.DBConstants;
 
 public class RegisterRepository {
 
-    public static String mainRegisterQuery() {
+    public String mainRegisterQuery() {
         return "select " + getDemographicTable() + ".id as _id, " + getDemographicTable() + ".relationalid, " + getDemographicTable() + ".zeir_id, child_details.relational_id, " + getDemographicTable() +
                 ".gender, " + getDemographicTable() + ".base_entity_id, " + getDemographicTable() + ".first_name, " + getDemographicTable() + ".last_name, mother.first_name as mother_first_name, " +
                 "mother.last_name as mother_last_name," + getDemographicTable() + ".dob, mother.dob as mother_dob, mother_details.nrc_number as mother_nrc_number, mother_details.father_name, mother_details.epi_card_number," +
@@ -15,15 +15,15 @@ public class RegisterRepository {
                 "on mother.base_entity_id = mother_details.base_entity_id";
     }
 
-    public static String getChildDetailsTable() {
+    public String getChildDetailsTable() {
         return DBConstants.RegisterTable.CHILD_DETAILS;
     }
 
-    public static String getMotherDetailsTable() {
+    public String getMotherDetailsTable() {
         return DBConstants.RegisterTable.MOTHER_DETAILS;
     }
 
-    public static String getDemographicTable() {
+    public String getDemographicTable() {
         return DBConstants.RegisterTable.CLIENT;
     }
 

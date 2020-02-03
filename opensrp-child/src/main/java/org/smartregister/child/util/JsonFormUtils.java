@@ -30,6 +30,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -582,7 +583,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static void updateChildFTSTables(ContentValues values, String entityId) {
         //Update REGISTER and FTS Tables
-        String tableName = Utils.metadata().childRegister.tableName;
+        String tableName = Utils.metadata().getRegisterRepository().getDemographicTable();
         AllCommonsRepository allCommonsRepository = ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName);
         if (allCommonsRepository != null) {
             allCommonsRepository.update(tableName, values, entityId);
@@ -677,7 +678,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
 
         ChildLibrary.getInstance().context().getEventClientRepository().getWritableDatabase()
-                .update(Utils.metadata().childRegister.tableName, contentValues, Constants.KEY.BASE_ENTITY_ID + " = ?",
+                .update(Utils.metadata().getRegisterRepository().getDemographicTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + " = ?",
                         new String[]{baseEntityId});
     }
 
@@ -1695,7 +1696,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         //Add the base_entity_id
         contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
         db.getWritableDatabase()
-                .update(Utils.metadata().childRegister.tableName, contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
+                .update(Utils.metadata().getRegisterRepository().getDemographicTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
                         new String[]{childDetails.entityId()});
 
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
