@@ -364,7 +364,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 count = commonRepository().countSearchIds(sql);
             } else {
                 sqb.addCondition(filters);
-                query = sqb.orderbyCondition(Sortqueries);
+                query = sqb.orderbyCondition(presenter().getDefaultSortQuery());
                 query = sqb.Endquery(query);
 
                 Log.i(getClass().getName(), query);

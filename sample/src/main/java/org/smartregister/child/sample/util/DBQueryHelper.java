@@ -1,6 +1,8 @@
 package org.smartregister.child.sample.util;
 
+import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -107,6 +109,6 @@ public class DBQueryHelper {
     }
 
     public static String getSortQuery() {
-        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
+        return RegisterRepository.getDemographicTable() + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
 }

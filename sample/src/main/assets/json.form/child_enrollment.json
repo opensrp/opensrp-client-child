@@ -80,7 +80,7 @@
         }
       },
       {
-        "key": "ZEIR_ID",
+        "key": "zeir_id",
         "openmrs_entity_parent": "",
         "openmrs_entity": "person_identifier",
         "openmrs_entity_id": "ZEIR_ID",
@@ -100,7 +100,7 @@
         }
       },
       {
-        "key": "First_Name",
+        "key": "first_name",
         "openmrs_entity_parent": "",
         "openmrs_entity": "person",
         "openmrs_entity_id": "first_name",
@@ -113,7 +113,7 @@
         }
       },
       {
-        "key": "Last_Name",
+        "key": "last_name",
         "openmrs_entity_parent": "",
         "openmrs_entity": "person",
         "openmrs_entity_id": "last_name",
