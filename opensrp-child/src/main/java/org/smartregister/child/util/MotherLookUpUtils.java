@@ -131,7 +131,7 @@ public class MotherLookUpUtils {
         List<HashMap<String, String>> childList = ChildLibrary.getInstance()
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        RegisterRepository.mainRegisterQuery()
+                        Utils.metadata().getRegisterRepository().mainRegisterQuery()
                                 + " where child_details.relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
@@ -146,12 +146,12 @@ public class MotherLookUpUtils {
 
         SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
         queryBuilder.SelectInitiateMainTable(tableName,
-                new String[]{RegisterRepository.getDemographicTable() + "." + RELATIONALID, RegisterRepository.getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+                new String[]{Utils.metadata().getRegisterRepository().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterRepository().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
                         AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
-                        RegisterRepository.getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
+                        Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
-        queryBuilder.customJoin(" join "+RegisterRepository.getChildDetailsTable()+" on "+RegisterRepository.getChildDetailsTable()+".relational_id="+RegisterRepository.getMotherDetailsTable()+".base_entity_id join "+RegisterRepository.getMotherDetailsTable()+" on "+RegisterRepository.getMotherDetailsTable()+".base_entity_id = ec_client.base_entity_id ");
+        queryBuilder.customJoin(" join "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+" on "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+".relational_id="+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+".base_entity_id join "+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+" on "+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+".base_entity_id = ec_client.base_entity_id ");
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
         return queryBuilder.Endquery(query);
     }

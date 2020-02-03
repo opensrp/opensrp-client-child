@@ -5,7 +5,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
@@ -63,10 +62,10 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     @Override
     public void initializeQueries(String mainCondition) {
-        String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = Utils.metadata().childRegister.motherTableName;
+        String tableName = Utils.metadata().getRegisterRepository().getDemographicTable();
+        String parentTableName = Utils.metadata().getRegisterRepository().getDemographicTable();
 
-        String countSelect = model.countSelect(RegisterRepository.getChildDetailsTable(), mainCondition, parentTableName);
+        String countSelect = model.countSelect(Utils.metadata().getRegisterRepository().getDemographicTable(), mainCondition, parentTableName);
         String mainSelect = model.mainSelect(tableName, mainCondition, parentTableName);
 
         getView().initializeQueryParams(tableName, countSelect, mainSelect);

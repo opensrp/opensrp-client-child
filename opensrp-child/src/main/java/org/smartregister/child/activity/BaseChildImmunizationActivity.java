@@ -211,8 +211,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         .context()
                         .getEventClientRepository()
                         .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                                RegisterRepository.mainRegisterQuery() +
-                                        " where " + Utils.metadata().childRegister.tableName + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
+                                Utils.metadata().getRegisterRepository().mainRegisterQuery() +
+                                        " where " + Utils.metadata().getRegisterRepository().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
                 childDetails.setColumnmaps(details);
                 childDetails.setDetails(details);
             }
@@ -530,7 +530,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public void finish() {
         if (isLastModified()) {
-            Utils.updateLastInteractionWith(childDetails.entityId(), RegisterRepository.getDemographicTable());
+            Utils.updateLastInteractionWith(childDetails.entityId(), Utils.metadata().getRegisterRepository().getDemographicTable());
         }
         super.finish();
     }
@@ -2185,7 +2185,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
                 List<CommonPersonObject> children =
-                        getOpenSRPContext().commonrepository(RegisterRepository.getChildDetailsTable())
+                        getOpenSRPContext().commonrepository(Utils.metadata().getRegisterRepository().getChildDetailsTable())
                                 .findByRelational_IDs(motherBaseEntityId);
 
                 if (children != null) {
