@@ -166,7 +166,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
             long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
+            ChildLibrary.getInstance().getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Timber.e(e, "ChildRegisterInteractor --> saveRegistration");

@@ -10,7 +10,6 @@ import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.EntityLookUp;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
@@ -160,6 +159,7 @@ public class MotherLookUpUtils {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
         for (Map<String, String> child : childList) {
             CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
+            commonPersonObject.setColumnmaps(child);
             String relationalID = getValue(commonPersonObject.getDetails(), RELATIONAL_ID, false);
             if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
                 foundChildren.add(commonPersonObject);
