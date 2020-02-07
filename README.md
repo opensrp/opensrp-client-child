@@ -26,6 +26,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `home.alert.upcoming.blue.disabled`   | Boolean | false   | Disable showing light blue alert for upcoming in 7 days |
 | `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results          |
 | `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view          |   
+| `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                            |
 
 ### Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
 
