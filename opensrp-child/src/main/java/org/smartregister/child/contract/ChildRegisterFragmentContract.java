@@ -49,6 +49,8 @@ public interface ChildRegisterFragmentContract {
 
         String mainSelect(String tableName, String mainCondition, String parentTableName);
 
+        String mainSelect(String mainCondition);
+
         String getFilterText(List<Field> filterList, String filter);
 
         String getSortText(Field sortField);
