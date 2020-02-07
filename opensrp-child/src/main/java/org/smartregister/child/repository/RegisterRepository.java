@@ -7,7 +7,7 @@ import org.smartregister.child.util.Utils;
 
 public class RegisterRepository {
 
-    public String mainRegisterQuery(String[] columns) {
+    public String mainRegisterQuery() {
         return "select " + StringUtils.join(getMainColumns(), ",") + " from " + getChildDetailsTable() + " child_details " +
                 "join " + getMotherDetailsTable() + " mother_details on child_details.relational_id = mother_details.base_entity_id " +
                 "join " + getDemographicTable() + " on " + getDemographicTable() + ".base_entity_id = child_details.base_entity_id " +
