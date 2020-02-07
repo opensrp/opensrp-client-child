@@ -111,6 +111,11 @@ public final class Constants extends AllConstants {
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+        public static final String ID = "id";
+        public static final String NRC_NUMBER = "nrc_number";
+        public static final String FATHER_NAME = "father_name";
+        public static final String CLIENT_REG_DATE = "client_reg_date";
+        public static final String CONSTANT_PHONE_NUMBER = "contact_phone_number";
     }
 
     public static final class INTENT_KEY {
