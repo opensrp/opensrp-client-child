@@ -1193,13 +1193,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         //Checking if the growth point is also a birth date point by comparing DOB. We wont allow edits for such
 
         if (weightWrapper != null) {
-
             updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         }
 
         if (hasProperty & monitorGrowth) {
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
+
         updateRecordWeightText(weightWrapper, heightWrapper);
         updateRecordGrowth(weightWrapper, heightWrapper, isActive);
 
@@ -1215,12 +1215,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
                 height = Utils.cmStringSuffix(heightWrapper.getHeight());
             }
+
             isGrowthEdit = true;
             if (hasProperty & monitorGrowth) {
                 recordWeightText.setText(getGrowthMonitoringValues(height, weight));
             } else {
                 recordWeightText.setText(weight);
             }
+        } else {
+            isGrowthEdit = false;
         }
     }
 
@@ -1236,6 +1239,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (hasProperty && monitorGrowth) {
             recordGrowth.setTag(R.id.height_wrapper, heightWrapper);
         }
+
         recordGrowth.setTag(R.id.growth_edit_flag, isGrowthEdit);
         recordGrowth.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1268,6 +1272,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
+
+                    // Reset the edit flag since this
+                    isGrowthEdit = false;
                 }
             }
         }
@@ -1315,6 +1322,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (hasProperty && monitorGrowth) {
             heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
         }
+
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
             EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
