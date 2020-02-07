@@ -70,6 +70,11 @@ public class LocationSwitcherToolbar extends BaseToolbar {
     @Override
     public void prepareMenu() {
         if (baseActivity != null) {
+            CustomFontTextView titleTV = baseActivity.findViewById(R.id.title);
+            titleTV.setText(title);
+
+
+
             LocationActionView locationActionView = new LocationActionView(baseActivity);
 
             locationActionView.getLocationPickerView()
@@ -81,9 +86,8 @@ public class LocationSwitcherToolbar extends BaseToolbar {
                             }
                         }
                     });
-            CustomFontTextView titleTV = baseActivity.findViewById(R.id.title);
             View separatorV = baseActivity.findViewById(R.id.separator_v);
-            titleTV.setText(title);
+            separatorV.setVisibility(VISIBLE);
             baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);
             separatorV.setBackgroundDrawable(baseActivity.getResources().getDrawable(separatorResourceId));
         }
