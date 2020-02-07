@@ -54,6 +54,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -134,7 +136,13 @@ public class ChildUnderFiveFragment extends Fragment {
 
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
         List<Weight> weightList = getWeights(weights);
+
+        // Sort the weights
+        sortTheWeightsInDescendingOrder(weightList);
+
         LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners, weightList);
+
+
         if (weightMap.size() > 0) {
             widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
@@ -142,6 +150,10 @@ public class ChildUnderFiveFragment extends Fragment {
         if (monitorGrowth) {
             ArrayList<Boolean> heightEditMode = new ArrayList<>();
             List<Height> heightList = getHeights(heights);
+
+            // Sort the heights
+            sortTheHeightsInDescendingOrder(heightList);
+
             LinkedHashMap<Long, Pair<String, String>> heightMap =
                     updateHeightMap(editMode, heightEditMode, listeners, heightList);
             if (heightMap.size() > 0) {
@@ -150,6 +162,24 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         ((NestedScrollView) ((View) fragmentContainer.getParent()).findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
+    }
+
+    private void sortTheWeightsInDescendingOrder(List<Weight> weightList) {
+        Collections.sort(weightList, new Comparator<Weight>() {
+            @Override
+            public int compare(Weight o1, Weight o2) {
+                return (o1 != null && o2 != null && o2.getDate() != null) ? o2.getDate().compareTo(o1.getDate()) : 0;
+            }
+        });
+    }
+
+    private void sortTheHeightsInDescendingOrder(List<Height> heightList) {
+        Collections.sort(heightList, new Comparator<Height>() {
+            @Override
+            public int compare(Height o1, Height o2) {
+                return (o1 != null && o2 != null && o2.getDate() != null) ? o2.getDate().compareTo(o1.getDate()) : 0;
+            }
+        });
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode, ArrayList<View.OnClickListener> listeners, List<Weight> weightList) {
