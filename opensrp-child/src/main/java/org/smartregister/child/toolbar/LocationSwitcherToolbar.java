@@ -6,9 +6,11 @@ import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.smartregister.AllConstants;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.view.LocationActionView;
+import org.smartregister.util.Utils;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
@@ -74,22 +76,22 @@ public class LocationSwitcherToolbar extends BaseToolbar {
             titleTV.setText(title);
 
 
-
-            LocationActionView locationActionView = new LocationActionView(baseActivity);
-
-            locationActionView.getLocationPickerView()
-                    .setOnLocationChangeListener(new LocationPickerView.OnLocationChangeListener() {
-                        @Override
-                        public void onLocationChange(String newLocation) {
-                            if (onLocationChangeListener != null) {
-                                onLocationChangeListener.onLocationChanged(newLocation);
+            if (!Utils.getBooleanProperty(AllConstants.PROPERTY.DISABLE_LOCATION_PICKER_VIEW)) {
+                LocationActionView locationActionView = new LocationActionView(baseActivity);
+                locationActionView.getLocationPickerView()
+                        .setOnLocationChangeListener(new LocationPickerView.OnLocationChangeListener() {
+                            @Override
+                            public void onLocationChange(String newLocation) {
+                                if (onLocationChangeListener != null) {
+                                    onLocationChangeListener.onLocationChanged(newLocation);
+                                }
                             }
-                        }
-                    });
-            View separatorV = baseActivity.findViewById(R.id.separator_v);
-            separatorV.setVisibility(VISIBLE);
-            baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);
-            separatorV.setBackgroundDrawable(baseActivity.getResources().getDrawable(separatorResourceId));
+                        });
+                View separatorV = baseActivity.findViewById(R.id.separator_v);
+                separatorV.setVisibility(VISIBLE);
+                baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);
+                separatorV.setBackgroundDrawable(baseActivity.getResources().getDrawable(separatorResourceId));
+            }
         }
     }
 
