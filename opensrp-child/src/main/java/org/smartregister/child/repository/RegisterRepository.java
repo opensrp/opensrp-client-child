@@ -34,7 +34,7 @@ public class RegisterRepository {
             mainCondition = " where " + mainCondition;
         }
 
-        return "select count(ec_client_search.object_id) from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
+        return "select count(ec_client.object_id) from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
     }
 
     public String mainRegisterQuery() {
