@@ -6,20 +6,35 @@ import org.smartregister.child.util.DBConstants;
 
 public class RegisterRepository {
 
-    public String getObjectIdsQuery(String mainCondition, String filters, String detailsCondition) {
+    public String getObjectIdsQuery(String mainCondition, String filters) {
         if (!filters.isEmpty()) {
-            filters = String.format(" AND ec_client_search.phrase MATCH '%s'", filters);
+            filters = String.format(" AND ec_client.phrase MATCH '*%s*'", filters);
         }
-        if (!StringUtils.isBlank(mainCondition)) {
-            mainCondition = " AND " + mainCondition;
+        if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
+            filters = String.format(" where ec_client.phrase MATCH '*%s*'", filters);
         }
 
-        if (!StringUtils.isBlank(detailsCondition)) {
-            detailsCondition = " where " + detailsCondition;
-        } else {
-            detailsCondition = "";
+        if (!StringUtils.isBlank(mainCondition)) {
+            mainCondition = " where " + mainCondition;
         }
-        return "select ec_client_search.object_id from ec_client_search where ec_client_search.object_id IN (select object_id from ec_child_details_search " + detailsCondition + ") " + mainCondition + filters;
+
+        return "select ec_client.object_id from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
+    }
+
+
+    public String getCountExecuteQuery(String mainCondition, String filters) {
+        if (!filters.isEmpty()) {
+            filters = String.format(" AND ec_client_search.phrase MATCH '*%s*'", filters);
+        }
+        if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
+            filters = String.format(" where ec_client_search.phrase MATCH '*%s*'", filters);
+        }
+
+        if (!StringUtils.isBlank(mainCondition)) {
+            mainCondition = " where " + mainCondition;
+        }
+
+        return "select count(ec_client_search.object_id) from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
     }
 
     public String mainRegisterQuery() {
