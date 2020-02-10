@@ -18,7 +18,8 @@ public class DBQueryHelper {
 
     public static final String getHomeRegisterCondition() {
         //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
-        return Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " + Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
+        return Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " +
+                Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
     }
 
     public static String getFilterSelectionCondition(boolean urgentOnly) {
@@ -28,7 +29,8 @@ public class DBQueryHelper {
         final String IS_NULL_OR = " IS NULL OR ";
         final String TRUE = "'true'";
 
-        String mainCondition =  " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
+        String mainCondition = " ( " + Constants.KEY.DOD + " is NULL OR " + Constants.KEY.DOD + " = '' ) " +
+                AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
                 AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
                 AND + " ( ";
         List<VaccineRepo.Vaccine> vaccines = ImmunizationLibrary.getInstance().getVaccineCacheMap().get(Constants.CHILD_TYPE).vaccineRepo;
@@ -106,6 +108,6 @@ public class DBQueryHelper {
     }
 
     public static String getSortQuery() {
-        return Utils.metadata().getRegisterRepository().getDemographicTable() + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
+        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
 }

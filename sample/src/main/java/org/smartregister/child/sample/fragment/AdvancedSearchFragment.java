@@ -10,8 +10,8 @@ import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.presenter.AdvancedSearchPresenter;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.HashMap;
@@ -52,6 +52,11 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
     @Override
     protected String getMainCondition() {
         return DBQueryHelper.getHomeRegisterCondition();
+    }
+
+    @Override
+    protected String getDetailsCondition() {
+        return null;
     }
 
     @Override
