@@ -38,7 +38,6 @@ import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
@@ -201,11 +200,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void onResume() {
         super.onResume();
-
-        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
-        }
+//
+//        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+//        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+//            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+//        }
     }
 
     private void setUpQRCodeScanButtonView(View view) {
@@ -375,11 +374,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         String query = "";
         try {
             if (isValidFilterForFts(commonRepository())) {
-                String sql = Utils.metadata().getRegisterRepository().getObjectIdsQuery(mainCondition, filters);
+                String sql = Utils.metadata().getRegisterRepository().getObjectIdsQuery(mainCondition, filters) + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
                 List<String> ids = commonRepository().findSearchIds(sql);
-                query = Utils.metadata().getRegisterRepository().mainRegisterQuery() + " where _id IN (%s)";
+                query = Utils.metadata().getRegisterRepository().mainRegisterQuery() + " where _id IN (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
 
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
