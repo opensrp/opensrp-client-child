@@ -65,35 +65,41 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private static String[] getFtsTables() {
-        return new String[]{SampleConstants.TABLE_NAME.CHILD};
+        return new String[]{DBConstants.RegisterTable.CHILD_DETAILS, DBConstants.RegisterTable.MOTHER_DETAILS, DBConstants.RegisterTable.CLIENT};
     }
 
     private static String[] getFtsSearchFields(String tableName) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.MOTHER_FIRST_NAME, DBConstants.KEY.MOTHER_LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.LOST_TO_FOLLOW_UP, DBConstants.KEY.INACTIVE};
+        if (tableName.equals(DBConstants.RegisterTable.CLIENT)) {
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME};
+        } else if (tableName.equals(DBConstants.RegisterTable.CHILD_DETAILS)) {
+            return new String[]{DBConstants.KEY.LOST_TO_FOLLOW_UP, DBConstants.KEY.INACTIVE};
+        } else if (tableName.equals(DBConstants.RegisterTable.MOTHER_DETAILS)) {
+            return new String[]{DBConstants.KEY.EPI_CARD_NUMBER};
         }
         return null;
     }
 
     private static String[] getFtsSortFields(String tableName, android.content.Context context) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-
+        if (tableName.equals(DBConstants.RegisterTable.CHILD_DETAILS)) {
             List<VaccineGroup> vaccineList = VaccinatorUtils.getVaccineGroupsFromVaccineConfigFile(context, VaccinatorUtils.vaccines_file);
-
             List<String> names = new ArrayList<>();
-            names.add(DBConstants.KEY.FIRST_NAME);
-            names.add(DBConstants.KEY.DOB);
-            names.add(DBConstants.KEY.ZEIR_ID);
-            names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
             names.add(DBConstants.KEY.INACTIVE);
             names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
-            names.add(DBConstants.KEY.DOD);
-            names.add(DBConstants.KEY.DATE_REMOVED);
 
             for (VaccineGroup vaccineGroup : vaccineList) {
                 populateAlertColumnNames(vaccineGroup.vaccines, names);
             }
 
+            return names.toArray(new String[names.size()]);
+
+        } else if (tableName.equals(DBConstants.RegisterTable.CLIENT)) {
+            List<String> names = new ArrayList<>();
+            names.add(DBConstants.KEY.FIRST_NAME);
+            names.add(DBConstants.KEY.DOB);
+            names.add(DBConstants.KEY.ZEIR_ID);
+            names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
+            names.add(DBConstants.KEY.DOD);
+            names.add(DBConstants.KEY.DATE_REMOVED);
             return names.toArray(new String[names.size()]);
         }
         return null;

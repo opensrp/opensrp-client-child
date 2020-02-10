@@ -104,5 +104,8 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
         onViewClicked(view);
     }
 
-
+    @Override
+    protected String getDetailsCondition() {
+        return filterSelectionCondition(false);
+    }
 }
