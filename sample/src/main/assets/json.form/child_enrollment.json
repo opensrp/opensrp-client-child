@@ -80,7 +80,7 @@
         }
       },
       {
-        "key": "zeir_id",
+        "key": "ZEIR_ID",
         "openmrs_entity_parent": "",
         "openmrs_entity": "person_identifier",
         "openmrs_entity_id": "ZEIR_ID",
@@ -118,8 +118,6 @@
         "openmrs_entity": "person",
         "openmrs_entity_id": "last_name",
         "type": "edit_text",
-        "entity_id": "mother",
-        "look_up": "true",
         "hint": "Last name ",
         "edit_type": "name",
         "v_required": {

@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
@@ -28,6 +30,7 @@ import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -35,15 +38,17 @@ import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -55,6 +60,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private int dueOverdueCount = 0;
     private LocationPickerView clinicSelection;
     private TextView overdueCountTV;
+    protected String detailsCondition;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -165,6 +171,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     protected abstract String getMainCondition();
 
+    protected abstract String getDetailsCondition();
+
     @Override
     protected abstract String getDefaultSortQuery();
 
@@ -194,10 +202,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     public void onResume() {
         super.onResume();
 
-        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
-        }
+//        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+//        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+//            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+//        }
     }
 
     private void setUpQRCodeScanButtonView(View view) {
@@ -248,15 +256,20 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         if (filterSection != null) {
             String tagString = "PRESSED";
             if (filterSection.getTag() == null) {
-                filter("", "", filterSelectionCondition(false), false);
+                filter("", "", getMainCondition(), false, getDetailsCondition());
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                filter("", "", "", false);
+                filter("", "", getMainCondition(), false, "");
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }
         }
+    }
+
+    public void filter(String filterString, String joinTableString, String mainConditionString, boolean qrCode, String detailsCondition) {
+        this.detailsCondition = detailsCondition;
+        super.filter(filterString, joinTableString, mainConditionString, qrCode);
     }
 
     protected void updateLocationText() {
@@ -329,7 +342,19 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         final AdvancedMatrixCursor matrixCursor = ((BaseChildRegisterFragmentPresenter) presenter).getMatrixCursor();
         if (!globalQrSearch || matrixCursor == null) {
-            return super.onCreateLoader(id, args);
+            if (id == LOADER_ID) {
+                return new CursorLoader(getActivity()) {
+                    @Override
+                    public Cursor loadInBackground() {
+                        // Count query
+                        // Select register query
+                        String query = filterAndSortQuery();
+                        return commonRepository().rawCustomQueryForAdapter(query);
+                    }
+                };
+            } else {
+                return null;
+            }
         } else {
             globalQrSearch = false;
             switch (id) {
@@ -346,6 +371,38 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                     return null;
             }
         }
+    }
+
+
+    private String filterAndSortQuery() {
+        SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
+
+        String query = "";
+        try {
+            if (isValidFilterForFts(commonRepository())) {
+                String sql = Utils.metadata().getRegisterRepository().getObjectIdsQuery(mainCondition, filters, detailsCondition);
+                sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
+
+                List<String> ids = commonRepository().findSearchIds(sql);
+                query = Utils.metadata().getRegisterRepository().mainRegisterQuery() + " where _id IN (%s)";
+
+                String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
+                return query.replace("%s", joinedIds);
+            } else {
+                if (!TextUtils.isEmpty(filters) && TextUtils.isEmpty(Sortqueries)) {
+                    sqb.addCondition(filters);
+                    query = sqb.orderbyCondition(Sortqueries);
+                    query = sqb.Endquery(sqb.addlimitandOffset(query
+                            , clientAdapter.getCurrentlimit()
+                            , clientAdapter.getCurrentoffset()));
+                }
+                return query;
+            }
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+
+        return query;
     }
 
     private int count(String mainConditionString) {
@@ -385,9 +442,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
         @Override
         protected Pair<Integer, Integer> doInBackground(Void... params) {
-            int overdueCount = count(filterSelectionCondition(true));
+            int overdueCount = count(detailsCondition);
 
-            dueOverdueCount = count(filterSelectionCondition(false));
+            dueOverdueCount = count(detailsCondition);
             return Pair.create(overdueCount, dueOverdueCount);
         }
 
@@ -399,5 +456,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             updateDueOverdueCountText(overDue);
 
         }
+    }
+
+    public void setDetailsCondition(String detailsCondition) {
+        this.detailsCondition = detailsCondition;
     }
 }

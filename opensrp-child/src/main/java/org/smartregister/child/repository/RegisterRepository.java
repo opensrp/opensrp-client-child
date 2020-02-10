@@ -6,6 +6,22 @@ import org.smartregister.child.util.DBConstants;
 
 public class RegisterRepository {
 
+    public String getObjectIdsQuery(String mainCondition, String filters, String detailsCondition) {
+        if (!filters.isEmpty()) {
+            filters = String.format(" AND ec_client_search.phrase MATCH '%s'", filters);
+        }
+        if (!StringUtils.isBlank(mainCondition)) {
+            mainCondition = " AND " + mainCondition;
+        }
+
+        if (!StringUtils.isBlank(detailsCondition)) {
+            detailsCondition = " where " + detailsCondition;
+        } else {
+            detailsCondition = "";
+        }
+        return "select ec_client_search.object_id from ec_client_search where ec_client_search.object_id IN (select object_id from ec_child_details_search " + detailsCondition + ") " + mainCondition + filters;
+    }
+
     public String mainRegisterQuery() {
         return "select " + StringUtils.join(getMainColumns(), ",") + " from " + getChildDetailsTable() + " " +
                 "join " + getMotherDetailsTable() + " on ec_child_details.relational_id = ec_mother_details.base_entity_id " +
