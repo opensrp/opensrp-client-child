@@ -84,7 +84,7 @@ public class MotherLookUpUtils {
             return results;
         }
 
-        String tableName = Utils.metadata().getRegisterRepository().getDemographicTable();
+        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
 
 
         List<String> ids = new ArrayList<>();
@@ -101,7 +101,6 @@ public class MotherLookUpUtils {
                 while (!cursor.isAfterLast()) {
                     CommonPersonObject commonPersonObject = commonRepository.readAllcommonforCursorAdapter(cursor);
                     motherList.add(commonPersonObject);
-
 
                     ids.add(commonPersonObject.getCaseId());
                     cursor.moveToNext();
@@ -123,15 +122,15 @@ public class MotherLookUpUtils {
 
         StringBuilder relationalIds = new StringBuilder();
         for (String id : ids) {
-            relationalIds.append("'" + id + "'");
+            relationalIds.append("'").append(id).append("'");
         }
 
 
         List<HashMap<String, String>> childList = ChildLibrary.getInstance()
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        Utils.metadata().getRegisterRepository().mainRegisterQuery()
-                                + " where "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+".relational_id IN (" + relationalIds + ")");
+                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
+                                + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
         }
@@ -145,13 +144,13 @@ public class MotherLookUpUtils {
 
         SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
         queryBuilder.SelectInitiateMainTable(tableName,
-                new String[]{Utils.metadata().getRegisterRepository().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterRepository().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+                new String[]{Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
                         AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
-                        Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
+                        Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
-        queryBuilder.customJoin(" join " + Utils.metadata().getRegisterRepository().getChildDetailsTable() + " on " + Utils.metadata().getRegisterRepository().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
-                " join " + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
+        queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
+                " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
         return queryBuilder.Endquery(query);
     }

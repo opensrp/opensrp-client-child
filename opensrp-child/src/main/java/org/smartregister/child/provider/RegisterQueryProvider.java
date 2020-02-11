@@ -1,11 +1,11 @@
-package org.smartregister.child.repository;
+package org.smartregister.child.provider;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
 import org.smartregister.commonregistry.CommonFtsObject;
 
-public class RegisterRepository {
+public class RegisterQueryProvider {
 
     public String getObjectIdsQuery(String mainCondition, String filters) {
         String strMainCondition = "";

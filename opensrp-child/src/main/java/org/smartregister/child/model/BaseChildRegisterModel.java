@@ -81,7 +81,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
 
-        String tableName = Utils.metadata().getRegisterRepository().getDemographicTable();
+        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
         Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
 
         childEventClientList.add(childHeadEventClient);

@@ -370,12 +370,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         String query = "";
         try {
             if (isValidFilterForFts(commonRepository())) {
-                String sql = Utils.metadata().getRegisterRepository().getObjectIdsQuery(mainCondition, filters) + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+                String sql = Utils.metadata().getRegisterQueryProvider().getObjectIdsQuery(mainCondition, filters) + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
 
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
                 List<String> ids = commonRepository().findSearchIds(sql);
-                query = Utils.metadata().getRegisterRepository().mainRegisterQuery() + " where _id IN (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+                query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " where _id IN (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
 
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
@@ -399,7 +399,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void countExecute() {
         try {
-            String sql = Utils.metadata().getRegisterRepository().getCountExecuteQuery(mainCondition, filters);
+            String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
             Timber.i(sql);
             int totalCount = commonRepository().countSearchIds(sql);
             clientAdapter.setTotalcount(totalCount);

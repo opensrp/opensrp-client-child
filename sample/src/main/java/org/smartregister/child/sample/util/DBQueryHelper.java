@@ -18,8 +18,8 @@ public class DBQueryHelper {
 
     public static final String getHomeRegisterCondition() {
         //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
-        return Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " +
-                Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
+        return Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " +
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
     }
 
     public static String getFilterSelectionCondition(boolean urgentOnly) {
@@ -108,6 +108,6 @@ public class DBQueryHelper {
     }
 
     public static String getSortQuery() {
-        return Utils.metadata().getRegisterRepository().getDemographicTable() + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
+        return Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
 }

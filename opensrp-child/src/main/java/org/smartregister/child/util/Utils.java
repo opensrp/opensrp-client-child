@@ -557,7 +557,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static CommonPersonObject getEcChildDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterRepository().getChildDetailsTable());
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
         if (cr != null) {
             return cr.findByBaseEntityId(baseEntityId);
         }
@@ -565,7 +565,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static CommonPersonObject getEcMotherDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterRepository().getChildDetailsTable());
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
         if (cr != null) {
             return cr.findByBaseEntityId(baseEntityId);
         }

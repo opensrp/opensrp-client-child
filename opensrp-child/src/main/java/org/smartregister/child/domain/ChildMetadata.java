@@ -3,7 +3,7 @@ package org.smartregister.child.domain;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
-import org.smartregister.child.repository.RegisterRepository;
+import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
 /**
@@ -14,7 +14,7 @@ public class ChildMetadata {
     public final Class childImmunizationActivity;
     public final Class profileActivity;
     public final boolean formWizardValidateRequiredFieldsBefore;
-    private RegisterRepository registerRepository;
+    private RegisterQueryProvider registerQueryProvider;
 
     public ChildRegister childRegister;
 
@@ -26,19 +26,19 @@ public class ChildMetadata {
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
-        setRegisterRepository(new RegisterRepository());
+        setRegisterQueryProvider(new RegisterQueryProvider());
     }
 
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
                          boolean formWizardValidateRequiredFieldsBefore,
-                         RegisterRepository registerRepo) {
+                         RegisterQueryProvider registerRepo) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
-        this.registerRepository = registerRepo;
+        this.registerQueryProvider = registerRepo;
     }
 
     public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
@@ -102,12 +102,12 @@ public class ChildMetadata {
         }
     }
 
-    public RegisterRepository getRegisterRepository() {
-        return registerRepository;
+    public RegisterQueryProvider getRegisterQueryProvider() {
+        return registerQueryProvider;
     }
 
-    public void setRegisterRepository(RegisterRepository registerRepository) {
-        this.registerRepository = registerRepository;
+    public void setRegisterQueryProvider(RegisterQueryProvider registerQueryProvider) {
+        this.registerQueryProvider = registerQueryProvider;
     }
 }
 
