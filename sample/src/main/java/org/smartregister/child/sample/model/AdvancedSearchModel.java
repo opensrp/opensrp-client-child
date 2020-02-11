@@ -35,7 +35,7 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
 
 
     protected String[] mainColumns() {
-        return Utils.metadata().getRegisterRepository().getMainColumns();
+        return Utils.metadata().getRegisterQueryProvider().getMainColumns();
     }
 
     @Override

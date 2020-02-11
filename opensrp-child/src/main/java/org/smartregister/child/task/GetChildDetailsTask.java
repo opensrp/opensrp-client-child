@@ -57,8 +57,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         HashMap<String, String> rawDetailsMap = ChildLibrary.getInstance()
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        Utils.metadata().getRegisterRepository().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterRepository().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
+                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
 
         CommonPersonObject rawDetails = new CommonPersonObject(
                 rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),
