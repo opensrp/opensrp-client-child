@@ -3,45 +3,48 @@ package org.smartregister.child.repository;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.DBConstants;
+import org.smartregister.commonregistry.CommonFtsObject;
 
 public class RegisterRepository {
 
     public String getObjectIdsQuery(String mainCondition, String filters) {
-        if (!filters.isEmpty()) {
-            filters = String.format(" AND ec_client.phrase MATCH '*%s*'", filters);
+        if (StringUtils.isNotBlank(filters)) {
+            filters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
         if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
-            filters = String.format(" where ec_client.phrase MATCH '*%s*'", filters);
+            filters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
         if (!StringUtils.isBlank(mainCondition)) {
             mainCondition = " where " + mainCondition;
         }
 
-        return "select ec_client.object_id from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
+        return "select " + getDemographicTable() + ".object_id from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
+                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + mainCondition + filters;
     }
 
 
     public String getCountExecuteQuery(String mainCondition, String filters) {
-        if (!filters.isEmpty()) {
-            filters = String.format(" AND ec_client_search.phrase MATCH '*%s*'", filters);
+        if (StringUtils.isNotBlank(filters)) {
+            filters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
         if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
-            filters = String.format(" where ec_client_search.phrase MATCH '*%s*'", filters);
+            filters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
         if (!StringUtils.isBlank(mainCondition)) {
             mainCondition = " where " + mainCondition;
         }
 
-        return "select count(ec_client.object_id) from ec_client_search ec_client join ec_child_details on ec_client.object_id =  ec_child_details.id " + mainCondition + filters;
+        return "select count(" + getDemographicTable() + ".object_id) from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
+                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + mainCondition + filters;
     }
 
     public String mainRegisterQuery() {
         return "select " + StringUtils.join(getMainColumns(), ",") + " from " + getChildDetailsTable() + " " +
-                "join " + getMotherDetailsTable() + " on ec_child_details.relational_id = ec_mother_details.base_entity_id " +
-                "join " + getDemographicTable() + " on " + getDemographicTable() + ".base_entity_id = ec_child_details.base_entity_id " +
-                "join " + getDemographicTable() + " mother on mother.base_entity_id = ec_mother_details.base_entity_id";
+                "join " + getMotherDetailsTable() + " on " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "join " + getDemographicTable() + " on " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "join " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
     }
 
     public String[] getMainColumns() {
