@@ -170,8 +170,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     protected abstract String getMainCondition();
 
-    protected abstract String getDetailsCondition();
-
     @Override
     protected abstract String getDefaultSortQuery();
 
@@ -340,8 +338,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 return new CursorLoader(getActivity()) {
                     @Override
                     public Cursor loadInBackground() {
-                        // Count query
-                        // Select register query
                         String query = filterAndSortQuery();
                         return commonRepository().rawCustomQueryForAdapter(query);
                     }
@@ -452,7 +448,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
         @Override
         protected Pair<Integer, Integer> doInBackground(Void... params) {
-            int overdueCount = count(filterSelectionCondition(false));
+            int overdueCount = count(filterSelectionCondition(true));
 
             dueOverdueCount = count(filterSelectionCondition(false));
             return Pair.create(overdueCount, dueOverdueCount);

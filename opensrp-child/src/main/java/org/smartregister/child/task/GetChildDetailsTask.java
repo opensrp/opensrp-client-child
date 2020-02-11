@@ -12,7 +12,6 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -57,7 +56,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterRepository().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterRepository().getDemographicTable()+ ".id = '" + baseEntityId + "' limit 1").get(0);
+                                " where " + Utils.metadata().getRegisterRepository().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
 
         CommonPersonObject rawDetails = new CommonPersonObject(
                 rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),

@@ -8,36 +8,40 @@ import org.smartregister.commonregistry.CommonFtsObject;
 public class RegisterRepository {
 
     public String getObjectIdsQuery(String mainCondition, String filters) {
-        if (StringUtils.isNotBlank(filters)) {
-            filters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+        String strMainCondition = "";
+        String strFilters = "";
+        if (!filters.isEmpty()) {
+            strFilters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
         if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
-            filters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
         if (!StringUtils.isBlank(mainCondition)) {
-            mainCondition = " where " + mainCondition;
+            strMainCondition = " where " + mainCondition;
         }
 
         return "select " + getDemographicTable() + ".object_id from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
-                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + mainCondition + filters;
+                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + strMainCondition + strFilters;
     }
 
 
     public String getCountExecuteQuery(String mainCondition, String filters) {
-        if (StringUtils.isNotBlank(filters)) {
-            filters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+        String strMainCondition = "";
+        String strFilters = "";
+        if (!filters.isEmpty()) {
+            strFilters = String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
         if (StringUtils.isNotBlank(filters) && StringUtils.isBlank(mainCondition)) {
-            filters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
         if (!StringUtils.isBlank(mainCondition)) {
-            mainCondition = " where " + mainCondition;
+            strMainCondition = " where " + mainCondition;
         }
 
         return "select count(" + getDemographicTable() + ".object_id) from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
-                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + mainCondition + filters;
+                "join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " + strMainCondition + strFilters;
     }
 
     public String mainRegisterQuery() {

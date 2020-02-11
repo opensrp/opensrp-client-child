@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
