@@ -84,7 +84,7 @@ public class MotherLookUpUtils {
             return results;
         }
 
-        String tableName = Utils.metadata().childRegister.motherTableName;
+        String tableName = Utils.metadata().getRegisterRepository().getDemographicTable();
 
 
         List<String> ids = new ArrayList<>();
@@ -131,7 +131,7 @@ public class MotherLookUpUtils {
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterRepository().mainRegisterQuery()
-                                + " where ec_child_details.relational_id IN (" + relationalIds + ")");
+                                + " where "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+".relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
         }
@@ -150,7 +150,8 @@ public class MotherLookUpUtils {
                         Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
-        queryBuilder.customJoin(" join "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+" on "+Utils.metadata().getRegisterRepository().getChildDetailsTable()+".relational_id="+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+".base_entity_id join "+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+" on "+Utils.metadata().getRegisterRepository().getMotherDetailsTable()+".base_entity_id = ec_client.base_entity_id ");
+        queryBuilder.customJoin(" join " + Utils.metadata().getRegisterRepository().getChildDetailsTable() + " on " + Utils.metadata().getRegisterRepository().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
+                " join " + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterRepository().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterRepository().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
         return queryBuilder.Endquery(query);
     }
@@ -161,7 +162,7 @@ public class MotherLookUpUtils {
             CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
             commonPersonObject.setColumnmaps(child);
             String relationalID = getValue(commonPersonObject.getDetails(), RELATIONAL_ID, false);
-            if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
+            if (!foundChildren.contains(commonPersonObject) && relationalID.equals(motherBaseEnityId)) {
                 foundChildren.add(commonPersonObject);
             }
         }

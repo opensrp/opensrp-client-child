@@ -41,7 +41,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;

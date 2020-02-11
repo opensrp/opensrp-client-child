@@ -30,7 +30,6 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.enums.LocationHierarchy;
-import org.smartregister.child.repository.RegisterRepository;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
