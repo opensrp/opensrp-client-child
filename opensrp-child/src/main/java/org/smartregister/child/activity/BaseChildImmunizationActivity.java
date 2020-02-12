@@ -47,7 +47,6 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.child.util.VaccineCalculator;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -85,6 +84,7 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
+import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
@@ -990,11 +990,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccinesMapping) {
             if (vaccine.getType().equalsIgnoreCase("BCG")) {
-                Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
-                Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
-                if (dueDate != null && (expiryDate == null || expiryDate.after(Calendar.getInstance().getTime()))) {
+                boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
+                        ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
+                if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
                     showCheckBcgScarNotification(null);
                 }
+
+                break;
             }
         }
     }
