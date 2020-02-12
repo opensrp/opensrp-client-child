@@ -1,9 +1,11 @@
 package org.smartregister.child.fragment;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -316,6 +318,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
             boolean addedBcg2Vaccine = false;
             List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
+            TextView groupNameTextView;
             for (VaccineGroup vaccineGroup : supportedVaccines) {
 
                 if (!addedBcg2Vaccine) {
@@ -332,11 +335,29 @@ public class ChildUnderFiveFragment extends Fragment {
                     }
                 });
 
+                groupNameTextView = createGroupNameTextView(vaccineGroup.name);
+                vaccineGroupCanvasLL.addView(groupNameTextView);
+
                 vaccineGroupCanvasLL.addView(curGroup);
             }
 
             curVaccineMode = editVaccineMode;
         }
+    }
+
+    @NotNull
+    private TextView createGroupNameTextView(String rowGroupName) {
+        TextView groupNameTextView = new TextView(getActivity());
+        groupNameTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        TextViewCompat.setTextAppearance(groupNameTextView, android.R.style.TextAppearance_DeviceDefault_Medium);
+        groupNameTextView.setText(org.smartregister.child.util.Utils.localizeStateKey(getActivity(), rowGroupName));
+        groupNameTextView.setAllCaps(true);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        p.setMargins(0, 30, 0, 0);
+        groupNameTextView.setLayoutParams(p);
+        return groupNameTextView;
     }
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
@@ -387,6 +408,7 @@ public class ChildUnderFiveFragment extends Fragment {
             title.setTextColor(getResources().getColor(R.color.text_black));
             title.setText(getString(R.string.recurring));
             serviceGroupCanvasLL.addView(title);
+            TextView groupNameTextView;
 
             try {
                 for (String type : serviceTypeMap.keySet()) {
@@ -399,6 +421,8 @@ public class ChildUnderFiveFragment extends Fragment {
                         }
                     });
 
+                    groupNameTextView = createGroupNameTextView(type);
+                    serviceGroupCanvasLL.addView(groupNameTextView);
                     serviceGroupCanvasLL.addView(curGroup);
                 }
             } catch (Exception e) {

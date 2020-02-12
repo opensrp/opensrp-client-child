@@ -1166,7 +1166,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void startFormActivity(String formData) {
 
         Form formParam = new Form();
-        formParam.setWizard(false);
+        formParam.setWizard(true);
         formParam.setHideSaveLabel(true);
         formParam.setNextLabel("");
 

@@ -52,9 +52,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
 
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
-        CommonPersonObject rawDetails =
-                CoreLibrary.getInstance().context().commonrepository(Utils.metadata().childRegister.tableName)
-                        .findByBaseEntityId(baseEntityId);
+        CommonPersonObject rawDetails = CoreLibrary.getInstance().context().commonrepository(Utils.metadata().childRegister.tableName).findByBaseEntityId(baseEntityId);
         if (rawDetails != null) {
             // Get extra child details
             CommonPersonObjectClient childDetails = Utils.convert(rawDetails);

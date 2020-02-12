@@ -44,12 +44,18 @@ public class MotherLookUpSmartClientsProvider {
 
         Utils.fillValue((TextView) convertView.findViewById(R.id.name), childName);
 
-        String birthDateString = "Birthdate missing";
-        DateTime birthDateTime = dob(pc);
-        if (birthDateTime != null) {
-            birthDateString = dateFormat.format(birthDateTime.toDate());
-        }
+        String birthDateString = "Birthdate or contact phone number missing";
 
+        String contactPhoneNumber = pc.getColumnmaps().get(Constants.KEY.CONTACT_PHONE_NUMBER);//To do refactor for configurability
+        if (contactPhoneNumber == null) {
+
+            DateTime birthDateTime = dob(pc);
+            if (birthDateTime != null) {
+                birthDateString = dateFormat.format(birthDateTime.toDate());
+            }
+        } else {
+            birthDateString = contactPhoneNumber;
+        }
 
         String childListString = "";
         if (!childList.isEmpty()) {

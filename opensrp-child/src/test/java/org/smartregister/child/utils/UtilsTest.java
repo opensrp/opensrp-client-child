@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.robolectric.RuntimeEnvironment;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.BuildConfig;
@@ -39,6 +40,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 @PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
 public class UtilsTest extends BaseUnitTest {
@@ -310,4 +313,14 @@ public class UtilsTest extends BaseUnitTest {
         String raw = "099787762567";
         Assert.assertEquals(raw.substring(1), Utils.formatNumber(raw));
     }
+
+    @Test
+    public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
+
+        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
+
+        assertEquals("6 Weeks", localizedStateKey);
+
+    }
+
 }

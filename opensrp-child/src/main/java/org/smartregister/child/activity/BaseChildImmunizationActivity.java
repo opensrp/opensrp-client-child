@@ -2200,7 +2200,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 if (children != null) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
-                        if (!baseEntityId.equals(curChild.getCaseId())) {
+                        if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
                             baseEntityIds.add(curChild.getCaseId());
                         }
                     }

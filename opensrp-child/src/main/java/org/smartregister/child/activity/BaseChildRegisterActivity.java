@@ -116,8 +116,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         intent.putExtra(Constants.INTENT_KEY.JSON, jsonForm.toString());
 
         Form form = new Form();
-        form.setWizard(false);
-        form.setHideSaveLabel(true);
+        form.setWizard(true);
+        form.setHideSaveLabel(false);
         form.setNextLabel("");
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);

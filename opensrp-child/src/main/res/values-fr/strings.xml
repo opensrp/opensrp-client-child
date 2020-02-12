@@ -347,4 +347,5 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="str_page_info">Page {0} de {1}</string>
+    <string name="dismiss_lookup">Sauvegarder</string>
 </resources>

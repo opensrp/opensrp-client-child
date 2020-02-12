@@ -13,6 +13,7 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
@@ -109,9 +110,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = ReflectionHelpers.callInstanceMethod(vaccinationAsyncTask
-                , "localizeStateKey"
-                , ReflectionHelpers.ClassParameter.from(String.class, "6 WEEKS"));
+        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application,"6 WEEKS");
 
         assertEquals("6 Weeks", localizedStateKey);
 

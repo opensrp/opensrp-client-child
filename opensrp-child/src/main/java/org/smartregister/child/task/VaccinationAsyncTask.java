@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -46,7 +45,6 @@ import java.util.concurrent.TimeUnit;
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
-import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -296,14 +294,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
             recordVaccinationText
-                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
             recordVaccinationText
-                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
+                    .setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
             if (!upcomingLightBlueDisabled) {
                 recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
@@ -359,7 +357,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
                 }
             } else {
-                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + localizeStateKey(groupName));
+                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, groupName));
             }
 
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
@@ -406,27 +404,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             state = State.NO_ALERT;//fallback old behaviour
         }
         return state;
-    }
-
-    private String localizeStateKey(@NonNull String stateKey) {
-
-        String correctedStateKey = formatAtBirthKey(stateKey);
-
-        if (correctedStateKey.matches("^\\d.*\\n*")) {
-            correctedStateKey = "_" + correctedStateKey;
-        }
-
-        return translate(context, correctedStateKey);
-    }
-
-    @NotNull
-    private String formatAtBirthKey(@NonNull String stateKey) {
-        String correctedStateKey = stateKey.trim();
-
-        if (correctedStateKey.equalsIgnoreCase("birth")) {
-            correctedStateKey = "at_" + stateKey;
-        }
-        return correctedStateKey;
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
@@ -485,17 +462,17 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         String message;
         switch (state) {
             case DUE:
-                String due = stateKey != null ? context.getString(R.string.n_period_due, localizeStateKey(stateKey)) : context.getString(R.string.due);
-                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : due;
+                String due = stateKey != null ? context.getString(R.string.n_period_due, org.smartregister.child.util.Utils.localizeStateKey(context, stateKey)) : context.getString(R.string.due);
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, stateKey) : due;
                 break;
 
             case OVERDUE:
-                String overdue = stateKey != null ? context.getString(R.string.n_period_overdue, localizeStateKey(stateKey)) : context.getString(R.string.overdue);
-                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + localizeStateKey(stateKey) : overdue;
+                String overdue = stateKey != null ? context.getString(R.string.n_period_overdue, org.smartregister.child.util.Utils.localizeStateKey(context, stateKey)) : context.getString(R.string.overdue);
+                message = isLegacyAlerts ? context.getString(R.string.record_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, stateKey) : overdue;
                 break;
 
             case NO_ALERT:
-                message = isLegacyAlerts ? localizeStateKey(stateKey) : context.getString(R.string.done_today);
+                message = isLegacyAlerts ? org.smartregister.child.util.Utils.localizeStateKey(context, stateKey) : context.getString(R.string.done_today);
                 break;
 
             default:

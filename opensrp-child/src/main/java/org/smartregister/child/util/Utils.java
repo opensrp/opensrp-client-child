@@ -17,6 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
@@ -62,6 +63,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+
+import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -490,5 +493,26 @@ public class Utils extends org.smartregister.util.Utils {
     public static String getNextOpenMrsId() {
         UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
         return uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
+    }
+
+    public static String localizeStateKey(@NonNull android.content.Context context, @NonNull String stateKey) {
+
+        String correctedStateKey = formatAtBirthKey(stateKey);
+
+        if (correctedStateKey.matches("^\\d.*\\n*")) {
+            correctedStateKey = "_" + correctedStateKey;
+        }
+
+        return translate(context, correctedStateKey);
+    }
+
+    @NotNull
+    public static String formatAtBirthKey(@NonNull String stateKey) {
+        String correctedStateKey = stateKey.trim();
+
+        if (correctedStateKey.equalsIgnoreCase("birth")) {
+            correctedStateKey = "at_" + stateKey;
+        }
+        return correctedStateKey;
     }
 }
