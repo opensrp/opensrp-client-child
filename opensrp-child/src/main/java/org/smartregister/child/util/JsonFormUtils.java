@@ -726,6 +726,16 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
+            for (Obs obs : baseEvent.getObs()) {
+                if (obs != null && "mother_hiv_status".equals(obs.getFormSubmissionField())) {
+                    List<Object> values = obs.getValues();
+
+                    if (values != null && values.size() == 1 && values.get(0) == null) {
+                        obs.setValues(new ArrayList<Object>());
+                    }
+                }
+            }
+
             JsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
 
             return new ChildEventClient(baseClient, baseEvent);
