@@ -83,9 +83,6 @@ public class SampleApplication extends DrishtiApplication {
         if (tableName.equals(DBConstants.RegisterTable.CHILD_DETAILS)) {
             List<VaccineGroup> vaccineList = VaccinatorUtils.getVaccineGroupsFromVaccineConfigFile(context, VaccinatorUtils.vaccines_file);
             List<String> names = new ArrayList<>();
-            names.add(DBConstants.KEY.INACTIVE);
-            names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
-
             for (VaccineGroup vaccineGroup : vaccineList) {
                 populateAlertColumnNames(vaccineGroup.vaccines, names);
             }
