@@ -106,6 +106,7 @@ public final class Constants extends AllConstants {
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
+        public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
     }
 
     public static final class INTENT_KEY {

@@ -316,6 +316,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
             boolean addedBcg2Vaccine = false;
             List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
+            TextView groupNameTextView;
             for (VaccineGroup vaccineGroup : supportedVaccines) {
 
                 if (!addedBcg2Vaccine) {
@@ -331,6 +332,9 @@ public class ChildUnderFiveFragment extends Fragment {
 
                     }
                 });
+
+                groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), vaccineGroup.name);
+                vaccineGroupCanvasLL.addView(groupNameTextView);
 
                 vaccineGroupCanvasLL.addView(curGroup);
             }
@@ -387,6 +391,7 @@ public class ChildUnderFiveFragment extends Fragment {
             title.setTextColor(getResources().getColor(R.color.text_black));
             title.setText(getString(R.string.recurring));
             serviceGroupCanvasLL.addView(title);
+            TextView groupNameTextView;
 
             try {
                 for (String type : serviceTypeMap.keySet()) {
@@ -399,6 +404,8 @@ public class ChildUnderFiveFragment extends Fragment {
                         }
                     });
 
+                    groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), type);
+                    serviceGroupCanvasLL.addView(groupNameTextView);
                     serviceGroupCanvasLL.addView(curGroup);
                 }
             } catch (Exception e) {

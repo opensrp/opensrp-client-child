@@ -1539,7 +1539,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         Form formParam = new Form();
         // formParam.setName("Rules engine demo");
-        formParam.setWizard(false);
+        formParam.setWizard(true);
         formParam.setHideSaveLabel(true);
         formParam.setNextLabel("");
 

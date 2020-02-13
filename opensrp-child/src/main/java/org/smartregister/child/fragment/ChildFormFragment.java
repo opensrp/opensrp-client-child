@@ -1,5 +1,6 @@
 package org.smartregister.child.fragment;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -343,6 +344,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         textView.setCompoundDrawablePadding(paddingInt);
         textView.setPadding(paddingInt, 0, 0, 0);
         textView.setTextColor(getResources().getColor(R.color.white));
+        textView.setAllCaps(true);
+        textView.setTypeface(Typeface.DEFAULT_BOLD);
 
         snackbarView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -454,7 +457,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setDuration(undoChoiceDuration);
-        snackbar.setAction(R.string.dismiss, new View.OnClickListener() {
+        snackbar.setAction(R.string.dismiss_lookup, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

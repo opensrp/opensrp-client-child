@@ -3,11 +3,14 @@ package org.smartregister.child.util;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.TextViewCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -17,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
@@ -62,6 +66,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+
+import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -490,5 +496,41 @@ public class Utils extends org.smartregister.util.Utils {
     public static String getNextOpenMrsId() {
         UniqueIdRepository uniqueIdRepo = ChildLibrary.getInstance().getUniqueIdRepository();
         return uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
+    }
+
+    public static String localizeStateKey(@NonNull android.content.Context context, @NonNull String stateKey) {
+
+        String correctedStateKey = formatAtBirthKey(stateKey);
+
+        if (correctedStateKey.matches("^\\d.*\\n*")) {
+            correctedStateKey = "_" + correctedStateKey;
+        }
+
+        return translate(context, correctedStateKey);
+    }
+
+    @NotNull
+    public static String formatAtBirthKey(@NonNull String stateKey) {
+        String correctedStateKey = stateKey.trim();
+
+        if (correctedStateKey.equalsIgnoreCase("birth")) {
+            correctedStateKey = "at_" + stateKey;
+        }
+        return correctedStateKey;
+    }
+
+    @NotNull
+    public static TextView createGroupNameTextView(android.content.Context context, String rowGroupName) {
+        TextView groupNameTextView = new TextView(context);
+        groupNameTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        TextViewCompat.setTextAppearance(groupNameTextView, android.R.style.TextAppearance_DeviceDefault_Medium);
+        groupNameTextView.setText(Utils.localizeStateKey(context, rowGroupName));
+        groupNameTextView.setAllCaps(true);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        p.setMargins(0, 30, 0, 0);
+        groupNameTextView.setLayoutParams(p);
+        return groupNameTextView;
     }
 }

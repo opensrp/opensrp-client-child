@@ -1,5 +1,8 @@
 package org.smartregister.child.utils;
 
+import android.graphics.Typeface;
+import android.widget.TextView;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.joda.time.DateTime;
@@ -15,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.robolectric.RuntimeEnvironment;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.BuildConfig;
@@ -310,4 +314,25 @@ public class UtilsTest extends BaseUnitTest {
         String raw = "099787762567";
         Assert.assertEquals(raw.substring(1), Utils.formatNumber(raw));
     }
+
+    @Test
+    public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
+
+        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
+
+        Assert.assertEquals("6 Weeks", localizedStateKey);
+
+    }
+
+    @Test
+    public void testCreateGroupNameTextViewCreatesTextViewCorrectly() {
+
+        TextView textView = Utils.createGroupNameTextView(RuntimeEnvironment.application, "14 weeks");
+
+        Assert.assertNotNull(textView);
+        Assert.assertEquals(Typeface.DEFAULT_BOLD, textView.getTypeface());
+        Assert.assertEquals("14 Weeks", textView.getText());
+
+    }
+
 }

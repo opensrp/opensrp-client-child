@@ -296,7 +296,7 @@
     <string name="vaccine_group_birth_name" translatable="false">Birth</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>
     <string name="tap_to_view">Tap to See</string>
-    <string name="undo_lookup">Undo Lookup.</string>
+    <string name="undo_lookup">Undo Lookup</string>
     <string name="mother_guardian_matches">%1$d Results Found Mother/Guardian.</string>
     <string name="neutral_sex_id">his or her</string>
     <string name="date_first_seen">Date First Seen</string>
@@ -351,5 +351,6 @@
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">"B/o %1$s</string>
     <string name="str_page_info">Page {0} of {1}</string>
+    <string name="dismiss_lookup">Confirm</string>
 
 </resources>
