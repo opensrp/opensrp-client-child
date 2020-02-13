@@ -580,7 +580,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), providerId, CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                 }
 
 
