@@ -1,5 +1,8 @@
 package org.smartregister.child.utils;
 
+import android.graphics.Typeface;
+import android.widget.TextView;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.joda.time.DateTime;
@@ -320,6 +323,17 @@ public class UtilsTest extends BaseUnitTest {
         String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
 
         assertEquals("6 Weeks", localizedStateKey);
+
+    }
+
+    @Test
+    public void testCreateGroupNameTextViewCreatesTextViewCorrectly() {
+
+        TextView textView = Utils.createGroupNameTextView(RuntimeEnvironment.application, "14 weeks");
+
+        Assert.assertNotNull(textView);
+        Assert.assertEquals(Typeface.DEFAULT_BOLD, textView.getTypeface());
+        Assert.assertEquals("14 Weeks", textView.getText());
 
     }
 

@@ -3,11 +3,14 @@ package org.smartregister.child.util;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.TextViewCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -514,5 +517,20 @@ public class Utils extends org.smartregister.util.Utils {
             correctedStateKey = "at_" + stateKey;
         }
         return correctedStateKey;
+    }
+
+    @NotNull
+    public static TextView createGroupNameTextView(android.content.Context context, String rowGroupName) {
+        TextView groupNameTextView = new TextView(context);
+        groupNameTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        TextViewCompat.setTextAppearance(groupNameTextView, android.R.style.TextAppearance_DeviceDefault_Medium);
+        groupNameTextView.setText(org.smartregister.child.util.Utils.localizeStateKey(context, rowGroupName));
+        groupNameTextView.setAllCaps(true);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        p.setMargins(0, 30, 0, 0);
+        groupNameTextView.setLayoutParams(p);
+        return groupNameTextView;
     }
 }

@@ -1,11 +1,9 @@
 package org.smartregister.child.fragment;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -335,7 +333,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     }
                 });
 
-                groupNameTextView = createGroupNameTextView(vaccineGroup.name);
+                groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), vaccineGroup.name);
                 vaccineGroupCanvasLL.addView(groupNameTextView);
 
                 vaccineGroupCanvasLL.addView(curGroup);
@@ -343,21 +341,6 @@ public class ChildUnderFiveFragment extends Fragment {
 
             curVaccineMode = editVaccineMode;
         }
-    }
-
-    @NotNull
-    private TextView createGroupNameTextView(String rowGroupName) {
-        TextView groupNameTextView = new TextView(getActivity());
-        groupNameTextView.setTypeface(Typeface.DEFAULT_BOLD);
-        TextViewCompat.setTextAppearance(groupNameTextView, android.R.style.TextAppearance_DeviceDefault_Medium);
-        groupNameTextView.setText(org.smartregister.child.util.Utils.localizeStateKey(getActivity(), rowGroupName));
-        groupNameTextView.setAllCaps(true);
-
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        p.setMargins(0, 30, 0, 0);
-        groupNameTextView.setLayoutParams(p);
-        return groupNameTextView;
     }
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
@@ -421,7 +404,7 @@ public class ChildUnderFiveFragment extends Fragment {
                         }
                     });
 
-                    groupNameTextView = createGroupNameTextView(type);
+                    groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), type);
                     serviceGroupCanvasLL.addView(groupNameTextView);
                     serviceGroupCanvasLL.addView(curGroup);
                 }
