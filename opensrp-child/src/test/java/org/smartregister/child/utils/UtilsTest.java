@@ -44,8 +44,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
 @PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
 public class UtilsTest extends BaseUnitTest {
 
@@ -322,7 +320,7 @@ public class UtilsTest extends BaseUnitTest {
 
         String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
 
-        assertEquals("6 Weeks", localizedStateKey);
+        Assert.assertEquals("6 Weeks", localizedStateKey);
 
     }
 

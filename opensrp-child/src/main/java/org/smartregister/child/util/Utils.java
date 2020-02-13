@@ -524,7 +524,7 @@ public class Utils extends org.smartregister.util.Utils {
         TextView groupNameTextView = new TextView(context);
         groupNameTextView.setTypeface(Typeface.DEFAULT_BOLD);
         TextViewCompat.setTextAppearance(groupNameTextView, android.R.style.TextAppearance_DeviceDefault_Medium);
-        groupNameTextView.setText(org.smartregister.child.util.Utils.localizeStateKey(context, rowGroupName));
+        groupNameTextView.setText(Utils.localizeStateKey(context, rowGroupName));
         groupNameTextView.setAllCaps(true);
 
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
