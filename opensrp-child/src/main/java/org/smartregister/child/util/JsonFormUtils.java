@@ -720,7 +720,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
-            for (int i = baseEvent.getObs().size() - 1 ; i > 0; i--) {
+            for (int i = baseEvent.getObs().size() - 1 ; i > -1; i--) {
                 Obs obs =  baseEvent.getObs().get(i);
                 if (obs != null && "mother_hiv_status".equals(obs.getFormSubmissionField())) {
                     List<Object> values = obs.getValues();
