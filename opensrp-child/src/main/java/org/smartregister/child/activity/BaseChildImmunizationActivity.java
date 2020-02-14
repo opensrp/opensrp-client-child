@@ -91,7 +91,6 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
@@ -856,7 +855,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(name);
         vaccine.setDate(date);
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        vaccine.setLocationId(Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -1093,7 +1092,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
 
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
                 JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
@@ -1648,7 +1647,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+        String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
