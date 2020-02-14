@@ -731,7 +731,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     List<Object> values = obs.getValues();
 
                     if (values != null && values.size() == 1 && values.get(0) == null) {
-                        obs.setValues(new ArrayList<Object>());
+                        baseEvent.getObs().remove(obs);
                     }
                 }
             }
