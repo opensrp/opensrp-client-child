@@ -96,8 +96,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String BCG_SCAR_EVENT = "Bcg Scar";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
     public static final String GENDER = "gender";
-    private static final String ENCOUNTER = "encounter";
     public static final String M_ZEIR_ID = "M_ZEIR_ID";
+    private static final String ENCOUNTER = "encounter";
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
@@ -352,31 +352,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return curQuestion;
     }
 
-    @NotNull
-    private static ArrayList<String> getLocationLevels() {
+    @NonNull
+    public static ArrayList<String> getLocationLevels() {
         ArrayList<String> allLevels = new ArrayList<>();
         allLevels.add("Country");
         allLevels.add("Province");
         allLevels.add("District");
-        allLevels.add("Commune");
-        allLevels.add("Department");
-        allLevels.add("Health Facility");
-        allLevels.add("Zone");
-        allLevels.add("Residential Area");
         allLevels.add("Facility");
+        allLevels.add("Village");
         return allLevels;
     }
 
-    @NotNull
-    private static ArrayList<String> getHealthFacilityLevels() {
+    @NonNull
+    public static ArrayList<String> getHealthFacilityLevels() {
         ArrayList<String> healthFacilities = new ArrayList<>();
         healthFacilities.add("Country");
         healthFacilities.add("Province");
         healthFacilities.add("District");
-        healthFacilities.add("Commune");
-        healthFacilities.add("Department");
         healthFacilities.add("Health Facility");
-        healthFacilities.add("Facility");
+        healthFacilities.add("Village");
         return healthFacilities;
     }
 
@@ -726,7 +720,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
-            for (Obs obs : baseEvent.getObs()) {
+            for (int i = baseEvent.getObs().size() - 1 ; i > 0; i--) {
+                Obs obs =  baseEvent.getObs().get(i);
                 if (obs != null && "mother_hiv_status".equals(obs.getFormSubmissionField())) {
                     List<Object> values = obs.getValues();
 
