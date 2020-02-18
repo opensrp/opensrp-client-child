@@ -135,6 +135,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private ChildUnderFiveFragment childUnderFiveFragment;
     private File currentFile;
     private String locationId = "";
+    private String providerId = "";
     private ImageView profileImageIV;
     private boolean monitorGrowth = false;
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
@@ -574,7 +575,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
+
+                    providerId = allSharedPreferences.fetchRegisteredANM();
+                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), providerId, CoreLibrary.getInstance().context().getEventClientRepository()), null);
+
                 }
 
 
