@@ -145,7 +145,10 @@ public class MotherLookUpUtils {
         SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
         queryBuilder.SelectInitiateMainTable(tableName,
                 new String[]{Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
-                        AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
+                        Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + AllConstants.ChildRegistrationFields.GENDER,
+                        Constants.KEY.DOB,
+                        NRC_NUMBER,
+                        CONTACT_PHONE_NUMBER,
                         Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
 
         );
