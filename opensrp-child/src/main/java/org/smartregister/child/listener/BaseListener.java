@@ -3,9 +3,11 @@ package org.smartregister.child.listener;
 import android.app.Activity;
 import android.util.Log;
 
+import org.smartregister.AllConstants;
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.Utils;
 import org.smartregister.location.helper.LocationHelper;
 
 import static org.smartregister.child.util.JsonFormUtils.REQUEST_CODE_GET_JSON;
@@ -33,10 +35,7 @@ public class BaseListener {
     protected void startJsonForm(String formName, String entityId) {
         try {
             String locationId = null;
-            if (toolbar instanceof LocationSwitcherToolbar) {
-                LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
-            }
+            locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
             JsonFormUtils.startForm(context, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
 
         } catch (Exception e) {
