@@ -1700,7 +1700,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         //Add the base_entity_id
         contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
         db.getWritableDatabase()
-                .update(Utils.metadata().getRegisterQueryProvider().getDemographicTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
+                .update(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
                         new String[]{childDetails.entityId()});
 
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();

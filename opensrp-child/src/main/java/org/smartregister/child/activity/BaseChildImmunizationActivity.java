@@ -211,6 +211,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                                 Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                         " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
+
+                Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+                Utils.putAll(details, detailsMap);
+
                 childDetails.setColumnmaps(details);
                 childDetails.setDetails(details);
             }
@@ -391,9 +396,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         });
 
         // TODO: update all views using child data
-
-
-        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(childDetails.getDetails()));
+        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
 
         isChildActive = isActiveStatus(childDetails);
 
