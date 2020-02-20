@@ -155,6 +155,10 @@ public class MotherLookUpUtils {
         queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
                 " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
+
+        // Make the id distinct
+        query = query.replace("ec_client.id as _id", "distinct(ec_client.id) as _id");
+
         return queryBuilder.Endquery(query);
     }
 
