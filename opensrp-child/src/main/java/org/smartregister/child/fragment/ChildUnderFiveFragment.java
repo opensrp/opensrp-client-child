@@ -46,6 +46,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
@@ -205,7 +206,7 @@ public class ChildUnderFiveFragment extends Fragment {
             weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
 
             boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
-            weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
+            weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0") && weight.getSyncStatus().equals(BaseRepository.TYPE_Unsynced));
 
             final long weightTaken = weight.getDate().getTime();
             View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -244,7 +245,7 @@ public class ChildUnderFiveFragment extends Fragment {
             heightMap.put(height.getId() - 1, Pair.create(formattedAge, Utils.cmStringSuffix(height.getCm())));
 
             boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
-            heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
+            heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0") && height.getSyncStatus().equals(BaseRepository.TYPE_Unsynced));
 
             final long heightTaken = height.getDate().getTime();
             View.OnClickListener onClickListener = new View.OnClickListener() {
