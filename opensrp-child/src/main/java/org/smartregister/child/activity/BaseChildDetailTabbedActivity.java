@@ -909,7 +909,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
-        if (weightWrapper != null) {
+        if (weightWrapper != null && (weightWrapper.getWeight() != null)) {
             WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
             if (weightWrapper.getDbKey() != null) {
@@ -945,7 +945,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void updateHeightWrapper(HeightWrapper heightWrapper) {
-        if (heightWrapper != null) {
+        if (heightWrapper != null && (heightWrapper.getHeight() != null)) {
             HeightRepository heightRepository = GrowthMonitoringLibrary.getInstance().heightRepository();
             Height height = new Height();
             if (heightWrapper.getDbKey() != null) {

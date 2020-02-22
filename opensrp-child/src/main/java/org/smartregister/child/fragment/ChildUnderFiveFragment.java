@@ -153,11 +153,12 @@ public class ChildUnderFiveFragment extends Fragment {
 
             // Sort the heights
             sortTheHeightsInDescendingOrder(heightList);
+            ArrayList<View.OnClickListener> heightListeners = new ArrayList<>();
 
             LinkedHashMap<Long, Pair<String, String>> heightMap =
-                    updateHeightMap(editMode, heightEditMode, listeners, heightList);
+                    updateHeightMap(editMode, heightEditMode, heightListeners, heightList);
             if (heightMap.size() > 0) {
-                widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, listeners, heightEditMode);
+                widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, heightListeners, heightEditMode);
             }
         }
 
@@ -206,11 +207,11 @@ public class ChildUnderFiveFragment extends Fragment {
             boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
             weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
-            final long weightTaken = weight.getId();
+            final long weightTaken = weight.getDate().getTime();
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showGrowthMonitoringDialog((int) weightTaken);
+                    showGrowthMonitoringDialog(weightTaken);
                 }
             };
             listeners.add(onClickListener);
@@ -245,11 +246,11 @@ public class ChildUnderFiveFragment extends Fragment {
             boolean lessThanThreeMonthsEventCreated = HeightUtils.lessThanThreeMonths(height);
             heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
-            final long heightTaken = height.getId();
+            final long heightTaken = height.getDate().getTime();
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showGrowthMonitoringDialog((int) heightTaken);
+                    showGrowthMonitoringDialog(heightTaken);
                 }
             };
             listeners.add(onClickListener);
@@ -467,7 +468,7 @@ public class ChildUnderFiveFragment extends Fragment {
         serviceEditDialogFragment.show(transaction, DIALOG_TAG);
     }
 
-    public void showGrowthMonitoringDialog(int growthRecordPosition) {
+    public void showGrowthMonitoringDialog(long growthRecordPosition) {
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -512,7 +513,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     @NotNull
-    private WeightWrapper getWeightWrapper(int weightPosition, String childName, String gender, String openSrpId,
+    private WeightWrapper getWeightWrapper(long weightPosition, String childName, String gender, String openSrpId,
                                            String duration, Photo photo) {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
@@ -537,10 +538,10 @@ public class ChildUnderFiveFragment extends Fragment {
         return weightWrapper;
     }
 
-    private Weight getWeight(List<Weight> weights, int weightPosition) {
+    private Weight getWeight(List<Weight> weights, long weightPosition) {
         Weight displayWeight = new Weight();
         for (Weight weight : weights) {
-            if (weight.getId().equals((long) weightPosition)) {
+            if (weight.getDate().getTime() == weightPosition) {
                 displayWeight = weight;
             }
         }
@@ -549,7 +550,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     @NotNull
-    private HeightWrapper getHeightWrapper(int heightPosition, String childName, String gender, String openSrpId,
+    private HeightWrapper getHeightWrapper(long heightPosition, String childName, String gender, String openSrpId,
                                            String duration, Photo photo) {
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setId(childDetails.entityId());
@@ -574,10 +575,10 @@ public class ChildUnderFiveFragment extends Fragment {
         return heightWrapper;
     }
 
-    private Height getHeight(List<Height> heights, int heightPosition) {
+    private Height getHeight(List<Height> heights, long heightPosition) {
         Height displayHeight = new Height();
         for (Height height : heights) {
-            if (height.getId().equals((long) heightPosition)) {
+            if (height.getDate().getTime() == heightPosition) {
                 displayHeight = height;
             }
         }
