@@ -20,12 +20,15 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Child;
 import org.smartregister.domain.SyncStatus;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
@@ -40,7 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class})
+@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class, ChildLibrary.class})
 @RunWith(PowerMockRunner.class)
 public class BaseChildImmunizationActivityTest {
 
@@ -51,6 +54,9 @@ public class BaseChildImmunizationActivityTest {
 
     @Mock
     private LocationHelper locationHelper;
+
+    @Mock
+    private ChildLibrary childLibrary;
 
     @Mock
     private CoreLibrary coreLibrary;
@@ -186,13 +192,17 @@ public class BaseChildImmunizationActivityTest {
     @After
     public void tearDown() {
         baseChildImmunizationActivity = new TestChildImmunizationActivity();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
     private void testInitHelper() {
         PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.mockStatic(CoreLibrary.class);
+        PowerMockito.mockStatic(ChildLibrary.class);
         PowerMockito.when(coreLibrary.context()).thenReturn(context);
+        PowerMockito.when(childLibrary.context()).thenReturn(context);
         PowerMockito.when(CoreLibrary.getInstance()).thenReturn(coreLibrary);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(toolbar.getCurrentLocation()).thenReturn("LocationId");
         Whitebox.setInternalState(baseChildImmunizationActivity, "toolbar", toolbar);
