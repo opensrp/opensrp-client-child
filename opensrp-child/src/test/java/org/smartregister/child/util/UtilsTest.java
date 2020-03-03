@@ -9,22 +9,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.jsonmapping.Expiry;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.util.AssetHandler;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 @RunWith(PowerMockRunner.class)
