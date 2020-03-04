@@ -90,7 +90,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             HashMap<String, String> rawMotherDetails = ChildLibrary.getInstance()
                     .eventClientRepository()
                     .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            RegisterRepository.mainRegisterQuery() +
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                     " where " + Utils.metadata().childRegister.motherTableName + ".id = '" + baseEntityId + "' limit 1").get(0);
 
             if (rawMotherDetails != null) {

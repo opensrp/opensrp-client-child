@@ -16,9 +16,9 @@ public class ShadowAssetHandler {
 
     @Implementation
     public static String readFileFromAssetsFolder(String fileName, Context context) {
-        if (fileName.equals("special_vaccines.json")) {
+        if ("special_vaccines.json".equals(fileName)) {
             return VaccineData.SPECIAL_VACCINES_JSON;
-        } else if (fileName.equals("vaccines.json")) {
+        } else if ("vaccines.json".equals(fileName)) {
             return VaccineData.VACCINES_JSON;
         }
 

@@ -28,7 +28,6 @@ import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.domain.Child;
 import org.smartregister.domain.SyncStatus;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
