@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -101,8 +100,6 @@ import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1340,22 +1337,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } catch (Exception e) {
             Timber.e(e);
         }
-    }
-
-    private String readAssetContents(String path) {
-        String fileContents = null;
-        try {
-            InputStream is = getAssets().open(path);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            fileContents = new String(buffer, CharEncoding.UTF_8);
-        } catch (IOException ex) {
-            Timber.e(ex);
-        }
-
-        return fileContents;
     }
 
     @Override
