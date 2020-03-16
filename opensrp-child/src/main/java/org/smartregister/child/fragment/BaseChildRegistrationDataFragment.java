@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +46,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected View fragmentView;
     private ChildRegistrationDataAdapter mAdapter;
     private List<Field> fields;
-    private Map<String, Integer> stringResourceIds;
+    private Map<String, String> stringResourceIds;
     private List<String> unformattedNumberFields;
 
     public ChildRegistrationDataAdapter getmAdapter() {
@@ -73,6 +74,31 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         stringResourceIds = getDataRowLabelResourceIds();
     }
 
+    private boolean monitorGrowth = false;
+    /*
+     * The map is such that key is the key defined in the registration form json while the value is the strings resource id
+     * e.g. Key "First_Name" and Value "R.string.first_name"
+     *
+     * At runtime, the correct language string will be loaded
+     *
+     * Values will only show up if you add them here
+     */
+
+
+    protected Map<String, String> getDataRowLabelResourceIds() {
+
+        Map<String, String> resourceIds = new HashMap<>();
+
+        for (Field field : fields) {
+
+            if (field.getHint() != null && !field.getHint().isEmpty()) {
+                resourceIds.put(field.getKey(), field.getHint());
+            }
+
+        }
+        return resourceIds;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (this.getArguments() != null) {
@@ -95,8 +121,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             return null;
         }
     }
-
-    protected abstract Map<String, Integer> getDataRowLabelResourceIds();
 
     protected abstract String getRegistrationForm();
 
@@ -147,8 +171,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     public String cleanLabel(String raw) {
         String label = null;
         if (stringResourceIds != null && stringResourceIds.size() > 0) {
-            Integer resourceId = stringResourceIds.get(raw);
-            label = resourceId != null ? getResources().getString(resourceId) : null;
+            label = stringResourceIds.get(raw);
         }
 
         return label;

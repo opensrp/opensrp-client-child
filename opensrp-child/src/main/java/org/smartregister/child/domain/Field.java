@@ -17,6 +17,8 @@ public class Field {
 
     private List<String> values;
 
+    private String hint;
+    
     @SerializedName("entity_id")
     private String entityId;
 
@@ -53,5 +55,12 @@ public class Field {
 
     public List<String> getValues() {
         return values;
+    }
+    public String getHint() {
+        return hint;
+    }
+
+    public void setHint(String hint) {
+        this.hint = hint;
     }
 }
