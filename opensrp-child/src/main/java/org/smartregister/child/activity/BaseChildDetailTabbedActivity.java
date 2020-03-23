@@ -58,6 +58,7 @@ import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DbUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -739,15 +740,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
-            detailsMap = JsonFormUtils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
+            DbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "Permission callback called-------");
+        Timber.d("Permission callback called-------");
 
         if (grantResults.length == 0) {
             return;

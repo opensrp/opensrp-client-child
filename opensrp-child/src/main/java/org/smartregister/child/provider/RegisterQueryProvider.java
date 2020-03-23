@@ -55,18 +55,20 @@ public class RegisterQueryProvider {
     }
 
     public String mainRegisterQuery() {
-        return "select " + StringUtils.join(getMainColumns(), ",") + " from " + getChildDetailsTable() + " " +
+        return "select " + StringUtils.join(mainColumns(), ",") + " from " + getChildDetailsTable() + " " +
                 "join " + getMotherDetailsTable() + " on " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
                 "join " + getDemographicTable() + " on " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
                 "join " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
     }
 
-    public String[] getMainColumns() {
+    public String[] mainColumns() {
         return new String[]{
                 getDemographicTable() + "." + Constants.KEY.ID + " as _id",
                 getDemographicTable() + "." + Constants.KEY.RELATIONALID,
                 getDemographicTable() + "." + Constants.KEY.ZEIR_ID,
                 getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID,
+//                getChildDetailsTable() + "." + Constants.SHOW_BCG_SCAR,
+//                getChildDetailsTable() + "." + Constants.SHOW_BCG2_REMINDER,
                 getDemographicTable() + "." + Constants.KEY.GENDER,
                 getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID,
                 getDemographicTable() + "." + Constants.KEY.FIRST_NAME,
@@ -84,6 +86,8 @@ public class RegisterQueryProvider {
                 getChildDetailsTable() + "." + Constants.KEY.INACTIVE,
                 getChildDetailsTable() + "." + Constants.KEY.LOST_TO_FOLLOW_UP,
                 getChildDetailsTable() + "." + Constants.KEY.CONTACT_PHONE_NUMBER
+//                getDemographicTable() + "." + Constants.KEY.VILLAGE,
+//                getDemographicTable() + "." + Constants.KEY.HOME_ADDRESS
         };
     }
 

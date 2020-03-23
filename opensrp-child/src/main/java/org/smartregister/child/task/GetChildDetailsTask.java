@@ -8,21 +8,21 @@ import android.widget.TextView;
 
 import org.opensrp.api.constants.Gender;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DbUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.immunization.util.ImageUtils;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -30,16 +30,13 @@ import java.util.HashMap;
 public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjectClient> {
     private final String baseEntityId;
     private final BaseActivity baseActivity;
-    private final DetailsRepository detailsRepository;
     private final View itemView;
 
     private ImageView profilePhoto;
     private TextView initials;
 
-    public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId, DetailsRepository detailsRepository,
-                               View itemView) {
+    public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId, View itemView) {
         this.baseActivity = baseActivity;
-        this.detailsRepository = detailsRepository;
         this.baseEntityId = baseEntityId;
         this.itemView = itemView;
         init();
@@ -52,11 +49,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
 
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
-        HashMap<String, String> rawDetailsMap = ChildLibrary.getInstance()
-                .eventClientRepository()
-                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
+        HashMap<String, String> rawDetailsMap = DbUtils.fetchChildDetails(baseEntityId);
 
         CommonPersonObject rawDetails = new CommonPersonObject(
                 rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),
@@ -65,7 +58,8 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         rawDetails.setColumnmaps(rawDetailsMap);
         // Get extra child details
         CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
-        Utils.putAll(childDetails.getColumnmaps(), detailsRepository.getAllDetailsForClient(baseEntityId));
+        //TODO use ec_child_details table
+//        Utils.putAll(childDetails.getColumnmaps(), detailsRepository.getAllDetailsForClient(baseEntityId));
         // Check if child has a profile pic
         ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
 
@@ -73,6 +67,32 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         if (profileImage == null) {
             childDetails.getColumnmaps().put("has_profile_image", "false");
         }
+
+        // Get mother details
+        String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
+
+        Map<String, String> motherDetails = new HashMap<>();
+        motherDetails.put("mother_first_name", "");
+        motherDetails.put("mother_last_name", "");
+        motherDetails.put("mother_dob", "");
+        motherDetails.put("mother_nrc_number", "");
+        if (!TextUtils.isEmpty(motherBaseEntityId)) {
+            CommonPersonObject rawMotherDetails =
+                    CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable())
+                            .findByBaseEntityId(motherBaseEntityId);
+            if (rawMotherDetails != null) {
+                motherDetails
+                        .put("mother_first_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
+                motherDetails
+                        .put("mother_last_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
+                motherDetails.put("mother_dob", Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
+                motherDetails
+                        .put("mother_nrc_number", Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
+            }
+        }
+        Utils.putAll(childDetails.getColumnmaps(), motherDetails);
+        childDetails.setDetails(childDetails.getColumnmaps());
+
         return childDetails;
 
     }

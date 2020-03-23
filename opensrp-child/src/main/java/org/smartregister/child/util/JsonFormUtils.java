@@ -49,7 +49,6 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -720,8 +719,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
-            for (int i = baseEvent.getObs().size() - 1 ; i > -1; i--) {
-                Obs obs =  baseEvent.getObs().get(i);
+            for (int i = baseEvent.getObs().size() - 1; i > -1; i--) {
+                Obs obs = baseEvent.getObs().get(i);
+
                 if (obs != null && "mother_hiv_status".equals(obs.getFormSubmissionField())) {
                     List<Object> values = obs.getValues();
 
@@ -1451,36 +1451,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
         }
     }
-/*
-    private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
-
-
-        // To Do publish Vaccine Saved Event or Update Reports, process reporting updates on the implementing up
-
-
-        try {
-            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
-            if (cumulativePatientRepository == null) {
-                return;
-            }
-
-            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
-            if (cumulativePatient == null) {
-                cumulativePatient = new CumulativePatient();
-                cumulativePatient.setBaseEntityId(baseEntityId);
-                cumulativePatientRepository.add(cumulativePatient);
-            }
-
-            List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
-            if (!inValidVaccines.contains(vaccineName)) {
-                inValidVaccines.add(vaccineName);
-                cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
-            }
-        } catch (Exception e) {
-            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
-        }
-    }
-    */
 
     private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
         //Create move to catchment event;
@@ -1694,14 +1664,16 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         db.addorUpdateClient(childDetails.entityId(), client);
 
 
-        DetailsRepository detailsRepository = openSRPContext.detailsRepository();
-        detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
+//        DetailsRepository detailsRepository = openSRPContext.detailsRepository();
+//        detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
         ContentValues contentValues = new ContentValues();
         //Add the base_entity_id
         contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-        db.getWritableDatabase()
-                .update(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
-                        new String[]{childDetails.entityId()});
+
+        DbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
+//        db.getWritableDatabase()
+//                .update(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + "=?",
+//                        new String[]{childDetails.entityId()});
 
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
         String locationName = allSharedPreferences.fetchCurrentLocality();
@@ -1717,7 +1689,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
 
         //update details
-        Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        Map<String, String> detailsMap = DbUtils.fetchChildDetails(childDetails.entityId());
         if (childDetails.getColumnmaps().containsKey(attributeName)) {
             childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
         }

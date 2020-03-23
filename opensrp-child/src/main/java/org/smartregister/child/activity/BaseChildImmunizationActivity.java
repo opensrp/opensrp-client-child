@@ -35,7 +35,6 @@ import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.NamedObject;
@@ -45,6 +44,7 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DbUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -91,9 +91,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -123,7 +121,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
         VaccinationActionListener, ServiceActionListener, View.OnClickListener {
 
-    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
@@ -131,7 +128,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
 
-    private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     protected LinearLayout floatingActionButton;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
@@ -141,7 +137,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private LocationSwitcherToolbar toolbar;
     // Data
     protected RegisterClickables registerClickables;
-    private DetailsRepository detailsRepository;
+//    private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -194,7 +190,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         }
 
-        detailsRepository = getOpenSRPContext().detailsRepository();
+//        detailsRepository = getOpenSRPContext().detailsRepository();
 
         setUpToolbar();
         setUpViews();
@@ -213,9 +209,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                                 Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                         " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
 
-                Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+                //TODO use ec_child_details
+//                Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-                Utils.putAll(details, detailsMap);
+//                Utils.putAll(details, detailsMap);
 
                 childDetails.setColumnmaps(details);
                 childDetails.setDetails(details);
@@ -396,9 +393,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             }
         });
 
-        // TODO: update all views using child data
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
+        //TODO: use ec_child_details
+//        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+//        Utils.putAll(childDetails.getColumnmaps());
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -755,9 +752,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines =
                     VaccinatorUtils.getSupportedVaccines(this);
 
-            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) &&
-                    Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
-            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
+            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG2_REMINDER)) &&
+                    Boolean.parseBoolean(childDetails.getColumnmaps().get(Constants.SHOW_BCG2_REMINDER)));
+            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG_SCAR));
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup =
                     (org.smartregister.immunization.domain.jsonmapping.VaccineGroup) clone(
@@ -787,7 +784,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX)
                         .plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
+                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR));
 
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
                         VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
@@ -860,7 +857,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(name);
         vaccine.setDate(date);
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        vaccine.setLocationId(Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -948,10 +945,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
 
-        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+//        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
+        //TODO use ec_child_details table
+        Map<String, String> details = childDetails.getDetails();
 
-        if (details.containsKey(SHOW_BCG2_REMINDER) || details.containsKey(SHOW_BCG_SCAR)) {
+        if (details.containsKey(Constants.SHOW_BCG2_REMINDER) || details.containsKey(Constants.SHOW_BCG_SCAR)) {
             return;
         }
 
@@ -1069,14 +1067,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    onBcgReminderOptionSelected(SHOW_BCG_SCAR);
+                    onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
                     Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
                 }
             }, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    onBcgReminderOptionSelected(SHOW_BCG2_REMINDER);
+                    onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
                     Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
                 }
             }).show();
@@ -1088,16 +1086,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final long DATE = new Date().getTime();
 
         switch (option) {
-
-            case SHOW_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), DATE);
+            //TODO use ec_child_details
+            case Constants.SHOW_BCG2_REMINDER:
+                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), childDetails.entityId());
                 break;
 
-            case SHOW_BCG_SCAR:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
-
+            case Constants.SHOW_BCG_SCAR:
+                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, Boolean.TRUE.toString(), childDetails.entityId());
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
                 JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
@@ -1347,6 +1344,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                //TODO use ec_child_details table
                 commonPersonObject.setColumnmaps(
                         JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
@@ -1354,6 +1352,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                //TODO use ec_child_details table
+
                 commonPersonObject.setColumnmaps(JsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
@@ -1652,7 +1652,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+        String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
@@ -1963,7 +1963,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         private final View view;
         private final ServiceWrapper tag;
-        private List<ServiceRecord> serviceRecordList;
+        private List<ServiceRecord> serviceRimport org.smartregister.immunization.util.ImageUtils;
+ecordList;
         private ArrayList<ServiceWrapper> wrappers;
         private List<Alert> alertList;
 

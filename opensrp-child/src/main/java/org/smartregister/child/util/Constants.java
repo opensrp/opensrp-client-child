@@ -43,6 +43,8 @@ public final class Constants extends AllConstants {
     public static final String PREFERRED_LANGUAGE = "Preferred_Language";
     public static final String MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION = "30000";
     public static final String MOTHER_LOOKUP_UNDO_DEFAULT_DURATION = "10000";
+    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
+    public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -116,6 +118,8 @@ public final class Constants extends AllConstants {
         public static final String FATHER_NAME = "father_name";
         public static final String CLIENT_REG_DATE = "client_reg_date";
         public static final String CONSTANT_PHONE_NUMBER = "contact_phone_number";
+        public static final String VILLAGE = "village";
+        public static final String HOME_ADDRESS = "home_address";
     }
 
     public static final class INTENT_KEY {
