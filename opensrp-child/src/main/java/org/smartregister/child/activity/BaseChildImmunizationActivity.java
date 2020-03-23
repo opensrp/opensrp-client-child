@@ -137,7 +137,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private LocationSwitcherToolbar toolbar;
     // Data
     protected RegisterClickables registerClickables;
-//    private DetailsRepository detailsRepository;
+    //    private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -210,9 +210,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                                         " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
 
                 //TODO use ec_child_details
+
 //                Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-//                Utils.putAll(details, detailsMap);
+                Utils.putAll(details, DbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.entityId()));
 
                 childDetails.setColumnmaps(details);
                 childDetails.setDetails(details);
@@ -949,7 +950,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         //TODO use ec_child_details table
         Map<String, String> details = childDetails.getDetails();
 
-        if (details.containsKey(Constants.SHOW_BCG2_REMINDER) || details.containsKey(Constants.SHOW_BCG_SCAR)) {
+        if (details.containsKey(Constants.SHOW_BCG2_REMINDER) && details.get(Constants.SHOW_BCG2_REMINDER) != null && !"0".equals(details.get(Constants.SHOW_BCG_SCAR))) {
             return;
         }
 
@@ -1084,15 +1085,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public void onBcgReminderOptionSelected(String option) {
 
         final long DATE = new Date().getTime();
-
         switch (option) {
-            //TODO use ec_child_details
             case Constants.SHOW_BCG2_REMINDER:
                 DbUtils.updateChildDetailsValue(Constants.SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), childDetails.entityId());
                 break;
 
             case Constants.SHOW_BCG_SCAR:
-                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, Boolean.TRUE.toString(), childDetails.entityId());
+                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
                 String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
                 JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
@@ -2197,11 +2196,21 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
-                List<CommonPersonObject> children =
-                        getOpenSRPContext().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable())
-                                .findByRelational_IDs(motherBaseEntityId);
+                List<HashMap<String, String>> childList = ChildLibrary.getInstance()
+                        .eventClientRepository()
+                        .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                                Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
+                                        + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
 
-                if (children != null) {
+
+                List<CommonPersonObject> children = new ArrayList<>();
+                for(HashMap<String, String>  hashMap: childList){
+                    CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, "child");
+                    commonPersonObject.setColumnmaps(hashMap);
+                    children.add(commonPersonObject);
+                }
+
+                if (children != null && children.size() > 0) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
                         if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {

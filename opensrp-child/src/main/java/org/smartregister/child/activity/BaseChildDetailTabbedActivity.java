@@ -675,31 +675,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected abstract void navigateToRegisterActivity();
 
-    /*private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
-            return false;
-        }
-
-        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
-        if (bcg == null) {
-            return false;
-        }
-
-        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
-        if (alert == null || alert.isComplete()) {
-            return false;
-        }
-
-        int bcgOffsetInWeeks = 12;
-        Calendar twelveWeeksLaterDate = Calendar.getInstance();
-        twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
-
-        Calendar today = Calendar.getInstance();
-
-        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
-    }*/
-
     protected boolean launchAdverseEventForm() {
         LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask(this);
         task.execute();
