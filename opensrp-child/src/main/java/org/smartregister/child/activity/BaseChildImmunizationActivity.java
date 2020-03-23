@@ -1963,8 +1963,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         private final View view;
         private final ServiceWrapper tag;
-        private List<ServiceRecord> serviceRimport org.smartregister.immunization.util.ImageUtils;
-ecordList;
+        private List<ServiceRecord> serviceRecordList;
         private ArrayList<ServiceWrapper> wrappers;
         private List<Alert> alertList;
 
