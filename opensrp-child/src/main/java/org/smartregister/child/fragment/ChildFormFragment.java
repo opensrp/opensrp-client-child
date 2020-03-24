@@ -26,7 +26,6 @@ import com.vijay.jsonwizard.fragments.JsonWizardFormFragment;
 import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
-import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
@@ -42,10 +41,12 @@ import org.smartregister.event.Listener;
 import org.smartregister.util.Utils;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
@@ -369,6 +370,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private void lookupDialogDismissed(CommonPersonObjectClient pc) {
         if (pc != null) {
 
+            Locale locale = getActivity().getResources().getConfiguration().locale;
+            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
+
             Map<String, List<View>> lookupMap = getLookUpMap();
             if (lookupMap.containsKey(Constants.KEY.MOTHER)) {
                 List<View> lookUpViews = lookupMap.get(Constants.KEY.MOTHER);
@@ -392,7 +396,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             Date motherDob = Utils.dobStringToDate(dobString);
                             if (motherDob != null) {
                                 try {
-                                    text = DatePickerFactory.DATE_FORMAT.format(motherDob);
+                                    text = mlsLookupDateFormatter.format(motherDob);
                                 } catch (Exception e) {
                                     Log.e(getClass().getName(), e.toString(), e);
                                 }
