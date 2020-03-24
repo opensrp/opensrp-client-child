@@ -51,11 +51,13 @@ public final class Constants extends AllConstants {
         public static final String DEATH_DATE_APPROX = "deathdateApprox";
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
-        public static final String DOB = "dob";
         public static final String DATE_BIRTH = "Date_Birth";
-        public static final String DOB_UNKNOWN = "dob_unknown";
+        public static final String DATE_BIRTH_UNKNOWN = "Date_Birth_Unknown";
         public static final String AGE = "age";
-        public static final String Mother_Guardian_Date_Birth = "Mother_Guardian_Date_Birth";
+        public static final String MOTHER_GUARDIAN_DATE_BIRTH = "Mother_Guardian_Date_Birth";
+        public static final String MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN = "Mother_Guardian_Date_Birth_Unknown";
+        public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
+
 
     }
 
@@ -99,6 +101,7 @@ public final class Constants extends AllConstants {
         public static final String INACTIVE = "inactive";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";

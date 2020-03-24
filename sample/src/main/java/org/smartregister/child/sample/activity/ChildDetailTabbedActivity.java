@@ -22,7 +22,7 @@ import java.util.List;
  * Created by ndegwamartin on 06/03/2019.
  */
 public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
+    private static List<String> nonEditableFields = Arrays.asList( "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
 
     @Override
     public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
