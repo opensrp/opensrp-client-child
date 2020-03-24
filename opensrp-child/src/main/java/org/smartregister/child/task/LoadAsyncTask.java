@@ -84,9 +84,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         Map<String, NamedObject<?>> map = new HashMap<>();
-//        DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-//        //TODO use ec_child_details_table
-//        detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+
         detailsMap = DbUtils.fetchChildDetails(childDetails.entityId());
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);

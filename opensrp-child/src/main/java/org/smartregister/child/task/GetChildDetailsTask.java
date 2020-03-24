@@ -58,8 +58,6 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         rawDetails.setColumnmaps(rawDetailsMap);
         // Get extra child details
         CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
-        //TODO use ec_child_details table
-//        Utils.putAll(childDetails.getColumnmaps(), detailsRepository.getAllDetailsForClient(baseEntityId));
         // Check if child has a profile pic
         ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
 

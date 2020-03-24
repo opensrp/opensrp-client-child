@@ -137,7 +137,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private LocationSwitcherToolbar toolbar;
     // Data
     protected RegisterClickables registerClickables;
-    //    private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -190,8 +189,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         }
 
-//        detailsRepository = getOpenSRPContext().detailsRepository();
-
         setUpToolbar();
         setUpViews();
 
@@ -208,10 +205,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                                 Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                         " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
-
-                //TODO use ec_child_details
-
-//                Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
                 Utils.putAll(details, DbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.entityId()));
 
@@ -393,10 +386,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 launchDetailActivity(getActivity(), childDetails, null);
             }
         });
-
-        //TODO: use ec_child_details
-//        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-//        Utils.putAll(childDetails.getColumnmaps());
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -754,8 +743,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     VaccinatorUtils.getSupportedVaccines(this);
 
             boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG2_REMINDER)) &&
+                    (childDetails.getColumnmaps().get(Constants.SHOW_BCG2_REMINDER) != null) &&
                     Boolean.parseBoolean(childDetails.getColumnmaps().get(Constants.SHOW_BCG2_REMINDER)));
-            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG_SCAR));
+            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG_SCAR)) && (childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR) != null);
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup =
                     (org.smartregister.immunization.domain.jsonmapping.VaccineGroup) clone(
@@ -946,11 +936,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
 
-//        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
-        //TODO use ec_child_details table
         Map<String, String> details = childDetails.getDetails();
 
-        if (details.containsKey(Constants.SHOW_BCG2_REMINDER) && details.get(Constants.SHOW_BCG2_REMINDER) != null && !"0".equals(details.get(Constants.SHOW_BCG_SCAR))) {
+        if (details.get(Constants.SHOW_BCG2_REMINDER) != null || details.get(Constants.SHOW_BCG_SCAR) != null) {
             return;
         }
 
