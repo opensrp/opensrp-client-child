@@ -271,7 +271,7 @@
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>
     <string name="tap_to_view">Tap to See</string>
     <string name="undo_lookup">Undo Lookup</string>
-    <string name="mother_guardian_matches">%1$d Results Found Mother/Guardian.</string>
+    <string name="mother_guardian_matches">%1$s Results Found Mother/Guardian.</string>
     <string name="neutral_sex_id">his or her</string>
     <string name="date_first_seen">Date First Seen</string>
     <string name="child_status">Child Status</string>

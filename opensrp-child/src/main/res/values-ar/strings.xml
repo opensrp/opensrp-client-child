@@ -269,7 +269,7 @@
     <string name="weight_for_age">الوزن بالنسبة للعمر</string>
     <string name="tap_to_view">إضغط لترى</string>
     <string name="undo_lookup">تراجع عن البحث</string>
-    <string name="mother_guardian_matches"> %1$dنتائج وجدت الأم / الشخص</string>
+    <string name="mother_guardian_matches"> %1$s نتائج وجدت الأم / الشخص</string>
     <string name="neutral_sex_id">له أو لها</string>
     <string name="date_first_seen">تاريخ المشاهدة لأول مرة</string>
     <string name="child_status">حالة الطفل</string>

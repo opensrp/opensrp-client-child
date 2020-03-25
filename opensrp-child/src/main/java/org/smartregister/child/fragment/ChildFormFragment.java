@@ -183,7 +183,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
-        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()),
+        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, String.valueOf(map.size())),
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
             @Override
