@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
     android:padding="20dp">
 
@@ -9,15 +10,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="30dp"
         android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         android:gravity="center_horizontal"
+        android:paddingStart="10dp"
         android:paddingLeft="10dp"
+        android:paddingEnd="10dp"
         android:paddingRight="10dp"
         android:text="No matching person found in catchment area."
-        android:textSize="@dimen/default_text_size"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp" />
+        android:textSize="@dimen/default_text_size" />
 
     <Button
         android:id="@+id/search_b"
@@ -25,16 +26,16 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:background="@drawable/bg_gray_gradient"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="40dp"
-        android:paddingRight="40dp"
         android:gravity="center"
+        android:paddingStart="40dp"
+        android:paddingLeft="40dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="40dp"
+        android:paddingRight="40dp"
+        android:paddingBottom="20dp"
         android:text="Search out of catchment records"
         android:textColor="#767676"
-        android:textSize="@dimen/default_text_size"
-        android:paddingEnd="40dp"
-        android:paddingStart="40dp" />
+        android:textSize="@dimen/default_text_size" />
 
     <Button
         android:id="@+id/record_b"
@@ -42,16 +43,16 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:background="@drawable/bg_gray_gradient"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="40dp"
-        android:paddingRight="40dp"
         android:gravity="center"
+        android:paddingStart="40dp"
+        android:paddingLeft="40dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="40dp"
+        android:paddingRight="40dp"
+        android:paddingBottom="20dp"
         android:text="Record out of catchment service"
         android:textColor="#767676"
-        android:textSize="@dimen/default_text_size"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp" />
+        android:textSize="@dimen/default_text_size" />
 
     <Button
         android:id="@+id/cancel_b"

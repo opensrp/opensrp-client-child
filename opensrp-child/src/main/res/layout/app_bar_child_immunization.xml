@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:filterTouchesWhenObscured="true"
     android:fitsSystemWindows="true"
     tools:context=".activity.BaseActivity">
 
@@ -30,12 +31,12 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
         android:background="@drawable/pill_background_male_blue"
+        android:elevation="2dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
-        android:visibility="gone"
-        android:elevation="2dp">
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
