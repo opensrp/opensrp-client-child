@@ -285,6 +285,67 @@
         "v_required": {
           "value": "true",
           "err": "Please enter the mother/guardian's DOB"
+        },
+        "relevance": {
+          "rules-engine": {
+            "ex-rules": {
+              "rules-file": "child-enrollment-relevance.yml"
+            }
+          }
+        }
+      },
+      {
+        "key": "Mother_Guardian_Date_Birth_Unknown",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "person",
+        "openmrs_entity_id": "birthdateApprox",
+        "entity_id": "mother",
+        "look_up": "true",
+        "type": "check_box",
+        "label": "",
+        "options": [
+          {
+            "key": "Mother_Guardian_Date_Birth_Unknown",
+            "text": "DOB unknown?",
+            "text_size": "18px",
+            "value": "false"
+          }
+        ]
+      },
+      {
+        "key": "Mother_Guardian_Age",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "person_attribute",
+        "openmrs_entity_id": "mother_age",
+        "entity_id": "mother",
+        "type": "edit_text",
+        "hint": "Mother/Guardian Age",
+        "v_numeric": {
+          "value": "true",
+          "err": "Please enter a number"
+        },
+        "v_min": {
+          "value": "0",
+          "err": "Age must be equal or greater than 0"
+        },
+        "v_max": {
+          "value": "99",
+          "err": "Age must be equal or less than 99"
+        },
+        "v_regex": {
+          "value": "^$|([0-9]+)",
+          "err": "The number must be valid"
+        },
+        "relevance": {
+          "rules-engine": {
+            "ex-rules": {
+              "rules-file": "child-enrollment-relevance.yml"
+            }
+          }
+        },
+        "v_required": {
+          "value": true,
+          "err": "Please enter the age"
         }
       },
       {
@@ -293,6 +354,7 @@
         "openmrs_entity": "person_attribute",
         "openmrs_entity_id": "NRC_Number",
         "entity_id": "mother",
+        "look_up": "true",
         "type": "edit_text",
         "hint": "Mother/guardian NRC number",
         "v_regex": {

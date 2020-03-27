@@ -436,14 +436,21 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
                             materialEditText.setText(text);
                             materialEditText.setInputType(InputType.TYPE_NULL);
-                            disableEditText(materialEditText);
+
+                        } else {
+
+                            if ("Mother_Guardian_Date_Birth_Unknown".equals(view.getTag(com.vijay.jsonwizard.R.id.key))) {
+
+                                view.setVisibility(View.GONE);
+
+                            }
                         }
+
                     }
 
                     Map<String, String> metadataMap = new HashMap<>();
                     metadataMap.put(Constants.KEY.ENTITY_ID, Constants.KEY.MOTHER);
-                    metadataMap
-                            .put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
+                    metadataMap.put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
 
                     writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
@@ -452,10 +459,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 }
             }
         }
-    }
-
-    private void disableEditText(MaterialEditText editText) {
-        editText.setInputType(InputType.TYPE_NULL);
     }
 
     private void clearView() {
