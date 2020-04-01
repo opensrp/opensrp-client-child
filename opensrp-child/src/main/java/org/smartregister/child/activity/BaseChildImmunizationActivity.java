@@ -44,7 +44,7 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DbUtils;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -206,7 +206,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                                 Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                         " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
 
-                Utils.putAll(details, DbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.entityId()));
+                Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.entityId()));
 
                 childDetails.setColumnmaps(details);
                 childDetails.setDetails(details);
@@ -1075,11 +1075,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final long DATE = new Date().getTime();
         switch (option) {
             case Constants.SHOW_BCG2_REMINDER:
-                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), childDetails.entityId());
+                ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), childDetails.entityId());
                 break;
 
             case Constants.SHOW_BCG_SCAR:
-                DbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
+                ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
                 String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
                 JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
@@ -1746,7 +1746,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return height;
     }
 
-    private void updateScheduleDate() {
+    public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {

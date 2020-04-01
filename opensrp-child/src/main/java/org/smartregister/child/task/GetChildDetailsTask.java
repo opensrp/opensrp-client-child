@@ -12,7 +12,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DbUtils;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -49,7 +49,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
 
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
-        HashMap<String, String> rawDetailsMap = DbUtils.fetchChildDetails(baseEntityId);
+        HashMap<String, String> rawDetailsMap = ChildDbUtils.fetchChildDetails(baseEntityId);
 
         CommonPersonObject rawDetails = new CommonPersonObject(
                 rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),

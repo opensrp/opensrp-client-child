@@ -58,7 +58,7 @@ import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DbUtils;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -715,7 +715,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
-            DbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
+            ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
         } catch (Exception e) {
             Timber.e(e);
         }

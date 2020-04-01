@@ -6,7 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import timber.log.Timber;
 
-public class DbMigrations {
+public class ChildDbMigrations {
 
     public static boolean addShowBcg2ReminderAndBcgScarColumnsToEcChildDetails(SQLiteDatabase db) {
         try {

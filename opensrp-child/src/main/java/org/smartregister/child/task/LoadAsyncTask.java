@@ -12,7 +12,7 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.DbUtils;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -85,7 +85,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         Map<String, NamedObject<?>> map = new HashMap<>();
 
-        detailsMap = DbUtils.fetchChildDetails(childDetails.entityId());
+        detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);

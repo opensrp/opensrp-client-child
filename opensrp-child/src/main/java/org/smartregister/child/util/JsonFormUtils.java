@@ -1028,20 +1028,24 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void processTree(JSONObject jsonObject, String entity) throws JSONException {
         List<String> entityHierarchy = null;
 
-
         if (entity != null) {
             if (entity.equalsIgnoreCase("other")) {
                 entityHierarchy = new ArrayList<>();
                 entityHierarchy.add(entity);
             } else {
-                entityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(entity, true);
+                entityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(entity, false);
             }
         }
 
+        ArrayList<String> allLevels = getLocationLevels();
+        List<FormLocation> entireTree = LocationHelper.getInstance().generateLocationHierarchyTree(true, allLevels);
+        String entireTreeString = AssetHandler.javaToJsonString(entireTree, new TypeToken<List<FormLocation>>() {
+        }.getType());
         String birthFacilityHierarchyString = AssetHandler.javaToJsonString(entityHierarchy, new TypeToken<List<String>>() {
         }.getType());
         if (StringUtils.isNotBlank(birthFacilityHierarchyString)) {
             jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
+            jsonObject.put(JsonFormConstants.TREE, new JSONArray(entireTreeString));
         }
 
     }
@@ -1669,7 +1673,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         //Add the base_entity_id
         contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
 
-        DbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
+        ChildDbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
 
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
         String locationName = allSharedPreferences.fetchCurrentLocality();
@@ -1685,7 +1689,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
 
         //update details
-        Map<String, String> detailsMap = DbUtils.fetchChildDetails(childDetails.entityId());
+        Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
         if (childDetails.getColumnmaps().containsKey(attributeName)) {
             childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
         }

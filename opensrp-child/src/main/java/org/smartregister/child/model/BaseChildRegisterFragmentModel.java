@@ -15,7 +15,6 @@ import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.View;
 import org.smartregister.configurableviews.model.ViewConfiguration;
-import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 
@@ -44,15 +43,8 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
     }
 
     @Override
-    public String countSelect(String tableName, String mainCondition, String parentTableName) {
-        SmartRegisterQueryBuilder countQueryBuilder = new SmartRegisterQueryBuilder();
-        countQueryBuilder.SelectInitiateMainTableCounts(tableName);
-        return countQueryBuilder.mainCondition(mainCondition);
-    }
-
-    @Override
-    public String mainSelect(String tableName, String mainCondition, String parentTableName) {
-        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " where " + mainCondition;
+    public String countSelect(String mainCondition) {
+        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery("count(1)") + " where " + mainCondition;
     }
 
     @Override

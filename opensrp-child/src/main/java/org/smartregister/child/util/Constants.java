@@ -45,6 +45,7 @@ public final class Constants extends AllConstants {
     public static final String MOTHER_LOOKUP_UNDO_DEFAULT_DURATION = "10000";
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
+    public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
