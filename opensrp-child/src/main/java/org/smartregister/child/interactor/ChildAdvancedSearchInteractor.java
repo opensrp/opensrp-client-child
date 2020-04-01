@@ -8,6 +8,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.Constants;
 import org.smartregister.domain.Response;
 import org.smartregister.service.HTTPAgent;
 
@@ -57,6 +58,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     private Response<String> globalSearch(Map<String, String> map) {
         String baseUrl = getDristhiConfiguration().dristhiBaseURL();
         String paramString = "";
+        enchanceStatusFilter(map);
         if (!map.isEmpty()) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 String key = entry.getKey();
@@ -79,6 +81,21 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
         Log.d(ChildAdvancedSearchInteractor.class.getCanonicalName(), uri);
         return getHttpAgent().fetch(uri);
+    }
+
+    private void enchanceStatusFilter(Map<String, String> map) {
+
+        if (!map.containsKey(Constants.CHILD_STATUS.ACTIVE)) {
+            map.put(Constants.CHILD_STATUS.ACTIVE, "false");
+        }
+        if (!map.containsKey(Constants.CHILD_STATUS.INACTIVE)) {
+            map.put(Constants.CHILD_STATUS.INACTIVE, "false");
+        }
+
+        if (!map.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
+            map.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "false");
+        }
+
     }
 
     public DristhiConfiguration getDristhiConfiguration() {
