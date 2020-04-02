@@ -53,6 +53,7 @@ public final class Constants extends AllConstants {
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String DOB = "dob";
         public static final String DATE_BIRTH = "Date_Birth";
+        public static final String DATE_DEATH = "Date_of_Death";
         public static final String DOB_UNKNOWN = "dob_unknown";
         public static final String AGE = "age";
         public static final String Mother_Guardian_Date_Birth = "Mother_Guardian_Date_Birth";
