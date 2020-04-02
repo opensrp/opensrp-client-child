@@ -125,7 +125,7 @@ public class ChildUnderFiveFragment extends Fragment {
                                          boolean editGrowthMonitoringMode) {
         boolean showGrowthMonitoring =
                 curGrowthMonitoringMode == null || !curGrowthMonitoringMode.equals(editGrowthMonitoringMode);
-        if (fragmentContainer != null && showGrowthMonitoring) {
+        if (fragmentContainer != null) {
             createGrowthLayout(weightList, heightList, fragmentContainer, editGrowthMonitoringMode);
             curGrowthMonitoringMode = editGrowthMonitoringMode;
         }

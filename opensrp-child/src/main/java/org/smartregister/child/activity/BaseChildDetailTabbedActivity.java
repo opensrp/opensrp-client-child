@@ -43,6 +43,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
+import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
@@ -896,7 +897,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             updateHeightWrapper(heightWrapper);
         }
 
-        Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
+        Utils.startAsyncTask(new LoadAsyncTask(Status.EDIT_GROWTH, detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
