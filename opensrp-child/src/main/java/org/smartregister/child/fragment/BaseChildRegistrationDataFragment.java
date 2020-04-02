@@ -75,8 +75,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         stringResourceIds = getDataRowLabelResourceIds();
     }
 
-    private boolean monitorGrowth = false;
-    /*
+    /**
      * The map is such that key is the key defined in the registration form json while the value is the strings resource id
      * e.g. Key "First_Name" and Value "R.string.first_name"
      *
@@ -84,7 +83,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
      *
      * Values will only show up if you add them here
      */
-
 
     protected Map<String, String> getDataRowLabelResourceIds() {
 

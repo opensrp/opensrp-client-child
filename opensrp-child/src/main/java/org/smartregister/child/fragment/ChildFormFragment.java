@@ -371,7 +371,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         if (pc != null) {
 
             Locale locale = getActivity().getResources().getConfiguration().locale;
-            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
+            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
 
             Map<String, List<View>> lookupMap = getLookUpMap();
             if (lookupMap.containsKey(Constants.KEY.MOTHER)) {
