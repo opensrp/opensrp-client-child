@@ -3,6 +3,7 @@ package org.smartregister.child.sample.application;
 import android.content.Intent;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.evernote.android.job.JobManager;
 
 import org.smartregister.Context;
@@ -44,6 +45,8 @@ import org.smartregister.view.activity.DrishtiApplication;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import io.fabric.sdk.android.Fabric;
 
 public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
@@ -125,6 +128,9 @@ public class SampleApplication extends DrishtiApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Fabric.with(this, new Crashlytics());//Some exceptions thrown waaay before core inits fabric
+
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());

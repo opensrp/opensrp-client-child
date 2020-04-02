@@ -62,6 +62,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
     private CommonPersonObjectClient sibling;
+    private MaterialEditText motherDOBMaterialEditText;
 
     private static final int showResultsDuration = Integer.valueOf(ChildLibrary
             .getInstance()
@@ -391,7 +392,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             text = getValue(pc.getColumnmaps(), MotherLookUpUtils.lastName, true);
                         }
 
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.birthDate)) {
+                        if (StringUtils.endsWithIgnoreCase(key, MotherLookUpUtils.birthDate)) {
                             String dobString = getValue(pc.getColumnmaps(), MotherLookUpUtils.dob, false);
                             Date motherDob = Utils.dobStringToDate(dobString);
                             if (motherDob != null) {
@@ -401,6 +402,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                                     Log.e(getClass().getName(), e.toString(), e);
                                 }
                             }
+
+                            motherDOBMaterialEditText = (MaterialEditText) view;
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
@@ -456,6 +459,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
                     lookedUp = true;
                     clearView();
+
+                    //Fix weird bug, Mother DOB not disabled on auto-look up
+                    if (motherDOBMaterialEditText != null) {
+                        motherDOBMaterialEditText.setEnabled(false);
+                    }
                 }
             }
         }

@@ -100,14 +100,23 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         //Update details
         //To Do temp find out why some details not updating normally
 
+        String dob = null;
+        try {
+            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy")));
+
+        } catch (Exception e) {
+            Log.e(BaseChildRegisterModel.class.getCanonicalName(), e.getMessage(), e);
+        }
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_first_name", childHeadEventClient.getClient().getFirstName(), Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_last_name", childHeadEventClient.getClient().getLastName(), Calendar.getInstance().getTimeInMillis());
-        ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_dob", Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy"))), Calendar.getInstance().getTimeInMillis());
+        if (dob != null)
+            ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_dob", dob, Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_dob_unknown", childHeadEventClient.getClient().getBirthdateApprox() ? "true" : "false", Calendar.getInstance().getTimeInMillis());
 
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "Mother_Guardian_First_Name", childHeadEventClient.getClient().getFirstName(), Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "Mother_Guardian_Last_Name", childHeadEventClient.getClient().getLastName(), Calendar.getInstance().getTimeInMillis());
-        ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "Mother_Guardian_Date_Birth", Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy"))), Calendar.getInstance().getTimeInMillis());
+        if (dob != null)
+            ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "Mother_Guardian_Date_Birth", dob, Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "Mother_Guardian_Date_Birth_Unknown", childHeadEventClient.getClient().getBirthdateApprox() ? "true" : "false", Calendar.getInstance().getTimeInMillis());
     }
 

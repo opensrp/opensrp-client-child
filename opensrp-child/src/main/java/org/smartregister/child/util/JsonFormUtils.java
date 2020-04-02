@@ -89,7 +89,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String CURRENT_OPENSRP_ID = "current_opensrp_id";
     public static final String READ_ONLY = "read_only";
     public static final String STEP2 = "step2";
-    public static final String MOTHER_DEFAULT_DOB = "01-01-1960";
     public static final String RELATIONAL_ID = "relational_id";
     public static final String CURRENT_ZEIR_ID = "current_zeir_id";
     public static final String ZEIR_ID = "ZEIR_ID";
