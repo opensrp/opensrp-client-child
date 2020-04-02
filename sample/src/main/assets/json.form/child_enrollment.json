@@ -85,6 +85,7 @@
         "openmrs_entity": "person_identifier",
         "openmrs_entity_id": "ZEIR_ID",
         "type": "barcode",
+        "render_type": "ID",
         "barcode_type": "qrcode",
         "hint": "Child's ZEIR ID ",
         "scanButtonText": "Scan QR Code",

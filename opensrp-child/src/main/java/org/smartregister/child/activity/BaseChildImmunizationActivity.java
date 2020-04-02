@@ -471,7 +471,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         nameTV.setText(name);
-        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
+        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
 
         Utils.startAsyncTask(new GetSiblingsTask(), null);
     }

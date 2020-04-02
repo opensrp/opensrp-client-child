@@ -13,6 +13,9 @@ public class Field {
 
     private String type;
 
+    @SerializedName("render_type")
+    private String renderType;
+
     private List<String> keys;
 
     private List<String> values;
@@ -62,5 +65,9 @@ public class Field {
 
     public void setHint(String hint) {
         this.hint = hint;
+    }
+
+    public String getRenderType() {
+        return renderType;
     }
 }

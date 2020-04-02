@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
@@ -209,11 +210,32 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             result = cleanResult(result.trim());
         }
 
+        return formatRenderValue(field, result);
+    }
+
+    protected String formatRenderValue(Field field, String value) {
+
+        String renderType = StringUtils.isNotBlank(field.getRenderType()) ? field.getRenderType().toLowerCase() : "";
+        String result;
+
+        switch (renderType) {
+            case "id":
+                result = Utils.formatIdentifiers(value);
+                break;
+
+            default:
+                result = value;
+                break;
+
+        }
+
         return result;
+
+
     }
 
     private String cleanResult(String result) {
-        if (NumberUtils.isNumber(result)) {
+        if (NumberUtils.isDigits(result)) {
             return Utils.formatNumber(result);
         } else {
             return result;
