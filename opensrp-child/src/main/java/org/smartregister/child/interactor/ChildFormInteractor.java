@@ -3,6 +3,7 @@ package org.smartregister.child.interactor;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.interactors.JsonFormInteractor;
 
+import org.smartregister.child.widgets.ChildCheckboxTextFactory;
 import org.smartregister.child.widgets.ChildDatePickerFactory;
 import org.smartregister.child.widgets.ChildEditTextFactory;
 
@@ -26,5 +27,6 @@ public class ChildFormInteractor extends JsonFormInteractor {
         super.registerWidgets();
         map.put(JsonFormConstants.EDIT_TEXT, new ChildEditTextFactory());
         map.put(JsonFormConstants.DATE_PICKER, new ChildDatePickerFactory());
+        map.put(JsonFormConstants.CHECK_BOX, new ChildCheckboxTextFactory());
     }
 }

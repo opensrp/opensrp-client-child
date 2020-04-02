@@ -300,6 +300,7 @@
         "openmrs_entity": "person",
         "openmrs_entity_id": "birthdateApprox",
         "entity_id": "mother",
+        "look_up": "true",
         "type": "check_box",
         "label": "",
         "options": [
