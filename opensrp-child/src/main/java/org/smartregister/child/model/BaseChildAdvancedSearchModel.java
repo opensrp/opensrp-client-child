@@ -163,7 +163,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                 }
             }
 
-            return mainConditionString;
+            return mainConditionString + " AND " + Utils.metadata().childRegister.tableName + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " + Utils.metadata().childRegister.tableName + "." + Constants.KEY.DOD + " IS NULL";
 
         }
 

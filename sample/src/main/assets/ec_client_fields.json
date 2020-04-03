@@ -25,6 +25,13 @@
           }
         },
         {
+          "column_name": "last_name",
+          "type": "Client",
+          "json_mapping": {
+            "field": "lastName"
+          }
+        },
+        {
           "column_name": "husband_name",
           "type": "Event",
           "json_mapping": {

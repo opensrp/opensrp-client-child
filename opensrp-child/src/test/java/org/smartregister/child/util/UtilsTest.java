@@ -53,4 +53,11 @@ public class UtilsTest {
         String expected = "2019-09-04";
         Assert.assertEquals(expected, Utils.getChildBirthDate(jsonObject));
     }
+
+    @Test
+    public void testFormatIdentifiersFormatsValueCorrectly(){
+        String testString = "3929389829839829839835";
+        String formattedIdentifier = Utils.formatIdentifiers(testString);
+        Assert.assertEquals("3929-3898-2983-9829-8398-35",formattedIdentifier);
+    }
 }

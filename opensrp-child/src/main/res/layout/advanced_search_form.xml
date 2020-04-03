@@ -425,6 +425,22 @@
                     android:orientation="horizontal"
                     android:weightSum="2">
 
+                    <DatePicker
+                        android:id="@+id/date_picker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dialog_content_margin"
+                        android:layout_marginEnd="@dimen/dialog_content_margin"
+                        android:visibility="gone"/>
+
+                    <com.vijay.jsonwizard.customviews.NumericDatePicker
+                        android:id="@+id/date_picker_numeric"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dialog_content_margin"
+                        android:layout_marginEnd="@dimen/dialog_content_margin"
+                        android:visibility="gone" />
+
                     <EditText
                         android:id="@+id/start_date"
                         android:layout_width="0dp"

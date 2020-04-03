@@ -52,6 +52,7 @@ public final class Constants extends AllConstants {
         public static final String UNIQUE_ID = "unique_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String DATE_BIRTH = "Date_Birth";
+        public static final String DATE_DEATH = "Date_of_Death";
         public static final String DATE_BIRTH_UNKNOWN = "Date_Birth_Unknown";
         public static final String AGE = "age";
         public static final String MOTHER_GUARDIAN_DATE_BIRTH = "Mother_Guardian_Date_Birth";

@@ -266,32 +266,6 @@
 
     <string name="registration_data">Registration Data</string>
     <string name="under_five_history">History</string>
-    <string name="child_home_health_facility">Child\'s Home Health Facility</string>
-    <string name="child_opensrp_id">Child\'s Vaccination ID</string>
-    <string name="child_register_card_number">Child\'s Register Number</string>
-    <string name="sex">Sex</string>
-    <string name="child_dob">Child\'s DOB</string>
-    <string name="child_age">Age</string>
-    <string name="birth_weight">Birth Weight (kg)</string>
-    <string name="birth_height">Birth Height (cm)</string>
-    <string name="birth_tetanus_protection">Neonatal Tetanus Protection</string>
-    <string name="mother_first_name">Mother/Guardian First Name</string>
-    <string name="mother_second_name">Mother/Guardian Last Name</string>
-    <string name="mother_last_name">Mother/Guardian Last Name</string>
-    <string name="mother_guardian_dob">Mother/Guardian DOB</string>
-    <string name="father_guardian_date_birth">Father/Guardian DOB</string>
-    <string name="father_guardian_phone_number">Second Guardian Phone Number</string>
-    <string name="place_of_birth">Place of Birth</string>
-    <string name="health_facility_the_child_was_in">Birth Facility</string>
-    <string name="other_birth_facility">Other Birth Facility</string>
-    <string name="residential_area">Child\'s Commune</string>
-    <string name="residential_area_other">Other Commune</string>
-    <string name="child_residential_area">Child\'s Commune</string>
-    <string name="other_residential_area">Other Commune</string>
-    <string name="home_address">Home Address</string>
-    <string name="physical_landmark">Landmark</string>
-    <string name="landmark">Landmark</string>
-    <string name="preferred_language">Preferred Language</string>
     <string name="health_details">Health Details</string>
     <string name="vaccine_group_birth_name" translatable="false">Birth</string>
     <string name="weight_for_age">WEIGHT-FOR-AGE</string>

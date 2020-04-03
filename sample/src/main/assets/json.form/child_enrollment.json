@@ -85,6 +85,7 @@
         "openmrs_entity": "person_identifier",
         "openmrs_entity_id": "ZEIR_ID",
         "type": "barcode",
+        "render_type": "ID",
         "barcode_type": "qrcode",
         "hint": "Child's ZEIR ID ",
         "scanButtonText": "Scan QR Code",
@@ -284,7 +285,7 @@
         "max_date": "today-10y",
         "v_required": {
           "value": "true",
-          "err": "Please enter the mother/guardian DOB"
+          "err": "Please enter the mother/guardian's DOB"
         },
         "relevance": {
           "rules-engine": {

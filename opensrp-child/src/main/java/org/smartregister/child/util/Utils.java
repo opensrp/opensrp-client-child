@@ -533,4 +533,25 @@ public class Utils extends org.smartregister.util.Utils {
         groupNameTextView.setLayoutParams(p);
         return groupNameTextView;
     }
+
+    public static String formatIdentifiers(String raw) {
+        return prettyFormat(raw, 4, '-');
+
+    }
+
+    public static String prettyFormat(String original, int interval, char separator) {
+
+        StringBuilder sb = new StringBuilder(original);
+
+        int bloc;
+        for (int i = 0; i < original.length() / interval; i++) {
+            bloc = (i + 1) * interval;
+            if (bloc != original.length()) {
+                sb.insert(bloc + i, separator);
+            }
+        }
+
+        return sb.toString();
+
+    }
 }

@@ -629,9 +629,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         notificationIcon.setLayoutParams(params);
 
         TextView notificationMessage = notificationsLayout.findViewById(R.id.noti_message);
-        notificationMessage.setText(getString(R.string.marked_as_deceased,
-                Utils.getName(childDetails.getColumnmaps().get(Constants.KEY.FIRST_NAME),
-                        childDetails.getColumnmaps().get(Constants.KEY.LAST_NAME))));
+        notificationMessage.setText(getString(R.string.marked_as_deceased, getChildName()));
         notificationMessage.setTextColor(getResources().getColor(R.color.black));
         notificationMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
 
@@ -662,6 +660,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         builder.setView(notificationsLayout);
         builder.show();
+    }
+
+
+    protected String getChildName() {
+
+        return Utils.getName(getName(Constants.KEY.FIRST_NAME), getName(Constants.KEY.LAST_NAME));
+    }
+
+    protected String getName(String key) {
+        String name = childDetails.getColumnmaps().get(key);
+
+        return StringUtils.isBlank(name) ? "" : name;
     }
 
     private void saveReportDeceasedJson(String jsonString) {
@@ -978,20 +988,21 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 //inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
                 JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.JSON_FORM_KEY.DATE_BIRTH)) {
-                        SimpleDateFormat simpleDateFormat =
-                                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-                                        Locale.ENGLISH);
-                        String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
-                        Date dob = Utils.dobStringToDate(dobString);
-                        if (dob != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
-                        }
-                        break;
-                    }
+
+                //Date Birth
+                JSONObject dateBirthJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+                String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
+                Date dob = Utils.dobStringToDate(dobString);
+                if (dob != null) {
+                    dateBirthJSONObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
                 }
+
+                //Date Death
+                JSONObject dateDeathJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
+                dateDeathJSONObject.put(JsonFormConstants.MIN_DATE, simpleDateFormat.format(dob));
+
+
             }
             return form == null ? null : form.toString();
 
