@@ -1,0 +1,14 @@
+---
+name: step1_Mother_Guardian_Date_Birth
+description: dob relevance
+priority: 1
+condition: "!step1_Mother_Guardian_Date_Birth_Unknown.contains('Mother_Guardian_Date_Birth_Unknown')"
+actions:
+  - "isRelevant = true"
+---
+name: step1_Mother_Guardian_Age
+description: age relevance
+priority: 1
+condition: "step1_Mother_Guardian_Date_Birth_Unknown.contains('Mother_Guardian_Date_Birth_Unknown')"
+actions:
+  - "isRelevant = true"

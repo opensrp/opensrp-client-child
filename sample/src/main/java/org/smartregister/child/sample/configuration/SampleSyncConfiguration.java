@@ -6,6 +6,9 @@ import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.repository.AllSharedPreferences;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by ndegwamartin on 04/03/2019.
  */
@@ -55,6 +58,16 @@ public class SampleSyncConfiguration extends SyncConfiguration {
     @Override
     public boolean updateClientDetailsTable() {
         return true;
+    }
+
+    @Override
+    public List<String> getSynchronizedLocationTags() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getTopAllowedLocationLevel() {
+        return "";
     }
 
 }

@@ -26,7 +26,6 @@ import com.vijay.jsonwizard.fragments.JsonWizardFormFragment;
 import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
-import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.ChildLibrary;
@@ -42,10 +41,12 @@ import org.smartregister.event.Listener;
 import org.smartregister.util.Utils;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.smartregister.util.Utils.getValue;
@@ -61,6 +62,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
     private CommonPersonObjectClient sibling;
+    private MaterialEditText motherDOBMaterialEditText;
 
     private static final int showResultsDuration = Integer.valueOf(ChildLibrary
             .getInstance()
@@ -182,7 +184,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
-        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, map.size()),
+        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, String.valueOf(map.size())),
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
             @Override
@@ -369,6 +371,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private void lookupDialogDismissed(CommonPersonObjectClient pc) {
         if (pc != null) {
 
+            Locale locale = getActivity().getResources().getConfiguration().locale;
+            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
+
             Map<String, List<View>> lookupMap = getLookUpMap();
             if (lookupMap.containsKey(Constants.KEY.MOTHER)) {
                 List<View> lookUpViews = lookupMap.get(Constants.KEY.MOTHER);
@@ -387,16 +392,18 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             text = getValue(pc.getColumnmaps(), MotherLookUpUtils.lastName, true);
                         }
 
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.birthDate)) {
+                        if (StringUtils.endsWithIgnoreCase(key, MotherLookUpUtils.birthDate)) {
                             String dobString = getValue(pc.getColumnmaps(), MotherLookUpUtils.dob, false);
                             Date motherDob = Utils.dobStringToDate(dobString);
                             if (motherDob != null) {
                                 try {
-                                    text = DatePickerFactory.DATE_FORMAT.format(motherDob);
+                                    text = mlsLookupDateFormatter.format(motherDob);
                                 } catch (Exception e) {
                                     Log.e(getClass().getName(), e.toString(), e);
                                 }
                             }
+
+                            motherDOBMaterialEditText = (MaterialEditText) view;
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
@@ -432,26 +439,34 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
                             materialEditText.setText(text);
                             materialEditText.setInputType(InputType.TYPE_NULL);
-                            disableEditText(materialEditText);
+
+                        } else {
+
+                            if ("Mother_Guardian_Date_Birth_Unknown".equals(view.getTag(com.vijay.jsonwizard.R.id.key))) {
+
+                                view.setVisibility(View.GONE);
+
+                            }
                         }
+
                     }
 
                     Map<String, String> metadataMap = new HashMap<>();
                     metadataMap.put(Constants.KEY.ENTITY_ID, Constants.KEY.MOTHER);
-                    metadataMap
-                            .put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
+                    metadataMap.put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
 
                     writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
                     lookedUp = true;
                     clearView();
+
+                    //Fix weird bug, Mother DOB not disabled on auto-look up
+                    if (motherDOBMaterialEditText != null) {
+                        motherDOBMaterialEditText.setEnabled(false);
+                    }
                 }
             }
         }
-    }
-
-    private void disableEditText(MaterialEditText editText) {
-        editText.setInputType(InputType.TYPE_NULL);
     }
 
     private void clearView() {
