@@ -28,8 +28,7 @@ public class ChildDatePickerFactory extends DatePickerFactory {
                              final MaterialEditText editText, final TextView duration) {
         super.attachLayout(stepName, context, formFragment, jsonObject, editText, duration);
         try {
-            if (jsonObject.has(Constants.KEY.LOOK_UP) &&
-                    jsonObject.get(Constants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (jsonObject.has(Constants.KEY.LOOK_UP) && jsonObject.get(Constants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
                 String entityId = jsonObject.getString(Constants.KEY.ENTITY_ID);
 

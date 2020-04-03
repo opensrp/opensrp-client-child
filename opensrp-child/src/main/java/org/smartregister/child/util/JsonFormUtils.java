@@ -806,32 +806,45 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     protected static void dobUnknownUpdateFromAge(JSONArray fields, String entity) {
         try {
 
-            String prefix = entity.equalsIgnoreCase(Constants.KEY.MOTHER) ? "mother_" : "";
+            String dobUnknownField = entity.equalsIgnoreCase(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
+            String dobField = entity.equalsIgnoreCase(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH : Constants.JSON_FORM_KEY.DATE_BIRTH;
+            String dobAgeField = entity.equalsIgnoreCase(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
 
-            JSONObject dobUnknownObject = getFieldJSONObject(fields, prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN);
+            JSONObject dobUnknownObject = getFieldJSONObject(fields, dobUnknownField);
             if (dobUnknownObject != null) {
-                JSONArray options = getJSONArray(dobUnknownObject, Constants.JSON_FORM_KEY.OPTIONS);
-                JSONObject option = getJSONObject(options, 0);
-                JSONArray dobUnKnownArray = option != null ? option.getJSONArray(VALUE) : null;
-                String dobUnKnownString = dobUnKnownArray.length() > 0 ? dobUnKnownArray.getString(0) : "";
-                if (StringUtils.isNotBlank(dobUnKnownString) && Boolean.valueOf(dobUnKnownString)) {
 
-                    String ageString = getFieldValue(fields, prefix + Constants.JSON_FORM_KEY.AGE);
+                JSONArray options = getJSONArray(dobUnknownObject, Constants.JSON_FORM_KEY.OPTIONS);
+                boolean isDobUnknown = Boolean.valueOf(JsonFormUtils.getFieldValue(options, dobUnknownField));
+
+                if (isDobUnknown) {
+
+                    String ageString = getFieldValue(fields, dobAgeField);
                     if (StringUtils.isNotBlank(ageString) && StringUtils.isNumeric(ageString)) {
                         int age = Integer.valueOf(ageString);
-                        JSONObject dobJSONObject = getFieldJSONObject(fields, entity.equalsIgnoreCase(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.Mother_Guardian_Date_Birth : Constants.JSON_FORM_KEY.DATE_BIRTH);
+                        JSONObject dobJSONObject = getFieldJSONObject(fields, dobField);
                         dobJSONObject.put(VALUE, Utils.getDob(age));
 
                         //Mark the birth date as an approximation
                         JSONObject isBirthdateApproximate = new JSONObject();
                         isBirthdateApproximate.put(Constants.KEY.KEY, FormEntityConstants.Person.birthdate_estimated);
                         isBirthdateApproximate.put(Constants.KEY.VALUE, Constants.BOOLEAN_INT.TRUE);
-                        isBirthdateApproximate
-                                .put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);//Required for value to be processed
+                        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);//Required for value to be processed
                         isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
+                        isBirthdateApproximate.put(JsonFormUtils.ENTITY_ID, dobUnknownObject.getString(JsonFormUtils.ENTITY_ID));
                         fields.put(isBirthdateApproximate);
 
                     }
+                } else {
+                    //Else to override dob unknown flag incase it was already previously saved on the db
+
+                    JSONObject dobUnknownValue = new JSONObject();
+                    dobUnknownValue.put(JsonFormConstants.KEY, dobUnknownField);
+                    dobUnknownValue.put(JsonFormConstants.VALUE, "false");
+
+                    JSONArray dobUnknownValueArray = new JSONArray();
+                    dobUnknownValueArray.put(dobUnknownValue);
+
+                    dobUnknownObject.put(JsonFormConstants.VALUE, dobUnknownValueArray);
                 }
             }
         } catch (JSONException e) {
@@ -960,13 +973,18 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void setFormFieldValues(Map<String, String> childDetails, List<String> nonEditableFields, JSONObject jsonObject) throws JSONException {
         String prefix = jsonObject.has(JsonFormUtils.ENTITY_ID) && jsonObject.getString(JsonFormUtils.ENTITY_ID).equalsIgnoreCase(Constants.KEY.MOTHER) ? "mother_" : "";
 
+        String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
+        String dobAgeField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
+
+        setFormFieldInitDataCleanUp(childDetails, prefix);
+
         if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(Constants.KEY.PHOTO)) {
             processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
-        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN)) {
+        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobUnknownField)) {
             JSONObject optionsObject = jsonObject.getJSONArray(Constants.JSON_FORM_KEY.OPTIONS).getJSONObject(0);
-            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, prefix + Constants.JSON_FORM_KEY.DOB_UNKNOWN, false));
-        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(prefix + Constants.JSON_FORM_KEY.AGE)) {
-            processAge(Utils.getValue(childDetails, prefix + Constants.JSON_FORM_KEY.DOB, false), jsonObject);
+            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, dobUnknownField, false));
+        } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobAgeField)) {
+            processAge(Utils.getValue(childDetails, prefix + "dob", false), jsonObject);
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
             processDate(childDetails, prefix, jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_INDENTIFIER)) {
@@ -988,6 +1006,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
 
         jsonObject.put(JsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(JsonFormUtils.KEY)));
+    }
+
+    private static void setFormFieldInitDataCleanUp(Map<String, String> childDetails, String prefix) {
+        //Inject if missing for entity age processing
+
+        String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
+        String dobUnknownKey = prefix + "dob_unknown";
+        if (childDetails.containsKey(dobUnknownField) && !childDetails.containsKey(dobUnknownKey)) {
+            childDetails.put(dobUnknownKey, childDetails.get(dobUnknownField));
+        }
+
     }
 
     private static void processTree(JSONObject jsonObject, String entity) throws JSONException {
@@ -1028,12 +1057,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     protected static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject)
             throws JSONException {
-        String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID)
-                .equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" :
-                jsonObject.getString(JsonFormUtils.KEY), false);
-        Date date = Utils.dobStringToDate(dateString);
-        if (StringUtils.isNotBlank(dateString) && date != null) {
-            jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(date));
+        String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" : jsonObject.getString(JsonFormUtils.KEY), false);
+        String isDOBUnknown = childDetails.get(prefix + "dob_unknown");
+        if (isDOBUnknown == null || !Boolean.valueOf(isDOBUnknown)) {
+            Date date = Utils.dobStringToDate(dateString);
+            if (StringUtils.isNotBlank(dateString) && date != null) {
+                jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(date));
+            }
         }
     }
 
@@ -1115,6 +1145,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
             }
 
+            dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
+
             Event subFormEvent = null;
 
             String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
@@ -1133,8 +1165,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
 
             lastInteractedWith(fields);
-
-            dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
             return new ChildEventClient(subformClient, subFormEvent);
         } catch (Exception e) {

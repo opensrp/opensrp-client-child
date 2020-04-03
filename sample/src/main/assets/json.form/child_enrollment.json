@@ -275,7 +275,7 @@
         "openmrs_entity_id": "birthdate",
         "entity_id": "mother",
         "type": "date_picker",
-        "hint": "Mother/guardian DOB",
+        "hint": "Mother/Guardian DOB",
         "look_up": "true",
         "expanded": false,
         "duration": {
