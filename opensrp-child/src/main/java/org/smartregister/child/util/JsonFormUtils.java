@@ -1151,7 +1151,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
             Client subformClient = createSubFormClient(context, fields, baseClient, subBindType, motherBaseEntityId);
-            subformClient.setGender(Constants.GENDER.FEMALE);
+
+            //only set default female gender if not explicitly set in the registration form
+            if (StringUtils.isBlank(subformClient.getGender())) {
+                subformClient.setGender(Constants.GENDER.FEMALE);
+            }
 
             if (subformClient != null && baseEvent != null) {
                 JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
