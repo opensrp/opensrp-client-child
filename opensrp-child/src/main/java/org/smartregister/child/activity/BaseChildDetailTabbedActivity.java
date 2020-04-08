@@ -465,7 +465,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             method.invoke(object, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
             try {
-                Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+                Timber.i(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
             } catch (Exception ex) {
 
             }
