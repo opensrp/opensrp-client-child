@@ -1,6 +1,7 @@
 package org.smartregister.child.task;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -170,49 +171,54 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
-        MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
+        try {
 
-        if (writeToCard != null) {
-            writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-        }
+            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
 
-        List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
-        List<Height> heightList = null;
-        if (hasProperty && monitorGrowth) {
-            heightList = AsyncTaskUtils.extractHeights(map);
-        }
-        List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
-        Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
-        List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
-        List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
-
-        boolean editVaccineMode = org.smartregister.child.enums.Status.EDIT_VACCINE.equals(status);
-        boolean editServiceMode = org.smartregister.child.enums.Status.EDIT_SERVICE.equals(status);
-        boolean editWeightMode = org.smartregister.child.enums.Status.EDIT_GROWTH.equals(status);
-
-        if (org.smartregister.child.enums.Status.NONE.equals(status)) {
-            BaseChildDetailTabbedActivity.updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
-        }
-
-        childDataFragment.loadData(detailsMap);
-
-        childUnderFiveFragment.setDetailsMap(detailsMap);
-        childUnderFiveFragment.loadGrowthMonitoringView(weightList, heightList, editWeightMode);
-        childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
-        childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
-
-        if (!fromUpdateStatus) {
-            activity.updateStatus(true);
-        }
-
-
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                activity.renderProfileWidget(detailsMap);
-                activity.hideProgressDialog();
+            if (writeToCard != null) {
+                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
             }
-        });
 
+            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+            List<Height> heightList = null;
+            if (hasProperty && monitorGrowth) {
+                heightList = AsyncTaskUtils.extractHeights(map);
+            }
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+
+            boolean editVaccineMode = org.smartregister.child.enums.Status.EDIT_VACCINE.equals(status);
+            boolean editServiceMode = org.smartregister.child.enums.Status.EDIT_SERVICE.equals(status);
+            boolean editWeightMode = org.smartregister.child.enums.Status.EDIT_GROWTH.equals(status);
+
+            if (org.smartregister.child.enums.Status.NONE.equals(status)) {
+                BaseChildDetailTabbedActivity.updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
+            }
+
+            childDataFragment.loadData(detailsMap);
+
+            childUnderFiveFragment.setDetailsMap(detailsMap);
+            childUnderFiveFragment.loadGrowthMonitoringView(weightList, heightList, editWeightMode);
+            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
+            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            if (!fromUpdateStatus) {
+                activity.updateStatus(true);
+            }
+
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.renderProfileWidget(detailsMap);
+                    activity.hideProgressDialog();
+                }
+            });
+
+        } catch (Exception e) {
+
+            Log.e(LoadAsyncTask.class.getCanonicalName(), e.getMessage(), e);
+        }
     }
 }
