@@ -43,6 +43,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
+import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.listener.StatusChangeListener;
@@ -136,7 +137,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private String locationId = "";
     private String providerId = "";
     private ImageView profileImageIV;
-    private boolean hasProperty;
     private boolean monitorGrowth = false;
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
     private List<ServiceHolder> editServicesList = new ArrayList<>();
@@ -197,12 +197,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
-
-
+        monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
@@ -464,7 +459,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             method.invoke(object, getResources().getColor(normalShade)); //now its ok
         } catch (Exception e) {
             try {
-                Timber.e(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
+                Timber.i(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
             } catch (Exception ex) {
 
             }
@@ -902,11 +897,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         updateWeightWrapper(weightWrapper);
-        if (hasProperty && monitorGrowth) {
+
+        if (monitorGrowth && heightWrapper.getHeight() != null) {
             updateHeightWrapper(heightWrapper);
         }
 
-        Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
+        Utils.startAsyncTask(new LoadAsyncTask(Status.EDIT_GROWTH, detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {

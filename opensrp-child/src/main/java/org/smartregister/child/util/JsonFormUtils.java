@@ -1151,7 +1151,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
             Client subformClient = createSubFormClient(context, fields, baseClient, subBindType, motherBaseEntityId);
-            subformClient.setGender(Constants.GENDER.FEMALE);
+
+            //only set default female gender if not explicitly set in the registration form
+            if (StringUtils.isBlank(subformClient.getGender())) {
+                subformClient.setGender(Constants.GENDER.FEMALE);
+            }
 
             if (subformClient != null && baseEvent != null) {
                 JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
@@ -1200,7 +1204,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getIdentifierMap();
+        Map<String, String> identifierMap = getSubFormIdentifierMap();
         Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
@@ -1252,7 +1256,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     @NotNull
-    private static Map<String, String> getIdentifierMap() {
+    private static Map<String, String> getSubFormIdentifierMap() {
         Map<String, String> identifiers = new HashMap<>();
         String motherZeirId = Utils.getNextOpenMrsId();
         if (StringUtils.isBlank(motherZeirId)) {

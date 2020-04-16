@@ -73,7 +73,6 @@ public class ChildUnderFiveFragment extends Fragment {
     private View heightWidgetLayout;
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
-    private Boolean curGrowthMonitoringMode;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -121,13 +120,10 @@ public class ChildUnderFiveFragment extends Fragment {
         this.detailsMap = detailsMap;
     }
 
-    public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList,
-                                         boolean editGrowthMonitoringMode) {
-        boolean showGrowthMonitoring =
-                curGrowthMonitoringMode == null || !curGrowthMonitoringMode.equals(editGrowthMonitoringMode);
-        if (fragmentContainer != null && showGrowthMonitoring) {
+    public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList, boolean editGrowthMonitoringMode) {
+
+        if (fragmentContainer != null) {
             createGrowthLayout(weightList, heightList, fragmentContainer, editGrowthMonitoringMode);
-            curGrowthMonitoringMode = editGrowthMonitoringMode;
         }
     }
 
