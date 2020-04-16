@@ -137,7 +137,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private String locationId = "";
     private String providerId = "";
     private ImageView profileImageIV;
-    private boolean hasProperty;
     private boolean monitorGrowth = false;
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
     private List<ServiceHolder> editServicesList = new ArrayList<>();
@@ -198,12 +197,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
-
-
+        monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
@@ -903,7 +897,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void onGrowthRecorded(WeightWrapper weightWrapper, HeightWrapper heightWrapper) {
         updateWeightWrapper(weightWrapper);
-        if (hasProperty && monitorGrowth) {
+
+        if (monitorGrowth && heightWrapper.getHeight() != null) {
             updateHeightWrapper(heightWrapper);
         }
 
