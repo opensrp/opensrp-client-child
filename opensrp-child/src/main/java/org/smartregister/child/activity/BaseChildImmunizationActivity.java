@@ -1331,7 +1331,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                //TODO use ec_child_details table
                 commonPersonObject.setColumnmaps(
                         JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
@@ -1339,8 +1338,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                //TODO use ec_child_details table
-
                 commonPersonObject.setColumnmaps(JsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }

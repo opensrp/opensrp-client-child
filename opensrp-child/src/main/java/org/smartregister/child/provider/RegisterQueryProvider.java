@@ -88,7 +88,7 @@ public class RegisterQueryProvider {
                 getDemographicTable() + "." + Constants.KEY.CLIENT_REG_DATE,
                 getChildDetailsTable() + "." + Constants.KEY.PMTCT_STATUS,
                 getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH,
-                getChildDetailsTable() + "." + Constants.KEY.INACTIVE,
+                getChildDetailsTable() + "." + Constants.CHILD_STATUS.INACTIVE,
                 getChildDetailsTable() + "." + Constants.KEY.LOST_TO_FOLLOW_UP,
                 getChildDetailsTable() + "." + Constants.KEY.CONTACT_PHONE_NUMBER
         };

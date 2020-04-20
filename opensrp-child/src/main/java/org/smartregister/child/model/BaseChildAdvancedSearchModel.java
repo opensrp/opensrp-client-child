@@ -9,10 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import static org.smartregister.child.util.Constants.CHILD_STATUS.ACTIVE;
-import static org.smartregister.child.util.Constants.KEY.INACTIVE;
-import static org.smartregister.child.util.Constants.KEY.LOST_TO_FOLLOW_UP;
-
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
         implements ChildAdvancedSearchContract.Model {
 
@@ -63,8 +59,8 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             if (demographicTableColumns.contains(key))
                 key = table + "." + key;
             String value = entry.getValue();
-            if (!key.contains(startDateKey) && !key.contains(endDateKey) && !key.contains(ACTIVE) && !key
-                    .contains(INACTIVE) && !key.contains(LOST_TO_FOLLOW_UP) && !key.contains(motherFirstNameKey) && !key
+            if (!key.contains(startDateKey) && !key.contains(endDateKey) && !key.contains(Constants.CHILD_STATUS.ACTIVE) && !key
+                    .contains(Constants.CHILD_STATUS.INACTIVE) && !key.contains(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) && !key.contains(motherFirstNameKey) && !key
                     .contains(motherLastNameKey)) {
                 if (StringUtils.isBlank(mainConditionString)) {
                     mainConditionString += " " + key + " Like '%" + value + "%'";
@@ -131,22 +127,22 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             if (demographicTableColumns.contains(key))
                 key = table + "." + key;
             String value = entry.getValue();
-            if (key.contains(ACTIVE) || key.contains(INACTIVE) || key.contains(LOST_TO_FOLLOW_UP)) {
+            if (key.contains(Constants.CHILD_STATUS.ACTIVE) || key.contains(Constants.CHILD_STATUS.INACTIVE) || key.contains(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
 
                 if (StringUtils.isBlank(statusConditionString)) {
-                    if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                        statusConditionString += " ( ( " + childDetailsTable + "." + INACTIVE + " IS NULL OR " + childDetailsTable + "." + INACTIVE + " != '" + Boolean.TRUE
+                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                        statusConditionString += " ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
-                                " AND ( " + childDetailsTable + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
+                                " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
                                 .toString() + "' ) ) ";
                     } else {
                         statusConditionString += " " + key + " = '" + value + "'";
                     }
                 } else {
-                    if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                        statusConditionString += " OR ( ( " + childDetailsTable + "." + INACTIVE + " IS NULL OR " + childDetailsTable + "." + INACTIVE + " != '" + Boolean.TRUE
+                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                        statusConditionString += " OR ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
-                                " AND ( " + childDetailsTable + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
+                                " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
                                 .toString() + "' ) ) ";
 
                     } else {

@@ -8,11 +8,11 @@ import android.widget.TextView;
 
 import org.opensrp.api.constants.Gender;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -49,47 +49,57 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
 
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
-        HashMap<String, String> rawDetailsMap = ChildDbUtils.fetchChildDetails(baseEntityId);
+
+        HashMap<String, String> rawDetailsMap = ChildLibrary.getInstance()
+                .eventClientRepository()
+                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
 
         CommonPersonObject rawDetails = new CommonPersonObject(
                 rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),
                 rawDetailsMap.get(Constants.KEY.RELATIONALID),
-                rawDetailsMap, "child");
+                rawDetailsMap, Constants.KEY.CHILD);
         rawDetails.setColumnmaps(rawDetailsMap);
+
         // Get extra child details
         CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
+
         // Check if child has a profile pic
         ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
-
-        childDetails.getColumnmaps().put("has_profile_image", "true");
         if (profileImage == null) {
-            childDetails.getColumnmaps().put("has_profile_image", "false");
+            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
+
+        } else {
+            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
+
         }
 
         // Get mother details
-        String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
+        String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
 
         Map<String, String> motherDetails = new HashMap<>();
-        motherDetails.put("mother_first_name", "");
-        motherDetails.put("mother_last_name", "");
-        motherDetails.put("mother_dob", "");
-        motherDetails.put("mother_nrc_number", "");
+        motherDetails.put(Constants.KEY.MOTHER_FIRST_NAME, "");
+        motherDetails.put(Constants.KEY.MOTHER_LAST_NAME, "");
+        motherDetails.put(Constants.KEY.MOTHER_DOB, "");
+        motherDetails.put(Constants.KEY.MOTHER_NRC_NUMBER, "");
         if (!TextUtils.isEmpty(motherBaseEntityId)) {
-            CommonPersonObject rawMotherDetails =
-                    CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable())
-                            .findByBaseEntityId(motherBaseEntityId);
+
+            HashMap<String, String> rawMotherDetails = ChildLibrary.getInstance()
+                    .eventClientRepository()
+                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                    " where " + Utils.metadata().childRegister.motherTableName + ".id = '" + baseEntityId + "' limit 1").get(0);
+
             if (rawMotherDetails != null) {
-                motherDetails
-                        .put("mother_first_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
-                motherDetails
-                        .put("mother_last_name", Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
-                motherDetails.put("mother_dob", Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
-                motherDetails
-                        .put("mother_nrc_number", Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
+                motherDetails.put(Constants.KEY.MOTHER_FIRST_NAME, rawMotherDetails.get(Constants.KEY.FIRST_NAME));
+                motherDetails.put(Constants.KEY.MOTHER_LAST_NAME, rawMotherDetails.get(Constants.KEY.LAST_NAME));
+                motherDetails.put(Constants.KEY.MOTHER_DOB, rawMotherDetails.get(Constants.KEY.DOB));
+                motherDetails.put(Constants.KEY.MOTHER_NRC_NUMBER, rawMotherDetails.get(Constants.KEY.NRC_NUMBER));
             }
         }
+
         Utils.putAll(childDetails.getColumnmaps(), motherDetails);
-        childDetails.setDetails(childDetails.getColumnmaps());
 
         return childDetails;
 

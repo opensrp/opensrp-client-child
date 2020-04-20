@@ -121,10 +121,16 @@ public class MotherLookUpUtils {
         }
 
         StringBuilder relationalIds = new StringBuilder();
-        for (String id : ids) {
-            relationalIds.append("'").append(id).append("'");
-        }
 
+
+        for (int i = 0; i < ids.size(); i++) {
+
+            relationalIds.append("'").append(ids.get(i)).append("'");
+
+            if (i != ids.size() - 1) {
+                relationalIds.append(",");
+            }
+        }
 
         List<HashMap<String, String>> childList = ChildLibrary.getInstance()
                 .eventClientRepository()
@@ -162,7 +168,8 @@ public class MotherLookUpUtils {
         return queryBuilder.Endquery(query);
     }
 
-    private static List<CommonPersonObject> findChildren(List<HashMap<String, String>> childList, String motherBaseEnityId) {
+    private static List<CommonPersonObject> findChildren
+            (List<HashMap<String, String>> childList, String motherBaseEnityId) {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
         for (Map<String, String> child : childList) {
             CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
