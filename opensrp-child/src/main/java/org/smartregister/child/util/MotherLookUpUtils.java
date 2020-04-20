@@ -121,10 +121,15 @@ public class MotherLookUpUtils {
         }
 
         StringBuilder relationalIds = new StringBuilder();
-        for (String id : ids) {
-            relationalIds.append("'").append(id).append("'");
-        }
+        for (int i = 0; i < ids.size(); i++) {
 
+            relationalIds.append("'").append(ids.get(i)).append("'");
+
+            if (i != ids.size() - 1) {
+                relationalIds.append(",");
+            }
+
+        }
 
         List<HashMap<String, String>> childList = ChildLibrary.getInstance()
                 .eventClientRepository()
