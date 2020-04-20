@@ -14,8 +14,6 @@ import org.smartregister.child.sample.application.SampleApplication;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.Utils;
 
 public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
@@ -80,7 +78,6 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public void onClick(View view) {
         Utils.showToast(this, "Floating Action Button clicked...");
-        ZScoreRefreshIntentServiceJob.scheduleJobImmediately(ZScoreRefreshIntentServiceJob.TAG);
     }
 
     @Override

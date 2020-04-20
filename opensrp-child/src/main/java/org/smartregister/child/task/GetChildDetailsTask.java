@@ -22,7 +22,6 @@ import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -74,32 +73,6 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
 
         }
-
-        // Get mother details
-        String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
-
-        Map<String, String> motherDetails = new HashMap<>();
-        motherDetails.put(Constants.KEY.MOTHER_FIRST_NAME, "");
-        motherDetails.put(Constants.KEY.MOTHER_LAST_NAME, "");
-        motherDetails.put(Constants.KEY.MOTHER_DOB, "");
-        motherDetails.put(Constants.KEY.MOTHER_NRC_NUMBER, "");
-        if (!TextUtils.isEmpty(motherBaseEntityId)) {
-
-            HashMap<String, String> rawMotherDetails = ChildLibrary.getInstance()
-                    .eventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().childRegister.motherTableName + ".id = '" + baseEntityId + "' limit 1").get(0);
-
-            if (rawMotherDetails != null) {
-                motherDetails.put(Constants.KEY.MOTHER_FIRST_NAME, rawMotherDetails.get(Constants.KEY.FIRST_NAME));
-                motherDetails.put(Constants.KEY.MOTHER_LAST_NAME, rawMotherDetails.get(Constants.KEY.LAST_NAME));
-                motherDetails.put(Constants.KEY.MOTHER_DOB, rawMotherDetails.get(Constants.KEY.DOB));
-                motherDetails.put(Constants.KEY.MOTHER_NRC_NUMBER, rawMotherDetails.get(Constants.KEY.NRC_NUMBER));
-            }
-        }
-
-        Utils.putAll(childDetails.getColumnmaps(), motherDetails);
 
         return childDetails;
 

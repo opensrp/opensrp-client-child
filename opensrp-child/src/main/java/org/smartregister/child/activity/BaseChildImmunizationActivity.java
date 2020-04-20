@@ -43,8 +43,8 @@ import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildDbUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -60,6 +60,7 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.RecordGrowthDialogFragment;
+import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -2189,7 +2190,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
 
                 List<CommonPersonObject> children = new ArrayList<>();
-                for(HashMap<String, String>  hashMap: childList){
+                for (HashMap<String, String> hashMap : childList) {
                     CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, "child");
                     commonPersonObject.setColumnmaps(hashMap);
                     children.add(commonPersonObject);
