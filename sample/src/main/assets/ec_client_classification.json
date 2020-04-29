@@ -15,6 +15,14 @@
           },
           {
             "field": "eventType",
+            "field_value": "Update Woman Registration",
+            "creates_case": [
+              "ec_client",
+              "ec_mother_details"
+            ]
+          },
+          {
+            "field": "eventType",
             "field_value": "Birth Registration",
             "creates_case": [
               "ec_client",

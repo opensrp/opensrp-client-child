@@ -104,7 +104,7 @@ public final class Constants extends AllConstants {
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
-        public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+        public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
         public static final String ID = "id";
         public static final String NRC_NUMBER = "nrc_number";
         public static final String FATHER_NAME = "father_name";
@@ -189,5 +189,15 @@ public final class Constants extends AllConstants {
 
     public static class VACCINE {
         public static final String BCG2 = "bcg2";
+    }
+
+    public static final class LOCAL_DATE_TIME {
+
+        public static final String YEAR = "year";
+        public static final String MONTH_OF_YEAR = "monthOfYear";
+        public static final String DAY_OF_MONTH = "dayOfMonth";
+        public static final String HOUR_OF_DAY = "hourOfDay";
+        public static final String MINUTE_OF_HOUR = "minuteOfHour";
+        public static final String SECOND_OF_MINUTE = "secondOfMinute";
     }
 }

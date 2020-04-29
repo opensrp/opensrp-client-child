@@ -48,7 +48,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.INTENT_KEY.LOCATION_ID, org.smartregister.child.util.Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
         intent.putExtras(bundle);
 

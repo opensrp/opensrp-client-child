@@ -128,6 +128,27 @@
           "json_mapping": {
             "field": "version"
           }
+        },
+        {
+          "column_name": "residential_area",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address3"
+          }
+        },
+        {
+          "column_name": "residential_area_other",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address5"
+          }
+        },
+        {
+          "column_name": "residential_address",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address2"
+          }
         }
       ]
     },
@@ -170,6 +191,20 @@
             "field": "obs.fieldCode",
             "concept": "1594AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           }
+        },
+        {
+          "column_name": "is_consented",
+          "type": "Event",
+          "json_mapping": {
+            "field": "attributes.is_consented"
+          }
+        },
+        {
+          "column_name": "preferred_language",
+          "type": "Event",
+          "json_mapping": {
+            "field": "attributes.preferred_language"
+          }
         }
       ]
     },
@@ -205,7 +240,7 @@
           }
         },
         {
-          "column_name": "contact_phone_number",
+          "column_name": "mother_guardian_phone_number",
           "type": "Event",
           "json_mapping": {
             "field": "obs.fieldCode",

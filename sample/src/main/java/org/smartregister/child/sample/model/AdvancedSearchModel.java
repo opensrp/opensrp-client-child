@@ -3,6 +3,7 @@ package org.smartregister.child.sample.model;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
@@ -115,6 +116,12 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                         } catch (Exception e) {
                             Log.e(getClass().getName(), e.toString(), e);
                         }
+                    } else if (dob.startsWith("{")) {
+
+                        Date date = processJsonFormatLocalDate(dob);
+                        if (date != null) {
+                            dob = DateUtil.yyyyMMddTHHmmssSSSZ.format(date);
+                        }
                     }
 
                     zeirId = getJsonString(getJsonObject(child, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
@@ -149,5 +156,19 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
         } else {
             return matrixCursor;
         }
+    }
+
+    private Date processJsonFormatLocalDate(String dateString) {
+        Date date = null;
+        try {
+
+            JSONObject jsonObject = new JSONObject(dateString);
+            date = (new LocalDateTime(jsonObject.getInt(Constants.LOCAL_DATE_TIME.YEAR), jsonObject.getInt(Constants.LOCAL_DATE_TIME.MONTH_OF_YEAR), jsonObject.getInt(Constants.LOCAL_DATE_TIME.DAY_OF_MONTH), jsonObject.getInt(Constants.LOCAL_DATE_TIME.HOUR_OF_DAY), jsonObject.getInt(Constants.LOCAL_DATE_TIME.MINUTE_OF_HOUR), jsonObject.getInt(Constants.LOCAL_DATE_TIME.SECOND_OF_MINUTE))).toDate();
+
+        } catch (Exception e) {
+
+            Log.e(getClass().getName(), e.toString(), e);
+        }
+        return date;
     }
 }

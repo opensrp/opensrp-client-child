@@ -37,6 +37,7 @@ import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
@@ -60,7 +61,6 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditGrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
 import org.smartregister.growthmonitoring.fragment.RecordGrowthDialogFragment;
-import org.smartregister.growthmonitoring.job.ZScoreRefreshIntentServiceJob;
 import org.smartregister.growthmonitoring.listener.GrowthMonitoringActionListener;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -120,7 +120,7 @@ import timber.log.Timber;
  */
 public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
-        VaccinationActionListener, ServiceActionListener, View.OnClickListener {
+        VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails {
 
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
@@ -158,11 +158,60 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private ImageButton growthChartButton;
     private SiblingPicturesGroup siblingPicturesGroup;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+
+        setUpToolbar();
+        setUpViews();
+
+        // Get child details from bundled data
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+
+            Map<String, String> details = ChildLibrary.
+                    getInstance()
+                    .context()
+                    .getEventClientRepository()
+                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
+
+            childDetails = new CommonPersonObjectClient(caseId, details, null);
+            childDetails.setColumnmaps(details);
+        }
+
+        Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
+        if (serializable != null && serializable instanceof RegisterClickables) {
+            registerClickables = (RegisterClickables) serializable;
+        }
+
+
+        bcgScarNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                        ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+
+        setLastModified(false);
+
+        setUpFloatingActionButton();
+    }
+
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
                                       RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
@@ -179,58 +228,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String serializedOject = gson.toJson(object);
 
         return gson.fromJson(serializedOject, object.getClass());
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
-
-        setUpToolbar();
-        setUpViews();
-
-        // Get child details from bundled data
-        Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
-            Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-                Map<String, String> details = ChildLibrary.
-                        getInstance()
-                        .context()
-                        .getEventClientRepository()
-                        .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                                Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                        " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + childDetails.entityId() + "' limit 1").get(0);
-
-                Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.entityId()));
-
-                childDetails.setColumnmaps(details);
-                childDetails.setDetails(details);
-            }
-
-            serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
-            if (serializable != null && serializable instanceof RegisterClickables) {
-                registerClickables = (RegisterClickables) serializable;
-            }
-        }
-
-        bcgScarNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
-                        !ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
-        weightNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-                        ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-
-        setLastModified(false);
-
-        setUpFloatingActionButton();
     }
 
     private void setUpViews() {
@@ -849,7 +846,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(name);
         vaccine.setDate(date);
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
+        vaccine.setLocationId(getOpenSRPContext().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -1660,6 +1657,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public abstract void onClick(View view);
 
+    @Override
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
     }

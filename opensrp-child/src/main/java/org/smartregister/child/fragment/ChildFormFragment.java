@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.customviews.MaterialSpinner;
 import com.vijay.jsonwizard.domain.Form;
 import com.vijay.jsonwizard.fragments.JsonWizardFormFragment;
 import com.vijay.jsonwizard.utils.FormUtils;
@@ -28,6 +30,8 @@ import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.interactor.ChildFormInteractor;
@@ -49,6 +53,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -63,6 +69,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private boolean lookedUp = false;
     private CommonPersonObjectClient sibling;
     private MaterialEditText motherDOBMaterialEditText;
+    private AppCompatCheckBox compatCheckBox;
+    private MaterialSpinner spinner;
 
     private static final int showResultsDuration = Integer.valueOf(ChildLibrary
             .getInstance()
@@ -411,25 +419,29 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.CONTACT_PHONE_NUMBER, true);
+                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH), true);
                         }
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA)) {
-                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
+                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
                         }
 
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA_OTHER)) {
-                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER, true);
+                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER.toLowerCase(Locale.ENGLISH), true);
                         }
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_ADDRESS)) {
-                            text = getValue(sibling.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS, true);
+                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS.toLowerCase(Locale.ENGLISH), true);
                         }
 
 
                         if (key.equalsIgnoreCase(Constants.PREFERRED_LANGUAGE)) {
-                            text = getValue(sibling.getColumnmaps(), Constants.PREFERRED_LANGUAGE, true);
+                            text = getValue(pc.getColumnmaps(), Constants.PREFERRED_LANGUAGE.toLowerCase(Locale.ENGLISH), true);
+                        }
+
+                        if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.IS_CONSENTED)) {
+                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.IS_CONSENTED, false);
                         }
 
 
@@ -442,9 +454,40 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
                         } else {
 
-                            if ("Mother_Guardian_Date_Birth_Unknown".equals(view.getTag(com.vijay.jsonwizard.R.id.key))) {
+                            if ("Mother_Guardian_Date_Birth_Unknown".equalsIgnoreCase(key)) {
 
                                 view.setVisibility(View.GONE);
+
+                            } else if (Constants.PREFERRED_LANGUAGE.equalsIgnoreCase(key)) {
+
+                                spinner = ((MaterialSpinner) ((ViewGroup) (view)).getChildAt(0));
+
+                                try {
+                                    JSONArray itemKeys = (JSONArray) spinner.getTag(com.vijay.jsonwizard.R.id.keys);
+
+                                    int selected = 0;
+                                    for (int i = 0; i < itemKeys.length(); i++) {
+
+                                        if (itemKeys.get(i).toString().equalsIgnoreCase(text)) {
+                                            selected = i;
+                                            break;
+                                        }
+                                    }
+
+                                    spinner.setSelection(selected);
+
+                                } catch (JSONException e) {
+
+                                    Timber.e(e, e.getMessage());
+                                }
+
+                                spinner.setEnabled(false);
+
+                            } else if (MotherLookUpUtils.IS_CONSENTED.equalsIgnoreCase(key)) {
+
+                                compatCheckBox = (AppCompatCheckBox) ((ViewGroup) ((LinearLayout) view).getChildAt(1)).getChildAt(0);
+                                compatCheckBox.setChecked(StringUtils.containsIgnoreCase(text, MotherLookUpUtils.IS_CONSENTED));
+                                compatCheckBox.setEnabled(false);
 
                             }
                         }
@@ -505,6 +548,26 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
                 lookedUp = false;
+
+                //Fix weird bug, Mother DOB not disabled on auto-look up
+                if (motherDOBMaterialEditText != null) {
+                    motherDOBMaterialEditText.setEnabled(true);
+                    enableEditText(motherDOBMaterialEditText);
+                    motherDOBMaterialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
+                    motherDOBMaterialEditText.setText("");
+                }
+
+                // Clean up field widgets
+                if (spinner != null) {
+                    spinner.setEnabled(true);
+                    spinner.setSelection(0);
+                }
+
+                if (compatCheckBox != null) {
+                    compatCheckBox.setEnabled(true);
+                    compatCheckBox.setChecked(false);
+                }
+
             }
         }
     }

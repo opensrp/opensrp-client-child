@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -68,7 +69,6 @@ import java.util.Map;
 public class ChildUnderFiveFragment extends Fragment {
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static Boolean monitorGrowth = false;
-    private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
     private Map<String, String> detailsMap;
     private LinearLayout fragmentContainer;
@@ -99,14 +99,12 @@ public class ChildUnderFiveFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.inflater = inflater;
-        if (this.getArguments() != null) {
-            Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-                detailsMap = childDetails.getColumnmaps();
-            }
+
+        if (getActivity() instanceof IChildDetails) {
+            childDetails = ((IChildDetails) getActivity()).getChildDetails();
+            detailsMap = childDetails.getColumnmaps();
         }
+
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
 
@@ -144,7 +142,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
         if (weightMap.size() > 0) {
-            widgetFactory.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
+            widgetFactory.createWeightWidget(getActivity().getLayoutInflater(), fragmentContainer, weightMap, listeners, weightEditMode);
         }
 
         if (monitorGrowth) {
@@ -158,7 +156,7 @@ public class ChildUnderFiveFragment extends Fragment {
             LinkedHashMap<Long, Pair<String, String>> heightMap =
                     updateHeightMap(editMode, heightEditMode, heightListeners, heightList);
             if (heightMap.size() > 0) {
-                widgetFactory.createHeightWidget(inflater, fragmentContainer, heightMap, heightListeners, heightEditMode);
+                widgetFactory.createHeightWidget(getActivity().getLayoutInflater(), fragmentContainer, heightMap, heightListeners, heightEditMode);
             }
         }
 

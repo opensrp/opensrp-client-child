@@ -29,6 +29,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
@@ -988,7 +989,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobUnknownField)) {
             JSONObject optionsObject = jsonObject.getJSONArray(Constants.JSON_FORM_KEY.OPTIONS).getJSONObject(0);
-            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, dobUnknownField, false));
+            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, dobUnknownField.toLowerCase(Locale.ENGLISH), false));
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobAgeField)) {
             processAge(Utils.getValue(childDetails, prefix + "dob", false), jsonObject);
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
@@ -996,7 +997,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_INDENTIFIER)) {
             jsonObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).toLowerCase(), false).replace("-", ""));
         } else if (jsonObject.has(JsonFormConstants.TREE)) {
-            processTree(jsonObject, Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_ADDRESS) ? jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID) : jsonObject.getString(JsonFormUtils.KEY), false));
+            processTree(jsonObject, Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_ADDRESS) ? prefix + jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID) : jsonObject.getString(JsonFormUtils.KEY), false));
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.CONCEPT)) {
             jsonObject.put(JsonFormUtils.VALUE, getMappedValue(jsonObject.getString(JsonFormUtils.KEY), childDetails));
         } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
@@ -1414,21 +1415,29 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     private static void addProcessMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
+
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+
+        //The identifiers for provider we are transferring TO
+        Identifiers localProviderIdentifiers = new Identifiers();
+        localProviderIdentifiers.setProviderId(allSharedPreferences.fetchRegisteredANM());
+        localProviderIdentifiers.setLocationId(locationId);
+        localProviderIdentifiers.setChildLocationId(JsonFormUtils.getChildLocationId(locationId, allSharedPreferences));
+        localProviderIdentifiers.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
+        localProviderIdentifiers.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
         for (Pair<Event, JSONObject> pair : eventList) {
             Event event = pair.first;
             JSONObject jsonEvent = pair.second;
 
-            String fromLocationId = null;
             if (Utils.metadata().childRegister.registerEventType.equals(event.getEventType())) {
-                fromLocationId = updateHomeFacility(locationId, event);
+                updateHomeFacility(locationId, event);
 
             }
 
             if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
-                createMoveToCatchmentEvent(context, providerId, locationId, event, fromLocationId);
+                createMoveToCatchmentEvent(context, localProviderIdentifiers, event);
 
             }
 
@@ -1457,9 +1466,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static void createMoveToCatchmentEvent(Context context, String toProviderId, String toLocationId, Event event, String fromLocationId) {
+    private static void createMoveToCatchmentEvent(Context context, Identifiers transferToIdentifiers, Event event) {
         //Create move to catchment event;
-        Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+        Event moveToCatchmentEvent = JsonFormUtils.processChangeOfCatchmentObservations(context, transferToIdentifiers, event);
         if (moveToCatchmentEvent != null) {
             JSONObject moveToCatchmentJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
             if (moveToCatchmentJsonEvent != null) {
@@ -1468,24 +1477,32 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    private static String updateHomeFacility(String toLocationId, Event event) {
+    private static void updateHomeFacility(String toLocationId, Event event) {
         // Update home facility
-        String locationId = null;
+
         for (Obs obs : event.getObs()) {
             if (obs.getFormSubmissionField().equals(Constants.HOME_FACILITY)) {
-                locationId = obs.getValue().toString();
                 List<Object> values = new ArrayList<>();
                 values.add(toLocationId);
                 obs.setValues(values);
                 break;
             }
         }
-        return locationId;
     }
 
-    public static Event createMoveToCatchmentEvent(Context context, Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
+    public static Event processChangeOfCatchmentObservations(Context context, Identifiers toIdentifiers, Event referenceEvent) {
 
         try {
+
+            //From Identifiers
+            String fromLocationId = referenceEvent.getLocationId();
+
+            //To identifiers
+            String toProviderId = toIdentifiers.getProviderId();
+            String toLocationId = toIdentifiers.getLocationId();
+            String toChildLocationId = toIdentifiers.getChildLocationId();
+            String toTeam = toIdentifiers.getTeam();
+            String toTeamId = toIdentifiers.getTeamId();
 
             //Same location/provider, no need to move
             if (toLocationId.equals(fromLocationId) || referenceEvent.getProviderId().equals(toProviderId)) {
@@ -1506,7 +1523,26 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             formSubmissionField = "From_LocationId";
             vall = new ArrayList<>();
-            vall.add(fromLocationId);
+            vall.add(referenceEvent.getLocationId());
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
+
+            formSubmissionField = "From_Child_LocationId";
+            vall = new ArrayList<>();
+            vall.add(referenceEvent.getChildLocationId());
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
+            formSubmissionField = "From_Team";
+            vall = new ArrayList<>();
+            vall.add(referenceEvent.getTeam());
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
+            formSubmissionField = "From_TeamId";
+            vall = new ArrayList<>();
+            vall.add(referenceEvent.getTeamId());
             event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
                     formSubmissionField));
 
@@ -1522,6 +1558,25 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
                     formSubmissionField));
 
+
+            formSubmissionField = "To_Child_LocationId";
+            vall = new ArrayList<>();
+            vall.add(toChildLocationId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
+            formSubmissionField = "To_Team";
+            vall = new ArrayList<>();
+            vall.add(toTeam);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
+            formSubmissionField = "To_TeamId";
+            vall = new ArrayList<>();
+            vall.add(toTeamId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
             addMetaData(context, event, new Date());
 
             return event;
@@ -1531,10 +1586,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return null;
         }
     }
-
-
-    //TO DO Remove
-    //DEPRECATED
 
     /**
      * Starts an instance of JsonFormActivity with the provided form details

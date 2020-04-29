@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -38,8 +39,8 @@ public class MotherLookUpUtils {
     public static final String baseEntityId = "base_entity_id";
     public static final String MOTHER_GUARDIAN_NRC = "Mother_Guardian_NRC";
     public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "Mother_Guardian_Phone_Number";
+    public static final String IS_CONSENTED = "is_consented";
     public static final String RELATIONAL_ID = "relational_id";
-    public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
@@ -148,16 +149,20 @@ public class MotherLookUpUtils {
 
     private static String lookUpQuery(Map<String, String> entityMap, String tableName) {
 
-        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
-        queryBuilder.SelectInitiateMainTable(tableName,
-                new String[]{Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
-                        Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + AllConstants.ChildRegistrationFields.GENDER,
-                        Constants.KEY.DOB,
-                        NRC_NUMBER,
-                        CONTACT_PHONE_NUMBER,
-                        Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID}
+        String[] lookupColumns = new String[]{Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + RELATIONALID, Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + AllConstants.ChildRegistrationFields.GENDER,
+                Constants.KEY.DOB,
+                NRC_NUMBER,
+                MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH),
+                Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "is_consented",
+                Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "preferred_language",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_area",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_area_other",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_address",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID};
 
-        );
+        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
+        queryBuilder.SelectInitiateMainTable(tableName, lookupColumns);
         queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
                 " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
@@ -200,7 +205,7 @@ public class MotherLookUpUtils {
             }
 
             if (StringUtils.equalsIgnoreCase(key, MOTHER_GUARDIAN_PHONE_NUMBER)) {
-                key = CONTACT_PHONE_NUMBER;
+                key = MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH);
             }
 
             if (StringUtils.equalsIgnoreCase(key, MOTHER_GUARDIAN_NRC)) {

@@ -62,7 +62,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
             motherGuardianFirstName.setText(searchFormData.get(DBConstants.KEY.MOTHER_FIRST_NAME));
             motherGuardianLastName.setText(searchFormData.get(DBConstants.KEY.MOTHER_LAST_NAME));
             motherGuardianNrc.setText(searchFormData.get(DBConstants.KEY.NRC_NUMBER));
-            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.CONTACT_PHONE_NUMBER));
+            motherGuardianPhoneNumber.setText(searchFormData.get(DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER));
             openSrpId.setText(searchFormData.get(DBConstants.KEY.ZEIR_ID));
         }
     }
@@ -101,7 +101,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianFirstName);
         advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_LAST_NAME, motherGuardianLastName);
         advancedFormSearchableFields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc);
-        advancedFormSearchableFields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber);
+        advancedFormSearchableFields.put(DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER, motherGuardianPhoneNumber);
         advancedFormSearchableFields.put(START_DATE, startDate);
         advancedFormSearchableFields.put(END_DATE, endDate);
     }
@@ -114,7 +114,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         fields.put(DBConstants.KEY.MOTHER_FIRST_NAME, motherGuardianFirstName.getText().toString());
         fields.put(DBConstants.KEY.MOTHER_LAST_NAME, motherGuardianLastName.getText().toString());
         fields.put(DBConstants.KEY.NRC_NUMBER, motherGuardianNrc.getText().toString());
-        fields.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
+        fields.put(DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER, motherGuardianPhoneNumber.getText().toString());
         fields.put(DBConstants.KEY.ZEIR_ID, openSrpId.getText().toString());
         fields.put(START_DATE, startDate.getText().toString());
         fields.put(END_DATE, endDate.getText().toString());
@@ -184,7 +184,7 @@ public class AdvancedSearchFragment extends BaseAdvancedSearchFragment {
         }
 
         if (StringUtils.isNotBlank(motherGuardianPhoneNumberString)) {
-            searchParams.put(DBConstants.KEY.CONTACT_PHONE_NUMBER, motherGuardianPhoneNumberString);
+            searchParams.put(DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER, motherGuardianPhoneNumberString);
         }
 
 

@@ -90,7 +90,8 @@ public class RegisterQueryProvider {
                 getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH,
                 getChildDetailsTable() + "." + Constants.CHILD_STATUS.INACTIVE,
                 getChildDetailsTable() + "." + Constants.KEY.LOST_TO_FOLLOW_UP,
-                getChildDetailsTable() + "." + Constants.KEY.CONTACT_PHONE_NUMBER
+                getChildDetailsTable() + "." + Constants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER,
+                getDemographicTable() + "." + "address1",
         };
     }
 

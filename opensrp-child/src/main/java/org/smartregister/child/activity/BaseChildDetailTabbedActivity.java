@@ -43,6 +43,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
@@ -57,8 +58,8 @@ import org.smartregister.child.task.UndoServiceTask;
 import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildDbUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -117,9 +118,8 @@ import static org.smartregister.util.Utils.getValue;
  */
 
 public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
-        implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
+        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
-    public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
     protected static final int REQUEST_CODE_GET_JSON = 3432;
@@ -144,68 +144,29 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
-    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
-        boolean showVaccineList = false;
-        for (int i = 0; i < vaccineList.size(); i++) {
-            Vaccine vaccine = vaccineList.get(i);
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
-            if (check) {
-                showVaccineList = true;
-                break;
-            }
-        }
-
-        boolean showServiceList = false;
-        for (ServiceRecord serviceRecord : serviceRecordList) {
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
-            if (check) {
-                showServiceList = true;
-                break;
-
-            }
-        }
-
-        boolean showWeightEdit = false;
-
-        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
-
-            for (int i = 0; i < weightList.size(); i++) {
-                Weight weight = weightList.get(i);
-                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
-                if (showWeightEdit) {
-                    break;
-                }
-            }
-        }
-
-        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
-    }
-
-    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
-        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
-        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
-        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
-    }
-
-    public static Menu getOverflow() {
-        return overflow;
-    }
-
-    public static void setOverflow(Menu overflow) {
-        BaseChildDetailTabbedActivity.overflow = overflow;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
-            Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-                detailsMap = childDetails.getColumnmaps();
-            }
+
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+
+            Map<String, String> details = ChildLibrary.
+                    getInstance()
+                    .context()
+                    .getEventClientRepository()
+                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
+
+            Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+
+            childDetails = new CommonPersonObjectClient(caseId, details, null);
+            childDetails.setColumnmaps(details);
+
+            detailsMap = childDetails.getColumnmaps();
         }
 
         locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
@@ -272,6 +233,58 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         setupViews();
         vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
     }
+
+    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+        boolean showVaccineList = false;
+        for (int i = 0; i < vaccineList.size(); i++) {
+            Vaccine vaccine = vaccineList.get(i);
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
+            if (check) {
+                showVaccineList = true;
+                break;
+            }
+        }
+
+        boolean showServiceList = false;
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
+            if (check) {
+                showServiceList = true;
+                break;
+
+            }
+        }
+
+        boolean showWeightEdit = false;
+
+        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
+
+            for (int i = 0; i < weightList.size(); i++) {
+                Weight weight = weightList.get(i);
+                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+                if (showWeightEdit) {
+                    break;
+                }
+            }
+        }
+
+        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
+    }
+
+    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
+        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
+        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
+    }
+
+    public static Menu getOverflow() {
+        return overflow;
+    }
+
+    public static void setOverflow(Menu overflow) {
+        BaseChildDetailTabbedActivity.overflow = overflow;
+    }
+
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
 
@@ -1102,6 +1115,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
 
+    @Override
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
     }
