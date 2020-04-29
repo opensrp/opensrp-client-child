@@ -67,7 +67,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private Snackbar snackbar = null;
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
-    private CommonPersonObjectClient sibling;
     private MaterialEditText motherDOBMaterialEditText;
     private AppCompatCheckBox compatCheckBox;
     private MaterialSpinner spinner;
@@ -91,8 +90,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
                     client = (CommonPersonObjectClient) view.getTag();
                 }
-
-                sibling = (CommonPersonObjectClient) view.getTag(R.id.childKey);
 
                 if (client != null) {
                     lookupDialogDismissed(client);
@@ -257,8 +254,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 v.setOnClickListener(lookUpRecordOnClickLister);
                 v.setTag(Utils.convert(commonPersonObject));
 
-                if (children != null && children.size() > 0)
-                    v.setTag(R.id.childKey, Utils.convert(children.get(0)));
                 return v;
             }
         };

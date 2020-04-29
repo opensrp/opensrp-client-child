@@ -51,7 +51,6 @@ import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
