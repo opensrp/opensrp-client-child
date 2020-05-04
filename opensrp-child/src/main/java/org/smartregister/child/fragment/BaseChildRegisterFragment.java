@@ -265,10 +265,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     protected void updateLocationText() {
-        if (clinicSelection != null) {
-            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
-            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-            context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+        try {
+            if (clinicSelection != null) {
+                clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
+                context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+            }
+        } catch (Exception e) {
+            Timber.e(e);
         }
     }
 
