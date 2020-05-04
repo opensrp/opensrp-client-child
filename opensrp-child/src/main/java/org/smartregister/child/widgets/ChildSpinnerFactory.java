@@ -1,202 +1,20 @@
 package org.smartregister.child.widgets;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
-import com.rey.material.util.ViewUtil;
-import com.vijay.jsonwizard.constants.JsonFormConstants;
-import com.vijay.jsonwizard.customviews.MaterialSpinner;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
-import com.vijay.jsonwizard.interfaces.CommonListener;
-import com.vijay.jsonwizard.interfaces.FormWidgetFactory;
-import com.vijay.jsonwizard.interfaces.JsonApi;
-import com.vijay.jsonwizard.utils.FormUtils;
-import com.vijay.jsonwizard.utils.ValidationStatus;
-import com.vijay.jsonwizard.views.JsonFormFragmentView;
+import com.vijay.jsonwizard.widgets.SpinnerFactory;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ndegwamartin on 2020-04-28.
  */
-public class ChildSpinnerFactory implements FormWidgetFactory {
-    private FormUtils formUtils = new FormUtils();
-
-    public static ValidationStatus validate(JsonFormFragmentView formFragmentView, MaterialSpinner spinner) {
-        if (spinner.getTag(com.vijay.jsonwizard.R.id.v_required) == null) {
-            return new ValidationStatus(true, null, formFragmentView, spinner);
-        }
-        boolean isRequired = (boolean) spinner.getTag(com.vijay.jsonwizard.R.id.v_required);
-        String error = (String) spinner.getTag(com.vijay.jsonwizard.R.id.error);
-        int selectedItemPosition = spinner.getSelectedItemPosition();
-
-        if (isRequired && selectedItemPosition == 0 && spinner.isEnabled()) {
-            return new ValidationStatus(false, error, formFragmentView, spinner);
-        }
-        return new ValidationStatus(true, null, formFragmentView, spinner);
-    }
-
-    private static void setRequiredOnHint(MaterialSpinner spinner) {
-        if (!TextUtils.isEmpty(spinner.getHint())) {
-            SpannableString hint = new SpannableString(spinner.getHint() + " *");
-            hint.setSpan(new ForegroundColorSpan(Color.RED), hint.length() - 1, hint.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spinner.setHint(hint);
-        }
-    }
+public class ChildSpinnerFactory extends SpinnerFactory {
 
     @Override
-    public List<View> getViewsFromJson(String stepName, Context context, JsonFormFragment formFragment,
-                                       JSONObject jsonObject, CommonListener listener, boolean popup) throws Exception {
-        return attachJson(stepName, context, jsonObject, listener, formFragment, popup);
-    }
+    public void genericWidgetLayoutHookback(View view, JSONObject jsonObject, JsonFormFragment formFragment) {
 
-    @Override
-    public List<View> getViewsFromJson(String stepName, Context context, JsonFormFragment formFragment,
-                                       JSONObject jsonObject, CommonListener listener) throws Exception {
-        return attachJson(stepName, context, jsonObject, listener, formFragment, false);
-    }
-
-    private List<View> attachJson(String stepName, Context context, JSONObject jsonObject, CommonListener listener, JsonFormFragment formFragment,
-                                  boolean popup) throws JSONException {
-        String openMrsEntityParent = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY_PARENT);
-        String openMrsEntity = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY);
-        String openMrsEntityId = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY_ID);
-
-        List<View> views = new ArrayList<>(1);
-        JSONArray canvasIds = new JSONArray();
-        RelativeLayout spinnerRelativeLayout = (RelativeLayout) LayoutInflater.from(context)
-                .inflate(com.vijay.jsonwizard.R.layout.native_form_item_spinner, null);
-
-        setViewTags(jsonObject, canvasIds, stepName, popup, openMrsEntityParent, openMrsEntity, openMrsEntityId,
-                spinnerRelativeLayout);
-        spinnerRelativeLayout.setTag(com.vijay.jsonwizard.R.id.canvas_ids, canvasIds.toString());
-
-        addSpinner(jsonObject, spinnerRelativeLayout, listener, canvasIds, stepName, popup, context);
-
-        WidgetUtils.hookupLookup(spinnerRelativeLayout, jsonObject, formFragment);
-
-        views.add(spinnerRelativeLayout);
-        return views;
-    }
-
-    private void addSpinner(JSONObject jsonObject, RelativeLayout spinnerRelativeLayout, CommonListener listener,
-                            JSONArray canvasIds, String stepName, boolean popup, Context context) throws JSONException {
-        String openMrsEntityParent = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY_PARENT);
-        String openMrsEntity = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY);
-        String openMrsEntityId = jsonObject.getString(JsonFormConstants.OPENMRS_ENTITY_ID);
-        String labelInfoText = jsonObject.optString(JsonFormConstants.LABEL_INFO_TEXT, "");
-        String labelInfoTitle = jsonObject.optString(JsonFormConstants.LABEL_INFO_TITLE, "");
-        String relevance = jsonObject.optString(JsonFormConstants.RELEVANCE);
-        String constraints = jsonObject.optString(JsonFormConstants.CONSTRAINTS);
-        String calculations = jsonObject.optString(JsonFormConstants.CALCULATION);
-
-        MaterialSpinner spinner = spinnerRelativeLayout.findViewById(com.vijay.jsonwizard.R.id.material_spinner);
-        ImageView spinnerInfoIconImageView = spinnerRelativeLayout.findViewById(com.vijay.jsonwizard.R.id.spinner_info_icon);
-        ImageView editButton = spinnerRelativeLayout.findViewById(com.vijay.jsonwizard.R.id.spinner_edit_button);
-        FormUtils.setEditButtonAttributes(jsonObject, spinner, editButton, listener);
-        String hint = jsonObject.optString(JsonFormConstants.HINT);
-        if (!TextUtils.isEmpty(hint)) {
-            spinner.setHint(jsonObject.getString(JsonFormConstants.HINT));
-            spinner.setFloatingLabelText(jsonObject.getString(JsonFormConstants.HINT));
-        }
-
-        JSONArray keysJson = null;
-        if (jsonObject.has(JsonFormConstants.KEYS)) {
-            keysJson = jsonObject.getJSONArray(JsonFormConstants.KEYS);
-            spinner.setTag(com.vijay.jsonwizard.R.id.keys, keysJson);
-        }
-
-        setViewTags(jsonObject, canvasIds, stepName, popup, openMrsEntityParent, openMrsEntity, openMrsEntityId, spinner);
-
-        addSkipLogicTags(context, relevance, constraints, calculations, spinner);
-
-        JSONObject requiredObject = jsonObject.optJSONObject(JsonFormConstants.V_REQUIRED);
-        if (requiredObject != null) {
-            boolean requiredValue = requiredObject.optBoolean(JsonFormConstants.VALUE, false);
-            if (Boolean.TRUE.equals(requiredValue)) {
-                setRequiredOnHint(spinner);
-            }
-            spinner.setTag(com.vijay.jsonwizard.R.id.v_required, requiredValue);
-            spinner.setTag(com.vijay.jsonwizard.R.id.error, requiredObject.optString(JsonFormConstants.ERR, null));
-        }
-
-        String valueToSelect = "";
-        int indexToSelect = -1;
-        if (!TextUtils.isEmpty(jsonObject.optString(JsonFormConstants.VALUE))) {
-            valueToSelect = jsonObject.optString(JsonFormConstants.VALUE);
-        }
-
-        FormUtils.setEditMode(jsonObject, spinner, editButton);
-
-        JSONArray valuesJson = jsonObject.optJSONArray(JsonFormConstants.VALUES);
-        String[] values = null;
-        if (valuesJson != null && valuesJson.length() > 0) {
-            values = new String[valuesJson.length()];
-            for (int i = 0; i < valuesJson.length(); i++) {
-                values[i] = valuesJson.optString(i);
-                if (keysJson == null && valueToSelect.equals(values[i])) {
-                    indexToSelect = i;
-                } else if (keysJson != null && valueToSelect.equals(keysJson.optString(i))) {
-                    indexToSelect = i;
-                }
-            }
-        }
-
-        if (values != null) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(context, com.vijay.jsonwizard.R.layout.native_form_simple_list_item_1, values);
-            spinner.setAdapter(adapter);
-            spinner.setSelection(indexToSelect + 1, true);
-            spinner.setOnItemSelectedListener(listener);
-        }
-        ((JsonApi) context).addFormDataView(spinner);
-
-        formUtils.showInfoIcon(stepName, jsonObject, listener, FormUtils.getInfoDialogAttributes(jsonObject), spinnerInfoIconImageView,
-                canvasIds);
-        spinner.setTag(com.vijay.jsonwizard.R.id.canvas_ids, canvasIds.toString());
-    }
-
-    private void setViewTags(JSONObject jsonObject, JSONArray canvasIds, String stepName, boolean popup,
-                             String openMrsEntityParent, String openMrsEntity, String openMrsEntityId,
-                             View view) throws JSONException {
-        view.setTag(com.vijay.jsonwizard.R.id.key, jsonObject.getString(JsonFormConstants.KEY));
-        view.setTag(com.vijay.jsonwizard.R.id.openmrs_entity_parent, openMrsEntityParent);
-        view.setTag(com.vijay.jsonwizard.R.id.openmrs_entity, openMrsEntity);
-        view.setTag(com.vijay.jsonwizard.R.id.openmrs_entity_id, openMrsEntityId);
-        view.setTag(com.vijay.jsonwizard.R.id.type, jsonObject.getString(JsonFormConstants.TYPE));
-        view.setTag(com.vijay.jsonwizard.R.id.address, stepName + ":" + jsonObject.getString(JsonFormConstants.KEY));
-        view.setTag(com.vijay.jsonwizard.R.id.extraPopup, popup);
-        view.setId(ViewUtil.generateViewId());
-        canvasIds.put(view.getId());
-    }
-
-    private void addSkipLogicTags(Context context, String relevance, String constraints, String calculations,
-                                  MaterialSpinner spinner) {
-        if (!TextUtils.isEmpty(relevance) && context instanceof JsonApi) {
-            spinner.setTag(com.vijay.jsonwizard.R.id.relevance, relevance);
-            ((JsonApi) context).addSkipLogicView(spinner);
-        }
-        if (!TextUtils.isEmpty(constraints) && context instanceof JsonApi) {
-            spinner.setTag(com.vijay.jsonwizard.R.id.constraints, constraints);
-            ((JsonApi) context).addConstrainedView(spinner);
-        }
-
-        if (!TextUtils.isEmpty(calculations) && context instanceof JsonApi) {
-            spinner.setTag(com.vijay.jsonwizard.R.id.calculation, calculations);
-            ((JsonApi) context).addCalculationLogicView(spinner);
-        }
+        WidgetUtils.hookupLookup(view, jsonObject, formFragment);
     }
 }
