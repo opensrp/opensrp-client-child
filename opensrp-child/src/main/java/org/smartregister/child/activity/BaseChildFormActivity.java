@@ -19,7 +19,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.util.LangUtils;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class BaseChildFormActivity extends JsonFormActivity {
         super.onResume();
         try {
 
-            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
+            String et = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
 
             confirmCloseTitle = getString(R.string.confirm_form_close);
             confirmCloseMessage = et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation);

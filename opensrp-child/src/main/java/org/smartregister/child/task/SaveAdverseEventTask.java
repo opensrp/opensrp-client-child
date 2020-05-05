@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.repository.EventClientRepository;
@@ -39,18 +39,18 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
         try {
             JSONObject jsonForm = new JSONObject(jsonString);
 
-            JSONArray fields = JsonFormUtils.fields(jsonForm);
+            JSONArray fields = ChildJsonFormUtils.fields(jsonForm);
             if (fields == null) {
                 return null;
             }
 
-            String encounterDateField = JsonFormUtils.getFieldValue(fields, Constants.DATE_REACTION);
-            String encounterType = JsonFormUtils.getString(jsonForm, JsonFormUtils.ENCOUNTER_TYPE);
-            JSONObject metadata = JsonFormUtils.getJSONObject(jsonForm, JsonFormUtils.METADATA);
+            String encounterDateField = ChildJsonFormUtils.getFieldValue(fields, Constants.DATE_REACTION);
+            String encounterType = ChildJsonFormUtils.getString(jsonForm, ChildJsonFormUtils.ENCOUNTER_TYPE);
+            JSONObject metadata = ChildJsonFormUtils.getJSONObject(jsonForm, ChildJsonFormUtils.METADATA);
 
             Date encounterDate = new Date();
             if (StringUtils.isNotBlank(encounterDateField)) {
-                Date dateTime = JsonFormUtils.formatDate(encounterDateField, false);
+                Date dateTime = ChildJsonFormUtils.formatDate(encounterDateField, false);
                 if (dateTime != null) {
                     encounterDate = dateTime;
                 }
@@ -59,14 +59,14 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
             Event event = (Event) new Event().withBaseEntityId(baseEntityId) //should be different for main and subform
                     .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                     .withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
+                    .withFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
 
 
             for (int i = 0; i < fields.length(); i++) {
-                JSONObject jsonObject = JsonFormUtils.getJSONObject(fields, i);
-                String value = JsonFormUtils.getString(jsonObject, JsonFormUtils.VALUE);
+                JSONObject jsonObject = ChildJsonFormUtils.getJSONObject(fields, i);
+                String value = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.VALUE);
                 if (StringUtils.isNotBlank(value)) {
-                    JsonFormUtils.addObservation(event, jsonObject);
+                    ChildJsonFormUtils.addObservation(event, jsonObject);
                 }
             }
 
@@ -75,18 +75,18 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
 
                 while (keys.hasNext()) {
                     String key = (String) keys.next();
-                    JSONObject jsonObject = JsonFormUtils.getJSONObject(metadata, key);
-                    String value = JsonFormUtils.getString(jsonObject, JsonFormUtils.VALUE);
+                    JSONObject jsonObject = ChildJsonFormUtils.getJSONObject(metadata, key);
+                    String value = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.VALUE);
                     if (StringUtils.isNotBlank(value)) {
-                        String entityValue = JsonFormUtils.getString(jsonObject, JsonFormUtils.OPENMRS_ENTITY);
+                        String entityValue = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.OPENMRS_ENTITY);
                         if (entityValue != null) {
-                            if (entityValue.equals(JsonFormUtils.CONCEPT)) {
-                                JsonFormUtils.addToJSONObject(jsonObject, Constants.KEY.KEY, key);
-                                JsonFormUtils.addObservation(event, jsonObject);
+                            if (entityValue.equals(ChildJsonFormUtils.CONCEPT)) {
+                                ChildJsonFormUtils.addToJSONObject(jsonObject, Constants.KEY.KEY, key);
+                                ChildJsonFormUtils.addObservation(event, jsonObject);
                             } else if ("encounter".equals(entityValue)) {
-                                String entityIdValue = JsonFormUtils.getString(jsonObject, JsonFormUtils.OPENMRS_ENTITY_ID);
+                                String entityIdValue = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.OPENMRS_ENTITY_ID);
                                 if (entityIdValue.equals(FormEntityConstants.Encounter.encounter_date.name())) {
-                                    Date eventDate = JsonFormUtils.formatDate(value, false);
+                                    Date eventDate = ChildJsonFormUtils.formatDate(value, false);
                                     if (eventDate != null) {
                                         event.setEventDate(eventDate);
                                     }
@@ -99,7 +99,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
 
 
             if (event != null) {
-                JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
+                JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
                 eventClientRepository.addEvent(event.getBaseEntityId(), eventJson);
 
             }

@@ -5,10 +5,10 @@ import android.util.Log;
 
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.location.helper.LocationHelper;
 
-import static org.smartregister.child.util.JsonFormUtils.REQUEST_CODE_GET_JSON;
+import static org.smartregister.child.util.ChildJsonFormUtils.REQUEST_CODE_GET_JSON;
 
 /**
  * Created by samuelgithengi on 2/14/18.
@@ -37,7 +37,7 @@ public class BaseListener {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
                 locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
             }
-            JsonFormUtils.startForm(context, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
+            ChildJsonFormUtils.startForm(context, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);

@@ -45,7 +45,7 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.util.VaccineCalculator;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -850,7 +850,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
         vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
         vaccine.setSyncStatus(syncStatus);
-        vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
+        vaccine.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -1084,7 +1084,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
                 String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
-                JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
+                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
             default:
@@ -1325,13 +1325,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 childDetails.setColumnmaps(
-                        JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
+                        ChildJsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(JsonFormUtils
+                childDetails.setColumnmaps(ChildJsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
@@ -1474,8 +1474,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(JsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
-        vaccine.setChildLocationId(JsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
+        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {

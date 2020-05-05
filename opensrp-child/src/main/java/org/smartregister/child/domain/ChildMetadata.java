@@ -2,8 +2,13 @@ package org.smartregister.child.domain;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
+import org.smartregister.child.BuildConfig;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.view.activity.BaseProfileActivity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
@@ -13,7 +18,9 @@ public class ChildMetadata {
     public final Class childImmunizationActivity;
     public final Class profileActivity;
     public final boolean formWizardValidateRequiredFieldsBefore;
-
+    private ArrayList<String> locationLevels;
+    private ArrayList<String> healthFacilityLevels;
+    private List<String> fieldsWithLocationHierarchy;
     public ChildRegister childRegister;
 
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
@@ -24,6 +31,8 @@ public class ChildMetadata {
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
+        locationLevels = new ArrayList<>(Arrays.asList(BuildConfig.LOCATION_LEVELS));
+        healthFacilityLevels = new ArrayList<>(Arrays.asList(BuildConfig.HEALTH_FACILITY_LEVELS));
     }
 
     public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
@@ -85,6 +94,30 @@ public class ChildMetadata {
             }
             this.showPagination = showPagination;
         }
+    }
+
+    public ArrayList<String> getLocationLevels() {
+        return locationLevels;
+    }
+
+    public void setLocationLevels(ArrayList<String> locationLevels) {
+        this.locationLevels = locationLevels;
+    }
+
+    public ArrayList<String> getHealthFacilityLevels() {
+        return healthFacilityLevels;
+    }
+
+    public void setHealthFacilityLevels(ArrayList<String> healthFacilityLevels) {
+        this.healthFacilityLevels = healthFacilityLevels;
+    }
+
+    public List<String> getFieldsWithLocationHierarchy() {
+        return fieldsWithLocationHierarchy;
+    }
+
+    public void setFieldsWithLocationHierarchy(List<String> fieldsWithLocationHierarchy) {
+        this.fieldsWithLocationHierarchy = fieldsWithLocationHierarchy;
     }
 }
 
