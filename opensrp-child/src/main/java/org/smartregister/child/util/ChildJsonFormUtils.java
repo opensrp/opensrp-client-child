@@ -59,6 +59,7 @@ import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
+import org.smartregister.util.JsonFormUtils;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -83,7 +84,7 @@ import timber.log.Timber;
 /**
  * Created by ndegwamartin on 26/02/2019.
  */
-public class ChildJsonFormUtils extends org.smartregister.util.JsonFormUtils {
+public class ChildJsonFormUtils extends JsonFormUtils {
     public static final String METADATA = "metadata";
     public static final String ENCOUNTER_TYPE = "encounter_type";
     public static final int REQUEST_CODE_GET_JSON = 2244;
