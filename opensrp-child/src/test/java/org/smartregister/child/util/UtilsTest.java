@@ -11,7 +11,6 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
@@ -29,9 +28,6 @@ public class UtilsTest {
 
     @Mock
     private UniqueIdRepository uniqueIdRepository;
-
-    @Mock
-    private Context context;
 
     @Before
     public void setUp() {
