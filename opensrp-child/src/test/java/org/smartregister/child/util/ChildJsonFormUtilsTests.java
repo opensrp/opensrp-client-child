@@ -40,8 +40,6 @@ import java.util.Calendar;
 public class ChildJsonFormUtilsTests {
 
     private JSONObject jsonObject;
-    private static final String MY_KEY = "my_key";
-    private static final String MY_LOCATION_ID = "mylo-cati-onid-endt-ifie-r00";
 
     @Mock
     private ChildLibrary childLibrary;
@@ -100,17 +98,6 @@ public class ChildJsonFormUtilsTests {
         Assert.assertTrue(jsonObject.has(ChildJsonFormUtils.VALUE));
         Assert.assertNotNull(jsonObject.get(ChildJsonFormUtils.VALUE));
         Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(ChildJsonFormUtils.VALUE));
-    }
-
-    @Test
-    public void testAddLocationDefault() throws Exception {
-        jsonObject.put(JsonFormConstants.KEY, MY_KEY);
-        JSONArray array = new JSONArray();
-        array.put(MY_LOCATION_ID);
-        Whitebox.invokeMethod(ChildJsonFormUtils.class, "addLocationDefault", MY_KEY, jsonObject, array.toString());
-        Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
-        Assert.assertNotNull(jsonObject.get(JsonFormConstants.DEFAULT));
-        Assert.assertEquals(array.get(0), jsonObject.getJSONArray(JsonFormConstants.DEFAULT).get(0));
     }
 
     @Test
