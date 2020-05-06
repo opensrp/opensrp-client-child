@@ -30,11 +30,12 @@ import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.Repository;
+import org.smartregister.util.JsonFormUtils;
 
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class, org.smartregister.util.JsonFormUtils.class, Log.class})
+@PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class, JsonFormUtils.class, Log.class})
 public class BaseChildRegisterModelTest {
 
     @Mock

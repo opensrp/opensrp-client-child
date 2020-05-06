@@ -687,10 +687,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             String date = dobUnknownObject.getString(Constants.KEY.VALUE);
             dobUnknownObject.put(Constants.KEY.VALUE, Utils.reverseHyphenatedString(date) + " 12:00:00");
 
-            Client baseClient = org.smartregister.util.JsonFormUtils.createBaseClient(fields, formTag, entityId);
+            Client baseClient = JsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
 
-            Event baseEvent = org.smartregister.util.JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
+            Event baseEvent = JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
             ChildJsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
@@ -821,9 +821,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void mergeAndSaveClient(Client baseClient) throws Exception {
-        JSONObject updatedClientJson = new JSONObject(org.smartregister.util.JsonFormUtils.gson.toJson(baseClient));
+        JSONObject updatedClientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
         JSONObject originalClientJsonObject = ChildLibrary.getInstance().getEcSyncHelper().getClient(baseClient.getBaseEntityId());
-        JSONObject mergedJson = org.smartregister.util.JsonFormUtils.merge(originalClientJsonObject, updatedClientJson);
+        JSONObject mergedJson = JsonFormUtils.merge(originalClientJsonObject, updatedClientJson);
         //TODO Save edit log ?
         ChildLibrary.getInstance().getEcSyncHelper().addClient(baseClient.getBaseEntityId(), mergedJson);
     }
