@@ -1,5 +1,8 @@
 package org.smartregister.child.util;
 
+import android.widget.TableRow;
+
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -11,11 +14,14 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.repository.UniqueIdRepository;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +35,13 @@ public class UtilsTest {
     @Mock
     private UniqueIdRepository uniqueIdRepository;
 
+    @Mock
+    android.content.Context context;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        PowerMockito.when(context.getApplicationContext()).thenReturn(context);
     }
 
     @Test
@@ -120,5 +130,58 @@ public class UtilsTest {
         Assert.assertEquals("at_birth", s1);
         Assert.assertEquals("at_Birth", s2);
         Assert.assertEquals("test", s3);
+    }
+
+    @Test
+    public void testGetProfileImageResourceIDentifier() {
+        int i = Utils.getProfileImageResourceIDentifier();
+        Assert.assertEquals(R.mipmap.ic_child, i);
+    }
+
+    @Test
+    public void testAddAsInts() {
+        int i = Utils.addAsInts(true, "10", "", "12");
+        Assert.assertEquals(22, i);
+    }
+
+    @Test
+    public void testGetTodaysDate() {
+        String date1 = Utils.getTodaysDate();
+        String date2 = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        Assert.assertEquals(date2, date1);
+    }
+
+    @Test
+    public void testContext() {
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        Context context = Utils.context();
+        Assert.assertEquals(childLibrary.context(), context);
+    }
+
+    @Test
+    public void TestGetWeeksDue() {
+        int i = Utils.getWeeksDue(new DateTime());
+
+        Assert.assertEquals(0, 0);
+    }
+
+    @Test
+    public void testGetDataRow() {
+        TableRow tr = Utils.getDataRow(context);
+        Assert.assertEquals(0, tr.getPaddingTop());
+    }
+
+    @Test
+    public void testGetDataRow2() {
+        TableRow tr = Utils.getDataRow(context, "label", "value", null);
+        Assert.assertEquals(0, tr.getPaddingTop());
+    }
+
+    @Test
+    public void testGetDataRow3() {
+        TableRow tr = Utils.getDataRow(context, "label", "value", "field", null);
+        Assert.assertEquals(0, tr.getPaddingTop());
     }
 }
