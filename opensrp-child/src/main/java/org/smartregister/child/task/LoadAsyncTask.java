@@ -12,7 +12,7 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -25,7 +25,6 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
@@ -85,9 +84,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         Map<String, NamedObject<?>> map = new HashMap<>();
-        DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
 
-        detailsMap.putAll(Utils.getCleanMap(detailsRepository.getAllDetailsForClient(childDetails.entityId())));
+        detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);

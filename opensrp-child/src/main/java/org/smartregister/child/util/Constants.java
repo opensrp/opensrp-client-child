@@ -2,17 +2,12 @@ package org.smartregister.child.util;
 
 import org.smartregister.AllConstants;
 
-import java.text.SimpleDateFormat;
-
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public final class Constants extends AllConstants {
 
-    public static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN);
     public static final String SQLITE_DATE_TIME_FORMAT = "yyyy-MM-dd";
-    public static final String DEFAULT_DATE_STRING = "1970-1-1";
     public static final String WEIGHT = "weight";
     public static final String HEIGHT = "height";
     public static final String BALANCE = "Balance";
@@ -24,7 +19,6 @@ public final class Constants extends AllConstants {
     public static final String IS_VACCINE_GROUP = "is_vaccine_group";
     public static final String VALUE = "value";
     public static final String WEIGHT_KG = "Weight_Kg";
-    public static final String DATE_BIRTH = "Date_Birth";
     public static final String SEX = "Sex";
     public static final String DATE_REACTION = "Date_Reaction";
     public static final String ENTITY_ID = "entityId";
@@ -43,6 +37,9 @@ public final class Constants extends AllConstants {
     public static final String PREFERRED_LANGUAGE = "Preferred_Language";
     public static final String MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION = "30000";
     public static final String MOTHER_LOOKUP_UNDO_DEFAULT_DURATION = "10000";
+    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
+    public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
+    public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -95,11 +92,8 @@ public final class Constants extends AllConstants {
         public static final String DOB = "dob";//Date Of Birth
         public static final String DOD = "dod";
         public static final String GENDER = "gender";
-        public static final String UNIQUE_ID = "unique_id";
         public static final String ZEIR_ID = "zeir_id";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
-        public static final String ACTIVE = "active";
-        public static final String INACTIVE = "inactive";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
         public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
@@ -110,7 +104,14 @@ public final class Constants extends AllConstants {
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
-        public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+        public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
+        public static final String ID = "id";
+        public static final String NRC_NUMBER = "nrc_number";
+        public static final String FATHER_NAME = "father_name";
+        public static final String CLIENT_REG_DATE = "client_reg_date";
+        public static final String HAS_PROFILE_IMAGE = "has_profile_image";
+        public static final String MOTHER_DOB = "mother_dob";
+        public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
     }
 
     public static final class INTENT_KEY {
@@ -154,10 +155,6 @@ public final class Constants extends AllConstants {
         public static final String VACCINATION = "Vaccination";
     }
 
-    public static final class CONCEPT {
-        public final static String VACCINE_DATE = "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    }
-
     public static final class CHILD_STATUS {
         public static final String ACTIVE = "active";
         public static final String INACTIVE = "inactive";
@@ -192,5 +189,15 @@ public final class Constants extends AllConstants {
 
     public static class VACCINE {
         public static final String BCG2 = "bcg2";
+    }
+
+    public static final class LOCAL_DATE_TIME {
+
+        public static final String YEAR = "year";
+        public static final String MONTH_OF_YEAR = "monthOfYear";
+        public static final String DAY_OF_MONTH = "dayOfMonth";
+        public static final String HOUR_OF_DAY = "hourOfDay";
+        public static final String MINUTE_OF_HOUR = "minuteOfHour";
+        public static final String SECOND_OF_MINUTE = "secondOfMinute";
     }
 }

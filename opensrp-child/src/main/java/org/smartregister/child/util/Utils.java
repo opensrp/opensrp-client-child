@@ -37,6 +37,8 @@ import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -552,6 +554,27 @@ public class Utils extends org.smartregister.util.Utils {
         }
 
         return sb.toString();
+    }
 
+    public static CommonPersonObject getEcChildDetails(String baseEntityId) {
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
+        if (cr != null) {
+            return cr.findByBaseEntityId(baseEntityId);
+        }
+        return null;
+    }
+
+    public static CommonPersonObject getEcMotherDetails(String baseEntityId) {
+        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
+        if (cr != null) {
+            return cr.findByBaseEntityId(baseEntityId);
+        }
+        return null;
+    }
+
+    public static boolean isVaccineDue(@NonNull List<Vaccine> vaccineList, @NonNull Date dob, @NonNull org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, boolean allowedExpiredVaccineEntry) {
+        Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
+        Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
+        return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
     }
 }
