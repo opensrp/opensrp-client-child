@@ -4,6 +4,7 @@ import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.sample.util.DBQueryHelper;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
@@ -17,7 +18,7 @@ public class ChildRegisterFragmentPresenter extends BaseChildRegisterFragmentPre
 
     @Override
     public String getMainCondition() {
-        return String.format(" %s is null ", Constants.KEY.DATE_REMOVED);
+        return String.format(" %s is null ", Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED);
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
@@ -50,7 +51,6 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.job.SyncServiceJob;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.view.activity.MultiLanguageActivity;
@@ -348,7 +348,7 @@ toggle.syncState();
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
                 String locationId =
-                        LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
+                        Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
 
                 startJsonForm(formName, entityId, locationId);
             }

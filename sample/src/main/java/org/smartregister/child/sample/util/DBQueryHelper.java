@@ -1,6 +1,7 @@
 package org.smartregister.child.sample.util;
 
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -17,8 +18,8 @@ public class DBQueryHelper {
 
     public static final String getHomeRegisterCondition() {
         //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
-        return Utils.metadata().childRegister.tableName + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " + Utils
-                .metadata().childRegister.tableName + "." + Constants.KEY.DOD + " IS NULL";
+        return Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " +
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
     }
 
     public static String getFilterSelectionCondition(boolean urgentOnly) {
@@ -107,6 +108,6 @@ public class DBQueryHelper {
     }
 
     public static String getSortQuery() {
-        return DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
+        return Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + DBConstants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
 }

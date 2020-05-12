@@ -54,6 +54,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/captured_images_path" />
         </provider>
+
+        <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />
+
     </application>
 
 </manifest>

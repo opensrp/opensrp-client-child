@@ -24,7 +24,7 @@ import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.START_
 public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegisterFragmentPresenter
         implements ChildAdvancedSearchContract.Presenter, ChildAdvancedSearchContract.InteractorCallBack {
 
-    public static final String TABLE_NAME = Utils.metadata().childRegister.tableName;
+    public static final String TABLE_NAME = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
     private WeakReference<ChildAdvancedSearchContract.View> viewReference;
     private ChildAdvancedSearchContract.Model model;
 
@@ -107,10 +107,11 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     }
 
     private void localQueryInitialize(Map<String, String> editMap) {
+
         String mainCondition = model.getMainConditionString(editMap);
 
-        String countSelect = model.countSelect(TABLE_NAME, mainCondition, Utils.metadata().childRegister.motherTableName);
-        String mainSelect = model.mainSelect(TABLE_NAME, mainCondition, Utils.metadata().childRegister.motherTableName);
+        String countSelect = model.countSelect(mainCondition);
+        String mainSelect = model.mainSelect(mainCondition);
 
         getView().initializeQueryParams(TABLE_NAME, countSelect, mainSelect);
         getView().initializeAdapter(visibleColumns);
