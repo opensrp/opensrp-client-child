@@ -6,7 +6,6 @@ package org.smartregister.child.sample.util;
 public class SampleConstants {
 
     public static class CONFIGURATION {
-        public static final String LOGIN = "login";
         public static final String CHILD_REGISTER = "child_register";
 
     }
@@ -27,15 +26,5 @@ public class SampleConstants {
     public static class RELATIONSHIP {
         public static final String MOTHER = "mother";
 
-    }
-
-    public static class TABLE_NAME {
-        public static final String CHILD = "ec_child";
-        public static final String MOTHER_TABLE_NAME = "ec_mother";
-    }
-
-    public static final class VACCINE {
-
-        public static final String CHILD = "child";
     }
 }

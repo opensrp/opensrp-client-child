@@ -3,7 +3,6 @@ package org.smartregister.child.sample.application;
 import android.content.Intent;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.evernote.android.job.JobManager;
 
 import org.smartregister.Context;
@@ -17,8 +16,8 @@ import org.smartregister.child.sample.activity.ChildProfileActivity;
 import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
 import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
-import org.smartregister.child.sample.util.DBConstants;
 import org.smartregister.child.sample.util.SampleConstants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
@@ -47,8 +46,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import io.fabric.sdk.android.Fabric;
-
 public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
     private static CommonFtsObject commonFtsObject;
@@ -66,35 +63,38 @@ public class SampleApplication extends DrishtiApplication {
     }
 
     private static String[] getFtsTables() {
-        return new String[]{SampleConstants.TABLE_NAME.CHILD};
+        return new String[]{DBConstants.RegisterTable.CHILD_DETAILS, DBConstants.RegisterTable.MOTHER_DETAILS, DBConstants.RegisterTable.CLIENT};
     }
 
     private static String[] getFtsSearchFields(String tableName) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME, DBConstants.KEY.MOTHER_FIRST_NAME, DBConstants.KEY.MOTHER_LAST_NAME, DBConstants.KEY.EPI_CARD_NUMBER, DBConstants.KEY.LOST_TO_FOLLOW_UP, DBConstants.KEY.INACTIVE};
+        if (tableName.equals(DBConstants.RegisterTable.CLIENT)) {
+            return new String[]{DBConstants.KEY.ZEIR_ID, DBConstants.KEY.FIRST_NAME, DBConstants.KEY.LAST_NAME};
+        } else if (tableName.equals(DBConstants.RegisterTable.CHILD_DETAILS)) {
+            return new String[]{DBConstants.KEY.LOST_TO_FOLLOW_UP, DBConstants.KEY.INACTIVE};
+        } else if (tableName.equals(DBConstants.RegisterTable.MOTHER_DETAILS)) {
+            return new String[]{DBConstants.KEY.EPI_CARD_NUMBER};
         }
         return null;
     }
 
     private static String[] getFtsSortFields(String tableName, android.content.Context context) {
-        if (tableName.equals(SampleConstants.TABLE_NAME.CHILD)) {
-
+        if (tableName.equals(DBConstants.RegisterTable.CHILD_DETAILS)) {
             List<VaccineGroup> vaccineList = VaccinatorUtils.getVaccineGroupsFromVaccineConfigFile(context, VaccinatorUtils.vaccines_file);
+            List<String> names = new ArrayList<>();
+            for (VaccineGroup vaccineGroup : vaccineList) {
+                populateAlertColumnNames(vaccineGroup.vaccines, names);
+            }
 
+            return names.toArray(new String[names.size()]);
+
+        } else if (tableName.equals(DBConstants.RegisterTable.CLIENT)) {
             List<String> names = new ArrayList<>();
             names.add(DBConstants.KEY.FIRST_NAME);
             names.add(DBConstants.KEY.DOB);
             names.add(DBConstants.KEY.ZEIR_ID);
             names.add(DBConstants.KEY.LAST_INTERACTED_WITH);
-            names.add(DBConstants.KEY.INACTIVE);
-            names.add(DBConstants.KEY.LOST_TO_FOLLOW_UP);
             names.add(DBConstants.KEY.DOD);
             names.add(DBConstants.KEY.DATE_REMOVED);
-
-            for (VaccineGroup vaccineGroup : vaccineList) {
-                populateAlertColumnNames(vaccineGroup.vaccines, names);
-            }
-
             return names.toArray(new String[names.size()]);
         }
         return null;
@@ -129,8 +129,6 @@ public class SampleApplication extends DrishtiApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Fabric.with(this, new Crashlytics());//Some exceptions thrown waaay before core inits fabric
 
         mInstance = this;
         context = Context.getInstance();
@@ -181,8 +179,8 @@ public class SampleApplication extends DrishtiApplication {
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
                 ChildImmunizationActivity.class, true);
-        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, SampleConstants.TABLE_NAME.CHILD,
-                SampleConstants.TABLE_NAME.MOTHER_TABLE_NAME, SampleConstants.EventType.CHILD_REGISTRATION,
+        metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, DBConstants.RegisterTable.CLIENT,
+                DBConstants.RegisterTable.CLIENT, SampleConstants.EventType.CHILD_REGISTRATION,
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,
                 SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         metadata.setFieldsWithLocationHierarchy(Arrays.asList("Home_Facility", "Birth_Facility_Name"));

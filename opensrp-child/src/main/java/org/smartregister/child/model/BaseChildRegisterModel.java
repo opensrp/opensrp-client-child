@@ -76,12 +76,12 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
 
         // Add search by mother
+
         ContentValues values = new ContentValues();
-        values.put(Constants.KEY.MOTHER_FIRST_NAME, childHeadEventClient.getClient().getFirstName());
-        values.put(Constants.KEY.MOTHER_LAST_NAME, childHeadEventClient.getClient().getLastName());
+
         values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
 
-        String tableName = Utils.metadata().childRegister.tableName;
+        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
         Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
 
         childEventClientList.add(childHeadEventClient);

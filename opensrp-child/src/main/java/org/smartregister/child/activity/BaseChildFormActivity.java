@@ -15,19 +15,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.contract.IMotherLookup;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.MotherLookUpUtils;
+import org.smartregister.child.util.Utils;
+import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.util.LangUtils;
 
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
  */
-public class BaseChildFormActivity extends JsonFormActivity {
+public class BaseChildFormActivity extends JsonFormActivity implements IMotherLookup {
     private ChildFormFragment childFormFragment;
     private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
@@ -215,6 +224,95 @@ public class BaseChildFormActivity extends JsonFormActivity {
         }
 
         return false;
+    }
+
+    @Override
+    public String lookUpQuery(Map<String, String> entityMap, String tableName) {
+
+        String[] lookupColumns = new String[]{Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + MotherLookUpUtils.RELATIONALID, Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + MotherLookUpUtils.DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + AllConstants.ChildRegistrationFields.GENDER,
+                Constants.KEY.DOB,
+                MotherLookUpUtils.NRC_NUMBER,
+                MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH),
+                Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "is_consented",
+                Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "preferred_language",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_area",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_area_other",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + "residential_address",
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID};
+
+        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
+        queryBuilder.SelectInitiateMainTable(tableName, lookupColumns);
+        queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
+                " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
+        String query = queryBuilder.mainCondition(getMainConditionString(entityMap));
+
+        // Make the id distinct
+        query = query.replace("ec_client.id as _id", "distinct(ec_client.id) as _id");
+
+        return queryBuilder.Endquery(query);
+    }
+
+    protected static String getMainConditionString(Map<String, String> entityMap) {
+
+        String mainConditionString = "";
+        for (Map.Entry<String, String> entry : entityMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.firstName)) {
+                key = MotherLookUpUtils.firstName;
+            }
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
+                key = MotherLookUpUtils.lastName;
+            }
+
+            if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
+                key = MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH);
+            }
+
+            if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
+                key = MotherLookUpUtils.NRC_NUMBER;
+            }
+
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.birthDate)) {
+                if (!isDate(value)) {
+                    continue;
+                }
+                key = MotherLookUpUtils.dob;
+            }
+
+            if (!key.equals(MotherLookUpUtils.dob)) {
+                if (StringUtils.isBlank(mainConditionString)) {
+                    mainConditionString += " " + key + " Like '%" + value + "%'";
+                } else {
+                    mainConditionString += " AND " + key + " Like '%" + value + "%'";
+
+                }
+            } else {
+                if (StringUtils.isBlank(mainConditionString)) {
+                    mainConditionString += " cast(" + key + " as date) " + " =  cast('" + value + "'as date) ";
+                } else {
+                    mainConditionString += " AND cast(" + key + " as date) " + " =  cast('" + value + "'as date) ";
+
+                }
+            }
+        }
+
+        return mainConditionString;
+
+    }
+
+    private static boolean isDate(String dobString) {
+        try {
+            DateUtil.yyyyMMdd.parse(dobString);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+
     }
 }
 

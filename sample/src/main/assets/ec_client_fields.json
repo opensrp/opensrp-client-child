@@ -1,7 +1,7 @@
 {
   "bindobjects": [
     {
-      "name": "ec_mother",
+      "name": "ec_client",
       "columns": [
         {
           "column_name": "base_entity_id",
@@ -18,6 +18,13 @@
           }
         },
         {
+          "column_name": "zeir_id",
+          "type": "Client",
+          "json_mapping": {
+            "field": "identifiers.ZEIR_ID"
+          }
+        },
+        {
           "column_name": "first_name",
           "type": "Client",
           "json_mapping": {
@@ -25,26 +32,17 @@
           }
         },
         {
+          "column_name": "middle_name",
+          "type": "Client",
+          "json_mapping": {
+            "field": "middleName"
+          }
+        },
+        {
           "column_name": "last_name",
           "type": "Client",
           "json_mapping": {
             "field": "lastName"
-          }
-        },
-        {
-          "column_name": "husband_name",
-          "type": "Event",
-          "json_mapping": {
-            "field": "obs.fieldCode",
-            "concept": "161135AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-          }
-        },
-        {
-          "column_name": "father_name",
-          "type": "Event",
-          "json_mapping": {
-            "field": "obs.fieldCode",
-            "concept": "1594AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           }
         },
         {
@@ -76,67 +74,10 @@
           }
         },
         {
-          "column_name": "epi_card_number",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.EPI Card Number"
-          }
-        },
-        {
-          "column_name": "contact_phone_number",
-          "type": "Event",
-          "json_mapping": {
-            "field": "obs.fieldCode",
-            "concept": "159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-          }
-        },
-        {
-          "column_name": "nrc_number",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.NRC_Number"
-          }
-        },
-        {
-          "column_name": "provider_uc",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_uc"
-          }
-        },
-        {
-          "column_name": "provider_town",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_town"
-          }
-        },
-        {
-          "column_name": "provider_id",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_id"
-          }
-        },
-        {
-          "column_name": "provider_location_id",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_location_id"
-          }
-        },
-        {
           "column_name": "client_reg_date",
           "type": "Event",
           "json_mapping": {
             "field": "eventDate"
-          }
-        },
-        {
-          "column_name": "last_name",
-          "type": "Client",
-          "json_mapping": {
-            "field": "lastName"
           }
         },
         {
@@ -147,10 +88,10 @@
           }
         },
         {
-          "column_name": "marriage",
+          "column_name": "date_removed",
           "type": "Client",
           "json_mapping": {
-            "field": "marriage"
+            "field": "attributes.dateRemoved"
           }
         },
         {
@@ -182,23 +123,37 @@
           }
         },
         {
-          "column_name": "date",
-          "type": "Event",
-          "json_mapping": {
-            "field": "eventDate"
-          }
-        },
-        {
           "column_name": "last_interacted_with",
           "type": "Event",
           "json_mapping": {
             "field": "version"
           }
+        },
+        {
+          "column_name": "residential_area",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address3"
+          }
+        },
+        {
+          "column_name": "residential_area_other",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address5"
+          }
+        },
+        {
+          "column_name": "residential_address",
+          "type": "Client",
+          "json_mapping": {
+            "field": "addresses.address2"
+          }
         }
       ]
     },
     {
-      "name": "ec_child",
+      "name": "ec_mother_details",
       "columns": [
         {
           "column_name": "base_entity_id",
@@ -208,10 +163,59 @@
           }
         },
         {
-          "column_name": "zeir_id",
+          "column_name": "nrc_number",
           "type": "Client",
           "json_mapping": {
-            "field": "identifiers.ZEIR_ID"
+            "field": "attributes.NRC_Number"
+          }
+        },
+        {
+          "column_name": "husband_name",
+          "type": "Event",
+          "json_mapping": {
+            "field": "obs.fieldCode",
+            "concept": "161135AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "column_name": "epi_card_number",
+          "type": "Client",
+          "json_mapping": {
+            "field": "attributes.EPI Card Number"
+          }
+        },
+        {
+          "column_name": "father_name",
+          "type": "Event",
+          "json_mapping": {
+            "field": "obs.fieldCode",
+            "concept": "1594AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "column_name": "is_consented",
+          "type": "Event",
+          "json_mapping": {
+            "field": "attributes.is_consented"
+          }
+        },
+        {
+          "column_name": "preferred_language",
+          "type": "Event",
+          "json_mapping": {
+            "field": "attributes.preferred_language"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ec_child_details",
+      "columns": [
+        {
+          "column_name": "base_entity_id",
+          "type": "Client",
+          "json_mapping": {
+            "field": "baseEntityId"
           }
         },
         {
@@ -236,40 +240,11 @@
           }
         },
         {
-          "column_name": "first_name",
-          "type": "Client",
-          "json_mapping": {
-            "field": "firstName"
-          }
-        },
-        {
-          "column_name": "last_name",
-          "type": "Client",
-          "json_mapping": {
-            "field": "lastName"
-          }
-        },
-        {
-          "column_name": "gender",
-          "type": "Client",
-          "json_mapping": {
-            "field": "gender"
-          }
-        },
-        {
-          "column_name": "mother_first_name",
+          "column_name": "mother_guardian_phone_number",
           "type": "Event",
           "json_mapping": {
             "field": "obs.fieldCode",
-            "formSubmissionField": "Mother_Guardian_First_Name"
-          }
-        },
-        {
-          "column_name": "mother_last_name",
-          "type": "Event",
-          "json_mapping": {
-            "field": "obs.fieldCode",
-            "formSubmissionField": "Mother_Guardian_Last_Name"
+            "concept": "159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           }
         },
         {
@@ -281,138 +256,11 @@
           }
         },
         {
-          "column_name": "dob",
-          "type": "Client",
-          "json_mapping": {
-            "field": "birthdate"
-          }
-        },
-        {
-          "column_name": "dob_unknown",
-          "type": "Client",
-          "json_mapping": {
-            "field": "birthdateApprox"
-          }
-        },
-        {
-          "column_name": "dod",
-          "type": "Client",
-          "json_mapping": {
-            "field": "deathdate"
-          }
-        },
-        {
-          "column_name": "dod_unknown",
-          "type": "Client",
-          "json_mapping": {
-            "field": "deathdateApprox"
-          }
-        },
-        {
-          "column_name": "date_removed",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.dateRemoved"
-          }
-        },
-        {
-          "column_name": "epi_card_number",
-          "type": "Client",
-          "json_mapping": {
-            "field": "attributes.Child_Register_Card_Number"
-          }
-        },
-        {
-          "column_name": "contact_phone_number",
-          "type": "Event",
-          "json_mapping": {
-            "field": "obs.fieldCode",
-            "concept": "159635AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-          }
-        },
-        {
           "column_name": "pmtct_status",
           "type": "Event",
           "json_mapping": {
             "field": "obs.fieldCode",
             "concept": "1396AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-          }
-        },
-        {
-          "column_name": "provider_uc",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_uc"
-          }
-        },
-        {
-          "column_name": "provider_town",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_town"
-          }
-        },
-        {
-          "column_name": "provider_id",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_id"
-          }
-        },
-        {
-          "column_name": "provider_location_id",
-          "type": "Client",
-          "json_mapping": {
-            "field": "provider_location_id"
-          }
-        },
-        {
-          "column_name": "client_reg_date",
-          "type": "Event",
-          "json_mapping": {
-            "field": "eventDate"
-          }
-        },
-        {
-          "column_name": "town",
-          "type": "Client",
-          "json_mapping": {
-            "field": "addresses.town"
-          }
-        },
-        {
-          "column_name": "union_council",
-          "type": "Client",
-          "json_mapping": {
-            "field": "addresses.subTown"
-          }
-        },
-        {
-          "column_name": "address1",
-          "type": "Client",
-          "json_mapping": {
-            "field": "addresses.addressFields.address1"
-          }
-        },
-        {
-          "column_name": "address",
-          "type": "Client",
-          "json_mapping": {
-            "field": "addresses.addressType"
-          }
-        },
-        {
-          "column_name": "date",
-          "type": "Event",
-          "json_mapping": {
-            "field": "eventDate"
-          }
-        },
-        {
-          "column_name": "last_interacted_with",
-          "type": "Event",
-          "json_mapping": {
-            "field": "version"
           }
         }
       ]

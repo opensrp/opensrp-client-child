@@ -78,7 +78,7 @@ public class BaseChildRegisterModelTest {
                 .thenReturn("team");
         PowerMockito.when(allSharedPreferences.fetchDefaultTeamId(anm))
                 .thenReturn("teamId");
-        PowerMockito.when(context.allCommonsRepositoryobjects("test")).thenReturn(Mockito.mock(AllCommonsRepository.class));
+        PowerMockito.when(context.allCommonsRepositoryobjects("ec_client")).thenReturn(Mockito.mock(AllCommonsRepository.class));
         PowerMockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
         PowerMockito.mockStatic(TextUtils.class);
         PowerMockito.when(TextUtils.isEmpty(Mockito.<String>any())).thenAnswer(new Answer<Object>() {

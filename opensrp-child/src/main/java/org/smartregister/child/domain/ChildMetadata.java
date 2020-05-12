@@ -4,6 +4,7 @@ import com.vijay.jsonwizard.activities.JsonFormActivity;
 
 import org.smartregister.child.BuildConfig;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class ChildMetadata {
     private ArrayList<String> healthFacilityLevels;
     private List<String> fieldsWithLocationHierarchy;
     public ChildRegister childRegister;
+    private RegisterQueryProvider registerQueryProvider;
 
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
@@ -33,7 +35,21 @@ public class ChildMetadata {
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
         locationLevels = new ArrayList<>(Arrays.asList(BuildConfig.LOCATION_LEVELS));
         healthFacilityLevels = new ArrayList<>(Arrays.asList(BuildConfig.HEALTH_FACILITY_LEVELS));
+        setRegisterQueryProvider(new RegisterQueryProvider());
     }
+
+    public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
+                         Class<? extends BaseProfileActivity> profileActivity,
+                         Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         boolean formWizardValidateRequiredFieldsBefore,
+                         RegisterQueryProvider registerRepo) {
+        this.childFormActivity = childFormActivity;
+        this.profileActivity = profileActivity;
+        this.childImmunizationActivity = childImmunizationActivity;
+        this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
+        this.registerQueryProvider = registerRepo;
+    }
+
 
     public void updateChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
                                     String updateEventType, String outOfCatchmentServiceEventType, String config, String childCareGiverRelationKey,
@@ -118,6 +134,14 @@ public class ChildMetadata {
 
     public void setFieldsWithLocationHierarchy(List<String> fieldsWithLocationHierarchy) {
         this.fieldsWithLocationHierarchy = fieldsWithLocationHierarchy;
+    }
+
+    public RegisterQueryProvider getRegisterQueryProvider() {
+        return registerQueryProvider;
+    }
+
+    public void setRegisterQueryProvider(RegisterQueryProvider registerQueryProvider) {
+        this.registerQueryProvider = registerQueryProvider;
     }
 }
 

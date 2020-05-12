@@ -43,6 +43,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
@@ -57,6 +58,7 @@ import org.smartregister.child.task.UndoServiceTask;
 import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -116,9 +118,8 @@ import static org.smartregister.util.Utils.getValue;
  */
 
 public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
-        implements VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
+        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
 
-    public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
     protected static final int REQUEST_CODE_GET_JSON = 3432;
@@ -135,7 +136,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private ChildUnderFiveFragment childUnderFiveFragment;
     private File currentFile;
     private String locationId = "";
-    private String providerId = "";
     private ImageView profileImageIV;
     private boolean monitorGrowth = false;
     private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
@@ -144,74 +144,32 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
-    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
-        boolean showVaccineList = false;
-        for (int i = 0; i < vaccineList.size(); i++) {
-            Vaccine vaccine = vaccineList.get(i);
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
-            if (check) {
-                showVaccineList = true;
-                break;
-            }
-        }
-
-        boolean showServiceList = false;
-        for (ServiceRecord serviceRecord : serviceRecordList) {
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
-            if (check) {
-                showServiceList = true;
-                break;
-
-            }
-        }
-
-        boolean showWeightEdit = false;
-
-        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
-
-            for (int i = 0; i < weightList.size(); i++) {
-                Weight weight = weightList.get(i);
-                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
-                if (showWeightEdit) {
-                    break;
-                }
-            }
-        }
-
-        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
-    }
-
-    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
-        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
-        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
-        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
-    }
-
-    public static Menu getOverflow() {
-        return overflow;
-    }
-
-    public static void setOverflow(Menu overflow) {
-        BaseChildDetailTabbedActivity.overflow = overflow;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
-            Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-                detailsMap = childDetails.getColumnmaps();
-            }
+
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+
+            Map<String, String> details = ChildLibrary.
+                    getInstance()
+                    .context()
+                    .getEventClientRepository()
+                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
+
+            Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+
+            childDetails = new CommonPersonObjectClient(caseId, details, null);
+            childDetails.setColumnmaps(details);
+
+            detailsMap = childDetails.getColumnmaps();
         }
 
         locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
-        if (detailsMap.containsKey(Constants.INTENT_KEY.PROVIDER_ID)) {
-            providerId = detailsMap.get(Constants.INTENT_KEY.PROVIDER_ID);
-        }
 
         setContentView(getContentView());
 
@@ -275,6 +233,58 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         setupViews();
         vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
     }
+
+    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+        boolean showVaccineList = false;
+        for (int i = 0; i < vaccineList.size(); i++) {
+            Vaccine vaccine = vaccineList.get(i);
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
+            if (check) {
+                showVaccineList = true;
+                break;
+            }
+        }
+
+        boolean showServiceList = false;
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
+            if (check) {
+                showServiceList = true;
+                break;
+
+            }
+        }
+
+        boolean showWeightEdit = false;
+
+        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
+
+            for (int i = 0; i < weightList.size(); i++) {
+                Weight weight = weightList.get(i);
+                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+                if (showWeightEdit) {
+                    break;
+                }
+            }
+        }
+
+        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
+    }
+
+    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
+        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
+        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
+    }
+
+    public static Menu getOverflow() {
+        return overflow;
+    }
+
+    public static void setOverflow(Menu overflow) {
+        BaseChildDetailTabbedActivity.overflow = overflow;
+    }
+
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
 
@@ -575,7 +585,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), providerId, CoreLibrary.getInstance().context().getEventClientRepository()), null);
+
+                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                 }
 
 
@@ -676,31 +687,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     protected abstract void navigateToRegisterActivity();
 
-    /*private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
-            return false;
-        }
-
-        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
-        if (bcg == null) {
-            return false;
-        }
-
-        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
-        if (alert == null || alert.isComplete()) {
-            return false;
-        }
-
-        int bcgOffsetInWeeks = 12;
-        Calendar twelveWeeksLaterDate = Calendar.getInstance();
-        twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
-
-        Calendar today = Calendar.getInstance();
-
-        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
-    }*/
-
     protected boolean launchAdverseEventForm() {
         LaunchAdverseEventFormTask task = new LaunchAdverseEventFormTask(this);
         task.execute();
@@ -741,15 +727,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
-            detailsMap = ChildJsonFormUtils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
+            ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "Permission callback called-------");
+        Timber.d("Permission callback called-------");
 
         if (grantResults.length == 0) {
             return;
@@ -906,7 +892,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
-        if (weightWrapper != null) {
+        if (weightWrapper != null && (weightWrapper.getWeight() != null)) {
             WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
             if (weightWrapper.getDbKey() != null) {
@@ -942,7 +928,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void updateHeightWrapper(HeightWrapper heightWrapper) {
-        if (heightWrapper != null) {
+        if (heightWrapper != null && (heightWrapper.getHeight() != null)) {
             HeightRepository heightRepository = GrowthMonitoringLibrary.getInstance().heightRepository();
             Height height = new Height();
             if (heightWrapper.getDbKey() != null) {
@@ -1128,6 +1114,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
 
+    @Override
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
     }
