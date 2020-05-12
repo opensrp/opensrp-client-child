@@ -161,10 +161,10 @@ public class UtilsTest {
     }
 
     @Test
-    public void TestGetWeeksDue() {
+    public void testGetWeeksDue() {
         int i = Utils.getWeeksDue(new DateTime());
 
-        Assert.assertEquals(0, 0);
+        Assert.assertEquals(0, i);
     }
 
     @Test
