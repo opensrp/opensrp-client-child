@@ -61,9 +61,6 @@ public class ChildRegisterInteractorTest {
     @Captor
     private ArgumentCaptor syncHelperAddEventArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor syncHelperGetEventArgumentCaptor;
-
     @Before
     public void setUp() throws Exception {
         interactor = new ChildRegisterInteractor(Mockito.mock(AppExecutors.class));
@@ -172,10 +169,6 @@ public class ChildRegisterInteractorTest {
         childRegisterInteractor.saveRegistration(childEventClientList, childRegistrationClient, params);
         Mockito.verify(ecSyncHelper).addClient((String) syncHelperAddClientArgumentCaptor.capture(), (JSONObject) syncHelperAddClientArgumentCaptor.capture());
         Mockito.verify(ecSyncHelper).addEvent((String) syncHelperAddEventArgumentCaptor.capture(), (JSONObject) syncHelperAddEventArgumentCaptor.capture(), (String) syncHelperAddEventArgumentCaptor.capture());
-        Mockito.verify(ecSyncHelper).getEvents((List<String>) syncHelperGetEventArgumentCaptor.capture());
-        Assert.assertNotNull(syncHelperGetEventArgumentCaptor.getAllValues().get(0));
-        List<String> resultFormSubmissionids = (List<String>) syncHelperGetEventArgumentCaptor.getAllValues().get(0);
-        Assert.assertEquals(event.getFormSubmissionId(), resultFormSubmissionids.get(0));
         Assert.assertNotNull(syncHelperAddClientArgumentCaptor.getAllValues().get(0));
         String resultBaseEntityId = (String) syncHelperAddClientArgumentCaptor.getAllValues().get(0);
         Assert.assertEquals(client.getBaseEntityId(), resultBaseEntityId);
