@@ -15,7 +15,6 @@ import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.View;
 import org.smartregister.configurableviews.model.ViewConfiguration;
-import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 
@@ -44,22 +43,14 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
     }
 
     @Override
-    public String countSelect(String tableName, String mainCondition, String parentTableName) {
-        SmartRegisterQueryBuilder countQueryBuilder = new SmartRegisterQueryBuilder();
-        countQueryBuilder.SelectInitiateMainTableCounts(tableName);
-        countQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
-        return countQueryBuilder.mainCondition(mainCondition);
+    public String countSelect(String mainCondition) {
+        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery("count(1)") + " where " + mainCondition;
     }
 
     @Override
-    public String mainSelect(String tableName, String mainCondition, String parentTableName) {
-        SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
-        queryBuilder.SelectInitiateMainTable(tableName, mainColumns(tableName, parentTableName));
-        queryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
-        return queryBuilder.mainCondition(mainCondition);
+    public String mainSelect(String mainCondition) {
+        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " where " + mainCondition;
     }
-
-    protected abstract String[] mainColumns(String tableName, String parentTableName);
 
     @Override
     public String getFilterText(List<Field> list, String filterTitle) {

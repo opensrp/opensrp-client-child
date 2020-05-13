@@ -3,7 +3,6 @@ package org.smartregister.child.view;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.task.GetChildDetailsTask;
 import org.smartregister.child.util.Utils;
@@ -22,8 +21,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
 
     public void setChildBaseEntityId(BaseActivity baseActivity, String baseEntityId) {
         Utils.startAsyncTask(
-                new GetChildDetailsTask(baseActivity, baseEntityId, CoreLibrary.getInstance().context().detailsRepository(),
-                        itemView), null);
+                new GetChildDetailsTask(baseActivity, baseEntityId, itemView), null);
     }
 
 

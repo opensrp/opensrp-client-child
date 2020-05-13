@@ -62,11 +62,10 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     @Override
     public void initializeQueries(String mainCondition) {
-        String tableName = Utils.metadata().childRegister.tableName;
-        String parentTableName = Utils.metadata().childRegister.motherTableName;
+        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
 
-        String countSelect = model.countSelect(tableName, mainCondition, parentTableName);
-        String mainSelect = model.mainSelect(tableName, mainCondition, parentTableName);
+        String countSelect = model.countSelect(mainCondition);
+        String mainSelect = model.mainSelect(mainCondition);
 
         getView().initializeQueryParams(tableName, countSelect, mainSelect);
         getView().initializeAdapter(visibleColumns);

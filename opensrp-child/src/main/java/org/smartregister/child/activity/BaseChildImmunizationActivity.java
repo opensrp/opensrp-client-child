@@ -35,19 +35,19 @@ import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.child.util.VaccineCalculator;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -85,15 +85,14 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
+import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -121,10 +120,8 @@ import timber.log.Timber;
  */
 public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
-        VaccinationActionListener, ServiceActionListener, View.OnClickListener {
+        VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails {
 
-    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
-    private static final String TAG = BaseChildImmunizationActivity.class.getCanonicalName();
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
@@ -132,7 +129,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
 
-    private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     protected LinearLayout floatingActionButton;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
@@ -142,7 +138,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private LocationSwitcherToolbar toolbar;
     // Data
     protected RegisterClickables registerClickables;
-    private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -163,11 +158,60 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private ImageButton growthChartButton;
     private SiblingPicturesGroup siblingPicturesGroup;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+
+        setUpToolbar();
+        setUpViews();
+
+        // Get child details from bundled data
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+
+            Map<String, String> details = ChildLibrary.
+                    getInstance()
+                    .context()
+                    .getEventClientRepository()
+                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
+
+            childDetails = new CommonPersonObjectClient(caseId, details, null);
+            childDetails.setColumnmaps(details);
+        }
+
+        Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
+        if (serializable != null && serializable instanceof RegisterClickables) {
+            registerClickables = (RegisterClickables) serializable;
+        }
+
+
+        bcgScarNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                        ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+
+        setLastModified(false);
+
+        setUpFloatingActionButton();
+    }
+
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
                                       RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
@@ -184,48 +228,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String serializedOject = gson.toJson(object);
 
         return gson.fromJson(serializedOject, object.getClass());
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
-
-        detailsRepository = getOpenSRPContext().detailsRepository();
-
-        setUpToolbar();
-        setUpViews();
-
-        // Get child details from bundled data
-        Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
-            Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = (CommonPersonObjectClient) serializable;
-            }
-
-            serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
-            if (serializable != null && serializable instanceof RegisterClickables) {
-                registerClickables = (RegisterClickables) serializable;
-            }
-        }
-
-        bcgScarNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
-                        !ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
-        weightNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-                        ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-
-        setLastModified(false);
-
-        setUpFloatingActionButton();
     }
 
     private void setUpViews() {
@@ -383,10 +385,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             }
         });
 
-        // TODO: update all views using child data
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        Utils.putAll(childDetails.getColumnmaps(), Utils.getCleanMap(details));
-
         isChildActive = isActiveStatus(childDetails);
 
         showChildsStatus(childDetails);
@@ -520,8 +518,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public void finish() {
         if (isLastModified()) {
-            String tableName = Utils.metadata().childRegister.tableName;
-            Utils.updateLastInteractionWith(childDetails.entityId(), tableName);
+            Utils.updateLastInteractionWith(childDetails.entityId(), Utils.metadata().getRegisterQueryProvider().getDemographicTable());
         }
         super.finish();
     }
@@ -743,9 +740,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines =
                     VaccinatorUtils.getSupportedVaccines(this);
 
-            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) &&
-                    Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
-            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
+            boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG2_REMINDER)) &&
+                    (childDetails.getColumnmaps().get(Constants.SHOW_BCG2_REMINDER) != null) &&
+                    Boolean.parseBoolean(childDetails.getColumnmaps().get(Constants.SHOW_BCG2_REMINDER)));
+            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(Constants.SHOW_BCG_SCAR)) && (childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR) != null);
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup =
                     (org.smartregister.immunization.domain.jsonmapping.VaccineGroup) clone(
@@ -775,7 +773,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX)
                         .plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
+                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR));
 
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
                         VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
@@ -848,7 +846,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(name);
         vaccine.setDate(date);
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        vaccine.setLocationId(getOpenSRPContext().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -936,10 +934,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
 
-        DetailsRepository detailsRepository = CoreLibrary.getInstance().context().detailsRepository();
-        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        Map<String, String> details = childDetails.getDetails();
 
-        if (details.containsKey(SHOW_BCG2_REMINDER) || details.containsKey(SHOW_BCG_SCAR)) {
+        if (details.get(Constants.SHOW_BCG2_REMINDER) != null || details.get(Constants.SHOW_BCG_SCAR) != null) {
             return;
         }
 
@@ -982,11 +979,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccinesMapping) {
             if (vaccine.getType().equalsIgnoreCase("BCG")) {
-                Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
-                Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
-                if (dueDate != null && (expiryDate == null || expiryDate.after(Calendar.getInstance().getTime()))) {
+                boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
+                        ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
+                if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
                     showCheckBcgScarNotification(null);
                 }
+
+                break;
             }
         }
     }
@@ -1055,14 +1054,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    onBcgReminderOptionSelected(SHOW_BCG_SCAR);
+                    onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
                     Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
                 }
             }, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    onBcgReminderOptionSelected(SHOW_BCG2_REMINDER);
+                    onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
                     Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
                 }
             }).show();
@@ -1072,18 +1071,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public void onBcgReminderOptionSelected(String option) {
 
         final long DATE = new Date().getTime();
-
         switch (option) {
-
-            case SHOW_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), DATE);
+            case Constants.SHOW_BCG2_REMINDER:
+                ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), childDetails.entityId());
                 break;
 
-            case SHOW_BCG_SCAR:
-                detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
-
+            case Constants.SHOW_BCG_SCAR:
+                ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
                 JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
@@ -1184,13 +1180,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         //Checking if the growth point is also a birth date point by comparing DOB. We wont allow edits for such
 
         if (weightWrapper != null) {
-
             updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         }
 
         if (hasProperty & monitorGrowth) {
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
+
         updateRecordWeightText(weightWrapper, heightWrapper);
         updateRecordGrowth(weightWrapper, heightWrapper, isActive);
 
@@ -1206,12 +1202,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
                 height = Utils.cmStringSuffix(heightWrapper.getHeight());
             }
+
             isGrowthEdit = true;
             if (hasProperty & monitorGrowth) {
                 recordWeightText.setText(getGrowthMonitoringValues(height, weight));
             } else {
                 recordWeightText.setText(weight);
             }
+        } else {
+            isGrowthEdit = false;
         }
     }
 
@@ -1227,6 +1226,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (hasProperty && monitorGrowth) {
             recordGrowth.setTag(R.id.height_wrapper, heightWrapper);
         }
+
         recordGrowth.setTag(R.id.growth_edit_flag, isGrowthEdit);
         recordGrowth.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1259,6 +1259,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
                     recordWeightText.setText(R.string.record_growth);
                     recordWeightCheck.setVisibility(View.GONE);
+
+                    // Reset the edit flag since this
+                    isGrowthEdit = false;
                 }
             }
         }
@@ -1306,6 +1309,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (hasProperty && monitorGrowth) {
             heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
         }
+
         boolean isGrowthEdit = (boolean) view.getTag(R.id.growth_edit_flag);
         if (isGrowthEdit) {
             EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
@@ -1320,18 +1324,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void activateChildsStatus() {
         try {
-            Map<String, String> details = childDetails.getColumnmaps();
+            Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
+            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, "child");
             if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(
+                commonPersonObject.setColumnmaps(
                         JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                childDetails.setColumnmaps(JsonFormUtils
+                commonPersonObject.setColumnmaps(JsonFormUtils
                         .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
@@ -1629,7 +1634,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+        String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
@@ -1652,6 +1657,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public abstract void onClick(View view);
 
+    @Override
     public CommonPersonObjectClient getChildDetails() {
         return childDetails;
     }
@@ -1736,7 +1742,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return height;
     }
 
-    private void updateScheduleDate() {
+    public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {
@@ -2174,11 +2180,21 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
-                List<CommonPersonObject> children =
-                        getOpenSRPContext().commonrepository(Utils.metadata().childRegister.tableName)
-                                .findByRelational_IDs(motherBaseEntityId);
+                List<HashMap<String, String>> childList = ChildLibrary.getInstance()
+                        .eventClientRepository()
+                        .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                                Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
+                                        + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
 
-                if (children != null) {
+
+                List<CommonPersonObject> children = new ArrayList<>();
+                for (HashMap<String, String> hashMap : childList) {
+                    CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, "child");
+                    commonPersonObject.setColumnmaps(hashMap);
+                    children.add(commonPersonObject);
+                }
+
+                if (children != null && children.size() > 0) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
                         if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
