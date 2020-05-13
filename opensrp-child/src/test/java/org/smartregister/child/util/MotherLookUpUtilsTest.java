@@ -20,7 +20,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
-import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
@@ -34,14 +33,13 @@ import org.smartregister.repository.Repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class, ChildMetadata.class, ChildLibrary.class})
 public class MotherLookUpUtilsTest {
 
     @Mock
-    private Context context;
+    private Context opensrpContext;
 
     @Mock
     private Repository repository;
@@ -60,41 +58,17 @@ public class MotherLookUpUtilsTest {
     }
 
     @Test
-    public void getMainConditionString() throws Exception {
-        Map<String, String> entityMap = new HashMap<>();
-        entityMap.put("first_name", "first_name");
-        entityMap.put("last_name", "last_name");
-
-        String expected = " last_name Like '%last_name%' AND first_name Like '%first_name%'";
-        String result = Whitebox.invokeMethod(MotherLookUpUtils.class, "getMainConditionString", entityMap);
-        Assert.assertEquals(expected, result);
-
-        entityMap.put("date_birth", "2017-09-09");
-        String expectedWithDate = " cast(dob as date)  =  cast('2017-09-09'as date)  AND" + expected;
-        String resultWihDate = Whitebox.invokeMethod(MotherLookUpUtils.class, "getMainConditionString", entityMap);
-        Assert.assertEquals(expectedWithDate, resultWihDate);
-    }
-
-    @Test
     public void lookUpReturnEmptyArrayListWithNullContext() throws Exception {
         Context context = null;
         EntityLookUp entityLookUp = null;
         HashMap<CommonPersonObject, List<CommonPersonObject>> objectListHashMap = Whitebox
-                .invokeMethod(MotherLookUpUtils.class, "lookUp", context, entityLookUp);
-        Assert.assertEquals(0, objectListHashMap.size());
-    }
-
-    @Test
-    public void lookUpReturnEmptyArrayListWithEntityLookUpEmpty() throws Exception {
-        Context context = null;
-        EntityLookUp entityLookUp = null;
-        HashMap<CommonPersonObject, List<CommonPersonObject>> objectListHashMap = Whitebox
-                .invokeMethod(MotherLookUpUtils.class, "lookUp", context, entityLookUp);
+                .invokeMethod(MotherLookUpUtils.class, "lookUp", opensrpContext, context, entityLookUp);
         Assert.assertEquals(0, objectListHashMap.size());
     }
 
     @Test
     public void testLookUpShouldReturnOneResult() throws Exception {
+        android.content.Context context = Mockito.mock(BaseChildFormActivity.class);
         PowerMockito.mockStatic(ChildLibrary.class);
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
                 null, true, new RegisterQueryProvider());
@@ -131,7 +105,7 @@ public class MotherLookUpUtilsTest {
         PowerMockito.when(commonRepository.readAllcommonforCursorAdapter(cursor))
                 .thenReturn(commonPersonObject);
         PowerMockito.when(commonRepository.rawCustomQueryForAdapter(Mockito.any(String.class))).thenReturn(cursor);
-        Mockito.when(context.commonrepository("ec_client")).thenReturn(commonRepository);
+        Mockito.when(opensrpContext.commonrepository("ec_client")).thenReturn(commonRepository);
 
         String query = "select ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id,ec_client.first_name,ec_client.last_name," +
                 "mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob,ec_mother_details.nrc_number as mother_nrc_number," +
@@ -151,40 +125,13 @@ public class MotherLookUpUtilsTest {
         childList.add(hashMap);
         PowerMockito.when(eventClientRepository.rawQuery(sqLiteDatabase, query)).thenReturn(childList);
 
-
         EntityLookUp entityLookUp = new EntityLookUp();
         entityLookUp.put("first_name", "john");
+        PowerMockito.when(((BaseChildFormActivity) context).lookUpQuery(entityLookUp.getMap(), metadata.getRegisterQueryProvider().getDemographicTable())).thenReturn("testQuery");
+
         HashMap<CommonPersonObject, List<CommonPersonObject>> objectListHashMap = Whitebox
-                .invokeMethod(MotherLookUpUtils.class, "lookUp", context, entityLookUp);
+                .invokeMethod(MotherLookUpUtils.class, "lookUp", opensrpContext, context, entityLookUp);
         Assert.assertEquals(1, objectListHashMap.size());
-    }
-
-    @Test
-    public void lookUpWithEmptyResult() throws Exception {
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true);
-        metadata.updateChildRegister("test", "test",
-                "test", "test",
-                "test", "test",
-                "test",
-                "test", "test");
-        Cursor cursor = Mockito.mock(Cursor.class);
-        PowerMockito.when(cursor.getCount()).thenReturn(0);
-        PowerMockito.when(cursor.moveToFirst()).thenReturn(false);
-        PowerMockito.when(cursor.moveToNext()).thenReturn(false);
-        PowerMockito.when(cursor.isAfterLast()).thenReturn(false);
-        PowerMockito.when(commonRepository.readAllcommonforCursorAdapter(cursor))
-                .thenReturn(Mockito.mock(CommonPersonObject.class));
-        PowerMockito.when(commonRepository.rawCustomQueryForAdapter(Mockito.any(String.class))).thenReturn(cursor);
-        Mockito.when(context.commonrepository("ec_client")).thenReturn(commonRepository);
-
-        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
-
-        EntityLookUp entityLookUp = new EntityLookUp();
-        entityLookUp.put("Sdf", "sdf");
-        HashMap<CommonPersonObject, List<CommonPersonObject>> objectListHashMap = Whitebox
-                .invokeMethod(MotherLookUpUtils.class, "lookUp", context, entityLookUp);
-        Assert.assertEquals(0, objectListHashMap.size());
     }
 
     @After
