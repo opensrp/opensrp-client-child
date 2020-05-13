@@ -58,7 +58,7 @@ public class ChildLibrary {
 
     public static ChildLibrary getInstance() {
         if (instance == null) {
-            throw new IllegalStateException(" Instance does not exist!!! Call " + CoreLibrary.class.getName() +
+            throw new IllegalStateException(" Instance does not exist!!! Call " + ChildLibrary.class.getName() +
                     ".init method in the onCreate method of " + "your Application class ");
         }
         return instance;
