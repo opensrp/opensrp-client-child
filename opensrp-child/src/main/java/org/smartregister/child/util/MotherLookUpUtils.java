@@ -77,7 +77,7 @@ public class MotherLookUpUtils {
         }
 
 
-        if (entityLookUp.isEmpty()) {
+        if (entityLookUp == null || entityLookUp.isEmpty()) {
             return results;
         }
 
