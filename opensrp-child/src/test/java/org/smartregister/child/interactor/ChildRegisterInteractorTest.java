@@ -23,8 +23,8 @@ import org.smartregister.child.JsonFormAssetsUtils;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
@@ -147,7 +147,7 @@ public class ChildRegisterInteractorTest {
         ChildRegisterInteractor childRegisterInteractor = Mockito.spy(interactor);
         String baseEntityId = "234-24";
         Client client = new Client(baseEntityId);
-        client.addIdentifier(JsonFormUtils.ZEIR_ID, "7899");
+        client.addIdentifier(ChildJsonFormUtils.ZEIR_ID, "7899");
         Event event = new Event();
         event.setBaseEntityId(baseEntityId);
         event.setFormSubmissionId("3422-90");
@@ -174,7 +174,7 @@ public class ChildRegisterInteractorTest {
         Assert.assertEquals(client.getBaseEntityId(), resultBaseEntityId);
         Assert.assertNotNull(syncHelperAddClientArgumentCaptor.getAllValues().get(1));
         JSONObject resultChildJson = (JSONObject) syncHelperAddClientArgumentCaptor.getAllValues().get(1);
-        String expected = JsonFormUtils.gson.toJson(client);
+        String expected = ChildJsonFormUtils.gson.toJson(client);
         Assert.assertEquals(expected, resultChildJson.toString());
         Assert.assertNotNull(syncHelperAddEventArgumentCaptor.getAllValues().get(0));
         Assert.assertEquals(event.getBaseEntityId(), syncHelperAddEventArgumentCaptor.getAllValues().get(0));
