@@ -97,14 +97,15 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
+
         CustomFontTextView buttonReportMonth = view.findViewById(R.id.btn_report_month);
+
         if (buttonReportMonth != null) {
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
             // Update top right icon
             setUpQRCodeScanButtonView(view);
-
             setUpScanCardButtonView(view);
 
             //OpenSRPLogo
@@ -119,11 +120,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             clinicSelection = view.findViewById(R.id.clinic_selection);
             clinicSelection.init();
 
-
             clientsView.setVisibility(View.VISIBLE);
             clientsProgressView.setVisibility(View.INVISIBLE);
             setServiceModeViewDrawableRight(null);
-
 
             TextView nameInitials = view.findViewById(R.id.name_inits);
             nameInitials.setVisibility(View.GONE);

@@ -1160,6 +1160,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
             }
 
+            processLocationFields(fields);
+
             dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
             Event subFormEvent = null;
