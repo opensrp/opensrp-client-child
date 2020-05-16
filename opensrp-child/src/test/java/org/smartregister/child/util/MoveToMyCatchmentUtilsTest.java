@@ -16,7 +16,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.repository.AllSharedPreferences;
 
-@PrepareForTest({MoveToMyCatchmentUtilsTest.class, ChildJsonFormUtils.class, ChildLibrary.class, CoreLibrary.class})
+@PrepareForTest({MoveToMyCatchmentUtilsTest.class, JsonFormUtils.class, ChildLibrary.class, CoreLibrary.class})
 public class MoveToMyCatchmentUtilsTest {
 
     @Mock

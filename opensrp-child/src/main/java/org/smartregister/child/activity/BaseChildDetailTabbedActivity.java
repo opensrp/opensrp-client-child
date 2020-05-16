@@ -60,7 +60,7 @@ import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -577,14 +577,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 Log.d("JSONResult", jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
+                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString);
-                } else if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
 
                     SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
                     saveRegistrationDetailsTask.setJsonString(jsonString);
                     Utils.startAsyncTask(saveRegistrationDetailsTask, null);
-                } else if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
 
                     Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                 }
@@ -597,7 +597,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             String imageLocation = currentFile.getAbsolutePath();
 
-            ChildJsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
+            JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
     }
@@ -681,7 +681,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void saveReportDeceasedJson(String jsonString) {
-        ChildJsonFormUtils.saveReportDeceased(this, jsonString, locationId, childDetails.entityId());
+        JsonFormUtils.saveReportDeceased(this, jsonString, locationId, childDetails.entityId());
 
     }
 
@@ -968,20 +968,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             JSONObject form = new FormUtils(getContext()).getFormJson("report_deceased");
             if (form != null) {
                 //inject zeir id into the form
-                JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
+                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
+                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
 
                 //Date Birth
-                JSONObject dateBirthJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
+                JSONObject dateBirthJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
                 String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
                 Date dob = Utils.dobStringToDate(dobString);
                 if (dob != null) {
-                    dateBirthJSONObject.put(ChildJsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                    dateBirthJSONObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
                 }
 
                 //Date Death
-                JSONObject dateDeathJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
+                JSONObject dateDeathJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
                 dateDeathJSONObject.put(JsonFormConstants.MIN_DATE, simpleDateFormat.format(dob));
 
 

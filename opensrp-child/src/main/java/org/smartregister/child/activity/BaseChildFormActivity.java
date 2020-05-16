@@ -21,7 +21,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.contract.IMotherLookup;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.MotherLookUpUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
@@ -67,7 +67,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         super.onResume();
         try {
 
-            String et = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
+            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
 
             confirmCloseTitle = getString(R.string.confirm_form_close);
             confirmCloseMessage = et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation);

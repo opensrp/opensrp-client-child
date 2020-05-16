@@ -90,7 +90,7 @@ public class MoveToMyCatchmentUtils {
 
     public static boolean processMoveToCatchment(android.content.Context context, AllSharedPreferences allSharedPreferences,
                                                  JSONObject jsonObject) {
-        return ChildJsonFormUtils.processMoveToCatchment(context, allSharedPreferences, jsonObject);
+        return JsonFormUtils.processMoveToCatchment(context, allSharedPreferences, jsonObject);
     }
 
 }

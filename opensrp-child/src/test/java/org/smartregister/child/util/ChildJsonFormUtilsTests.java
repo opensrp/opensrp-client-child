@@ -37,7 +37,7 @@ import java.util.Calendar;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class, ChildLibrary.class, ECSyncHelper.class, CoreLibrary.class})
-public class ChildJsonFormUtilsTests {
+public class JsonFormUtilsTests {
 
     private JSONObject jsonObject;
 
@@ -70,22 +70,22 @@ public class ChildJsonFormUtilsTests {
 
     @Test
     public void isDateApproxWithNonNumberTest() throws Exception {
-        boolean isApproximate = Whitebox.invokeMethod(ChildJsonFormUtils.class, "isDateApprox", "1500208620000L");
+        boolean isApproximate = Whitebox.invokeMethod(JsonFormUtils.class, "isDateApprox", "1500208620000L");
         Assert.assertFalse(isApproximate);
     }
 
     @Test
     public void isDateApproxWithNumberTest() throws Exception {
-        boolean isApproximate = Whitebox.invokeMethod(ChildJsonFormUtils.class, "isDateApprox", "1");
+        boolean isApproximate = Whitebox.invokeMethod(JsonFormUtils.class, "isDateApprox", "1");
         Assert.assertTrue(isApproximate);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void processAgeWithWrongDateFormatTest() throws Exception {
-        JSONObject result = Whitebox.invokeMethod(ChildJsonFormUtils.class, "processAge", "7/19/19", jsonObject);
+        JSONObject result = Whitebox.invokeMethod(JsonFormUtils.class, "processAge", "7/19/19", jsonObject);
         Assert.assertNotNull(result);
-        Assert.assertTrue(result.has(ChildJsonFormUtils.VALUE));
-        Assert.assertNotNull(result.get(ChildJsonFormUtils.VALUE));
+        Assert.assertTrue(result.has(JsonFormUtils.VALUE));
+        Assert.assertNotNull(result.get(JsonFormUtils.VALUE));
     }
 
     @Test
@@ -94,17 +94,17 @@ public class ChildJsonFormUtilsTests {
         LocalDate date = LocalDate.parse(TEST_DOB);
         Integer expectedDifferenceInYears = Period.between(date, LocalDate.now()).getYears();
 
-        Whitebox.invokeMethod(ChildJsonFormUtils.class, "processAge", TEST_DOB, jsonObject);
-        Assert.assertTrue(jsonObject.has(ChildJsonFormUtils.VALUE));
-        Assert.assertNotNull(jsonObject.get(ChildJsonFormUtils.VALUE));
-        Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(ChildJsonFormUtils.VALUE));
+        Whitebox.invokeMethod(JsonFormUtils.class, "processAge", TEST_DOB, jsonObject);
+        Assert.assertTrue(jsonObject.has(JsonFormUtils.VALUE));
+        Assert.assertNotNull(jsonObject.get(JsonFormUtils.VALUE));
+        Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(JsonFormUtils.VALUE));
     }
 
     @Test
     public void getChildLocationIdShouldReturnNullWhenCurrentLocalityIsNull() {
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
 
-        Assert.assertNull(ChildJsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+        Assert.assertNull(JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ChildJsonFormUtilsTests {
 
         Mockito.doReturn(currentLocalityId).when(locationHelper).getOpenMrsLocationId(Mockito.eq(currentLocality));
 
-        Assert.assertEquals(currentLocalityId, ChildJsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+        Assert.assertEquals(currentLocalityId, JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ChildJsonFormUtilsTests {
         PowerMockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
 
         Client client = new Client("234");
-        ChildJsonFormUtils.mergeAndSaveClient(client);
+        JsonFormUtils.mergeAndSaveClient(client);
         Mockito.verify(ecSyncHelper, Mockito.times(1))
                 .addClient((String) addClientCaptor.capture(), (JSONObject) addClientCaptor.capture());
 
@@ -168,8 +168,8 @@ public class ChildJsonFormUtilsTests {
 
         PowerMockito.when(ECSyncHelper.getInstance(context)).thenReturn(ecSyncHelper);
 
-        ChildJsonFormUtils childJsonFormUtils = new ChildJsonFormUtils();
-        Whitebox.invokeMethod(childJsonFormUtils,
+        JsonFormUtils JsonFormUtils = new JsonFormUtils();
+        Whitebox.invokeMethod(JsonFormUtils,
                 "createBCGScarEvent", context,
                 "3434-234", providerId, "locationId");
         Mockito.verify(ecSyncHelper).addEvent((String) ecSyncHelperAddEventCaptor.capture(),
@@ -187,7 +187,7 @@ public class ChildJsonFormUtilsTests {
         Assert.assertEquals("Yes", obsJsonObject.optJSONArray("humanReadableValues").optString(0));
         Assert.assertEquals("1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", obsJsonObject.optJSONArray("values").optString(0));
 
-        Assert.assertEquals(ChildJsonFormUtils.BCG_SCAR_EVENT, eventJson.optString("eventType"));
+        Assert.assertEquals(JsonFormUtils.BCG_SCAR_EVENT, eventJson.optString("eventType"));
         Assert.assertEquals(teamName, eventJson.optString("team"));
         Assert.assertEquals("child", eventJson.optString("entityType"));
         Assert.assertEquals(teamId, eventJson.optString("teamId"));
@@ -227,9 +227,9 @@ public class ChildJsonFormUtilsTests {
         dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
         array.put(dobJson);
 
-        JSONObject dobDateObject = ChildJsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
+        JSONObject dobDateObject = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
 
-        ChildJsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.MOTHER);
+        JsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.MOTHER);
 
         Assert.assertNotNull(dobDateObject.getString(Constants.KEY.VALUE));
 
