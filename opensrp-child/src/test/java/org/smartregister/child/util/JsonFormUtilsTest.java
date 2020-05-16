@@ -293,7 +293,7 @@ public class JsonFormUtilsTest {
         JSONObject form = new JSONObject(registrationForm);
         WhiteboxImpl.invokeMethod(JsonFormUtils.class, "addChildRegLocHierarchyQuestions", form, LocationHierarchy.FACILITY_WITH_OTHER_STRING);
         String expectedTree = "[{\"nodes\":[{\"level\":\"Province\",\"name\":\"Central\",\"key\":\"1\"}],\"level\":\"Country\",\"name\":\"Kenya\",\"key\":\"0\"}]";
-        JSONArray fields = com.vijay.jsonwizard.utils.FormUtils.getMultiStepFormFields(form);
+        JSONArray fields = FormUtils.getMultiStepFormFields(form);
         JSONObject homeFacility = JsonFormUtils.getFieldJSONObject(fields, Constants.HOME_FACILITY);
 
         Assert.assertEquals(expectedTree, homeFacility.optString(JsonFormConstants.TREE));
