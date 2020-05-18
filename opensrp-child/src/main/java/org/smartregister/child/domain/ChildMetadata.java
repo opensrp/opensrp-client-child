@@ -2,13 +2,11 @@ package org.smartregister.child.domain;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
-import org.smartregister.child.BuildConfig;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,8 +31,6 @@ public class ChildMetadata {
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
-        locationLevels = new ArrayList<>(Arrays.asList(BuildConfig.LOCATION_LEVELS));
-        healthFacilityLevels = new ArrayList<>(Arrays.asList(BuildConfig.HEALTH_FACILITY_LEVELS));
         setRegisterQueryProvider(new RegisterQueryProvider());
     }
 

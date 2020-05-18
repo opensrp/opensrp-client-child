@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -28,7 +29,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.child.enums.LocationHierarchy;
+import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.form.FormLocation;
@@ -289,9 +290,13 @@ public class JsonFormUtilsTest {
         entireTreeCountryNode.add(formLocationProvince);
         formLocationCountry.nodes = entireTreeCountryNode;
         entireTree.add(formLocationCountry);
-        Mockito.doReturn(entireTree).when(locationHelper).generateLocationHierarchyTree(true, healthFacilities);
+        ArrayList<String> allLevels = Utils.metadata().getLocationLevels();
+        Mockito.doReturn(entireTree).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(healthFacilities));
+        Mockito.doReturn(entireTree).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(allLevels));
+        Mockito.doReturn(healthFacilities).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(healthFacilities));
+        Mockito.doReturn(allLevels).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(allLevels));
         JSONObject form = new JSONObject(registrationForm);
-        WhiteboxImpl.invokeMethod(JsonFormUtils.class, "addChildRegLocHierarchyQuestions", form, LocationHierarchy.FACILITY_WITH_OTHER_STRING);
+        JsonFormUtils.addChildRegLocHierarchyQuestions(form);
         String expectedTree = "[{\"nodes\":[{\"level\":\"Province\",\"name\":\"Central\",\"key\":\"1\"}],\"level\":\"Country\",\"name\":\"Kenya\",\"key\":\"0\"}]";
         JSONArray fields = FormUtils.getMultiStepFormFields(form);
         JSONObject homeFacility = JsonFormUtils.getFieldJSONObject(fields, Constants.HOME_FACILITY);
@@ -301,20 +306,83 @@ public class JsonFormUtilsTest {
 
     @Test
     public void testUpdateLocationStringShouldPopulateTreeAndDefaultAttributeUsingLocationHierarchyTree() throws Exception {
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(JsonFormConstants.KEY, "village");
-        jsonArray.put(jsonObject);
-        String hierarchyString = "[\"Kenya\",\"Central\"]";
-        String entireTree = "[{\"nodes\":[{\"level\":\"Province\",\"name\":\"Central\",\"key\":\"1\"}],\"level\":\"Country\",\"name\":\"Kenya\",\"key\":\"0\"}]";
+
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
         PowerMockito.mockStatic(Utils.class);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setFieldsWithLocationHierarchy(Arrays.asList("village"));
-        WhiteboxImpl.invokeMethod(JsonFormUtils.class, "updateLocationTree", LocationHierarchy.ENTIRE_TREE, jsonArray, hierarchyString, hierarchyString, hierarchyString, hierarchyString, entireTree);
+
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(JsonFormConstants.KEY, "village");
+        jsonObject.put(JsonFormConstants.TYPE, JsonFormConstants.TREE);
+        jsonArray.put(jsonObject);
+        String hierarchyString = "[\"Kenya\",\"Central\"]";
+        String entireTreeString = "[{\"nodes\":[{\"level\":\"Province\",\"name\":\"Central\",\"key\":\"1\"}],\"level\":\"Country\",\"name\":\"Kenya\",\"key\":\"0\"}]";
+        ArrayList<String> allLevels = Utils.metadata().getLocationLevels();
+        ArrayList<String> healthFacilities = new ArrayList<>();
+        healthFacilities.add("Country");
+        healthFacilities.add("Province");
+
+        List<FormLocation> entireTree = new ArrayList<>();
+        FormLocation formLocationCountry = new FormLocation();
+        formLocationCountry.level = "Country";
+        formLocationCountry.name = "Kenya";
+        formLocationCountry.key = "0";
+        FormLocation formLocationProvince = new FormLocation();
+        formLocationProvince.level = "Province";
+        formLocationProvince.name = "Central";
+        formLocationProvince.key = "1";
+
+        List<FormLocation> entireTreeCountryNode = new ArrayList<>();
+        entireTreeCountryNode.add(formLocationProvince);
+        formLocationCountry.nodes = entireTreeCountryNode;
+        entireTree.add(formLocationCountry);
+
+        PowerMockito.mockStatic(LocationHelper.class);
+        Mockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
+
+        Mockito.doReturn(entireTree).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(healthFacilities));
+
+        WhiteboxImpl.invokeMethod(JsonFormUtils.class, "updateLocationTree", jsonArray, hierarchyString, entireTreeString, healthFacilities, allLevels);
         Assert.assertTrue(jsonObject.has(JsonFormConstants.TREE));
         Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
         Assert.assertEquals(hierarchyString, jsonObject.optString(JsonFormConstants.DEFAULT));
-        Assert.assertEquals(entireTree, jsonObject.optString(JsonFormConstants.TREE));
+        Assert.assertEquals(entireTreeString, jsonObject.optString(JsonFormConstants.TREE));
+    }
+
+    @Test
+    public void testGenerateFormLocationTreeGeneratesCorrectFormTree() throws Exception {
+
+        PowerMockito.mockStatic(LocationHelper.class);
+        Mockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
+
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        ArrayList<String> locations = new ArrayList<>();
+        locations.add("Country");
+        locations.add("County");
+        locations.add("Village");
+
+        ArrayList<String> filteredLocations = new ArrayList<>();
+        filteredLocations.add("Country");
+        filteredLocations.add("County");
+
+        Mockito.doReturn(filteredLocations).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(filteredLocations));
+
+        FormLocationTree formLocationTree = WhiteboxImpl.invokeMethod(JsonFormUtils.class, "generateFormLocationTree", locations, false, "County");
+
+        Assert.assertNotNull(formLocationTree);
+        Assert.assertEquals("[\"Country\",\"County\"]", formLocationTree.getFormLocationString());
+        List<FormLocation> formLocations = formLocationTree.getFormLocations();
+
+        Assert.assertNotNull(formLocations);
+        Assert.assertEquals(2,formLocations.size());
+        Assert.assertEquals("Country",formLocations.get(0));
+        Assert.assertEquals("County",formLocations.get(1));
     }
 }

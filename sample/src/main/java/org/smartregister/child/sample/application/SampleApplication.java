@@ -18,7 +18,6 @@ import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
 import org.smartregister.child.sample.util.SampleConstants;
 import org.smartregister.child.util.DBConstants;
-import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -184,6 +183,8 @@ public class SampleApplication extends DrishtiApplication {
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,
                 SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
         metadata.setFieldsWithLocationHierarchy(Arrays.asList("Home_Facility", "Birth_Facility_Name"));
+        metadata.setLocationLevels(new ArrayList<>(Arrays.asList(BuildConfig.LOCATION_LEVELS)));
+        metadata.setHealthFacilityLevels(new ArrayList<>(Arrays.asList(BuildConfig.HEALTH_FACILITY_LEVELS)));
         return metadata;
     }
 
