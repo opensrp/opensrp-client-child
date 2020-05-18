@@ -76,16 +76,6 @@ import static org.smartregister.immunization.util.VaccinatorUtils.translate;
  */
 public class Utils extends org.smartregister.util.Utils {
     public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
-    public static final ArrayList<String> ALLOWED_LEVELS;
-    public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
-    public static final String FACILITY = "Facility";
-
-    static {
-        ALLOWED_LEVELS = new ArrayList<>();
-        ALLOWED_LEVELS.add(DEFAULT_LOCATION_LEVEL);
-        ALLOWED_LEVELS.add(FACILITY);
-    }
-
     public static int getProfileImageResourceIDentifier() {
         return R.mipmap.ic_child;
     }

@@ -30,6 +30,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
@@ -124,7 +125,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 entityId = entityId.replace("-", "");
             }
 
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form, LocationHierarchy.ENTIRE_TREE);
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
             // Inject zeir id into the form
             JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
@@ -170,37 +171,47 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return form;
     }
 
-    public static void addChildRegLocHierarchyQuestions(JSONObject form, LocationHierarchy locationHierarchy) {
+    public static void addChildRegLocHierarchyQuestions(JSONObject form) {
+
         try {
+
             JSONArray questions = com.vijay.jsonwizard.utils.FormUtils.getMultiStepFormFields(form);
+
             ArrayList<String> allLevels = getLocationLevels();
             ArrayList<String> healthFacilities = getHealthFacilityLevels();
 
-            List<String> defaultLocation = LocationHelper.getInstance().generateDefaultLocationHierarchy(allLevels);
-            List<String> defaultFacility = LocationHelper.getInstance().generateDefaultLocationHierarchy(healthFacilities);
-            List<FormLocation> upToFacilities = LocationHelper.getInstance().generateLocationHierarchyTree(false, healthFacilities);
-            List<FormLocation> upToFacilitiesWithOther = LocationHelper.getInstance().generateLocationHierarchyTree(true, healthFacilities);
-            List<FormLocation> entireTree = LocationHelper.getInstance().generateLocationHierarchyTree(true, allLevels);
+            String defaultFacilityString = generateLocationString(healthFacilities);
+            String defaultLocationString = generateLocationString(allLevels);
 
-            String defaultLocationString = AssetHandler.javaToJsonString(defaultLocation, new TypeToken<List<String>>() {
-            }.getType());
+            updateLocationTree(questions, defaultLocationString, defaultFacilityString, allLevels, healthFacilities);
 
-            String defaultFacilityString = AssetHandler.javaToJsonString(defaultFacility, new TypeToken<List<String>>() {
-            }.getType());
-
-            String upToFacilitiesString = AssetHandler.javaToJsonString(upToFacilities, new TypeToken<List<FormLocation>>() {
-            }.getType());
-
-            String upToFacilitiesWithOtherString = AssetHandler.javaToJsonString(upToFacilitiesWithOther, new TypeToken<List<FormLocation>>() {
-            }.getType());
-
-            String entireTreeString = AssetHandler.javaToJsonString(entireTree, new TypeToken<List<FormLocation>>() {
-            }.getType());
-
-            updateLocationTree(locationHierarchy, questions, defaultLocationString, defaultFacilityString, upToFacilitiesString, upToFacilitiesWithOtherString, entireTreeString);
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> addChildRegLocHierarchyQuestions");
         }
+    }
+
+    private static String generateLocationString(ArrayList<String> locationTags) {
+        List<String> locationNames = LocationHelper.getInstance().generateDefaultLocationHierarchy(locationTags);
+        return AssetHandler.javaToJsonString(locationNames, new TypeToken<List<String>>() {
+        }.getType());
+    }
+
+    private static FormLocationTree generateFormLocationTree(List<String> locationTags, boolean showOther, String selectableTag) {
+
+        ArrayList<String> allowedLevels = (ArrayList<String>) locationTags;
+
+        if (!StringUtils.isBlank(selectableTag)) {
+            int finalIndex = locationTags.indexOf(selectableTag) + 1;
+            allowedLevels = finalIndex <= locationTags.size() - 1 ? new ArrayList<>(locationTags.subList(0, finalIndex)) : (ArrayList<String>) locationTags;
+        }
+
+        List<FormLocation> formLocationList = LocationHelper.getInstance().generateLocationHierarchyTree(showOther, allowedLevels);
+
+        String locationsString = AssetHandler.javaToJsonString(formLocationList, new TypeToken<List<FormLocation>>() {
+        }.getType());
+
+        return new FormLocationTree(locationsString, formLocationList);
+
     }
 
     private static void addAvailableVaccines(Context context, JSONObject form) {
@@ -336,44 +347,61 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return Utils.metadata().getHealthFacilityLevels();
     }
 
-    private static void updateLocationTree(LocationHierarchy locationHierarchy, JSONArray questions,
-                                           String defaultLocationString, String defaultFacilityString,
-                                           String upToFacilitiesString, String upToFacilitiesWithOtherString,
-                                           String entireTreeString) throws JSONException {
+    private static void updateLocationTree(JSONArray questions, String defaultLocationString, String defaultFacilityString, List<String> allLevels, List<String> healthFacilities) throws JSONException {
+
         ChildMetadata childMetadata = Utils.metadata();
+        LocationHierarchy locationHierarchy;//Default
         if (childMetadata.getFieldsWithLocationHierarchy() != null && !childMetadata.getFieldsWithLocationHierarchy().isEmpty()) {
 
+            FormLocationTree upToFacilities = generateFormLocationTree(healthFacilities, false, null);
+            FormLocationTree upToFacilitiesWithOther = generateFormLocationTree(healthFacilities, true, null);
+            FormLocationTree entireTree = generateFormLocationTree(allLevels, true, null);
+
             for (int i = 0; i < questions.length(); i++) {
+
                 JSONObject widget = questions.getJSONObject(i);
-                String key = widget.optString(JsonFormConstants.KEY);
-                if (StringUtils.isNotBlank(key) && childMetadata.getFieldsWithLocationHierarchy().contains(widget.optString(JsonFormConstants.KEY))) {
-                    switch (locationHierarchy) {
-                        case FACILITY_ONLY:
-                            if (StringUtils.isNotBlank(upToFacilitiesString)) {
-                                addLocationTree(key, widget, upToFacilitiesString, JsonFormConstants.TREE);
-                            }
-                            if (StringUtils.isNotBlank(defaultFacilityString)) {
-                                addLocationTreeDefault(key, widget, defaultFacilityString);
-                            }
-                            break;
-                        case FACILITY_WITH_OTHER_STRING:
-                            if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
-                                addLocationTree(key, widget, upToFacilitiesWithOtherString, JsonFormConstants.TREE);
-                            }
-                            if (StringUtils.isNotBlank(defaultFacilityString)) {
-                                addLocationTreeDefault(key, widget, defaultFacilityString);
-                            }
-                            break;
-                        case ENTIRE_TREE:
-                            if (StringUtils.isNotBlank(entireTreeString)) {
-                                addLocationTree(key, widget, entireTreeString, JsonFormConstants.TREE);
-                            }
-                            if (StringUtils.isNotBlank(defaultFacilityString)) {
-                                addLocationTreeDefault(key, widget, defaultLocationString);
-                            }
-                            break;
-                        default:
-                            break;
+
+                if (widget.has(JsonFormConstants.TYPE) && widget.getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE)) {
+
+                    String key = widget.optString(JsonFormConstants.KEY);
+                    String hierarchyType = widget.optString(Constants.JSON_FORM_KEY.HIERARCHY);
+
+                    locationHierarchy = !StringUtils.isBlank(hierarchyType) ? LocationHierarchy.valueOf(hierarchyType.toUpperCase(Locale.ENGLISH)) : LocationHierarchy.ENTIRE_TREE;
+
+                    if (StringUtils.isNotBlank(key) && childMetadata.getFieldsWithLocationHierarchy().contains(widget.optString(JsonFormConstants.KEY))) {
+                        switch (locationHierarchy) {
+                            case FACILITY_ONLY:
+                                if (StringUtils.isNotBlank(upToFacilities.getFormLocationString())) {
+                                    addLocationTree(key, widget, upToFacilities.getFormLocationString(), JsonFormConstants.TREE);
+                                }
+                                if (StringUtils.isNotBlank(defaultFacilityString)) {
+                                    addLocationTreeDefault(key, widget, defaultFacilityString);
+                                }
+                                break;
+                            case FACILITY_WITH_OTHER_STRING:
+                                if (StringUtils.isNotBlank(upToFacilitiesWithOther.getFormLocationString())) {
+                                    addLocationTree(key, widget, upToFacilitiesWithOther.getFormLocationString(), JsonFormConstants.TREE);
+                                }
+                                if (StringUtils.isNotBlank(defaultFacilityString)) {
+                                    addLocationTreeDefault(key, widget, defaultFacilityString);
+                                }
+                                break;
+                            case ENTIRE_TREE:
+
+                                String selectableTag = widget.optString(Constants.JSON_FORM_KEY.SELECTABLE);
+                                if (StringUtils.isNotBlank(selectableTag)) {
+                                    entireTree = generateFormLocationTree(allLevels, true, selectableTag);
+                                }
+                                if (StringUtils.isNotBlank(entireTree.getFormLocationString())) {
+                                    addLocationTree(key, widget, entireTree.getFormLocationString(), JsonFormConstants.TREE);
+                                }
+                                if (StringUtils.isNotBlank(defaultLocationString)) {
+                                    addLocationTreeDefault(key, widget, defaultLocationString);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -755,8 +783,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     protected static void processLocationFields(JSONArray fields) throws JSONException {
         for (int i = 0; i < fields.length(); i++) {
-            if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) &&
-                    fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE))
+            if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) && fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE)) {
                 try {
                     String rawValue = fields.getJSONObject(i).getString(JsonFormConstants.VALUE);
                     JSONArray valueArray = new JSONArray(rawValue);
@@ -768,6 +795,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 } catch (Exception e) {
                     Timber.e(e, "JsonFormUitls --> processLocationFields");
                 }
+            }
         }
     }
 
@@ -917,7 +945,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             if (form != null) {
 
-                JsonFormUtils.addChildRegLocHierarchyQuestions(form, LocationHierarchy.ENTIRE_TREE);
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form);
                 Timber.d("Form is %s", form.toString());
 
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
@@ -1016,16 +1044,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         }
 
-        ArrayList<String> allLevels = getLocationLevels();
-        List<FormLocation> entireTree = LocationHelper.getInstance().generateLocationHierarchyTree(true, allLevels);
-        String entireTreeString = AssetHandler.javaToJsonString(entireTree, new TypeToken<List<FormLocation>>() {
-        }.getType());
         String birthFacilityHierarchyString = AssetHandler.javaToJsonString(entityHierarchy, new TypeToken<List<String>>() {
         }.getType());
-        if (StringUtils.isNotBlank(birthFacilityHierarchyString)) {
-            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
-            jsonObject.put(JsonFormConstants.TREE, new JSONArray(entireTreeString));
-        }
+        jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
 
     }
 
@@ -1625,7 +1646,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     entityId = entityId.replace("-", "");
                 }
 
-                JsonFormUtils.addChildRegLocHierarchyQuestions(form, LocationHierarchy.ENTIRE_TREE);
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
                 // Inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);

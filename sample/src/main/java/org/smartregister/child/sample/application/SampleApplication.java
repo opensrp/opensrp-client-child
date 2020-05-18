@@ -150,7 +150,7 @@ public class SampleApplication extends DrishtiApplication {
         context.session().setPassword(SampleRepository.PASSWORD);
 
         SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
+        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
