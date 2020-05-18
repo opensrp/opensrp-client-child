@@ -55,14 +55,14 @@ Here's an example:
 ```
 
 For context, the locations are synced from the server side after app login and they consist of two related data items 
-- The location name e.g `Kenya` 
-- The location tag e.g. `Country`
+  -  The location name e.g `Kenya` 
+  -  The location tag e.g. `Country`
 
 The above configurations and their use are defined below
--   **LOCATION_LEVELS** - This this is an ordered list of the location tags as you'd want to render them
--   **HEALTH_FACILITY_LEVELS** - This this is an ordered list of the facility location tags
--   **DEFAULT_LEVEL** - This this is a string for the default select Location on the location picker
--   **ALLOWED_LEVELS** - This this is a list of tags on the location tree that can be selected on your forms e.g. for one question you can select Facility and another question on the same from you can select District if the setting was _buildConfigField "String[]", "ALLOWED_LEVELS", '{"Facility"}'_
+  -   **LOCATION_LEVELS** - This this is an ordered list of the location tags as you'd want to render them
+  -   **HEALTH_FACILITY_LEVELS** - This this is an ordered list of the facility location tags
+  -   **DEFAULT_LEVEL** - This this is a string for the default select Location on the location picker
+  -   **ALLOWED_LEVELS** - This this is a list of tags on the location tree that can be selected on your forms e.g. for one question you can select Facility and another question on the same from you can select District if the setting was _buildConfigField "String[]", "ALLOWED_LEVELS", '{"Facility"}'_
 
 ### Form Level configuration
 
@@ -87,9 +87,9 @@ For the location picker widget to render on the form the basic configuration is:
 ```
 The above can be further configured, for example if you require to have the location hierarchy for a field to be selectable at District level then you can add the field **selectable** and assign it a value _District_ which corresponds to the location tag you want selectable for that field. 
 
-Sometimes you'd want to add an _Other_ option incase the location is not part of the tree but you may want the user to select other and possibly show an edit text via skip logic to allow manual entry of a location. For this there is the field **hierarchy** which defines a hierarchy type. 3 types of configuration values are supported _facility_only_, _facility_with_other_, _entire_tree_
+Sometimes you'd want to add an _Other_ option in case the location is not part of the tree but you may want the user to select other and possibly show an edit text via skip logic to allow manual entry of a location. For this there is the field **hierarchy** which defines a hierarchy type. 3 types of configuration values are supported _facility_only_, _facility_with_other_, _entire_tree_
 
-example updated config:
+Example updated config:
 ```
        "key": "Residential_Area",
         "openmrs_entity_parent": "usual_residence",

@@ -58,7 +58,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -76,6 +75,7 @@ import static org.smartregister.immunization.util.VaccinatorUtils.translate;
  */
 public class Utils extends org.smartregister.util.Utils {
     public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
+
     public static int getProfileImageResourceIDentifier() {
         return R.mipmap.ic_child;
     }
