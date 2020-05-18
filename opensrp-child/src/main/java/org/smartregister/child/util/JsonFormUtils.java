@@ -378,7 +378,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                     addLocationTreeDefault(key, widget, defaultFacilityString);
                                 }
                                 break;
-                            case FACILITY_WITH_OTHER_STRING:
+                            case FACILITY_WITH_OTHER:
                                 if (StringUtils.isNotBlank(upToFacilitiesWithOther.getFormLocationString())) {
                                     addLocationTree(key, widget, upToFacilitiesWithOther.getFormLocationString(), JsonFormConstants.TREE);
                                 }
