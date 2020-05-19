@@ -8,6 +8,7 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.util.Utils;
@@ -46,7 +47,7 @@ public class MotherLookUpSmartClientsProvider {
 
         String birthDateString = "Birthdate or contact phone number missing";
 
-        String contactPhoneNumber = pc.getColumnmaps().get(Constants.KEY.CONTACT_PHONE_NUMBER);//To do refactor for configurability
+        String contactPhoneNumber = pc.getColumnmaps().get(DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER);//To do refactor for configurability
         if (contactPhoneNumber == null) {
 
             DateTime birthDateTime = dob(pc);

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
+import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
@@ -24,12 +25,10 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,9 +77,9 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     /**
      * The map is such that key is the key defined in the registration form json while the value is the strings resource id
      * e.g. Key "First_Name" and Value "R.string.first_name"
-     *
+     * <p>
      * At runtime, the correct language string will be loaded
-     *
+     * <p>
      * Values will only show up if you add them here
      */
 
@@ -100,14 +99,12 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (this.getArguments() != null) {
-            Serializable serializable = getArguments().getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            if (serializable != null && serializable instanceof CommonPersonObjectClient) {
-                childDetails = ((CommonPersonObjectClient) serializable).getColumnmaps();
-            }
+        if (getActivity() instanceof IChildDetails) {
+            childDetails = ((IChildDetails) getActivity()).getChildDetails().getColumnmaps();
         }
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
+
         return fragmentView;
     }
 
@@ -144,19 +141,35 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         String value;
 
         for (int i = 0; i < getFields().size(); i++) {
-            key = getFields().get(i).getKey();
-            value = detailsMap.get(key);
-            value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(getFields().get(i).getEntityId()) +
-                    cleanOpenMRSEntityId(getFields().get(i).getOpenmrsEntityId().toLowerCase()));
-            String label = cleanLabel(key);
 
-            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label)) {
+            key = getFields().get(i).getKey();
+            value = getFieldValue(detailsMap, getFields().get(i), key);
+
+            String label = getResourceLabel(key);
+
+            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !isSkippableValue(value)) {
                 mArrayList.add(new KeyValueItem(label, cleanValue(getFields().get(i), value)));
             }
 
         }
 
         setmAdapter(new ChildRegistrationDataAdapter(mArrayList));
+    }
+
+    private boolean isSkippableValue(String value) {
+
+        List<String> skippableValues = Arrays.asList("[\"Other\"]");
+
+        return skippableValues.contains(value);
+
+    }
+
+    private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
+        String value;
+        value = detailsMap.get(getPrefix(field.getEntityId()) + key);
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.ENGLISH));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase()));
+        return value;
     }
 
     public String getPrefix(String entityId) {
@@ -167,7 +180,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         return Client.birth_date_key.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
     }
 
-    public String cleanLabel(String raw) {
+    public String getResourceLabel(String raw) {
         String label = null;
         if (stringResourceIds != null && stringResourceIds.size() > 0) {
             label = stringResourceIds.get(raw);

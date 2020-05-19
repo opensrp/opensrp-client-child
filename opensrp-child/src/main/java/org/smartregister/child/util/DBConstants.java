@@ -1,4 +1,4 @@
-package org.smartregister.child.sample.util;
+package org.smartregister.child.util;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -27,7 +27,7 @@ public class DBConstants {
         public static final String DETAILS = "details";
         public static final String RELATIONALID = "relationalid";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
-        public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
+        public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String PROVIDER_UC = "provider_uc";
         public static final String PROVIDER_TOWN = "provider_town";
@@ -41,5 +41,11 @@ public class DBConstants {
         public static final String ENTITY_TYPE = "entity_type";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+    }
+
+    public interface RegisterTable {
+        String CHILD_DETAILS = "ec_child_details";
+        String MOTHER_DETAILS = "ec_mother_details";
+        String CLIENT = "ec_client";
     }
 }

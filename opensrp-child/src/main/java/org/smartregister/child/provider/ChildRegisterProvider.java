@@ -227,7 +227,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
 
         String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
-        String inactive = Utils.getValue(pc.getColumnmaps(), Constants.KEY.INACTIVE, false);
+        String inactive = Utils.getValue(pc.getColumnmaps(), Constants.CHILD_STATUS.INACTIVE, false);
 
         if (show()) {
             try {

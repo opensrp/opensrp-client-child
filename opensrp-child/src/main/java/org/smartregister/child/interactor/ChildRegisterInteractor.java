@@ -122,6 +122,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
+
         try {
             List<String> currentFormSubmissionIds = new ArrayList<>();
 
@@ -141,6 +142,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                                 Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
                             }
                         } else {
+
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
                             // This prevents a crash when the birthdate of a mother is not available in the clientJson
@@ -160,13 +162,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     }
 
                 } catch (Exception e) {
+
                     Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
             }
 
             long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
+            ChildLibrary.getInstance().getClientProcessorForJava().processClient(getSyncHelper().getEvents(currentFormSubmissionIds));
+
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
             Timber.e(e, "ChildRegisterInteractor --> saveRegistration");

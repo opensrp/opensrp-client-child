@@ -1,21 +1,19 @@
 package org.smartregister.child.util;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import org.apache.commons.lang3.StringUtils;
-import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.contract.IMotherLookup;
 import org.smartregister.child.domain.EntityLookUp;
-import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.event.Listener;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +35,13 @@ public class MotherLookUpUtils {
     public static final String baseEntityId = "base_entity_id";
     public static final String MOTHER_GUARDIAN_NRC = "Mother_Guardian_NRC";
     public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "Mother_Guardian_Phone_Number";
+    public static final String IS_CONSENTED = "is_consented";
     public static final String RELATIONAL_ID = "relational_id";
-    public static final String CONTACT_PHONE_NUMBER = "contact_phone_number";
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
 
-    public static void motherLookUp(final Context context, final EntityLookUp entityLookUp,
+    public static void motherLookUp(final Context context, final Activity activityContext, final EntityLookUp entityLookUp,
                                     final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener,
                                     final ProgressBar progressBar) {
 
@@ -52,7 +50,7 @@ public class MotherLookUpUtils {
                     @Override
                     protected HashMap<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
                         publishProgress();
-                        return lookUp(context, entityLookUp);
+                        return lookUp(context, activityContext, entityLookUp);
                     }
 
                     @Override
@@ -72,26 +70,25 @@ public class MotherLookUpUtils {
                 }, null);
     }
 
-    private static HashMap<CommonPersonObject, List<CommonPersonObject>> lookUp(Context context, EntityLookUp entityLookUp) {
+    private static HashMap<CommonPersonObject, List<CommonPersonObject>> lookUp(Context context, Activity activityContext, EntityLookUp entityLookUp) {
         HashMap<CommonPersonObject, List<CommonPersonObject>> results = new HashMap<>();
         if (context == null) {
             return results;
         }
 
 
-        if (entityLookUp.isEmpty()) {
+        if (entityLookUp == null || entityLookUp.isEmpty()) {
             return results;
         }
 
-        String tableName = Utils.metadata().childRegister.motherTableName;
-        String childTableName = Utils.metadata().childRegister.tableName;
+        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
 
 
         List<String> ids = new ArrayList<>();
         List<CommonPersonObject> motherList = new ArrayList<>();
 
         CommonRepository commonRepository = context.commonrepository(tableName);
-        String query = lookUpQuery(entityLookUp.getMap(), tableName);
+        String query = ((IMotherLookup) activityContext).lookUpQuery(entityLookUp.getMap(), tableName);
 
         Cursor cursor = null;
         try {
@@ -101,7 +98,6 @@ public class MotherLookUpUtils {
                 while (!cursor.isAfterLast()) {
                     CommonPersonObject commonPersonObject = commonRepository.readAllcommonforCursorAdapter(cursor);
                     motherList.add(commonPersonObject);
-
 
                     ids.add(commonPersonObject.getCaseId());
                     cursor.moveToNext();
@@ -121,9 +117,23 @@ public class MotherLookUpUtils {
             return results;
         }
 
-        CommonRepository childRepository = context.commonrepository(childTableName);
-        List<CommonPersonObject> childList = childRepository.findByRelational_IDs(ids.toArray(new String[ids.size()]));
+        StringBuilder relationalIds = new StringBuilder();
 
+
+        for (int i = 0; i < ids.size(); i++) {
+
+            relationalIds.append("'").append(ids.get(i)).append("'");
+
+            if (i != ids.size() - 1) {
+                relationalIds.append(",");
+            }
+        }
+
+        List<HashMap<String, String>> childList = ChildLibrary.getInstance()
+                .eventClientRepository()
+                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
+                                + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
         }
@@ -133,25 +143,15 @@ public class MotherLookUpUtils {
 
     }
 
-    private static String lookUpQuery(Map<String, String> entityMap, String tableName) {
-
-        SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName,
-                new String[]{RELATIONALID, DETAILS, Constants.KEY.ZEIR_ID, Constants.KEY.FIRST_NAME, Constants.KEY.LAST_NAME,
-                        AllConstants.ChildRegistrationFields.GENDER, Constants.KEY.DOB, NRC_NUMBER, CONTACT_PHONE_NUMBER,
-                        Constants.KEY.BASE_ENTITY_ID}
-
-        );
-        String query = queryBUilder.mainCondition(getMainConditionString(entityMap));
-        return queryBUilder.Endquery(query);
-    }
-
-    private static List<CommonPersonObject> findChildren(List<CommonPersonObject> childList, String motherBaseEnityId) {
+    private static List<CommonPersonObject> findChildren
+            (List<HashMap<String, String>> childList, String motherBaseEnityId) {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
-        for (CommonPersonObject child : childList) {
-            String relationalID = getValue(child.getColumnmaps(), RELATIONAL_ID, false);
-            if (!foundChildren.contains(child) && relationalID.equals(motherBaseEnityId)) {
-                foundChildren.add(child);
+        for (Map<String, String> child : childList) {
+            CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
+            commonPersonObject.setColumnmaps(child);
+            String relationalID = getValue(commonPersonObject.getDetails(), RELATIONAL_ID, false);
+            if (!foundChildren.contains(commonPersonObject) && relationalID.equals(motherBaseEnityId)) {
+                foundChildren.add(commonPersonObject);
             }
         }
 
@@ -159,65 +159,4 @@ public class MotherLookUpUtils {
 
     }
 
-    private static String getMainConditionString(Map<String, String> entityMap) {
-
-        String mainConditionString = "";
-        for (Map.Entry<String, String> entry : entityMap.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            if (StringUtils.containsIgnoreCase(key, firstName)) {
-                key = firstName;
-            }
-
-            if (StringUtils.containsIgnoreCase(key, lastName)) {
-                key = lastName;
-            }
-
-            if (StringUtils.equalsIgnoreCase(key, MOTHER_GUARDIAN_PHONE_NUMBER)) {
-                key = CONTACT_PHONE_NUMBER;
-            }
-
-            if (StringUtils.equalsIgnoreCase(key, MOTHER_GUARDIAN_NRC)) {
-                key = NRC_NUMBER;
-            }
-
-
-            if (StringUtils.containsIgnoreCase(key, birthDate)) {
-                if (!isDate(value)) {
-                    continue;
-                }
-                key = dob;
-            }
-
-            if (!key.equals(dob)) {
-                if (StringUtils.isBlank(mainConditionString)) {
-                    mainConditionString += " " + key + " Like '%" + value + "%'";
-                } else {
-                    mainConditionString += " AND " + key + " Like '%" + value + "%'";
-
-                }
-            } else {
-                if (StringUtils.isBlank(mainConditionString)) {
-                    mainConditionString += " cast(" + key + " as date) " + " =  cast('" + value + "'as date) ";
-                } else {
-                    mainConditionString += " AND cast(" + key + " as date) " + " =  cast('" + value + "'as date) ";
-
-                }
-            }
-        }
-
-        return mainConditionString;
-
-    }
-
-    private static boolean isDate(String dobString) {
-        try {
-            DateUtil.yyyyMMdd.parse(dobString);
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-
-    }
 }

@@ -13,6 +13,7 @@ import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
+import org.smartregister.view.activity.DrishtiApplication;
 
 import id.zelory.compressor.Compressor;
 
@@ -57,7 +58,7 @@ public class ChildLibrary {
 
     public static ChildLibrary getInstance() {
         if (instance == null) {
-            throw new IllegalStateException(" Instance does not exist!!! Call " + CoreLibrary.class.getName() +
+            throw new IllegalStateException(" Instance does not exist!!! Call " + ChildLibrary.class.getName() +
                     ".init method in the onCreate method of " + "your Application class ");
         }
         return instance;
@@ -106,7 +107,7 @@ public class ChildLibrary {
 
     public ClientProcessorForJava getClientProcessorForJava() {
         if (clientProcessorForJava == null) {
-            clientProcessorForJava = ClientProcessorForJava.getInstance(context().applicationContext());
+            clientProcessorForJava = DrishtiApplication.getInstance().getClientProcessor();
         }
         return clientProcessorForJava;
     }

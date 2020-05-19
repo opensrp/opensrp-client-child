@@ -6,6 +6,7 @@ import android.util.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.clientandeventmodel.Event;
@@ -56,9 +57,13 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 }
             }
 
-            Event event = (Event) new Event().withBaseEntityId(baseEntityId) //should be different for main and subform
-                    .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
+            Event event = (Event) new Event()
+                    .withBaseEntityId(baseEntityId) //should be different for main and subform
+                    .withEventDate(encounterDate)
+                    .withEventType(encounterType)
+                    .withLocationId(locationId)
                     .withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
+                    .withChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchCurrentLocality())
                     .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
 
 

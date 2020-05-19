@@ -103,6 +103,4 @@ public class ChildRegisterFragment extends BaseChildRegisterFragment {
     public void onClick(View view) {
         onViewClicked(view);
     }
-
-
 }

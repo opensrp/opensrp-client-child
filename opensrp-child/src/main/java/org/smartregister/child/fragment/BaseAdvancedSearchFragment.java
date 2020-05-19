@@ -16,7 +16,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +59,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import timber.log.Timber;
 
 
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
@@ -609,31 +610,16 @@ TO DO ? , sync unsynced records within catchment
 
     @Override
     public void countExecute() {
-        Cursor cursor = null;
-
         try {
-            SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(countSelect);
-            String query = "";
-
-            sqb.addCondition(filters);
-            query = sqb.orderbyCondition(Sortqueries);
-            query = sqb.Endquery(query);
-
-            Log.i(getClass().getName(), query);
-            cursor = commonRepository().rawCustomQueryForAdapter(query);
-            cursor.moveToFirst();
-            clientAdapter.setTotalcount(cursor.getInt(0));
-            Log.v("total count here", "" + clientAdapter.getTotalcount());
-
+            String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
+            Timber.i(sql);
+            int totalCount = commonRepository().countSearchIds(sql);
+            clientAdapter.setTotalcount(totalCount);
+            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
             clientAdapter.setCurrentlimit(20);
             clientAdapter.setCurrentoffset(0);
-
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            Timber.e(e);
         }
 
         updateMatchingResults(clientAdapter.getTotalcount());
@@ -682,7 +668,7 @@ TO DO ? , sync unsynced records within catchment
             query = sqb.Endquery(
                     sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
+            Timber.e(e);
         }
 
         return query;
