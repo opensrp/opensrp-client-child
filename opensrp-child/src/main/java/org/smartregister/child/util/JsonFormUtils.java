@@ -670,7 +670,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             contentValues.put(Constants.KEY.DATE_REMOVED, dateOfRemovalString);
         }
 
-        ChildLibrary.getInstance().context().getEventClientRepository().getWritableDatabase()
+        ChildLibrary.getInstance().eventClientRepository().getWritableDatabase()
                 .update(Utils.metadata().getRegisterQueryProvider().getDemographicTable(), contentValues, Constants.KEY.BASE_ENTITY_ID + " = ?",
                         new String[]{baseEntityId});
     }
