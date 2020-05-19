@@ -1,6 +1,9 @@
 package org.smartregister.child.util;
 
+import android.graphics.Color;
+import android.widget.EditText;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import org.joda.time.DateTime;
 import org.json.JSONException;
@@ -27,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ChildLibrary.class)
+@PrepareForTest({ChildLibrary.class, Utils.class})
 public class UtilsTest {
     @Mock
     private ChildLibrary childLibrary;
@@ -162,9 +165,13 @@ public class UtilsTest {
 
     @Test
     public void testGetWeeksDue() {
-        int i = Utils.getWeeksDue(new DateTime());
+        int i1 = Utils.getWeeksDue(new DateTime());
+        int i2 = Utils.getWeeksDue(new DateTime().plusWeeks(1));
+        int i3 = Utils.getWeeksDue(new DateTime().plusWeeks(2));
 
-        Assert.assertEquals(0, i);
+        Assert.assertEquals(0, i1);
+        Assert.assertEquals(1, i2);
+        Assert.assertEquals(2, i3);
     }
 
     @Test
@@ -174,14 +181,53 @@ public class UtilsTest {
     }
 
     @Test
-    public void testGetDataRow2() {
+    public void testGetDataRow2() throws Exception {
+        TableRow tableRow = PowerMockito.mock(TableRow.class);
+        TextView textView = PowerMockito.mock(TextView.class);
+
+        PowerMockito.whenNew(TableRow.class).withArguments(context).thenReturn(tableRow);
+        PowerMockito.whenNew(TextView.class).withArguments(context).thenReturn(textView);
+
+        PowerMockito.when(tableRow.getPaddingTop()).thenReturn(10);
+        PowerMockito.when(tableRow.getPaddingBottom()).thenReturn(5);
+        PowerMockito.when(textView.getTextSize()).thenReturn(14F);
+
         TableRow tr = Utils.getDataRow(context, "label", "value", null);
-        Assert.assertEquals(0, tr.getPaddingTop());
+
+        Assert.assertEquals(10, tr.getPaddingTop());
+        Assert.assertEquals(5, tr.getPaddingBottom());
+        Assert.assertEquals(14F, textView.getTextSize(), 0);
     }
 
     @Test
-    public void testGetDataRow3() {
+    public void testGetDataRow3() throws Exception {
+        TableRow tableRow = PowerMockito.mock(TableRow.class);
+        EditText editText = PowerMockito.mock(EditText.class);
+
+        PowerMockito.whenNew(TableRow.class).withArguments(context).thenReturn(tableRow);
+        PowerMockito.whenNew(EditText.class).withArguments(context).thenReturn(editText);
+
+        PowerMockito.when(tableRow.getPaddingTop()).thenReturn(20);
+        PowerMockito.when(tableRow.getPaddingBottom()).thenReturn(15);
+        PowerMockito.when(editText.getCurrentTextColor()).thenReturn(Color.BLACK);
+
         TableRow tr = Utils.getDataRow(context, "label", "value", "field", null);
-        Assert.assertEquals(0, tr.getPaddingTop());
+
+        Assert.assertEquals(20, tr.getPaddingTop());
+        Assert.assertEquals(15, tr.getPaddingBottom());
+        Assert.assertEquals(Color.BLACK, editText.getCurrentTextColor());
+    }
+
+    @Test
+    public void testGetCleanMap() {
+        Map<String, String> map1 = new HashMap<>();
+        map1.put("1", "one");
+        map1.put("2", "two");
+        map1.put("3", "null");
+        map1.put("4", "four");
+
+        Map<String, String> map2 = Utils.getCleanMap(map1);
+
+        Assert.assertEquals(3, map2.size());
     }
 }
