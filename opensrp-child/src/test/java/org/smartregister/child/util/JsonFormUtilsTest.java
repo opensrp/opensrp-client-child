@@ -44,6 +44,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
@@ -274,7 +275,7 @@ public class JsonFormUtilsTest {
         Mockito.doReturn("locationA").when(locationHelper).getOpenMrsLocationId(entity);
         Mockito.doReturn(entityHierarchy).when(locationHelper).getOpenMrsLocationHierarchy("locationA", false);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
-        childMetadata.setFieldsWithLocationHierarchy(Arrays.asList("Home_Facility"));
+        childMetadata.setFieldsWithLocationHierarchy(new HashSet<String>(Arrays.asList("Home_Facility")));
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setHealthFacilityLevels(healthFacilities);
         List<FormLocation> entireTree = new ArrayList<>();
@@ -313,7 +314,7 @@ public class JsonFormUtilsTest {
         PowerMockito.mockStatic(Utils.class);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
-        childMetadata.setFieldsWithLocationHierarchy(Arrays.asList("village"));
+        childMetadata.setFieldsWithLocationHierarchy(new HashSet<>(Arrays.asList("village")));
 
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = new JSONObject();
@@ -381,8 +382,8 @@ public class JsonFormUtilsTest {
         List<FormLocation> formLocations = formLocationTree.getFormLocations();
 
         Assert.assertNotNull(formLocations);
-        Assert.assertEquals(2,formLocations.size());
-        Assert.assertEquals("Country",formLocations.get(0));
-        Assert.assertEquals("County",formLocations.get(1));
+        Assert.assertEquals(2, formLocations.size());
+        Assert.assertEquals("Country", formLocations.get(0));
+        Assert.assertEquals("County", formLocations.get(1));
     }
 }
