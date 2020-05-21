@@ -7,7 +7,7 @@ import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
@@ -19,7 +19,7 @@ public class ChildMetadata {
     public final boolean formWizardValidateRequiredFieldsBefore;
     private ArrayList<String> locationLevels;
     private ArrayList<String> healthFacilityLevels;
-    private List<String> fieldsWithLocationHierarchy;
+    private Set<String> fieldsWithLocationHierarchy;
     public ChildRegister childRegister;
     private RegisterQueryProvider registerQueryProvider;
 
@@ -124,11 +124,11 @@ public class ChildMetadata {
         this.healthFacilityLevels = healthFacilityLevels;
     }
 
-    public List<String> getFieldsWithLocationHierarchy() {
+    public Set<String> getFieldsWithLocationHierarchy() {
         return fieldsWithLocationHierarchy;
     }
 
-    public void setFieldsWithLocationHierarchy(List<String> fieldsWithLocationHierarchy) {
+    public void setFieldsWithLocationHierarchy(Set<String> fieldsWithLocationHierarchy) {
         this.fieldsWithLocationHierarchy = fieldsWithLocationHierarchy;
     }
 
