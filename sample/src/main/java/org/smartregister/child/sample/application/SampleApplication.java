@@ -18,7 +18,6 @@ import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
 import org.smartregister.child.sample.util.SampleConstants;
 import org.smartregister.child.util.DBConstants;
-import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -42,6 +41,8 @@ import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -149,7 +150,7 @@ public class SampleApplication extends DrishtiApplication {
         context.session().setPassword(SampleRepository.PASSWORD);
 
         SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(Utils.ALLOWED_LEVELS, Utils.DEFAULT_LOCATION_LEVEL);
+        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
@@ -182,6 +183,9 @@ public class SampleApplication extends DrishtiApplication {
                 DBConstants.RegisterTable.CLIENT, SampleConstants.EventType.CHILD_REGISTRATION,
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,
                 SampleConstants.RELATIONSHIP.MOTHER, SampleConstants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE);
+        metadata.setFieldsWithLocationHierarchy(new HashSet<>(Arrays.asList("Home_Facility", "Birth_Facility_Name")));
+        metadata.setLocationLevels(new ArrayList<>(Arrays.asList(BuildConfig.LOCATION_LEVELS)));
+        metadata.setHealthFacilityLevels(new ArrayList<>(Arrays.asList(BuildConfig.HEALTH_FACILITY_LEVELS)));
         return metadata;
     }
 

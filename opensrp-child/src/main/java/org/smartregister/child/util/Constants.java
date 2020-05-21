@@ -55,8 +55,8 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_DATE_BIRTH = "Mother_Guardian_Date_Birth";
         public static final String MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN = "Mother_Guardian_Date_Birth_Unknown";
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
-
-
+        public static final String HIERARCHY = "hierarchy";
+        public static final String SELECTABLE = "selectable";
     }
 
     public static class JSON_FORM_EXTRA {
