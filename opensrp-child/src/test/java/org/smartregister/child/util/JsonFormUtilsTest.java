@@ -68,7 +68,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
     private org.smartregister.Context opensrpContext;
 
     @Mock
-    private android.content.Context context;
+    private Context context;
 
     private JSONObject jsonObject;
 
@@ -443,7 +443,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("demo");
         Mockito.when(coreLibrary.context()).thenReturn(opensrpContext);
         Mockito.when(telephonyManager.getSimSerialNumber()).thenReturn("234234-234");
-        Mockito.when(context.getSystemService(android.content.Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
+        Mockito.when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         JsonFormUtils.saveReportDeceased(context, reportDeceasedForm, "434-2342", entityId);
