@@ -15,8 +15,8 @@ public class ChildDbUtils {
     /**
      * Retrieves all child details needed for display and/or editing
      *
-     * @param baseEntityId
-     * @return
+     * @param baseEntityId {@link String}
+     * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildDetails(@NonNull String baseEntityId) {
         return ChildLibrary.getInstance()
@@ -27,13 +27,13 @@ public class ChildDbUtils {
     }
 
     /**
-     * Retrieves the initail GM values for child
+     * Retrieves the initial GM values for child
      *
-     * @param baseEntityId
-     * @return
+     * @param baseEntityId {@link String}
+     * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildFirstGrowthAndMonitoring(@NonNull String baseEntityId) {
-        boolean disableChildHeightMetric = org.smartregister.util.Utils.getBooleanProperty(Constants.DISABLE_CHILD_HEIGHT_METRIC);
+        boolean disableChildHeightMetric = Utils.getBooleanProperty(Constants.DISABLE_CHILD_HEIGHT_METRIC);
         HashMap<String, String> hashMap = new HashMap<>();
         SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getReadableDatabase();
         Cursor weightCursor = sqLiteDatabase.query("weights", new String[]{"kg", "created_at"},
@@ -64,10 +64,10 @@ public class ChildDbUtils {
     /**
      * Updates the ec_child_details table with values
      *
-     * @param columnName
-     * @param value
-     * @param baseEntityId
-     * @return
+     * @param columnName   {@link String}
+     * @param value        {@link String}
+     * @param baseEntityId {@link String}
+     * @return {@link boolean}
      */
     public static boolean updateChildDetailsValue(String columnName, String value, String baseEntityId) {
         ContentValues contentValues = new ContentValues();
