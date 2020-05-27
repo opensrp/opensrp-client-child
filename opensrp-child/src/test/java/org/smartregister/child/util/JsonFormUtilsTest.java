@@ -12,9 +12,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -22,9 +22,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.util.ReflectionHelpers;
@@ -55,11 +52,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
-
 public class JsonFormUtilsTest extends BaseUnitTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
@@ -186,8 +179,8 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("first_name", "John");
-        PowerMockito.when(ecSyncHelper.getClient("234")).thenReturn(jsonObject);
-        PowerMockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
+        Mockito.when(ecSyncHelper.getClient("234")).thenReturn(jsonObject);
+        Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
 
         Client client = new Client("234");
         JsonFormUtils.mergeAndSaveClient(client);
@@ -207,15 +200,15 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Context context = Mockito.mock(Context.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
-        PowerMockito.when(coreLibrary.context()).thenReturn(opensrpContext);
-        PowerMockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(coreLibrary.context()).thenReturn(opensrpContext);
+        Mockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
         String providerId = "providerId";
         String teamName = "teamA";
         String teamId = "24234-234";
-        PowerMockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
-        PowerMockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
-        PowerMockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
-        PowerMockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
 
         ReflectionHelpers.setStaticField(ECSyncHelper.class, "instance", ecSyncHelper);
         JsonFormUtils jsonFormUtils = new JsonFormUtils();
@@ -475,5 +468,12 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Assert.assertNotNull(contentValues1);
         Assert.assertEquals(contentValues1.get(Constants.KEY.DATE_REMOVED), "2020-05-19T00:00:00.000Z");
 
+    }
+
+    @After
+    public void tearDown() {
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
     }
 }
