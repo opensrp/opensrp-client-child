@@ -1,5 +1,6 @@
 package org.smartregister.child.util;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.widget.EditText;
 import android.widget.TableRow;
@@ -12,16 +13,22 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.UniqueIdRepository;
 
 import java.text.SimpleDateFormat;
@@ -70,20 +77,20 @@ public class UtilsTest {
     }
 
     @Test
-    public void testFormatIdentifiersFormatsValueCorrectly(){
+    public void testFormatIdentifiersFormatsValueCorrectly() {
         String testString = "3929389829839829839835";
         String formattedIdentifier = Utils.formatIdentifiers(testString);
-        Assert.assertEquals("3929-3898-2983-9829-8398-35",formattedIdentifier);
+        Assert.assertEquals("3929-3898-2983-9829-8398-35", formattedIdentifier);
     }
 
     @Test
     public void testPutAll() {
         Map<String, String> map = new HashMap<>();
-        map.put("1","one");
-        map.put("2","two");
+        map.put("1", "one");
+        map.put("2", "two");
 
         Map<String, String> extend = new HashMap<>();
-        extend.put("3","three");
+        extend.put("3", "three");
         extend.put("4", null);
 
         Utils.putAll(map, extend);
@@ -230,4 +237,37 @@ public class UtilsTest {
 
         Assert.assertEquals(3, map2.size());
     }
+
+    @Test
+    public void testUpdateFTSForCombinedVaccineAlternativesShouldPassCorrectValues() {
+        ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+        immunizationLibrary.COMBINED_VACCINES_MAP.put("opv", "opv1/pcv1");
+        VaccineRepository vaccineRepository = Mockito.mock(VaccineRepository.class);
+        Vaccine vaccine = new Vaccine();
+        vaccine.setName("opv");
+        Vaccine vaccineOpv1 = new Vaccine();
+        vaccineOpv1.setName("opv1");
+        Vaccine vaccinePcv1 = new Vaccine();
+        vaccinePcv1.setName("pcv1");
+        Utils.updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
+        Mockito.verify(vaccineRepository, Mockito.times(1)).updateFtsSearch(ArgumentMatchers.refEq(vaccineOpv1));
+        Mockito.verify(vaccineRepository, Mockito.times(1)).updateFtsSearch(ArgumentMatchers.refEq(vaccinePcv1));
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
+    }
+
+    @Test
+    public void testGetTranslatedIdentifier() {
+        Context opensrpContext = Mockito.mock(Context.class);
+        Resources resources = Mockito.mock(Resources.class);
+        android.content.Context context = Mockito.mock(android.content.Context.class);
+        Mockito.when(context.getResources()).thenReturn(resources);
+        Mockito.when(context.getString(Mockito.anyInt())).thenReturn("testValue");
+        Mockito.when(opensrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(childLibrary.context()).thenReturn(opensrpContext);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        String result = Utils.getTranslatedIdentifier("testKey");
+        Assert.assertEquals(result, "testValue");
+    }
+
 }
