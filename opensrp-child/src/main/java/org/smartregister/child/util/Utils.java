@@ -555,14 +555,6 @@ public class Utils extends org.smartregister.util.Utils {
         return null;
     }
 
-    public static CommonPersonObject getEcMotherDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
-        if (cr != null) {
-            return cr.findByBaseEntityId(baseEntityId);
-        }
-        return null;
-    }
-
     public static boolean isVaccineDue(@NonNull List<Vaccine> vaccineList, @NonNull Date dob, @NonNull org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, boolean allowedExpiredVaccineEntry) {
         Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
         Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
