@@ -23,6 +23,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.Weeks;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -275,7 +276,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static String getTodaysDate() {
-        return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
+        return convertDateFormat(LocalDate.now().toDate(), DB_DF);
     }
 
     public static String convertDateFormat(Date date, SimpleDateFormat formatter) {
