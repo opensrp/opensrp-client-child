@@ -38,6 +38,7 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.Repository;
+import org.smartregister.security.SecurityHelper;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
@@ -147,7 +148,7 @@ public class SampleApplication extends DrishtiApplication {
         //Auto login by default
         context.session().start(context.session().lengthInMilliseconds());
         context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
-        context.session().setPassword(SampleRepository.PASSWORD);
+        context.session().setPassword(SecurityHelper.toBytes(SampleRepository.PASSWORD));
 
         SyncStatusBroadcastReceiver.init(this);
         LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
