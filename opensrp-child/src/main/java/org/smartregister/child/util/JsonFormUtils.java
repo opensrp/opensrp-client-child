@@ -994,9 +994,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobUnknownField)) {
             JSONObject optionsObject = jsonObject.getJSONArray(Constants.JSON_FORM_KEY.OPTIONS).getJSONObject(0);
-            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, dobUnknownField.toLowerCase(Locale.ENGLISH), false));
+            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, prefix + Constants.KEY.DOB_UNKNOWN, false));
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobAgeField)) {
-            processAge(Utils.getValue(childDetails, prefix + "dob", false), jsonObject);
+            processAge(Utils.getValue(childDetails, prefix + Constants.KEY.DOB, false), jsonObject);
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
             processDate(childDetails, prefix, jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_INDENTIFIER)) {
@@ -1067,11 +1067,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    protected static void processDate(Map<String, String> childDetails, String
-            prefix, JSONObject jsonObject)
-            throws JSONException {
-        String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" : jsonObject.getString(JsonFormUtils.KEY), false);
-        String isDOBUnknown = childDetails.get(prefix + "dob_unknown");
+    protected static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject) throws JSONException {
+        String key = jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + Constants.KEY.DOB : jsonObject.getString(JsonFormUtils.KEY);
+        String dateString = Utils.getValue(childDetails, key, false);
+        dateString = StringUtils.isBlank(dateString) ? Utils.getValue(childDetails, key.toLowerCase(Locale.ENGLISH), false) : dateString;
+        String isDOBUnknown = childDetails.get(prefix + Constants.KEY.DOB_UNKNOWN);
         if (isDOBUnknown == null || !Boolean.valueOf(isDOBUnknown)) {
             Date date = Utils.dobStringToDate(dateString);
             if (StringUtils.isNotBlank(dateString) && date != null) {

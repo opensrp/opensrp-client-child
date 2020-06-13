@@ -377,6 +377,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     }
 
+    @Override
+    public void setChildDetails(Map<String, String> detailsMap) {
+        childDetails.setColumnmaps(detailsMap);
+        childDetails.setDetails(detailsMap);
+    }
+
     private void updateViews() {
         profileNamelayout.setOnClickListener(new View.OnClickListener() {
             @Override

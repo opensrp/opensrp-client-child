@@ -96,6 +96,7 @@ public final class Constants extends AllConstants {
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String DOB_UNKNOWN = "dob_unknown";
         public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
@@ -112,6 +113,7 @@ public final class Constants extends AllConstants {
         public static final String HAS_PROFILE_IMAGE = "has_profile_image";
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
+        public static final String FIRST_HEALTH_FACILITY_CONTACT = "first_health_facility_contact";
     }
 
     public static final class INTENT_KEY {
