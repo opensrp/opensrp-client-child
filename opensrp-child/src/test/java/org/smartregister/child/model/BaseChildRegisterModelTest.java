@@ -28,7 +28,6 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.util.JsonFormUtils;
 
@@ -52,9 +51,6 @@ public class BaseChildRegisterModelTest {
 
     @Mock
     private ChildLibrary childLibrary;
-
-    @Mock
-    private DetailsRepository detailsRepository;
 
     @Before
     public void setUp() {
@@ -91,7 +87,6 @@ public class BaseChildRegisterModelTest {
 
 
         Mockito.doReturn(context).when(childLibrary).context();
-        Mockito.doReturn(detailsRepository).when(context).detailsRepository();
 
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
                 null, true);
