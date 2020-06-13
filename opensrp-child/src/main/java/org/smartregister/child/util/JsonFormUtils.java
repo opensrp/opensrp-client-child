@@ -20,6 +20,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1223,9 +1224,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
         Map<String, String> identifierMap = getSubFormIdentifierMap();
-        Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
+        Date birthDate = formatDate(stringBirthDate, true);
+        birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
+        deathDate = cleanBirthDateForSave(deathDate);
         String approxBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
         boolean birthDateApprox = isDateApprox(approxBirthDate);
         String approxDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate_estimated, bindType);
@@ -1244,6 +1247,20 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         addRelationship(context, client, parent);
         return client;
+    }
+
+    /**
+     * Fixes weird bug where day decrements on save
+     *
+     * @param birthDate birth date to process
+     */
+    @NotNull
+    private static Date cleanBirthDateForSave(Date birthDate) {
+        if (birthDate != null) {
+            return new LocalDateTime(birthDate.getTime()).plusHours(12).toDate();
+        } else {
+            return null;
+        }
     }
 
     @NotNull
