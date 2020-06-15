@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.powermock.reflect.internal.WhiteboxImpl;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
@@ -51,6 +52,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JsonFormUtilsTest extends BaseUnitTest {
 
@@ -468,6 +470,75 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Assert.assertNotNull(contentValues1);
         Assert.assertEquals(contentValues1.get(Constants.KEY.DATE_REMOVED), "2020-05-19T00:00:00.000Z");
 
+    }
+
+    @Test
+    public void testAddAvailableVaccinesShouldPopulateForm() throws Exception {
+        JSONObject formObject = new JSONObject(registrationForm);
+        int initialSize = formObject.optJSONObject(JsonFormConstants.STEP1).optJSONArray(JsonFormConstants.FIELDS).length();
+        Whitebox.invokeMethod(JsonFormUtils.class, "addAvailableVaccines",
+                RuntimeEnvironment.application, formObject);
+        JSONObject step1 = formObject.optJSONObject(JsonFormConstants.STEP1);
+        JSONArray fields = step1.optJSONArray(JsonFormConstants.FIELDS);
+        Assert.assertEquals((initialSize + 7), fields.length()); // 6 vaccine groups + a label
+        for (int i = 0; i < fields.length(); i++) {
+            JSONObject field = fields.optJSONObject(i);
+            if (field.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
+                JSONArray options = field.optJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
+                Set<String> keySet = getOptionKeys(options);
+                if ("Birth".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("OPV 0"));
+                    Assert.assertTrue(keySet.contains("BCG"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(2, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                } else if ("Six_Wks".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("OPV 1"));
+                    Assert.assertTrue(keySet.contains("Penta 1"));
+                    Assert.assertTrue(keySet.contains("PCV 1"));
+                    Assert.assertTrue(keySet.contains("Rota 1"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(4, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                } else if ("Ten_Wks".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("OPV 2"));
+                    Assert.assertTrue(keySet.contains("Penta 2"));
+                    Assert.assertTrue(keySet.contains("Rota 2"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(4, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                } else if ("Fourteen_Weeks".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("OPV 3"));
+                    Assert.assertTrue(keySet.contains("Penta 3"));
+                    Assert.assertTrue(keySet.contains("PCV 3"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(3, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                } else if ("Nine_Months".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("Measles 1"));
+                    Assert.assertTrue(keySet.contains("MR 1"));
+                    Assert.assertTrue(keySet.contains("OPV 4"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(3, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                } else if ("Eighteen_Months".equals(field.optString(JsonFormConstants.KEY))) {
+                    Assert.assertTrue(keySet.contains("Measles 2"));
+                    Assert.assertTrue(keySet.contains("MR 2"));
+                    Assert.assertTrue(field.optBoolean(Constants.IS_VACCINE_GROUP));
+                    Assert.assertEquals(2, options.length());
+                    Assert.assertEquals(JsonFormConstants.CHECK_BOX, field.optString(JsonFormConstants.TYPE));
+                }
+            }
+        }
+    }
+
+    private Set<String> getOptionKeys(JSONArray options) {
+        Set<String> keySet = new HashSet<>();
+        for (int i = 0; i < options.length(); i++) {
+            JSONObject obj = options.optJSONObject(i);
+            keySet.add(obj.optString(JsonFormConstants.KEY));
+        }
+        return keySet;
     }
 
     @After

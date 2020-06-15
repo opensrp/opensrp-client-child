@@ -268,6 +268,7 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         String result = Utils.getTranslatedIdentifier("testKey");
         Assert.assertEquals(result, "testValue");
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
 }
