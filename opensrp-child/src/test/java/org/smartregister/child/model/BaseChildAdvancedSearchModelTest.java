@@ -15,6 +15,7 @@ import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.repository.Repository;
 
@@ -85,8 +86,9 @@ public class BaseChildAdvancedSearchModelTest {
 
         Map<String, String> editMap  = new HashMap<>();
         editMap.put("testKey", "testVal");
+        editMap.put("testKey2", "testVal2");
         String mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("testKey Like '%testVal%'", mainConditionString.trim());
+        Assert.assertEquals("testKey2 Like '%testVal2%' AND testKey Like '%testVal%'", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put("start_date", "26-05-2020");
@@ -103,6 +105,133 @@ public class BaseChildAdvancedSearchModelTest {
         editMap.put("end_date", "26-05-2020");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
         Assert.assertEquals("ec_client.dob <= '26-05-2020'", mainConditionString.trim());
+    }
+
+    @Test
+    public void testGetMainConditionStringWithCondition() {
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
+                null, true);
+        metadata.updateChildRegister("test", "test",
+                "test", "ChildRegister",
+                "test", "test",
+                "test",
+                "test", "test");
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
+        Map<String, String> editMap;
+        String mainConditionString;
+
+        editMap  = new HashMap<>();
+        editMap.put("tesKey", "testVal");
+        editMap.put("start_date", "26-05-2020");
+        editMap.put("end_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("tesKey Like '%testVal%' AND ec_client.dob BETWEEN '26-05-2020' AND '26-05-2020'", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put("tesKey", "testVal");
+        editMap.put("start_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("tesKey Like '%testVal%' AND ec_client.dob >= '26-05-2020'", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put("tesKey", "testVal");
+        editMap.put("end_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("tesKey Like '%testVal%' AND ec_client.dob <= '26-05-2020'", mainConditionString.trim());
+    }
+
+    @Test
+    public void testGetMainConditionStringMotherName() {
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
+                null, true);
+        metadata.updateChildRegister("test", "test",
+                "test", "ChildRegister",
+                "test", "test",
+                "test",
+                "test", "test");
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
+        Map<String, String> editMap;
+        String mainConditionString;
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
+        editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
+        editMap.put("start_date", "26-05-2020");
+        editMap.put("end_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("ec_client.dob BETWEEN '26-05-2020' AND '26-05-2020' AND  (mother_first_name Like '%Mary%' AND mother_last_name Like '%Doe%' )", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
+        editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("mother_first_name Like '%Mary%' AND mother_last_name Like '%Doe%'", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
+        editMap.put("start_date", "26-05-2020");
+        editMap.put("end_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("ec_client.dob BETWEEN '26-05-2020' AND '26-05-2020' AND  (mother_first_name Like '%Mary%')", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("mother_first_name Like '%Mary%'", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
+        editMap.put("start_date", "26-05-2020");
+        editMap.put("end_date", "26-05-2020");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("ec_client.dob BETWEEN '26-05-2020' AND '26-05-2020' AND  (mother_last_name Like '%Doe%' )", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("mother_last_name Like '%Doe%'", mainConditionString.trim());
+    }
+
+    @Test
+    public void testGetMainConditionStringChildStatus() {
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
+                null, true);
+        metadata.updateChildRegister("test", "test",
+                "test", "ChildRegister",
+                "test", "test",
+                "test",
+                "test", "test");
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
+        Map<String, String> editMap;
+        String mainConditionString;
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.CHILD_STATUS.ACTIVE, "true");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("( ( ec_child_details.inactive IS NULL OR ec_child_details.inactive != 'true' )  " +
+                "AND ( ec_child_details.lost_to_follow_up IS NULL OR ec_child_details.lost_to_follow_up != 'true' ) )", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "true");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("lost_to_follow_up = 'true'", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.CHILD_STATUS.ACTIVE, "true");
+        editMap.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "true");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("lost_to_follow_up = 'true' OR ( ( ec_child_details.inactive IS NULL OR ec_child_details.inactive != 'true' )  " +
+                "AND ( ec_child_details.lost_to_follow_up IS NULL OR ec_child_details.lost_to_follow_up != 'true' ) )", mainConditionString.trim());
+
+        editMap  = new HashMap<>();
+        editMap.put(Constants.CHILD_STATUS.INACTIVE, "true");
+        editMap.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "true");
+        editMap.put("first_name", "Roja");
+        mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
+        Assert.assertEquals("ec_client.first_name Like '%Roja%' AND ( inactive = 'true' OR lost_to_follow_up = 'true')", mainConditionString.trim());
     }
 
 }
