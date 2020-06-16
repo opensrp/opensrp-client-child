@@ -40,7 +40,6 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -295,7 +294,7 @@ public class Utils extends org.smartregister.util.Utils {
         if (weight == null) {
 
             Date eventDate = weightWrapper.getUpdatedWeightDate().toDate();
-            weight = weightRepository.findUniqueByDate(GrowthMonitoringLibrary.getInstance().weightRepository().getWritableDatabase(), weightWrapper.getId(), eventDate);
+            weight = weightRepository.findUniqueByDate(weightRepository.getWritableDatabase(), weightWrapper.getId(), eventDate);
         }
 
         weight = weight != null ? weight : new Weight();

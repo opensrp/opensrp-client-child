@@ -34,6 +34,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -151,7 +152,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                             // We also don't need to process the mother's weight & height
                             processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
 
-                            if (CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+                            if (getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
                                 processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
                             }
                         }
@@ -294,6 +295,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     public UniqueIdRepository getUniqueIdRepository() {
         return ChildLibrary.getInstance().getUniqueIdRepository();
+    }
+
+    protected AppProperties getAppProperties() {
+        return CoreLibrary.getInstance().context().getAppProperties();
     }
 
     public enum type {SAVED, UPDATED}
