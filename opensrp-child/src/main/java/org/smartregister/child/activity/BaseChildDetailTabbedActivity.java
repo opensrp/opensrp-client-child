@@ -225,20 +225,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (extras != null) {
 
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
 
-            Map<String, String> details = ChildLibrary.
-                    getInstance()
-                    .context()
-                    .getEventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
-            Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
-
-            childDetails = new CommonPersonObjectClient(caseId, details, null);
-            childDetails.setColumnmaps(details);
-
+            Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
             detailsMap = childDetails.getColumnmaps();
         }
         return extras;

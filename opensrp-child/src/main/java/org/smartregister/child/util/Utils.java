@@ -40,6 +40,7 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -286,13 +287,21 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String syncStatus) {
 
-        Weight weight = new Weight();
+        Weight weight = null;
         if (weightWrapper.getDbKey() != null) {
             weight = weightRepository.find(weightWrapper.getDbKey());
         }
+
+        if (weight == null) {
+
+            Date eventDate = weightWrapper.getUpdatedWeightDate().toDate();
+            weight = weightRepository.findUniqueByDate(GrowthMonitoringLibrary.getInstance().weightRepository().getWritableDatabase(), weightWrapper.getId(), eventDate);
+        }
+
+        weight = weight != null ? weight : new Weight();
         weight.setBaseEntityId(weightWrapper.getId());
         weight.setKg(weightWrapper.getWeight());
-        weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
+        weight.setDate(weightWrapper.isToday() ? Calendar.getInstance().getTime() : weightWrapper.getUpdatedWeightDate().toDate());
         weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
         weight.setSyncStatus(syncStatus);
 
@@ -327,7 +336,7 @@ public class Utils extends org.smartregister.util.Utils {
             }
             height.setBaseEntityId(heightWrapper.getId());
             height.setCm(heightWrapper.getHeight());
-            height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+            height.setDate(heightWrapper.isToday() ? Calendar.getInstance().getTime() : heightWrapper.getUpdatedHeightDate().toDate());
             height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
             height.setSyncStatus(syncStatus);
 

@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
@@ -306,7 +307,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+
+        if (CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+            repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        }
 
         ChildRegisterProvider childRegisterProvider =
                 new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,

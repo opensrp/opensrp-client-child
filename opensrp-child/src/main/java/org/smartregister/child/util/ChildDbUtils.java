@@ -3,12 +3,18 @@ package org.smartregister.child.util;
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Strings;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ChildDbUtils {
 
@@ -19,11 +25,37 @@ public class ChildDbUtils {
      * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildDetails(@NonNull String baseEntityId) {
-        return ChildLibrary.getInstance()
+        ArrayList<HashMap<String, String>> childDetails = ChildLibrary.getInstance()
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
+                                " WHERE " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1");
+        return childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null;
+    }
+
+    /**
+     * Retrieves all child details and packages them into a CommonPersonObjectClient
+     *
+     * @param baseEntityId {@link String}
+     * @return {@link CommonPersonObjectClient}
+     */
+    public static CommonPersonObjectClient fetchCommonPersonObjectClientByBaseEntityId(String baseEntityId) {
+
+        CommonPersonObjectClient commonPersonObjectClient = null;
+        Map<String, String> childDetails = fetchChildDetails(baseEntityId);
+
+        if (childDetails != null) {
+
+            String firstName = Strings.nullToEmpty(childDetails.get(Constants.KEY.FIRST_NAME));
+            String lastName = Strings.nullToEmpty(childDetails.get(Constants.KEY.LAST_NAME));
+
+            commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, Utils.getName(firstName, lastName));
+            commonPersonObjectClient.setColumnmaps(childDetails);
+            commonPersonObjectClient.setCaseId(baseEntityId);
+
+        }
+
+        return commonPersonObjectClient;
     }
 
     /**
@@ -33,7 +65,7 @@ public class ChildDbUtils {
      * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildFirstGrowthAndMonitoring(@NonNull String baseEntityId) {
-        boolean disableChildHeightMetric = Utils.getBooleanProperty(Constants.DISABLE_CHILD_HEIGHT_METRIC);
+        boolean heightMetricEnabled = CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT);
         HashMap<String, String> hashMap = new HashMap<>();
         SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getReadableDatabase();
         Cursor weightCursor = sqLiteDatabase.query("weights", new String[]{"kg", "created_at"},
@@ -48,7 +80,7 @@ public class ChildDbUtils {
             hashMap.put("birth_weight", weight);
         }
 
-        if (!disableChildHeightMetric) {//mastercard config
+        if (heightMetricEnabled) {
             Cursor heightCursor = sqLiteDatabase.query("heights", new String[]{"cm", "created_at"},
                     "base_entity_id = ? and created_at = ?",
                     new String[]{baseEntityId, dateCreated}, null, null, null, "1");
