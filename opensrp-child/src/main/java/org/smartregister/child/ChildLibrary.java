@@ -6,19 +6,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.child.util.DBConstants;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
-import org.smartregister.util.Utils;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
-
-import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 

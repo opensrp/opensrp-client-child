@@ -151,8 +151,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         super.onCreate(savedInstanceState);
 
         Bundle extras = this.getIntent().getExtras();
-        if (extras != null) ;
-        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
+        if (extras != null)
+            locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
         initLoadChildDetails();
 
