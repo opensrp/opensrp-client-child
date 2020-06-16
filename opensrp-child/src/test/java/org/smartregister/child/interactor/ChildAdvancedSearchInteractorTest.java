@@ -34,13 +34,13 @@ public class ChildAdvancedSearchInteractorTest {
     private CoreLibrary coreLibrary;
 
     @Mock
-    DristhiConfiguration dristhiConfiguration;
+    private DristhiConfiguration dristhiConfiguration;
 
     @Mock
-    Context context;
+    private Context context;
 
     @Mock
-    HTTPAgent httpAgent;
+    private HTTPAgent httpAgent;
 
     private ChildAdvancedSearchInteractor childAdvancedSearchInteractor;
 
