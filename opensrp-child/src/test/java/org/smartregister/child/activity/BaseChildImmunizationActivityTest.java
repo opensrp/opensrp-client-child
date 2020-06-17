@@ -167,8 +167,6 @@ public class BaseChildImmunizationActivityTest {
         Field fieldMonitorGrowth = PowerMockito.field(baseChildImmunizationActivity.getClass(), "monitorGrowth");
         fieldMonitorGrowth.set(baseChildImmunizationActivity, true);
 
-        Field fieldProperty = PowerMockito.field(baseChildImmunizationActivity.getClass(), "hasProperty");
-        fieldProperty.set(baseChildImmunizationActivity, true);
         Whitebox.invokeMethod(baseChildImmunizationActivity, "updateRecordWeightText", weightWrapper, heightWrapper);
         Mockito.verify(textView, Mockito.atLeastOnce()).setText((CharSequence) argumentCaptor.capture());
         String expected = (String) argumentCaptor.getValue();

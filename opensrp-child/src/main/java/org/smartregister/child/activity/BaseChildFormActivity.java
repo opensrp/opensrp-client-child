@@ -242,7 +242,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID};
 
         SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
-        queryBuilder.SelectInitiateMainTable(tableName, lookupColumns);
+        queryBuilder.selectInitiateMainTable(tableName, lookupColumns);
         queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
                 " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));

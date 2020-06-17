@@ -21,6 +21,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.util.AppProperties;
@@ -75,8 +76,9 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.getRepository()).thenReturn(repository);
         AppProperties appProperties = Mockito.mock(AppProperties.class);
         Context context = Mockito.mock(Context.class);
-        Mockito.when(appProperties.hasProperty(Constants.DISABLE_CHILD_HEIGHT_METRIC)).thenReturn(true);
-        Mockito.when(appProperties.getPropertyBoolean(Constants.DISABLE_CHILD_HEIGHT_METRIC)).thenReturn(false);
+        Mockito.when(appProperties.hasProperty(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
+        Mockito.when(appProperties.getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
+        Mockito.when(appProperties.isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
         Mockito.when(context.getAppProperties()).thenReturn(appProperties);
         Mockito.when(coreLibrary.context()).thenReturn(context);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
@@ -114,13 +116,56 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         hashMaps.add(map);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true, new RegisterQueryProvider());
         Mockito.when(eventClientRepository.rawQuery(sqLiteDatabase, childMetadata.getRegisterQueryProvider().mainRegisterQuery()
-                + " where " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1")).thenReturn(hashMaps);
+                + " WHERE " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1")).thenReturn(hashMaps);
         Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
         Mockito.when(childLibrary.metadata()).thenReturn(childMetadata);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ChildDbUtils.fetchChildDetails(baseEntityId);
         Mockito.verify(eventClientRepository, Mockito.times(1)).rawQuery(Mockito.eq(sqLiteDatabase), Mockito.eq(childMetadata.getRegisterQueryProvider().mainRegisterQuery()
-                + " where " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1"));
+                + " WHERE " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1"));
+    }
+
+    @Test
+    public void testFetchChildDetailsShouldCreateValidCommonPersonObjectClientInstance() {
+
+        String baseEntityId = "4834-343-44234-2323";
+
+        Mockito.when(repository.getReadableDatabase()).thenReturn(sqLiteDatabase);
+
+        Mockito.when(childLibrary.getRepository()).thenReturn(repository);
+        EventClientRepository eventClientRepository = Mockito.mock(EventClientRepository.class);
+
+        ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
+
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put(DBConstants.KEY.FIRST_NAME, "Alfred");
+        childDetails.put(DBConstants.KEY.ZEIR_ID, "100003U");
+        childDetails.put(DBConstants.KEY.GENDER, "Male");
+        hashMaps.add(childDetails);
+
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true, new RegisterQueryProvider());
+        Mockito.when(eventClientRepository.rawQuery(sqLiteDatabase, metadata.getRegisterQueryProvider().mainRegisterQuery()
+                + " WHERE " + metadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1")).thenReturn(hashMaps);
+
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        CommonPersonObjectClient personObjectClient = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
+        Mockito.verify(eventClientRepository, Mockito.times(1)).rawQuery(Mockito.eq(sqLiteDatabase), Mockito.eq(metadata.getRegisterQueryProvider().mainRegisterQuery()
+                + " WHERE " + metadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1"));
+
+        Assert.assertNotNull(personObjectClient);
+        Assert.assertNotNull(personObjectClient.getCaseId());
+        Assert.assertEquals(baseEntityId, personObjectClient.getCaseId());
+        Assert.assertNotNull(personObjectClient.getName());
+        Assert.assertEquals("Alfred", personObjectClient.getName());
+        Assert.assertNotNull(personObjectClient.getColumnmaps());
+        Assert.assertEquals(3, personObjectClient.getColumnmaps().size());
+        Assert.assertEquals(3, personObjectClient.getDetails().size());
+        Assert.assertEquals("Alfred", personObjectClient.getDetails().get(DBConstants.KEY.FIRST_NAME));
+        Assert.assertEquals("Male", personObjectClient.getDetails().get(DBConstants.KEY.GENDER));
+        Assert.assertEquals("100003U", personObjectClient.getDetails().get(DBConstants.KEY.ZEIR_ID));
     }
 
     @After

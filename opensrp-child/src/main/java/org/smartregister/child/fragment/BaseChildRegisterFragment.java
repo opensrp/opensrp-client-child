@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
@@ -97,14 +98,15 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
+
         CustomFontTextView buttonReportMonth = view.findViewById(R.id.btn_report_month);
+
         if (buttonReportMonth != null) {
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
             // Update top right icon
             setUpQRCodeScanButtonView(view);
-
             setUpScanCardButtonView(view);
 
             //OpenSRPLogo
@@ -119,11 +121,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             clinicSelection = view.findViewById(R.id.clinic_selection);
             clinicSelection.init();
 
-
             clientsView.setVisibility(View.VISIBLE);
             clientsProgressView.setVisibility(View.INVISIBLE);
             setServiceModeViewDrawableRight(null);
-
 
             TextView nameInitials = view.findViewById(R.id.name_inits);
             nameInitials.setVisibility(View.GONE);
@@ -307,7 +307,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+
+        if (CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+            repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        }
 
         ChildRegisterProvider childRegisterProvider =
                 new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,

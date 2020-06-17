@@ -34,6 +34,7 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -148,28 +149,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     protected void onCreate(Bundle savedInstanceState) {
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
+
         Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null)
+            locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-
-            Map<String, String> details = ChildLibrary.
-                    getInstance()
-                    .context()
-                    .getEventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
-            Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
-
-            childDetails = new CommonPersonObjectClient(caseId, details, null);
-            childDetails.setColumnmaps(details);
-
-            detailsMap = childDetails.getColumnmaps();
-        }
-
-        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
+        initLoadChildDetails();
 
         setContentView(getContentView());
 
@@ -232,6 +217,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         tabLayout.setupWithViewPager(viewPager);
         setupViews();
         vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+    }
+
+    @Nullable
+    private Bundle initLoadChildDetails() {
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+
+            Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+            detailsMap = childDetails.getColumnmaps();
+        }
+        return extras;
     }
 
     public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
@@ -610,6 +609,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void setChildDetails(Map<String, String> detailsMap) {
+        this.detailsMap = detailsMap;
+        childDetails.setDetails(detailsMap);
+        childDetails.setColumnmaps(detailsMap);
     }
 
     @Override
