@@ -8,20 +8,17 @@ import android.widget.TextView;
 
 import org.opensrp.api.constants.Gender;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
-
-import java.util.HashMap;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -49,33 +46,20 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
     @Override
     protected CommonPersonObjectClient doInBackground(Void... params) {
 
-        HashMap<String, String> rawDetailsMap = ChildLibrary.getInstance()
-                .eventClientRepository()
-                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' limit 1").get(0);
-
-        CommonPersonObject rawDetails = new CommonPersonObject(
-                rawDetailsMap.get(Constants.KEY.BASE_ENTITY_ID),
-                rawDetailsMap.get(Constants.KEY.RELATIONALID),
-                rawDetailsMap, Constants.KEY.CHILD);
-        rawDetails.setColumnmaps(rawDetailsMap);
-
-        // Get extra child details
-        CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
+        CommonPersonObjectClient childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
 
         // Check if child has a profile pic
         ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
         if (profileImage == null) {
+
             childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
 
         } else {
-            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
 
+            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
         }
 
         return childDetails;
-
     }
 
     @Override

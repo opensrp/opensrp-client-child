@@ -43,6 +43,28 @@ android {
         buildConfigField "String[]", "ALLOWED_LEVELS", '{"Health Facility"}'
         buildConfigField "String", "DEFAULT_LEVEL", '"Health Facility"'
 
+        if (project.rootProject.file("local.properties").exists()) {
+
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+            if (properties != null && properties.containsKey("oauth.client.id")) {
+
+                buildConfigField "String", "OAUTH_CLIENT_ID", properties["oauth.client.id"]
+
+            } else {
+                project.logger.error("oauth.client.id variable is not set in your local.properties")
+            }
+
+            if (properties != null && properties.containsKey("oauth.client.secret")) {
+
+                buildConfigField "String", "OAUTH_CLIENT_SECRET", properties["oauth.client.secret"]
+
+            } else {
+                project.logger.error("oauth.client.secret variable is not set in your local.properties")
+            }
+        }
+
     }
 
     dexOptions {

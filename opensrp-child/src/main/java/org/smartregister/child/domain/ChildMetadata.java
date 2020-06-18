@@ -38,12 +38,12 @@ public class ChildMetadata {
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
                          boolean formWizardValidateRequiredFieldsBefore,
-                         RegisterQueryProvider registerRepo) {
+                         RegisterQueryProvider registerQueryProvider) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
-        this.registerQueryProvider = registerRepo;
+        this.registerQueryProvider = registerQueryProvider;
     }
 
 

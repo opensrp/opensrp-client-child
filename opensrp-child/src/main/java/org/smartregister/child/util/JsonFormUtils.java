@@ -20,6 +20,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -994,9 +995,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             processPhoto(childDetails.get(Constants.KEY.BASE_ENTITY_ID), jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobUnknownField)) {
             JSONObject optionsObject = jsonObject.getJSONArray(Constants.JSON_FORM_KEY.OPTIONS).getJSONObject(0);
-            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, dobUnknownField.toLowerCase(Locale.ENGLISH), false));
+            optionsObject.put(JsonFormUtils.VALUE, Utils.getValue(childDetails, prefix + Constants.KEY.DOB_UNKNOWN, false));
         } else if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(dobAgeField)) {
-            processAge(Utils.getValue(childDetails, prefix + "dob", false), jsonObject);
+            processAge(Utils.getValue(childDetails, prefix + Constants.KEY.DOB, false), jsonObject);
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
             processDate(childDetails, prefix, jsonObject);
         } else if (jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(JsonFormUtils.PERSON_INDENTIFIER)) {
@@ -1067,11 +1068,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    protected static void processDate(Map<String, String> childDetails, String
-            prefix, JSONObject jsonObject)
-            throws JSONException {
-        String dateString = Utils.getValue(childDetails, jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + "dob" : jsonObject.getString(JsonFormUtils.KEY), false);
-        String isDOBUnknown = childDetails.get(prefix + "dob_unknown");
+    protected static void processDate(Map<String, String> childDetails, String prefix, JSONObject jsonObject) throws JSONException {
+        String key = jsonObject.getString(JsonFormUtils.OPENMRS_ENTITY_ID).equalsIgnoreCase(FormEntityConstants.Person.birthdate.toString()) ? prefix + Constants.KEY.DOB : jsonObject.getString(JsonFormUtils.KEY);
+        String dateString = Utils.getValue(childDetails, key, false);
+        dateString = StringUtils.isBlank(dateString) ? Utils.getValue(childDetails, key.toLowerCase(Locale.ENGLISH), false) : dateString;
+        String isDOBUnknown = childDetails.get(prefix + Constants.KEY.DOB_UNKNOWN);
         if (isDOBUnknown == null || !Boolean.valueOf(isDOBUnknown)) {
             Date date = Utils.dobStringToDate(dateString);
             if (StringUtils.isNotBlank(dateString) && date != null) {
@@ -1160,6 +1161,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
             }
 
+            processLocationFields(fields);
+
             dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
             Event subFormEvent = null;
@@ -1221,9 +1224,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
         Map<String, String> identifierMap = getSubFormIdentifierMap();
-        Date birthDate = formatDate(stringBirthDate, true); //childBirthDate.contains("T") ? childBirthDate.substring(0, childBirthDate.indexOf('T')) : childBirthDate;
+        Date birthDate = formatDate(stringBirthDate, true);
+        birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
         Date deathDate = formatDate(stringDeathDate, true);
+        deathDate = cleanBirthDateForSave(deathDate);
         String approxBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate_estimated, bindType);
         boolean birthDateApprox = isDateApprox(approxBirthDate);
         String approxDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate_estimated, bindType);
@@ -1242,6 +1247,20 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         addRelationship(context, client, parent);
         return client;
+    }
+
+    /**
+     * Fixes weird bug where day decrements on save
+     *
+     * @param birthDate birth date to process
+     */
+    @NotNull
+    private static Date cleanBirthDateForSave(Date birthDate) {
+        if (birthDate != null) {
+            return new LocalDateTime(birthDate.getTime()).plusHours(12).toDate();
+        } else {
+            return null;
+        }
     }
 
     @NotNull
