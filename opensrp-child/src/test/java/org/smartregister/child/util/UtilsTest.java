@@ -173,8 +173,8 @@ public class UtilsTest {
     @Test
     public void testGetWeeksDue() {
         int i1 = Utils.getWeeksDue(new DateTime());
-        int i2 = Utils.getWeeksDue(new DateTime().plusWeeks(1));
-        int i3 = Utils.getWeeksDue(new DateTime().plusWeeks(2));
+        int i2 = Utils.getWeeksDue(new DateTime().plusMinutes(1).plusWeeks(1));
+        int i3 = Utils.getWeeksDue(new DateTime().plusMinutes(1).plusWeeks(2));
 
         Assert.assertEquals(0, i1);
         Assert.assertEquals(1, i2);
