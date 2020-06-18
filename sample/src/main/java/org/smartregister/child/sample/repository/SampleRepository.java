@@ -37,7 +37,7 @@ public class SampleRepository extends Repository {
 
 
     private static final String TAG = SampleRepository.class.getCanonicalName();
-    public static String PASSWORD = "Sample_PASS";
+    public static char[] PASSWORD = "Sample_PASS".toCharArray();
     protected SQLiteDatabase readableDatabase;
     protected SQLiteDatabase writableDatabase;
     private Context context;

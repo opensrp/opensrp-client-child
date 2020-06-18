@@ -67,16 +67,17 @@
       },
       {
         "key": "Home_Facility",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "",
-        "openmrs_entity_id": "",
+        "openmrs_entity_parent": "usual_residence",
+        "openmrs_entity": "person_address",
+        "openmrs_entity_id": "address1",
         "openmrs_data_type": "text",
         "type": "tree",
-        "hint": "Child's home health facility ",
+        "hierarchy": "facility_only",
+        "hint": "Child's Home Health Facility",
         "tree": [],
         "v_required": {
           "value": true,
-          "err": "Please enter the child's home facility"
+          "err": "Please enter the child's home health facility"
         }
       },
       {
@@ -193,7 +194,8 @@
         "openmrs_entity_id": "5916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Birth weight (kg) ",
+        "label_info_text": "The weight as measured when the child is born",
+        "hint": "Birth weight/First weight (kg)",
         "v_min": {
           "value": "0.1",
           "err": "Weight must be greater than 0"
@@ -211,7 +213,7 @@
         "key": "Birth_Height",
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",
-        "openmrs_entity_id": "5916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "openmrs_entity_id": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "text",
         "type": "edit_text",
         "hint": "Birth Height (cm)",
@@ -224,7 +226,7 @@
           "err": "Enter a valid height"
         },
         "v_required": {
-          "value": "true",
+          "value": false,
           "err": "Enter the child's birth height"
         }
       },

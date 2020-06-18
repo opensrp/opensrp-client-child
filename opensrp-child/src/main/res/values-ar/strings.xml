@@ -54,7 +54,7 @@
     <string name="day">اليوم\n</string>
     <string name="bcg">لقاح السل\n</string>
     <string name="opv">لقاح الشلل\n</string>
-    <string name="ipv">لقاح الشلل\n</string>
+    <string name="ipv">لقاح الشلل الحقني\n</string>
     <string name="penta">الخماسي\n</string>
     <string name="measles">لقاح الحصبة\n</string>
     <string name="pcv">لقاح المكورات الرئوية\n</string>
@@ -156,7 +156,7 @@
     <string name="first_name">الاسم</string>
     <string name="first_name_hint">الاسم</string>
     <string name="opensrp_id">معرف النظام</string>
-    <string name="card_id_hint">بطاقة الهوية</string>
+    <string name="card_id_hint">رقم بطاقة</string>
     <string name="last_name">الاسم العائلى</string>
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
@@ -187,8 +187,8 @@
     <string name="hia2_daily_tallies">العد اليومي</string>
     <string name="hia2_draft_monthly">مسودة التقرير الشهري</string>
     <string name="hia2_draft_monthly_with_count">مسودة التقرير الشهري (%1$d)</string>
-    <string name="hia2_sent_monthly">إرسال التقرير الشهري</string>
-    <string name="start_new_report">بداية تقرير جديد</string>
+    <string name="hia2_sent_monthly">التقاريرالشهرية المرسلة</string>
+    <string name="start_new_report">بدء تقرير جديد</string>
     <string name="no_draft_reports">لا توجد مسودات تقرير</string>
     <string name="no_monthly_ready">لا يوجد تقرير شهري جاهز للإكمال</string>
     <string name="reports_available">تقارير متوفرة</string>

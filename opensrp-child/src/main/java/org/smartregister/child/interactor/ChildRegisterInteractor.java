@@ -10,12 +10,14 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -32,6 +34,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -145,10 +148,13 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
                             getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-                            // This prevents a crash when the birthdate of a mother is not available in the clientJson
+                            // This prevents a crash when the birth date of a mother is not available in the clientJson
                             // We also don't need to process the mother's weight & height
                             processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
-                            processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+
+                            if (getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+                                processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+                            }
                         }
                     }
 
@@ -289,6 +295,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     public UniqueIdRepository getUniqueIdRepository() {
         return ChildLibrary.getInstance().getUniqueIdRepository();
+    }
+
+    protected AppProperties getAppProperties() {
+        return CoreLibrary.getInstance().context().getAppProperties();
     }
 
     public enum type {SAVED, UPDATED}

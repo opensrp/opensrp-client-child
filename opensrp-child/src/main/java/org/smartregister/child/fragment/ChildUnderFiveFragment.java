@@ -117,6 +117,9 @@ public class ChildUnderFiveFragment extends Fragment {
 
     public void setDetailsMap(Map<String, String> detailsMap) {
         this.detailsMap = detailsMap;
+        if (getActivity() instanceof IChildDetails) {
+            ((IChildDetails) getActivity()).setChildDetails(this.detailsMap);
+        }
     }
 
     public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList, boolean editGrowthMonitoringMode) {

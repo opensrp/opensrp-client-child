@@ -15,6 +15,7 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.contract.IChildDetails;
@@ -166,13 +167,19 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
         String value;
-        value = detailsMap.get(getPrefix(field.getEntityId()) + key);
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.ENGLISH));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase()));
+        value = detailsMap.get(getKey(field, key));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getKey(field, key.toLowerCase(Locale.ENGLISH)));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getKey(field, cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase())));
         return value;
     }
 
-    public String getPrefix(String entityId) {
+    @NotNull
+    private String getKey(Field field, String key) {
+        String prefix = getPrefixByEntityId(field.getEntityId());
+        return !key.startsWith(prefix) ? prefix + key : key;
+    }
+
+    private String getPrefixByEntityId(String entityId) {
         return !TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase("mother") ? "mother_" : "";
     }
 
