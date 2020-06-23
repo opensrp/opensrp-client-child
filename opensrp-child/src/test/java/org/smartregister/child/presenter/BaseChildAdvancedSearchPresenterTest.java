@@ -36,7 +36,7 @@ public class BaseChildAdvancedSearchPresenterTest {
     protected ChildAdvancedSearchContract.Model model;
 
     @Mock
-    ChildAdvancedSearchContract.Interactor interactor;
+    private ChildAdvancedSearchContract.Interactor interactor;
 
     private BaseChildAdvancedSearchPresenter baseChildAdvancedSearchPresenter;
 
