@@ -173,7 +173,7 @@ public class ChildRegisterInteractorTest {
         UniqueIdRepository uniqueIdRepository = Mockito.mock(UniqueIdRepository.class);
         Mockito.doReturn(uniqueIdRepository).when(childRegisterInteractor).getUniqueIdRepository();
         Mockito.doReturn(appProperties).when(childRegisterInteractor).getAppProperties();
-        Mockito.doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT);
 
         childRegisterInteractor.saveRegistration(childEventClientList, childRegistrationClient, params);
 
