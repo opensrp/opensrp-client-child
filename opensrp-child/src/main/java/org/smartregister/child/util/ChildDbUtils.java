@@ -65,7 +65,7 @@ public class ChildDbUtils {
      * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildFirstGrowthAndMonitoring(@NonNull String baseEntityId) {
-        boolean heightMetricEnabled = CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT);
+        boolean heightMetricEnabled = CoreLibrary.getInstance().context().getAppProperties().getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT);
         HashMap<String, String> hashMap = new HashMap<>();
         SQLiteDatabase sqLiteDatabase = ChildLibrary.getInstance().getRepository().getReadableDatabase();
         Cursor weightCursor = sqLiteDatabase.query("weights", new String[]{"kg", "created_at"},

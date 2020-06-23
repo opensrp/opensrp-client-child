@@ -78,7 +78,6 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         Context context = Mockito.mock(Context.class);
         Mockito.when(appProperties.hasProperty(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
         Mockito.when(appProperties.getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
-        Mockito.when(appProperties.isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)).thenReturn(true);
         Mockito.when(context.getAppProperties()).thenReturn(appProperties);
         Mockito.when(coreLibrary.context()).thenReturn(context);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);

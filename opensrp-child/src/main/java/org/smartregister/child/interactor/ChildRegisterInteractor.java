@@ -152,7 +152,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                             // We also don't need to process the mother's weight & height
                             processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
 
-                            if (getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+                            if (getAppProperties().getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
                                 processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
                             }
                         }
