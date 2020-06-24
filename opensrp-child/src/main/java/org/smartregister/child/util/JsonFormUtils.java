@@ -983,7 +983,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static void setFormFieldValues
             (Map<String, String> childDetails, List<String> nonEditableFields, JSONObject
                     jsonObject) throws JSONException {
-        String prefix = jsonObject.has(JsonFormUtils.ENTITY_ID) && jsonObject.getString(JsonFormUtils.ENTITY_ID).equalsIgnoreCase(Constants.KEY.MOTHER) ? "mother_" : "";
+
+        String prefix = "";
+
+        if (jsonObject.has(JsonFormUtils.ENTITY_ID)) {
+            String entityId = jsonObject.getString(JsonFormUtils.ENTITY_ID);
+            if (entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+                prefix = "mother_";
+            } else if (entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
+                prefix = "father_";
+            }
+        }
 
         String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
         String dobAgeField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
@@ -1138,58 +1148,73 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static ChildEventClient processMotherRegistrationForm(String jsonString, String
             relationalId, ChildEventClient base) {
         try {
-            Context context = CoreLibrary.getInstance().context().applicationContext();
-            String subBindType = Constants.KEY.MOTHER;
-            Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
-
-            if (!registrationFormParams.getLeft()) {
-                return null;
-            }
-
-            Client baseClient = base.getClient();
-            Event baseEvent = base.getEvent();
-
-            JSONObject jsonForm = registrationFormParams.getMiddle();
-            JSONArray fields = registrationFormParams.getRight();
-
-            JSONObject metadata = getJSONObject(jsonForm, METADATA);
-
-            JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
-            String lookUpBaseEntityId = null;
-            if (lookUpJSONObject != null) {
-                lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
-            }
-
-            dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
-
-            Event subFormEvent = null;
-
-            String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
-            Client subformClient = createSubFormClient(context, fields, baseClient, subBindType, motherBaseEntityId);
-
-            //only set default female gender if not explicitly set in the registration form
-            if (StringUtils.isBlank(subformClient.getGender())) {
-                subformClient.setGender(Constants.GENDER.FEMALE);
-            }
-
-            if (subformClient != null && baseEvent != null) {
-                JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
-                if (subBindTypeJson != null) {
-                    String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
-                    if (StringUtils.isNotBlank(subBindTypeEncounter)) {
-
-                        subFormEvent = JsonFormUtils.createSubFormEvent(getMotherFields(fields), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, subBindType);
-                    }
-                }
-            }
-
-            lastInteractedWith(fields);
-
-            return new ChildEventClient(subformClient, subFormEvent);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
+    }
+
+    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId,
+                                                                 ChildEventClient base) {
+        try {
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
+        } catch (Exception e) {
+            Timber.e(e, "JsonFormUtils --> processFatherRegistrationForm");
+            return null;
+        }
+    }
+
+    @Nullable
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient base, String entityId) throws JSONException {
+        Context context = CoreLibrary.getInstance().context().applicationContext();
+        Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
+
+        if (!registrationFormParams.getLeft()) {
+            return null;
+        }
+
+        Client baseClient = base.getClient();
+        Event baseEvent = base.getEvent();
+
+        JSONObject jsonForm = registrationFormParams.getMiddle();
+        JSONArray fields = registrationFormParams.getRight();
+
+        JSONObject metadata = getJSONObject(jsonForm, METADATA);
+
+        JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
+        String lookUpBaseEntityId = null;
+        if (lookUpJSONObject != null) {
+            lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
+        }
+
+        dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
+
+        Event subFormEvent = null;
+
+        String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
+        Client subformClient = createSubFormClient(context, fields, baseClient, entityId, motherBaseEntityId);
+
+        //only set default gender if not explicitly set in the registration form
+        if (StringUtils.isBlank(subformClient.getGender()) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+            subformClient.setGender(Constants.GENDER.FEMALE);
+        } else if (StringUtils.isBlank(subformClient.getGender()) && entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
+            subformClient.setGender(Constants.GENDER.MALE);
+        }
+
+        if (baseEvent != null) {
+            JSONObject subBindTypeJson = getJSONObject(jsonForm, entityId);
+            if (subBindTypeJson != null) {
+                String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
+                if (StringUtils.isNotBlank(subBindTypeEncounter)) {
+                    subFormEvent = JsonFormUtils.createSubFormEvent(getEntityFields(fields, entityId), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, entityId);
+                }
+            }
+        }
+
+        lastInteractedWith(fields);
+
+        return new ChildEventClient(subformClient, subFormEvent);
     }
 
     private static void addRelationship(Context context, Client parent, Client child) {
@@ -1334,11 +1359,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return event;
     }
 
-    private static JSONArray getMotherFields(JSONArray fields) throws JSONException {
+    private static JSONArray getEntityFields(JSONArray fields, String mother) throws JSONException {
         JSONArray array = new JSONArray();
 
         for (int i = 0; i < fields.length(); i++) {
-            if (fields.getJSONObject(i).has(ENTITY_ID) && fields.getJSONObject(i).getString(ENTITY_ID).equals(Constants.KEY.MOTHER)) {
+            if (fields.getJSONObject(i).has(ENTITY_ID) && fields.getJSONObject(i).getString(ENTITY_ID).equals(mother)) {
                 array.put(fields.getJSONObject(i));
             }
         }
@@ -1420,6 +1445,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 eventList.add(0, Pair.create(event, jsonEvent));
             } else if (!eventList.isEmpty() && Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
                 eventList.add(1, Pair.create(event, jsonEvent));
+            } else if (!eventList.isEmpty() && Constants.EventType.FATHER_REGISTRATION.equals(event.getEventType())) {
+                eventList.add(2, Pair.create(event, jsonEvent));
             } else {
                 eventList.add(Pair.create(event, jsonEvent));
             }
@@ -1451,9 +1478,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             }
 
-            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType())
+                    || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())
+                    || Constants.EventType.FATHER_REGISTRATION.equals(event.getEventType())) {
                 createMoveToCatchmentEvent(context, localProviderIdentifiers, event);
-
             }
 
             /*

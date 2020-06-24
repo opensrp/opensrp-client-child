@@ -85,6 +85,7 @@ public final class Constants extends AllConstants {
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
+        public static final String FATHER = "father";
         public static final String FIRST_NAME = "first_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
@@ -150,6 +151,7 @@ public final class Constants extends AllConstants {
         public static final String BITRH_REGISTRATION = "Birth Registration";
         public static final String UPDATE_BITRH_REGISTRATION = "Update Birth Registration";
         public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
+        public static final String FATHER_REGISTRATION = "Father Registration";
         public static final String DEATH = "Death";
         public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
         public static final String VACCINATION = "Vaccination";

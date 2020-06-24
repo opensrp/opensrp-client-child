@@ -64,16 +64,27 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         childEventClientList.add(childEventClient);
 
-        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
-                childEventClient);
-        if (childHeadEventClient == null) {
+        ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
+                jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
+        if (childMotherEventClient == null) {
             return childEventClientList;
         }
 
         // Update the child mother
         Client childClient = childEventClient.getClient();
 
-        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childHeadEventClient.getClient().getBaseEntityId());
+        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childMotherEventClient.getClient().getBaseEntityId());
+
+        // Update child's father details if relationship is defined in metadata
+        if (Utils.metadata().childRegister.getFatherRelationKey() != null){
+            ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
+                    jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
+            if (fatherRegistrationEvent == null) {
+                return childEventClientList;
+            }
+            childClient.addRelationship(Utils.metadata().childRegister.getFatherRelationKey(), fatherRegistrationEvent.getClient().getBaseEntityId());
+            childEventClientList.add(fatherRegistrationEvent);
+        }
 
         // Add search by mother
 
@@ -84,10 +95,9 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
         Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
 
-        childEventClientList.add(childHeadEventClient);
+        childEventClientList.add(childMotherEventClient);
 
-        updateMotherDetails(childHeadEventClient, childClient);
-
+        updateMotherDetails(childMotherEventClient, childClient);
 
         return childEventClientList;
     }
