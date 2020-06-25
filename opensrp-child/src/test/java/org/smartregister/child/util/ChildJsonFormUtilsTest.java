@@ -54,7 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class JsonFormUtilsTest extends BaseUnitTest {
+public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
@@ -120,22 +120,22 @@ public class JsonFormUtilsTest extends BaseUnitTest {
 
     @Test
     public void isDateApproxWithNonNumberTest() throws Exception {
-        boolean isApproximate = Whitebox.invokeMethod(JsonFormUtils.class, "isDateApprox", "1500208620000L");
+        boolean isApproximate = Whitebox.invokeMethod(ChildJsonFormUtils.class, "isDateApprox", "1500208620000L");
         Assert.assertFalse(isApproximate);
     }
 
     @Test
     public void isDateApproxWithNumberTest() throws Exception {
-        boolean isApproximate = Whitebox.invokeMethod(JsonFormUtils.class, "isDateApprox", "1");
+        boolean isApproximate = Whitebox.invokeMethod(ChildJsonFormUtils.class, "isDateApprox", "1");
         Assert.assertTrue(isApproximate);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void processAgeWithWrongDateFormatTest() throws Exception {
-        JSONObject result = Whitebox.invokeMethod(JsonFormUtils.class, "processAge", "7/19/19", jsonObject);
+        JSONObject result = Whitebox.invokeMethod(ChildJsonFormUtils.class, "processAge", "7/19/19", jsonObject);
         Assert.assertNotNull(result);
-        Assert.assertTrue(result.has(JsonFormUtils.VALUE));
-        Assert.assertNotNull(result.get(JsonFormUtils.VALUE));
+        Assert.assertTrue(result.has(ChildJsonFormUtils.VALUE));
+        Assert.assertNotNull(result.get(ChildJsonFormUtils.VALUE));
     }
 
     @Test
@@ -144,17 +144,17 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         LocalDate date = LocalDate.parse(TEST_DOB);
         Integer expectedDifferenceInYears = Period.between(date, LocalDate.now()).getYears();
 
-        Whitebox.invokeMethod(JsonFormUtils.class, "processAge", TEST_DOB, jsonObject);
-        Assert.assertTrue(jsonObject.has(JsonFormUtils.VALUE));
-        Assert.assertNotNull(jsonObject.get(JsonFormUtils.VALUE));
-        Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(JsonFormUtils.VALUE));
+        Whitebox.invokeMethod(ChildJsonFormUtils.class, "processAge", TEST_DOB, jsonObject);
+        Assert.assertTrue(jsonObject.has(ChildJsonFormUtils.VALUE));
+        Assert.assertNotNull(jsonObject.get(ChildJsonFormUtils.VALUE));
+        Assert.assertEquals(expectedDifferenceInYears, jsonObject.get(ChildJsonFormUtils.VALUE));
     }
 
     @Test
     public void getChildLocationIdShouldReturnNullWhenCurrentLocalityIsNull() {
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
 
-        Assert.assertNull(JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+        Assert.assertNull(ChildJsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
 
         Mockito.doReturn(currentLocalityId).when(locationHelper).getOpenMrsLocationId(Mockito.eq(currentLocality));
 
-        Assert.assertEquals(currentLocalityId, JsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
+        Assert.assertEquals(currentLocalityId, ChildJsonFormUtils.getChildLocationId("98349797-489834", allSharedPreferences));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
 
         Client client = new Client("234");
-        JsonFormUtils.mergeAndSaveClient(client);
+        ChildJsonFormUtils.mergeAndSaveClient(client);
         Mockito.verify(ecSyncHelper, Mockito.times(1))
                 .addClient((String) addClientCaptor.capture(), (JSONObject) addClientCaptor.capture());
 
@@ -213,7 +213,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
 
         ReflectionHelpers.setStaticField(ECSyncHelper.class, "instance", ecSyncHelper);
-        JsonFormUtils jsonFormUtils = new JsonFormUtils();
+        ChildJsonFormUtils jsonFormUtils = new ChildJsonFormUtils();
         Whitebox.invokeMethod(jsonFormUtils,
                 "createBCGScarEvent", context,
                 "3434-234", providerId, "locationId");
@@ -232,7 +232,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals("Yes", obsJsonObject.optJSONArray("humanReadableValues").optString(0));
         Assert.assertEquals("1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", obsJsonObject.optJSONArray("values").optString(0));
 
-        Assert.assertEquals(JsonFormUtils.BCG_SCAR_EVENT, eventJson.optString("eventType"));
+        Assert.assertEquals(ChildJsonFormUtils.BCG_SCAR_EVENT, eventJson.optString("eventType"));
         Assert.assertEquals(teamName, eventJson.optString("team"));
         Assert.assertEquals("child", eventJson.optString("entityType"));
         Assert.assertEquals(teamId, eventJson.optString("teamId"));
@@ -272,9 +272,9 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
         array.put(dobJson);
 
-        JSONObject dobDateObject = JsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
+        JSONObject dobDateObject = ChildJsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
 
-        JsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.MOTHER);
+        ChildJsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.MOTHER);
 
         Assert.assertNotNull(dobDateObject.getString(Constants.KEY.VALUE));
 
@@ -327,9 +327,9 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Mockito.doReturn(healthFacilities).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(healthFacilities));
         Mockito.doReturn(allLevels).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(allLevels));
         JSONObject form = new JSONObject(registrationForm);
-        JsonFormUtils.addChildRegLocHierarchyQuestions(form);
+        ChildJsonFormUtils.addChildRegLocHierarchyQuestions(form);
         JSONArray fields = FormUtils.getMultiStepFormFields(form);
-        JSONObject homeFacility = JsonFormUtils.getFieldJSONObject(fields, Constants.HOME_FACILITY);
+        JSONObject homeFacility = ChildJsonFormUtils.getFieldJSONObject(fields, Constants.HOME_FACILITY);
         JSONArray resultTreeObject = new JSONArray(homeFacility.optString(JsonFormConstants.TREE));
         Assert.assertTrue(resultTreeObject.optJSONObject(0).has("nodes"));
         Assert.assertEquals("Kenya", resultTreeObject.optJSONObject(0).optString("name"));
@@ -378,7 +378,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
 
         Mockito.doReturn(entireTree).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(healthFacilities));
 
-        WhiteboxImpl.invokeMethod(JsonFormUtils.class, "updateLocationTree", jsonArray, hierarchyString, entireTreeString, healthFacilities, allLevels);
+        WhiteboxImpl.invokeMethod(ChildJsonFormUtils.class, "updateLocationTree", jsonArray, hierarchyString, entireTreeString, healthFacilities, allLevels);
         Assert.assertTrue(jsonObject.has(JsonFormConstants.TREE));
         Assert.assertTrue(jsonObject.has(JsonFormConstants.DEFAULT));
         Assert.assertEquals(hierarchyString, jsonObject.optString(JsonFormConstants.DEFAULT));
@@ -409,7 +409,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
 
         Mockito.doReturn(filteredLocations).when(locationHelper).generateLocationHierarchyTree(ArgumentMatchers.anyBoolean(), ArgumentMatchers.eq(filteredLocations));
 
-        FormLocationTree formLocationTree = WhiteboxImpl.invokeMethod(JsonFormUtils.class, "generateFormLocationTree", locations, false, "County");
+        FormLocationTree formLocationTree = WhiteboxImpl.invokeMethod(ChildJsonFormUtils.class, "generateFormLocationTree", locations, false, "County");
 
         Assert.assertNotNull(formLocationTree);
         Assert.assertEquals("[\"Country\",\"County\"]", formLocationTree.getFormLocationString());
@@ -441,7 +441,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        JsonFormUtils.saveReportDeceased(context, reportDeceasedForm, "434-2342", entityId);
+        ChildJsonFormUtils.saveReportDeceased(context, reportDeceasedForm, "434-2342", entityId);
 
         Mockito.verify(eventClientRepository).addorUpdateClient(Mockito.eq(entityId), eventClientAddOrUpdateClient.capture());
 
@@ -476,7 +476,7 @@ public class JsonFormUtilsTest extends BaseUnitTest {
     public void testAddAvailableVaccinesShouldPopulateForm() throws Exception {
         JSONObject formObject = new JSONObject(registrationForm);
         int initialSize = formObject.optJSONObject(JsonFormConstants.STEP1).optJSONArray(JsonFormConstants.FIELDS).length();
-        Whitebox.invokeMethod(JsonFormUtils.class, "addAvailableVaccines",
+        Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines",
                 RuntimeEnvironment.application, formObject);
         JSONObject step1 = formObject.optJSONObject(JsonFormConstants.STEP1);
         JSONArray fields = step1.optJSONArray(JsonFormConstants.FIELDS);

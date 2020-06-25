@@ -22,7 +22,7 @@ import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
@@ -121,7 +121,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         form.setNextLabel("");
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
-        startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
+        startActivityForResult(intent, ChildJsonFormUtils.REQUEST_CODE_GET_JSON);
     }
 
     @Override
@@ -143,20 +143,20 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     protected void onActivityResultExtended(int requestCode, int resultCode, Intent data) {
-        if (requestCode == JsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+        if (requestCode == ChildJsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(Constants.INTENT_KEY.JSON);
                 Log.d("JSONResult", jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
+                if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
                     UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
                     updateRegisterParam.setEditMode(false);
-                    updateRegisterParam.setFormTag(JsonFormUtils.formTag(Utils.context().allSharedPreferences()));
+                    updateRegisterParam.setFormTag(ChildJsonFormUtils.formTag(Utils.context().allSharedPreferences()));
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveForm(jsonString, updateRegisterParam);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
+                } else if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveOutOfCatchmentService(jsonString, this);

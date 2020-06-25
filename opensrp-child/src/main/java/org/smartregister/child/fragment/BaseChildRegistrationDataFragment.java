@@ -23,7 +23,7 @@ import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
 import org.smartregister.location.helper.LocationHelper;
@@ -202,7 +202,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
         switch (type) {
             case JsonFormConstants.DATE_PICKER:
-                Date date = JsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
+                Date date = ChildJsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
                     result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
                             Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()).format(date);

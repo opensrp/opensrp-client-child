@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
@@ -55,14 +55,14 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     @Override
     public List<ChildEventClient> processRegistration(String jsonString, FormTag formTag) {
         List<ChildEventClient> childEventClientList = new ArrayList<>();
-        ChildEventClient childEventClient = JsonFormUtils.processChildDetailsForm(jsonString, formTag);
+        ChildEventClient childEventClient = ChildJsonFormUtils.processChildDetailsForm(jsonString, formTag);
         if (childEventClient == null) {
             return null;
         }
 
         childEventClientList.add(childEventClient);
 
-        ChildEventClient childHeadEventClient = JsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
+        ChildEventClient childHeadEventClient = ChildJsonFormUtils.processMotherRegistrationForm(jsonString, childEventClient.getClient().getRelationalBaseEntityId(),
                 childEventClient);
         if (childHeadEventClient == null) {
             return childEventClientList;
@@ -93,7 +93,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         if (form == null) {
             return null;
         }
-        return JsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId);
+        return ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId);
     }
 
     private FormUtils getFormUtils() {
