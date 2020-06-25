@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -402,7 +401,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                                 try {
                                     text = mlsLookupDateFormatter.format(motherDob);
                                 } catch (Exception e) {
-                                    Log.e(getClass().getName(), e.toString(), e);
+                                    Timber.e(e);
                                 }
                             }
 
@@ -572,10 +571,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     public void getLabelViewFromTag(String labeltext, String todisplay) {
-        //        super.getMainView();
         updateRelevantTextView(getMainView(), todisplay, labeltext);
-
-        //        findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
 
     private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
@@ -590,9 +586,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         textView.setText(textstring);
                     }
                 }
-                //            else if(view instanceof  ViewGroup){
-                //                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-                //            }
             }
         }
     }
@@ -610,9 +603,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         toreturn = textView.getText().toString();
                     }
                 }
-                //            else if(view instanceof  ViewGroup){
-                //                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-                //            }
             }
         }
         return toreturn;
