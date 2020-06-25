@@ -46,7 +46,7 @@ import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.toolbar.BaseToolbar;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.FetchStatus;
@@ -358,7 +358,7 @@ toggle.syncState();
     }
 
     protected void startJsonForm(String formName, String entityId, String locationId) throws Exception {
-        JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
+        ChildJsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,
@@ -605,7 +605,7 @@ toggle.syncState();
         try {
 
             if (updateRegisterParams.getFormTag() == null) {
-                updateRegisterParams.setFormTag(JsonFormUtils.formTag(Utils.getAllSharedPreferences()));
+                updateRegisterParams.setFormTag(ChildJsonFormUtils.formTag(Utils.getAllSharedPreferences()));
             }
 
             List<ChildEventClient> childEventClientList =

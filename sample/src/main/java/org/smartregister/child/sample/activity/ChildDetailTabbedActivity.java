@@ -12,7 +12,7 @@ import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.task.LoadAsyncTask;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.util.Utils;
 
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         switch (item.getItemId()) {
             case R.id.registration_data:
 
-                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap, nonEditableFields);
+                String formJsonString = ChildJsonFormUtils.getMetadataForEditForm(this, detailsMap, nonEditableFields);
                 startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
