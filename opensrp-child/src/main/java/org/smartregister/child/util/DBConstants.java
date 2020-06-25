@@ -47,5 +47,6 @@ public class DBConstants {
         String CHILD_DETAILS = "ec_child_details";
         String MOTHER_DETAILS = "ec_mother_details";
         String CLIENT = "ec_client";
+        String FATHER_DETAILS = "ec_father_details";
     }
 }

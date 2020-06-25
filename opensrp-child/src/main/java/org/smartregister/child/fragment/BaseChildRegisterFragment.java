@@ -58,7 +58,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     private View filterSection;
     private int dueOverdueCount = 0;
-    private LocationPickerView clinicSelection;
+    protected LocationPickerView clinicSelection;
     private TextView overdueCountTV;
 
     @Override
