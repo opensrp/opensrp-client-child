@@ -113,6 +113,7 @@ public final class Constants extends AllConstants {
         public static final String HAS_PROFILE_IMAGE = "has_profile_image";
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
+        public static final String FATHER_RELATIONAL_ID = "father_relational_id";
     }
 
     public static final class INTENT_KEY {

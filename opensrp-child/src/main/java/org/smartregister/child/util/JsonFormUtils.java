@@ -1280,8 +1280,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return client;
     }
 
-    private static Map<String, String> createClientMap(JSONArray fields, String
-            bindType, String relationalId) {
+    private static Map<String, String> createClientMap(JSONArray fields, String bindType, String relationalId) {
         String entityId = TextUtils.isEmpty(relationalId) ? generateRandomUUIDString() : relationalId;
         String firstName = getSubFormFieldValue(fields, FormEntityConstants.Person.first_name, bindType);
         String middleName = getSubFormFieldValue(fields, FormEntityConstants.Person.middle_name, bindType);
