@@ -5,8 +5,6 @@ import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.TextViewCompat;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -16,6 +14,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
 
 import com.google.common.collect.Lists;
 
@@ -599,7 +600,7 @@ public class Utils extends org.smartregister.util.Utils {
         return archiveRecordEvents;
     }
 
-    public static void initiateEventProcessing(@android.support.annotation.Nullable List<String> formSubmissionIds) throws Exception {
+    public static void initiateEventProcessing(@Nullable List<String> formSubmissionIds) throws Exception {
         if (formSubmissionIds != null && !formSubmissionIds.isEmpty()) {
             long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
