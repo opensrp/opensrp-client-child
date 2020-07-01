@@ -1,13 +1,18 @@
 package org.smartregister.child.fragment;
 
+import android.app.Activity;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.customviews.MaterialSpinner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,13 +20,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.MotherLookUpUtils;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
@@ -68,7 +76,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         edtDob.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.birthDate);
         edtDob.setText("2018-01-15");
 
-        List<View> viewList = new ArrayList<>(Arrays.asList((View) edtFirstName, edtLastName, edtNationalId));
+        List<View> viewList = new ArrayList<>(Arrays.asList((View) edtFirstName, edtLastName, edtNationalId, edtDob));
         lookupMap.put(Constants.KEY.MOTHER, viewList);
         return lookupMap;
     }
@@ -151,6 +159,74 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Mockito.doReturn(linearLayout).when(formFragment).getMainView();
         Whitebox.invokeMethod(formFragment, "updateRelevantTextView", linearLayout, "text", "test_key");
         Assert.assertEquals("text", textView.getText().toString());
+    }
+
+    @Test
+    public void testLookupDialogDismissedShouldFillViewsWithDbValues() throws Exception {
+        String caseId = "23-sd23";
+        String firstName = "Jane";
+        String lastName = "Doe";
+        Map<String, String> details = new HashMap<>();
+        details.put(MotherLookUpUtils.firstName, "Janet");
+        details.put(MotherLookUpUtils.lastName, "Denice");
+        details.put(MotherLookUpUtils.birthDate, "2010-01-15");
+        details.put(MotherLookUpUtils.NRC_NUMBER, "1234");
+        CommonPersonObjectClient personObjectClient = new CommonPersonObjectClient(caseId, details, firstName + " " + lastName);
+        personObjectClient.setColumnmaps(details);
+        formFragment = PowerMockito.spy(formFragment);
+
+        ReflectionHelpers.setField(formFragment, "lookedUp", false);
+        Mockito.doNothing().when(formFragment).clearView();
+        Mockito.doNothing().when(formFragment).writeMetaDataValue(Mockito.anyString(), Mockito.any(Map.class));
+        Mockito.doReturn(getLookUpMap()).when(formFragment).getLookUpMap();
+        Activity activity = Robolectric.setupActivity(FragmentActivity.class);
+        Mockito.doReturn(activity).when(formFragment).getActivity();
+        MaterialEditText motherDOBMaterialEditText = new MaterialEditText(RuntimeEnvironment.application);
+        ReflectionHelpers.setField(formFragment, "motherDOBMaterialEditText", motherDOBMaterialEditText);
+        Whitebox.invokeMethod(formFragment, "lookupDialogDismissed", personObjectClient);
+        Assert.assertFalse(((MaterialEditText) ReflectionHelpers.getField(formFragment, "motherDOBMaterialEditText")).isEnabled());
+        Assert.assertTrue((Boolean) ReflectionHelpers.getField(formFragment, "lookedUp"));
+        Mockito.verify(formFragment, Mockito.times(1)).writeMetaDataValue(Mockito.anyString(), Mockito.<String, String>anyMap());
+        List<View> viewList = formFragment.getLookUpMap().get(Constants.KEY.MOTHER);
+        for (View view : viewList) {
+            String key = (String) view.getTag(com.vijay.jsonwizard.R.id.key);
+            if (view instanceof MaterialEditText) {
+                MaterialEditText materialEditText = (MaterialEditText) view;
+                if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.firstName)) {
+                    Assert.assertEquals("Janet", materialEditText.getText().toString());
+                } else if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
+                    Assert.assertEquals("Denice", materialEditText.getText().toString());
+                } else if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
+                    Assert.assertEquals("1234", materialEditText.getText().toString());
+                }
+            }
+        }
+    }
+
+
+    @Test
+    public void testShowFinalActionSnackBarShouldShowSnackBar() throws Exception {
+        formFragment = PowerMockito.spy(formFragment);
+        Activity activity = Robolectric.setupActivity(FragmentActivity.class);
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        Button actionView = new Button(RuntimeEnvironment.application);
+        actionView.setId(android.support.design.R.id.snackbar_action);
+        TextView textView = new TextView(RuntimeEnvironment.application);
+        textView.setId(android.support.design.R.id.snackbar_text);
+        linearLayout.addView(actionView);
+        linearLayout.addView(textView);
+
+        Mockito.doReturn(activity).when(formFragment).getActivity();
+        Mockito.doReturn(activity.getResources()).when(formFragment).getResources();
+
+        Snackbar snackbar = Mockito.mock(Snackbar.class);
+        Mockito.doReturn(linearLayout).when(snackbar).getView();
+
+        ReflectionHelpers.setStaticField(ChildFormFragment.class, "showResultsDuration", 0);
+        Whitebox.invokeMethod(formFragment, "showFinalActionSnackBar", snackbar);
+        Mockito.verify(snackbar, Mockito.times(1)).show();
+        Mockito.verify(snackbar, Mockito.times(1)).dismiss();
+
     }
 
     @After
