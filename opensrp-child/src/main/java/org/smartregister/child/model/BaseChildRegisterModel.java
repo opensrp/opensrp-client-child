@@ -1,7 +1,6 @@
 package org.smartregister.child.model;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -9,7 +8,6 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
@@ -77,7 +75,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
      * "encounter_type": "Update Father Details"
      * }
      *
-     * @param jsonString stringified json form
+     * @param jsonString  json form as string
      * @param formTag    form tags
      * @return a list of ChildEvents
      */
@@ -93,9 +91,10 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             if (childEventClient == null) {
                 return null;
             }
-            Client childClient = childEventClient.getClient();
 
             childEventClientList.add(childEventClient);
+            Client childClient = childEventClient.getClient();
+
             String motherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
             ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
                     jsonString, motherRelationalId, childEventClient);
@@ -117,12 +116,14 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
             // Add father relationship if defined in metadata
             if (Utils.metadata().childRegister.getFatherRelationKey() != null) {
+                String fatherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
                 ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
-                        jsonString, JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER), childEventClient);
+                        jsonString, fatherRelationalId, childEventClient);
+
                 if (fatherRegistrationEvent == null) {
                     return childEventClientList;
                 }
-                String fatherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
+
                 if (fatherRelationalId == null) {
                     childClient.addRelationship(Constants.KEY.FATHER, fatherRegistrationEvent.getClient().getBaseEntityId());
                 }
@@ -130,7 +131,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             }
 
         } catch (JSONException e) {
-            Timber.e(e, "Error converting string json to JSONObject");
+            Timber.e(e, "Error processing registration form");
         }
         return childEventClientList;
     }
@@ -160,7 +161,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy")));
 
         } catch (Exception e) {
-            Log.e(BaseChildRegisterModel.class.getCanonicalName(), e.getMessage(), e);
+            Timber.e(e);
         }
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_first_name", childHeadEventClient.getClient().getFirstName(), Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_last_name", childHeadEventClient.getClient().getLastName(), Calendar.getInstance().getTimeInMillis());

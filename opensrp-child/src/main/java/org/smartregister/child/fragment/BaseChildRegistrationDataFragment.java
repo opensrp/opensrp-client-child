@@ -154,6 +154,11 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 value = getFieldValue(detailsMap, field, key);
             }
 
+            //TODO Temporary fix for spinner setting value as hint when nothing is selected
+            if(field.getType().equalsIgnoreCase(JsonFormConstants.SPINNER) && value == field.getHint()){
+                value = null;
+            }
+
             String label = getResourceLabel(key);
 
             if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !isSkippableValue(value)) {
