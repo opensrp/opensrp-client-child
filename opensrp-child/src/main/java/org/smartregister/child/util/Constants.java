@@ -40,6 +40,8 @@ public final class Constants extends AllConstants {
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
+    public static final String CLIENT_RELATIONSHIP = "client_relationship";
+
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -57,6 +59,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
         public static final String HIERARCHY = "hierarchy";
         public static final String SELECTABLE = "selectable";
+        public static final String RELATIONSHIPS = "relationships";
     }
 
     public static class JSON_FORM_EXTRA {
@@ -156,6 +159,8 @@ public final class Constants extends AllConstants {
         public static final String DEATH = "Death";
         public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
         public static final String VACCINATION = "Vaccination";
+        public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
+        public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
     }
 
     public static final class CHILD_STATUS {

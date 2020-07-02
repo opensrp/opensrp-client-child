@@ -1,9 +1,15 @@
 package org.smartregister.child.model;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
@@ -20,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -54,52 +62,89 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         return LocationHelper.getInstance().getOpenMrsLocationId(locationName);
     }
 
+    /**
+     * Prepare JSON for for editing/creating new registration. For update/editing of existing client you must
+     * pass the entity_id of that particular client to the JSON form when injecting values read from the local
+     * database; just before opening the form for editing.
+     * <p>
+     * Also remember to dynamically update the encounter_type of form when editing to match the following format depending on the entities you have:
+     * <p>
+     * "encounter_type": "Update Birth Registration",
+     * "mother": {
+     * "encounter_type": "Update Mother Details"
+     * },
+     * "father": {
+     * "encounter_type": "Update Father Details"
+     * }
+     *
+     * @param jsonString stringified json form
+     * @param formTag    form tags
+     * @return a list of ChildEvents
+     */
     @Override
-    public List<ChildEventClient> processRegistration(String jsonString, FormTag formTag) {
+    public List<ChildEventClient> processRegistration(@NonNull String jsonString, FormTag formTag) {
+        JSONObject form;
         List<ChildEventClient> childEventClientList = new ArrayList<>();
-        ChildEventClient childEventClient = JsonFormUtils.processChildDetailsForm(jsonString, formTag);
-        if (childEventClient == null) {
-            return null;
-        }
+        try {
+            form = new JSONObject(jsonString);
+            updateEncounterTypes(form);
 
-        childEventClientList.add(childEventClient);
+            ChildEventClient childEventClient = JsonFormUtils.processChildDetailsForm(jsonString, formTag);
+            if (childEventClient == null) {
+                return null;
+            }
+            Client childClient = childEventClient.getClient();
 
-        ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
-                jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
-        if (childMotherEventClient == null) {
-            return childEventClientList;
-        }
-
-        // Update the child mother
-        Client childClient = childEventClient.getClient();
-
-        childClient.addRelationship(Utils.metadata().childRegister.childCareGiverRelationKey, childMotherEventClient.getClient().getBaseEntityId());
-
-        // Update child's father details if relationship is defined in metadata
-        if (Utils.metadata().childRegister.getFatherRelationKey() != null){
-            ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
-                    jsonString, childEventClient.getClient().getRelationalBaseEntityId(), childEventClient);
-            if (fatherRegistrationEvent == null) {
+            childEventClientList.add(childEventClient);
+            String motherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
+            ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
+                    jsonString, motherRelationalId, childEventClient);
+            if (childMotherEventClient == null) {
                 return childEventClientList;
             }
-            childClient.addRelationship(Utils.metadata().childRegister.getFatherRelationKey(), fatherRegistrationEvent.getClient().getBaseEntityId());
-            childEventClientList.add(fatherRegistrationEvent);
+
+            if (motherRelationalId == null) {
+                childClient.addRelationship(Constants.KEY.MOTHER, childMotherEventClient.getClient().getBaseEntityId());
+            }
+            childEventClientList.add(childMotherEventClient);
+
+            // Add search by mother
+            ContentValues values = new ContentValues();
+            values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+            String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
+            Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
+            updateMotherDetails(childMotherEventClient, childClient);
+
+            // Add father relationship if defined in metadata
+            if (Utils.metadata().childRegister.getFatherRelationKey() != null) {
+                ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
+                        jsonString, JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER), childEventClient);
+                if (fatherRegistrationEvent == null) {
+                    return childEventClientList;
+                }
+                String fatherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
+                if (fatherRelationalId == null) {
+                    childClient.addRelationship(Constants.KEY.FATHER, fatherRegistrationEvent.getClient().getBaseEntityId());
+                }
+                childEventClientList.add(fatherRegistrationEvent);
+            }
+
+        } catch (JSONException e) {
+            Timber.e(e, "Error converting string json to JSONObject");
         }
-
-        // Add search by mother
-
-        ContentValues values = new ContentValues();
-
-        values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
-
-        String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
-        Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
-
-        childEventClientList.add(childMotherEventClient);
-
-        updateMotherDetails(childMotherEventClient, childClient);
-
         return childEventClientList;
+    }
+
+    private void updateEncounterTypes(JSONObject form) throws JSONException {
+        //Update encounter types/event types when editing form
+        if (form.has(JsonFormUtils.ENTITY_ID)) {
+            if (form.has(Constants.KEY.MOTHER)) {
+                form.getJSONObject(Constants.KEY.MOTHER).put(JsonFormConstants.ENCOUNTER_TYPE, Constants.EventType.UPDATE_MOTHER_DETAILS);
+            }
+            if (form.has(Constants.KEY.FATHER)) {
+                form.getJSONObject(Constants.KEY.FATHER).put(JsonFormConstants.ENCOUNTER_TYPE, Constants.EventType.UPDATE_FATHER_DETAILS);
+            }
+        }
     }
 
     /**

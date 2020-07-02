@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.LocalDate;
@@ -136,19 +137,18 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     if (baseClient != null) {
                         JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
                         if (params.isEditMode()) {
-                            try {
-                                JsonFormUtils.mergeAndSaveClient(baseClient);
-                            } catch (Exception e) {
-                                Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
+                            //Create new Father registration event in the case where the father details are provided while updating child/mother details.
+                            if (Constants.EventType.FATHER_REGISTRATION.equalsIgnoreCase(baseEvent.getEventType())) {
+                                addClient(jsonString, params, baseClient, clientJson);
+                            } else {
+                                try {
+                                    JsonFormUtils.mergeAndSaveClient(baseClient);
+                                } catch (Exception e) {
+                                    Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
+                                }
                             }
                         } else {
-
-                            getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
-
-                            // This prevents a crash when the birthdate of a mother is not available in the clientJson
-                            // We also don't need to process the mother's weight & height
-                            processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
-                            processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+                            addClient(jsonString, params, baseClient, clientJson);
                         }
                     }
 
@@ -175,6 +175,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         } catch (Exception e) {
             Timber.e(e, "ChildRegisterInteractor --> saveRegistration");
         }
+    }
+
+    private void addClient(String jsonString, UpdateRegisterParams params, Client baseClient, JSONObject clientJson) throws JSONException {
+        getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
+
+        // This prevents a crash when the birthdate of a mother is not available in the clientJson
+        // We also don't need to process the mother's weight & height
+        processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+        processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
     }
 
     private void addImageLocation(String jsonString, int i, Client baseClient, Event baseEvent) {

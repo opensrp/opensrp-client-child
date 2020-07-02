@@ -11,6 +11,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
@@ -77,6 +78,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import timber.log.Timber;
@@ -102,6 +104,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String ENCOUNTER = "encounter";
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+    private static Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
+        {
+            put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
+            put(Constants.KEY.MOTHER, ImmutableSet.of(Constants.EventType.NEW_WOMAN_REGISTRATION, Constants.EventType.UPDATE_MOTHER_DETAILS));
+        }
+    };
 
     public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
             throws Exception {
@@ -734,6 +742,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             JsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
 
+            //Add previous relational ids if they existed.
+            addRelationships(baseClient);
+
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> processChildDetailsForm");
@@ -741,8 +752,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    protected static Triple<Boolean, JSONObject, JSONArray> validateParameters(String
-                                                                                       jsonString) {
+    protected static Triple<Boolean, JSONObject, JSONArray> validateParameters(String jsonString) {
 
         JSONObject jsonForm = toJSONObject(jsonString);
         JSONArray fields = fields(jsonForm);
@@ -1145,8 +1155,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static ChildEventClient processMotherRegistrationForm(String jsonString, String
-            relationalId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId,
+                                                                 ChildEventClient base) {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
         } catch (Exception e) {
@@ -1166,16 +1176,23 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient base, String entityId) throws JSONException {
-        Context context = CoreLibrary.getInstance().context().applicationContext();
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType) throws JSONException {
+
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
+
+        if (bindType.equals(Constants.KEY.FATHER)) {
+            boolean isFatherDetailsValid = validateFatherDetails(jsonString);
+            if (!isFatherDetailsValid) {
+                return null;
+            }
+        }
 
         if (!registrationFormParams.getLeft()) {
             return null;
         }
 
-        Client baseClient = base.getClient();
-        Event baseEvent = base.getEvent();
+        Client baseClient = childEventClient.getClient();
+        Event baseEvent = childEventClient.getEvent();
 
         JSONObject jsonForm = registrationFormParams.getMiddle();
         JSONArray fields = registrationFormParams.getRight();
@@ -1192,22 +1209,22 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         Event subFormEvent = null;
 
-        String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
-        Client subformClient = createSubFormClient(context, fields, baseClient, entityId, motherBaseEntityId);
+        String entityRelationalId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
+        Client subformClient = createSubFormClient(fields, baseClient, bindType, entityRelationalId);
 
         //only set default gender if not explicitly set in the registration form
-        if (StringUtils.isBlank(subformClient.getGender()) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+        if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
             subformClient.setGender(Constants.GENDER.FEMALE);
-        } else if (StringUtils.isBlank(subformClient.getGender()) && entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
+        } else if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.FATHER)) {
             subformClient.setGender(Constants.GENDER.MALE);
         }
 
         if (baseEvent != null) {
-            JSONObject subBindTypeJson = getJSONObject(jsonForm, entityId);
+            JSONObject subBindTypeJson = getJSONObject(jsonForm, bindType);
             if (subBindTypeJson != null) {
                 String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
                 if (StringUtils.isNotBlank(subBindTypeEncounter)) {
-                    subFormEvent = JsonFormUtils.createSubFormEvent(getEntityFields(fields, entityId), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, entityId);
+                    subFormEvent = JsonFormUtils.createSubFormEvent(getEntityFields(fields, bindType), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, bindType);
                 }
             }
         }
@@ -1217,29 +1234,100 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return new ChildEventClient(subformClient, subFormEvent);
     }
 
-    private static void addRelationship(Context context, Client parent, Client child) {
+    private static boolean validateFatherDetails(String jsonString) {
+        JSONObject jsonForm = toJSONObject(jsonString);
+        JSONArray fields = fields(jsonForm);
+        boolean isFormValid = false;
+
+        // Further validate father details field since they are optional
+        if (jsonForm.has(Constants.KEY.FATHER) && fields != null) {
+            for (int fieldIndex = 0; fieldIndex < fields.length(); fieldIndex++) {
+                try {
+                    JSONObject field = fields.getJSONObject(fieldIndex);
+                    if (field.has(ENTITY_ID) && field.getString(ENTITY_ID).equalsIgnoreCase(Constants.KEY.FATHER) &&
+                            field.has(JsonFormConstants.VALUE)) {
+                        String value = field.getString(JsonFormConstants.VALUE);
+                        isFormValid = StringUtils.isNotBlank(value);
+                        if (isFormValid) {
+                            //TODO Fix bug in spinner setting value as the hint/label when nothing is selected - Native Form issue
+                            if (field.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.SPINNER)
+                                    && value.equalsIgnoreCase(field.getString(JsonFormConstants.HINT))) {
+                                isFormValid = false;
+                                continue;
+                            }
+                            break;
+                        }
+                    }
+                } catch (JSONException e) {
+                    Timber.e(e);
+                }
+            }
+        }
+        return isFormValid;
+    }
+
+    /**
+     * Adds relationship as defined in the  ec_client_relationship.json file.
+     * <p>
+     * create ec_client_relationship.json file in your assets directory that is a json array in the format
+     * [
+     * {
+     * "client_relationship": "mother",
+     * "field": "entity_id",
+     * "comment": "Mother relational id"
+     * },
+     * {
+     * "client_relationship": "father",
+     * "field": "entity_id",
+     * "comment": "Father relational id"
+     * }
+     * ]
+     *
+     * @param childClient    childClient client object
+     */
+    private static void addRelationships(Client childClient) {
         try {
-            String relationships = AssetHandler.readFileFromAssetsFolder(FormUtils.ecClientRelationships, context);
-            JSONArray jsonArray = null;
-
-            jsonArray = new JSONArray(relationships);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject rObject = jsonArray.getJSONObject(i);
-                if (rObject.has("field") && getString(rObject, "field").equals(ENTITY_ID)) {
-                    child.addRelationship(rObject.getString("client_relationship"), parent.getBaseEntityId());
-                } /* else {
-                    //TODO how to add other kind of relationships
-                  } */
+            Context context = ChildLibrary.getInstance().context().applicationContext();
+            JSONArray relationships = new JSONArray(AssetHandler.readFileFromAssetsFolder(FormUtils.ecClientRelationships, context));
+            JSONObject client = ChildLibrary.getInstance().eventClientRepository().getClientByBaseEntityId(childClient.getBaseEntityId());
+            if (client != null && client.has(Constants.JSON_FORM_KEY.RELATIONSHIPS)) {
+                JSONObject relationshipsJson = client.getJSONObject(Constants.JSON_FORM_KEY.RELATIONSHIPS);
+                for (int i = 0; i < relationships.length(); i++) {
+                    JSONObject relationship = relationships.getJSONObject(i);
+                    if (relationship.has(Constants.CLIENT_RELATIONSHIP)) {
+                        String relationshipType = relationship.getString(Constants.CLIENT_RELATIONSHIP);
+                        if(relationshipsJson.has(relationshipType)){
+                            childClient.addRelationship(relationshipType, String.valueOf(relationshipsJson.getJSONArray(relationshipType).get(0)));
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> addRelationship");
         }
     }
 
-    private static Client createSubFormClient(Context context, JSONArray fields, Client
-            parent, String bindType,
-                                              String relationalId) {
+    /**
+     * Get Relations for the child with the provided entity id
+     *
+     * @param baseEntityId child base entity id
+     * @param bindType     type of relationship e.g father, mother
+     * @return First relational id of the given relation type
+     * @throws JSONException when it fails to retrieve the relationships
+     */
+    public static String getRelationalIdByType(String baseEntityId, String bindType) throws JSONException {
+        JSONObject client = ChildLibrary.getInstance().eventClientRepository().getClientByBaseEntityId(baseEntityId);
+        if (client != null && client.has(Constants.JSON_FORM_KEY.RELATIONSHIPS)) {
+            JSONObject relationships = client.getJSONObject(Constants.JSON_FORM_KEY.RELATIONSHIPS);
+            if (relationships.has(bindType)) {
+                return String.valueOf(relationships.getJSONArray(bindType).get(0));
+            }
+        }
+        return null;
+    }
+
+
+    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId) {
 
         if (StringUtils.isBlank(bindType)) {
             return null;
@@ -1256,7 +1344,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         List<Address> addresses = new ArrayList<>(extractAddresses(fields, bindType).values());
 
-        Map<String, String> clientMap = createClientMap(fields, bindType, relationalId);
+        Map<String, String> clientMap = getClientAttributes(fields, bindType, entityRelationId);
 
         Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox);
         client.withAddresses(addresses).withAttributes(extractAttributes(fields, clientMap.get(Constants.BIND_TYPE))).withIdentifiers(identifierMap);
@@ -1265,7 +1353,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             client.withAddresses(parent.getAddresses());
         }
 
-        addRelationship(context, client, parent);
         return client;
     }
 
@@ -1273,28 +1360,31 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static Client getClient(Map<String, String> clientMap, Date birthDate, Date
             deathDate, boolean birthDateApprox, boolean deathDateApprox) {
 
-        Client client = (Client) new Client(clientMap.get(Constants.ENTITY_ID)).withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
-                .withBirthdate(birthDate, birthDateApprox).withDeathdate(deathDate, deathDateApprox).withGender(clientMap.get(GENDER))
+        Client client = (Client) new Client(clientMap.get(Constants.ENTITY_ID))
+                .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
+                .withBirthdate(birthDate, birthDateApprox)
+                .withDeathdate(deathDate, deathDateApprox)
+                .withGender(clientMap.get(GENDER))
                 .withDateCreated(new Date());
 
         return client;
     }
 
-    private static Map<String, String> createClientMap(JSONArray fields, String bindType, String relationalId) {
+    private static Map<String, String> getClientAttributes(JSONArray fields, String bindType, String relationalId) {
         String entityId = TextUtils.isEmpty(relationalId) ? generateRandomUUIDString() : relationalId;
         String firstName = getSubFormFieldValue(fields, FormEntityConstants.Person.first_name, bindType);
         String middleName = getSubFormFieldValue(fields, FormEntityConstants.Person.middle_name, bindType);
         String lastName = getSubFormFieldValue(fields, FormEntityConstants.Person.last_name, bindType);
         String gender = getSubFormFieldValue(fields, FormEntityConstants.Person.gender, bindType);
 
-        Map<String, String> client = new HashMap<>();
-        client.put(Constants.ENTITY_ID, entityId);
-        client.put(Constants.FIRST_NAME, firstName);
-        client.put(Constants.MIDDLE_NAME, middleName);
-        client.put(Constants.LAST_NAME, lastName);
-        client.put(GENDER, gender);
-        client.put(Constants.BIND_TYPE, bindType);
-        return client;
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(Constants.ENTITY_ID, entityId);
+        attributes.put(Constants.FIRST_NAME, firstName);
+        attributes.put(Constants.MIDDLE_NAME, middleName);
+        attributes.put(Constants.LAST_NAME, lastName);
+        attributes.put(GENDER, gender);
+        attributes.put(Constants.BIND_TYPE, bindType);
+        return attributes;
     }
 
     @NotNull
@@ -1323,16 +1413,27 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event
-            parent, String entityId, String encounterType, String bindType) {
+    private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent,
+                                            String entityId, String encounterType, String bindType) {
+
 
         List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
 
-        boolean alreadyExists = eventClients.size() > 0;
-        org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
-        Event event = getSubformEvent(parent, entityId, encounterType, bindType, alreadyExists, domainEvent);
+        Set<String> eligibleBindTypeEvents = eventTypeMap.get(bindType);
+        EventClient existingEventClient = null;
+        for (EventClient eventClient : eventClients) {
+            if (eligibleBindTypeEvents.contains(eventClient.getEvent().getEventType())) {
+                existingEventClient = eventClient;
+                break;
+            }
+        }
 
+        boolean alreadyExists = existingEventClient != null;
+
+        org.smartregister.domain.db.Event existingEvent = existingEventClient != null ? existingEventClient.getEvent() : null;
+
+        Event event = getSubFormEvent(parent, entityId, encounterType, bindType, alreadyExists, existingEvent);
         addSubFormEventObservations(fields, event);
         updateMetadata(metadata, event);
 
@@ -1344,13 +1445,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             addSaveReportDeceasedObservations(fields, event);
     }
 
-    private static Event getSubformEvent(Event parent, String entityId, String
-            encounterType, String bindType, boolean alreadyExists, org.
-                                                 smartregister.domain.db.Event domainEvent) {
-        Event event = (Event) new Event().withBaseEntityId(
-                alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
-                .withEventDate(parent.getEventDate()).withEventType(encounterType).withEntityType(bindType)
-                .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
+    private static Event getSubFormEvent(Event parent, String entityId, String
+            encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.db.Event existingEvent) {
+        Event event = (Event) new Event().withBaseEntityId(alreadyExists ? existingEvent.getBaseEntityId() : entityId)//should be different for main and subform
+                .withEventDate(parent.getEventDate())
+                .withEventType(alreadyExists ? existingEvent.getEventType() : encounterType)
+                .withEntityType(bindType)
+                .withFormSubmissionId(alreadyExists ? existingEvent.getFormSubmissionId() : generateRandomUUIDString())
                 .withDateCreated(new Date());
 
         tagSyncMetadata(event);//tag it

@@ -6,7 +6,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +37,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
 public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected Map<String, String> childDetails;
     protected View fragmentView;
+    protected Map<String, String> fieldNameAliasMap;
     private ChildRegistrationDataAdapter mAdapter;
     private List<Field> fields;
     private Map<String, String> stringResourceIds;
@@ -72,6 +74,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         setFields(form.getStep1().getFields());
         unformattedNumberFields = addUnFormattedNumberFields("");
         stringResourceIds = getDataRowLabelResourceIds();
+        fieldNameAliasMap = new HashMap<>();
     }
 
     /**
@@ -113,7 +116,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(),
                     Form.class);
         } catch (Exception e) {
-            Log.e(BaseChildRegistrationDataFragment.class.getCanonicalName(), e.getMessage());
+            Timber.e(e.getMessage());
             return null;
         }
     }
@@ -131,7 +134,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         mRecyclerView1.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView1.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView1.setAdapter(mAdapter);
-
     }
 
     public void resetAdapterData(Map<String, String> detailsMap) {
@@ -141,16 +143,22 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         String value;
 
         for (int i = 0; i < getFields().size(); i++) {
+            Field field = getFields().get(i);
+            key = field.getKey();
 
-            key = getFields().get(i).getKey();
-            value = getFieldValue(detailsMap, getFields().get(i), key);
+            //Some fields have alias name on query
+            if (fieldNameAliasMap.containsKey(key)) {
+                String keyAlias = fieldNameAliasMap.get(key);
+                value = getFieldValue(detailsMap, field, keyAlias);
+            } else {
+                value = getFieldValue(detailsMap, field, key);
+            }
 
             String label = getResourceLabel(key);
 
             if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !isSkippableValue(value)) {
-                mArrayList.add(new KeyValueItem(label, cleanValue(getFields().get(i), value)));
+                mArrayList.add(new KeyValueItem(label, cleanValue(field, value)));
             }
-
         }
 
         setmAdapter(new ChildRegistrationDataAdapter(mArrayList));
@@ -166,14 +174,19 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
         String value;
-        value = detailsMap.get(getPrefix(field.getEntityId()) + key);
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.ENGLISH));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase()));
+        value = detailsMap.get(field.getKey().toLowerCase(Locale.getDefault()));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.getDefault()));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase(Locale.getDefault())));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(key.toLowerCase(Locale.getDefault()));
         return value;
     }
 
     public String getPrefix(String entityId) {
-        return !TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase("mother") ? "mother_" : "";
+        if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
+            return "mother_";
+        else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
+            return "father_";
+        else return "";
     }
 
     public String cleanOpenMRSEntityId(String rawEntityId) {

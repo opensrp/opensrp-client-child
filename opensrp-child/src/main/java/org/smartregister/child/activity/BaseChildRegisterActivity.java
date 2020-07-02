@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
@@ -146,7 +148,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         if (requestCode == JsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(Constants.INTENT_KEY.JSON);
-                Log.d("JSONResult", jsonString);
+                Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
@@ -163,9 +165,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                 }
             } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Timber.e(Log.getStackTraceString(e));
             }
-
         }
     }
 
