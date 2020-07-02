@@ -32,12 +32,12 @@ public class BaseChildFormActivityTest {
     }
 
     @Test
-    public void testLookUpQuery() throws Exception {
-        String query = "Select distinct(ec_client.id) as _id , ec_client.relationalid , ec_client.details , zeir_id , first_name , last_name , ec_client.gender , "+
-                "dob , nrc_number , mother_guardian_phone_number , ec_mother_details.is_consented , ec_mother_details.preferred_language , ec_client.residential_area , "+
-                "ec_client.residential_area_other , ec_client.residential_address , ec_client.base_entity_id "+
-                "FROM ec_client  join ec_child_details on ec_child_details.relational_id=ec_mother_details.base_entity_id "+
-                "join ec_mother_details on ec_mother_details.base_entity_id = ec_client.base_entity_id "+
+    public void testLookUpQueryShouldReturnSelectQueryGivenATableNameAndFilterParametersMap() throws Exception {
+        String query = "Select distinct(ec_client.id) as _id , ec_client.relationalid , ec_client.details , zeir_id , first_name , last_name , ec_client.gender , " +
+                "dob , nrc_number , mother_guardian_phone_number , ec_mother_details.is_consented , ec_mother_details.preferred_language , ec_client.residential_area , " +
+                "ec_client.residential_area_other , ec_client.residential_address , ec_client.base_entity_id " +
+                "FROM ec_client  join ec_child_details on ec_child_details.relational_id=ec_mother_details.base_entity_id " +
+                "join ec_mother_details on ec_mother_details.base_entity_id = ec_client.base_entity_id " +
                 "WHERE  last_name Like '%lisa%' AND first_name Like '%mona%' ;";
 
         HashMap<String, String> map = new HashMap<>();
@@ -60,7 +60,18 @@ public class BaseChildFormActivityTest {
     }
 
     @Test
-    public void testStringIsValidDate() throws Exception {
+    public void testIsValidDateShouldReturnTrueIfStringIsValidDate() throws Exception {
+        Method dateMethod = BaseChildFormActivity.class.getDeclaredMethod("isDate", String.class);
+        dateMethod.setAccessible(true);
+
+        BaseChildFormActivity childActivity = Mockito.spy(childFormActivity);
+
+        String date = "2000-09-01";
+        Assert.assertTrue((boolean) dateMethod.invoke(childActivity, date));
+    }
+
+    @Test
+    public void testIsValidDateShouldReturnFalseIfStringIsInvalidDate() throws Exception {
         Method dateMethod = BaseChildFormActivity.class.getDeclaredMethod("isDate", String.class);
         dateMethod.setAccessible(true);
 
@@ -68,7 +79,5 @@ public class BaseChildFormActivityTest {
 
         String date = "9/1/2000";
         Assert.assertFalse((boolean) dateMethod.invoke(childActivity, date));
-        date = "2000-09-01";
-        Assert.assertTrue((boolean) dateMethod.invoke(childActivity, date));
     }
 }
