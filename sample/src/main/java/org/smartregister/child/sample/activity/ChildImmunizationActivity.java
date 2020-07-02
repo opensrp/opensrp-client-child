@@ -16,6 +16,8 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.util.Utils;
 
+import java.util.Map;
+
 public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
 
     @Override
@@ -81,7 +83,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     }
 
     @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+    public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
 
     }
 

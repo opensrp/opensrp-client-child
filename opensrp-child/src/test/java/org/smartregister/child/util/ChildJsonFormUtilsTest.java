@@ -256,7 +256,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject isBirthdateApproximate = new JSONObject();
         isBirthdateApproximate.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN);
-        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
+        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.OPENMRS_ENTITY.PERSON);
         isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
 
         JSONObject dobOptions = new JSONObject();
@@ -279,7 +279,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONObject dobJson = new JSONObject();
         dobJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
         dobJson.put(Constants.KEY.VALUE, "");
-        dobJson.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);
+        dobJson.put(Constants.OPENMRS.ENTITY, Constants.OPENMRS_ENTITY.PERSON);
         dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
         array.put(dobJson);
 
@@ -338,7 +338,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.doReturn(healthFacilities).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(healthFacilities));
         Mockito.doReturn(allLevels).when(locationHelper).generateDefaultLocationHierarchy(ArgumentMatchers.eq(allLevels));
         JSONObject form = new JSONObject(registrationForm);
-        ChildJsonFormUtils.addChildRegLocHierarchyQuestions(form);
+        ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
         JSONArray fields = FormUtils.getMultiStepFormFields(form);
         JSONObject homeFacility = ChildJsonFormUtils.getFieldJSONObject(fields, Constants.HOME_FACILITY);
         JSONArray resultTreeObject = new JSONArray(homeFacility.optString(JsonFormConstants.TREE));
