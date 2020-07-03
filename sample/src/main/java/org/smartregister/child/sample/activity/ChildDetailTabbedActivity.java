@@ -27,12 +27,12 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
 
     @Override
     public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
-
+        //Do nothing
     }
 
     @Override
     public void onNoUniqueId() {
-
+        //Do nothing
     }
 
     @Override

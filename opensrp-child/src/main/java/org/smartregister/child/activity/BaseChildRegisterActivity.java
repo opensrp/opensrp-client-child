@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.bottomnavigation.LabelVisibilityMode;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 
 import com.google.android.gms.vision.barcode.Barcode;
@@ -14,7 +13,6 @@ import com.vijay.jsonwizard.domain.Form;
 
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -27,7 +25,6 @@ import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.Arrays;
