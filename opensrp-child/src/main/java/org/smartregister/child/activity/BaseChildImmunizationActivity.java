@@ -159,29 +159,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private SiblingPicturesGroup siblingPicturesGroup;
     private String caseId = null;
 
-    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
-                                      RegisterClickables registerClickables) {
-        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
-                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
-                        registerClickables.getNextAppointmentDate() : "");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtras(bundle);
-
-        fromContext.startActivity(intent);
-    }
-
-    public static Object clone(@NonNull Object object) {
-
-        Gson gson = new Gson();
-        String serializedOject = gson.toJson(object);
-
-        return gson.fromJson(serializedOject, object.getClass());
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -233,6 +210,29 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         childDetails = new CommonPersonObjectClient(caseId, details, null);
         childDetails.setColumnmaps(details);
+    }
+
+    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
+                                      RegisterClickables registerClickables) {
+        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
+                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
+                        registerClickables.getNextAppointmentDate() : "");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtras(bundle);
+
+        fromContext.startActivity(intent);
+    }
+
+    public static Object clone(@NonNull Object object) {
+
+        Gson gson = new Gson();
+        String serializedOject = gson.toJson(object);
+
+        return gson.fromJson(serializedOject, object.getClass());
     }
 
     private void setUpViews() {
@@ -2179,7 +2179,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
 
     private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
-        private ArrayList<String> allChildrenBaseEntityIds = new ArrayList<>();
+        private ArrayList<String> allSiblingChildrenBaseEntityIds = new ArrayList<>();
 
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
@@ -2205,7 +2205,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
                         if (!baseEntityId.equals(curChild.getCaseId())) {
-                            allChildrenBaseEntityIds.add(curChild.getCaseId());
+                            allSiblingChildrenBaseEntityIds.add(curChild.getCaseId());
                         }
                         if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
                             baseEntityIds.add(curChild.getCaseId());
@@ -2221,7 +2221,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         @Override
         protected void onPostExecute(ArrayList<String> baseEntityIds) {
             super.onPostExecute(baseEntityIds);
-            baseEntityIds = this.allChildrenBaseEntityIds;
+            baseEntityIds = this.allSiblingChildrenBaseEntityIds;
             ArrayList<String> ids = new ArrayList<>();
             if (baseEntityIds != null) {
                 ids = baseEntityIds;
