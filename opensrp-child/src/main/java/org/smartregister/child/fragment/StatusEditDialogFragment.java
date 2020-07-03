@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.smartregister.child.R;
-import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.event.ClientStatusUpdateEvent;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.util.Constants;
@@ -193,7 +192,7 @@ public class StatusEditDialogFragment extends DialogFragment {
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(inactive, false);
                         updateViews = true;
-                      details.put(inactive,"false");
+                        details.put(inactive, "false");
                     }
 
                     if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
@@ -212,7 +211,7 @@ public class StatusEditDialogFragment extends DialogFragment {
                             listener.updateClientAttribute(lostToFollowUp, false);
                         }
                         updateViews = true;
-                      details.put(inactive,"true");
+                        details.put(inactive, "true");
                     }
                     break;
                 case LOST_TO_FOLLOW_UP:
