@@ -1,7 +1,6 @@
 package org.smartregister.child.task;
 
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -32,6 +31,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
@@ -201,6 +202,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             childUnderFiveFragment.loadGrowthMonitoringView(weightList, heightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+            childUnderFiveFragment.hideOrShowRecurringServices();
 
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
@@ -215,8 +217,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             });
 
         } catch (Exception e) {
-
-            Log.e(LoadAsyncTask.class.getCanonicalName(), e.getMessage(), e);
+            Timber.e(e);
         }
     }
 }

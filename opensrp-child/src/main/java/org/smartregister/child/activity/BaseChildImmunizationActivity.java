@@ -152,7 +152,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private TextView childIdTV;
     private LinearLayout vaccineGroupCanvasLL;
     private LinearLayout profileNamelayout;
-    private LinearLayout serviceGroupCanvasLL;
+    protected LinearLayout serviceGroupCanvasLL;
     private LinearLayout someLayout;
     private CustomFontTextView nextAppointmentDateView;
     private ImageButton growthChartButton;
@@ -230,7 +230,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return gson.fromJson(serializedOject, object.getClass());
     }
 
-    private void setUpViews() {
+    protected void setUpViews() {
         recordGrowth = findViewById(R.id.record_growth);
         recordWeightText = findViewById(R.id.record_growth_text);
         profileNamelayout = findViewById(R.id.profile_name_layout);

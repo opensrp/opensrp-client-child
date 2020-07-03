@@ -74,6 +74,8 @@ public class ChildUnderFiveFragment extends Fragment {
     private View heightWidgetLayout;
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
+    private LinearLayout serviceGroupCanvasLL;
+    private boolean showRecurringServices = true;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -106,6 +108,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
+        serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
 
         if (monitorGrowth) {
             heightWidgetLayout = underFiveFragment.findViewById(R.id.height_widget_layout);
@@ -117,6 +120,11 @@ public class ChildUnderFiveFragment extends Fragment {
 
     public void setDetailsMap(Map<String, String> detailsMap) {
         this.detailsMap = detailsMap;
+    }
+
+
+    public void showRecurringServices(boolean showRecurringServices) {
+        this.showRecurringServices = showRecurringServices;
     }
 
     public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList, boolean editGrowthMonitoringMode) {
@@ -406,7 +414,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 serviceRecords = services;
             }
 
-            LinearLayout serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
             serviceGroupCanvasLL.removeAllViews();
 
             CustomFontTextView title = new CustomFontTextView(getActivity());
@@ -593,4 +600,14 @@ public class ChildUnderFiveFragment extends Fragment {
         return Utils.getName(firstName, lastName).trim();
     }
 
+    /**
+     * Do not show the recurring services
+     */
+    public void hideOrShowRecurringServices() {
+        if (this.showRecurringServices) {
+            serviceGroupCanvasLL.setVisibility(View.VISIBLE);
+        } else {
+            serviceGroupCanvasLL.setVisibility(View.GONE);
+        }
+    }
 }

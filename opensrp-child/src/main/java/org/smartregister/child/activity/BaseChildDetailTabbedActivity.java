@@ -178,6 +178,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
+        childUnderFiveFragment.showRecurringServices(true);
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
 
