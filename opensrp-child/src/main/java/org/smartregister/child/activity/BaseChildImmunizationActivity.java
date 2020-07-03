@@ -130,14 +130,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static Boolean monitorGrowth = false;
 
     protected LinearLayout floatingActionButton;
+    // Data
+    protected RegisterClickables registerClickables;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
     // Views
     private LocationSwitcherToolbar toolbar;
-    // Data
-    protected RegisterClickables registerClickables;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -157,55 +157,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private CustomFontTextView nextAppointmentDateView;
     private ImageButton growthChartButton;
     private SiblingPicturesGroup siblingPicturesGroup;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
-
-        setUpToolbar();
-        setUpViews();
-
-        // Get child details from bundled data
-        Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-
-            Map<String, String> details = ChildLibrary.
-                    getInstance()
-                    .context()
-                    .getEventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
-            childDetails = new CommonPersonObjectClient(caseId, details, null);
-            childDetails.setColumnmaps(details);
-        }
-
-        Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
-        if (serializable != null && serializable instanceof RegisterClickables) {
-            registerClickables = (RegisterClickables) serializable;
-        }
-
-
-        bcgScarNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
-                        !ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
-        weightNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-                        ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-
-        setLastModified(false);
-
-        setUpFloatingActionButton();
-    }
+    private String caseId = null;
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
                                       RegisterClickables registerClickables) {
@@ -228,6 +180,59 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String serializedOject = gson.toJson(object);
 
         return gson.fromJson(serializedOject, object.getClass());
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        if (hasProperty) {
+            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        }
+
+        setUpToolbar();
+        setUpViews();
+
+        // Get child details from bundled data
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+            caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            reloadChildDetails();
+
+        }
+
+        Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
+        if (serializable != null && serializable instanceof RegisterClickables) {
+            registerClickables = (RegisterClickables) serializable;
+        }
+
+
+        bcgScarNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
+                        !ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
+        weightNotificationShown =
+                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+                        ChildLibrary.getInstance().getProperties()
+                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+
+        setLastModified(false);
+
+        setUpFloatingActionButton();
+    }
+
+    private void reloadChildDetails() {
+        Map<String, String> details = ChildLibrary.
+                getInstance()
+                .context()
+                .getEventClientRepository()
+                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
+
+        childDetails = new CommonPersonObjectClient(caseId, details, null);
+        childDetails.setColumnmaps(details);
     }
 
     private void setUpViews() {
@@ -373,8 +378,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             serviceGroups = null;
         }
 
+        reloadChildDetails();
         updateViews();
-
     }
 
     private void updateViews() {
@@ -2172,7 +2177,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
+
     private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
+        private ArrayList<String> allChildrenBaseEntityIds = new ArrayList<>();
 
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
@@ -2194,9 +2201,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     children.add(commonPersonObject);
                 }
 
-                if (children != null && children.size() > 0) {
+                if (children.size() > 0) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
+                        if (!baseEntityId.equals(curChild.getCaseId())) {
+                            allChildrenBaseEntityIds.add(curChild.getCaseId());
+                        }
                         if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
                             baseEntityIds.add(curChild.getCaseId());
                         }
@@ -2211,6 +2221,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         @Override
         protected void onPostExecute(ArrayList<String> baseEntityIds) {
             super.onPostExecute(baseEntityIds);
+            baseEntityIds = this.allChildrenBaseEntityIds;
             ArrayList<String> ids = new ArrayList<>();
             if (baseEntityIds != null) {
                 ids = baseEntityIds;

@@ -169,6 +169,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         value = detailsMap.get(getPrefix(field.getEntityId()) + key);
         value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.ENGLISH));
         value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase()));
+        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(key.toLowerCase(Locale.ENGLISH));
         return value;
     }
 

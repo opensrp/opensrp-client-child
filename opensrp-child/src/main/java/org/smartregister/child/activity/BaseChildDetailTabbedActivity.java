@@ -717,6 +717,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
     }
 
+    @Override
+    public void updateStatus(Map<String, String> details) {
+        detailsMap = details;
+        updateStatus(false);
+    }
+
     private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
         //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
