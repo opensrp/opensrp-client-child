@@ -198,6 +198,7 @@ public class StatusEditDialogFragment extends DialogFragment {
                     if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                             details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(lostToFollowUp, false);
+                        details.put(lostToFollowUp, "false");
                         updateViews = true;
                     }
                     break;
@@ -206,12 +207,13 @@ public class StatusEditDialogFragment extends DialogFragment {
                     if (!details.containsKey(inactive) || !(details.containsKey(inactive) && details.get(inactive) != null &&
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(inactive, true);
+                        details.put(inactive, "true");
                         if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                 details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(lostToFollowUp, false);
+                            details.put(lostToFollowUp, "false");
                         }
                         updateViews = true;
-                        details.put(inactive, "true");
                     }
                     break;
                 case LOST_TO_FOLLOW_UP:
@@ -219,9 +221,11 @@ public class StatusEditDialogFragment extends DialogFragment {
                             !(details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                     details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(lostToFollowUp, true);
+                        details.put(lostToFollowUp, "true");
                         if (details.containsKey(inactive) && details.get(inactive) != null &&
                                 details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(inactive, false);
+                            details.put(inactive, "false");
                         }
                         updateViews = true;
                     }
