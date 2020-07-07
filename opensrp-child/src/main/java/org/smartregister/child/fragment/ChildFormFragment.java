@@ -506,7 +506,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     }
 
-    private void clearView() {
+    protected void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setDuration(undoChoiceDuration);
         snackbar.setAction(R.string.dismiss_lookup, new View.OnClickListener() {
