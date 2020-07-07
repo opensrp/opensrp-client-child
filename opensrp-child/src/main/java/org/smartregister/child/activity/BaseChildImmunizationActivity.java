@@ -200,14 +200,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void reloadChildDetails() {
-        Map<String, String> details = ChildLibrary.
-                getInstance()
-                .context()
-                .getEventClientRepository()
-                .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                        Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
+        Map<String, String> details = ChildDbUtils.fetchChildDetails(caseId);
         childDetails = new CommonPersonObjectClient(caseId, details, null);
         childDetails.setColumnmaps(details);
     }
