@@ -55,7 +55,7 @@ public class GetChildDetailsTaskTest {
     }
 
     @Test
-    public void testProcessChildNames() throws Exception {
+    public void testProcessChildNamesWithProfilePicHidesInitials() throws Exception {
         Method processChildNames = GetChildDetailsTask.class.getDeclaredMethod("processChildNames", BaseActivity.class, CommonPersonObjectClient.class);
         processChildNames.setAccessible(true);
 
@@ -90,7 +90,7 @@ public class GetChildDetailsTaskTest {
     }
 
     @Test
-    public void testUpdatePicture() throws Exception {
+    public void testUpdatePictureShowsGenericImageWhenNoProfilePic() throws Exception {
         Method updatePicture = GetChildDetailsTask.class.getDeclaredMethod("updatePicture", BaseActivity.class, String.class, CommonPersonObjectClient.class);
         updatePicture.setAccessible(true);
 
