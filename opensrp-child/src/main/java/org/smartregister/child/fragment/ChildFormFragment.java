@@ -71,12 +71,12 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private AppCompatCheckBox compatCheckBox;
     private MaterialSpinner spinner;
 
-    private static final int showResultsDuration = Integer.valueOf(ChildLibrary
+    private static final int showResultsDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, Constants.MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION));
 
-    private static final int undoChoiceDuration = Integer.valueOf(ChildLibrary
+    private static final int undoChoiceDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION));

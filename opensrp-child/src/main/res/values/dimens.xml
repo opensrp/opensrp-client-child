@@ -119,8 +119,8 @@
     <dimen name="loc_picker_dialog_width">350dp</dimen>
     <dimen name="loc_picker_text_min_width">130dp</dimen>
     <dimen name="loc_picker_text_max_width">200dp</dimen>
-    <dimen name="advanced_search_text_size">28dp</dimen>
-    <dimen name="advanced_search_label_size">20dp</dimen>
+    <dimen name="advanced_search_text_size">28sp</dimen>
+    <dimen name="advanced_search_label_size">20sp</dimen>
     <dimen name="advanced_search_label_small_size">16dp</dimen>
     <dimen name="advanced_search_label_padding">5dp</dimen>
     <dimen name="noti_message_text_size">20sp</dimen>

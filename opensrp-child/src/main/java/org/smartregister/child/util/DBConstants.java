@@ -41,6 +41,7 @@ public class DBConstants {
         public static final String ENTITY_TYPE = "entity_type";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String CARD_ID = "card_id";
     }
 
     public interface RegisterTable {

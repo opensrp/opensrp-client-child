@@ -327,4 +327,7 @@
     <string name="str_page_info">Page {0} of {1}</string>
     <string name="dismiss_lookup">Confirm</string>
 
+    <string name="child_birth_registration_number">Child\'s birth registration number</string>
+    <string name="child_unique_id">Child\'s unique government ID</string>
+
 </resources>
