@@ -31,7 +31,7 @@ android {
         versionName project.VERSION_NAME
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
+        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
     }
     buildTypes {
         release {
