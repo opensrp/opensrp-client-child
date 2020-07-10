@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 
 /**
  * Created by keyman on 11/04/2017.
@@ -48,12 +50,8 @@ public class ChildDatePickerFactory extends DatePickerFactory {
                 editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
             }
 
-
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
+            Timber.e(e, e.toString());
         }
-
-
     }
-
 }
