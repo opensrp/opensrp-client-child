@@ -31,6 +31,7 @@ import org.smartregister.util.FormUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,10 +47,12 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     protected Map<String, String> childDetails;
     protected View fragmentView;
     protected Map<String, String> fieldNameAliasMap;
+    protected Map<String, Integer> fieldNameResourceMap = new HashMap<>();
     private ChildRegistrationDataAdapter mAdapter;
     private List<Field> fields;
     private Map<String, String> stringResourceIds;
     private List<String> unformattedNumberFields;
+    private List<KeyValueItem> detailsList;
 
     public ChildRegistrationDataAdapter getmAdapter() {
         return mAdapter;
@@ -74,7 +77,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         setFields(form.getStep1().getFields());
         unformattedNumberFields = addUnFormattedNumberFields("");
         stringResourceIds = getDataRowLabelResourceIds();
-        fieldNameAliasMap = new HashMap<>();
+        fieldNameAliasMap = new HashMap<>(); // some fields columns are named differently in database
     }
 
     /**
@@ -83,7 +86,12 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
      * <p>
      * At runtime, the correct language string will be loaded
      * <p>
-     * Values will only show up if you add them here
+     * Values will only show up if you add them here.
+     * <p>
+     * You can also replace the labels for instance when you want to use a different name for the label or
+     * when you want to shorten the label in the json. To do this put the field key against the new String resource
+     * id in the fieldNameResourceMap. This will be used instead (This is given precedence over the name of
+     * the label as defined in the json)
      */
 
     protected Map<String, String> getDataRowLabelResourceIds() {
@@ -91,11 +99,11 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         Map<String, String> resourceIds = new HashMap<>();
 
         for (Field field : fields) {
-
-            if (field.getHint() != null && !field.getHint().isEmpty()) {
-                resourceIds.put(field.getKey(), field.getHint());
+            String fieldValue = fieldNameResourceMap.containsKey(field.getKey()) ?
+                    getString(fieldNameResourceMap.get(field.getKey())) : field.getHint();
+            if (fieldValue != null && !fieldValue.isEmpty()) {
+                resourceIds.put(field.getKey(), fieldValue);
             }
-
         }
         return resourceIds;
     }
@@ -116,7 +124,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(),
                     Form.class);
         } catch (Exception e) {
-            Timber.e(e.getMessage());
+            Timber.e(e);
             return null;
         }
     }
@@ -137,8 +145,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     }
 
     public void resetAdapterData(Map<String, String> detailsMap) {
-        List<KeyValueItem> mArrayList = new ArrayList<>();
-
+        detailsList = new ArrayList<>();
         String key;
         String value;
 
@@ -155,26 +162,47 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             }
 
             //TODO Temporary fix for spinner setting value as hint when nothing is selected
-            if(field.getType().equalsIgnoreCase(JsonFormConstants.SPINNER) && value == field.getHint()){
+            if (field.getType().equalsIgnoreCase(JsonFormConstants.SPINNER) && field.getHint().equalsIgnoreCase(value)) {
                 value = null;
             }
 
             String label = getResourceLabel(key);
 
-            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !isSkippableValue(value)) {
-                mArrayList.add(new KeyValueItem(label, cleanValue(field, value)));
+            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !skipField(field.getKey(), label, value)) {
+                detailsList.add(new KeyValueItem(label, cleanValue(field, value)));
             }
         }
-
-        setmAdapter(new ChildRegistrationDataAdapter(mArrayList));
+        setmAdapter(new ChildRegistrationDataAdapter(detailsList));
     }
 
-    private boolean isSkippableValue(String value) {
+    /**
+     * This method is used to determine whether a field should be skipped or not.
+     * Useful in specifiy other fields e.g. father_nationality = value of father_nationality_other
+     *
+     * @param fieldKey field name
+     * @param label    Field label
+     * @param value    value of the field
+     * @return true if field is skippable false otherwise
+     */
+    private boolean skipField(String fieldKey, String label, String value) {
+        List<String> suffixes = Collections.singletonList("_other");
+        for (String suffix : suffixes) {
+            if (fieldKey.endsWith(suffix)) {
+                updateOtherField(fieldKey.substring(0, fieldKey.indexOf(suffix)), value);
+                return true;
+            }
+        }
+        return false;
+    }
 
-        List<String> skippableValues = Arrays.asList("[\"Other\"]");
-
-        return skippableValues.contains(value);
-
+    private void updateOtherField(String actualField, String value) {
+        String fieldLabel = getDataRowLabelResourceIds().get(actualField);
+        for (KeyValueItem keyValueItem : detailsList) {
+            if (keyValueItem.getKey().equalsIgnoreCase(fieldLabel)) {
+                keyValueItem.setValue(value);
+                return;
+            }
+        }
     }
 
     private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
@@ -247,20 +275,13 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         String renderType = StringUtils.isNotBlank(field.getRenderType()) ? field.getRenderType().toLowerCase() : "";
         String result;
 
-        switch (renderType) {
-            case "id":
-                result = Utils.formatIdentifiers(value);
-                break;
-
-            default:
-                result = value;
-                break;
-
+        if ("id".equals(renderType)) {
+            result = Utils.formatIdentifiers(value);
+        } else {
+            result = value;
         }
 
         return result;
-
-
     }
 
     private String cleanResult(String result) {
@@ -279,7 +300,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         unformattedNumberFields.addAll(Arrays.asList(key));
         return unformattedNumberFields;
     }
-
 
     public void refreshRecyclerViewData(Map<String, String> detailsMap) {
         resetAdapterData(detailsMap);
