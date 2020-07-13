@@ -1,7 +1,6 @@
 package org.smartregister.child.widgets;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,6 +15,8 @@ import org.smartregister.child.watchers.LookUpTextWatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 
 /**
@@ -48,12 +49,8 @@ public class ChildDatePickerFactory extends DatePickerFactory {
                 editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
             }
 
-
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
+            Timber.e(e, e.toString());
         }
-
-
     }
-
 }

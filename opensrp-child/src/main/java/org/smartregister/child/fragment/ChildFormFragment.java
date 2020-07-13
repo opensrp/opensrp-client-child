@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -71,12 +71,12 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private AppCompatCheckBox compatCheckBox;
     private MaterialSpinner spinner;
 
-    private static final int showResultsDuration = Integer.valueOf(ChildLibrary
+    private static final int showResultsDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, Constants.MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION));
 
-    private static final int undoChoiceDuration = Integer.valueOf(ChildLibrary
+    private static final int undoChoiceDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION));
@@ -341,7 +341,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 clearMotherLookUp();
             }
         });
@@ -371,8 +370,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     }
 
-    private void lookupDialogDismissed(CommonPersonObjectClient pc) {
-        if (pc != null) {
+    protected void lookupDialogDismissed(CommonPersonObjectClient client) {
+        if (client != null) {
 
             Locale locale = getActivity().getResources().getConfiguration().locale;
             SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
@@ -388,21 +387,21 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         String text = "";
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.firstName)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.firstName, true);
+                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.firstName, true);
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.lastName, true);
+                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.lastName, true);
                         }
 
                         if (StringUtils.endsWithIgnoreCase(key, MotherLookUpUtils.birthDate)) {
-                            String dobString = getValue(pc.getColumnmaps(), MotherLookUpUtils.dob, false);
+                            String dobString = getValue(client.getColumnmaps(), MotherLookUpUtils.dob, false);
                             Date motherDob = Utils.dobStringToDate(dobString);
                             if (motherDob != null) {
                                 try {
                                     text = mlsLookupDateFormatter.format(motherDob);
                                 } catch (Exception e) {
-                                    Log.e(getClass().getName(), e.toString(), e);
+                                    Timber.e(e, e.toString());
                                 }
                             }
 
@@ -410,33 +409,33 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true);
+                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true);
                         }
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH), true);
+                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH), true);
                         }
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA)) {
-                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
+                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
                         }
 
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA_OTHER)) {
-                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER.toLowerCase(Locale.ENGLISH), true);
+                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER.toLowerCase(Locale.ENGLISH), true);
                         }
 
                         if (key.equalsIgnoreCase(Constants.RESIDENTIAL_ADDRESS)) {
-                            text = getValue(pc.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS.toLowerCase(Locale.ENGLISH), true);
+                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS.toLowerCase(Locale.ENGLISH), true);
                         }
 
 
                         if (key.equalsIgnoreCase(Constants.PREFERRED_LANGUAGE)) {
-                            text = getValue(pc.getColumnmaps(), Constants.PREFERRED_LANGUAGE.toLowerCase(Locale.ENGLISH), true);
+                            text = getValue(client.getColumnmaps(), Constants.PREFERRED_LANGUAGE.toLowerCase(Locale.ENGLISH), true);
                         }
 
                         if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.IS_CONSENTED)) {
-                            text = getValue(pc.getColumnmaps(), MotherLookUpUtils.IS_CONSENTED, false);
+                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.IS_CONSENTED, false);
                         }
 
 
@@ -489,14 +488,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
                     }
 
-                    Map<String, String> metadataMap = new HashMap<>();
-                    metadataMap.put(Constants.KEY.ENTITY_ID, Constants.KEY.MOTHER);
-                    metadataMap.put(Constants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
-
-                    writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
-
-                    lookedUp = true;
-                    clearView();
+                    updateFormLookupField(client);
 
                     //Fix weird bug, Mother DOB not disabled on auto-look up
                     if (motherDOBMaterialEditText != null) {
@@ -507,15 +499,24 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     }
 
-    private void clearView() {
+    protected void updateFormLookupField(CommonPersonObjectClient client) {
+        Map<String, String> metadataMap = new HashMap<>();
+        metadataMap.put(Constants.KEY.ENTITY_ID, Constants.KEY.MOTHER);
+        metadataMap.put(Constants.KEY.VALUE, getValue(client.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
+
+        writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
+
+        lookedUp = true;
+        clearView();
+    }
+
+    protected void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setDuration(undoChoiceDuration);
         snackbar.setAction(R.string.dismiss_lookup, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 snackbar.dismiss();
-
             }
         });
         showFinalActionSnackBar(snackbar);
@@ -533,6 +534,13 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         enableEditText(materialEditText);
                         materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
                         materialEditText.setText("");
+                    } else if (view instanceof RelativeLayout) {
+                        ViewGroup spinnerViewGroup = (ViewGroup) view;
+                        if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
+                            MaterialSpinner spinner = (MaterialSpinner) spinnerViewGroup.getChildAt(0);
+                            spinner.setSelected(false);
+                            spinner.setEnabled(true);
+                        }
                     }
                 }
 

@@ -292,9 +292,14 @@
     <string name="_10_weeks">10 Weeks</string>
     <string name="_14_weeks">14 Weeks</string>
     <string name="_5_months">5 Months</string>
+    <string name="_2_months">2 Months</string>
+    <string name="_3_months">3 Months</string>
+    <string name="_4_months">4 Months</string>
     <string name="_6_months">6 Months</string>
     <string name="_7_months">7 Months</string>
     <string name="_9_months">9 Months</string>
+    <string name="_11_months">11 Months</string>
+    <string name="_12_months">12 Months</string>
     <string name="_15_months">15 Months</string>
     <string name="_18_months">18 Months</string>
     <string name="_22_months">22 Months</string>
@@ -326,5 +331,8 @@
     <string name="child_name">"B/o %1$s</string>
     <string name="str_page_info">Page {0} of {1}</string>
     <string name="dismiss_lookup">Confirm</string>
+
+    <string name="child_birth_registration_number">Child\'s birth registration number</string>
+    <string name="child_unique_id">Child\'s unique government ID</string>
 
 </resources>

@@ -229,6 +229,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
+        childUnderFiveFragment.showRecurringServices(true);
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
 
@@ -504,16 +505,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-                Log.v(TAG, "Permission is granted");
+                Timber.tag(TAG).v("Permission is granted");
                 return true;
             } else {
 
-                Log.v(TAG, "Permission is revoked");
+                Timber.tag(TAG).v("Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
-            Log.v(TAG, "Permission is granted");
+            Timber.tag(TAG).v("Permission is granted");
             return true;
         }
     }
@@ -563,7 +564,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         try {
             startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Timber.e(e);
         }
     }
 
@@ -573,24 +574,23 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
-                Log.d("JSONResult", jsonString);
+                Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.DEATH)) {
-                    confirmReportDeceased(jsonString);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.BITRH_REGISTRATION) || form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.UPDATE_BITRH_REGISTRATION)) {
-
-                    SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
-                    saveRegistrationDetailsTask.setJsonString(jsonString);
-                    Utils.startAsyncTask(saveRegistrationDetailsTask, null);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Constants.EventType.AEFI)) {
-
-                    Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                switch (form.getString(JsonFormUtils.ENCOUNTER_TYPE)) {
+                    case Constants.EventType.DEATH:
+                        confirmReportDeceased(jsonString);
+                        break;
+                    case Constants.EventType.BITRH_REGISTRATION:
+                    case Constants.EventType.UPDATE_BITRH_REGISTRATION:
+                        updateRegistration(jsonString);
+                        break;
+                    case Constants.EventType.AEFI:
+                        Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                        break;
                 }
-
-
             } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Timber.e(Log.getStackTraceString(e));
             }
 
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
@@ -599,6 +599,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
+    }
+
+    protected void updateRegistration(String jsonString) {
+        SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
+        saveRegistrationDetailsTask.setJsonString(jsonString);
+        Utils.startAsyncTask(saveRegistrationDetailsTask, null);
     }
 
     @Override
@@ -616,7 +622,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return Utils.metadata().childImmunizationActivity;
     }
 
-    private void confirmReportDeceased(final String json) {
+    protected void confirmReportDeceased(final String json) {
 
         final AlertDialog builder = new AlertDialog.Builder(this).setCancelable(false).create();
 

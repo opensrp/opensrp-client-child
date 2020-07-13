@@ -60,6 +60,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * Base activity class for all other PATH activity classes. Implements: - A uniform navigation bar that is launched by
  * swiping from the left - Support for specifying which {@link BaseToolbar} to use
@@ -616,7 +618,7 @@ toggle.syncState();
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 

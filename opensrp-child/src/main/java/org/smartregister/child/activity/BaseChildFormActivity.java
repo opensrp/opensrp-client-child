@@ -305,7 +305,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
     }
 
-    private static boolean isDate(String dobString) {
+    public static boolean isDate(String dobString) {
         try {
             DateUtil.yyyyMMdd.parse(dobString);
             return true;

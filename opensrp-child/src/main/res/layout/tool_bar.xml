@@ -53,7 +53,7 @@
     <LinearLayout
         android:id="@+id/title_layout"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@id/back_btn_layout"
         android:background="@android:color/transparent"
         android:orientation="horizontal"
@@ -88,7 +88,7 @@
     <ImageButton
         android:id="@+id/global_search"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:background="@drawable/transparent_gray_background"
         android:gravity="center"
@@ -102,7 +102,7 @@
     <ImageButton
         android:id="@+id/filter_selection"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@id/global_search"
         android:background="@drawable/transparent_gray_background"
         android:gravity="center"
@@ -130,7 +130,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/filter_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -139,7 +139,7 @@
     <ImageButton
         android:id="@+id/register_client"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@id/filter_selection"
         android:background="@drawable/transparent_gray_background"
         android:gravity="center"
@@ -152,7 +152,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/register_client"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -162,7 +162,7 @@
     <ImageButton
         android:id="@+id/sort_selection"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@id/filter_selection"
         android:background="@drawable/transparent_gray_background"
         android:gravity="center"
@@ -176,7 +176,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/sort_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -187,7 +187,7 @@
         android:id="@+id/clinic_selection"
         style="@style/CustomFontTextViewStyle.NavBar.Bold"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/register_client"
         android:background="@drawable/transparent_gray_background"
@@ -203,7 +203,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/clinic_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -211,7 +211,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/clinic_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -221,7 +221,7 @@
         android:id="@+id/service_mode_selection"
         style="@style/CustomFontTextViewStyle.NavBar.Bold"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/clinic_selection"
         android:background="@drawable/transparent_gray_background"
@@ -236,7 +236,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/service_mode_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
@@ -245,7 +245,7 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/service_mode_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"

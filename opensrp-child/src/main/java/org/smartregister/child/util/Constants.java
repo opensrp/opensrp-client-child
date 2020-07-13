@@ -40,6 +40,8 @@ public final class Constants extends AllConstants {
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
+    public static final String CLIENT_RELATIONSHIP = "client_relationship";
+
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -57,6 +59,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
         public static final String HIERARCHY = "hierarchy";
         public static final String SELECTABLE = "selectable";
+        public static final String RELATIONSHIPS = "relationships";
     }
 
     public static class JSON_FORM_EXTRA {
@@ -85,6 +88,7 @@ public final class Constants extends AllConstants {
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
+        public static final String FATHER = "father";
         public static final String FIRST_NAME = "first_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
@@ -112,6 +116,7 @@ public final class Constants extends AllConstants {
         public static final String HAS_PROFILE_IMAGE = "has_profile_image";
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
+        public static final String FATHER_RELATIONAL_ID = "father_relational_id";
         public static final String CHILD_HIV_STATUS = "child_hiv_status";
         public static final String CHILD_TREATMENT = "child_treatment";
     }
@@ -152,9 +157,12 @@ public final class Constants extends AllConstants {
         public static final String BITRH_REGISTRATION = "Birth Registration";
         public static final String UPDATE_BITRH_REGISTRATION = "Update Birth Registration";
         public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
+        public static final String FATHER_REGISTRATION = "Father Registration";
         public static final String DEATH = "Death";
         public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
         public static final String VACCINATION = "Vaccination";
+        public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
+        public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
     }
 
     public static final class CHILD_STATUS {

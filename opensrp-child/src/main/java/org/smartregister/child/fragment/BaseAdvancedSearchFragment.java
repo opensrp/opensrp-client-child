@@ -90,6 +90,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     protected CheckBox lostToFollowUp;
     protected EditText startDate;
     protected EditText endDate;
+    protected Button qrCodeButton;
     protected Map<String, View> advancedFormSearchableFields = new HashMap<>();
     private View listViewLayout;
     private View advancedSearchForm;
@@ -104,7 +105,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private boolean isLocal = false;
     private BroadcastReceiver connectionChangeReciever;
     private boolean registeredConnectionChangeReceiver = false;
-    private Button qrCodeButton;
     private ProgressDialog progressDialog;
 
     @Override
