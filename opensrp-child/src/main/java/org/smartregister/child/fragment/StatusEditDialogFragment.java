@@ -192,23 +192,26 @@ public class StatusEditDialogFragment extends DialogFragment {
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(inactive, false);
                         updateViews = true;
+                        details.put(inactive, "false");
                     }
 
                     if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                             details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(lostToFollowUp, false);
+                        details.put(lostToFollowUp, "false");
                         updateViews = true;
                     }
-
                     break;
 
                 case IN_ACTIVE:
                     if (!details.containsKey(inactive) || !(details.containsKey(inactive) && details.get(inactive) != null &&
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(inactive, true);
+                        details.put(inactive, "true");
                         if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                 details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(lostToFollowUp, false);
+                            details.put(lostToFollowUp, "false");
                         }
                         updateViews = true;
                     }
@@ -218,9 +221,11 @@ public class StatusEditDialogFragment extends DialogFragment {
                             !(details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                     details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(lostToFollowUp, true);
+                        details.put(lostToFollowUp, "true");
                         if (details.containsKey(inactive) && details.get(inactive) != null &&
                                 details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(inactive, false);
+                            details.put(inactive, "false");
                         }
                         updateViews = true;
                     }
@@ -266,8 +271,7 @@ public class StatusEditDialogFragment extends DialogFragment {
                     org.smartregister.child.util.Utils.postEvent(new ClientStatusUpdateEvent(status.toString()));
                 }
             }
-
-            listener.updateStatus();
+            listener.updateStatus(details);
             dismiss();
 
         }

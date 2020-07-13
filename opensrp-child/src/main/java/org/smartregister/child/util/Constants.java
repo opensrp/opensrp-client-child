@@ -117,6 +117,8 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
         public static final String FATHER_RELATIONAL_ID = "father_relational_id";
+        public static final String CHILD_HIV_STATUS = "child_hiv_status";
+        public static final String CHILD_TREATMENT = "child_treatment";
     }
 
     public static final class INTENT_KEY {

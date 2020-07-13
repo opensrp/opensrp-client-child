@@ -130,14 +130,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static Boolean monitorGrowth = false;
 
     protected LinearLayout floatingActionButton;
+    // Data
+    protected RegisterClickables registerClickables;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
     // Views
     private LocationSwitcherToolbar toolbar;
-    // Data
-    protected RegisterClickables registerClickables;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -157,6 +157,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private CustomFontTextView nextAppointmentDateView;
     private ImageButton growthChartButton;
     private SiblingPicturesGroup siblingPicturesGroup;
+    private String caseId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,18 +174,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            reloadChildDetails();
 
-            Map<String, String> details = ChildLibrary.
-                    getInstance()
-                    .context()
-                    .getEventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
-            childDetails = new CommonPersonObjectClient(caseId, details, null);
-            childDetails.setColumnmaps(details);
         }
 
         Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
@@ -205,6 +197,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(false);
 
         setUpFloatingActionButton();
+    }
+
+    private void reloadChildDetails() {
+        Map<String, String> details = ChildDbUtils.fetchChildDetails(caseId);
+        childDetails = new CommonPersonObjectClient(caseId, details, null);
+        childDetails.setColumnmaps(details);
     }
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
@@ -373,8 +371,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             serviceGroups = null;
         }
 
+        reloadChildDetails();
         updateViews();
-
     }
 
     private void updateViews() {
@@ -2172,7 +2170,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
+
     private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
+        private ArrayList<String> allSiblingChildrenBaseEntityIds = new ArrayList<>();
 
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
@@ -2194,9 +2194,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     children.add(commonPersonObject);
                 }
 
-                if (children != null && children.size() > 0) {
+                if (children.size() > 0) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
+                        if (!baseEntityId.equals(curChild.getCaseId())) {
+                            allSiblingChildrenBaseEntityIds.add(curChild.getCaseId());
+                        }
                         if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
                             baseEntityIds.add(curChild.getCaseId());
                         }
@@ -2211,6 +2214,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         @Override
         protected void onPostExecute(ArrayList<String> baseEntityIds) {
             super.onPostExecute(baseEntityIds);
+            baseEntityIds = this.allSiblingChildrenBaseEntityIds;
             ArrayList<String> ids = new ArrayList<>();
             if (baseEntityIds != null) {
                 ids = baseEntityIds;

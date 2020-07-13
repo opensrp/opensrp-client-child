@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
@@ -144,6 +145,58 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
+    public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
+                                         @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
+        boolean showVaccineList = false;
+        for (int i = 0; i < vaccineList.size(); i++) {
+            Vaccine vaccine = vaccineList.get(i);
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
+            if (check) {
+                showVaccineList = true;
+                break;
+            }
+        }
+
+        boolean showServiceList = false;
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
+            if (check) {
+                showServiceList = true;
+                break;
+
+            }
+        }
+
+        boolean showWeightEdit = false;
+
+        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
+
+            for (int i = 0; i < weightList.size(); i++) {
+                Weight weight = weightList.get(i);
+                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+                if (showWeightEdit) {
+                    break;
+                }
+            }
+        }
+
+        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
+    }
+
+    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
+        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
+        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
+    }
+
+    public static Menu getOverflow() {
+        return overflow;
+    }
+
+    public static void setOverflow(Menu overflow) {
+        BaseChildDetailTabbedActivity.overflow = overflow;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
@@ -234,58 +287,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         setupViews();
         vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
     }
-
-    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
-        boolean showVaccineList = false;
-        for (int i = 0; i < vaccineList.size(); i++) {
-            Vaccine vaccine = vaccineList.get(i);
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
-            if (check) {
-                showVaccineList = true;
-                break;
-            }
-        }
-
-        boolean showServiceList = false;
-        for (ServiceRecord serviceRecord : serviceRecordList) {
-            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
-            if (check) {
-                showServiceList = true;
-                break;
-
-            }
-        }
-
-        boolean showWeightEdit = false;
-
-        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
-
-            for (int i = 0; i < weightList.size(); i++) {
-                Weight weight = weightList.get(i);
-                showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
-                if (showWeightEdit) {
-                    break;
-                }
-            }
-        }
-
-        hideDisplayImmunizationMenu(showVaccineList, showServiceList, showWeightEdit);
-    }
-
-    private static void hideDisplayImmunizationMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit) {
-        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
-        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
-        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
-    }
-
-    public static Menu getOverflow() {
-        return overflow;
-    }
-
-    public static void setOverflow(Menu overflow) {
-        BaseChildDetailTabbedActivity.overflow = overflow;
-    }
-
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
 
@@ -721,6 +722,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             updateOptionsMenu(false, false, false);
             hideDisplayImmunizationMenu(false, false, false);
         }
+    }
+
+    @Override
+    public void updateStatus(Map<String, String> details) {
+        detailsMap = details;
+        updateStatus(false);
     }
 
     private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
