@@ -62,6 +62,9 @@ public class RegisterQueryProvider {
     }
 
     public String mainRegisterQuery(String select) {
+        if (StringUtils.isBlank(select)) {
+            select = StringUtils.join(mainColumns(), ",");
+        }
         return "select " + select + " from " + getChildDetailsTable() + " " +
                 "join " + getMotherDetailsTable() + " on " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
                 "join " + getDemographicTable() + " on " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
