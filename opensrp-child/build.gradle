@@ -26,8 +26,8 @@ android {
     defaultConfig {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-    //    versionCode Integer.parseInt(project.VERSION_CODE)
-      //  versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -37,7 +37,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true 
+            debuggable true
         }
     }
     dexOptions {
@@ -207,4 +207,4 @@ coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"
 }
 
-//apply from: '../maven.gradle'
+apply from: '../maven.gradle'

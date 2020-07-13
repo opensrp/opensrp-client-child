@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
@@ -75,7 +76,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
      * "encounter_type": "Update Father Details"
      * }
      *
-     * @param jsonString  json form as string
+     * @param jsonString json form as string
      * @param formTag    form tags
      * @return a list of ChildEvents
      */
@@ -98,21 +99,19 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             String motherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
             ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
                     jsonString, motherRelationalId, childEventClient);
-            if (childMotherEventClient == null) {
-                return childEventClientList;
-            }
 
-            if (motherRelationalId == null) {
-                childClient.addRelationship(Constants.KEY.MOTHER, childMotherEventClient.getClient().getBaseEntityId());
+            if (childMotherEventClient != null) {
+                if (motherRelationalId == null) {
+                    childClient.addRelationship(Constants.KEY.MOTHER, childMotherEventClient.getClient().getBaseEntityId());
+                }
+                childEventClientList.add(childMotherEventClient);
+                // Add search by mother
+                ContentValues values = new ContentValues();
+                values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+                String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
+                Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
+                updateMotherDetails(childMotherEventClient, childClient);
             }
-            childEventClientList.add(childMotherEventClient);
-
-            // Add search by mother
-            ContentValues values = new ContentValues();
-            values.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
-            String tableName = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
-            Utils.updateLastInteractionWith(childClient.getBaseEntityId(), tableName, values);
-            updateMotherDetails(childMotherEventClient, childClient);
 
             // Add father relationship if defined in metadata
             if (Utils.metadata().childRegister.getFatherRelationKey() != null) {
@@ -120,14 +119,12 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
                 ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
                         jsonString, fatherRelationalId, childEventClient);
 
-                if (fatherRegistrationEvent == null) {
-                    return childEventClientList;
+                if (fatherRegistrationEvent != null) {
+                    if (fatherRelationalId == null) {
+                        childClient.addRelationship(Constants.KEY.FATHER, fatherRegistrationEvent.getClient().getBaseEntityId());
+                    }
+                    childEventClientList.add(fatherRegistrationEvent);
                 }
-
-                if (fatherRelationalId == null) {
-                    childClient.addRelationship(Constants.KEY.FATHER, fatherRegistrationEvent.getClient().getBaseEntityId());
-                }
-                childEventClientList.add(fatherRegistrationEvent);
             }
 
         } catch (JSONException e) {
@@ -138,7 +135,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
     private void updateEncounterTypes(JSONObject form) throws JSONException {
         //Update encounter types/event types when editing form
-        if (form.has(JsonFormUtils.ENTITY_ID)) {
+        if (form.has(JsonFormUtils.ENTITY_ID) && StringUtils.isNotBlank(form.getString(JsonFormUtils.ENTITY_ID))) {
             if (form.has(Constants.KEY.MOTHER)) {
                 form.getJSONObject(Constants.KEY.MOTHER).put(JsonFormConstants.ENCOUNTER_TYPE, Constants.EventType.UPDATE_MOTHER_DETAILS);
             }

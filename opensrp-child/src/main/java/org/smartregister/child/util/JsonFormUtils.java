@@ -743,7 +743,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             JsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
 
             //Add previous relational ids if they existed.
-            addRelationships(baseClient);
+            addRelationships(baseClient, jsonString);
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
@@ -1200,17 +1200,18 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         JSONObject metadata = getJSONObject(jsonForm, METADATA);
 
         JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
-        String lookUpBaseEntityId = null;
-        if (lookUpJSONObject != null) {
-            lookUpBaseEntityId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
+
+        //Currently lookup works only for mothers - do not create new events for existing mothers.
+        if (lookUpJSONObject != null && bindType.equalsIgnoreCase(Constants.KEY.MOTHER) &&
+                StringUtils.isNotBlank(getString(lookUpJSONObject, JsonFormConstants.VALUE))) {
+            return null;
         }
 
         dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
         Event subFormEvent = null;
 
-        String entityRelationalId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
-        Client subformClient = createSubFormClient(fields, baseClient, bindType, entityRelationalId);
+        Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
 
         //only set default gender if not explicitly set in the registration form
         if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
@@ -1283,10 +1284,20 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * }
      * ]
      *
-     * @param childClient    childClient client object
+     * @param childClient childClient client object
+     * @param jsonString  form json
      */
-    private static void addRelationships(Client childClient) {
+    private static void addRelationships(Client childClient, String jsonString) {
         try {
+            JSONObject jsonForm = toJSONObject(jsonString);
+            JSONObject metadata = getJSONObject(jsonForm, METADATA);
+            JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
+
+            String existingMotherRelationalId = null;
+            if (lookUpJSONObject != null) {
+                existingMotherRelationalId = getString(lookUpJSONObject, JsonFormConstants.VALUE);
+            }
+
             Context context = ChildLibrary.getInstance().context().applicationContext();
             JSONArray relationships = new JSONArray(AssetHandler.readFileFromAssetsFolder(FormUtils.ecClientRelationships, context));
             JSONObject client = ChildLibrary.getInstance().eventClientRepository().getClientByBaseEntityId(childClient.getBaseEntityId());
@@ -1296,11 +1307,17 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     JSONObject relationship = relationships.getJSONObject(i);
                     if (relationship.has(Constants.CLIENT_RELATIONSHIP)) {
                         String relationshipType = relationship.getString(Constants.CLIENT_RELATIONSHIP);
-                        if(relationshipsJson.has(relationshipType)){
+                        if (relationshipsJson.has(relationshipType)) {
                             childClient.addRelationship(relationshipType, String.valueOf(relationshipsJson.getJSONArray(relationshipType).get(0)));
                         }
                     }
                 }
+                return;
+            }
+
+            //Special case - add relationship for existing mothers when creating this child as a sibling
+            if (StringUtils.isNotBlank(existingMotherRelationalId)) {
+                childClient.addRelationship(Constants.KEY.MOTHER, existingMotherRelationalId);
             }
         } catch (Exception e) {
             Timber.e(e, "JsonFormUtils --> addRelationship");
