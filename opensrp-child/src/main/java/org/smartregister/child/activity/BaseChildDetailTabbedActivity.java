@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
@@ -144,7 +145,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
 
-    public static void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+    public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
+                                         @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
         boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
