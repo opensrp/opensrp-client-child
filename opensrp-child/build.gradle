@@ -22,6 +22,7 @@ jacoco {
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         minSdkVersion androidMinSdkVersion
