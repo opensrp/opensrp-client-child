@@ -285,7 +285,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Mockito.doReturn(jsonApi).when(formFragment).getJsonApi();
         Mockito.doReturn(viewCollection).when(jsonApi).getFormDataViews();
         ChildFormFragmentPresenter childFormFragmentPresenter = Mockito.mock(ChildFormFragmentPresenter.class);
-        Mockito.doReturn(childFormFragmentPresenter).when(formFragment).getPresenter();//).thenReturn(childFormFragmentPresenter);//.when(formFragment).getPresenter();
+        Mockito.doReturn(childFormFragmentPresenter).when(formFragment).getPresenter();
         ValidationStatus validationStatus = new ValidationStatus(false, null, null, null);
         Mockito.doReturn(validationStatus).when(formFragment).validateView(view);
         Mockito.doReturn(false).when(childFormFragmentPresenter).intermediatePage();
