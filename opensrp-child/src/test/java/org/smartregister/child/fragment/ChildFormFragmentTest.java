@@ -243,7 +243,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
     }
 
     @Test
-    public void testValidateActivateNextShouldShowSaveIfNoIntermediatePage() {
+    public void testValidateActivateNextShouldShowSaveIfNotIntermediatePageAndValid() {
         formFragment = PowerMockito.spy(formFragment);
         JsonFormActivity activity = Mockito.mock(JsonFormActivity.class);
         Mockito.doReturn(activity).when(formFragment).getActivity();
@@ -270,7 +270,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
     }
 
     @Test
-    public void testValidateActivateNextShouldHideSaveIfNoIntermediatePage() {
+    public void testValidateActivateNextShouldHideSaveIfNotIntermediatePageAndInvalid() {
         formFragment = PowerMockito.spy(formFragment);
         JsonFormActivity activity = Mockito.mock(JsonFormActivity.class);
         Mockito.doReturn(activity).when(formFragment).getActivity();
