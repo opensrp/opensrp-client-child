@@ -174,7 +174,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     @VisibleForTesting
-    public ValidationStatus validateView(View dataView){
+    protected ValidationStatus validateView(View dataView){
         return getPresenter().validate(this, dataView, false);
     }
 
