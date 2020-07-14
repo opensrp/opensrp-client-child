@@ -3,6 +3,7 @@ package org.smartregister.child.fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -151,7 +152,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
         ValidationStatus validationStatus = null;
         for (View dataView : getJsonApi().getFormDataViews()) {
-            validationStatus = getPresenter().validate(this, dataView, false);
+            validationStatus = validateView(dataView);
             if (!validationStatus.isValid()) {
                 break;
             }
@@ -170,6 +171,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     public ChildFormFragmentPresenter getPresenter() {
         return (ChildFormFragmentPresenter) presenter;
+    }
+
+    @VisibleForTesting
+    public ValidationStatus validateView(View dataView){
+        return getPresenter().validate(this, dataView, false);
     }
 
     //Mother Lookup
