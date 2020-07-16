@@ -334,5 +334,8 @@
 
     <string name="child_birth_registration_number">Child\'s birth registration number</string>
     <string name="child_unique_id">Child\'s unique government ID</string>
+    <string name="child_archive_record_text">Archive Record</string>
+    <string name="child_archive_record_description">The record will be archived and will not be available in the register</string>
+    <string name="child_archive_dialog_title">Are you sure you want archive record?</string>
 
 </resources>

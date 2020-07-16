@@ -93,7 +93,7 @@ public class BaseChildRegisterModelTest {
         Mockito.doReturn(context).when(childLibrary).context();
         Mockito.doReturn(detailsRepository).when(context).detailsRepository();
 
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null,
                 null, true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",

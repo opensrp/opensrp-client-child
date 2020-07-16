@@ -13,6 +13,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.activity.ChildImmunizationActivity;
 import org.smartregister.child.sample.activity.ChildProfileActivity;
+import org.smartregister.child.sample.activity.ChildRegisterActivity;
 import org.smartregister.child.sample.configuration.SampleSyncConfiguration;
 import org.smartregister.child.sample.job.SampleJobCreator;
 import org.smartregister.child.sample.repository.SampleRepository;
@@ -178,7 +179,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
-                ChildImmunizationActivity.class, true);
+                ChildImmunizationActivity.class, ChildRegisterActivity.class, true);
         metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, DBConstants.RegisterTable.CLIENT,
                 DBConstants.RegisterTable.CLIENT, SampleConstants.EventType.CHILD_REGISTRATION,
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,
