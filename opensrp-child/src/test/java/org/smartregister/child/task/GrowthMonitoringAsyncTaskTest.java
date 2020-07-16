@@ -126,6 +126,8 @@ public class GrowthMonitoringAsyncTaskTest {
         updateRecordWeight.invoke(growthMonitoringAsyncTask, growthMonitoringViewRecordUpdateWrapper, false);
 
         verify(imageView).setVisibility(View.GONE);
+        verify(textView).setText(context.getString(R.string.record_growth_with_nl));
+        verify(view).setClickable(true);
     }
 
     @Test
@@ -151,6 +153,7 @@ public class GrowthMonitoringAsyncTaskTest {
 
         verify(textView).setText("3.4 kg");
         verify(imageView).setVisibility(View.VISIBLE);
+        verify(view).setClickable(false);
     }
 
     @Test
@@ -180,6 +183,7 @@ public class GrowthMonitoringAsyncTaskTest {
 
         verify(textView).setText("3.4 kg, 30.4 cm");
         verify(imageView).setVisibility(View.VISIBLE);
+        verify(view).setClickable(false);
     }
 
     @Test
@@ -202,6 +206,9 @@ public class GrowthMonitoringAsyncTaskTest {
         updateViews.invoke(growthMonitoringAsyncTask, view, commonPersonObjectClient);
 
         verify(textView).setText(R.string.record_service);
+        verify(textView).setClickable(true);
+        verify(textView).setTag("24127");
+        verify(textView).setEnabled(true);
     }
 }
 
