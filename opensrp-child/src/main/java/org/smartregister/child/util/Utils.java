@@ -567,7 +567,7 @@ public class Utils extends org.smartregister.util.Utils {
     public static Event createArchiveRecordEvent(@NonNull Map<String, String> details) throws Exception {
         String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
         FormTag formTag = JsonFormUtils.formTag(getAllSharedPreferences());
-        Event archiveRecordEvent = JsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_RECORD, "");
+        Event archiveRecordEvent = JsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
         JsonFormUtils.tagSyncMetadata(archiveRecordEvent);
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(archiveRecordEvent));
         ChildLibrary.getInstance().getEcSyncHelper().addEvent(archiveRecordEvent.getBaseEntityId(), eventJson);

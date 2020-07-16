@@ -39,7 +39,7 @@
           },
           {
             "field": "eventType",
-            "field_value": "Archive record",
+            "field_value": "archive_child_record",
             "closes_case": [
               "ec_client",
               "ec_child_details"
