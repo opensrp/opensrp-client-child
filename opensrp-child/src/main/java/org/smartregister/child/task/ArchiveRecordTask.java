@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import org.smartregister.child.R;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Event;
 
@@ -30,7 +31,7 @@ public class ArchiveRecordTask extends AsyncTask<Void, Void, Void> {
     protected void onPreExecute() {
         progressDialog = new ProgressDialog(activityWeakReference.get());
         progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please wait ... Archiving record.");
+        progressDialog.setMessage(activityWeakReference.get().getString(R.string.child_archive_record_task_dialog_message));
         progressDialog.show();
     }
 

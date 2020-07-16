@@ -337,5 +337,6 @@
     <string name="child_archive_record_text">Archive Record</string>
     <string name="child_archive_record_description">The record will be archived and will not be available in the register</string>
     <string name="child_archive_dialog_title">Are you sure you want archive record?</string>
+    <string name="child_archive_record_task_dialog_message">Please wait ... Archiving record.</string>
 
 </resources>
