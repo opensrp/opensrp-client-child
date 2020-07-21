@@ -38,8 +38,6 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
 
     private ChildRegisterProvider registerProvider;
 
-    private RepositoryHolder repositoryHolder;
-
     @Mock
     private SyncStatusBroadcastReceiver syncStatusBroadcastReceiver;
 
@@ -64,8 +62,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        repositoryHolder = new RepositoryHolder();
-        registerProvider = new ChildRegisterProvider(RuntimeEnvironment.application, repositoryHolder,
+        registerProvider = new ChildRegisterProvider(RuntimeEnvironment.application, new RepositoryHolder(),
                 new HashSet(), onClickListener, onClickListener, alertService);
 
     }
