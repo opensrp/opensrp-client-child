@@ -15,8 +15,10 @@ import org.powermock.reflect.Whitebox;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.domain.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +40,21 @@ public class BaseChildAdvancedSearchPresenterTest {
     @Mock
     private ChildAdvancedSearchContract.Interactor interactor;
 
+    @Mock
+    private AdvancedMatrixCursor advancedMatrixCursor;
+
     private BaseChildAdvancedSearchPresenter baseChildAdvancedSearchPresenter;
+
+    private static final String OPENSRP_ID = "74834-34343-04343";
+
+    @Mock
+    private Response<String> response;
 
     @Before
     public void setUp() {
 
         MockitoAnnotations.initMocks(this);
+
 
         PowerMockito.mockStatic(ChildLibrary.class);
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
@@ -55,11 +66,13 @@ public class BaseChildAdvancedSearchPresenterTest {
                 "test", "test");
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
         PowerMockito.when(childLibrary.metadata()).thenReturn(metadata);
+
         baseChildAdvancedSearchPresenter = Mockito.mock(BaseChildAdvancedSearchPresenter.class, Mockito.CALLS_REAL_METHODS);
+        Mockito.doReturn(view).when(baseChildAdvancedSearchPresenter).getView();
     }
 
     @Test
-    public void testCleanMapForAdvancedSearch(){
+    public void testCleanMapForAdvancedSearch() {
 
         Map<String, String> map = new HashMap<>();
         map.put("testKey", "testVal");
@@ -76,7 +89,7 @@ public class BaseChildAdvancedSearchPresenterTest {
     }
 
     @Test
-    public void testGetDefaultSortQuery(){
+    public void testGetDefaultSortQuery() {
 
         String res = baseChildAdvancedSearchPresenter.getDefaultSortQuery();
         Assert.assertEquals("ec_client.last_interacted_with DESC", res);
@@ -85,9 +98,8 @@ public class BaseChildAdvancedSearchPresenterTest {
     @Test
     public void testSearch() {
 
-        PowerMockito.when(baseChildAdvancedSearchPresenter.getView()).thenReturn(view);
         Whitebox.setInternalState(baseChildAdvancedSearchPresenter, "model", model);
-        Whitebox.setInternalState(baseChildAdvancedSearchPresenter, "interactor", interactor);
+        baseChildAdvancedSearchPresenter.setInteractor(interactor);
 
         Map<String, String> map = new HashMap<>();
         map.put("start_date", "2020-01-01");
@@ -99,5 +111,45 @@ public class BaseChildAdvancedSearchPresenterTest {
 
         baseChildAdvancedSearchPresenter.search(map, false);
         verify(interactor).search(map, baseChildAdvancedSearchPresenter, null);
+    }
+
+    @Test
+    public void testOnResultsFound_RecalculatesPaginationCorrectly() {
+
+        Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
+        Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
+        baseChildAdvancedSearchPresenter.setModel(model);
+
+        baseChildAdvancedSearchPresenter.onResultsFound(response, OPENSRP_ID);
+
+        Mockito.verify(advancedMatrixCursor).moveToFirst();
+        Mockito.verify(view).recalculatePagination(ArgumentMatchers.any(AdvancedMatrixCursor.class));
+
+    }
+
+    @Test
+    public void testOnResultsFound_invokesFilterAndSortInitializeQueries() {
+
+        Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
+        Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
+        baseChildAdvancedSearchPresenter.setModel(model);
+
+        baseChildAdvancedSearchPresenter.onResultsFound(response, OPENSRP_ID);
+
+        Mockito.verify(view).filterandSortInInitializeQueries();
+
+    }
+
+    @Test
+    public void testOnResultsFound_hidesProgressView() {
+
+        Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
+        Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
+        baseChildAdvancedSearchPresenter.setModel(model);
+
+        baseChildAdvancedSearchPresenter.onResultsFound(response, OPENSRP_ID);
+
+        Mockito.verify(view).hideProgressView();
+
     }
 }
