@@ -2,8 +2,9 @@ package org.smartregister.child.provider;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,8 @@ import org.smartregister.view.viewholder.OnClickFormLauncher;
 
 import java.text.MessageFormat;
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 28/02/2019.
@@ -94,9 +97,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
         if (visibleColumns.isEmpty()) {
             populatePatientColumn(pc, client, viewHolder);
-            // populateLastColumn(pc, viewHolder);
-
-            return;
         }
     }
 
@@ -196,7 +196,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                     durationString = duration;
                 }
             } catch (Exception e) {
-                Log.e(getClass().getName(), e.toString(), e);
+                Timber.e(e);
             }
         }
         fillValue(viewHolder.childAge, durationString);
@@ -243,14 +243,19 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 params.setOnClickListener(onClickListener);
                 params.setProfileInfoView(viewHolder.childProfileInfoLayout);
 
-                Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
-                Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
+                initiateViewUpdateTasks(params);
 
             } catch (Exception e) {
-                Log.e(getClass().getName(), e.getMessage(), e);
+                Timber.e(e);
             }
         }
 
+    }
+
+    @VisibleForTesting
+    protected void initiateViewUpdateTasks(@NonNull RegisterActionParams params) {
+        Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
+        Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
     }
 
     private void renderProfileImage(String entityId, String gender, ImageView profilePic) {
@@ -261,10 +266,15 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download
             // and save locally
             profilePic.setTag(R.id.entity_id, entityId);
-            DrishtiApplication.getCachedImageLoaderInstance()
-                    .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
+            updateImageViewWithPicture(entityId, profilePic);
         }
 
+    }
+
+    @VisibleForTesting
+    protected void updateImageViewWithPicture(String entityId, ImageView profilePic) {
+        DrishtiApplication.getCachedImageLoaderInstance()
+                .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
     }
 
     private void attachGoToImmunizationPage(View view, SmartRegisterClient client) {
