@@ -133,7 +133,7 @@ public class MotherLookUpUtils {
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
-                                + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN (" + relationalIds + ")");
+                                + " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.IS_CLOSED + " == 0 and " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN (" + relationalIds + ")");
         for (CommonPersonObject mother : motherList) {
             results.put(mother, findChildren(childList, mother.getCaseId()));
         }

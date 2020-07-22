@@ -2,31 +2,35 @@ package org.smartregister.child.util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.jsonmapping.Expiry;
+import org.smartregister.domain.db.EventClient;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.util.AssetHandler;
+import org.smartregister.sync.ClientProcessorForJava;
+import org.smartregister.sync.helper.ECSyncHelper;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
@@ -37,6 +41,15 @@ public class UtilsTest {
 
     @Mock
     private UniqueIdRepository uniqueIdRepository;
+
+    @Mock
+    private CoreLibrary coreLibrary;
+
+    @Mock
+    private Context opensrpContext;
+
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
 
     @Before
     public void setUp() {
@@ -66,20 +79,20 @@ public class UtilsTest {
     }
 
     @Test
-    public void testFormatIdentifiersFormatsValueCorrectly(){
+    public void testFormatIdentifiersFormatsValueCorrectly() {
         String testString = "3929389829839829839835";
         String formattedIdentifier = Utils.formatIdentifiers(testString);
-        Assert.assertEquals("3929-3898-2983-9829-8398-35",formattedIdentifier);
+        Assert.assertEquals("3929-3898-2983-9829-8398-35", formattedIdentifier);
     }
 
     @Test
     public void testPutAll() {
         Map<String, String> map = new HashMap<>();
-        map.put("1","one");
-        map.put("2","two");
+        map.put("1", "one");
+        map.put("2", "two");
 
         Map<String, String> extend = new HashMap<>();
-        extend.put("3","three");
+        extend.put("3", "three");
         extend.put("4", null);
 
         Utils.putAll(map, extend);
@@ -129,5 +142,50 @@ public class UtilsTest {
         Assert.assertEquals("at_birth", s1);
         Assert.assertEquals("at_Birth", s2);
         Assert.assertEquals("test", s3);
+    }
+
+    @Test
+    public void testCreateArchiveRecordEventShouldCreateValidEvent() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        Map<String, String> details = new HashMap<>();
+        details.put(Constants.KEY.BASE_ENTITY_ID, "232-erer7");
+        Event result = Utils.createArchiveRecordEvent(details);
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getFormSubmissionId());
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq(details.get(Constants.KEY.BASE_ENTITY_ID)), Mockito.any(JSONObject.class));
+    }
+
+    @Test
+    public void testInitiateEventProcessingShouldInitEventProcessing() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        ClientProcessorForJava clientProcessorForJava = Mockito.mock(ClientProcessorForJava.class);
+        Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        long now = new Date().getTime();
+        Mockito.doReturn(now).when(allSharedPreferences).fetchLastUpdatedAtDate(0);
+
+        List<String> list = Arrays.asList("233-sdsd");
+        List<Event> eventList = new ArrayList<>();
+
+        Utils.initiateEventProcessing(list);
+        Mockito.doReturn(eventList).when(ecSyncHelper).getEvents(list);
+        Mockito.verify(clientProcessorForJava, Mockito.times(1)).processClient(Mockito.<EventClient>anyList());
+        Mockito.verify(allSharedPreferences).saveLastUpdatedAtDate(Mockito.eq(now));
+    }
+
+    @After
+    public void tearDown() {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 }

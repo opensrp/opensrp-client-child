@@ -274,7 +274,8 @@ public class JsonFormUtilsTest {
         Mockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         Mockito.doReturn("locationA").when(locationHelper).getOpenMrsLocationId(entity);
         Mockito.doReturn(entityHierarchy).when(locationHelper).getOpenMrsLocationHierarchy("locationA", false);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null,
+                true);
         childMetadata.setFieldsWithLocationHierarchy(new HashSet<String>(Arrays.asList("Home_Facility")));
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setHealthFacilityLevels(healthFacilities);
@@ -312,7 +313,7 @@ public class JsonFormUtilsTest {
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
 
         PowerMockito.mockStatic(Utils.class);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setFieldsWithLocationHierarchy(new HashSet<>(Arrays.asList("village")));
 

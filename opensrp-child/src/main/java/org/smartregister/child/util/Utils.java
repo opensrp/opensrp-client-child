@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
@@ -35,10 +36,12 @@ import org.smartregister.child.domain.EditWrapper;
 import org.smartregister.child.event.BaseEvent;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -554,17 +557,29 @@ public class Utils extends org.smartregister.util.Utils {
         return null;
     }
 
-    public static CommonPersonObject getEcMotherDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
-        if (cr != null) {
-            return cr.findByBaseEntityId(baseEntityId);
-        }
-        return null;
-    }
-
     public static boolean isVaccineDue(@NonNull List<Vaccine> vaccineList, @NonNull Date dob, @NonNull org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, boolean allowedExpiredVaccineEntry) {
         Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
         Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
         return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
+    }
+
+    @NonNull
+    public static Event createArchiveRecordEvent(@NonNull Map<String, String> details) throws Exception {
+        String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
+        FormTag formTag = JsonFormUtils.formTag(getAllSharedPreferences());
+        Event archiveRecordEvent = JsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
+        JsonFormUtils.tagSyncMetadata(archiveRecordEvent);
+        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(archiveRecordEvent));
+        ChildLibrary.getInstance().getEcSyncHelper().addEvent(archiveRecordEvent.getBaseEntityId(), eventJson);
+        return archiveRecordEvent;
+    }
+
+    public static void initiateEventProcessing(@android.support.annotation.Nullable List<String> formSubmissionIds) throws Exception {
+        if (formSubmissionIds != null && !formSubmissionIds.isEmpty()) {
+            long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
+            Date lastSyncDate = new Date(lastSyncTimeStamp);
+            ChildLibrary.getInstance().getClientProcessorForJava().processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
+            getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
+        }
     }
 }

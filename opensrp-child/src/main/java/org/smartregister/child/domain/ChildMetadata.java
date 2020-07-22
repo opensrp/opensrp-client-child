@@ -3,6 +3,7 @@ package org.smartregister.child.domain;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
@@ -15,6 +16,7 @@ import java.util.Set;
 public class ChildMetadata {
     public final Class childFormActivity;
     public final Class childImmunizationActivity;
+    private Class<? extends BaseChildRegisterActivity> childRegisterActivity;
     public final Class profileActivity;
     public final boolean formWizardValidateRequiredFieldsBefore;
     private ArrayList<String> locationLevels;
@@ -26,10 +28,12 @@ public class ChildMetadata {
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         Class<? extends BaseChildRegisterActivity> childRegisterActivity,
                          boolean formWizardValidateRequiredFieldsBefore) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
+        this.childRegisterActivity = childRegisterActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
         setRegisterQueryProvider(new RegisterQueryProvider());
     }
@@ -37,11 +41,13 @@ public class ChildMetadata {
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         Class<? extends BaseChildRegisterActivity> childRegisterActivity,
                          boolean formWizardValidateRequiredFieldsBefore,
                          RegisterQueryProvider registerRepo) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
+        this.childRegisterActivity = childRegisterActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
         this.registerQueryProvider = registerRepo;
     }
@@ -164,6 +170,10 @@ public class ChildMetadata {
     public void setupFatherRelation(String fatherTable, String fatherRelationKey){
         this.childRegister.setFatherTable(fatherTable);
         this.childRegister.setFatherRelationKey(fatherRelationKey);
+    }
+
+    public Class<? extends BaseChildRegisterActivity> getChildRegisterActivity() {
+        return childRegisterActivity;
     }
 }
 
