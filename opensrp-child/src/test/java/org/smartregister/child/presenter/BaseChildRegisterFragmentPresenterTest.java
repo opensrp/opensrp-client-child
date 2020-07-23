@@ -52,7 +52,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     private AdvancedMatrixCursor advancedMatrixCursor;
 
     @Mock
-    private List<org.smartregister.configurableviews.model.Field> filterList;
+    private List<Field> filterList;
 
     @Mock
     private Field sortField;
