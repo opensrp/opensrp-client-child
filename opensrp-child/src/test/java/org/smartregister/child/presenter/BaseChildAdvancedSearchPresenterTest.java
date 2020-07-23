@@ -23,8 +23,6 @@ import org.smartregister.domain.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.verify;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ChildLibrary.class})
 public class BaseChildAdvancedSearchPresenterTest {
@@ -107,10 +105,10 @@ public class BaseChildAdvancedSearchPresenterTest {
         PowerMockito.when(model.createEditMap(ArgumentMatchers.<String, String>anyMap())).thenReturn(map);
 
         baseChildAdvancedSearchPresenter.search(map, true);
-        verify(view).updateSearchCriteria("null<b>null</b> null");
+        Mockito.verify(view).updateSearchCriteria("null<b>null</b> null");
 
         baseChildAdvancedSearchPresenter.search(map, false);
-        verify(interactor).search(map, baseChildAdvancedSearchPresenter, null);
+        Mockito.verify(interactor).search(map, baseChildAdvancedSearchPresenter, null);
     }
 
     @Test
