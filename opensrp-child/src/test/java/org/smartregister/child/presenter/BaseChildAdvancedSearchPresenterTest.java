@@ -114,7 +114,7 @@ public class BaseChildAdvancedSearchPresenterTest {
     }
 
     @Test
-    public void testOnResultsFound_RecalculatesPaginationCorrectly() {
+    public void testOnResultsFoundRecalculatesPaginationCorrectly() {
 
         Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
         Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
@@ -128,7 +128,7 @@ public class BaseChildAdvancedSearchPresenterTest {
     }
 
     @Test
-    public void testOnResultsFound_invokesFilterAndSortInitializeQueries() {
+    public void testOnResultsFoundInvokesFilterAndSortInitializeQueries() {
 
         Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
         Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
@@ -141,7 +141,7 @@ public class BaseChildAdvancedSearchPresenterTest {
     }
 
     @Test
-    public void testOnResultsFound_hidesProgressView() {
+    public void testOnResultsFoundHidesProgressView() {
 
         Mockito.doReturn(advancedMatrixCursor).when(model).createMatrixCursor(response);
         Mockito.doReturn(advancedMatrixCursor).when(baseChildAdvancedSearchPresenter).getRemoteLocalMatrixCursor(advancedMatrixCursor);
