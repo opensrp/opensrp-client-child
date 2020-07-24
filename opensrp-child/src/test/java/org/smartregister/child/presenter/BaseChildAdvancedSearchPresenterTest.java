@@ -121,7 +121,7 @@ public class BaseChildAdvancedSearchPresenterTest {
         baseChildAdvancedSearchPresenter.onResultsFound(response, OPENSRP_ID);
 
         Mockito.verify(advancedMatrixCursor).moveToFirst();
-        Mockito.verify(view).recalculatePagination(ArgumentMatchers.any(AdvancedMatrixCursor.class));
+        Mockito.verify(view).recalculatePagination(advancedMatrixCursor);
 
     }
 
