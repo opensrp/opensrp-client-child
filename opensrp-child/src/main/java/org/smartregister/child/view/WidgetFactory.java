@@ -10,8 +10,7 @@ import android.widget.TextView;
 
 import org.smartregister.child.R;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -20,8 +19,8 @@ import java.util.Map;
  */
 public class WidgetFactory {
     public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
-                                   HashMap<Long, Pair<String, String>> lastFiveWeightMap,
-                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
+                                   Map<Long, Pair<String, String>> lastFiveWeightMap,
+                                   List<View.OnClickListener> listeners, List<Boolean> editEnabled) {
         LinearLayout tableLayout = fragmentContainer.findViewById(R.id.weightvalues);
         tableLayout.removeAllViews();
 
@@ -54,8 +53,8 @@ public class WidgetFactory {
     }
 
     public void createHeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer,
-                                   HashMap<Long, Pair<String, String>> lastFiveHeightMap,
-                                   ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editEnabled) {
+                                   Map<Long, Pair<String, String>> lastFiveHeightMap,
+                                   List<View.OnClickListener> listeners, List<Boolean> editEnabled) {
         LinearLayout tableLayout = fragmentContainer.findViewById(R.id.heightvalues);
         tableLayout.removeAllViews();
 
