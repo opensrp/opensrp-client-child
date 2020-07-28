@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
@@ -83,7 +82,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         this.alertService = alertService;
     }
 
-    public static void fillValue(TextView v, String value) {
+    public void fillValue(TextView v, String value) {
         if (v != null) v.setText(value);
 
     }
@@ -167,7 +166,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
 
-
         fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
         String motherFirstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
@@ -175,7 +173,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childName = String.format(context.getString(R.string.child_name), motherFirstName.trim());
         }
 
-        fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
+        fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
@@ -184,7 +182,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
 
         fillValue(viewHolder.childMotherName, motherName);
-
 
         String durationString = "";
         String dobString = Utils.getValue(pc.getColumnmaps(), Constants.KEY.DOB, false);
@@ -201,30 +198,16 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
         fillValue(viewHolder.childAge, durationString);
 
-        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
-
+        fillValue(viewHolder.childCardNumber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
 
         String gender = Utils.getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
 
-        final ImageView profilePic = viewHolder.imageView.findViewById(R.id.child_profilepic);
-        renderProfileImage(pc.entityId(), gender, profilePic);
+        // final ImageView profilePic = viewHolder.imageView.findViewById(R.id.child_profilepic);
+        renderProfileImage(pc.entityId(), gender, viewHolder.imageView);
 
         attachGoToImmunizationPage(viewHolder.childProfileInfoLayout, client);
-
-
-        View recordGrowthMonitoring = viewHolder.recordGrowth;
-        recordGrowthMonitoring.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
-        recordGrowthMonitoring.setTag(client);
-        recordGrowthMonitoring.setOnClickListener(onClickListener);
-        recordGrowthMonitoring.setVisibility(View.INVISIBLE);
-        recordGrowthMonitoring.setTag(R.id.record_action, Constants.RECORD_ACTION.GROWTH);
-
-        View recordVaccination = viewHolder.recordVaccination;
-        recordVaccination.setTag(client);
-        recordVaccination.setOnClickListener(onClickListener);
-        recordVaccination.setVisibility(View.INVISIBLE);
-        recordVaccination.setTag(R.id.record_action, Constants.RECORD_ACTION.VACCINATION);
-
+        updateGrowthMonitoring(client, viewHolder);
+        updateVaccination(client, viewHolder);
 
         String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = Utils.getValue(pc.getColumnmaps(), Constants.CHILD_STATUS.INACTIVE, false);
@@ -251,6 +234,23 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             }
         }
 
+    }
+
+    private void updateGrowthMonitoring(SmartRegisterClient client, RegisterViewHolder viewHolder) {
+        View recordGrowthMonitoring = viewHolder.recordGrowth;
+        recordGrowthMonitoring.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
+        recordGrowthMonitoring.setTag(client);
+        recordGrowthMonitoring.setOnClickListener(onClickListener);
+        recordGrowthMonitoring.setVisibility(View.INVISIBLE);
+        recordGrowthMonitoring.setTag(R.id.record_action, Constants.RECORD_ACTION.GROWTH);
+    }
+
+    private void updateVaccination(SmartRegisterClient client, RegisterViewHolder viewHolder) {
+        View recordVaccination = viewHolder.recordVaccination;
+        recordVaccination.setTag(client);
+        recordVaccination.setOnClickListener(onClickListener);
+        recordVaccination.setVisibility(View.INVISIBLE);
+        recordVaccination.setTag(R.id.record_action, Constants.RECORD_ACTION.VACCINATION);
     }
 
     private void renderProfileImage(String entityId, String gender, ImageView profilePic) {
@@ -290,7 +290,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         private TextView childOpensrpID;
         private TextView childMotherName;
         private TextView childAge;
-        private TextView childCardNumnber;
+        private TextView childCardNumber;
         private View childProfileInfoLayout;
         private ImageView imageView;
         private View recordGrowth;
@@ -303,7 +303,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childOpensrpID = itemView.findViewById(R.id.child_zeir_id);
             childMotherName = itemView.findViewById(R.id.child_mothername);
             childAge = itemView.findViewById(R.id.child_age);
-            childCardNumnber = itemView.findViewById(R.id.child_card_number);
+            childCardNumber = itemView.findViewById(R.id.child_card_number);
             imageView = itemView.findViewById(R.id.child_profilepic);
             childProfileInfoLayout = itemView.findViewById(R.id.child_profile_info_layout);
             recordGrowth = itemView.findViewById(R.id.record_growth);
