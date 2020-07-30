@@ -142,5 +142,9 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Assert.assertEquals(details.get(Constants.KEY.ZEIR_ID), childOpensrpID.getText().toString());
         Assert.assertEquals(String.format(opensrpContext.applicationContext().getString(R.string.mother_name), details.get(Constants.KEY.MOTHER_FIRST_NAME) + " " + details.get(Constants.KEY.MOTHER_LAST_NAME)), childMotherName.getText().toString());
         Assert.assertEquals(details.get(Constants.KEY.FIRST_NAME) + " " + details.get(Constants.KEY.LAST_NAME), txtPatientName.getText().toString());
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+
+        ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
     }
 }
