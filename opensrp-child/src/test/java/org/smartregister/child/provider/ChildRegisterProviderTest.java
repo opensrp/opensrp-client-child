@@ -1,7 +1,10 @@
 package org.smartregister.child.provider;
 
 import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,7 +29,9 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppProperties;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -147,4 +152,66 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
     }
+
+    @Test
+    public void testGetFooterViewShouldFillViewsCorrectlyForOnePage() {
+        int currentPageCount = 1;
+        int totalPageCount = 1;
+        ChildRegisterProvider.FooterViewHolder footerViewHolder = Mockito.mock(ChildRegisterProvider.FooterViewHolder.class);
+
+        TextView pageInfoView = new TextView(RuntimeEnvironment.application);
+
+        Button nextPageView = new Button(RuntimeEnvironment.application);
+
+        Button previousPageView = new Button(RuntimeEnvironment.application);
+
+        ReflectionHelpers.setField(footerViewHolder, "pageInfoView", pageInfoView);
+
+        ReflectionHelpers.setField(footerViewHolder, "nextPageView", nextPageView);
+
+        ReflectionHelpers.setField(footerViewHolder, "previousPageView", previousPageView);
+
+        registerProvider.getFooterView(footerViewHolder, currentPageCount, totalPageCount,
+                false, true);
+
+        Assert.assertEquals(View.INVISIBLE, nextPageView.getVisibility());
+
+        Assert.assertEquals(View.VISIBLE, previousPageView.getVisibility());
+
+        Assert.assertTrue(previousPageView.hasOnClickListeners());
+
+        Assert.assertTrue(nextPageView.hasOnClickListeners());
+
+        Assert.assertEquals(MessageFormat.format(pageInfoView.getContext().getString(R.string.str_page_info), currentPageCount, totalPageCount), pageInfoView.getText());
+    }
+
+    @Test
+    public void testCreateViewHolderShouldShowOrHideViewsCorrectly() {
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LayoutInflater layoutInflater = Mockito.mock(LayoutInflater.class);
+
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        TextView recordWeightWrapper = new TextView(RuntimeEnvironment.application);
+        recordWeightWrapper.setId(R.id.record_weight_wrapper);
+        TextView childNextAppointmentWrapper = new TextView(RuntimeEnvironment.application);
+        childNextAppointmentWrapper.setId(R.id.child_next_appointment_wrapper);
+        linearLayout.addView(recordWeightWrapper);
+        linearLayout.addView(childNextAppointmentWrapper);
+
+        Mockito.doReturn(linearLayout).when(layoutInflater)
+                .inflate(Mockito.eq(R.layout.child_register_list_row), Mockito.eq(viewGroup), Mockito.eq(false));
+        ReflectionHelpers.setField(registerProvider, "inflater", layoutInflater);
+
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        Mockito.doReturn(true).when(appProperties).hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildRegisterProvider.RegisterViewHolder viewHolder = registerProvider.createViewHolder(viewGroup);
+
+        Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.record_weight_wrapper).getVisibility());
+        Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.child_next_appointment_wrapper).getVisibility());
+    }
+
 }
