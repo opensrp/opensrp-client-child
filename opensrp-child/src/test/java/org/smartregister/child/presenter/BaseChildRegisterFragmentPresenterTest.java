@@ -62,6 +62,8 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     @Mock
     private Set<org.smartregister.configurableviews.model.View> visibleColumns;
 
+    private String NULL_STRING = null;
+
     private static String VIEW_CONFIGURATION_IDENTIFIER = "LOGINVIEW";
     private static String SEARCH_BAR_TEXT = "search text";
     private static String DEMOGRAPHICS_TABLE_NAME = "ec_client";
@@ -110,6 +112,8 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
 
         Mockito.doReturn(registerConfiguration).when(viewConfiguration).getMetadata();
 
+        Whitebox.setInternalState(presenter, "viewConfigurationIdentifier", NULL_STRING);
+
         presenter.processViewConfigurations();
 
         Mockito.verify(model, Mockito.never()).getViewConfiguration(null);
@@ -141,7 +145,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     }
 
     @Test
-    public void testInitializeQueriesInvokesInitializeQueryParamsWithCorrectValues() {
+    public void testInitializeQueriesWithCorrectValues() {
 
         PowerMockito.mockStatic(Utils.class);
         PowerMockito.when(Utils.metadata()).thenReturn(metadata);
@@ -164,7 +168,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     }
 
     @Test
-    public void testInitializeQueriesInvokesInitializeQueryParamsInitializesAdapterWithVisibleColumns() {
+    public void testInitializeQueriesInitializesAdapterWithVisibleColumns() {
 
         PowerMockito.mockStatic(Utils.class);
         PowerMockito.when(Utils.metadata()).thenReturn(metadata);
@@ -178,7 +182,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     }
 
     @Test
-    public void testInitializeQueriesInvokesInitializeQueryParamsInvokesViewCountExecute() {
+    public void testInitializeQueriesInvokesViewCountExecute() {
 
         PowerMockito.mockStatic(Utils.class);
 
@@ -192,7 +196,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     }
 
     @Test
-    public void testInitializeQueriesInvokesInitializeQueryParamsInvokesViewFilterandSortInInitializeQueries() {
+    public void testInitializeQueriesInvokesViewFilterandSortInInitializeQueries() {
 
         PowerMockito.mockStatic(Utils.class);
         PowerMockito.when(Utils.metadata()).thenReturn(metadata);
