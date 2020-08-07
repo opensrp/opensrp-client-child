@@ -62,7 +62,6 @@ import java.util.Set;
 
 import timber.log.Timber;
 
-
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View {
 

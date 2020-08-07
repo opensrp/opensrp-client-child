@@ -12,11 +12,13 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -41,6 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import timber.log.Timber;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
@@ -431,12 +435,17 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), org.smartregister.child.util.Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String fatherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.FATHER_BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
                 ids.add(motherBaseEntityId);
                 ids.add(entityId);
+                //Also include Father base entity Id to pull Father events
+                if (org.smartregister.child.util.Utils.metadata().childRegister.getFatherRelationKey() != null && fatherBaseEntityId != null) {
+                    ids.add(fatherBaseEntityId);
+                }
 
                 moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
                 moveToCatchment.setTag(R.id.move_to_catchment_ids, ids);

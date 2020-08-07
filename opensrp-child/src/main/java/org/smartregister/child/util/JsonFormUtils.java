@@ -1562,12 +1562,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 eventList.add(0, Pair.create(event, jsonEvent));
             } else if (!eventList.isEmpty() && Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
                 eventList.add(1, Pair.create(event, jsonEvent));
-            } else if (!eventList.isEmpty() && Constants.EventType.FATHER_REGISTRATION.equals(event.getEventType())) {
-                eventList.add(2, Pair.create(event, jsonEvent));
             } else {
                 eventList.add(Pair.create(event, jsonEvent));
             }
-
         }
 
         return eventList;

@@ -41,6 +41,7 @@ public final class Constants extends AllConstants {
     public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
     public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
     public static final String CLIENT_RELATIONSHIP = "client_relationship";
+    public static final String ENCOUNTER = "encounter";
 
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
@@ -102,6 +103,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_LAST_NAME = "mother_last_name";
         public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
+        public static final String FATHER_BASE_ENTITY_ID = "father_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";

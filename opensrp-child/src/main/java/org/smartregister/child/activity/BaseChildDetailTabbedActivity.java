@@ -1022,7 +1022,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 String name = VaccinatorUtils.getTranslatedVaccineName(this,
                         curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
                         Locale.ENGLISH).format(curVaccine.getDate()) + ")";
-                choices.put(name);
+                choices.put(name.toUpperCase(Locale.getDefault()));
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
                 while (vaccineGroupNames.hasNext()) {

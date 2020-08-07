@@ -25,10 +25,9 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
         implements ChildAdvancedSearchContract.Presenter, ChildAdvancedSearchContract.InteractorCallBack {
 
     public static final String TABLE_NAME = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
-    private WeakReference<ChildAdvancedSearchContract.View> viewReference;
-    private ChildAdvancedSearchContract.Model model;
-
     private static final String BIRTH_DATE = "birth_date";
+    protected ChildAdvancedSearchContract.Model model;
+    private WeakReference<ChildAdvancedSearchContract.View> viewReference;
 
     public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier,
                                             BaseChildAdvancedSearchModel advancedSearchModel) {
@@ -145,6 +144,4 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     public void setInteractor(ChildAdvancedSearchContract.Interactor interactor) {
         this.interactor = interactor;
     }
-
-
 }

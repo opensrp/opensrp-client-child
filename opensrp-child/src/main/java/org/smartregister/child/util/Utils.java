@@ -61,6 +61,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -564,14 +565,22 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     @NonNull
-    public static Event createArchiveRecordEvent(@NonNull Map<String, String> details) throws Exception {
-        String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
+    public static Event createArchiveRecordEvent(@NonNull String baseEntityId) throws Exception {
         FormTag formTag = JsonFormUtils.formTag(getAllSharedPreferences());
         Event archiveRecordEvent = JsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
         JsonFormUtils.tagSyncMetadata(archiveRecordEvent);
         JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(archiveRecordEvent));
         ChildLibrary.getInstance().getEcSyncHelper().addEvent(archiveRecordEvent.getBaseEntityId(), eventJson);
         return archiveRecordEvent;
+    }
+
+    public static List<Event> createArchiveRecordEvents( List<String> baseEntityIds) throws Exception {
+        List<Event> archiveRecordEvents = new ArrayList<>();
+       for (String baseEntityId : baseEntityIds){
+           Event archiveRecordEvent = createArchiveRecordEvent(baseEntityId);
+           archiveRecordEvents.add(archiveRecordEvent);
+       }
+       return archiveRecordEvents;
     }
 
     public static void initiateEventProcessing(@android.support.annotation.Nullable List<String> formSubmissionIds) throws Exception {
