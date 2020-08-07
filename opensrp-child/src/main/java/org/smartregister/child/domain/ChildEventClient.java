@@ -1,7 +1,8 @@
 package org.smartregister.child.domain;
 
-import org.smartregister.clientandeventmodel.Client;
-import org.smartregister.clientandeventmodel.Event;
+
+import org.smartregister.domain.Client;
+import org.smartregister.domain.Event;
 
 /**
  * Created by ndegwamartin on 25/02/2019.

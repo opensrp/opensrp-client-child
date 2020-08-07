@@ -15,8 +15,8 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
-import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
+import org.smartregister.domain.Client;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.FormUtils;
@@ -155,7 +155,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         String dob = null;
         try {
-            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy")));
+            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate().toDate(), new SimpleDateFormat("dd-MM-yyyy")));
 
         } catch (Exception e) {
             Timber.e(e);

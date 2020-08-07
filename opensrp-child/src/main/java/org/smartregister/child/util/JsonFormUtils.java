@@ -21,6 +21,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,13 +36,13 @@ import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
-import org.smartregister.clientandeventmodel.Address;
-import org.smartregister.clientandeventmodel.Client;
-import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
-import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Address;
+import org.smartregister.domain.Client;
+import org.smartregister.domain.Event;
+import org.smartregister.domain.Obs;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.db.EventClient;
@@ -515,7 +516,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             if (entityIdVal.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                 Date eDate = formatDate(value, false);
                                 if (eDate != null) {
-                                    event.setEventDate(eDate);
+                                    event.setEventDate(new DateTime(eDate));
                                 }
                             }
                         }
@@ -541,9 +542,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static Event getEvent(String providerId, String locationId, String entityId, String
             encounterType, Date encounterDate, String childType) {
         Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
-                .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
+                .withEventDate(new DateTime(encounterDate)).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
-                .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+                .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new DateTime());
 
         JsonFormUtils.tagSyncMetadata(event);
 
@@ -723,7 +724,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             dobUnknownObject.put(Constants.KEY.VALUE, Utils.reverseHyphenatedString(date) + " 12:00:00");
 
             Client baseClient = JsonFormUtils.createBaseClient(fields, formTag, entityId);
-            baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
+            //baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
 
             Event baseEvent = JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1379,10 +1380,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         Client client = (Client) new Client(clientMap.get(Constants.ENTITY_ID))
                 .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
-                .withBirthdate(birthDate, birthDateApprox)
-                .withDeathdate(deathDate, deathDateApprox)
+                .withBirthdate(new DateTime(birthDate), birthDateApprox)
+                .withDeathdate(new DateTime(deathDate), deathDateApprox)
                 .withGender(clientMap.get(GENDER))
-                .withDateCreated(new Date());
+                .withDateCreated(new DateTime());
 
         return client;
     }
@@ -1448,7 +1449,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
         boolean alreadyExists = existingEventClient != null;
 
-        org.smartregister.domain.db.Event existingEvent = existingEventClient != null ? existingEventClient.getEvent() : null;
+        Event existingEvent = existingEventClient != null ? existingEventClient.getEvent() : null;
 
         Event event = getSubFormEvent(parent, entityId, encounterType, bindType, alreadyExists, existingEvent);
         addSubFormEventObservations(fields, event);
@@ -1463,13 +1464,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     private static Event getSubFormEvent(Event parent, String entityId, String
-            encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.db.Event existingEvent) {
+            encounterType, String bindType, boolean alreadyExists, Event existingEvent) {
         Event event = (Event) new Event().withBaseEntityId(alreadyExists ? existingEvent.getBaseEntityId() : entityId)//should be different for main and subform
                 .withEventDate(parent.getEventDate())
                 .withEventType(alreadyExists ? existingEvent.getEventType() : encounterType)
                 .withEntityType(bindType)
                 .withFormSubmissionId(alreadyExists ? existingEvent.getFormSubmissionId() : generateRandomUUIDString())
-                .withDateCreated(new Date());
+                .withDateCreated(new DateTime());
 
         tagSyncMetadata(event);//tag it
 

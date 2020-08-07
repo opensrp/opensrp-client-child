@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 
 import org.smartregister.child.R;
 import org.smartregister.child.util.Utils;
-import org.smartregister.clientandeventmodel.Event;
+import org.smartregister.domain.Event;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;

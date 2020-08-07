@@ -4,13 +4,14 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
-import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.domain.Event;
 import org.smartregister.repository.EventClientRepository;
 
 import java.util.Date;
@@ -59,12 +60,12 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
 
             Event event = (Event) new Event()
                     .withBaseEntityId(baseEntityId) //should be different for main and subform
-                    .withEventDate(encounterDate)
+                    .withEventDate(new DateTime(encounterDate))
                     .withEventType(encounterType)
                     .withLocationId(locationId)
                     .withProviderId(providerId).withEntityType(Constants.CHILD_TYPE)
                     .withChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchCurrentLocality())
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
+                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString()).withDateCreated(new DateTime());
 
 
             for (int i = 0; i < fields.length(); i++) {
@@ -93,7 +94,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                                 if (entityIdValue.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                     Date eventDate = JsonFormUtils.formatDate(value, false);
                                     if (eventDate != null) {
-                                        event.setEventDate(eventDate);
+                                        event.setEventDate(new DateTime(eventDate));
                                     }
                                 }
                             }
