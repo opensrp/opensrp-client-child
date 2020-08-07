@@ -1,29 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/register_nav_bar_container"
-    android:layout_width="fill_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/light_blue"
-    android:filterTouchesWhenObscured="true"
-    android:focusableInTouchMode="true">
+    android:orientation="vertical">
 
-
-    <android.support.design.widget.AppBarLayout
+    <TextView
+        android:id="@+id/advanced_data_capture_strategy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:background="#99000000"
+        android:padding="16dp"
+        android:text="Service point: Mobile Clinic"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/white" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/register_nav_bar_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_blue"
+        android:filterTouchesWhenObscured="true"
+        android:focusableInTouchMode="true">
+
+
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_marginStart="-10dp"
-            android:layout_marginLeft="-10dp"
-            android:background="@color/actionbar">
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
 
-            <include layout="@layout/tool_bar" />
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginStart="-10dp"
+                android:layout_marginLeft="-10dp"
+                android:background="@color/actionbar">
 
-        </android.support.v7.widget.Toolbar>
+                <include layout="@layout/tool_bar" />
 
-    </android.support.design.widget.AppBarLayout>
-</RelativeLayout>
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

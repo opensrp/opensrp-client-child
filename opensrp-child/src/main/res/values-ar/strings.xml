@@ -331,4 +331,5 @@
     </string>
 
     <string name="dismiss_lookup">حفظ</string>
+    <string name="service_point">نقطة خدمة: %1$s</string>
 </resources>

@@ -153,6 +153,7 @@ public class SampleApplication extends DrishtiApplication {
 
         SyncStatusBroadcastReceiver.init(this);
         LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
+        LocationHelper.getInstance().setAdvancedDataCaptureLevels(Arrays.asList(BuildConfig.DATA_CAPTURE_LEVELS));
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
