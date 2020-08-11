@@ -9,6 +9,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 
 import com.vijay.jsonwizard.customviews.DatePickerDialog;
+import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.utils.NativeFormsProperties;
 
 import org.smartregister.child.ChildLibrary;
@@ -19,6 +20,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import timber.log.Timber;
+
 public class DatePickerListener implements View.OnClickListener {
     public static final String TAG = DatePickerListener.class.getCanonicalName();
 
@@ -26,7 +29,8 @@ public class DatePickerListener implements View.OnClickListener {
     private boolean maxDateToday = false;
     private Context context;
 
-    public DatePickerListener(Context context, EditText editText, boolean maxDateToday) {
+    public DatePickerListener(Context context, EditText editText,
+                              boolean maxDateToday) {
         this.context = context;
         this.editText = editText;
         this.maxDateToday = maxDateToday;
@@ -35,7 +39,7 @@ public class DatePickerListener implements View.OnClickListener {
     @Override
     public void onClick(View view) {
 
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
 
         //To show current date in the datepicker
         Calendar mcurrentDate = Calendar.getInstance();
@@ -50,12 +54,12 @@ public class DatePickerListener implements View.OnClickListener {
                     Date previouslySelectedDate = dateFormatter.parse(previouslySelectedDateString);
                     mcurrentDate.setTime(previouslySelectedDate);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Timber.e(e);
                 }
             }
         }
 
-        DatePickerDialog mDatePicker = new DatePickerDialog();
+        DatePickerDialog mDatePicker = getDatePickerDialog();
         boolean isNumericDatePicker = ChildLibrary.getInstance().getProperties().hasProperty(NativeFormsProperties.KEY.WIDGET_DATEPICKER_IS_NUMERIC) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(NativeFormsProperties.KEY.WIDGET_DATEPICKER_IS_NUMERIC);
         mDatePicker.setNumericDatePicker(isNumericDatePicker);
         mDatePicker.setContext(context);
@@ -95,8 +99,10 @@ public class DatePickerListener implements View.OnClickListener {
         ft.addToBackStack(null);
 
         mDatePicker.show(ft, TAG);
+    }
 
-
+    protected DatePickerDialog getDatePickerDialog() {
+        return new DatePickerDialog();
     }
 
 }
