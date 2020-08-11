@@ -52,7 +52,7 @@ public class DatePickerListenerTest extends BaseUnitTest {
 
 
     @Test
-    public void testOnClick() throws ParseException {
+    public void testOnClickShouldCreateDatePickerDialogCorrectly() throws ParseException {
         Mockito.doReturn(true).when(appProperties).getPropertyBoolean(NativeFormsProperties.KEY.WIDGET_DATEPICKER_IS_NUMERIC);
         Mockito.doReturn(true).when(appProperties).hasProperty(NativeFormsProperties.KEY.WIDGET_DATEPICKER_IS_NUMERIC);
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
@@ -64,7 +64,6 @@ public class DatePickerListenerTest extends BaseUnitTest {
         DatePickerDialog datePickerDialog = Mockito.spy(new DatePickerDialog());
         Mockito.doReturn(datePickerDialog).when(datePickerListenerSpy).getDatePickerDialog();
         datePickerListenerSpy.onClick(editText);
-
 
         Mockito.verify(datePickerDialog, Mockito.times(1))
                 .setNumericDatePicker(Mockito.eq(true));
