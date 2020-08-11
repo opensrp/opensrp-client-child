@@ -1,5 +1,6 @@
 package org.smartregister.child.util;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.TextViewCompat;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,6 +30,7 @@ import org.joda.time.Weeks;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -567,5 +570,13 @@ public class Utils extends org.smartregister.util.Utils {
         Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
         Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
         return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
+    }
+
+    public static void refreshDataCaptureStrategyBanner(Activity context, String selectedDataStrategy) {
+
+        View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy);
+        if (dataCaptureStrategyView != null) {
+            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.NORMAL.equals(selectedDataStrategy) ? View.GONE : View.VISIBLE);
+        }
     }
 }

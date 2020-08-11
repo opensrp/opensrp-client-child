@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import android.os.Bundle;
+
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -28,5 +30,11 @@ public abstract class BaseChildActivity extends BaseActivity {
         String firstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentDataStrategy());
     }
 }

@@ -46,8 +46,8 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -1340,7 +1340,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void onLocationChanged(final String newLocation) {
-        // TODO: Do whatever needs to be done when the location is changed
+        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentDataStrategy());
     }
 
     @Override
