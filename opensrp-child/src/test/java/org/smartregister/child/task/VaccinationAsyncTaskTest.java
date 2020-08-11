@@ -2,6 +2,7 @@ package org.smartregister.child.task;
 
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,11 +16,13 @@ import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.domain.GroupVaccineCount;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.util.VaccineCache;
 import org.smartregister.util.AppProperties;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -128,5 +131,70 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         dateTime = dateTime.plusDays(1);
         state = Whitebox.invokeMethod(vaccinationAsyncTask, "getUpcomingState", dateTime);
         assertEquals("UPCOMING_NEXT_7_DAYS", state.name());
+    }
+
+    @Test
+    public void testGetIsGroupPartial() throws Exception {
+        Method getIsGroupPartial = VaccinationAsyncTask.class.getDeclaredMethod("getIsGroupPartial", String.class);
+        getIsGroupPartial.setAccessible(true);
+
+        Boolean res = (Boolean) getIsGroupPartial.invoke(vaccinationAsyncTask, "opv0");
+        Assert.assertFalse(res);
+
+        Map<String, GroupVaccineCount> groupVaccineCountMap = new HashMap<>();
+        groupVaccineCountMap.put("Birth", new GroupVaccineCount(0, 2));
+        Whitebox.setInternalState(vaccinationAsyncTask, "groupVaccineCountMap", groupVaccineCountMap);
+
+        res = (Boolean) getIsGroupPartial.invoke(vaccinationAsyncTask, "bcg2");
+        Assert.assertTrue(res);
+
+    }
+
+    @Test
+    public void testGetAlertMessageWhenVaccineDue() throws Exception {
+        Method getAlertMessage = VaccinationAsyncTask.class.getDeclaredMethod("getAlertMessage", VaccinationAsyncTask.State.class, String.class);
+        getAlertMessage.setAccessible(true);
+
+        String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.DUE, null);
+        Assert.assertEquals("Due", message);
+
+        message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.DUE, "opv0");
+        Assert.assertEquals("opv0\nDue", message);
+    }
+
+    @Test
+    public void testGetAlertMessageWhenVaccineOverDue() throws Exception {
+        Method getAlertMessage = VaccinationAsyncTask.class.getDeclaredMethod("getAlertMessage", VaccinationAsyncTask.State.class, String.class);
+        getAlertMessage.setAccessible(true);
+
+        String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.OVERDUE, null);
+        Assert.assertEquals("Overdue", message);
+
+        message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.OVERDUE, "opv0");
+        Assert.assertEquals("opv0\nOverdue", message);
+    }
+
+    @Test
+    public void testGetAlertMessageWhenVaccineIsDone() throws Exception {
+        Method getAlertMessage = VaccinationAsyncTask.class.getDeclaredMethod("getAlertMessage", VaccinationAsyncTask.State.class, String.class);
+        getAlertMessage.setAccessible(true);
+
+        String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.NO_ALERT, null);
+        Assert.assertEquals("Done Today", message);
+
+        message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.NO_ALERT, "opv0");
+        Assert.assertEquals("Done Today", message);
+    }
+
+    @Test
+    public void testGetAlertMessageWhenVaccineIsComplete() throws Exception {
+        Method getAlertMessage = VaccinationAsyncTask.class.getDeclaredMethod("getAlertMessage", VaccinationAsyncTask.State.class, String.class);
+        getAlertMessage.setAccessible(true);
+
+        String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.FULLY_IMMUNIZED, null);
+        Assert.assertEquals("Done", message);
+
+        message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.FULLY_IMMUNIZED, "opv0");
+        Assert.assertEquals("Done", message);
     }
 }
