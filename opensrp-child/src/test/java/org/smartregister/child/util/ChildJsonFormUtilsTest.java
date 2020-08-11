@@ -37,10 +37,14 @@ import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.form.FormLocation;
+import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.repository.Repository;
+import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.view.activity.BaseProfileActivity;
 
@@ -50,6 +54,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +99,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     @Mock
     private LocationHelper locationHelper;
 
+    @Mock
+    private Repository repository;
+
     @Captor
     private ArgumentCaptor<JSONObject> eventClientAddOrUpdateClient;
 
@@ -111,6 +119,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
     private TelephonyManager telephonyManager;
+
+    @Mock
+    private ClientProcessorForJava clientProcessorForJava;
 
     @Before
     public void setUp() {
@@ -546,5 +557,138 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+    }
+
+
+    @Test
+    public void testFormTagCreatesValidInstance() {
+
+        String provider = "demo";
+        String appVersionName = "1.0.3";
+
+        Mockito.doReturn(provider).when(allSharedPreferences).fetchRegisteredANM();
+        Mockito.doReturn(3).when(childLibrary).getApplicationVersion();
+        Mockito.doReturn(appVersionName).when(childLibrary).getApplicationVersionName();
+        Mockito.doReturn(5).when(childLibrary).getDatabaseVersion();
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
+        FormTag formTag = ChildJsonFormUtils.formTag(allSharedPreferences);
+
+        Assert.assertNotNull(formTag);
+        Assert.assertEquals(provider, formTag.providerId);
+        Assert.assertEquals(appVersionName, formTag.appVersionName);
+        Assert.assertEquals(Integer.valueOf(3), formTag.appVersion);
+        Assert.assertEquals(Integer.valueOf(5), formTag.databaseVersion);
+    }
+
+    @Test
+    public void testUpdateClientAttribute() throws Exception {
+
+
+        Mockito.doReturn(sqLiteDatabase).when(repository).getWritableDatabase();
+        Mockito.doReturn(sqLiteDatabase).when(repository).getReadableDatabase();
+        Mockito.doReturn(repository).when(childLibrary).getRepository();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+        Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+
+        String attributeName = "Child_Status";
+        String attributeValue = "Inactive";
+        String oldAttributValue = "Lost to follow up";
+        String baseEntityId = "b8798571-dee6-43b5-a289-fc75ab703792";
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null, true, new RegisterQueryProvider());
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+
+        JSONObject client = new JSONObject();
+        client.put("baseEntityId", baseEntityId);
+        JSONObject clientAttributes = new JSONObject();
+        clientAttributes.put(attributeName, oldAttributValue);
+        client.put(ChildJsonFormUtils.attributes, clientAttributes);
+
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn(client).when(eventClientRepository).getClientByBaseEntityId(baseEntityId);
+        Mockito.doReturn(eventClientRepository).when(opensrpContext).getEventClientRepository();
+        Mockito.doReturn(eventClientRepository).when(childLibrary).eventClientRepository();
+        Mockito.doNothing().when(eventClientRepository).addorUpdateClient(ArgumentMatchers.endsWith(baseEntityId), ArgumentMatchers.any(JSONObject.class));
+
+        Mockito.doReturn("My Location").when(allSharedPreferences).fetchCurrentLocality();
+
+
+        //Verify client details updated correctly on device
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put("baseEntityId", baseEntityId);
+        childDetails.put("first_name", "Alaine");
+        childDetails.put("last_name", "Nasenyana");
+        childDetails.put(attributeName, oldAttributValue);
+
+        ArrayList<HashMap<String, String>> dbRecords = new ArrayList<>();
+        dbRecords.add(childDetails);
+
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, "child");
+        commonPersonObjectClient.setColumnmaps(childDetails);
+
+        Mockito.doReturn(dbRecords).when(eventClientRepository).rawQuery(ArgumentMatchers.any(SQLiteDatabase.class), ArgumentMatchers.anyString());
+
+        ChildJsonFormUtils.updateClientAttribute(opensrpContext, commonPersonObjectClient, locationHelper, attributeName, attributeValue);
+
+        ArgumentCaptor<String> tableArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        ArgumentCaptor<ContentValues> queryParamsArgumentCaptor = ArgumentCaptor.forClass(ContentValues.class);
+
+        ArgumentCaptor<String> filterArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        ArgumentCaptor<String[]> filterArgumentsCaptor = ArgumentCaptor.forClass(String[].class);
+
+        Mockito.verify(sqLiteDatabase, Mockito.times(1)).update(tableArgumentCaptor.capture(), queryParamsArgumentCaptor.capture(), filterArgumentCaptor.capture(), filterArgumentsCaptor.capture());
+
+        String table = tableArgumentCaptor.getValue();
+
+        Assert.assertNotNull(table);
+        Assert.assertEquals("ec_child_details", table);
+
+        String filterArgumentCaptorValue = filterArgumentCaptor.getValue();
+
+        Assert.assertNotNull(filterArgumentCaptorValue);
+        Assert.assertEquals("base_entity_id= ?", filterArgumentCaptorValue);
+
+        String[] filterArgumentsCaptorValue = filterArgumentsCaptor.getValue();
+
+        Assert.assertNotNull(filterArgumentsCaptorValue);
+        Assert.assertEquals(1, filterArgumentsCaptorValue.length);
+        Assert.assertEquals(baseEntityId, filterArgumentsCaptorValue[0]);
+
+        ContentValues contentValues = queryParamsArgumentCaptor.getValue();
+
+        Assert.assertNotNull(contentValues);
+        Assert.assertEquals("child_status=Inactive", contentValues.toString());
+
+
+        //Verify Client document is generated correctly
+        ArgumentCaptor<JSONObject> updatedClientArgCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        ArgumentCaptor<String> baseEntityIdArgCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(eventClientRepository).addorUpdateClient(baseEntityIdArgCaptor.capture(), updatedClientArgCaptor.capture());
+
+        JSONObject updatedClient = updatedClientArgCaptor.getValue();
+        Assert.assertNotNull(updatedClient);
+        Assert.assertEquals(baseEntityId, client.getString("baseEntityId"));
+        Assert.assertTrue(updatedClient.has(ChildJsonFormUtils.attributes));
+        Assert.assertEquals("{\"Child_Status\":\"Inactive\"}", updatedClient.getString(ChildJsonFormUtils.attributes));
+
+
+        //Verify update Event document is generated correctly
+        ArgumentCaptor<JSONObject> updatedEventArgCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        ArgumentCaptor<String> baseEntityIdArgCaptor2 = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(eventClientRepository).addEvent(baseEntityIdArgCaptor2.capture(), updatedEventArgCaptor.capture());
+
+        JSONObject updatedEvent = updatedEventArgCaptor.getValue();
+        Assert.assertNotNull(updatedEvent);
+        Assert.assertEquals(baseEntityId, updatedEvent.getString("baseEntityId"));
+        Assert.assertEquals("Event", updatedEvent.getString("type"));
+        Assert.assertEquals("Update Birth Registration", updatedEvent.getString("eventType"));
+        Assert.assertEquals("demo", updatedEvent.getString("providerId"));
     }
 }
