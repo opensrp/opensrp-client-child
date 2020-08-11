@@ -156,10 +156,10 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         getAlertMessage.setAccessible(true);
 
         String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.DUE, null);
-        Assert.assertEquals("Due", message);
+        assertEquals("Due", message);
 
         message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.DUE, "opv0");
-        Assert.assertEquals("opv0\nDue", message);
+        assertEquals("opv0\nDue", message);
     }
 
     @Test
@@ -168,10 +168,10 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         getAlertMessage.setAccessible(true);
 
         String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.OVERDUE, null);
-        Assert.assertEquals("Overdue", message);
+        assertEquals("Overdue", message);
 
         message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.OVERDUE, "opv0");
-        Assert.assertEquals("opv0\nOverdue", message);
+        assertEquals("opv0\nOverdue", message);
     }
 
     @Test
@@ -180,10 +180,10 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         getAlertMessage.setAccessible(true);
 
         String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.NO_ALERT, null);
-        Assert.assertEquals("Done Today", message);
+        assertEquals("Done Today", message);
 
         message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.NO_ALERT, "opv0");
-        Assert.assertEquals("Done Today", message);
+        assertEquals("Done Today", message);
     }
 
     @Test
@@ -192,9 +192,9 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         getAlertMessage.setAccessible(true);
 
         String message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.FULLY_IMMUNIZED, null);
-        Assert.assertEquals("Done", message);
+        assertEquals("Done", message);
 
         message = (String) getAlertMessage.invoke(vaccinationAsyncTask, VaccinationAsyncTask.State.FULLY_IMMUNIZED, "opv0");
-        Assert.assertEquals("Done", message);
+        assertEquals("Done", message);
     }
 }
