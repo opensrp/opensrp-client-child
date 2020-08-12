@@ -60,8 +60,8 @@ import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -455,7 +455,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
         int[] colors = updateGenderViews(gender);
         int normalShade = colors[1];
-        childDetailsToolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
+        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(normalShade));
+        childDetailsToolbar.setBackground(colorDrawable);
+        findViewById(R.id.advanced_data_capture_strategy_wrapper).setBackground(colorDrawable);
         tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
         try {

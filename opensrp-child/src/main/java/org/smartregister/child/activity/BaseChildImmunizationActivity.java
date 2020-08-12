@@ -193,6 +193,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(false);
 
         setUpFloatingActionButton();
+        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
@@ -428,7 +429,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             }
         }
 
-        updateGenderViews(gender);
+        int[] colors = updateGenderViews(gender);
+        int normalShade = colors[1];
+        findViewById(R.id.advanced_data_capture_strategy_wrapper).setBackground(new ColorDrawable(getResources().getColor(normalShade)));
     }
 
     private void updateAgeViews() {
@@ -1340,7 +1343,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void onLocationChanged(final String newLocation) {
-        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentDataStrategy());
+        Utils.refreshDataCaptureStrategyBanner(this, newLocation);
     }
 
     @Override

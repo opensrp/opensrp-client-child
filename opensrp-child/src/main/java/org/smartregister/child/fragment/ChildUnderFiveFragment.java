@@ -112,6 +112,8 @@ public class ChildUnderFiveFragment extends Fragment {
             heightWidgetLayout.setVisibility(View.VISIBLE);
         }
 
+        org.smartregister.child.util.Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+
         return underFiveFragment;
     }
 

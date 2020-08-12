@@ -152,8 +152,7 @@ public class SampleApplication extends DrishtiApplication {
         context.session().setPassword(SecurityHelper.toBytes(SampleRepository.PASSWORD));
 
         SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
-        LocationHelper.getInstance().setAdvancedDataCaptureLevels(Arrays.asList(BuildConfig.DATA_CAPTURE_LEVELS));
+        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL, Arrays.asList(BuildConfig.DATA_CAPTURE_LEVELS));
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());

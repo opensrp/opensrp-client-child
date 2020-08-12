@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
@@ -572,11 +573,12 @@ public class Utils extends org.smartregister.util.Utils {
         return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
     }
 
-    public static void refreshDataCaptureStrategyBanner(Activity context, String selectedDataStrategy) {
+    public static void refreshDataCaptureStrategyBanner(Activity context, String selectedLocation) {
 
-        View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy);
+        View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy_wrapper);
         if (dataCaptureStrategyView != null) {
-            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.NORMAL.equals(selectedDataStrategy) ? View.GONE : View.VISIBLE);
+            ((TextView) context.findViewById(R.id.advanced_data_capture_strategy)).setText(context.getString(R.string.service_point, selectedLocation));
+            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.NORMAL.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.GONE : View.VISIBLE);
         }
     }
 }

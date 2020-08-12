@@ -27,7 +27,6 @@ import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
-import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 import java.util.Arrays;
@@ -38,7 +37,7 @@ import java.util.Map;
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
-public abstract class BaseChildRegisterActivity extends BaseRegisterActivity implements ChildRegisterContract.View, ChildRegisterContract.ProgressDialogCallback, LocationPickerView.OnLocationChangeListener {
+public abstract class BaseChildRegisterActivity extends BaseRegisterActivity implements ChildRegisterContract.View, ChildRegisterContract.ProgressDialogCallback {
     public static final String TAG = BaseChildRegisterActivity.class.getCanonicalName();
 
 
@@ -48,8 +47,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ChildLibrary.getInstance().getLocationPickerView(this).setOnLocationChangeListener(this);
-        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentDataStrategy());
     }
 
     public Context getOpenSRPContext() {
@@ -284,8 +281,4 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     }
 
-    @Override
-    public void onLocationChange(final String newLocation) {
-        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentDataStrategy());
-    }
 }

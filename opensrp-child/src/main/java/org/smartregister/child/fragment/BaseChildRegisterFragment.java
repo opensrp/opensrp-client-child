@@ -55,7 +55,7 @@ import timber.log.Timber;
  * Created by ndegwamartin on 25/02/2019.
  */
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
-        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
+        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener, LocationPickerView.OnLocationChangeListener {
 
     private View filterSection;
     private int dueOverdueCount = 0;
@@ -73,6 +73,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         onInitialization();
         setupViews(view);
         onResumption();
+
         return view;
     }
 
@@ -119,6 +120,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             filterSection.setOnClickListener(this);
 
             clinicSelection = view.findViewById(R.id.clinic_selection);
+            clinicSelection.setOnLocationChangeListener(this);
             clinicSelection.init();
 
             clientsView.setVisibility(View.VISIBLE);
@@ -165,6 +167,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         updateSearchView();
         updateLocationText();
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildRegisterActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     @Override
@@ -450,6 +453,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             }
         }
         return count;
+    }
+
+    @Override
+    public void onLocationChange(final String newLocation) {
+        Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
