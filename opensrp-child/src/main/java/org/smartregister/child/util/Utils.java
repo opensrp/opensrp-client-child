@@ -578,7 +578,7 @@ public class Utils extends org.smartregister.util.Utils {
         View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy_wrapper);
         if (dataCaptureStrategyView != null) {
             ((TextView) context.findViewById(R.id.advanced_data_capture_strategy)).setText(context.getString(R.string.service_point, selectedLocation));
-            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.NORMAL.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.GONE : View.VISIBLE);
+            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.VISIBLE : View.GONE);
         }
     }
 }

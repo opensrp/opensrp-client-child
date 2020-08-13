@@ -12,8 +12,6 @@ import org.smartregister.child.sample.util.SampleConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
-import java.util.Map;
-
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
 
 
@@ -46,11 +44,6 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
         fragments[ADVANCED_SEARCH_POSITION - 1] = new AdvancedSearchFragment();
 
         return fragments;
-    }
-
-    @Override
-    public void startFormActivity(String formName, String entityId, Map<String, String> metaData) {
-
     }
 
     @Override
