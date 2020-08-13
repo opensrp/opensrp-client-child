@@ -46,10 +46,13 @@ before_script:
   - sudo apt-get install openjdk-8-jdk
   - java -version
   # set executable flag for gradle wrapper
-  - chmod +x gradlew
+  - chmod 755 gradlew
 
 script:
-  - travis_wait ./gradlew :opensrp-child:jacocoTestReport coveralls --stacktrace
+  - travis_wait ./gradlew :opensrp-child:jacocoTestReport --stacktrace
+
+after_success:
+  - travis_wait ./gradlew :opensrp-child:coveralls --stacktrace
 
 after_failure:
   - pandoc opensrp-child/build/reports/tests/index.html -t plain
