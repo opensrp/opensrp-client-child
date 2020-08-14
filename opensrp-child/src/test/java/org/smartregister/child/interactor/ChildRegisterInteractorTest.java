@@ -25,13 +25,12 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.tag.FormTag;
-import org.smartregister.growthmonitoring.BuildConfig;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.repository.AllSharedPreferences;
@@ -48,7 +47,7 @@ import java.util.List;
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-11-21
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.O_MR1)
+@Config(sdk = Build.VERSION_CODES.O_MR1)
 public class ChildRegisterInteractorTest {
 
     @Rule
@@ -68,7 +67,7 @@ public class ChildRegisterInteractorTest {
     private ArgumentCaptor syncHelperAddEventArgumentCaptor;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         interactor = new ChildRegisterInteractor(Mockito.mock(AppExecutors.class));
     }
 
