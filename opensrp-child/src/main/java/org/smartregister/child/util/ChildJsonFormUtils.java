@@ -1329,7 +1329,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
 
         boolean alreadyExists = eventClients.size() > 0;
-        org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
+        org.smartregister.domain.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
         Event event = getSubformEvent(parent, entityId, encounterType, bindType, alreadyExists, domainEvent);
 
@@ -1346,7 +1346,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static Event getSubformEvent(Event parent, String entityId, String
             encounterType, String bindType, boolean alreadyExists, org.
-                                                 smartregister.domain.db.Event domainEvent) {
+                                                 smartregister.domain.Event domainEvent) {
         Event event = (Event) new Event().withBaseEntityId(
                 alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
                 .withEventDate(parent.getEventDate()).withEventType(encounterType).withEntityType(bindType)
