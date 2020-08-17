@@ -46,7 +46,7 @@ before_script:
   - sudo apt-get install openjdk-8-jdk
   - java -version
   # set executable flag for gradle wrapper
-  - chmod 755 gradlew
+  - chmod +x gradlew
 
 script:
   - travis_wait ./gradlew :opensrp-child:jacocoTestReport --stacktrace
