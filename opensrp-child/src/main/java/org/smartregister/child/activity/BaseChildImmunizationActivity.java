@@ -419,15 +419,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
         int[] colors = updateGenderViews(gender);
         int normalShade = colors[1];

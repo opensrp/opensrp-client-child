@@ -581,4 +581,15 @@ public class Utils extends org.smartregister.util.Utils {
             dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.VISIBLE : View.GONE);
         }
     }
+
+    public static Gender getGenderEnum(Map<String, String> childDetails) {
+        Gender gender = Gender.UNKNOWN;
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+        if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
+            gender = Gender.FEMALE;
+        } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
+            gender = Gender.MALE;
+        }
+        return gender;
+    }
 }

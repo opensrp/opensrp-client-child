@@ -39,7 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -431,28 +430,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         profileage.setText(" " + formattedAge);
         profileOpenSrpId.setText(" " + childId);
         profilename.setText(name);
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails) : Gender.UNKNOWN;
+
         updateProfilePicture(gender);
     }
 
     private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
+
         int[] colors = updateGenderViews(gender);
         int normalShade = colors[1];
         ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(normalShade));
@@ -914,13 +901,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 weight.setLocationId(locationId);
             }
 
-            Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
+            Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
             String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
@@ -950,13 +931,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 height.setLocationId(locationId);
             }
 
-            Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
-                gender = Gender.MALE;
-            }
+            Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
             String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);

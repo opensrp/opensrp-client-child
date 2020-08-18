@@ -49,7 +49,8 @@ before_script:
   - chmod +x gradlew
 
 script:
-  - travis_wait ./gradlew :opensrp-child:jacocoTestReport :opensrp-child:coveralls --stacktrace
+  - travis_wait ./gradlew :opensrp-child:jacocoTestReport --stacktrace
+  - travis_wait ./gradlew :opensrp-child:coveralls --stacktrace
 
 after_failure:
   - pandoc opensrp-child/build/reports/tests/index.html -t plain
