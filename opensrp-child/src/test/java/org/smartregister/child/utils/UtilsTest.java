@@ -68,7 +68,7 @@ public class UtilsTest extends BaseUnitTest {
     private AllSharedPreferences allSharedPreferences;
 
     @Mock
-    private org.smartregister.Context opensrpContext;
+    private Context opensrpContext;
 
     @Mock
     private ChildLibrary childLibrary;

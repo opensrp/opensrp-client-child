@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
-import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
