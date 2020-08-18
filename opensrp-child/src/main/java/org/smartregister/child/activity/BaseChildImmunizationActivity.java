@@ -93,6 +93,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -1323,14 +1324,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 commonPersonObject.setColumnmaps(
-                        ChildJsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
+                        ChildJsonFormUtils.updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 commonPersonObject.setColumnmaps(ChildJsonFormUtils
-                        .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
+                        .updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
             Timber.e(e);

@@ -519,8 +519,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper
-            ecSyncHelper) throws Exception {
+    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
 
@@ -622,6 +621,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         } catch (SecurityException e) {
             Timber.e(e, "JsonFormUtils --> MissingPermission --> getSimSerialNumber");
+        } catch (NullPointerException e) {
+            Timber.e(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -650,15 +651,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    public static String getChildLocationId(@NonNull String
-                                                    defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
+    public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
         String currentLocality = allSharedPreferences.fetchCurrentLocality();
 
-        if (StringUtils.isNotBlank(currentLocality)) {
-            String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-            if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
-                return currentLocalityId;
+        try {
+            if (StringUtils.isNotBlank(currentLocality)) {
+                String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
+                    return currentLocalityId;
+                }
             }
+        } catch (Exception e) {
+            Timber.e(e);
         }
 
         return null;
@@ -1743,11 +1747,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
 
-    public static Map<String, String> updateClientAttribute(Context
-                                                                    context, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws
-            Exception {
-
-        org.smartregister.Context openSRPContext = CoreLibrary.getInstance().context();
+    public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, LocationHelper locationHelper, String attributeName, Object attributeValue) throws Exception {
 
         Date date = new Date();
         EventClientRepository db = openSRPContext.getEventClientRepository();
@@ -1769,22 +1769,24 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
         String locationName = allSharedPreferences.fetchCurrentLocality();
         if (StringUtils.isBlank(locationName)) {
-            locationName = LocationHelper.getInstance().getDefaultLocation();
+            locationName = locationHelper.getDefaultLocation();
         }
 
-        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), LocationHelper.getInstance().getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
-        ChildJsonFormUtils.addMetaData(context, event, date);
+        ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
+        processClients(allSharedPreferences, ECSyncHelper.getInstance(openSRPContext.applicationContext()));
 
         //update details
         Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
-        if (childDetails.getColumnmaps().containsKey(attributeName)) {
-            childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+        if (detailsMap != null) {
+            if (childDetails.getColumnmaps().containsKey(attributeName)) {
+                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+            }
+            Utils.putAll(detailsMap, childDetails.getColumnmaps());
         }
-        Utils.putAll(detailsMap, childDetails.getColumnmaps());
 
         return detailsMap;
     }
