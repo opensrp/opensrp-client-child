@@ -38,7 +38,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
+        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
 
         buildConfigField "String[]", "LOCATION_LEVELS", '{"Country", "Province", "District", "Facility", "Village"}'
         buildConfigField "String[]", "HEALTH_FACILITY_LEVELS", '{"Country", "Province", "District", "Health Facility", "Village"}'
@@ -128,9 +128,14 @@ android {
 
 dependencies {
 
-    implementation project(":opensrp-child")
+    implementation(project(":opensrp-child")) {
+        transitive = true
+        exclude group: 'com.ibm.fhir', module: 'fhir-model'
+    }
 
     jarJar 'com.ibm.fhir:fhir-model:4.2.3'
+
+    implementation fileTree(dir: "./build/libs", include: ['*.jar'])
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'

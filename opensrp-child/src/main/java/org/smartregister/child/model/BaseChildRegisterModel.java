@@ -18,6 +18,7 @@ import org.smartregister.util.FormUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -88,12 +89,12 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     }
 
     @Override
-    public JSONObject getFormAsJson(String formName, String entityId, String currentLocationId) throws Exception {
+    public JSONObject getFormAsJson(String formName, String entityId, String currentLocationId, Map<String, String> metadata) throws Exception {
         JSONObject form = getFormUtils().getFormJson(formName);
         if (form == null) {
             return null;
         }
-        return ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId);
+        return ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId, metadata);
     }
 
     private FormUtils getFormUtils() {

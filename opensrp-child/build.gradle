@@ -31,7 +31,7 @@ android {
         versionName project.VERSION_NAME
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
+        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
     }
     buildTypes {
         release {
@@ -79,14 +79,14 @@ allprojects {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
         maven { url "https://dl.bintray.com/ona/rdt-capture" }
-        maven { url 'https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases' }
+        maven { url 'https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases'}
         mavenLocal()
     }
 }
 
 dependencies {
 
-    api('org.smartregister:opensrp-client-core:2.0.4-PREVIEW-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:2.0.5-PREVIEW-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'

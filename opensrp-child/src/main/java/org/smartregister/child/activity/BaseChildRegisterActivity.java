@@ -113,7 +113,15 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     public void startFormActivity(String formName, String entityId, Map<String, String> metaData) {
-        // To Do Override
+        try {
+            if (mBaseFragment instanceof BaseChildRegisterFragment) {
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
+                presenter().startForm(formName, entityId, metaData, locationId);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            displayToast(getString(R.string.error_unable_to_start_form));
+        }
     }
 
     @Override
