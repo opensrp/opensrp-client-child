@@ -3,6 +3,7 @@ package org.smartregister.child.watchers;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.widget.EditText;
 
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 
@@ -59,23 +60,36 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @Test
     public void testAfterTextChangedShouldFillLookUpMapCorrectlyBeforeLookup() {
-        View view = new View(RuntimeEnvironment.application);
-        view.setTag(com.vijay.jsonwizard.R.id.raw_value, "test");
-        view.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
-        view.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
-        lookUpTextWatcher = new LookUpTextWatcher(formFragment, view, "mother");
+        EditText edtFirstName = new EditText(RuntimeEnvironment.application);
+        edtFirstName.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
+        edtFirstName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
+
+        LookUpTextWatcher lookUpTextWatcher = new LookUpTextWatcher(formFragment, edtFirstName, "mother");
         LookUpTextWatcher lookUpTextWatcherSpy = Mockito.spy(lookUpTextWatcher);
 
-        Editable editable = new SpannableStringBuilder();
-        lookUpTextWatcherSpy.afterTextChanged(editable);
+        edtFirstName.addTextChangedListener(lookUpTextWatcherSpy);
+        edtFirstName.setText("john");
+
+        EditText edtLastName = new EditText(RuntimeEnvironment.application);
+        edtLastName.setTag(com.vijay.jsonwizard.R.id.key, "last_name");
+        edtLastName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
+        ReflectionHelpers.setField(lookUpTextWatcherSpy, "mView", edtLastName);
+
+        edtLastName.addTextChangedListener(lookUpTextWatcherSpy);
+
+        edtLastName.setText("doe");
 
         Mockito.doNothing().when(lookUpTextWatcherSpy)
                 .initiateLookUp(Mockito.any(Listener.class));
 
         Map<String, EntityLookUp> lookUpMap = ReflectionHelpers.getField(lookUpTextWatcherSpy, "lookUpMap");
         Assert.assertFalse(lookUpMap.isEmpty());
+        Assert.assertEquals(2, lookUpMap.get("mother").getMap().size());
 
-        Mockito.verify(lookUpTextWatcherSpy, Mockito.times(1))
+        Assert.assertEquals("john", lookUpMap.get("mother").getMap().get("first_name"));
+        Assert.assertEquals("doe", lookUpMap.get("mother").getMap().get("last_name"));
+
+        Mockito.verify(lookUpTextWatcherSpy, Mockito.times(2))
                 .initiateLookUp(Mockito.any(Listener.class));
     }
 
