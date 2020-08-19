@@ -30,7 +30,7 @@ import org.smartregister.immunization.domain.GroupVaccineCount;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.util.VaccineCache;
-import org.smartregister.util.AppProperties;;
+import org.smartregister.util.AppProperties;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
