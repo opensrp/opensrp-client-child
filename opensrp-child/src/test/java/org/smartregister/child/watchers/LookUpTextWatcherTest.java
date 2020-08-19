@@ -29,8 +29,6 @@ import java.util.Map;
 
 public class LookUpTextWatcherTest extends BaseUnitTest {
 
-    private LookUpTextWatcher lookUpTextWatcher;
-
     private JsonFormFragment formFragment;
 
     @Mock
@@ -99,7 +97,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         View view = new View(RuntimeEnvironment.application);
         view.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
         view.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
-        lookUpTextWatcher = new LookUpTextWatcher(formFragment, view, "mother");
+        LookUpTextWatcher lookUpTextWatcher = new LookUpTextWatcher(formFragment, view, "mother");
         LookUpTextWatcher lookUpTextWatcherSpy = Mockito.spy(lookUpTextWatcher);
 
         Mockito.doNothing().when(lookUpTextWatcherSpy).initiateLookUp(Mockito.any(Listener.class));
