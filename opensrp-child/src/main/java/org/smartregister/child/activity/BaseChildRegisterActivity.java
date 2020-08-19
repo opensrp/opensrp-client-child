@@ -21,8 +21,8 @@ import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
@@ -30,6 +30,7 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -99,6 +100,19 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     public void startFormActivity(String formName, String entityId, String metaData) {
+        try {
+            if (mBaseFragment instanceof BaseChildRegisterFragment) {
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
+                presenter().startForm(formName, entityId, metaData, locationId);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            displayToast(getString(R.string.error_unable_to_start_form));
+        }
+    }
+
+    @Override
+    public void startFormActivity(String formName, String entityId, Map<String, String> metaData) {
         try {
             if (mBaseFragment instanceof BaseChildRegisterFragment) {
                 String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
@@ -226,7 +240,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     public void startRegistration() {
         //setSelectedBottomBarMenuItem(R.id.action_register);
-        startFormActivity(getRegistrationForm(), null, null);
+        startFormActivity(getRegistrationForm(), null, "");
     }
 
     public abstract String getRegistrationForm();

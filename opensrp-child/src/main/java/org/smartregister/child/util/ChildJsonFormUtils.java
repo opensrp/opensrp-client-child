@@ -105,7 +105,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
-    public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId)
+    public static JSONObject getFormAsJson(JSONObject form, String formName, String id, String currentLocationId, Map<String, String> metadata)
             throws Exception {
         if (form == null) {
             return null;
@@ -127,19 +127,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 entityId = entityId.replace("-", "");
             }
 
-            ChildJsonFormUtils.addChildRegLocHierarchyQuestions(form);
+            Map<String, String> locationMetadata = ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
+            metadata.putAll(locationMetadata);
 
-            // Inject zeir id into the form
-            JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
-            JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                if (jsonObject.getString(ChildJsonFormUtils.KEY).equalsIgnoreCase(ChildJsonFormUtils.ZEIR_ID)) {
-                    jsonObject.remove(ChildJsonFormUtils.VALUE);
-                    jsonObject.put(ChildJsonFormUtils.VALUE, entityId);
-                }
-            }
+            metadata.put(ChildJsonFormUtils.ZEIR_ID, entityId); //inject zeir id into the form
 
+            prePopulateJsonFormFields(form, metadata, new ArrayList<String>());
         } else if (formName.equals(Utils.metadata().childRegister.outOfCatchmentFormName)) {
             if (StringUtils.isNotBlank(entityId)) {
 
@@ -173,26 +166,32 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return form;
     }
 
-    public static void addChildRegLocHierarchyQuestions(JSONObject form) {
-
+    /**
+     * Generates location tree for location type fields
+     *
+     * @param form JSON form object
+     * @return Map of key-value pairs with location openmrs_entity_id as key and the location id as the value
+     */
+    public static Map<String, String> addRegistrationFormLocationHierarchyQuestions(JSONObject form) {
         try {
 
             JSONArray questions = com.vijay.jsonwizard.utils.FormUtils.getMultiStepFormFields(form);
 
-            ArrayList<String> allLevels = getLocationLevels();
-            ArrayList<String> healthFacilities = getHealthFacilityLevels();
+            List<String> allLevels = getLocationLevels();
+            List<String> healthFacilities = getHealthFacilityLevels();
 
             String defaultFacilityString = generateLocationString(healthFacilities);
             String defaultLocationString = generateLocationString(allLevels);
 
-            updateLocationTree(questions, defaultLocationString, defaultFacilityString, allLevels, healthFacilities);
+            return updateLocationTree(questions, defaultLocationString, defaultFacilityString, allLevels, healthFacilities);
 
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> addChildRegLocHierarchyQuestions");
+            Timber.e(e, "JsonFormUtils --> addRegistrationFormLocationHierarchyQuestions");
+            return null;
         }
     }
 
-    private static String generateLocationString(ArrayList<String> locationTags) {
+    private static String generateLocationString(List<String> locationTags) {
         List<String> locationNames = LocationHelper.getInstance().generateDefaultLocationHierarchy(locationTags);
         return AssetHandler.javaToJsonString(locationNames, new TypeToken<List<String>>() {
         }.getType());
@@ -340,16 +339,22 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static ArrayList<String> getLocationLevels() {
+    private static List<String> getLocationLevels() {
         return Utils.metadata().getLocationLevels();
     }
 
     @NotNull
-    private static ArrayList<String> getHealthFacilityLevels() {
+    private static List<String> getHealthFacilityLevels() {
         return Utils.metadata().getHealthFacilityLevels();
     }
 
-    private static void updateLocationTree(JSONArray questions, String defaultLocationString, String defaultFacilityString, List<String> allLevels, List<String> healthFacilities) throws JSONException {
+    @NotNull
+    private static List<String> getAllowedLevels() {
+        return LocationHelper.getInstance().getAllowedLevels();
+    }
+
+    private static Map<String, String> updateLocationTree(JSONArray questions, String defaultLocationString, String defaultFacilityString, List<String> allLevels, List<String> healthFacilities) throws JSONException {
+        Map<String, String> locationMetadata = new HashMap<>();
 
         ChildMetadata childMetadata = Utils.metadata();
         LocationHierarchy locationHierarchy;//Default
@@ -358,6 +363,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             FormLocationTree upToFacilities = generateFormLocationTree(healthFacilities, false, null);
             FormLocationTree upToFacilitiesWithOther = generateFormLocationTree(healthFacilities, true, null);
             FormLocationTree entireTree = generateFormLocationTree(allLevels, true, null);
+
+            List<FormLocation> formLocations = LocationHelper.getInstance().generateLocationHierarchyTree(false, getAllowedLevels());
 
             for (int i = 0; i < questions.length(); i++) {
 
@@ -389,7 +396,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                                 }
                                 break;
                             case ENTIRE_TREE:
-
                                 String selectableTag = widget.optString(Constants.JSON_FORM_KEY.SELECTABLE);
                                 if (StringUtils.isNotBlank(selectableTag)) {
                                     entireTree = generateFormLocationTree(allLevels, true, selectableTag);
@@ -405,9 +411,50 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                                 break;
                         }
                     }
+
+                    generateLocationMetadata(locationMetadata, formLocations, widget);
                 }
             }
         }
+
+        return locationMetadata;
+    }
+
+    private static void generateLocationMetadata(Map<String, String> locationMetadata, List<FormLocation> formLocations, JSONObject widget) throws JSONException {
+        String selectableTag = widget.optString(Constants.JSON_FORM_KEY.SELECTABLE);
+        if (StringUtils.isNotBlank(selectableTag)) {
+            String locationKey = getSelectableKey(formLocations, selectableTag);
+
+            String prefix = getJsonFieldEntityId(widget, Constants.ENTITY.MOTHER);
+            String addressKey = widget.optString(JsonFormConstants.OPENMRS_ENTITY_ID);
+            locationMetadata.put(prefix + addressKey, LocationHelper.getInstance().getOpenMrsLocationId(locationKey));
+        }
+    }
+
+    @NotNull
+    private static String getJsonFieldEntityId(JSONObject jsonObject, String entity) throws JSONException {
+        return jsonObject.has(ChildJsonFormUtils.ENTITY_ID) && jsonObject.getString(ChildJsonFormUtils.ENTITY_ID).equalsIgnoreCase(Constants.KEY.MOTHER) ? (entity + "_") : "";
+    }
+
+    /**
+     * Returns the form location key from a location hierarchy given a specific location tag
+     *
+     * @param formLocations Location tree to be searched
+     * @param selectableTag Location tag to filter the location node
+     * @return Location key
+     */
+    private static String getSelectableKey(List<FormLocation> formLocations, String selectableTag) {
+        if (formLocations != null && !formLocations.isEmpty()) {
+            for (FormLocation location : formLocations) {
+                if (location.level.equalsIgnoreCase(selectableTag)) {
+                    return location.key;
+                } else {
+                    return getSelectableKey(location.nodes, selectableTag);
+                }
+            }
+        }
+
+        return null;
     }
 
     private static void addLocationTree(@NonNull String widgetKey, @NonNull JSONObject
@@ -519,8 +566,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper
-            ecSyncHelper) throws Exception {
+    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
 
@@ -622,6 +668,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         } catch (SecurityException e) {
             Timber.e(e, "JsonFormUtils --> MissingPermission --> getSimSerialNumber");
+        } catch (NullPointerException e) {
+            Timber.e(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -650,15 +698,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    public static String getChildLocationId(@NonNull String
-                                                    defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
+    public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
         String currentLocality = allSharedPreferences.fetchCurrentLocality();
 
-        if (StringUtils.isNotBlank(currentLocality)) {
-            String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-            if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
-                return currentLocalityId;
+        try {
+            if (StringUtils.isNotBlank(currentLocality)) {
+                String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
+                    return currentLocalityId;
+                }
             }
+        } catch (Exception e) {
+            Timber.e(e);
         }
 
         return null;
@@ -837,7 +888,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         JSONObject isBirthdateApproximate = new JSONObject();
                         isBirthdateApproximate.put(Constants.KEY.KEY, FormEntityConstants.Person.birthdate_estimated);
                         isBirthdateApproximate.put(Constants.KEY.VALUE, Constants.BOOLEAN_INT.TRUE);
-                        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.ENTITY.PERSON);//Required for value to be processed
+                        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.OPENMRS_ENTITY.PERSON);//Required for value to be processed
                         isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
                         isBirthdateApproximate.put(ChildJsonFormUtils.ENTITY_ID, dobUnknownObject.getString(ChildJsonFormUtils.ENTITY_ID));
                         fields.put(isBirthdateApproximate);
@@ -939,15 +990,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return getMetadataForEditForm(context, childDetails, new ArrayList<String>());
     }
 
-    public static String getMetadataForEditForm(Context
-                                                        context, Map<String, String> childDetails, List<String> nonEditableFields) {
-
+    public static String getMetadataForEditForm(Context context, Map<String, String> childDetails, List<String> nonEditableFields) {
         try {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
 
             if (form != null) {
-
-                ChildJsonFormUtils.addChildRegLocHierarchyQuestions(form);
+                ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
                 Timber.d("Form is %s", form.toString());
 
                 form.put(ChildJsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
@@ -960,17 +1008,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 JSONObject metadata = form.getJSONObject(ChildJsonFormUtils.METADATA);
 
-                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION,
-                        ChildLibrary.getInstance().getLocationPickerView(context).getSelectedItem());
+                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION, ChildLibrary.getInstance().getLocationPickerView(context).getSelectedItem());
 
-
-                //inject zeir id into the form
-                JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    setFormFieldValues(childDetails, nonEditableFields, jsonObject);
-                }
+                prePopulateJsonFormFields(form, childDetails, nonEditableFields);
 
                 return form.toString();
             }
@@ -978,14 +1018,29 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             Timber.e(e, "JsonFormUtils --> getMetadataForEditForm");
         }
 
-
         return "";
     }
 
-    private static void setFormFieldValues
-            (Map<String, String> childDetails, List<String> nonEditableFields, JSONObject
-                    jsonObject) throws JSONException {
-        String prefix = jsonObject.has(ChildJsonFormUtils.ENTITY_ID) && jsonObject.getString(ChildJsonFormUtils.ENTITY_ID).equalsIgnoreCase(Constants.KEY.MOTHER) ? "mother_" : "";
+    /**
+     * Populate JSON form object fields with values passed in the childDetails map
+     *
+     * @param form              JSON form
+     * @param childDetails      Map of values to be pre-populated
+     * @param nonEditableFields List of fields that should not be editable
+     * @throws JSONException
+     */
+    private static void prePopulateJsonFormFields(JSONObject form, Map<String, String> childDetails, List<String> nonEditableFields) throws JSONException {
+        JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
+        JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            setFormFieldValues(childDetails, nonEditableFields, jsonObject);
+        }
+    }
+
+    private static void setFormFieldValues(Map<String, String> childDetails, List<String> nonEditableFields, JSONObject jsonObject) throws JSONException {
+        String prefix = getJsonFieldEntityId(jsonObject, Constants.ENTITY.MOTHER);
 
         String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
         String dobAgeField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
@@ -1002,7 +1057,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         } else if (jsonObject.getString(JsonFormConstants.TYPE).equalsIgnoreCase(JsonFormConstants.DATE_PICKER)) {
             processDate(childDetails, prefix, jsonObject);
         } else if (jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.PERSON_INDENTIFIER)) {
-            jsonObject.put(ChildJsonFormUtils.VALUE, Utils.getValue(childDetails, jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID).toLowerCase(), false).replace("-", ""));
+            jsonObject.put(ChildJsonFormUtils.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails).replace("-", ""));
         } else if (jsonObject.has(JsonFormConstants.TREE)) {
             processTree(jsonObject, Utils.getValue(childDetails, jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.PERSON_ADDRESS) ? prefix + jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID) : jsonObject.getString(ChildJsonFormUtils.KEY), false));
         } else if (jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.CONCEPT)) {
@@ -1084,8 +1139,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     protected static String getMappedValue(String key, Map<String, String> childDetails) {
 
-        String value = Utils.getValue(childDetails, key, false);
-        return !TextUtils.isEmpty(value) ? value : Utils.getValue(childDetails, key.toLowerCase(), false);
+        String value = Utils.getValue(childDetails, key.toUpperCase(Locale.ENGLISH), false);
+        return !TextUtils.isEmpty(value) ? value : Utils.getValue(childDetails, key.toLowerCase(Locale.ENGLISH), false);
     }
 
     protected static Triple<Boolean, JSONObject, JSONArray> validateParameters(String
@@ -1325,7 +1380,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
 
         boolean alreadyExists = eventClients.size() > 0;
-        org.smartregister.domain.db.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
+        org.smartregister.domain.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
         Event event = getSubformEvent(parent, entityId, encounterType, bindType, alreadyExists, domainEvent);
 
@@ -1342,7 +1397,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static Event getSubformEvent(Event parent, String entityId, String
             encounterType, String bindType, boolean alreadyExists, org.
-                                                 smartregister.domain.db.Event domainEvent) {
+                                                 smartregister.domain.Event domainEvent) {
         Event event = (Event) new Event().withBaseEntityId(
                 alreadyExists ? domainEvent.getBaseEntityId() : entityId)//should be different for main and subform
                 .withEventDate(parent.getEventDate()).withEventType(encounterType).withEntityType(bindType)
@@ -1666,7 +1721,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     entityId = entityId.replace("-", "");
                 }
 
-                ChildJsonFormUtils.addChildRegLocHierarchyQuestions(form);
+                ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
 
                 // Inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
@@ -1743,11 +1798,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
 
-    public static Map<String, String> updateClientAttribute(Context
-                                                                    context, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws
-            Exception {
-
-        org.smartregister.Context openSRPContext = CoreLibrary.getInstance().context();
+    public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, LocationHelper locationHelper, String attributeName, Object attributeValue) throws Exception {
 
         Date date = new Date();
         EventClientRepository db = openSRPContext.getEventClientRepository();
@@ -1769,22 +1820,24 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
         String locationName = allSharedPreferences.fetchCurrentLocality();
         if (StringUtils.isBlank(locationName)) {
-            locationName = LocationHelper.getInstance().getDefaultLocation();
+            locationName = locationHelper.getDefaultLocation();
         }
 
-        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), LocationHelper.getInstance().getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
-        ChildJsonFormUtils.addMetaData(context, event, date);
+        ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(allSharedPreferences, ECSyncHelper.getInstance(context));
+        processClients(allSharedPreferences, ECSyncHelper.getInstance(openSRPContext.applicationContext()));
 
         //update details
         Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
-        if (childDetails.getColumnmaps().containsKey(attributeName)) {
-            childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+        if (detailsMap != null) {
+            if (childDetails.getColumnmaps().containsKey(attributeName)) {
+                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+            }
+            Utils.putAll(detailsMap, childDetails.getColumnmaps());
         }
-        Utils.putAll(detailsMap, childDetails.getColumnmaps());
 
         return detailsMap;
     }

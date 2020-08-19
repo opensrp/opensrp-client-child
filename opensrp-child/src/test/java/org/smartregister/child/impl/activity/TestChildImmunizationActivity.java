@@ -11,6 +11,8 @@ import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 
+import java.util.Map;
+
 public class TestChildImmunizationActivity extends BaseChildImmunizationActivity {
     @Override
     public Resources getResources() {
@@ -53,7 +55,7 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
     }
 
     @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+    public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
         //Do nothing
     }
 

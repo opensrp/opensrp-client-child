@@ -31,6 +31,7 @@ android {
         versionName project.VERSION_NAME
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
     }
     buildTypes {
         release {
@@ -38,7 +39,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true 
+            debuggable true
         }
     }
     dexOptions {
@@ -78,13 +79,14 @@ allprojects {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
         maven { url "https://dl.bintray.com/ona/rdt-capture" }
+        maven { url 'https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases'}
         mavenLocal()
     }
 }
 
 dependencies {
 
-    api('org.smartregister:opensrp-client-core:2.0.0-PREVIEW2-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:2.0.5-PREVIEW-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -96,6 +98,7 @@ dependencies {
         exclude group: 'com.rengwuxian.materialedittext', module: 'library'
         exclude group: 'com.android.support', module: 'support-v4'
     }
+
 
     api('org.smartregister:opensrp-client-native-form:1.10.0-SNAPSHOT@aar') {
         transitive = true
@@ -155,18 +158,15 @@ dependencies {
     implementation 'com.google.guava:guava:28.1-android'
     implementation 'id.zelory:compressor:2.1.0'
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation('org.robolectric:robolectric:3.8') {
-        exclude group: 'com.google.guava', module: 'guava'
-        exclude group: 'org.apache.maven', module: 'maven-model'
-        exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
-        exclude group: 'com.android.support'
-        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
-    }
+    testImplementation 'junit:junit:4.13'
 
-    testImplementation("org.robolectric:shadows-multidex:3.8") {
-        exclude group: 'com.google.guava', module: 'guava'
+    def robolectricVersion = '4.1'
+    testImplementation("org.robolectric:robolectric:$robolectricVersion") {
+        exclude group: 'com.google.auto.service', module: 'auto-service'
+        exclude group: 'com.android.support'
     }
+    testImplementation "org.robolectric:shadows-multidex:$robolectricVersion"
+    testImplementation "org.robolectric:shadows-support-v4:3.3.2"
 
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.+') {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -174,9 +174,10 @@ dependencies {
     }
 
     // PowerMock
-    def powerMockVersion = '1.7.4'
+    def powerMockVersion = '2.0.7'
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
+    testImplementation "org.powermock:powermock-module-javaagent:$powerMockVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
     testImplementation("org.powermock:powermock-classloading-xstream:$powerMockVersion")
     testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
@@ -194,18 +195,19 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     getReports().getHtml().setDestination(file("${buildDir}/reports/jacoco/jacocoRootReport/html"))
 
     def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*', '**/*$ViewBinder*.*']
-    def debugTree = fileTree(dir: "$project.buildDir/intermediates/classes/debug", excludes: fileFilter)
+    def debugTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/classes", excludes: fileFilter)
     def mainSrc = "$project.projectDir/src/main/java"
 
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-    executionData = fileTree(dir: project.buildDir, includes: [
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(([debugTree]))
+    executionData.setFrom(fileTree(dir: project.buildDir, includes: [
             'jacoco/testDebugUnitTest.exec', 'outputs/code-coverage/connected/*coverage.ec'
-    ])
+    ]))
 }
 
 coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"
+    sourceDirs = ["$project.projectDir/src/main/java"]
 }
 
 apply from: '../maven.gradle'

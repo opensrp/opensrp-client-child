@@ -28,6 +28,8 @@ public interface ChildRegisterContract {
 
         void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception;
 
+        void startForm(String formName, String entityId, Map<String, String> metadata, String currentLocationId) throws Exception;
+
         void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam);
 
         void saveOutOfCatchmentService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback);
@@ -48,7 +50,7 @@ public interface ChildRegisterContract {
 
         List<ChildEventClient> processRegistration(String jsonString, FormTag formTag);
 
-        JSONObject getFormAsJson(String formName, String entityId, String currentLocationId) throws Exception;
+        JSONObject getFormAsJson(String formName, String entityId, String currentLocationId, Map<String, String> metadata) throws Exception;
 
         String getInitials();
 
@@ -58,7 +60,7 @@ public interface ChildRegisterContract {
 
         void onDestroy(boolean isChangingConfiguration);
 
-        void getNextUniqueId(Triple<String, String, String> triple, ChildRegisterContract.InteractorCallBack callBack);
+        void getNextUniqueId(Triple<String, Map<String, String>, String> triple, ChildRegisterContract.InteractorCallBack callBack);
 
         void saveRegistration(final List<ChildEventClient> childEventClientList, final String jsonString,
                               final UpdateRegisterParams updateRegisterParams,
@@ -76,7 +78,7 @@ public interface ChildRegisterContract {
 
     interface InteractorCallBack {
 
-        void onUniqueIdFetched(Triple<String, String, String> triple, String entityId);
+        void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId);
 
         void onNoUniqueId();
 

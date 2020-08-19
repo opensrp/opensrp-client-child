@@ -4,6 +4,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
@@ -17,7 +20,9 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.repository.AllSharedPreferences;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -89,16 +94,24 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception {
+        Map<String, String> metadataMap = StringUtils.isBlank(metadata) ? new HashMap<String, String>() : (Map<String, String>) new Gson()
+                .fromJson(metadata, new TypeToken<Map<String, String>>() {
+                }.getType());
 
+        startForm(formName, entityId, metadataMap, currentLocationId);
+    }
+
+    @Override
+    public void startForm(String formName, String entityId, Map<String, String> metadata, String currentLocationId) throws Exception {
         if (StringUtils.isBlank(entityId)) {
-            Triple<String, String, String> triple = Triple.of(formName, metadata, currentLocationId);
+            Triple<String, Map<String, String>, String> triple = Triple.of(formName, metadata, currentLocationId);
             interactor.getNextUniqueId(triple, this);
             return;
         }
 
-        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId);
-        getView().startFormActivity(form);
+        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId, metadata);
 
+        getView().startFormActivity(form);
     }
 
     @Override
@@ -143,7 +156,7 @@ public class BaseChildRegisterPresenter
     }
 
     @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+    public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
         try {
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {

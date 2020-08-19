@@ -67,7 +67,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void getNextUniqueId(final Triple<String, String, String> triple,
+    public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple,
                                 final ChildRegisterContract.InteractorCallBack callBack) {
 
         Runnable runnable = new Runnable() {

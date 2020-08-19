@@ -85,9 +85,18 @@ For the location picker widget to render on the form the basic configuration is:
         }
       }
 ```
+
+### Selectable Levels
+
 The above can be further configured, for example if you require to have the location hierarchy for a field to be selectable at District level then you can add the field **selectable** and assign it a value _District_ which corresponds to the location tag you want selectable for that field. 
 
+### Selectable Other Option
+
 Sometimes you'd want to add an _Other_ option in case the location is not part of the tree but you may want the user to select other and possibly show an edit text via skip logic to allow manual entry of a location. For this there is the field **hierarchy** which defines a hierarchy type. 3 types of configuration values are supported _facility_only_, _facility_with_other_, _entire_tree_
+
+### Auto-populate Location Fields
+
+All form fields of type `tree` with **selectable** tag set will be auto-populated with the logged in provider's details. E.g., the field defined below will be auto-populated with the district of the logged in provider.
 
 Example updated config:
 ```
