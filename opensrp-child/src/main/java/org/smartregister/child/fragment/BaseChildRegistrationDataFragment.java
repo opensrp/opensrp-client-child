@@ -22,8 +22,8 @@ import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
 import org.smartregister.location.helper.LocationHelper;
@@ -211,6 +211,9 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
+                } else if (field.getKeys() == null && field.getOpenmrsEntityId().indexOf("address") >= 0) {
+                    result = LocationHelper.getInstance()
+                            .getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
                 }
 
                 break;
