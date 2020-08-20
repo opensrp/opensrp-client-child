@@ -23,9 +23,6 @@ public class ChildLibraryTest {
     private ChildLibrary childLibrary;
 
     @Mock
-    private Repository repository;
-
-    @Mock
     private LocationRepository locationRepository;
 
     @Mock
