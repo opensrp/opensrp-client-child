@@ -15,7 +15,7 @@ public class ChildFormInteractor extends JsonFormInteractor {
 
     private static final ChildFormInteractor CHILD_INTERACTOR_INSTANCE = new ChildFormInteractor();
 
-    private ChildFormInteractor() {
+    protected ChildFormInteractor() {
         super();
     }
 
