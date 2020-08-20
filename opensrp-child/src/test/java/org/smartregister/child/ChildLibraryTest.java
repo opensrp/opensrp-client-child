@@ -1,18 +1,23 @@
 package org.smartregister.child;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.repository.LocationRepository;
 import org.smartregister.repository.Repository;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -35,10 +40,12 @@ public class ChildLibraryTest {
 
     @Test
     public void testGetLocationRepositoryReturnsRepositoryInstance() {
-        PowerMockito.mockStatic(ChildLibrary.class);
-        when(ChildLibrary.getInstance()).thenReturn(childLibrary);
-        when(childLibrary.context()).thenReturn(context);
-        when(context.getLocationRepository()).thenReturn(locationRepository);
-        Assert.assertNotNull(locationRepository);
+        MockitoAnnotations.initMocks(this);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        doReturn(context).when(childLibrary).context();
+        doReturn(locationRepository).when(childLibrary).getLocationRepository();
+        LocationRepository repository = ChildLibrary.getInstance().getLocationRepository();
+        verify(ChildLibrary.getInstance()).getLocationRepository();
+        assertEquals(locationRepository, repository);
     }
 }
