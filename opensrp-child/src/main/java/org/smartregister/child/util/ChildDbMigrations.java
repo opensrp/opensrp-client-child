@@ -1,7 +1,7 @@
 package org.smartregister.child.util;
 
 
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 
 import net.sqlcipher.SQLException;
 
