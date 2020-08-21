@@ -211,15 +211,13 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
-                } else if (field.getKeys() == null && field.getOpenmrsEntityId().indexOf("address") >= 0) {
-                    result = ChildLibrary.getInstance()
-                            .getLocationRepository().getLocationById(raw).getProperties().getName();
+                } else if (field.getKeys() == null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+                    result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 }
 
                 break;
             case JsonFormConstants.TREE:
-                result = ChildLibrary.getInstance()
-                        .getLocationRepository().getLocationById(raw).getProperties().getName();
+                result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 break;
             default:
                 break;
