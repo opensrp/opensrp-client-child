@@ -56,6 +56,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
         public static final String HIERARCHY = "hierarchy";
         public static final String SELECTABLE = "selectable";
+        public static final String LOCATION_SUB_TYPE = "location";
     }
 
     public static class JSON_FORM_EXTRA {

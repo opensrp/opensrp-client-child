@@ -13,6 +13,9 @@ public class Field {
 
     private String type;
 
+    @SerializedName("sub_type")
+    private String subType;
+
     @SerializedName("render_type")
     private String renderType;
 
@@ -21,7 +24,7 @@ public class Field {
     private List<String> values;
 
     private String hint;
-    
+
     @SerializedName("entity_id")
     private String entityId;
 
@@ -39,6 +42,9 @@ public class Field {
         return type;
     }
 
+    public String getSubType() {
+        return subType;
+    }
 
     public String getEntityId() {
         return entityId;
@@ -59,6 +65,7 @@ public class Field {
     public List<String> getValues() {
         return values;
     }
+
     public String getHint() {
         return hint;
     }
