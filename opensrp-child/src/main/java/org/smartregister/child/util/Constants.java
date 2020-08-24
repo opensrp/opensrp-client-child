@@ -56,6 +56,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
         public static final String HIERARCHY = "hierarchy";
         public static final String SELECTABLE = "selectable";
+        public static final String LOCATION_SUB_TYPE = "location";
     }
 
     public static class JSON_FORM_EXTRA {
@@ -126,8 +127,12 @@ public final class Constants extends AllConstants {
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 
-    public static class ENTITY {
+    public static class OPENMRS_ENTITY {
         public static final String PERSON = "person";
+    }
+
+    public static class ENTITY {
+        public static final String MOTHER = "mother";
     }
 
     public static class BOOLEAN_INT {

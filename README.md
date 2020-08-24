@@ -28,7 +28,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view          |   
 | `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                            |
 
-## Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
+## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
 You can enable multi-language support for Group Names shown on the register for upcoming statuses eg. `Upcoming 10 weeks`. :frowning: This means you need to add multiple string for the same group name [since this](https://github.com/OpenSRP/opensrp-client-immunization#multi-language-support) is also supported.
 
@@ -42,12 +42,11 @@ For group names starting with a number, you do the same as above and then add an
 -   **10 Weeks** - It's string resource id will be `_10_weeks`
 -   **1 Year after  TT 4** It's string resource id will be `_1_year_after_tt_4`
 
-## Location tree configuration
+## Location Tree Configuration
 
 The following configurations are required on your applications build.gradle file inorder to render the location tree correctly
 Here's an example:
 ```
-
         buildConfigField "String[]", "LOCATION_LEVELS", '{"Country", "Province", "District", "Facility", "Village"}'
         buildConfigField "String[]", "HEALTH_FACILITY_LEVELS", '{"Country", "Province", "District", "Health Facility", "Village"}'
         buildConfigField "String[]", "ALLOWED_LEVELS", '{"Facility"}'
@@ -64,7 +63,27 @@ The above configurations and their use are defined below
   -   **DEFAULT_LEVEL** - This this is a string for the default select Location on the location picker
   -   **ALLOWED_LEVELS** - This this is a list of tags on the location tree that can be selected on your forms e.g. for one question you can select Facility and another question on the same from you can select District if the setting was _buildConfigField "String[]", "ALLOWED_LEVELS", '{"Facility"}'_
 
-### Form Level configuration
+### Location Spinner Configuration
+
+Location selection can optionally be done using cascaded drop-downs.
+
+For location name reverse look-up to be done correctly in the registration view, form fields of type `spinner` meant to select a location must have tag **sub_type** set to **location**.
+
+```
+      {
+        "key": "Residential_Area_Commune",
+        "openmrs_entity_parent": "usual_residence",
+        "openmrs_entity": "person_address",
+        "openmrs_entity_id": "address3",
+        "type": "spinner",
+        "sub_type": "location",
+        "hint": "Child's Residential Area Commune",
+        "options": [
+        ],
+        ....
+```
+
+### Form Level Configuration
 
 For the location picker widget to render on the form the basic configuration is:
 
@@ -85,9 +104,18 @@ For the location picker widget to render on the form the basic configuration is:
         }
       }
 ```
+
+### Selectable Levels
+
 The above can be further configured, for example if you require to have the location hierarchy for a field to be selectable at District level then you can add the field **selectable** and assign it a value _District_ which corresponds to the location tag you want selectable for that field. 
 
+### Selectable Other Option
+
 Sometimes you'd want to add an _Other_ option in case the location is not part of the tree but you may want the user to select other and possibly show an edit text via skip logic to allow manual entry of a location. For this there is the field **hierarchy** which defines a hierarchy type. 3 types of configuration values are supported _facility_only_, _facility_with_other_, _entire_tree_
+
+### Auto-populate Location Fields
+
+All form fields of type `tree` with **selectable** tag set will be auto-populated with the logged in provider's details. E.g., the field defined below will be auto-populated with the district of the logged in provider.
 
 Example updated config:
 ```
@@ -106,4 +134,5 @@ Example updated config:
         ....
       }
 ```
+
 More on Native form library widgets can be found [here](https://github.com/OpenSRP/opensrp-client-native-form)
