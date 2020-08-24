@@ -16,17 +16,17 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 
@@ -211,12 +211,13 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
+                } else if (field.getKeys() == null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+                    result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 }
 
                 break;
             case JsonFormConstants.TREE:
-                result = LocationHelper.getInstance()
-                        .getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
+                result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 break;
             default:
                 break;
