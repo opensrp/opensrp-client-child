@@ -1,6 +1,8 @@
 package org.smartregister.child.utils;
 
+import android.app.Activity;
 import android.graphics.Typeface;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,10 +21,14 @@ import org.mockito.MockitoAnnotations;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
@@ -56,6 +62,20 @@ public class UtilsTest extends BaseUnitTest {
     @Mock
     private HeightRepository heightRepository;
 
+    @Mock
+    private Activity activity;
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
+
+    @Mock
+    private Context opensrpContext;
+
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Mock
+    private CoreLibrary coreLibrary;
+
     @Captor
     private ArgumentCaptor<Vaccine> vaccineArgumentCaptor;
 
@@ -72,7 +92,16 @@ public class UtilsTest extends BaseUnitTest {
 
     @Before
     public void setUp() {
+
         MockitoAnnotations.initMocks(this);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(opensrpContext);
+        Mockito.when(childLibrary.context()).thenReturn(opensrpContext);
+        Mockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "demo";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
     }
 
     @Test
@@ -332,6 +361,81 @@ public class UtilsTest extends BaseUnitTest {
         Assert.assertNotNull(textView);
         Assert.assertEquals(Typeface.DEFAULT_BOLD, textView.getTypeface());
         Assert.assertEquals("14 Weeks", textView.getText());
+
+    }
+
+    @Test
+    public void testRefreshDataCaptureStrategyBannerSetsCorrectText() {
+
+        String testLocation = "Mobile Clinic";
+
+        View bannerViewWrapper = Mockito.mock(View.class);
+        TextView bannerTextView = Mockito.mock(TextView.class);
+        String bannerText = String.format("Service Point: %s", testLocation);
+
+        Mockito.doReturn(bannerViewWrapper).when(activity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
+        Mockito.doReturn(bannerTextView).when(activity).findViewById(R.id.advanced_data_capture_strategy);
+        Mockito.doReturn(bannerText).when(activity).getString(R.string.service_point, testLocation);
+
+        Utils.refreshDataCaptureStrategyBanner(activity, testLocation);
+
+        ArgumentCaptor<String> bannerTextCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(bannerTextView).setText(bannerTextCaptor.capture());
+
+        String capturedText = bannerTextCaptor.getValue();
+        Assert.assertNotNull(capturedText);
+        Assert.assertEquals(bannerText, capturedText);
+
+    }
+
+    @Test
+    public void testRefreshDataCaptureStrategyBannerShowBannerForAdvancedStrategy() {
+
+        String testLocation = "School Clinic";
+
+        TextView bannerTextView = Mockito.mock(TextView.class);
+        View bannerViewWrapper = Mockito.mock(View.class);
+        String bannerText = String.format("Service Point: %s", testLocation);
+
+        Mockito.doReturn(bannerViewWrapper).when(activity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
+        Mockito.doReturn(bannerText).when(activity).getString(R.string.service_point, testLocation);
+        Mockito.doReturn(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED).when(allSharedPreferences).fetchCurrentDataStrategy();
+        Mockito.doReturn(bannerTextView).when(activity).findViewById(R.id.advanced_data_capture_strategy);
+
+        Utils.refreshDataCaptureStrategyBanner(activity, testLocation);
+
+        ArgumentCaptor<Integer> visibilityParamCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(bannerViewWrapper).setVisibility(visibilityParamCaptor.capture());
+
+        int captorValue = visibilityParamCaptor.getValue();
+
+        Assert.assertNotNull(captorValue);
+        Assert.assertEquals(View.VISIBLE, captorValue);
+
+    }
+
+    @Test
+    public void testRefreshDataCaptureStrategyBannerHidesBannerForNormalStrategy() {
+
+        TextView bannerTextView = Mockito.mock(TextView.class);
+        View bannerViewWrapper = Mockito.mock(View.class);
+
+        String testLocation = "Door to Door";
+        String bannerText = String.format("Service Point: %s", testLocation);
+
+        Mockito.doReturn(bannerText).when(activity).getString(R.string.service_point, testLocation);
+        Mockito.doReturn(bannerTextView).when(activity).findViewById(R.id.advanced_data_capture_strategy);
+        Mockito.doReturn(bannerViewWrapper).when(activity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
+
+        Utils.refreshDataCaptureStrategyBanner(activity, testLocation);
+
+        ArgumentCaptor<Integer> visibilityParamCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(bannerViewWrapper).setVisibility(visibilityParamCaptor.capture());
+
+        int captorValue = visibilityParamCaptor.getValue();
+
+        Assert.assertNotNull(captorValue);
+        Assert.assertEquals(View.GONE, captorValue);
 
     }
 

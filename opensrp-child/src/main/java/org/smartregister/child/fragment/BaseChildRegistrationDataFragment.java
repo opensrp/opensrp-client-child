@@ -18,6 +18,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
@@ -105,6 +106,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
+
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
 
         return fragmentView;
     }

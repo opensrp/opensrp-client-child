@@ -13,6 +13,8 @@ import com.vijay.jsonwizard.domain.Form;
 
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
+import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -45,7 +47,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ChildLibrary.getInstance().getLocationPickerView(this);
+    }
+
+    public Context getOpenSRPContext() {
+        return CoreLibrary.getInstance().context();
     }
 
     @Override
@@ -275,4 +280,5 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         hideProgressDialog();
 
     }
+
 }

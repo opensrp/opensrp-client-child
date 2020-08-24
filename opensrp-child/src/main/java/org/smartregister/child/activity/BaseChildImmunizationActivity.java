@@ -46,8 +46,8 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -193,6 +193,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(false);
 
         setUpFloatingActionButton();
+        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
@@ -418,17 +419,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
-        updateGenderViews(gender);
+        int[] colors = updateGenderViews(gender);
+        int normalShade = colors[1];
+        findViewById(R.id.advanced_data_capture_strategy_wrapper).setBackground(new ColorDrawable(getResources().getColor(normalShade)));
     }
 
     private void updateAgeViews() {
@@ -1340,7 +1335,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void onLocationChanged(final String newLocation) {
-        // TODO: Do whatever needs to be done when the location is changed
+        Utils.refreshDataCaptureStrategyBanner(this, newLocation);
     }
 
     @Override

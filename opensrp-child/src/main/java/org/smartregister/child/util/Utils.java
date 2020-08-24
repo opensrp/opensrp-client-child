@@ -1,5 +1,6 @@
 package org.smartregister.child.util;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.TextViewCompat;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,7 +30,9 @@ import org.joda.time.Weeks;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
@@ -556,7 +560,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static CommonPersonObject getEcChildDetails(String baseEntityId) {
-        CommonRepository cr = org.smartregister.CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
+        CommonRepository cr = CoreLibrary.getInstance().context().commonrepository(Utils.metadata().getRegisterQueryProvider().getChildDetailsTable());
         if (cr != null) {
             return cr.findByBaseEntityId(baseEntityId);
         }
@@ -567,5 +571,25 @@ public class Utils extends org.smartregister.util.Utils {
         Date dueDate = VaccineCalculator.getVaccineDueDate(vaccine, dob, vaccineList);
         Date expiryDate = VaccineCalculator.getVaccineExpiryDate(dob, vaccine);
         return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
+    }
+
+    public static void refreshDataCaptureStrategyBanner(Activity context, String selectedLocation) {
+
+        View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy_wrapper);
+        if (dataCaptureStrategyView != null) {
+            ((TextView) context.findViewById(R.id.advanced_data_capture_strategy)).setText(context.getString(R.string.service_point, selectedLocation));
+            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public static Gender getGenderEnum(Map<String, String> childDetails) {
+        Gender gender = Gender.UNKNOWN;
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+        if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
+            gender = Gender.FEMALE;
+        } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
+            gender = Gender.MALE;
+        }
+        return gender;
     }
 }

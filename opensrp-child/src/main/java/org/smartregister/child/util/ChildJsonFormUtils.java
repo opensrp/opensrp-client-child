@@ -24,6 +24,7 @@ import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -688,6 +689,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
         event.setChildLocationId(childLocationId);
+
+        if (StringUtils.isNotBlank(childLocationId) && childLocationId.startsWith(AllConstants.ADVANCED_DATA_CAPTURE_STRATEGY_PREFIX)) {
+            event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
+        }
 
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
@@ -1404,7 +1409,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 .withFormSubmissionId(alreadyExists ? domainEvent.getFormSubmissionId() : generateRandomUUIDString())
                 .withDateCreated(new Date());
 
-        tagSyncMetadata(event);//tag it
+        ChildJsonFormUtils.tagSyncMetadata(event);//tag it
 
         return event;
     }
