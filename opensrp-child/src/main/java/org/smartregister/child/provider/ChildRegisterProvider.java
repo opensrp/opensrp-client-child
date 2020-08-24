@@ -115,6 +115,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @Override
     public SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
+
                                               FilterOption searchFilter, SortOption sortOption) {
         return null;
     }
