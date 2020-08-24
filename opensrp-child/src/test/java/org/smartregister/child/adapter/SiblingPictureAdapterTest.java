@@ -26,7 +26,6 @@ public class SiblingPictureAdapterTest extends BaseUnitTest {
         ArrayList<String> siblingIds = new ArrayList<>();
         siblingIds.add("12345");
         siblingIds.add("123456");
-        siblingIds.add("1234567");
 
         adapter = new SiblingPictureAdapter(baseActivity, siblingIds);
     }
@@ -43,6 +42,6 @@ public class SiblingPictureAdapterTest extends BaseUnitTest {
 
     @Test
     public void testGetItemCountReturnsTotalItemsInList() {
-        assertEquals(3, adapter.getItemCount());
+        assertEquals(2, adapter.getItemCount());
     }
 }
