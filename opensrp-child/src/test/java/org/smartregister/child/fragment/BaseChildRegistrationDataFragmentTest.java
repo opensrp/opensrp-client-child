@@ -11,22 +11,29 @@ import android.view.ViewGroup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.Step;
+import org.smartregister.child.util.Constants;
 import org.smartregister.cloudant.models.Client;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.repository.AllSharedPreferences;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +50,7 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
     @Mock
     private Form form;
+
     @Mock
     private Step step;
 
@@ -66,6 +74,15 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
     @Mock
     private Map<String, String> childDetais;
+
+    @Mock
+    private BaseChildDetailTabbedActivity baseChildDetailTabbedActivity;
+
+    @Mock
+    private Context opensrpContext;
+
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
 
     private List<Field> fields;
 
@@ -138,10 +155,40 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
     public void onCreateViewInflatesCorrectView() {
 
         Mockito.doReturn(fragmentView).when(inflater).inflate(R.layout.child_registration_data_fragment, container, false);
+        Mockito.doReturn(baseChildDetailTabbedActivity).when(baseChildRegistrationDataFragment).getActivity();
+
+        String baseEntityId = "6434-343-343434-3434";
+
+        Map<String, String> details = new HashMap<>();
+        details.put(Constants.KEY.FIRST_NAME, "John");
+        details.put(Constants.KEY.LAST_NAME, "Doe");
+        details.put(Constants.KEY.ZEIR_ID, "2120");
+        details.put(Constants.KEY.DOB, "2020-09-09");
+
+        details.put(Constants.KEY.MOTHER_FIRST_NAME, "Jane");
+        details.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
+        details.put(Constants.KEY.BASE_ENTITY_ID, baseEntityId);
+
+
+        CommonPersonObjectClient client = new CommonPersonObjectClient(baseEntityId, details, "John Doe");
+        client.setColumnmaps(details);
+
+        Mockito.doReturn(client).when(baseChildDetailTabbedActivity).getChildDetails();
+
+        Mockito.doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn(Constants.DATA_CAPTURE_STRATEGY.ADVANCED).when(allSharedPreferences).fetchCurrentLocality();
 
         baseChildRegistrationDataFragment.onCreateView(inflater, container, bundle);
 
-        Mockito.verify(inflater).inflate(R.layout.child_registration_data_fragment, container, false);
+        ArgumentCaptor<Boolean> attachToRootCaptor = ArgumentCaptor.forClass(Boolean.class);
+        ArgumentCaptor<ViewGroup> parentContainerCaptor = ArgumentCaptor.forClass(ViewGroup.class);
+        ArgumentCaptor<Integer> layoutIdentifierCaptor = ArgumentCaptor.forClass(Integer.class);
+
+        Mockito.verify(inflater).inflate(layoutIdentifierCaptor.capture(), parentContainerCaptor.capture(), attachToRootCaptor.capture());
+        Assert.assertEquals((Integer) R.layout.child_registration_data_fragment, layoutIdentifierCaptor.getValue());
+        Assert.assertEquals(false, attachToRootCaptor.getValue());
+        Assert.assertEquals(container, parentContainerCaptor.getValue());
     }
 
     @Test
