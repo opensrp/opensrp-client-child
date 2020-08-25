@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -18,6 +19,7 @@ import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
+import org.smartregister.domain.FetchStatus;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -180,5 +182,32 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
 
         Mockito.verify(interactorSpy, Mockito.times(1))
                 .saveRegistration(Mockito.<ChildEventClient>anyList(), Mockito.eq(jsonString), Mockito.eq(updateRegisterParams), Mockito.eq(baseChildRegisterPresenter));
+    }
+
+    @Test
+    public void testCloseChildRecordShouldCallRemoveChildFromRegisterMethod() {
+        String jsonString = new JSONObject().toString();
+        ChildRegisterContract.View view = Mockito.spy(new TestBaseChildRegisterActivity());
+        Mockito.doReturn(RuntimeEnvironment.application).when(view).getContext();
+        Mockito.doReturn(view).when(viewReference).get();
+        ReflectionHelpers.setField(baseChildRegisterPresenter, "viewReference", viewReference);
+
+        ChildRegisterContract.Interactor interactorSpy = Mockito.spy(new ChildRegisterInteractor());
+        ReflectionHelpers.setField(baseChildRegisterPresenter, "interactor", interactorSpy);
+
+        baseChildRegisterPresenter.closeChildRecord(jsonString);
+
+        Mockito.verify(interactorSpy, Mockito.times(1)).removeChildFromRegister(Mockito.eq(jsonString), Mockito.anyString());
+    }
+
+    @Test
+    public void testOnRegistrationSavedShouldCallExpectedMethods() {
+        ChildRegisterContract.View view = Mockito.spy(new TestBaseChildRegisterActivity());
+        Mockito.doReturn(view).when(viewReference).get();
+        ReflectionHelpers.setField(baseChildRegisterPresenter, "viewReference", viewReference);
+        Mockito.doNothing().when(view).refreshList(FetchStatus.fetched);
+        baseChildRegisterPresenter.onRegistrationSaved(true);
+        Mockito.verify(view, Mockito.times(1)).refreshList(Mockito.eq(FetchStatus.fetched));
+        Mockito.verify(view, Mockito.times(1)).hideProgressDialog();
     }
 }
