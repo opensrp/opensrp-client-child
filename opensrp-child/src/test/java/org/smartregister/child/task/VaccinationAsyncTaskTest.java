@@ -26,6 +26,7 @@ import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.GroupVaccineCount;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
@@ -35,6 +36,7 @@ import org.smartregister.util.AppProperties;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -440,5 +442,63 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         verify(textView).setText(R.string.waiting_label);
     }
 
+    @Test
+    public void testUpdateRecordVaccinationWhenStateIsNoAlertAndGroupnameIsNotBlank() throws Exception {
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+
+        Map<String, Object> nv = new HashMap<>();
+        nv.put(Constants.KEY.VACCINE, VaccineRepo.Vaccine.opv2);
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        List<org.smartregister.immunization.domain.Vaccine> vaccines = new LinkedList<>();
+        org.smartregister.immunization.domain.Vaccine vaccine = new org.smartregister.immunization.domain.Vaccine();
+        vaccine.setName("opv2");
+        vaccines.add(vaccine);
+        when(vaccineViewRecordUpdateWrapper.getVaccines()).thenReturn(vaccines);
+
+        ImmunizationLibrary.getInstance().getVaccineCacheMap().get("child").reverseLookupGroupMap.put("opv2", "6 weeks");
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+    }
+
+    @Test
+    public void testUpdateRecordVaccinationWhenStateIsUpcomingNext7Days() throws Exception {
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+
+        Map<String, Object> nv = new HashMap<>();
+        nv.put(Constants.KEY.DATE, new DateTime(new Date()).plusDays(1));
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        Whitebox.setInternalState(vaccinationAsyncTask, "lastVaccineDate", new DateTime(new Date()).minusDays(5).toDate());
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setText("Upcoming\n");
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+    }
 
 }

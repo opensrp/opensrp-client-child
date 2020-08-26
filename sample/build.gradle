@@ -13,6 +13,7 @@ allprojects {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
         maven { url "https://dl.bintray.com/ona/rdt-capture" }
+        maven { url "https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases" }
         mavenLocal()
     }
 }
@@ -133,7 +134,7 @@ dependencies {
         exclude group: 'com.ibm.fhir', module: 'fhir-model'
     }
 
-    jarJar 'com.ibm.fhir:fhir-model:4.2.3'
+    implementation 'com.ibm.fhir:fhir-path:4.2.3'
 
     implementation fileTree(dir: "./build/libs", include: ['*.jar'])
 
