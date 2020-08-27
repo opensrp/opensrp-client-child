@@ -12,13 +12,11 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -43,8 +41,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import timber.log.Timber;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;

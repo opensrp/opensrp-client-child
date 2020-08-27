@@ -34,6 +34,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.enums.LocationHierarchy;
+import org.smartregister.child.model.ChildMotherDetailsModel;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -44,6 +45,8 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
+import org.smartregister.domain.Response;
+import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
@@ -72,6 +75,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1909,5 +1913,88 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         Utils.putAll(detailsMap, childDetails.getColumnmaps());
 
         return detailsMap;
+    }
+
+    public static String getJsonString(JSONObject jsonObject, String field) {
+        try {
+            if (jsonObject != null && jsonObject.has(field)) {
+                String string = jsonObject.getString(field);
+                if (StringUtils.isBlank(string)) {
+                    return "";
+                }
+
+                return string;
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+
+        return "";
+    }
+
+    public static JSONObject getJsonObject(JSONObject jsonObject, String field) {
+        try {
+            if (jsonObject != null && jsonObject.has(field)) {
+                return jsonObject.getJSONObject(field);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+
+        return null;
+    }
+
+    /**
+     * This method is used to process the result returned by advance search using the new approach.
+     * To provide more context. The new advance search method returns a list of clients including their relationships
+     * in one result. This processing is done to map the client to their relationships for instance map a child to their mother and or their father
+     *
+     * @param clientSearchResponse JSON string retrieved from the server
+     * @return a list of client detail models
+     */
+    public static List<ChildMotherDetailsModel> processReturnedAdvanceSearchResults(Response<String> clientSearchResponse) {
+        List<ChildMotherDetailsModel> childMotherDetailsModels = new ArrayList<>();
+        try {
+            if (clientSearchResponse.status().equals(ResponseStatus.success)) {
+                JSONArray searchResults = new JSONArray(clientSearchResponse.payload());
+                for (int index = 0; index < searchResults.length(); index++) {
+                    JSONObject searchResult = searchResults.getJSONObject(index);
+                    if (!searchResult.has(Constants.Client.RELATIONSHIPS)) {
+                        continue;
+                    }
+                    JSONObject relationships = searchResult.getJSONObject(Constants.Client.RELATIONSHIPS);
+                    if (relationships != null && relationships.has(Constants.KEY.MOTHER)) {
+                        JSONObject motherJson = getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
+                        if (motherJson != null) {
+                            childMotherDetailsModels.add(new ChildMotherDetailsModel(searchResult, motherJson));
+                        }
+                    }
+
+                }
+                Collections.sort(childMotherDetailsModels, Collections.reverseOrder());
+            }
+
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return childMotherDetailsModels;
+    }
+
+    /**
+     * Return Json for provided relational id
+     *
+     * @param searchResults List of returned clients
+     * @param relationalId  base entity id of the relation e.g mother base entity id
+     * @return Json for the given relational id
+     */
+    private static JSONObject getRelationshipJson(JSONArray searchResults, String relationalId) throws JSONException {
+        for (int index = 0; index < searchResults.length(); index++) {
+            JSONObject searchResult = searchResults.getJSONObject(index);
+            if (searchResult.has(Constants.Client.BASE_ENTITY_ID) &&
+                    relationalId.equalsIgnoreCase(searchResult.getString(Constants.Client.BASE_ENTITY_ID))) {
+                return searchResult;
+            }
+        }
+        return null;
     }
 }

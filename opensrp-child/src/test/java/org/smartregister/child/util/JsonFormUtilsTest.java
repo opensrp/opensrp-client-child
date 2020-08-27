@@ -30,8 +30,11 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
+import org.smartregister.child.model.ChildMotherDetailsModel;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.domain.Response;
+import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
@@ -386,5 +389,18 @@ public class JsonFormUtilsTest {
         Assert.assertEquals(2, formLocations.size());
         Assert.assertEquals("Country", formLocations.get(0));
         Assert.assertEquals("County", formLocations.get(1));
+    }
+
+    @Test
+    public void testProcessReturnedAdvanceSearchResults() {
+        Response<String> response = new Response<>(ResponseStatus.success, "[{\"type\":\"Client\",\"dateCreated\":\"2020-07-24T14:05:02.389+01:00\",\"serverVersion\":1595595902378,\"baseEntityId\":\"e027f793-ce2d-4bd4-86b1-ae0a3c56c230\",\"identifiers\":{\"M_ZEIR_ID\":\"130902\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Kituoni Malenga\",\"address2\":\"Victoria Falls\"}}],\"attributes\":{\"mother_rubella\":\"No\",\"mother_tdv_doses\":\"1 dose of TDV during pregnancy\",\"mother_nationality\":\"Other\",\"mother_nationality_other\":\"Ghanaian\"},\"firstName\":\"Linda\",\"lastName\":\"Linet\",\"birthdate\":\"1975-01-01T01:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"_id\":\"a0aa244a-9e3d-493e-8b0a-f39d8ebc10cd\",\"_rev\":\"v1\"},{\"type\":\"Client\",\"dateCreated\":\"2020-07-24T14:07:05.266+01:00\",\"serverVersion\":1595596025265,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":11,\"baseEntityId\":\"bb740c35-9a59-4c31-ac36-7ed870fc9fc1\",\"identifiers\":{\"zeir_id\":\"130905\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Keno Kobi\",\"address2\":\"Kimboi\"}}],\"attributes\":{\"age\":\"0.17\",\"child_reg\":\"65656232212\",\"ga_at_birth\":\"36\",\"place_of_birth\":\"On the way to the hospital\",\"Birth_Certificate\":\"2018/8655\"},\"firstName\":\"Melvis\",\"lastName\":\"Aurelia\",\"birthdate\":\"2020-05-24T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"mother\":[\"e027f793-ce2d-4bd4-86b1-ae0a3c56c230\"]},\"_id\":\"b509bb6c-1eb8-4fad-95fa-e6d4d784e2f9\",\"_rev\":\"v1\"},{\"type\":\"Client\",\"dateCreated\":\"2020-07-24T14:05:02.381+01:00\",\"serverVersion\":1595595902378,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":11,\"baseEntityId\":\"5ce1e428-dbfa-4ad6-9de2-246fc9f3ffa2\",\"identifiers\":{\"zeir_id\":\"130900\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Kituoni Malenga\",\"address2\":\"Victoria Falls\"}}],\"attributes\":{\"age\":\"0.41\",\"child_reg\":\"75665652323\",\"ga_at_birth\":\"40\",\"place_of_birth\":\"Hospital\",\"Birth_Certificate\":\"2020/52333\"},\"firstName\":\"Anto\",\"lastName\":\"Rosalina\",\"birthdate\":\"2020-02-24T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"father\":[\"b54ca41b-5b20-4a58-a761-0748289a73cf\"],\"mother\":[\"e027f793-ce2d-4bd4-86b1-ae0a3c56c230\"]},\"_id\":\"e989ee39-d7d2-43a8-ac8f-a62d93682595\",\"_rev\":\"v1\"}]");
+        List<ChildMotherDetailsModel> childMotherDetailsModels = JsonFormUtils.processReturnedAdvanceSearchResults(response);
+        Assert.assertEquals(2, childMotherDetailsModels.size());
+        ChildMotherDetailsModel firstChild = childMotherDetailsModels.get(0);
+        ChildMotherDetailsModel secondChild = childMotherDetailsModels.get(1);
+        Assert.assertEquals("Melvis", firstChild.getFirstName());
+        Assert.assertEquals("Anto", secondChild.getFirstName());
+        Assert.assertEquals("Linda", firstChild.getMotherFirstName());
+        Assert.assertEquals("Linet", secondChild.getMotherLastName());
     }
 }
