@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.vijay.jsonwizard.constants.JsonFormConstants;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +20,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
@@ -29,13 +33,19 @@ import org.smartregister.child.domain.Step;
 import org.smartregister.child.util.Constants;
 import org.smartregister.cloudant.models.Client;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Location;
+import org.smartregister.domain.LocationProperty;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.LocationRepository;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Created by ndegwamartin on 04/08/2020.
@@ -84,7 +94,17 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
     @Mock
     private AllSharedPreferences allSharedPreferences;
 
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Mock
+    private LocationHelper locationHelper;
+
+    @Mock
+    private LocationRepository locationRepository;
+
     private List<Field> fields;
+    private List<String> unformattedNumberFields;
 
     @Before
     public void setUp() {
@@ -93,9 +113,11 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         Mockito.doReturn(step).when(form).getStep1();
 
         fields = generateFormFieldsForTest();
+        unformattedNumberFields = new ArrayList<>();
 
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "fields", fields);
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "mAdapter", adapter);
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "unformattedNumberFields", unformattedNumberFields);
         Mockito.doReturn(fields).when(step).getFields();
     }
 
@@ -270,6 +292,58 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         Mockito.verify(adapter).notifyDataSetChanged();
     }
 
+    @Test
+    public void testCleanValueReturnsFormattedDateForDatePicker() {
+        String rawValue = "2020-08-28";
+
+        String value = baseChildRegistrationDataFragment.cleanValue(fields.get(3), rawValue);
+        Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
+        Assert.assertEquals("28-08-2020", value);
+    }
+
+    @Test
+    public void testCleanValueRetrievesValueFromKeysListForOtherSpinner() {
+        String rawValue = "m";
+
+        String value = baseChildRegistrationDataFragment.cleanValue(fields.get(4), rawValue);
+        Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
+        Assert.assertEquals("Male", value);
+    }
+
+    @Test
+    public void testCleanValueRetrievesDatabaseValueForSpinnerSubtypeLocation() {
+        String rawValue = "";
+
+        Location location = new Location();
+        location.setId("123");
+        LocationProperty property = new LocationProperty();
+        property.setName("Location1");
+        location.setProperties(property);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        Mockito.when(childLibrary.getLocationRepository()).thenReturn(locationRepository);
+        Mockito.when(locationRepository.getLocationById("")).thenReturn(location);
+
+        String value = baseChildRegistrationDataFragment.cleanValue(fields.get(5), rawValue);
+        Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
+        Assert.assertEquals("Location1", value);
+    }
+
+    @Test
+    public void testCleanValueRetrievesOpenMrsLocationNameForTree() {
+        String rawValue = "";
+        String locationName = "YAO";
+        String readableName = "Yaounde";
+
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+        Mockito.when(locationHelper.getOpenMrsLocationName(rawValue)).thenReturn(locationName);
+        Mockito.when(locationHelper.getOpenMrsReadableName(locationName)).thenReturn(readableName);
+
+        String value = baseChildRegistrationDataFragment.cleanValue(fields.get(6), rawValue);
+        Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
+        Assert.assertEquals("Yaounde", value);
+    }
+
     private List<Field> generateFormFieldsForTest() {
         fields = new ArrayList<>();
         Field f = new Field();
@@ -286,6 +360,33 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         f.setHint("OpenSRP ID");
         Whitebox.setInternalState(f, "key", "key3");
         Whitebox.setInternalState(f, "renderType", "id");
+        fields.add(f);
+
+        f = new Field();
+        f.setHint("Date Picker");
+        Whitebox.setInternalState(f, "key", "key4");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.DATE_PICKER);
+        fields.add(f);
+
+        f = new Field();
+        f.setHint("Spinner");
+        Whitebox.setInternalState(f, "key", "key5");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.SPINNER);
+        Whitebox.setInternalState(f, "keys", Arrays.asList(new String[]{"m", "f"}));
+        Whitebox.setInternalState(f, "values", Arrays.asList(new String[]{"Male", "Female"}));
+        fields.add(f);
+
+        f = new Field();
+        f.setHint("Location Spinner");
+        Whitebox.setInternalState(f, "key", "key6");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.SPINNER);
+        Whitebox.setInternalState(f, "subType", Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE);
+        fields.add(f);
+
+        f = new Field();
+        f.setHint("Tree");
+        Whitebox.setInternalState(f, "key", "key7");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.TREE);
         fields.add(f);
 
         return fields;

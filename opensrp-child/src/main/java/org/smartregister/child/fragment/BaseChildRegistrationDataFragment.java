@@ -215,10 +215,9 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
-                } else if (field.getKeys() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+                } else if (field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
                     result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 }
-
                 break;
             case JsonFormConstants.TREE:
                 result = LocationHelper.getInstance()
