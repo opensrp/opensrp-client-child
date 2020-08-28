@@ -28,6 +28,7 @@ import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 
@@ -220,7 +221,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
                 break;
             case JsonFormConstants.TREE:
-                result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
+                result = LocationHelper.getInstance()
+                        .getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
                 break;
             default:
                 break;
