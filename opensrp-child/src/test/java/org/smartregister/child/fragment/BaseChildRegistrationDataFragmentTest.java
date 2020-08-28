@@ -104,7 +104,6 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
     private LocationRepository locationRepository;
 
     private List<Field> fields;
-    private List<String> unformattedNumberFields;
 
     @Before
     public void setUp() {
@@ -113,7 +112,7 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         Mockito.doReturn(step).when(form).getStep1();
 
         fields = generateFormFieldsForTest();
-        unformattedNumberFields = new ArrayList<>();
+        List<String> unformattedNumberFields = new ArrayList<>();
 
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "fields", fields);
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "mAdapter", adapter);
