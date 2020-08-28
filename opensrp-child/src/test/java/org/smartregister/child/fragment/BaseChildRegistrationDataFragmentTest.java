@@ -41,11 +41,10 @@ import org.smartregister.repository.LocationRepository;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Created by ndegwamartin on 04/08/2020.
