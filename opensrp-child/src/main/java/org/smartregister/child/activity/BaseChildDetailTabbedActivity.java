@@ -400,6 +400,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public void renderProfileWidget(Map<String, String> childDetails) {
+        findViewById(R.id.outOfCatchement).setVisibility(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? View.VISIBLE : View.GONE);
         TextView profilename = findViewById(R.id.name);
         TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
