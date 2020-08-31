@@ -2,8 +2,10 @@ package org.smartregister.child.contract;
 
 import android.database.Cursor;
 
+import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.domain.Response;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ChildAdvancedSearchContract {
@@ -20,6 +22,7 @@ public interface ChildAdvancedSearchContract {
         String filterAndSortQuery();
 
         Cursor getRawCustomQueryForAdapter(String query);
+
     }
 
     interface Model extends ChildRegisterFragmentContract.Model {
@@ -29,6 +32,10 @@ public interface ChildAdvancedSearchContract {
         String createSearchString(Map<String, String> searchMap);
 
         String getMainConditionString(Map<String, String> editMap);
+
+        List<ChildMotherDetailModel> getChildMotherDetailModels(Response<String> response);
+
+        String[] getColumns();
 
     }
 

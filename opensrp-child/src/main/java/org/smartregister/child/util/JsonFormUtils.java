@@ -34,7 +34,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.enums.LocationHierarchy;
-import org.smartregister.child.model.ChildMotherDetailsModel;
+import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
@@ -78,6 +78,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -1952,32 +1953,36 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * @param clientSearchResponse JSON string retrieved from the server
      * @return a list of client detail models
      */
-    public static List<ChildMotherDetailsModel> processReturnedAdvanceSearchResults(Response<String> clientSearchResponse) {
-        List<ChildMotherDetailsModel> childMotherDetailsModels = new ArrayList<>();
+    public static List<ChildMotherDetailModel> processReturnedAdvanceSearchResults(Response<String> clientSearchResponse) {
+        List<ChildMotherDetailModel> childMotherDetailModels = new ArrayList<>();
+        Set<String> processedClients = new HashSet<>();
         try {
             if (clientSearchResponse.status().equals(ResponseStatus.success)) {
                 JSONArray searchResults = new JSONArray(clientSearchResponse.payload());
                 for (int index = 0; index < searchResults.length(); index++) {
                     JSONObject searchResult = searchResults.getJSONObject(index);
-                    if (!searchResult.has(Constants.Client.RELATIONSHIPS)) {
+                    String baseEntityId = searchResult.getString(Constants.Client.BASE_ENTITY_ID);
+
+                    if (!searchResult.has(Constants.Client.RELATIONSHIPS) || processedClients.contains(baseEntityId)) {
                         continue;
                     }
+
                     JSONObject relationships = searchResult.getJSONObject(Constants.Client.RELATIONSHIPS);
                     if (relationships != null && relationships.has(Constants.KEY.MOTHER)) {
                         JSONObject motherJson = getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
                         if (motherJson != null) {
-                            childMotherDetailsModels.add(new ChildMotherDetailsModel(searchResult, motherJson));
+                            childMotherDetailModels.add(new ChildMotherDetailModel(searchResult, motherJson));
                         }
                     }
-
+                    processedClients.add(baseEntityId);
                 }
-                Collections.sort(childMotherDetailsModels, Collections.reverseOrder());
+                Collections.sort(childMotherDetailModels, Collections.reverseOrder());
             }
 
         } catch (JSONException e) {
             Timber.e(e);
         }
-        return childMotherDetailsModels;
+        return childMotherDetailModels;
     }
 
     /**

@@ -9,18 +9,17 @@ import timber.log.Timber;
 import static org.smartregister.child.util.JsonFormUtils.getJsonObject;
 import static org.smartregister.child.util.JsonFormUtils.getJsonString;
 
-public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsModel> {
+public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel> {
 
     private String id;
     public String childBaseEntityId;
     private String relationalId;
+    private String motherBaseEntityId;
     private String firstName;
     private String lastName;
     private String gender;
     private String dateOfBirth;
     private String zeirId;
-    private String motherBaseEntityId;
-    private String fatherBaseEntityId;
     private String motherFirstName;
     private String motherLastName;
     private String inActive;
@@ -28,7 +27,7 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
     private JSONObject childJson;
     private JSONObject motherJson;
 
-    public ChildMotherDetailsModel(JSONObject childJson, JSONObject motherJson) {
+    public ChildMotherDetailModel(JSONObject childJson, JSONObject motherJson) {
         this.motherJson = motherJson;
         setChildJson(childJson);
         mapJsonToField();
@@ -36,8 +35,8 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
 
     public Object[] getColumnValuesFromJson() {
         return new Object[]{
-                getChildBaseEntityId(), getRelationalId(), getFirstName(), getLastName(), getGender(), getDateOfBirth(),
-                getZeirId(), getMotherBaseEntityId(), getFatherBaseEntityId(), getMotherFirstName(), getMotherLastName(), getInActive(), getLostFollowUp()
+                getChildBaseEntityId(), getRelationalId(), getMotherBaseEntityId(), getFirstName(), getLastName(), getGender(), getDateOfBirth(),
+                getZeirId(), getMotherFirstName(), getMotherLastName(), getInActive(), getLostFollowUp()
         };
     }
 
@@ -53,7 +52,9 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
             if (childJson.has(Constants.Client.RELATIONSHIPS)) {
                 JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
                 if (relationships != null && relationships.has(Constants.KEY.MOTHER)) {
-                    setRelationalId(relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
+                    String mothersId = relationships.getJSONArray(Constants.KEY.MOTHER).getString(0);
+                    setRelationalId(mothersId);
+                    setMotherBaseEntityId(mothersId);
                 }
             }
             if (childJson.has(Constants.Client.FIRST_NAME)) {
@@ -71,15 +72,7 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
             if (childJson.has(Constants.Client.IDENTIFIERS)) {
                 setZeirId(childJson.getJSONObject(Constants.Client.IDENTIFIERS).getString(Constants.KEY.ZEIR_ID));
             }
-            if (motherJson.has(Constants.Client.BASE_ENTITY_ID)) {
-                setMotherBaseEntityId(motherJson.getString(Constants.Client.BASE_ENTITY_ID));
-            }
-            if (childJson.has(Constants.Client.RELATIONSHIPS)) {
-                JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
-                if (relationships != null && relationships.has(Constants.KEY.FATHER)) {
-                    setFatherBaseEntityId(relationships.getJSONArray(Constants.KEY.FATHER).getString(0));
-                }
-            }
+
             if (motherJson.has(Constants.Client.FIRST_NAME)) {
                 setMotherFirstName(motherJson.getString(Constants.Client.FIRST_NAME));
             }
@@ -160,14 +153,6 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
         this.zeirId = zeirId;
     }
 
-    public String getMotherBaseEntityId() {
-        return motherBaseEntityId;
-    }
-
-    public void setMotherBaseEntityId(String motherBaseEntityId) {
-        this.motherBaseEntityId = motherBaseEntityId;
-    }
-
     public String getMotherFirstName() {
         return motherFirstName;
     }
@@ -204,16 +189,16 @@ public class ChildMotherDetailsModel implements Comparable<ChildMotherDetailsMod
         this.lostFollowUp = lostFollowUp;
     }
 
+    public String getMotherBaseEntityId() {
+        return motherBaseEntityId;
+    }
+
+    public void setMotherBaseEntityId(String motherBaseEntityId) {
+        this.motherBaseEntityId = motherBaseEntityId;
+    }
+
     @Override
-    public int compareTo(ChildMotherDetailsModel childMotherDetailsModel) {
-        return this.getZeirId().compareTo(childMotherDetailsModel.getZeirId());
-    }
-
-    public String getFatherBaseEntityId() {
-        return fatherBaseEntityId;
-    }
-
-    public void setFatherBaseEntityId(String fatherBaseEntityId) {
-        this.fatherBaseEntityId = fatherBaseEntityId;
+    public int compareTo(ChildMotherDetailModel childMotherDetailModel) {
+        return this.getZeirId().compareTo(childMotherDetailModel.getZeirId());
     }
 }

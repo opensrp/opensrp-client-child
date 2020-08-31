@@ -3,6 +3,8 @@ package org.smartregister.child.interactor;
 import android.support.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.ChildLibrary;
@@ -11,6 +13,7 @@ import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.domain.Response;
+import org.smartregister.domain.ResponseStatus;
 import org.smartregister.service.HTTPAgent;
 
 import java.io.UnsupportedEncodingException;
@@ -60,72 +63,168 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     }
 
     private Response<String> globalSearch(Map<String, String> searchParameters) {
-        String baseUrl = getDristhiConfiguration().dristhiBaseURL();
-        String paramString = "";
-        String uri;
-        enhanceStatusFilter(searchParameters);
         if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                 .getProperty(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH, "false"))) {
+            return retrieveRemoteClients(searchParameters);
+        }
+        String paramString = "";
+        if (!searchParameters.isEmpty()) {
+            enhanceStatusFilter(searchParameters);
+            for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
 
-            uri = String.format("%s%s%s", baseUrl, NEW_ADVANCE_SEARCH_URL, generateParamString(searchParameters));
-        } else {
-            if (!searchParameters.isEmpty()) {
-                for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-
-                    if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-                        value = urlEncode(value);
-                        String param = key.trim() + "=" + value.trim();
-                        if (StringUtils.isBlank(paramString)) {
-                            paramString = "?" + param;
-                        } else {
-                            paramString += "&" + param;
-                        }
+                if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+                    value = urlEncode(value);
+                    String param = key.trim() + "=" + value.trim();
+                    if (StringUtils.isBlank(paramString)) {
+                        paramString = "?" + param;
+                    } else {
+                        paramString += "&" + param;
                     }
-
                 }
 
             }
-            uri = String.format("%s%s%s", baseUrl, SEARCH_URL, paramString);
+            String uri = getDristhiConfiguration().dristhiBaseURL() + SEARCH_URL + paramString;
+            Timber.i("Advance Search URI: %s ", uri);
+            return getHttpAgent().fetch(uri);
         }
-
-        Timber.i("Advance Search URI: %s ", uri);
-        return getHttpAgent().fetch(uri);
+        return new Response<>(ResponseStatus.failure, "[]");
     }
 
-    private String generateParamString(Map<String, String> searchParameters) {
-        StringBuilder stringBuilder = new StringBuilder("");
-        String fullName = "";
-        StringBuilder clientAttributes = new StringBuilder("attribute=");
+    /**
+     * This method performs search using the endpoint rest/client/search. The query will search mother
+     * and child separately and combine
+     *
+     * @param searchParameters Filter parameters
+     * @return Payload string of the response of search
+     */
+    private Response<String> retrieveRemoteClients(Map<String, String> searchParameters) {
+        if (searchParameters.isEmpty()) {
+            return new Response<>(ResponseStatus.failure, "[]");
+        }
+        //Search mother clients and merge results to child results
+        Response<String> motherSearchResult = null;
+        String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
+
+        String motherSearchParameters = "";
+        String name = "";
+
+        if (searchParameters.containsKey(Constants.KEY.MOTHER_FIRST_NAME)) {
+            name = searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
+        }
+
+        if (searchParameters.containsKey(Constants.KEY.MOTHER_LAST_NAME) && StringUtils.isBlank(name)) {
+            name = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
+        }
+
+        if (StringUtils.isNoneBlank(name)) {
+            motherSearchParameters = String.format("?name=%s", name);
+        }
+
+        if (searchParameters.containsKey(Constants.KEY.MOTHER_PHONE_NUMBER) && StringUtils.isNoneBlank(motherSearchParameters)) {
+            motherSearchParameters = String.format("&attribute=%s:%s", getMotherGuardianPhoneNumber(), searchParameters.remove(Constants.KEY.MOTHER_PHONE_NUMBER));
+
+        } else if (searchParameters.containsKey(Constants.KEY.MOTHER_PHONE_NUMBER) && StringUtils.isBlank(motherSearchParameters)) {
+            motherSearchParameters = String.format("?attribute=%s:%s", getMotherGuardianPhoneNumber(), searchParameters.remove(Constants.KEY.MOTHER_PHONE_NUMBER));
+        }
+
+        if (StringUtils.isNoneBlank(motherSearchParameters)) {
+            motherSearchParameters = String.format("%s&searchRelationship=%s", motherSearchParameters, Constants.KEY.MOTHER);
+            motherSearchResult = getHttpAgent().fetch(searchEndpoint + motherSearchParameters);
+            Timber.i("Mother Search URI: %s%s", searchEndpoint, motherSearchParameters);
+        }
+
+        String childSearchParameters = generateChildSearchParameters(searchParameters);
+        if (StringUtils.isNoneBlank(childSearchParameters)) {
+            Timber.i("Child Search URI: %s%s", searchEndpoint, childSearchParameters);
+            Response<String> childSearchResults = getHttpAgent().fetch(searchEndpoint + childSearchParameters);
+            if (childSearchResults.status() == ResponseStatus.success && motherSearchResult != null && motherSearchResult.status() == ResponseStatus.success) {
+                try {
+                    JSONArray mothersJsonArray = new JSONArray(motherSearchResult.payload());
+                    JSONArray childrenJsonArray = new JSONArray(childSearchResults.payload());
+                    for (int index = 0; index < mothersJsonArray.length(); index++) {
+                        childrenJsonArray.put(mothersJsonArray.get(index));
+                    }
+                    return new Response<>(ResponseStatus.success, childrenJsonArray.toString());
+                } catch (JSONException e) {
+                    Timber.e(e);
+                }
+            }
+            return childSearchResults;
+        }
+        return motherSearchResult != null ? motherSearchResult : new Response<>(ResponseStatus.failure, "[]");
+    }
+
+    protected String getMotherGuardianPhoneNumber() {
+        return Constants.KEY.MOTHER_GUARDIAN_NUMBER;
+    }
+
+    private String generateChildSearchParameters(Map<String, String> searchParameters) {
+        //Remove mother attributes
+        removeMotherSearchParameters(searchParameters);
+
+        StringBuilder queryParamStringBuilder = new StringBuilder("");
+
+        //Handle name param - use either firs/last name //TODO server does not support full name
+        String name = "";
         if (searchParameters.containsKey(Constants.KEY.FIRST_NAME)) {
-            fullName = searchParameters.get(Constants.KEY.FIRST_NAME);
+            name = searchParameters.remove(Constants.KEY.FIRST_NAME);
         }
-        if (searchParameters.containsKey(Constants.KEY.LAST_NAME)) {
-            fullName = String.format("%s %s", fullName, searchParameters.get(Constants.KEY.LAST_NAME));
+        if (searchParameters.containsKey(Constants.KEY.LAST_NAME) && StringUtils.isBlank(name)) {
+            name = searchParameters.remove(Constants.KEY.LAST_NAME);
         }
+        if (StringUtils.isNoneBlank(name)) {
+            queryParamStringBuilder.append("?name=").append(name);
+        }
+        //Handle birth dates param
+        String birthDate = "";
+        if (searchParameters.containsKey(Constants.KEY.BIRTH_DATE)) {
+            String[] birthDates = searchParameters.remove(Constants.KEY.BIRTH_DATE).split(":");
+            if (birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
+                birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
+            } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
+                birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
+            }
+        }
+
+        if (StringUtils.isNoneBlank(birthDate)) {
+            queryParamStringBuilder.append(birthDate);
+        }
+
+        //Handle other client attributes
+        boolean nameBirthDateAttributesPresent = StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate);
+        StringBuilder clientAttributes = new StringBuilder();
         for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue();
-            if (Constants.KEY.FIRST_NAME.equalsIgnoreCase(key) || Constants.KEY.LAST_NAME.equalsIgnoreCase(key)) {
+            String value = urlEncode(entry.getValue());
+            if (key.equalsIgnoreCase(Constants.CHILD_STATUS.ACTIVE) && value.equalsIgnoreCase("true") ||
+                    key.equalsIgnoreCase(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) && value.equalsIgnoreCase("false") ||
+                    key.equalsIgnoreCase(Constants.CHILD_STATUS.INACTIVE) && value.equalsIgnoreCase("false")) {
                 continue;
             }
             clientAttributes.append(String.format("%s:%s,", key, value));
+        }
 
+        String formattedAttributes = null;
+        if (StringUtils.isNoneBlank(clientAttributes)) {
+            formattedAttributes = clientAttributes.toString().replaceAll(",$", "").trim();
         }
-        if (StringUtils.isNoneBlank(fullName)) {
-            stringBuilder.append("?name=").append(fullName);
+        if (StringUtils.isNoneBlank(formattedAttributes) && nameBirthDateAttributesPresent) {
+            queryParamStringBuilder.append("&attribute=").append(formattedAttributes);
+        } else if (StringUtils.isNoneBlank(formattedAttributes) && !nameBirthDateAttributesPresent) {
+            queryParamStringBuilder.append("?attribute=").append(formattedAttributes);
         }
-        String formattedAttributes = clientAttributes.toString().replaceAll(",$", "").trim();
-        if (clientAttributes.toString().contains(":") && StringUtils.isNoneBlank(fullName)) {
-            stringBuilder.append(String.format("&%s", formattedAttributes));
-        } else {
-            stringBuilder.append(formattedAttributes);
+        if (StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate) || StringUtils.isNoneBlank(formattedAttributes)) {
+            queryParamStringBuilder.append("&relationships=mother");
         }
-        if(StringUtils.isNoneBlank(fullName) || StringUtils.isNoneBlank(formattedAttributes)){
-            stringBuilder.append("&relationships=mother");
-        }
-        return stringBuilder.toString();
+        return queryParamStringBuilder.toString();
+    }
+
+    protected void removeMotherSearchParameters(Map<String, String> searchParameters) {
+        searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
+        searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
+        searchParameters.remove(getMotherGuardianPhoneNumber());
     }
 
     private void enhanceStatusFilter(Map<String, String> map) {

@@ -111,6 +111,7 @@ public final class Constants extends AllConstants {
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
+        public static final String MOTHER_GUARDIAN_NUMBER = "mother_guardian_number";
         public static final String ID = "id";
         public static final String NRC_NUMBER = "nrc_number";
         public static final String FATHER_NAME = "father_name";
@@ -122,6 +123,9 @@ public final class Constants extends AllConstants {
         public static final String CHILD_HIV_STATUS = "child_hiv_status";
         public static final String CHILD_TREATMENT = "child_treatment";
         public static final String IS_CLOSED = "is_closed";
+        public static final String BIRTH_DATE = "birth_date";
+        public static final String MOTHER_PHONE_NUMBER = "mother_phone_number";
+        public static final String IS_REMOTE_CLIENT = "is_remote_client";
     }
 
     public static final class INTENT_KEY {

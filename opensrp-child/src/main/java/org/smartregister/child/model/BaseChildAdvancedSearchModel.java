@@ -1,12 +1,19 @@
 package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.domain.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
@@ -177,4 +184,10 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         }
         return s;
     }
+
+    @Override
+    public List<ChildMotherDetailModel> getChildMotherDetailModels(Response<String> response) {
+        return JsonFormUtils.processReturnedAdvanceSearchResults(response);
+    }
+
 }
