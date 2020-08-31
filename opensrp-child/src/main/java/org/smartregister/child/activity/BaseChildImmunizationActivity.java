@@ -241,6 +241,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         growthChartButton = findViewById(R.id.growth_chart_button);
         siblingPicturesGroup = findViewById(R.id.sibling_pictures);
 
+      // findViewById(R.id.outOfCatchement).setVisibility(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? View.VISIBLE : View.GONE);
+
     }
 
     private void setUpToolbar() {

@@ -32,6 +32,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Service
         public static final String MONITOR_HEIGHT = "monitor.height";
 
+
         //Search configuration
         public static final String USE_NEW_ADVANCE_SEARCH_APPROACH = "use.new.advance.search.approach";
 
@@ -39,5 +40,11 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         public static final String MULTI_LANGUAGE_SUPPORT = "multi.language.support";
 
         public static final String FEATURE_RECURRING_SERVICE_ENABLED = "recurring.services.enabled";
+
+        //novel features
+        public final static class NOVEL {
+            public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";
+        }
+
     }
 }
