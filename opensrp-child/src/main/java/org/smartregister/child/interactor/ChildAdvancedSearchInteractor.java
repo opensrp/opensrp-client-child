@@ -104,9 +104,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
      * @return Payload string of the response of search
      */
     private Response<String> retrieveRemoteClients(Map<String, String> searchParameters) {
-        if (searchParameters.isEmpty()) {
-            return new Response<>(ResponseStatus.failure, "[]");
-        }
         SearchMother searchMother = new SearchMother(searchParameters).invoke();
         Response<String> motherSearchResult = searchMother.getMotherSearchResult();
 
