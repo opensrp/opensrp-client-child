@@ -2,7 +2,6 @@ package org.smartregister.child.contract;
 
 import org.json.JSONArray;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.ViewConfiguration;

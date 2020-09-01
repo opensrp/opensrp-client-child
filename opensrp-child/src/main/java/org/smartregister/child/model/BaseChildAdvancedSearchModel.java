@@ -1,11 +1,7 @@
 package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
-import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;

@@ -3,6 +3,7 @@ package org.smartregister.child.interactor;
 import android.support.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.smartregister.CoreLibrary;
@@ -32,6 +33,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     private AppExecutors appExecutors;
     private HTTPAgent httpAgent;
     private DristhiConfiguration dristhiConfiguration;
+    private String motherGuardianNumber;
 
     public ChildAdvancedSearchInteractor() {
         this(new AppExecutors());
@@ -40,6 +42,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     @VisibleForTesting
     ChildAdvancedSearchInteractor(AppExecutors appExecutors) {
         this.appExecutors = appExecutors;
+        setMotherGuardianNumber(Constants.KEY.MOTHER_GUARDIAN_NUMBER);
     }
 
     @Override
@@ -103,40 +106,12 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (searchParameters.isEmpty()) {
             return new Response<>(ResponseStatus.failure, "[]");
         }
-        //Search mother clients and merge results to child results
-        Response<String> motherSearchResult = null;
-        String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
-
-        String motherSearchParameters = "";
-        String name = "";
-
-        if (searchParameters.containsKey(Constants.KEY.MOTHER_FIRST_NAME)) {
-            name = searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
-        }
-
-        if (searchParameters.containsKey(Constants.KEY.MOTHER_LAST_NAME) && StringUtils.isBlank(name)) {
-            name = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
-        }
-
-        if (StringUtils.isNoneBlank(name)) {
-            motherSearchParameters = String.format("?name=%s", name);
-        }
-
-        if (searchParameters.containsKey(Constants.KEY.MOTHER_PHONE_NUMBER) && StringUtils.isNoneBlank(motherSearchParameters)) {
-            motherSearchParameters = String.format("&attribute=%s:%s", getMotherGuardianPhoneNumber(), searchParameters.remove(Constants.KEY.MOTHER_PHONE_NUMBER));
-
-        } else if (searchParameters.containsKey(Constants.KEY.MOTHER_PHONE_NUMBER) && StringUtils.isBlank(motherSearchParameters)) {
-            motherSearchParameters = String.format("?attribute=%s:%s", getMotherGuardianPhoneNumber(), searchParameters.remove(Constants.KEY.MOTHER_PHONE_NUMBER));
-        }
-
-        if (StringUtils.isNoneBlank(motherSearchParameters)) {
-            motherSearchParameters = String.format("%s&searchRelationship=%s", motherSearchParameters, Constants.KEY.MOTHER);
-            motherSearchResult = getHttpAgent().fetch(searchEndpoint + motherSearchParameters);
-            Timber.i("Mother Search URI: %s%s", searchEndpoint, motherSearchParameters);
-        }
+        SearchMother searchMother = new SearchMother(searchParameters).invoke();
+        Response<String> motherSearchResult = searchMother.getMotherSearchResult();
 
         String childSearchParameters = generateChildSearchParameters(searchParameters);
         if (StringUtils.isNoneBlank(childSearchParameters)) {
+            String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
             Timber.i("Child Search URI: %s%s", searchEndpoint, childSearchParameters);
             Response<String> childSearchResults = getHttpAgent().fetch(searchEndpoint + childSearchParameters);
             if (childSearchResults.status() == ResponseStatus.success && motherSearchResult != null && motherSearchResult.status() == ResponseStatus.success) {
@@ -156,8 +131,12 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return motherSearchResult != null ? motherSearchResult : new Response<>(ResponseStatus.failure, "[]");
     }
 
-    protected String getMotherGuardianPhoneNumber() {
-        return Constants.KEY.MOTHER_GUARDIAN_NUMBER;
+    public void setMotherGuardianNumber(String motherGuardianNumber) {
+        this.motherGuardianNumber = motherGuardianNumber;
+    }
+
+    public String getMotherGuardianPhoneNumber() {
+        return motherGuardianNumber;
     }
 
     private String generateChildSearchParameters(Map<String, String> searchParameters) {
@@ -167,25 +146,23 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         StringBuilder queryParamStringBuilder = new StringBuilder("");
 
         //Handle name param - use either firs/last name //TODO server does not support full name
-        String name = "";
-        if (searchParameters.containsKey(Constants.KEY.FIRST_NAME)) {
-            name = searchParameters.remove(Constants.KEY.FIRST_NAME);
-        }
-        if (searchParameters.containsKey(Constants.KEY.LAST_NAME) && StringUtils.isBlank(name)) {
+        String name = searchParameters.remove(Constants.KEY.FIRST_NAME);
+        if (StringUtils.isBlank(name)) {
             name = searchParameters.remove(Constants.KEY.LAST_NAME);
         }
         if (StringUtils.isNoneBlank(name)) {
             queryParamStringBuilder.append("?name=").append(name);
         }
+
         //Handle birth dates param
         String birthDate = "";
-        if (searchParameters.containsKey(Constants.KEY.BIRTH_DATE)) {
-            String[] birthDates = searchParameters.remove(Constants.KEY.BIRTH_DATE).split(":");
-            if (birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
-                birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
-            } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
-                birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
-            }
+        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE) ;
+        String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
+
+        if (StringUtils.isNoneBlank(birthDates) && birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
+            birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
+        } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
+            birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
         }
 
         if (StringUtils.isNoneBlank(birthDate)) {
@@ -193,7 +170,16 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         }
 
         //Handle other client attributes
-        boolean nameBirthDateAttributesPresent = StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate);
+        String formattedAttributes = getChildClientAttributes(searchParameters, queryParamStringBuilder,
+                StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate));
+        if (StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate) || StringUtils.isNoneBlank(formattedAttributes)) {
+            queryParamStringBuilder.append("&relationships=mother");
+        }
+        return queryParamStringBuilder.toString();
+    }
+
+    @Nullable
+    private String getChildClientAttributes(Map<String, String> searchParameters, StringBuilder queryParamStringBuilder, boolean nameBirthDateAttributesPresent) {
         StringBuilder clientAttributes = new StringBuilder();
         for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
             String key = entry.getKey();
@@ -215,10 +201,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         } else if (StringUtils.isNoneBlank(formattedAttributes) && !nameBirthDateAttributesPresent) {
             queryParamStringBuilder.append("?attribute=").append(formattedAttributes);
         }
-        if (StringUtils.isNoneBlank(name) || StringUtils.isNoneBlank(birthDate) || StringUtils.isNoneBlank(formattedAttributes)) {
-            queryParamStringBuilder.append("&relationships=mother");
-        }
-        return queryParamStringBuilder.toString();
+        return formattedAttributes;
     }
 
     protected void removeMotherSearchParameters(Map<String, String> searchParameters) {
@@ -269,7 +252,44 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
     }
 
-    public void setHttpAgent(HTTPAgent httpAgent) {
-        this.httpAgent = httpAgent;
+    private class SearchMother {
+        private Map<String, String> searchParameters;
+        private Response<String> motherSearchResult;
+
+        public SearchMother(Map<String, String> searchParameters) {
+            this.searchParameters = searchParameters;
+        }
+
+        public Response<String> getMotherSearchResult() {
+            return motherSearchResult;
+        }
+
+        public SearchMother invoke() {
+            String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
+            String motherSearchParameters = "";
+
+            String name = searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
+            if (StringUtils.isBlank(name)) {
+                name = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
+            }
+
+            if (StringUtils.isNoneBlank(name)) {
+                motherSearchParameters = String.format("?name=%s", name);
+            }
+
+            String phoneNumber = searchParameters.remove(getMotherGuardianPhoneNumber());
+            if (StringUtils.isNoneBlank(motherSearchParameters) && StringUtils.isNoneBlank(phoneNumber)) {
+                motherSearchParameters = String.format("&attribute=%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
+            } else if (StringUtils.isBlank(motherSearchParameters) && StringUtils.isNoneBlank(phoneNumber)) {
+                motherSearchParameters = String.format("?attribute=%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
+            }
+
+            if (StringUtils.isNoneBlank(motherSearchParameters)) {
+                motherSearchParameters = String.format("%s&searchRelationship=%s", motherSearchParameters, Constants.KEY.MOTHER);
+                motherSearchResult = getHttpAgent().fetch(searchEndpoint + motherSearchParameters);
+                Timber.i("Mother Search URI: %s%s", searchEndpoint, motherSearchParameters);
+            }
+            return this;
+        }
     }
 }

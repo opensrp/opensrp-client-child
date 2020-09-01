@@ -28,7 +28,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     private JSONObject motherJson;
 
     public ChildMotherDetailModel(JSONObject childJson, JSONObject motherJson) {
-        this.motherJson = motherJson;
+        setMotherJson(motherJson);
         setChildJson(childJson);
         mapJsonToField();
     }
@@ -42,13 +42,13 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
 
     private void mapJsonToField() {
         try {
+            setId(getStringValue(Constants.Client.ID_LOWER_CASE, true));
+            setChildBaseEntityId(getStringValue(Constants.Client.BASE_ENTITY_ID, true));
+            setFirstName(getStringValue(Constants.Client.FIRST_NAME, true));
+            setLastName(getStringValue(Constants.Client.LAST_NAME, true));
+            setGender(getStringValue(Constants.Client.GENDER, true));
+            setDateOfBirth(getStringValue(Constants.Client.BIRTHDATE, true));
 
-            if (childJson.has(Constants.KEY.ID_LOWER_CASE)) {
-                setId(childJson.getString(Constants.Client.ID_LOWER_CASE));
-            }
-            if (childJson.has(Constants.Client.BASE_ENTITY_ID)) {
-                setChildBaseEntityId(childJson.getString(Constants.Client.BASE_ENTITY_ID));
-            }
             if (childJson.has(Constants.Client.RELATIONSHIPS)) {
                 JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
                 if (relationships != null && relationships.has(Constants.KEY.MOTHER)) {
@@ -57,36 +57,32 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
                     setMotherBaseEntityId(mothersId);
                 }
             }
-            if (childJson.has(Constants.Client.FIRST_NAME)) {
-                setFirstName(childJson.getString(Constants.Client.FIRST_NAME));
-            }
-            if (childJson.has(Constants.Client.LAST_NAME)) {
-                setLastName(childJson.getString(Constants.Client.LAST_NAME));
-            }
-            if (childJson.has(Constants.Client.GENDER)) {
-                setGender(childJson.getString(Constants.Client.GENDER));
-            }
-            if (childJson.has(Constants.Client.BIRTHDATE)) {
-                setDateOfBirth(childJson.getString(Constants.Client.BIRTHDATE));
-            }
-            if (childJson.has(Constants.Client.IDENTIFIERS)) {
-                setZeirId(childJson.getJSONObject(Constants.Client.IDENTIFIERS).getString(Constants.KEY.ZEIR_ID));
-            }
 
-            if (motherJson.has(Constants.Client.FIRST_NAME)) {
-                setMotherFirstName(motherJson.getString(Constants.Client.FIRST_NAME));
-            }
-            if (motherJson.has(Constants.Client.LAST_NAME)) {
-                setMotherLastName(motherJson.getString(Constants.Client.LAST_NAME));
-            }
-            if (childJson.has(Constants.Client.ATTRIBUTES)) {
-                setInActive(getJsonString(getJsonObject(childJson, Constants.Client.ATTRIBUTES), Constants.Client.INACTIVE));
-                setLostFollowUp(getJsonString(getJsonObject(childJson, Constants.Client.ATTRIBUTES), Constants.Client.LOST_TO_FOLLOW_UP));
-            }
+            setZeirId(getStringFromJson(Constants.Client.IDENTIFIERS, Constants.KEY.ZEIR_ID));
+            setInActive(getStringFromJson(Constants.Client.ATTRIBUTES, Constants.Client.INACTIVE));
+            setLostFollowUp(getStringFromJson(Constants.Client.ATTRIBUTES, Constants.Client.LOST_TO_FOLLOW_UP));
+            setMotherFirstName(getStringValue(Constants.Client.FIRST_NAME, false));
+            setMotherLastName(getStringValue(Constants.Client.LAST_NAME, false));
 
         } catch (JSONException e) {
             Timber.e(e, "Error parsing Advanced Search Client JSON");
         }
+    }
+
+    private String getStringValue(String key, boolean isChild) throws JSONException {
+        if (isChild && childJson.has(key)) {
+            return childJson.getString(key);
+        } else if (!isChild && motherJson.has(key)) {
+            return motherJson.getString(key);
+        }
+        return null;
+    }
+
+    private String getStringFromJson(String jsonKey, String actualKey) {
+        if (childJson.has(jsonKey)) {
+            return getJsonString(getJsonObject(childJson, jsonKey), actualKey);
+        }
+        return null;
     }
 
     public String getId() {
@@ -200,5 +196,9 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     @Override
     public int compareTo(ChildMotherDetailModel childMotherDetailModel) {
         return this.getZeirId().compareTo(childMotherDetailModel.getZeirId());
+    }
+
+    public void setMotherJson(JSONObject motherJson) {
+        this.motherJson = motherJson;
     }
 }
