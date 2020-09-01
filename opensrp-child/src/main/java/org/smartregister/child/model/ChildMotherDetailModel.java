@@ -6,9 +6,6 @@ import org.smartregister.child.util.Constants;
 
 import timber.log.Timber;
 
-import static org.smartregister.child.util.JsonFormUtils.getJsonObject;
-import static org.smartregister.child.util.JsonFormUtils.getJsonString;
-
 public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel> {
 
     private String id;
@@ -79,8 +76,9 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     }
 
     private String getStringFromJson(String jsonKey, String actualKey) {
-        if (childJson.has(jsonKey)) {
-            return getJsonString(getJsonObject(childJson, jsonKey), actualKey);
+        JSONObject jsonObject = childJson.optJSONObject(jsonKey);
+        if(jsonObject != null){
+            return  jsonObject.optString(actualKey, null);
         }
         return null;
     }

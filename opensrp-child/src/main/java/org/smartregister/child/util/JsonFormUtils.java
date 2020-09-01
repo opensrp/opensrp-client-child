@@ -1916,35 +1916,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return detailsMap;
     }
 
-    public static String getJsonString(JSONObject jsonObject, String field) {
-        try {
-            if (jsonObject != null && jsonObject.has(field)) {
-                String string = jsonObject.getString(field);
-                if (StringUtils.isBlank(string)) {
-                    return "";
-                }
-
-                return string;
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-
-        return "";
-    }
-
-    public static JSONObject getJsonObject(JSONObject jsonObject, String field) {
-        try {
-            if (jsonObject != null && jsonObject.has(field)) {
-                return jsonObject.getJSONObject(field);
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-
-        return null;
-    }
-
     /**
      * This method is used to process the result returned by advance search using the new approach.
      * To provide more context. The new advance search method returns a list of clients including their relationships
