@@ -134,7 +134,7 @@ dependencies {
         exclude group: 'com.ibm.fhir', module: 'fhir-model'
     }
 
-    implementation 'com.ibm.fhir:fhir-path:4.2.3'
+    implementation 'com.ibm.fhir:fhir-model:4.2.3'
 
     implementation fileTree(dir: "./build/libs", include: ['*.jar'])
 
