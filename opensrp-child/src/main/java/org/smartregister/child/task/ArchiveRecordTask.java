@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import org.smartregister.child.R;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Event;
 
@@ -38,8 +39,13 @@ public class ArchiveRecordTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            Event archiveRecordEvent = Utils.createArchiveRecordEvent(details);
-            Utils.initiateEventProcessing(Collections.singletonList(archiveRecordEvent.getFormSubmissionId()));
+            String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
+            Event archiveRecordEvent;
+            if (baseEntityId != null) {
+                archiveRecordEvent = Utils.createArchiveRecordEvent(baseEntityId);
+                Utils.initiateEventProcessing(Collections.singletonList(archiveRecordEvent.getFormSubmissionId()));
+            }
+
         } catch (Exception e) {
             Timber.e(e);
         }

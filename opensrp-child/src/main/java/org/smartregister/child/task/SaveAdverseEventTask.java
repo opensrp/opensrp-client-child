@@ -16,6 +16,8 @@ import org.smartregister.repository.EventClientRepository;
 import java.util.Date;
 import java.util.Iterator;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
@@ -88,7 +90,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                             if (entityValue.equals(JsonFormUtils.CONCEPT)) {
                                 JsonFormUtils.addToJSONObject(jsonObject, Constants.KEY.KEY, key);
                                 JsonFormUtils.addObservation(event, jsonObject);
-                            } else if ("encounter".equals(entityValue)) {
+                            } else if (Constants.ENCOUNTER.equals(entityValue)) {
                                 String entityIdValue = JsonFormUtils.getString(jsonObject, JsonFormUtils.OPENMRS_ENTITY_ID);
                                 if (entityIdValue.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                     Date eventDate = JsonFormUtils.formatDate(value, false);
@@ -102,7 +104,6 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 }
             }
 
-
             if (event != null) {
                 JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
                 eventClientRepository.addEvent(event.getBaseEntityId(), eventJson);
@@ -110,10 +111,9 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
             }
 
         } catch (Exception e) {
-            Log.e(SaveAdverseEventTask.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
 
         return null;
     }
-
 }

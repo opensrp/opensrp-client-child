@@ -347,7 +347,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_IMAGES_ENABLED)) {
             profileImageIV.setOnClickListener(null);
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.GONE);
-
         } else {
             findViewById(R.id.profile_image_edit_icon).setVisibility(View.VISIBLE);
             profileImageIV.setOnClickListener(new View.OnClickListener() {
@@ -1022,7 +1021,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 String name = VaccinatorUtils.getTranslatedVaccineName(this,
                         curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
                         Locale.ENGLISH).format(curVaccine.getDate()) + ")";
-                choices.put(name);
+                choices.put(name.toUpperCase(Locale.getDefault()));
 
                 Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
                 while (vaccineGroupNames.hasNext()) {

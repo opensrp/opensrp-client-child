@@ -62,7 +62,6 @@ import java.util.Set;
 
 import timber.log.Timber;
 
-
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View {
 
@@ -542,7 +541,6 @@ TO DO ? , sync unsynced records within catchment
         }
     }
 
-
     public void updateMatchingResults(int count) {
         if (matchingResults != null) {
             matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
@@ -557,7 +555,6 @@ TO DO ? , sync unsynced records within catchment
             searchCriteria.setVisibility(View.VISIBLE);
         }
     }
-
 
     private void setDatePicker(final EditText editText) {
         editText.setOnClickListener(new DatePickerListener(getActivity(), editText, true));

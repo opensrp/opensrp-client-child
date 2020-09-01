@@ -3,10 +3,13 @@ package org.smartregister.child.model;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
+import org.smartregister.domain.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
@@ -129,8 +132,9 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             String value = entry.getValue();
             if (key.contains(Constants.CHILD_STATUS.ACTIVE) || key.contains(Constants.CHILD_STATUS.INACTIVE) || key.contains(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
 
+                boolean isActive = key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE);
                 if (StringUtils.isBlank(statusConditionString)) {
-                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                    if (isActive) {
                         statusConditionString += " ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
                                 " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
@@ -139,7 +143,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                         statusConditionString += " " + key + " = '" + value + "'";
                     }
                 } else {
-                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                    if (isActive) {
                         statusConditionString += " OR ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
                                 " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
@@ -161,7 +165,9 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             }
         }
 
-        return mainConditionString;
+        return String.format("%s AND (%s is null AND %s == '0')", mainConditionString,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.IS_CLOSED);
     }
 
     private String removeLastSemiColon(String str) {
@@ -174,4 +180,10 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         }
         return s;
     }
+
+    @Override
+    public List<ChildMotherDetailModel> getChildMotherDetailModels(Response<String> response) {
+        return JsonFormUtils.processReturnedAdvanceSearchResults(response);
+    }
+
 }

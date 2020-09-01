@@ -431,12 +431,17 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), org.smartregister.child.util.Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String fatherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.FATHER_BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
                 ids.add(motherBaseEntityId);
                 ids.add(entityId);
+                //Also include Father base entity Id to pull Father events
+                if (org.smartregister.child.util.Utils.metadata().childRegister.getFatherRelationKey() != null && fatherBaseEntityId != null) {
+                    ids.add(fatherBaseEntityId);
+                }
 
                 moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_growth_bg));
                 moveToCatchment.setTag(R.id.move_to_catchment_ids, ids);

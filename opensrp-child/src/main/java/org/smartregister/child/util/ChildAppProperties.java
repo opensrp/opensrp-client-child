@@ -29,6 +29,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
 
-
+        //Search configuration
+        public static final String USE_NEW_ADVANCE_SEARCH_APPROACH = "use.new.advance.search.approach";
     }
 }
