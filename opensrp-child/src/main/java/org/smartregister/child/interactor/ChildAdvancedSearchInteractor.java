@@ -3,6 +3,7 @@ package org.smartregister.child.interactor;
 import android.support.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -140,7 +141,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     }
 
     private String generateChildSearchParameters(Map<String, String> searchParameters) {
-        //Remove mother attributes
         removeMotherSearchParameters(searchParameters);
 
         StringBuilder queryParamStringBuilder = new StringBuilder("");
@@ -150,20 +150,13 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (StringUtils.isBlank(name)) {
             name = searchParameters.remove(Constants.KEY.LAST_NAME);
         }
+
         if (StringUtils.isNoneBlank(name)) {
             queryParamStringBuilder.append("?name=").append(name);
         }
 
         //Handle birth dates param
-        String birthDate = "";
-        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE) ;
-        String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
-
-        if (StringUtils.isNoneBlank(birthDates) && birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
-            birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
-        } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
-            birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
-        }
+        String birthDate = getChildBirthDateParameter(searchParameters, name);
 
         if (StringUtils.isNoneBlank(birthDate)) {
             queryParamStringBuilder.append(birthDate);
@@ -176,6 +169,21 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             queryParamStringBuilder.append("&relationships=mother");
         }
         return queryParamStringBuilder.toString();
+    }
+
+    @NotNull
+    private String getChildBirthDateParameter(Map<String, String> searchParameters, String name) {
+        String birthDate = "";
+        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE) ;
+
+        String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
+        if (StringUtils.isNoneBlank(birthDates) && birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
+            birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
+        } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
+            birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
+        }
+
+        return birthDate;
     }
 
     @Nullable
