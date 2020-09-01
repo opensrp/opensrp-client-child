@@ -137,6 +137,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         Mockito.doReturn(false).when(appProperties).hasProperty(Mockito.anyString());
 
         when(registerActionParams.getConvertView()).thenReturn(view);
+        when(registerActionParams.getProfileInfoView()).thenReturn(view);
 
         vaccinationAsyncTask = new VaccinationAsyncTask(registerActionParams
                 , commonRepository
@@ -508,6 +509,34 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     }
 
     @Test
+    public void testUpdateRecordVaccinationWhenAppointmentDateIsNotNull() throws Exception {
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(view.findViewById(R.id.child_next_appointment)).thenReturn(textView);
+
+        Map<String, Object> nv = new HashMap<>();
+        nv.put(Constants.KEY.DATE, new DateTime(new Date()).plusDays(1));
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        Whitebox.setInternalState(vaccinationAsyncTask, "lastVaccineDate", new DateTime(new Date()).minusDays(5).toDate());
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setText("02-09-2020");
+    }
+
+    @Test
     public void testUpdateViews() throws Exception {
         Method updateViews = VaccinationAsyncTask.class.getDeclaredMethod("updateViews", View.class, SmartRegisterClient.class);
         updateViews.setAccessible(true);
@@ -527,6 +556,4 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         verify(view).setClickable(true);
         verify(view).setEnabled(true);
     }
-
-
 }
