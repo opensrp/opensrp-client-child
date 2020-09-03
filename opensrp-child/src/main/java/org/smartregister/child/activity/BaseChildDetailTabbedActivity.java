@@ -307,11 +307,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
         editServicesList.clear();
 
-        //REmove service
+        //Remove service
         for (ServiceHolder serviceHolder : removeServicesList) {
-
             undoService(serviceHolder.wrapper, serviceHolder.view);
-
         }
         removeServicesList.clear();
 
@@ -321,7 +319,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
 
         for (int i = 0; i < dbKeysForDelete.size(); i++) {
-
             vaccineRepository.deleteVaccine(dbKeysForDelete.get(i));
         }
 

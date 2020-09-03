@@ -227,7 +227,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    private static void addAvailableVaccines(Context context, JSONObject form) {
+    public static void addAvailableVaccines(Context context, JSONObject form) {
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(context);
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
             // For each of the vaccine groups, create a checkbox question
