@@ -2,7 +2,6 @@ package org.smartregister.child.util;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -47,7 +46,7 @@ public class MoveToMyCatchmentUtils {
                     try {
                         return new JSONObject(response.payload());
                     } catch (Exception e) {
-                        Log.e(getClass().getName(), "", e);
+                        Timber.e(e);
                         return null;
                     }
                 }
@@ -75,7 +74,7 @@ public class MoveToMyCatchmentUtils {
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
         String uri = baseUrl + SyncIntentService.SYNC_URL + paramString;
 
-        Timber.d(new StringBuilder(MoveToMyCatchmentUtils.class.getCanonicalName()).append(" ").append(uri).toString());
+        Timber.d(MoveToMyCatchmentUtils.class.getCanonicalName() + " " + uri);
 
         return context.getHttpAgent().fetch(uri);
     }

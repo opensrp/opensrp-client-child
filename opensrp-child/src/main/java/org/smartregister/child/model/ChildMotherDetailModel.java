@@ -12,6 +12,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     public String childBaseEntityId;
     private String relationalId;
     private String motherBaseEntityId;
+    private String fatherBaseEntityId;
     private String firstName;
     private String lastName;
     private String gender;
@@ -32,7 +33,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
 
     public Object[] getColumnValuesFromJson() {
         return new Object[]{
-                getChildBaseEntityId(), getRelationalId(), getMotherBaseEntityId(), getFirstName(), getLastName(), getGender(), getDateOfBirth(),
+                getChildBaseEntityId(), getRelationalId(), getMotherBaseEntityId(), getFatherBaseEntityId(), getFirstName(), getLastName(), getGender(), getDateOfBirth(),
                 getZeirId(), getMotherFirstName(), getMotherLastName(), getInActive(), getLostFollowUp()
         };
     }
@@ -45,16 +46,10 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
             setLastName(getStringValue(Constants.Client.LAST_NAME, true));
             setGender(getStringValue(Constants.Client.GENDER, true));
             setDateOfBirth(getStringValue(Constants.Client.BIRTHDATE, true));
-
-            if (childJson.has(Constants.Client.RELATIONSHIPS)) {
-                JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
-                if (relationships != null && relationships.has(Constants.KEY.MOTHER)) {
-                    String mothersId = relationships.getJSONArray(Constants.KEY.MOTHER).getString(0);
-                    setRelationalId(mothersId);
-                    setMotherBaseEntityId(mothersId);
-                }
-            }
-
+            String motherRelationId = getRelationalId(Constants.KEY.MOTHER);
+            setRelationalId(motherRelationId);
+            setMotherBaseEntityId(motherRelationId);
+            setFatherBaseEntityId(getRelationalId(Constants.KEY.FATHER));
             setZeirId(getStringFromJson(Constants.Client.IDENTIFIERS, Constants.KEY.ZEIR_ID));
             setInActive(getStringFromJson(Constants.Client.ATTRIBUTES, Constants.Client.INACTIVE));
             setLostFollowUp(getStringFromJson(Constants.Client.ATTRIBUTES, Constants.Client.LOST_TO_FOLLOW_UP));
@@ -64,6 +59,16 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
         } catch (JSONException e) {
             Timber.e(e, "Error parsing Advanced Search Client JSON");
         }
+    }
+    
+    private String getRelationalId(String entityType) throws JSONException {
+        if (childJson.has(Constants.Client.RELATIONSHIPS)) {
+            JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
+            if (relationships != null && relationships.has(entityType)) {
+                return relationships.getJSONArray(entityType).getString(0);
+            }
+        }
+        return null;
     }
 
     private String getStringValue(String key, boolean isChild) throws JSONException {
@@ -198,5 +203,13 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
 
     public void setMotherJson(JSONObject motherJson) {
         this.motherJson = motherJson;
+    }
+
+    public void setFatherBaseEntityId(String fatherBaseEntityId) {
+        this.fatherBaseEntityId = fatherBaseEntityId;
+    }
+
+    public String getFatherBaseEntityId() {
+        return fatherBaseEntityId;
     }
 }

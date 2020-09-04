@@ -109,6 +109,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String ENCOUNTER = "encounter";
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+    private static final String OPENSRP_ID = "opensrp_id";
     private static Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
         {
             put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
@@ -1761,24 +1762,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * @throws Exception
      */
     public static void startForm(Activity context, int jsonFormActivityRequestCode, String
-            formName, String uniqueId,
-                                 String currentLocationId) throws Exception {
-        Intent intent = new Intent(context, Utils.metadata().childFormActivity);
-
-        Form formParam = new Form();
-        // formParam.setName("Rules engine demo");
-        formParam.setWizard(true);
-        formParam.setHideSaveLabel(true);
-        formParam.setNextLabel("");
-
-        intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
-
+            formName, String uniqueId, String currentLocationId) throws Exception {
 
         String entityId = uniqueId;
         JSONObject form = new FormUtils(context).getFormJson(formName);
         if (form != null) {
             form.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, currentLocationId);
-
             if (Utils.metadata().childRegister.formName.equals(formName)) {
                 if (StringUtils.isBlank(entityId)) {
                     UniqueIdRepository uniqueIdRepo = CoreLibrary.getInstance().context().getUniqueIdRepository();
@@ -1788,54 +1777,47 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         return;
                     }
                 }
-
-                if (StringUtils.isNotBlank(entityId)) {
-                    entityId = entityId.replace("-", "");
-                }
-
                 JsonFormUtils.addChildRegLocHierarchyQuestions(form);
-
-                // Inject zeir id into the form
-                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
-                        jsonObject.remove(JsonFormUtils.VALUE);
-                        jsonObject.put(JsonFormUtils.VALUE, entityId);
-                    }
-                }
-            } else if ("out_of_catchment_service".equals(formName)) {
-                if (StringUtils.isNotBlank(entityId)) {
-                    entityId = entityId.replace("-", "");
-                } else {
-                    JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
-                    for (int i = 0; i < fields.length(); i++) {
-                        if (fields.getJSONObject(i).getString(JsonFormConstants.KEY).equals("ZEIR_ID")) {
-                            fields.getJSONObject(i).put(READ_ONLY, false);
-                            break;
-                        }
-                    }
-                }
-
-                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
-                        jsonObject.remove(JsonFormUtils.VALUE);
-                        jsonObject.put(JsonFormUtils.VALUE, entityId);
-                    }
-                }
-
+            } else if (Constants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE.equals(formName)) {
                 JsonFormUtils.addAvailableVaccines(context, form);
             } else {
                 Timber.w("Unsupported form requested for launch %s", formName);
             }
 
+            // Inject opensrp id into the form
+            injectOpenSrpId(entityId, form);
+
+            Form formParam = new Form();
+            formParam.setWizard(true);
+            formParam.setHideSaveLabel(true);
+            formParam.setNextLabel("");
+
+            Intent intent = new Intent(context, Utils.metadata().childFormActivity);
             intent.putExtra("json", form.toString());
+            intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
+            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                    .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"))) {
+                intent.putExtra(JsonFormConstants.PERFORM_FORM_TRANSLATION, true);
+            }
             Timber.d("JsonFormUtils --> form is %s", form.toString());
             context.startActivityForResult(intent, jsonFormActivityRequestCode);
+        }
+    }
+
+    private static void injectOpenSrpId(String entityId, JSONObject form) throws JSONException {
+        if (StringUtils.isNoneBlank(entityId)) {
+            entityId = entityId.replace("-", "");
+            JSONArray fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
+            for (int i = 0; i < fields.length(); i++) {
+                JSONObject field = fields.getJSONObject(i);
+                if (field.getString(JsonFormConstants.KEY).equalsIgnoreCase(JsonFormUtils.ZEIR_ID) ||
+                        field.getString(JsonFormUtils.KEY).equalsIgnoreCase(JsonFormUtils.OPENSRP_ID)) {
+                    field.remove(JsonFormUtils.VALUE);
+                    field.put(JsonFormUtils.VALUE, entityId);
+                    field.put(READ_ONLY, true);
+                    break;
+                }
+            }
         }
     }
 

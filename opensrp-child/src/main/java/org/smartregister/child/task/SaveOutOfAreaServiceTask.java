@@ -78,7 +78,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             } else if (curField.getString(JsonFormConstants.KEY).equals("OA_Service_Date")) {
                 foundFields++;
                 serviceDate = curField.getString(JsonFormConstants.VALUE);
-            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.ZEIR_ID)) {
+            } else if (curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.ZEIR_ID)
+                    || curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.OPENSRP_ID)) {
                 foundFields++;
                 openSrpId = formatChildUniqueId(curField.getString(JsonFormConstants.VALUE));
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {

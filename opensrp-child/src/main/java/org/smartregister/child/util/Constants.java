@@ -126,6 +126,7 @@ public final class Constants extends AllConstants {
         public static final String BIRTH_DATE = "birth_date";
         public static final String MOTHER_PHONE_NUMBER = "mother_phone_number";
         public static final String IS_REMOTE_CLIENT = "is_remote_client";
+        public static final String OPENSRP_ID = "opensrp_id";
     }
 
     public static final class INTENT_KEY {
@@ -231,5 +232,9 @@ public final class Constants extends AllConstants {
         String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         String BASE_ENTITY_ID = "baseEntityId";
         String ATTRIBUTES = "attributes";
+    }
+
+    public static class JSON_FORM {
+        public static String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
     }
 }

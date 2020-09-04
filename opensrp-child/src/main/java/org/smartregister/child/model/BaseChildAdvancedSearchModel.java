@@ -7,10 +7,16 @@ import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.domain.Response;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import timber.log.Timber;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
         implements ChildAdvancedSearchContract.Model {
@@ -46,6 +52,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
     @Override
     public String getMainConditionString(Map<String, String> editMap) {
+        convertDateToDesiredFormat(editMap);
         final String table = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
         final String childDetailsTable = Utils.metadata().getRegisterQueryProvider().getChildDetailsTable();
 
@@ -168,6 +175,21 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         return String.format("%s AND (%s is null AND %s == '0')", mainConditionString,
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED,
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.IS_CLOSED);
+    }
+
+    private void convertDateToDesiredFormat(Map<String, String> editMap) {
+        try {
+            if(editMap.containsKey(START_DATE) && editMap.containsKey(END_DATE)) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                SimpleDateFormat desiredDateFormat = new SimpleDateFormat("YYY-MM-dd", Locale.getDefault());
+                Date parsedStartDate = simpleDateFormat.parse(editMap.get(START_DATE));
+                Date parsedEndDate = simpleDateFormat.parse(editMap.get(END_DATE));
+                editMap.put(START_DATE, desiredDateFormat.format(parsedStartDate));
+                editMap.put(END_DATE, desiredDateFormat.format(parsedEndDate));
+            }
+        } catch (ParseException e) {
+            Timber.e(e, "Error converting dates to right format");
+        }
     }
 
     private String removeLastSemiColon(String str) {

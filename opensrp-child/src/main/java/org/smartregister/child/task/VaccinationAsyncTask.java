@@ -431,15 +431,19 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
-                String motherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                //Use child relation id as mothers base entity id or look for mother base entity id
+                String motherBaseEntityIdValue = getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                String motherBaseEntityId = StringUtils.isNoneBlank(motherBaseEntityIdValue) ? motherBaseEntityIdValue : getValue(pc.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
                 String fatherBaseEntityId = getValue(pc.getColumnmaps(), Constants.KEY.FATHER_BASE_ENTITY_ID, false);
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
-                ids.add(motherBaseEntityId);
-                ids.add(entityId);
+                if(StringUtils.isNoneBlank(motherBaseEntityId) && StringUtils.isNoneBlank(entityId)) {
+                    ids.add(motherBaseEntityId);
+                    ids.add(entityId);
+                }
                 //Also include Father base entity Id to pull Father events
-                if (org.smartregister.child.util.Utils.metadata().childRegister.getFatherRelationKey() != null && fatherBaseEntityId != null) {
+                if (org.smartregister.child.util.Utils.metadata().childRegister.getFatherRelationKey() != null && StringUtils.isNoneBlank(fatherBaseEntityId)) {
                     ids.add(fatherBaseEntityId);
                 }
 
