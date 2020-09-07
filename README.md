@@ -69,7 +69,23 @@ Location selection can optionally be done using cascaded drop-downs.
 
 For location name reverse look-up to be done correctly in the registration view, form fields of type `spinner` meant to select a location must have tag **sub_type** set to **location**.
 
+For cascaded location spinners to pre-populate the default location or saved location on the form, they need to be grouped.
+Tag **value_field** was added to provide the link between related spinner fields. The tag takes a value that is the **key** of the lowest field in the locations hierarchy selection. For example, if the hierarchy is Province > District > Commune, the `value_field` value for Province and District will be the JSON form field key for Commune field.
+
 ```
+      {
+        "key": "Residential_Area_District",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "type": "spinner",
+        "sub_type": "location",
+        "value_field": "Residential_Area_Commune",
+        "hint": "Child's Residential Area District",
+        "options": [
+        ],
+        ....
+      },
       {
         "key": "Residential_Area_Commune",
         "openmrs_entity_parent": "usual_residence",
@@ -81,6 +97,7 @@ For location name reverse look-up to be done correctly in the registration view,
         "options": [
         ],
         ....
+      }
 ```
 
 ### Form Level Configuration
