@@ -39,6 +39,7 @@ import org.smartregister.view.contract.SmartRegisterClient;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -522,7 +523,9 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         nv.put(Constants.KEY.DATE, new DateTime(new Date()).plusDays(1));
         when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
 
-        Whitebox.setInternalState(vaccinationAsyncTask, "lastVaccineDate", new DateTime(new Date()).minusDays(5).toDate());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2020, 9, 8);
+        Whitebox.setInternalState(vaccinationAsyncTask, "lastVaccineDate", calendar.getTime());
 
         when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
@@ -533,7 +536,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
         verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
-        verify(textView).setText("02-09-2020");
+        verify(textView).setText("09-09-2020");
     }
 
     @Test
