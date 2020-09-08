@@ -13,13 +13,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,10 +34,17 @@ import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.contract.ChildImmunizationContract;
 import org.smartregister.child.contract.IChildDetails;
+import org.smartregister.child.contract.IGetSiblings;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
+import org.smartregister.child.presenter.BaseChildImmunizationPresenter;
+import org.smartregister.child.task.GetSiblingsTask;
+import org.smartregister.child.task.SaveChildStatusTask;
+import org.smartregister.child.task.ShowGrowthChartTask;
+import org.smartregister.child.task.UndoVaccineTask;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
@@ -49,8 +52,8 @@ import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.child.view.BCGNotificationDialog;
 import org.smartregister.child.view.SiblingPicturesGroup;
-import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
@@ -93,7 +96,6 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -105,7 +107,6 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -122,9 +123,9 @@ import timber.log.Timber;
  */
 public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
-        VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails {
+        VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails, ChildImmunizationContract.View, IGetSiblings {
 
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
+    public static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
@@ -158,12 +159,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private CustomFontTextView nextAppointmentDateView;
     private ImageButton growthChartButton;
     private SiblingPicturesGroup siblingPicturesGroup;
+    private ChildImmunizationContract.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         monitorGrowth = CoreLibrary.getInstance().context().getAppProperties().isTrue(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        presenter = new BaseChildImmunizationPresenter(this);
 
         setUpToolbar();
         setUpViews();
@@ -214,9 +217,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public static Object clone(@NonNull Object object) {
 
         Gson gson = new Gson();
-        String serializedOject = gson.toJson(object);
+        String serializedObject = gson.toJson(object);
 
-        return gson.fromJson(serializedOject, object.getClass());
+        return gson.fromJson(serializedObject, object.getClass());
     }
 
     private void setUpViews() {
@@ -372,7 +375,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         childDetails.setDetails(detailsMap);
     }
 
-    private void updateViews() {
+    @Override
+    public void updateViews() {
         profileNamelayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -460,7 +464,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         nameTV.setText(name);
         childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
 
-        Utils.startAsyncTask(new GetSiblingsTask(), null);
+        Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
 
     private void updateNextAppointmentDateView() {
@@ -510,6 +514,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.updateLastInteractionWith(childDetails.entityId(), Utils.metadata().getRegisterQueryProvider().getDemographicTable());
         }
         super.finish();
+    }
+
+    @Override
+    public void onSiblingsFetched(List<String> ids) {
+        siblingPicturesGroup.setSiblingBaseEntityIds((BaseActivity) getActivity(), ids);
     }
 
     public abstract boolean isLastModified();
@@ -654,7 +663,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private void showActivateChildStatusDialogBox() {
         String thirdPersonPronoun = getChildsThirdPersonPronoun(childDetails);
-        String childsCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
+        String childCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -662,14 +671,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
         ft.addToBackStack(null);
 
-        ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment
-                .newInstance(thirdPersonPronoun, childsCurrentStatus, R.style.PathAlertDialog);
+        final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == DialogInterface.BUTTON_POSITIVE) {
-                    SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
-                    Utils.startAsyncTask(saveChildsStatusTask, null);
+                    SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
+                    Utils.startAsyncTask(saveChildStatusTask, null);
                 }
             }
         });
@@ -921,7 +929,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccineGroups.add(curGroup);
     }
 
-    private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
+    @Override
+    public void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
 
         Map<String, String> details = childDetails.getDetails();
 
@@ -967,7 +976,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Date dob = Utils.dobStringToDate(dobString);
 
         for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccinesMapping) {
-            if (vaccine.getType().equalsIgnoreCase("BCG")) {
+            if (vaccine.getType().equalsIgnoreCase(Constants.VACCINE.BCG)) {
                 boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
                         ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
                 if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
@@ -1115,7 +1124,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.startAsyncTask(new ShowGrowthChartTask(), null);
+                Utils.startAsyncTask(new ShowGrowthChartTask(presenter, childDetails), null);
             }
         });
     }
@@ -1311,28 +1320,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     }
 
-    private void activateChildsStatus() {
-        try {
-            Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
-            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, "child");
-            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(
-                        ChildJsonFormUtils.updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
-            }
-
-            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils
-                        .updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
-            }
-        } catch (Exception e) {
-            Timber.e(e);
-        }
-    }
-
     @Override
     public void onLocationChanged(final String newLocation) {
         Utils.refreshDataCaptureStrategyBanner(this, newLocation);
@@ -1376,11 +1363,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     @Override
-    public void onUndoVaccination(VaccineWrapper tag, View v) {
-        Utils.startAsyncTask(new UndoVaccineTask(tag, v), null);
+    public void onUndoVaccination(VaccineWrapper tag, View view) {
+
+        Utils.startAsyncTask(new UndoVaccineTask(presenter, tag, childDetails, getOpenSRPContext().alertService()), null);
     }
 
-    private VaccineGroup getLastOpenedView() {
+    @Override
+    public VaccineGroup getLastOpenedView() {
         if (vaccineGroups == null) {
             return null;
         }
@@ -1486,8 +1475,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateVaccineGroupViews(view, wrappers, vaccineList, false);
     }
 
-    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
-                                         final List<Vaccine> vaccineList, final boolean undo) {
+    @Override
+    public void updateVaccineGroupViews(View view, final List<VaccineWrapper> wrappers, final List<Vaccine> vaccineList, final boolean undo) {
         if (view == null || !(view instanceof VaccineGroup)) {
             return;
         }
@@ -1497,9 +1486,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (Looper.myLooper() == Looper.getMainLooper()) {
             if (undo) {
                 vaccineGroup.setVaccineList(vaccineList);
-                vaccineGroup.updateWrapperStatus(wrappers, Constants.KEY.CHILD);
+                vaccineGroup.updateWrapperStatus((ArrayList<VaccineWrapper>) wrappers, Constants.KEY.CHILD);
             }
-            vaccineGroup.updateViews(wrappers);
+            vaccineGroup.updateViews((ArrayList<VaccineWrapper>) wrappers);
 
         } else {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -1508,9 +1497,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 public void run() {
                     if (undo) {
                         vaccineGroup.setVaccineList(vaccineList);
-                        vaccineGroup.updateWrapperStatus(wrappers, Constants.KEY.CHILD);
+                        vaccineGroup.updateWrapperStatus((ArrayList<VaccineWrapper>) wrappers, Constants.KEY.CHILD);
                     }
-                    vaccineGroup.updateViews(wrappers);
+                    vaccineGroup.updateViews((ArrayList<VaccineWrapper>) wrappers);
                 }
             });
         }
@@ -1535,8 +1524,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    private void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList,
-                                                List<Alert> alerts) {
+    @Override
+    public void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList, List<Alert> alerts) {
         if (affectedVaccines != null && vaccineList != null) {
             // Update all other affected vaccine groups
             HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups = new HashMap<>();
@@ -1651,85 +1640,41 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return childDetails;
     }
 
+    @Override
+    public void showGrowthDialogFragment(Map<String, List> growthMonitoring) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
+        if (prev != null) {
+            fragmentTransaction.remove(prev);
+        }
+        fragmentTransaction.addToBackStack(null);
+
+        List<Weight> weights = new ArrayList<>();
+        List<Height> heights = new ArrayList<>();
+
+        if (growthMonitoring == null || growthMonitoring.isEmpty()) {
+            Utils.showToast(this, getString(R.string.record_growth_details));
+        } else {
+
+            if (growthMonitoring.containsKey(Constants.WEIGHT)) {
+                weights = growthMonitoring.get(Constants.WEIGHT);
+            }
+
+            if (growthMonitoring.containsKey(Constants.HEIGHT)) {
+                heights = growthMonitoring.get(Constants.HEIGHT);
+            }
+
+
+        }
+
+        GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
+        growthDialogFragment.show(fragmentTransaction, BaseChildImmunizationActivity.DIALOG_TAG);
+    }
+
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
 
-    private List<Weight> getAllWeights() {
-        List<Weight> allWeights =
-                GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
-        try {
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            Date dob = Utils.dobStringToDate(dobString);
-            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false)) &&
-                    dob != null) {
-                Double birthWeight =
-                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_WEIGHT, false));
-
-                Weight weight = getWeight(dob, birthWeight);
-                allWeights.add(weight);
-            }
-        } catch (Exception e) {
-            Timber.e(e);
-        }
-
-        return allWeights;
-    }
-
-    @NotNull
-    private Weight getWeight(Date dob, Double birthWeight) {
-        Weight weight = new Weight();
-        weight.setId(-1L);
-        weight.setBaseEntityId(null);
-        weight.setKg((float) birthWeight.doubleValue());
-        weight.setDate(dob);
-        weight.setAnmId(null);
-        weight.setLocationId(null);
-        weight.setSyncStatus(null);
-        weight.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
-        weight.setEventId(null);
-        weight.setFormSubmissionId(null);
-        weight.setOutOfCatchment(0);
-        return weight;
-    }
-
-    private List<Height> getAllHeights() {
-        List<Height> allHeights =
-                GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(childDetails.entityId());
-        try {
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            Date dob = Utils.dobStringToDate(dobString);
-            if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false)) &&
-                    dob != null) {
-                Double birthHeight =
-                        Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.BIRTH_HEIGHT, false));
-
-                Height height = getHeight(dob, birthHeight);
-                allHeights.add(height);
-            }
-        } catch (Exception e) {
-            Timber.e(e);
-        }
-
-        return allHeights;
-    }
-
-    @NotNull
-    private Height getHeight(Date dob, Double birthHeight) {
-        Height height = new Height();
-        height.setId(-1L);
-        height.setBaseEntityId(null);
-        height.setCm((float) birthHeight.doubleValue());
-        height.setDate(dob);
-        height.setAnmId(null);
-        height.setLocationId(null);
-        height.setSyncStatus(null);
-        height.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
-        height.setEventId(null);
-        height.setFormSubmissionId(null);
-        height.setOutOfCatchment(0);
-        return height;
-    }
 
     public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
@@ -1981,58 +1926,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    private class ShowGrowthChartTask extends AsyncTask<Void, Void, Map<String, List>> {
-        @Override
-        protected Map<String, List> doInBackground(Void... params) {
-            Map<String, List> growthMonitoring = new HashMap<>();
-            List<Weight> allWeights = getAllWeights();
-            List<Height> allHeights = getAllHeights();
-            growthMonitoring.put(Constants.HEIGHT, allHeights);
-            growthMonitoring.put(Constants.WEIGHT, allWeights);
-
-            return growthMonitoring;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, List> growthMonitoring) {
-            super.onPostExecute(growthMonitoring);
-            hideProgressDialog();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
-            if (prev != null) {
-                fragmentTransaction.remove(prev);
-            }
-            fragmentTransaction.addToBackStack(null);
-
-            List<Weight> weights = new ArrayList<>();
-            List<Height> heights = new ArrayList<>();
-            if (growthMonitoring == null || growthMonitoring.isEmpty()) {
-                Utils.showToast(BaseChildImmunizationActivity.this,
-                        "Record at least one set of growth details (height, Weight)");
-            } else {
-
-                if (growthMonitoring.containsKey(Constants.WEIGHT)) {
-                    weights = growthMonitoring.get(Constants.WEIGHT);
-                }
-
-                if (growthMonitoring.containsKey(Constants.HEIGHT)) {
-                    heights = growthMonitoring.get(Constants.HEIGHT);
-                }
-
-
-            }
-
-            GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
-            growthDialogFragment.show(fragmentTransaction, DIALOG_TAG);
-        }
-    }
-
     private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, ArrayList<VaccineWrapper>> {
 
         private View view;
@@ -2043,6 +1936,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         private List<Alert> alertList;
 
         public void setView(View view) {
+            getSupportFragmentManager();
             this.view = view;
         }
 
@@ -2094,259 +1988,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
             showVaccineNotifications(vaccineList, alertList);
-        }
-    }
-
-
-    private class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
-
-        private final VaccineWrapper tag;
-        private final View v;
-        private final VaccineRepository vaccineRepository;
-        private final AlertService alertService;
-        private List<Vaccine> vaccineList;
-        private List<Alert> alertList;
-        private List<String> affectedVaccines;
-
-        public UndoVaccineTask(VaccineWrapper tag, View v) {
-            this.tag = tag;
-            this.v = v;
-            vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-            alertService = getOpenSRPContext().alertService();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (tag != null) {
-
-                if (tag.getDbKey() != null) {
-                    Long dbKey = tag.getDbKey();
-                    vaccineRepository.deleteVaccine(dbKey);
-
-
-                    String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-                    DateTime dateTime = Utils.dobStringToDateTime(dobString);
-                    if (dateTime != null) {
-                        affectedVaccines =
-                                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-                        vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-                        alertList = alertService.findByEntityId(childDetails.entityId());
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog(getString(R.string.updating_dialog_title), null);
-        }
-
-        @Override
-        protected void onPostExecute(Void params) {
-            hideProgressDialog();
-            super.onPostExecute(params);
-
-            // Refresh the vaccine group with the updated vaccine
-            tag.setUpdatedVaccineDate(null, false);
-            tag.setDbKey(null);
-
-            View view = getLastOpenedView();
-
-            ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
-            wrappers.add(tag);
-            updateVaccineGroupViews(view, wrappers, vaccineList, true);
-            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
-            showVaccineNotifications(vaccineList, alertList);
-        }
-    }
-
-    private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
-
-        @Override
-        protected ArrayList<String> doInBackground(Void... params) {
-            String baseEntityId = childDetails.entityId();
-            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
-            if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
-
-                List<HashMap<String, String>> childList = ChildLibrary.getInstance()
-                        .eventClientRepository()
-                        .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                                Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
-                                        + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
-
-
-                List<CommonPersonObject> children = new ArrayList<>();
-                for (HashMap<String, String> hashMap : childList) {
-                    CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, "child");
-                    commonPersonObject.setColumnmaps(hashMap);
-                    children.add(commonPersonObject);
-                }
-
-                if (children != null && children.size() > 0) {
-                    ArrayList<String> baseEntityIds = new ArrayList<>();
-                    for (CommonPersonObject curChild : children) {
-                        if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
-                            baseEntityIds.add(curChild.getCaseId());
-                        }
-                    }
-
-                    return baseEntityIds;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> baseEntityIds) {
-            super.onPostExecute(baseEntityIds);
-            ArrayList<String> ids = new ArrayList<>();
-            if (baseEntityIds != null) {
-                ids = baseEntityIds;
-            }
-
-            Collections.reverse(ids);
-
-            siblingPicturesGroup.setSiblingBaseEntityIds((BaseActivity) getActivity(), ids);
-        }
-    }
-
-    private class SaveChildsStatusTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            activateChildsStatus();
-
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog(getResources().getString(R.string.updating_dialog_title), "");
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            hideProgressDialog();
-            super.onPostExecute(aVoid);
-            updateViews();
-        }
-    }
-
-    private class BCGNotificationDialog {
-
-        private final SparseIntArray selectedOption = new SparseIntArray();
-        private final int YES = 0;
-        private final int NO = 1;
-        private final int SELECTED_OPTION = 2;
-        private final String[] singleChoiceItems = getResources().getStringArray(R.array.bcg_notification_options);
-        private final int THEME = R.style.AppThemeAlertDialog;
-
-        private AlertDialog alertDialog;
-        private AlertDialog subDialogPositive;
-        private AlertDialog subDialogNegative;
-
-        private Context context;
-
-        private final DialogInterface.OnClickListener backListener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                if (alertDialog != null) {
-
-                    showDisablePositiveButton(alertDialog);
-                    increaseBtnTextSizeTabletDevice(alertDialog);
-                }
-            }
-        };
-
-        private BCGNotificationDialog(final Context context, final DialogInterface.OnClickListener subDialogPositiveListener,
-                                      final DialogInterface.OnClickListener subDialogNegativeListener) {
-            this.context = context;
-
-            alertDialog = new AlertDialog.Builder(context, THEME)
-                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_scar, null))
-                    .setSingleChoiceItems(singleChoiceItems, -1, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int selectedIndex) {
-
-                            ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-                            selectedOption.put(SELECTED_OPTION, selectedIndex);
-                        }
-                    }).setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int selectedIndex) {
-
-                            alertDialog =
-                                    new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
-                                            .getAlertDialogInstance();
-
-                            if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
-                                subDialogPositive.show();
-                                increaseBtnTextSizeTabletDevice(subDialogPositive);
-                            } else {
-                                subDialogNegative.show();
-                                increaseBtnTextSizeTabletDevice(subDialogNegative);
-                            }
-                        }
-                    }).setNegativeButton(R.string.dismiss_button_label, null).create();
-
-            subDialogPositive = new AlertDialog.Builder(context, THEME).setCancelable(false)
-                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_turn_off, null))
-                    .setPositiveButton(R.string.turn_off_reminder_button_label, subDialogPositiveListener)
-                    .setNegativeButton(R.string.go_back_button_label, backListener).create();
-
-            subDialogNegative =
-                    new AlertDialog.Builder(context, THEME).setCancelable(false).setTitle(R.string.create_reminder_label)
-                            .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
-                            .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
-                            .setNegativeButton(R.string.go_back_button_label, backListener).create();
-        }
-
-        private AlertDialog getAlertDialogInstance() {
-            return alertDialog;
-        }
-
-        private void increaseBtnTextSizeTabletDevice(@NonNull AlertDialog alertDialog) {
-
-            final float TEXT_SIZE = 20f;
-            final int TABLET_WIDTH_DP = 600;
-            final Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            final Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            final float DEVICE_DP = displayMetrics.density;
-            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            final int DEVICE_WIDTH_DP = (int) (displayMetrics.widthPixels / DEVICE_DP);
-            final int DIALOG_BUTTON_PADDING_TOP = (int) getResources().getDimension(R.dimen.bcg_popup_button_padding_top);
-            final int DEFAULT_DIALOG_BUTTON_PADDING = (int) getResources().getDimension(R.dimen.bcg_popup_button_padding);
-
-
-            if (DEVICE_WIDTH_DP >= TABLET_WIDTH_DP) {
-
-                positiveButton.setTextSize(TEXT_SIZE);
-                negativeButton.setTextSize(TEXT_SIZE);
-                positiveButton
-                        .setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING,
-                                DEFAULT_DIALOG_BUTTON_PADDING);
-                negativeButton
-                        .setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING,
-                                DEFAULT_DIALOG_BUTTON_PADDING);
-            }
-        }
-
-        private void show() {
-            showDisablePositiveButton(alertDialog);
-            increaseBtnTextSizeTabletDevice(alertDialog);
-        }
-
-        public void showDisablePositiveButton(@NonNull AlertDialog alertDialog) {
-
-            alertDialog.show();
-            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
         }
     }
 }

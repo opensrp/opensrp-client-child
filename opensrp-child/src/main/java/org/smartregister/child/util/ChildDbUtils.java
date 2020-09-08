@@ -3,8 +3,6 @@ package org.smartregister.child.util;
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
-import com.google.common.base.Strings;
-
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -46,10 +44,7 @@ public class ChildDbUtils {
 
         if (childDetails != null) {
 
-            String firstName = Strings.nullToEmpty(childDetails.get(Constants.KEY.FIRST_NAME));
-            String lastName = Strings.nullToEmpty(childDetails.get(Constants.KEY.LAST_NAME));
-
-            commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, Utils.getName(firstName, lastName));
+            commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, Constants.KEY.CHILD);
             commonPersonObjectClient.setColumnmaps(childDetails);
             commonPersonObjectClient.setCaseId(baseEntityId);
 

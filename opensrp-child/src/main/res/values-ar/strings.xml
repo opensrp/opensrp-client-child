@@ -332,4 +332,5 @@
 
     <string name="dismiss_lookup">حفظ</string>
     <string name="service_point">نقطة خدمة: %1$s</string>
+    <string name="record_growth_details"> سجل على الأقل النمو أو الارتفاع</string>
 </resources>
