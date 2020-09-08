@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
@@ -54,7 +55,7 @@ import timber.log.Timber;
  * Created by ndegwamartin on 25/02/2019.
  */
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
-        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener {
+        implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener, LocationPickerView.OnLocationChangeListener {
 
     private View filterSection;
     private int dueOverdueCount = 0;
@@ -72,6 +73,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         onInitialization();
         setupViews(view);
         onResumption();
+
         return view;
     }
 
@@ -97,14 +99,15 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
+
         CustomFontTextView buttonReportMonth = view.findViewById(R.id.btn_report_month);
+
         if (buttonReportMonth != null) {
             buttonReportMonth.setVisibility(View.INVISIBLE);
             view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
             // Update top right icon
             setUpQRCodeScanButtonView(view);
-
             setUpScanCardButtonView(view);
 
             //OpenSRPLogo
@@ -117,13 +120,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             filterSection.setOnClickListener(this);
 
             clinicSelection = view.findViewById(R.id.clinic_selection);
+            clinicSelection.setOnLocationChangeListener(this);
             clinicSelection.init();
-
 
             clientsView.setVisibility(View.VISIBLE);
             clientsProgressView.setVisibility(View.INVISIBLE);
             setServiceModeViewDrawableRight(null);
-
 
             TextView nameInitials = view.findViewById(R.id.name_inits);
             nameInitials.setVisibility(View.GONE);
@@ -165,6 +167,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         updateSearchView();
         updateLocationText();
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildRegisterActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     @Override
@@ -307,7 +310,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repositoryHolder.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+
+        if (CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
+            repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
+        }
 
         ChildRegisterProvider childRegisterProvider =
                 new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,
@@ -447,6 +453,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             }
         }
         return count;
+    }
+
+    @Override
+    public void onLocationChange(final String newLocation) {
+        Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {

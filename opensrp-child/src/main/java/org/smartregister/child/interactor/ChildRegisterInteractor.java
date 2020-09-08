@@ -10,14 +10,16 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
@@ -32,6 +34,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,7 +67,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void getNextUniqueId(final Triple<String, String, String> triple,
+    public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple,
                                 final ChildRegisterContract.InteractorCallBack callBack) {
 
         Runnable runnable = new Runnable() {
@@ -134,14 +137,14 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     Event baseEvent = childEventClient.getEvent();
 
                     if (baseClient != null) {
-                        JSONObject clientJson = new JSONObject(JsonFormUtils.gson.toJson(baseClient));
+                        JSONObject clientJson = new JSONObject(ChildJsonFormUtils.gson.toJson(baseClient));
                         if (params.isEditMode()) {
                             //Create new Father registration event in the case where the father details are provided while updating child/mother details.
                             if (Constants.EventType.FATHER_REGISTRATION.equalsIgnoreCase(baseEvent.getEventType())) {
                                 addClient(jsonString, params, baseClient, clientJson);
                             } else {
                                 try {
-                                    JsonFormUtils.mergeAndSaveClient(baseClient);
+                                    ChildJsonFormUtils.mergeAndSaveClient(baseClient);
                                 } catch (Exception e) {
                                     Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
                                 }
@@ -189,14 +192,14 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         if (baseClient != null || baseEvent != null) {
             String imageLocation = null;
             if (i == 0) {
-                imageLocation = JsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
+                imageLocation = ChildJsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
             } else if (i == 1) {
                 imageLocation =
-                        JsonFormUtils.getFieldValue(jsonString, JsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                        ChildJsonFormUtils.getFieldValue(jsonString, ChildJsonFormUtils.STEP2, Constants.KEY.PHOTO);
             }
 
             if (StringUtils.isNotBlank(imageLocation)) {
-                JsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
+                ChildJsonFormUtils.saveImage(baseEvent.getProviderId(), baseClient.getBaseEntityId(), imageLocation);
             }
         }
     }
@@ -206,8 +209,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             // Unassign current OPENSRP ID
             if (baseClient != null) {
                 try {
-                    String newOpenSRPId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID).replace("-", "");
-                    String currentOpenSRPId = JsonFormUtils.getString(jsonString, JsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
+                    String newOpenSRPId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID).replace("-", "");
+                    String currentOpenSRPId = ChildJsonFormUtils.getString(jsonString, ChildJsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
                     if (!newOpenSRPId.equals(currentOpenSRPId)) {
                         //OPENSRP ID was changed
                         getUniqueIdRepository().open(currentOpenSRPId);
@@ -220,10 +223,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         } else {
             if (baseClient != null) {
                 //mark OPENSRP ID as used
-                String openSrpId = baseClient.getIdentifier(JsonFormUtils.ZEIR_ID);
+                String openSrpId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID);
                 getUniqueIdRepository().close(openSrpId);
 
-                String motherOpenSrpId = baseClient.getIdentifier(JsonFormUtils.M_ZEIR_ID);
+                String motherOpenSrpId = baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID);
 
                 if (motherOpenSrpId != null) {
                     getUniqueIdRepository().close(motherOpenSrpId);
@@ -234,7 +237,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     private void addEvent(UpdateRegisterParams params, List<String> currentFormSubmissionIds, Event baseEvent) throws JSONException {
         if (baseEvent != null) {
-            JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
+            JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(baseEvent));
             getSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson, params.getStatus());
             currentFormSubmissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
         }
@@ -246,7 +249,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void processWeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException {
-        String weight = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
+        String weight = ChildJsonFormUtils.getFieldValue(jsonEnrollmentFormString, ChildJsonFormUtils.STEP1, Constants.KEY.BIRTH_WEIGHT);
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
@@ -265,7 +268,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException {
-        String height = JsonFormUtils.getFieldValue(jsonEnrollmentFormString, JsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
+        String height = ChildJsonFormUtils.getFieldValue(jsonEnrollmentFormString, ChildJsonFormUtils.STEP1, Constants.KEY.BIRTH_HEIGHT);
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
@@ -284,7 +287,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public boolean isClientMother(@NonNull Map<String, String> identifiers) {
-        return identifiers.containsKey(JsonFormUtils.M_ZEIR_ID);
+        return identifiers.containsKey(ChildJsonFormUtils.M_ZEIR_ID);
     }
 
     public AllSharedPreferences getAllSharedPreferences() {
@@ -297,6 +300,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     public UniqueIdRepository getUniqueIdRepository() {
         return ChildLibrary.getInstance().getUniqueIdRepository();
+    }
+
+    protected AppProperties getAppProperties() {
+        return CoreLibrary.getInstance().context().getAppProperties();
     }
 
     public enum type {SAVED, UPDATED}

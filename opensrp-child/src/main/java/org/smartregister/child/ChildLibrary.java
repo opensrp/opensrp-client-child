@@ -7,6 +7,7 @@ import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.repository.LocationRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
@@ -156,5 +157,7 @@ public class ChildLibrary {
         this.applicationVersionName = applicationVersionName;
     }
 
-
+    public LocationRepository getLocationRepository() {
+        return CoreLibrary.getInstance().context().getLocationRepository();
+    }
 }

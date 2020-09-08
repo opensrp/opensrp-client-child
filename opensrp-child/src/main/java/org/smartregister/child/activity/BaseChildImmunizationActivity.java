@@ -35,6 +35,7 @@ import org.joda.time.DateTime;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.IChildDetails;
@@ -45,8 +46,8 @@ import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -92,6 +93,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -126,7 +128,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
-    private static Boolean hasProperty;
     private static Boolean monitorGrowth = false;
 
     protected LinearLayout floatingActionButton;
@@ -163,10 +164,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
+        monitorGrowth = CoreLibrary.getInstance().context().getAppProperties().isTrue(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
 
         setUpToolbar();
         setUpViews();
@@ -197,6 +195,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(false);
 
         setUpFloatingActionButton();
+        Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     private void reloadChildDetails() {
@@ -375,6 +374,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateViews();
     }
 
+    @Override
+    public void setChildDetails(Map<String, String> detailsMap) {
+        childDetails.setColumnmaps(detailsMap);
+        childDetails.setDetails(detailsMap);
+    }
+
     private void updateViews() {
         profileNamelayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -400,7 +405,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
         updateViewTask.setWeightRepository(GrowthMonitoringLibrary.getInstance().weightRepository());
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         }
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
@@ -422,17 +427,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
-        updateGenderViews(gender);
+        int[] colors = updateGenderViews(gender);
+        int normalShade = colors[1];
+        findViewById(R.id.advanced_data_capture_strategy_wrapper).setBackground(new ColorDrawable(getResources().getColor(normalShade)));
     }
 
     private void updateAgeViews() {
@@ -458,7 +457,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ageTV.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
     }
 
-    private void updateChildIdViews() {
+    protected void updateChildIdViews() {
         String name = "";
         String childId = "";
         if (isDataOk()) {
@@ -846,7 +845,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
         vaccine.setLocationId(getOpenSRPContext().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
         vaccine.setSyncStatus(syncStatus);
-        vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
+        vaccine.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -1078,7 +1077,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
                 String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
                 String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
-                JsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
+                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
                 break;
 
             default:
@@ -1115,7 +1114,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         HeightWrapper heightWrapper = null;
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             heightWrapper = getHeightWrapper(lastUnsyncedHeight, childName, gender, openSrpId, duration, photo);
             heightWrapper.setDob(dobString);
         }
@@ -1181,7 +1180,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             updateWeightWrapper(weightWrapper, recordGrowth, recordWeightText, recordWeightCheck);
         }
 
-        if (hasProperty & monitorGrowth) {
+        if (monitorGrowth) {
             updateHeightWrapper(heightWrapper, recordGrowth, recordWeightCheck);
         }
 
@@ -1197,12 +1196,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (weightWrapper != null && weightWrapper.getWeight() != null) {
                 weight = Utils.kgStringSuffix(weightWrapper.getWeight());
             }
-            if (hasProperty & monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
+            if (monitorGrowth && heightWrapper != null && heightWrapper.getHeight() != null) {
                 height = Utils.cmStringSuffix(heightWrapper.getHeight());
             }
 
             isGrowthEdit = true;
-            if (hasProperty & monitorGrowth) {
+            if (monitorGrowth) {
                 recordWeightText.setText(getGrowthMonitoringValues(height, weight));
             } else {
                 recordWeightText.setText(weight);
@@ -1221,7 +1220,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         recordGrowth.setClickable(true);
         recordGrowth.setBackground(getResources().getDrawable(R.drawable.record_growth_bg));
         recordGrowth.setTag(R.id.weight_wrapper, weightWrapper);
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             recordGrowth.setTag(R.id.height_wrapper, heightWrapper);
         }
 
@@ -1304,7 +1303,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         WeightWrapper weightWrapper = (WeightWrapper) view.getTag(R.id.weight_wrapper);
         HeightWrapper heightWrapper = null;
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             heightWrapper = (HeightWrapper) view.getTag(R.id.height_wrapper);
         }
 
@@ -1328,14 +1327,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 commonPersonObject.setColumnmaps(
-                        JsonFormUtils.updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
+                        ChildJsonFormUtils.updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
                     details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(JsonFormUtils
-                        .updateClientAttribute(this, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils
+                        .updateClientAttribute(getOpenSRPContext(), childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
             Timber.e(e);
@@ -1344,7 +1343,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void onLocationChanged(final String newLocation) {
-        // TODO: Do whatever needs to be done when the location is changed
+        Utils.refreshDataCaptureStrategyBanner(this, newLocation);
     }
 
     @Override
@@ -1358,7 +1357,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        if (hasProperty && monitorGrowth && heightWrapper != null && heightWrapper.getUpdatedHeightDate() != null) {
+        if (monitorGrowth && heightWrapper != null && heightWrapper.getUpdatedHeightDate() != null) {
             heightWrapper.setGender(genderString);
             heightWrapper.setDob(dobString);
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
@@ -1477,8 +1476,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(JsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
-        vaccine.setChildLocationId(JsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
+        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {
@@ -1871,7 +1870,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retrieveWeight(map);
-            Height height = AsyncTaskUtils.retrieveHeight(map);
+            Height height = CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT) ? AsyncTaskUtils.retrieveHeight(map) : null;
 
             updateGrowthViews(weight, height, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);

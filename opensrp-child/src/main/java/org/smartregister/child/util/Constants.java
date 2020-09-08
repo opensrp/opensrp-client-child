@@ -59,6 +59,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_GUARDIAN_AGE = "Mother_Guardian_Age";
         public static final String HIERARCHY = "hierarchy";
         public static final String SELECTABLE = "selectable";
+        public static final String LOCATION_SUB_TYPE = "location";
         public static final String RELATIONSHIPS = "relationships";
     }
 
@@ -100,6 +101,7 @@ public final class Constants extends AllConstants {
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String DOB_UNKNOWN = "dob_unknown";
         public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
@@ -116,6 +118,7 @@ public final class Constants extends AllConstants {
         public static final String HAS_PROFILE_IMAGE = "has_profile_image";
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
+        public static final String FIRST_HEALTH_FACILITY_CONTACT = "first_health_facility_contact";
         public static final String FATHER_RELATIONAL_ID = "father_relational_id";
         public static final String CHILD_HIV_STATUS = "child_hiv_status";
         public static final String CHILD_TREATMENT = "child_treatment";
@@ -133,8 +136,12 @@ public final class Constants extends AllConstants {
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
     }
 
-    public static class ENTITY {
+    public static class OPENMRS_ENTITY {
         public static final String PERSON = "person";
+    }
+
+    public static class ENTITY {
+        public static final String MOTHER = "mother";
     }
 
     public static class BOOLEAN_INT {

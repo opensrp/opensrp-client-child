@@ -13,6 +13,8 @@ import com.vijay.jsonwizard.domain.Form;
 
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
+import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -21,8 +23,8 @@ import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.fragment.BaseChildRegisterFragment;
 import org.smartregister.child.listener.ChildBottomNavigationListener;
 import org.smartregister.child.util.ChildAppProperties;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
@@ -30,6 +32,7 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -46,7 +49,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ChildLibrary.getInstance().getLocationPickerView(this);
+    }
+
+    public Context getOpenSRPContext() {
+        return CoreLibrary.getInstance().context();
     }
 
     @Override
@@ -113,6 +119,19 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     @Override
+    public void startFormActivity(String formName, String entityId, Map<String, String> metaData) {
+        try {
+            if (mBaseFragment instanceof BaseChildRegisterFragment) {
+                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
+                presenter().startForm(formName, entityId, metaData, locationId);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+            displayToast(getString(R.string.error_unable_to_start_form));
+        }
+    }
+
+    @Override
     public void startFormActivity(JSONObject jsonForm) {
         Intent intent = new Intent(this, Utils.metadata().childFormActivity);
         intent.putExtra(Constants.INTENT_KEY.JSON, jsonForm.toString());
@@ -123,7 +142,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         form.setNextLabel("");
 
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, form);
-        startActivityForResult(intent, JsonFormUtils.REQUEST_CODE_GET_JSON);
+        startActivityForResult(intent, ChildJsonFormUtils.REQUEST_CODE_GET_JSON);
     }
 
     @Override
@@ -145,20 +164,20 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     protected void onActivityResultExtended(int requestCode, int resultCode, Intent data) {
-        if (requestCode == JsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+        if (requestCode == ChildJsonFormUtils.REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(Constants.INTENT_KEY.JSON);
                 Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
+                if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.registerEventType)) {
                     UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
                     updateRegisterParam.setEditMode(false);
-                    updateRegisterParam.setFormTag(JsonFormUtils.formTag(Utils.context().allSharedPreferences()));
+                    updateRegisterParam.setFormTag(ChildJsonFormUtils.formTag(Utils.context().allSharedPreferences()));
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveForm(jsonString, updateRegisterParam);
-                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
+                } else if (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE).equals(Utils.metadata().childRegister.outOfCatchmentServiceEventType)) {
 
                     showProgressDialog(R.string.saving_dialog_title);
                     presenter().saveOutOfCatchmentService(jsonString, this);
@@ -227,7 +246,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     public void startRegistration() {
         //setSelectedBottomBarMenuItem(R.id.action_register);
-        startFormActivity(getRegistrationForm(), null, null);
+        startFormActivity(getRegistrationForm(), null, "");
     }
 
     public abstract String getRegistrationForm();
@@ -262,4 +281,5 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         hideProgressDialog();
 
     }
+
 }

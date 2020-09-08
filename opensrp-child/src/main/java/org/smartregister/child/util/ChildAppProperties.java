@@ -29,6 +29,8 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
 
+        //Service
+        public static final String MONITOR_HEIGHT = "monitor.height";
 
     }
 }

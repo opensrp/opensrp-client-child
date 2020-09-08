@@ -11,6 +11,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
+import org.smartregister.child.sample.SampleAppRegisterQueryProvider;
 import org.smartregister.child.sample.activity.ChildImmunizationActivity;
 import org.smartregister.child.sample.activity.ChildProfileActivity;
 import org.smartregister.child.sample.activity.ChildRegisterActivity;
@@ -39,6 +40,7 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.repository.Repository;
+import org.smartregister.security.SecurityHelper;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
@@ -147,11 +149,11 @@ public class SampleApplication extends DrishtiApplication {
 
         //Auto login by default
         context.session().start(context.session().lengthInMilliseconds());
-        context.configuration().getDrishtiApplication().setPassword(SampleRepository.PASSWORD);
-        context.session().setPassword(SampleRepository.PASSWORD);
+        context.configuration().getDrishtiApplication().setPassword(SecurityHelper.toBytes(SampleRepository.PASSWORD));
+        context.session().setPassword(SecurityHelper.toBytes(SampleRepository.PASSWORD));
 
         SyncStatusBroadcastReceiver.init(this);
-        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL);
+        LocationHelper.init(new ArrayList<>(Arrays.asList(BuildConfig.ALLOWED_LEVELS)), BuildConfig.DEFAULT_LEVEL, Arrays.asList(BuildConfig.DATA_CAPTURE_LEVELS));
 
         //init Job Manager
         JobManager.create(this).addJobCreator(new SampleJobCreator());
@@ -179,7 +181,7 @@ public class SampleApplication extends DrishtiApplication {
 
     private ChildMetadata getMetadata() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, ChildProfileActivity.class,
-                ChildImmunizationActivity.class, ChildRegisterActivity.class, true);
+                ChildImmunizationActivity.class, ChildRegisterActivity.class, true, new SampleAppRegisterQueryProvider());
         metadata.updateChildRegister(SampleConstants.JSON_FORM.CHILD_ENROLLMENT, DBConstants.RegisterTable.CLIENT,
                 DBConstants.RegisterTable.CLIENT, SampleConstants.EventType.CHILD_REGISTRATION,
                 SampleConstants.EventType.UPDATE_CHILD_REGISTRATION, SampleConstants.EventType.OUT_OF_CATCHMENT_SERVICE, SampleConstants.CONFIGURATION.CHILD_REGISTER,

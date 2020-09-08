@@ -145,14 +145,16 @@
     <string name="out_and_inside">En dehors et à l\'intérieur\n de ma zone sanitaire</string>
     <string name="requires_internet_connection">(Connexion à Internet requise)</string>
     <string name="my_catchment_area">Uniquement ma zone sanitaire</string>
-    <string name="search_limits">Rechercher limites</string>
-    <string name="client_status">État des clients</string>
+    <string name="search_limits">Limites de recherche</string>
+    <string name="client_status">Status du beneficiaire</string>
     <string name="active">Actif</string>
     <string name="inactive">Inactif</string>
     <string name="lost_to_follow_up">Perdu de vue</string>
     <string name="lost_to_follow_up_with_nl">Perdu \nde vue</string>
     <string name="status">État</string>
+    <string name="opensrp_id">Système ID</string>
     <string name="iz_id_hint">Numéro d\'identification</string>
+    <string name="card_id_hint">Numero Carte </string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
@@ -304,8 +306,8 @@
     <string name="unable_to_move_to_my_catchment">Impossible de se déplacer dans mon bassin</string>
     <string name="activate_new_card">ACTIVER LA CARTE</string>
     <string name="age_colon">Âge : </string>
-    <string name="system_id_colon">ID système :</string>
-    <string name="zeir_id">ID système</string>
+    <string name="system_id_colon">ID Système :</string>
+    <string name="zeir_id">ID Système</string>
     <string name="search_criteria_includes">Les critères de recherche incluent:</string>
     <string name="start_date">La date de début</string>
     <string name="end_date">La date de fin</string>
@@ -322,4 +324,5 @@
     <string name="mother_name">M/G: %1$s</string>
     <string name="str_page_info">Page {0} de {1}</string>
     <string name="dismiss_lookup">Sauvegarder</string>
+    <string name="service_point">Point de service: %1$s</string>
 </resources>

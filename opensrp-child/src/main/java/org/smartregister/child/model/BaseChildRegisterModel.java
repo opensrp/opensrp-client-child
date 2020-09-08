@@ -13,7 +13,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -88,16 +89,17 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             form = new JSONObject(jsonString);
             updateEncounterTypes(form);
 
-            ChildEventClient childEventClient = JsonFormUtils.processChildDetailsForm(jsonString, formTag);
+            ChildEventClient childEventClient = ChildJsonFormUtils.processChildDetailsForm(jsonString, formTag);
             if (childEventClient == null) {
                 return null;
             }
 
+
             childEventClientList.add(childEventClient);
             Client childClient = childEventClient.getClient();
 
-            String motherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
-            ChildEventClient childMotherEventClient = JsonFormUtils.processMotherRegistrationForm(
+            String motherRelationalId = ChildJsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
+            ChildEventClient childMotherEventClient = ChildJsonFormUtils.processMotherRegistrationForm(
                     jsonString, motherRelationalId, childEventClient);
 
             if (childMotherEventClient != null) {
@@ -115,8 +117,8 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
             // Add father relationship if defined in metadata
             if (Utils.metadata().childRegister.getFatherRelationKey() != null) {
-                String fatherRelationalId = JsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
-                ChildEventClient fatherRegistrationEvent = JsonFormUtils.processFatherRegistrationForm(
+                String fatherRelationalId = ChildJsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
+                ChildEventClient fatherRegistrationEvent = ChildJsonFormUtils.processFatherRegistrationForm(
                         jsonString, fatherRelationalId, childEventClient);
 
                 if (fatherRegistrationEvent != null) {
@@ -133,9 +135,10 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         return childEventClientList;
     }
 
+
     private void updateEncounterTypes(JSONObject form) throws JSONException {
         //Update encounter types/event types when editing form
-        if (form.has(JsonFormUtils.ENTITY_ID) && StringUtils.isNotBlank(form.getString(JsonFormUtils.ENTITY_ID))) {
+        if (form.has(ChildJsonFormUtils.ENTITY_ID) && StringUtils.isNotBlank(form.getString(ChildJsonFormUtils.ENTITY_ID))) {
             if (form.has(Constants.KEY.MOTHER)) {
                 form.getJSONObject(Constants.KEY.MOTHER).put(JsonFormConstants.ENCOUNTER_TYPE, Constants.EventType.UPDATE_MOTHER_DETAILS);
             }
@@ -174,12 +177,12 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     }
 
     @Override
-    public JSONObject getFormAsJson(String formName, String entityId, String currentLocationId) throws Exception {
+    public JSONObject getFormAsJson(String formName, String entityId, String currentLocationId, Map<String, String> metadata) throws Exception {
         JSONObject form = getFormUtils().getFormJson(formName);
         if (form == null) {
             return null;
         }
-        return JsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId);
+        return ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId, metadata);
     }
 
     private FormUtils getFormUtils() {

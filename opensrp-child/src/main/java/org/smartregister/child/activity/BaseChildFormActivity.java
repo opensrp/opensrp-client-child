@@ -21,7 +21,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.contract.IMotherLookup;
 import org.smartregister.child.fragment.ChildFormFragment;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.MotherLookUpUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
@@ -67,7 +67,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         super.onResume();
         try {
 
-            String et = form.getString(JsonFormUtils.ENCOUNTER_TYPE);
+            String et = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
 
             confirmCloseTitle = getString(R.string.confirm_form_close);
             confirmCloseMessage = et.trim().toLowerCase().contains("update") ? this.getString(R.string.any_changes_you_make) : this.getString(R.string.confirm_form_close_explanation);
@@ -242,7 +242,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID};
 
         SmartRegisterQueryBuilder queryBuilder = new SmartRegisterQueryBuilder();
-        queryBuilder.SelectInitiateMainTable(tableName, lookupColumns);
+        queryBuilder.selectInitiateMainTable(tableName, lookupColumns);
         queryBuilder.customJoin(" join " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + "=" + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID +
                 " join " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + " on " + Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID);
         String query = queryBuilder.mainCondition(getMainConditionString(entityMap));

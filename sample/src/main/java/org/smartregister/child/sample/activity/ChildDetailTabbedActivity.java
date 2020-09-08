@@ -12,11 +12,12 @@ import org.smartregister.child.fragment.StatusEditDialogFragment;
 import org.smartregister.child.sample.R;
 import org.smartregister.child.sample.fragment.ChildRegistrationDataFragment;
 import org.smartregister.child.task.LoadAsyncTask;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -25,13 +26,13 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
 
     @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
-
+    public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
+        //Do nothing
     }
 
     @Override
     public void onNoUniqueId() {
-
+        //Do nothing
     }
 
     @Override
@@ -45,7 +46,7 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         switch (item.getItemId()) {
             case R.id.registration_data:
 
-                String formJsonString = JsonFormUtils.getMetadataForEditForm(this, detailsMap, nonEditableFields);
+                String formJsonString = ChildJsonFormUtils.getMetadataForEditForm(this, detailsMap, nonEditableFields);
                 startFormActivity(formJsonString);
                 // User chose the "Settings" item, show the app settings UI...
                 return true;

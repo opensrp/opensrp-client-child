@@ -112,7 +112,7 @@
           "column_name": "address1",
           "type": "Client",
           "json_mapping": {
-            "field": "addresses.addressFields.address1"
+            "field": "addresses.address1"
           }
         },
         {
@@ -261,6 +261,30 @@
           "json_mapping": {
             "field": "obs.fieldCode",
             "concept": "1396AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "column_name": "birth_weight",
+          "type": "Event",
+          "json_mapping": {
+            "field": "obs.fieldCode",
+            "concept": "5916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "column_name": "birth_height",
+          "type": "Event",
+          "json_mapping": {
+            "field": "obs.fieldCode",
+            "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "column_name": "first_health_facility_contact",
+          "type": "Event",
+          "json_mapping": {
+            "field": "obs.fieldCode",
+            "concept": "163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           }
         }
       ]

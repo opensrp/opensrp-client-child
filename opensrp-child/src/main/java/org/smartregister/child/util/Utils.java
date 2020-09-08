@@ -1,5 +1,6 @@
 package org.smartregister.child.util;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.TextViewCompat;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -23,12 +25,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.Weeks;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
+import org.smartregister.AllConstants;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
@@ -278,7 +283,7 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static String getTodaysDate() {
-        return convertDateFormat(Calendar.getInstance().getTime(), DB_DF);
+        return convertDateFormat(LocalDate.now().toDate(), DB_DF);
     }
 
     public static String convertDateFormat(Date date, SimpleDateFormat formatter) {
@@ -288,13 +293,21 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static void recordWeight(WeightRepository weightRepository, WeightWrapper weightWrapper, String syncStatus) {
 
-        Weight weight = new Weight();
+        Weight weight = null;
         if (weightWrapper.getDbKey() != null) {
             weight = weightRepository.find(weightWrapper.getDbKey());
         }
+
+        if (weight == null) {
+
+            Date eventDate = weightWrapper.getUpdatedWeightDate().toDate();
+            weight = weightRepository.findUniqueByDate(weightRepository.getWritableDatabase(), weightWrapper.getId(), eventDate);
+        }
+
+        weight = weight != null ? weight : new Weight();
         weight.setBaseEntityId(weightWrapper.getId());
         weight.setKg(weightWrapper.getWeight());
-        weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
+        weight.setDate(weightWrapper.isToday() ? Calendar.getInstance().getTime() : weightWrapper.getUpdatedWeightDate().toDate());
         weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
         weight.setSyncStatus(syncStatus);
 
@@ -329,7 +342,7 @@ public class Utils extends org.smartregister.util.Utils {
             }
             height.setBaseEntityId(heightWrapper.getId());
             height.setCm(heightWrapper.getHeight());
-            height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
+            height.setDate(heightWrapper.isToday() ? Calendar.getInstance().getTime() : heightWrapper.getUpdatedHeightDate().toDate());
             height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
             height.setSyncStatus(syncStatus);
 
@@ -566,10 +579,10 @@ public class Utils extends org.smartregister.util.Utils {
     @NonNull
     public static Event createArchiveRecordEvent(@NonNull Map<String, String> details) throws Exception {
         String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
-        FormTag formTag = JsonFormUtils.formTag(getAllSharedPreferences());
-        Event archiveRecordEvent = JsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
-        JsonFormUtils.tagSyncMetadata(archiveRecordEvent);
-        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(archiveRecordEvent));
+        FormTag formTag = ChildJsonFormUtils.formTag(getAllSharedPreferences());
+        Event archiveRecordEvent = ChildJsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
+        ChildJsonFormUtils.tagSyncMetadata(archiveRecordEvent);
+        JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(archiveRecordEvent));
         ChildLibrary.getInstance().getEcSyncHelper().addEvent(archiveRecordEvent.getBaseEntityId(), eventJson);
         return archiveRecordEvent;
     }
@@ -581,5 +594,25 @@ public class Utils extends org.smartregister.util.Utils {
             ChildLibrary.getInstance().getClientProcessorForJava().processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         }
+    }
+
+    public static void refreshDataCaptureStrategyBanner(Activity context, String selectedLocation) {
+
+        View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy_wrapper);
+        if (dataCaptureStrategyView != null) {
+            ((TextView) context.findViewById(R.id.advanced_data_capture_strategy)).setText(context.getString(R.string.service_point, selectedLocation));
+            dataCaptureStrategyView.setVisibility(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(CoreLibrary.getInstance().context().allSharedPreferences().fetchCurrentDataStrategy()) ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public static Gender getGenderEnum(Map<String, String> childDetails) {
+        Gender gender = Gender.UNKNOWN;
+        String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
+        if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
+            gender = Gender.FEMALE;
+        } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
+            gender = Gender.MALE;
+        }
+        return gender;
     }
 }

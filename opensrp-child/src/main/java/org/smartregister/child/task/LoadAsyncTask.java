@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
@@ -17,6 +18,7 @@ import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.util.AppProperties;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
@@ -40,7 +42,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     private Menu overflow;
     private org.smartregister.child.enums.Status status;
     private boolean fromUpdateStatus = false;
-    private boolean hasProperty;
     private boolean monitorGrowth = false;
     private Map<String, String> detailsMap;
     private CommonPersonObjectClient childDetails;
@@ -72,10 +73,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     }
 
     private void checkProperties() {
-        hasProperty = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        if (hasProperty) {
-            monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
-        }
+        monitorGrowth = CoreLibrary.getInstance().context().getAppProperties().isTrue(AppProperties.KEY.MONITOR_GROWTH);
+
     }
 
     public void setFromUpdateStatus(boolean fromUpdateStatus) {
@@ -96,7 +95,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
         map.put(weightNamedObject.name, weightNamedObject);
 
-        if (hasProperty && monitorGrowth) {
+        if (monitorGrowth) {
             List<Height> heightList =
                     GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
 
@@ -179,7 +178,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Height> heightList = null;
-            if (hasProperty && monitorGrowth) {
+            if (monitorGrowth) {
                 heightList = AsyncTaskUtils.extractHeights(map);
             }
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);

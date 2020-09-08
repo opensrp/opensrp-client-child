@@ -2,7 +2,9 @@ package org.smartregister.child.presenter;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -12,12 +14,16 @@ import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
-import org.smartregister.child.util.JsonFormUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.repository.AllSharedPreferences;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -89,16 +95,24 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception {
+        Map<String, String> metadataMap = StringUtils.isBlank(metadata) ? new HashMap<String, String>() : (Map<String, String>) new Gson()
+                .fromJson(metadata, new TypeToken<Map<String, String>>() {
+                }.getType());
 
+        startForm(formName, entityId, metadataMap, currentLocationId);
+    }
+
+    @Override
+    public void startForm(String formName, String entityId, Map<String, String> metadata, String currentLocationId) throws Exception {
         if (StringUtils.isBlank(entityId)) {
-            Triple<String, String, String> triple = Triple.of(formName, metadata, currentLocationId);
+            Triple<String, Map<String, String>, String> triple = Triple.of(formName, metadata, currentLocationId);
             interactor.getNextUniqueId(triple, this);
             return;
         }
 
-        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId);
-        getView().startFormActivity(form);
+        JSONObject form = model.getFormAsJson(formName, entityId, currentLocationId, metadata);
 
+        getView().startFormActivity(form);
     }
 
     @Override
@@ -114,40 +128,32 @@ public class BaseChildRegisterPresenter
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
         }
     }
 
     @Override
     public void saveOutOfCatchmentService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        JsonFormUtils.processOutOfAreaService(jsonString, progressDialogCallback);
+        ChildJsonFormUtils.processOutOfAreaService(jsonString, progressDialogCallback);
     }
 
     @Override
     public void closeChildRecord(String jsonString) {
-
         try {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
-            Log.d("JSONResult", jsonString);
-            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title
-            // : R.string.saving_dialog_title);
-
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
-
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-
+            Timber.e(e);
         }
     }
 
     @Override
-    public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+    public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
         try {
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(e);
             getView().displayToast(R.string.error_unable_to_start_form);
         }
     }

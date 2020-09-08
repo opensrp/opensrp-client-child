@@ -14,14 +14,17 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.NotNull;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.adapter.ChildRegistrationDataAdapter;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
 import org.smartregister.location.helper.LocationHelper;
@@ -115,6 +118,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
+
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
 
         return fragmentView;
     }
@@ -222,6 +227,20 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         else return "";
     }
 
+    @NotNull
+    private String getKey(Field field, String key) {
+        String prefix = getPrefixByEntityId(field.getEntityId());
+        return !key.startsWith(prefix) ? prefix + key : key;
+    }
+
+    private String getPrefixByEntityId(String entityId) {
+        if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
+            return "mother_";
+        else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
+            return "father_";
+        else return "";
+    }
+
     public String cleanOpenMRSEntityId(String rawEntityId) {
         return Client.birth_date_key.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
     }
@@ -241,7 +260,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
         switch (type) {
             case JsonFormConstants.DATE_PICKER:
-                Date date = JsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
+                Date date = ChildJsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
                     result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
                             Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()).format(date);
@@ -250,8 +269,9 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
+                } else if (field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+                    result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
                 }
-
                 break;
             case JsonFormConstants.TREE:
                 result = LocationHelper.getInstance()

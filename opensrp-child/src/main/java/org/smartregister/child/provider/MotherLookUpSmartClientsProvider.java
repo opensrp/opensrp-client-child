@@ -80,8 +80,8 @@ public class MotherLookUpSmartClientsProvider {
     }
 
     private String name(CommonPersonObjectClient pc) {
-        String firstName = Utils.getValue(pc.getColumnmaps(), "first_name", true);
-        String lastName = Utils.getValue(pc.getColumnmaps(), "last_name", true);
+        String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName);
     }
 

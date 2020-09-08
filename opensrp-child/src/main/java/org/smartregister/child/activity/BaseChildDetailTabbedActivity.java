@@ -39,7 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -60,8 +59,8 @@ import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -201,28 +200,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     protected void onCreate(Bundle savedInstanceState) {
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
+
         Bundle extras = this.getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null)
+            locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
 
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-
-            Map<String, String> details = ChildLibrary.
-                    getInstance()
-                    .context()
-                    .getEventClientRepository()
-                    .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                                    " where " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + caseId + "' limit 1").get(0);
-
-            Utils.putAll(details, ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
-
-            childDetails = new CommonPersonObjectClient(caseId, details, null);
-            childDetails.setColumnmaps(details);
-
-            detailsMap = childDetails.getColumnmaps();
-        }
-
-        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
+        initLoadChildDetails();
 
         setContentView(getContentView());
 
@@ -286,6 +269,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         tabLayout.setupWithViewPager(viewPager);
         setupViews();
         vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+    }
+
+    @Nullable
+    private Bundle initLoadChildDetails() {
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+
+            Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+            detailsMap = childDetails.getColumnmaps();
+        }
+        return extras;
     }
 
     protected abstract BaseChildRegistrationDataFragment getChildRegistrationDataFragment();
@@ -434,31 +431,21 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         profileage.setText(" " + formattedAge);
         profileOpenSrpId.setText(" " + childId);
         profilename.setText(name);
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-            if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails) : Gender.UNKNOWN;
+
         updateProfilePicture(gender);
     }
 
     private void updateGenderViews() {
-        Gender gender = Gender.UNKNOWN;
-        if (isDataOk()) {
-            String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
-        }
+
+        Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
+
         int[] colors = updateGenderViews(gender);
         int normalShade = colors[1];
-        childDetailsToolbar.setBackground(new ColorDrawable(getResources().getColor(normalShade)));
+        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(normalShade));
+        childDetailsToolbar.setBackground(colorDrawable);
+        findViewById(R.id.advanced_data_capture_strategy_wrapper).setBackground(colorDrawable);
         tabLayout.setTabTextColors(getResources().getColor(R.color.dark_grey), getResources().getColor(normalShade));
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(normalShade));
         try {
@@ -579,7 +566,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                switch (form.getString(JsonFormUtils.ENCOUNTER_TYPE)) {
+                switch (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE)) {
                     case Constants.EventType.DEATH:
                         confirmReportDeceased(jsonString);
                         break;
@@ -598,7 +585,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             String imageLocation = currentFile.getAbsolutePath();
 
-            JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
+            ChildJsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
     }
@@ -617,6 +604,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void setChildDetails(Map<String, String> detailsMap) {
+        this.detailsMap = detailsMap;
+        childDetails.setDetails(detailsMap);
+        childDetails.setColumnmaps(detailsMap);
     }
 
     @Override
@@ -688,7 +682,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void saveReportDeceasedJson(String jsonString) {
-        JsonFormUtils.saveReportDeceased(this, jsonString, locationId, childDetails.entityId());
+        ChildJsonFormUtils.saveReportDeceased(this, jsonString, locationId, childDetails.entityId());
 
     }
 
@@ -919,13 +913,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 weight.setLocationId(locationId);
             }
 
-            Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
-                gender = Gender.MALE;
-            }
+            Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
             String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
@@ -955,13 +943,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 height.setLocationId(locationId);
             }
 
-            Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
-                gender = Gender.FEMALE;
-            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
-                gender = Gender.MALE;
-            }
+            Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
             String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
@@ -981,20 +963,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             JSONObject form = new FormUtils(getContext()).getFormJson("report_deceased");
             if (form != null) {
                 //inject zeir id into the form
-                JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
-                JSONArray jsonArray = stepOne.getJSONArray(JsonFormUtils.FIELDS);
+                JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
+                JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
 
                 //Date Birth
-                JSONObject dateBirthJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
+                JSONObject dateBirthJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
                 String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
                 Date dob = Utils.dobStringToDate(dobString);
                 if (dob != null) {
-                    dateBirthJSONObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                    dateBirthJSONObject.put(ChildJsonFormUtils.VALUE, simpleDateFormat.format(dob));
                 }
 
                 //Date Death
-                JSONObject dateDeathJSONObject = JsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
+                JSONObject dateDeathJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
                 dateDeathJSONObject.put(JsonFormConstants.MIN_DATE, simpleDateFormat.format(dob));
 
 
