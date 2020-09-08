@@ -175,7 +175,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      */
     public static Map<String, String> addRegistrationFormLocationHierarchyQuestions(JSONObject form) {
         try {
-
             JSONArray questions = com.vijay.jsonwizard.utils.FormUtils.getMultiStepFormFields(form);
 
             List<String> allLevels = getLocationLevels();
@@ -721,7 +720,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void updateDateOfRemoval(String baseEntityId, String dateOfRemovalString) {
-
         ContentValues contentValues = new ContentValues();
 
         if (dateOfRemovalString != null) {
@@ -743,7 +741,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
-
         try {
             Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
 
@@ -799,9 +796,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    protected static Triple<Boolean, JSONObject, JSONArray> validateParameters(String
-                                                                                       jsonString) {
-
+    protected static Triple<Boolean, JSONObject, JSONArray> validateParameters(String jsonString) {
         JSONObject jsonForm = toJSONObject(jsonString);
         JSONArray fields = fields(jsonForm);
 
@@ -1199,7 +1194,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
 
         return getFieldValue(fields, key);
-
     }
 
     public static ChildEventClient processMotherRegistrationForm(String jsonString, String
