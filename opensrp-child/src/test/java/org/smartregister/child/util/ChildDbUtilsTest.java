@@ -19,6 +19,7 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -93,7 +94,7 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         String baseEntityId = "234-2323";
         Mockito.when(repository.getWritableDatabase()).thenReturn(sqLiteDatabase);
         Mockito.when(childLibrary.getRepository()).thenReturn(repository);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true, new RegisterQueryProvider());
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, BaseChildRegisterActivity.class, true, new RegisterQueryProvider());
         Mockito.when(childLibrary.metadata()).thenReturn(childMetadata);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ChildDbUtils.updateChildDetailsValue("inactive", "false", baseEntityId);
@@ -113,7 +114,7 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         HashMap<String, String> map = new HashMap<>();
         map.put("first_name", "John");
         hashMaps.add(map);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true, new RegisterQueryProvider());
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, BaseChildRegisterActivity.class, true, new RegisterQueryProvider());
         Mockito.when(eventClientRepository.rawQuery(sqLiteDatabase, childMetadata.getRegisterQueryProvider().mainRegisterQuery()
                 + " WHERE " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1")).thenReturn(hashMaps);
         Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
@@ -142,7 +143,7 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         childDetails.put(DBConstants.KEY.GENDER, "Male");
         hashMaps.add(childDetails);
 
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true, new RegisterQueryProvider());
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, BaseChildRegisterActivity.class, true, new RegisterQueryProvider());
         Mockito.when(eventClientRepository.rawQuery(sqLiteDatabase, metadata.getRegisterQueryProvider().mainRegisterQuery()
                 + " WHERE " + metadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1")).thenReturn(hashMaps);
 

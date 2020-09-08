@@ -31,6 +31,7 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.provider.RegisterQueryProvider;
@@ -309,13 +310,14 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         entityHierarchy.add("Kenya");
         entityHierarchy.add("Central");
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true, new RegisterQueryProvider());
+                null, null, true, new RegisterQueryProvider());
         Mockito.when(childLibrary.metadata()).thenReturn(metadata);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         Mockito.doReturn("locationA").when(locationHelper).getOpenMrsLocationId(entity);
         Mockito.doReturn(entityHierarchy).when(locationHelper).getOpenMrsLocationHierarchy("locationA", false);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, BaseChildRegisterActivity.class,
+                true);
         childMetadata.setFieldsWithLocationHierarchy(new HashSet<String>(Arrays.asList("Home_Facility")));
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setHealthFacilityLevels(healthFacilities);
@@ -354,7 +356,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     @Test
     public void testUpdateLocationStringShouldPopulateTreeAndDefaultAttributeUsingLocationHierarchyTree() throws Exception {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         childMetadata.setFieldsWithLocationHierarchy(new HashSet<>(Arrays.asList("village")));
 
@@ -436,7 +438,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     public void testSaveReportDeceasedShouldPassCorrectArguments() throws JSONException {
         String entityId = "b8798571-dee6-43b5-a289-fc75ab703792";
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true, new RegisterQueryProvider());
+                null, null, true, new RegisterQueryProvider());
         Mockito.when(childLibrary.metadata()).thenReturn(metadata);
 
         JSONObject jsonClientObject = new JSONObject(childRegistrationClient);
@@ -599,7 +601,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         String attributeValue = "Inactive";
         String oldAttributValue = "Lost to follow up";
         String baseEntityId = "b8798571-dee6-43b5-a289-fc75ab703792";
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null, true, new RegisterQueryProvider());
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null, null, true, new RegisterQueryProvider());
         Mockito.when(childLibrary.metadata()).thenReturn(metadata);
 
         JSONObject client = new JSONObject();

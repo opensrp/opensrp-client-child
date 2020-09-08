@@ -17,6 +17,7 @@ import org.smartregister.immunization.domain.Vaccine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -67,7 +68,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         }
 
         @Override
-        public void onUniqueIdFetched(Triple<String, String, String> triple, String entityId) {
+        public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
             Timber.e("onUniqueIdFetched");
         }
 

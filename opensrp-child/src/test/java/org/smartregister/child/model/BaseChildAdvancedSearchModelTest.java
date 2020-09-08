@@ -74,7 +74,7 @@ public class BaseChildAdvancedSearchModelTest {
     @Test
     public void testGetMainConditionString() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true);
+                null,null, true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",
                 "test", "test",
@@ -110,7 +110,7 @@ public class BaseChildAdvancedSearchModelTest {
     @Test
     public void testGetMainConditionStringWithCondition() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true);
+                null,null, true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",
                 "test", "test",
@@ -144,7 +144,7 @@ public class BaseChildAdvancedSearchModelTest {
     @Test
     public void testGetMainConditionStringMotherName() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true);
+                null,null,  true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",
                 "test", "test",
@@ -197,7 +197,7 @@ public class BaseChildAdvancedSearchModelTest {
     @Test
     public void testGetMainConditionStringChildStatus() {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true);
+                null,null,  true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",
                 "test", "test",

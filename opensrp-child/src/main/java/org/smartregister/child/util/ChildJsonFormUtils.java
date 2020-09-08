@@ -1273,7 +1273,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         processLocationFields(fields);
 
-            dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
+        dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
         Event subFormEvent = null;
 

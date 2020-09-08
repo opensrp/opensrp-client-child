@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChildLibrary.class})
+@PrepareForTest({ChildLibrary.class,Utils.class})
 public class UtilsTest {
     @Mock
     private ChildLibrary childLibrary;
@@ -56,7 +56,7 @@ public class UtilsTest {
     private UniqueIdRepository uniqueIdRepository;
 
     @Mock
-    android.content.Context context;
+    private android.content.Context context;
 
     @Mock
     private CoreLibrary coreLibrary;
