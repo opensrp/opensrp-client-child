@@ -23,6 +23,8 @@ import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -32,10 +34,12 @@ import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.util.VaccineCache;
 import org.smartregister.util.AppProperties;
+import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -69,6 +73,9 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @Mock
     private RegisterActionParams registerActionParams;
+
+    @Mock
+    private CommonRepository commonRepository;
 
     private VaccinationAsyncTask vaccinationAsyncTask;
     private ImmunizationLibrary immunizationLibrary;
@@ -131,9 +138,10 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         Mockito.doReturn(false).when(appProperties).hasProperty(Mockito.anyString());
 
         when(registerActionParams.getConvertView()).thenReturn(view);
+        when(registerActionParams.getProfileInfoView()).thenReturn(view);
 
         vaccinationAsyncTask = new VaccinationAsyncTask(registerActionParams
-                , null
+                , commonRepository
                 , null
                 , null
                 , RuntimeEnvironment.application);
@@ -501,4 +509,54 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
     }
 
+    @Test
+    public void testUpdateRecordVaccinationWhenAppointmentDateIsNotNull() throws Exception {
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(view.findViewById(R.id.child_next_appointment)).thenReturn(textView);
+
+        Map<String, Object> nv = new HashMap<>();
+        nv.put(Constants.KEY.DATE, new DateTime(new Date()).plusDays(1));
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2020, 9, 8);
+        Whitebox.setInternalState(vaccinationAsyncTask, "lastVaccineDate", calendar.getTime());
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setText("09-09-2020");
+    }
+
+    @Test
+    public void testUpdateViews() throws Exception {
+        Method updateViews = VaccinationAsyncTask.class.getDeclaredMethod("updateViews", View.class, SmartRegisterClient.class);
+        updateViews.setAccessible(true);
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.move_to_catchment)).thenReturn(view);
+        when(view.findViewById(R.id.child_profile_info_layout)).thenReturn(view);
+        when(view.findViewById(R.id.move_to_catchment_text)).thenReturn(textView);
+
+        Map<String, String> map = new HashMap<>();
+        map.put(Constants.KEY.ZEIR_ID, "24127");
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("00ts-ime-hcla-0tib-0eht-ma0i", new HashMap<String, String>(), "Roja");
+        commonPersonObjectClient.setColumnmaps(map);
+
+        updateViews.invoke(vaccinationAsyncTask, view, commonPersonObjectClient);
+
+        verify(view).setClickable(true);
+        verify(view).setEnabled(true);
+    }
 }
