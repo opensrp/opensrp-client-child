@@ -151,6 +151,7 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         Assert.assertTrue((Boolean) method.invoke(baseChildRegistrationDataFragment, inputString));
     }
 
+    @Test
     public void testOnCreateInitsCorrectly() {
 
         Mockito.doReturn(form).when(baseChildRegistrationDataFragment).getForm();
@@ -340,6 +341,39 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         String value = baseChildRegistrationDataFragment.cleanValue(fields.get(6), rawValue);
         Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
         Assert.assertEquals("Yaounde", value);
+    }
+
+    @Test
+    public void testUpdateChildDetailsPopulatesCorrectly() {
+        Map<String, String> detailsMap = new HashMap<>();
+        detailsMap.put("key1", "key1");
+        detailsMap.put("key2", "key2");
+
+        baseChildRegistrationDataFragment.updateChildDetails(detailsMap);
+        Assert.assertEquals(2, baseChildRegistrationDataFragment.childDetails.size());
+    }
+
+    @Test
+    public void testResetAdapterDataPopulatesAdapterWithMap() {
+        List<Field> fieldsList = new ArrayList<>();
+        List<Field> formFields = generateFormFieldsForTest();
+        fieldsList.add(formFields.get(3));
+        fieldsList.add(formFields.get(4));
+
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "fields", fieldsList);
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "stringResourceIds", baseChildRegistrationDataFragment.getDataRowLabelResourceIds());
+
+        Map<String, String> detailsMap = new HashMap<>();
+        detailsMap.put("key4", "key4");
+        detailsMap.put("key5", "key5");
+
+        baseChildRegistrationDataFragment.resetAdapterData(detailsMap);
+
+        ArgumentCaptor<ChildRegistrationDataAdapter> adapterCaptor = ArgumentCaptor.forClass(ChildRegistrationDataAdapter.class);
+
+        Mockito.verify(baseChildRegistrationDataFragment, Mockito.atLeast(detailsMap.size())).getResourceLabel(ArgumentMatchers.any(String.class));
+        Mockito.verify(baseChildRegistrationDataFragment).setmAdapter(adapterCaptor.capture());
+        Assert.assertEquals(detailsMap.size(), adapterCaptor.getAllValues().get(0).getItemCount());
     }
 
     private List<Field> generateFormFieldsForTest() {
