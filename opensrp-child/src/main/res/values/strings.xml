@@ -1,6 +1,8 @@
 <resources>
 
     <!-- general -->
+    <string name="app_name">Child Module</string>
+
     <string name="no_unique_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
     <string name="error_unable_to_start_form">An error occurred when starting the form.</string>
     <string name="no_matching_record_found_on_this_device">No matching record found on this device.</string>

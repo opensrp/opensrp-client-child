@@ -88,5 +88,4 @@ public class LookUpTextWatcher implements TextWatcher {
     protected void initiateLookUp(Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener) {
         MotherLookUpUtils.motherLookUp(ChildLibrary.getInstance().context(), formFragment.getActivity(), lookUpMap.get(mEntityId), listener, null);
     }
-    }
 }

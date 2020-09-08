@@ -212,7 +212,6 @@
         android:layout_width="@dimen/smart_register_nav_bar_separator"
         android:layout_height="match_parent"
         android:layout_toStartOf="@+id/clinic_selection"
-        android:layout_toStartOf="@+id/clinic_selection"
         android:layout_toLeftOf="@+id/clinic_selection"
         android:src="@drawable/separator" />
 
@@ -223,20 +222,17 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_toStartOf="@id/clinic_selection"
-        android:layout_toStartOf="@id/clinic_selection"
         android:layout_toLeftOf="@id/clinic_selection"
         android:background="@drawable/transparent_gray_background"
         android:paddingStart="15dp"
         android:gravity="center"
         android:paddingEnd="15dp"
-        android:paddingStart="15dp"
         android:paddingLeft="15dp"
         android:visibility="gone" />
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
         android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/service_mode_selection"
         android:layout_toEndOf="@+id/service_mode_selection"
         android:layout_toRightOf="@+id/service_mode_selection"
         android:scaleType="fitXY"
@@ -245,7 +241,6 @@
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
         android:layout_height="match_parent"
-        android:layout_toStartOf="@+id/service_mode_selection"
         android:layout_toStartOf="@+id/service_mode_selection"
         android:layout_toLeftOf="@+id/service_mode_selection"
         android:scaleType="fitXY"
