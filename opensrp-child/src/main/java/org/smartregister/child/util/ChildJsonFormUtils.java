@@ -990,8 +990,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     }
 
-    public static String getMetadataForEditForm(Context
-                                                        context, Map<String, String> childDetails) {
+    public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         return getMetadataForEditForm(context, childDetails, new ArrayList<String>());
     }
 
@@ -1067,6 +1066,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             processTree(jsonObject, Utils.getValue(childDetails, jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.PERSON_ADDRESS) ? prefix + jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID) : jsonObject.getString(ChildJsonFormUtils.KEY), false));
         } else if (jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.CONCEPT)) {
             jsonObject.put(ChildJsonFormUtils.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.KEY), childDetails));
+        } else if (jsonObject.has(Constants.JSON_FORM_KEY.SUB_TYPE) && jsonObject.getString(Constants.JSON_FORM_KEY.SUB_TYPE).equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+            if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
+                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
+            } else {
+                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD), childDetails));
+            }
         } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
             String val = getMappedValue(prefix + jsonObject.getString(ChildJsonFormUtils.KEY), childDetails);
             String key = prefix + jsonObject.getString(ChildJsonFormUtils.KEY);

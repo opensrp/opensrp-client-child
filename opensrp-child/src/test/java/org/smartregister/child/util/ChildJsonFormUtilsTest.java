@@ -300,6 +300,44 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     }
 
     @Test
+    public void testMotherDobUnknownUpdateFromAgeSetsToFalseDOBUknownCheckbox() throws JSONException {
+        JSONArray array = new JSONArray();
+
+        JSONObject isBirthdateApproximate = new JSONObject();
+        isBirthdateApproximate.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN);
+        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY, Constants.OPENMRS_ENTITY.PERSON);
+        isBirthdateApproximate.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate_estimated);
+
+        JSONObject dobOptions = new JSONObject();
+        dobOptions.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN);
+        dobOptions.put(Constants.KEY.VALUE, "false");
+        JSONArray optArray = new JSONArray();
+        optArray.put(dobOptions);
+
+        isBirthdateApproximate.put(Constants.JSON_FORM_KEY.OPTIONS, optArray);
+        array.put(isBirthdateApproximate);
+
+        JSONObject ageJson = new JSONObject();
+        ageJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE);
+        ageJson.put(Constants.KEY.VALUE, "21");
+        ageJson.put(Constants.OPENMRS.ENTITY, "person_attribute");
+        ageJson.put(Constants.OPENMRS.ENTITY_ID, JsonFormConstants.EDIT_TEXT);
+        array.put(ageJson);
+
+        JSONObject dobJson = new JSONObject();
+        dobJson.put(Constants.KEY.KEY, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH);
+        dobJson.put(Constants.KEY.VALUE, "");
+        dobJson.put(Constants.OPENMRS.ENTITY, Constants.OPENMRS_ENTITY.PERSON);
+        dobJson.put(Constants.OPENMRS.ENTITY_ID, FormEntityConstants.Person.birthdate);
+        array.put(dobJson);
+
+        JSONObject dobUnknownObject = ChildJsonFormUtils.getFieldJSONObject(array, Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN);
+
+        ChildJsonFormUtils.dobUnknownUpdateFromAge(array, Constants.KEY.MOTHER);
+        Assert.assertEquals(dobUnknownObject.getJSONArray(Constants.KEY.VALUE).getJSONObject(0).get("value"), "false");
+    }
+
+    @Test
     public void testAddChildRegLocHierarchyQuestionsShouldFillFieldsWithLocationHierarchy() throws Exception {
         ArrayList<String> healthFacilities = new ArrayList<>();
         healthFacilities.add("Country");
