@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -536,7 +537,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
         verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
-        verify(textView).setText("09-09-2020");
+
+        ArgumentCaptor<Integer> argument = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Object> argument2 = ArgumentCaptor.forClass(Object.class);
+        verify(view).setTag(argument.capture(), argument2.capture());
+
+        assertEquals(R.id.next_appointment_date, (long)argument.getValue());
     }
 
     @Test
