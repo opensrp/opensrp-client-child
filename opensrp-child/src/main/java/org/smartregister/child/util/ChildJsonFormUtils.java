@@ -1134,13 +1134,15 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     }
 
-    protected static void processPhoto(String baseEntityId, JSONObject jsonObject) throws
+    protected static void processPhoto(@Nullable String baseEntityId, JSONObject jsonObject) throws
             JSONException {
-        Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
+        if (StringUtils.isNotBlank(baseEntityId)) {
+            Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
 
-        if (StringUtils.isNotBlank(photo.getFilePath())) {
-            jsonObject.put(ChildJsonFormUtils.VALUE, photo.getFilePath());
+            if (StringUtils.isNotBlank(photo.getFilePath())) {
+                jsonObject.put(ChildJsonFormUtils.VALUE, photo.getFilePath());
 
+            }
         }
     }
 

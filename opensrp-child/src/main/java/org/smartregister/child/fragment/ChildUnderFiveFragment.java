@@ -20,6 +20,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -48,7 +49,6 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.util.DateUtil;
-import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.util.ArrayList;
@@ -550,7 +550,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private Weight getWeight(List<Weight> weights, long weightPosition) {
         Weight displayWeight = new Weight();
         for (Weight weight : weights) {
-            if (weight.getDate().getTime() == weightPosition) {
+            if (Utils.isSameDay(weightPosition, weight.getDate().getTime(), null)) {
                 displayWeight = weight;
             }
         }
@@ -587,7 +587,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private Height getHeight(List<Height> heights, long heightPosition) {
         Height displayHeight = new Height();
         for (Height height : heights) {
-            if (height.getDate().getTime() == heightPosition) {
+            if (Utils.isSameDay(heightPosition, height.getDate().getTime(), null)) {
                 displayHeight = height;
             }
         }

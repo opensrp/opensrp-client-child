@@ -38,6 +38,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChildLibrary.class,Utils.class})
+@PrepareForTest({ChildLibrary.class, Utils.class})
 public class UtilsTest {
     @Mock
     private ChildLibrary childLibrary;
@@ -333,5 +334,13 @@ public class UtilsTest {
         String result = Utils.getTranslatedIdentifier("testKey");
         Assert.assertEquals(result, "testValue");
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+    }
+
+    @Test
+    public void testIsSameDayShouldReturnTrue() throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+        long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
+        long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
+        Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));
     }
 }

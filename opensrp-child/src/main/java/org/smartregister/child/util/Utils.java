@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.Weeks;
 import org.json.JSONArray;
@@ -614,5 +615,15 @@ public class Utils extends org.smartregister.util.Utils {
             gender = Gender.MALE;
         }
         return gender;
+    }
+
+    public static boolean isSameDay(long timeA, long timeB, @Nullable DateTimeZone dateTimeZone) {
+        DateTimeZone timeZone = dateTimeZone;
+        if (timeZone == null) {
+            timeZone = DateTimeZone.forID("GMT");
+        }
+        long startOfTheDayTimeA = new DateTime(timeA).withZone(timeZone).withTimeAtStartOfDay().getMillis();
+        long startOfTheDayTimeB = new DateTime(timeB).withZone(timeZone).withTimeAtStartOfDay().getMillis();
+        return startOfTheDayTimeA == startOfTheDayTimeB;
     }
 }
