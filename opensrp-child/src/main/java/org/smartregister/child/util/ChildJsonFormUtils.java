@@ -1000,8 +1000,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     }
 
-    public static String getMetadataForEditForm(Context
-                                                        context, Map<String, String> childDetails) {
+    public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         return getMetadataForEditForm(context, childDetails, new ArrayList<String>());
     }
 
@@ -1089,6 +1088,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             processTree(jsonObject, Utils.getValue(childDetails, jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.PERSON_ADDRESS) ? prefix + jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID) : jsonObject.getString(ChildJsonFormUtils.KEY), false));
         } else if (jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.CONCEPT)) {
             jsonObject.put(ChildJsonFormUtils.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.KEY), childDetails));
+        } else if (jsonObject.has(Constants.JSON_FORM_KEY.SUB_TYPE) && jsonObject.getString(Constants.JSON_FORM_KEY.SUB_TYPE).equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+            if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
+                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
+            } else {
+                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD), childDetails));
+            }
         } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
             String val = getMappedValue(prefix + jsonObject.getString(ChildJsonFormUtils.KEY), childDetails);
             String key = prefix + jsonObject.getString(ChildJsonFormUtils.KEY);
@@ -1255,52 +1260,54 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         if (!registrationFormParams.getLeft()) {
             return null;
-        }
+        } else {
 
-        Client baseClient = childEventClient.getClient();
-        Event baseEvent = childEventClient.getEvent();
+            Client baseClient = childEventClient.getClient();
+            Event baseEvent = childEventClient.getEvent();
 
-        JSONObject jsonForm = registrationFormParams.getMiddle();
-        JSONArray fields = registrationFormParams.getRight();
+            JSONObject jsonForm = registrationFormParams.getMiddle();
+            JSONArray fields = registrationFormParams.getRight();
 
-        JSONObject metadata = getJSONObject(jsonForm, METADATA);
+            JSONObject metadata = getJSONObject(jsonForm, METADATA);
 
-        JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
+            JSONObject lookUpJSONObject = getJSONObject(metadata, Constants.KEY.LOOK_UP);
 
-        //Currently lookup works only for mothers - do not create new events for existing mothers.
-        if (lookUpJSONObject != null && bindType.equalsIgnoreCase(Constants.KEY.MOTHER) &&
-                StringUtils.isNotBlank(getString(lookUpJSONObject, JsonFormConstants.VALUE))) {
-            return null;
-        }
+            //Currently lookup works only for mothers - do not create new events for existing mothers.
+            if (lookUpJSONObject != null && bindType.equalsIgnoreCase(Constants.KEY.MOTHER) &&
+                    StringUtils.isNotBlank(getString(lookUpJSONObject, JsonFormConstants.VALUE))) {
+                return null;
+            } else {
 
-        processLocationFields(fields);
+                processLocationFields(fields);
 
-        dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
+                dobUnknownUpdateFromAge(fields, Constants.KEY.MOTHER);
 
-        Event subFormEvent = null;
+                Event subFormEvent = null;
 
-        Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
+                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
 
-        //only set default gender if not explicitly set in the registration form
-        if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
-            subformClient.setGender(Constants.GENDER.FEMALE);
-        } else if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.FATHER)) {
-            subformClient.setGender(Constants.GENDER.MALE);
-        }
-
-        if (baseEvent != null) {
-            JSONObject subBindTypeJson = getJSONObject(jsonForm, bindType);
-            if (subBindTypeJson != null) {
-                String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
-                if (StringUtils.isNotBlank(subBindTypeEncounter)) {
-                    subFormEvent = ChildJsonFormUtils.createSubFormEvent(getEntityFields(fields, bindType), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, bindType);
+                //only set default gender if not explicitly set in the registration form
+                if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+                    subformClient.setGender(Constants.GENDER.FEMALE);
+                } else if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.FATHER)) {
+                    subformClient.setGender(Constants.GENDER.MALE);
                 }
+
+                if (baseEvent != null) {
+                    JSONObject subBindTypeJson = getJSONObject(jsonForm, bindType);
+                    if (subBindTypeJson != null) {
+                        String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
+                        if (StringUtils.isNotBlank(subBindTypeEncounter)) {
+                            subFormEvent = ChildJsonFormUtils.createSubFormEvent(getEntityFields(fields, bindType), metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, bindType);
+                        }
+                    }
+                }
+
+                lastInteractedWith(fields);
+
+                return new ChildEventClient(subformClient, subFormEvent);
             }
         }
-
-        lastInteractedWith(fields);
-
-        return new ChildEventClient(subformClient, subFormEvent);
     }
 
     private static boolean validateFatherDetails(String jsonString) {

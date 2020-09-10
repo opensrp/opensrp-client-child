@@ -173,7 +173,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
             String label = getResourceLabel(key);
 
-            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !skipField(field.getKey(), label, value)) {
+            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !skipField(field.getKey(), value)) {
                 detailsList.add(new KeyValueItem(label, cleanValue(field, value)));
             }
         }
@@ -189,7 +189,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
      * @param value    value of the field
      * @return true if field is skippable false otherwise
      */
-    private boolean skipField(String fieldKey, String label, String value) {
+    private boolean skipField(String fieldKey, String value) {
         List<String> suffixes = Collections.singletonList("_other");
         for (String suffix : suffixes) {
             if (fieldKey.endsWith(suffix)) {

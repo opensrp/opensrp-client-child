@@ -566,7 +566,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                switch (form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE)) {
+                String string = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
+                switch (string) {
                     case Constants.EventType.DEATH:
                         confirmReportDeceased(jsonString);
                         break;
@@ -576,6 +577,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         break;
                     case Constants.EventType.AEFI:
                         Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                        break;
+                    default:
                         break;
                 }
             } catch (Exception e) {
