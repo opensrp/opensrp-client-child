@@ -52,6 +52,7 @@ import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
+import org.smartregister.child.task.SaveDynamicVaccinesTask;
 import org.smartregister.child.task.SaveRegistrationDetailsTask;
 import org.smartregister.child.task.SaveServiceTask;
 import org.smartregister.child.task.SaveVaccinesTask;
@@ -557,6 +558,20 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return super.onOptionsItemSelected(item);
     }
 
+    protected void launchDynamicVaccinesForm(String dynamicVaccinesForm) {
+        try {
+            JSONObject jsonObject = FormUtils.getInstance(getContext()).getFormJson(dynamicVaccinesForm);
+            jsonObject.put(Constants.KEY.ENTITY_ID, childDetails.getCaseId());
+            if (jsonObject.has(JsonFormUtils.METADATA)) {
+                jsonObject.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, locationId);
+            }
+            jsonObject.put(Constants.KEY.ENTITY_ID, childDetails.entityId());
+            startFormActivity(jsonObject.toString());
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+    }
+
     @Override
     protected void startJsonForm(String formName, String entityId) {
         try {
@@ -586,6 +601,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     case Constants.EventType.AEFI:
                         Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                         break;
+                    case Constants.EventType.DYNAMIC_VACCINES:
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(jsonString, childDetails.entityId()), null);
+                        break;
                 }
             } catch (Exception e) {
                 Timber.e(Log.getStackTraceString(e));
@@ -597,6 +615,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
+    }
+
+    protected void saveDynamicVaccines(String jsonString) {
+
     }
 
     protected void updateRegistration(String jsonString) {
@@ -998,7 +1020,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             return form == null ? null : form.toString();
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
         return "";
     }

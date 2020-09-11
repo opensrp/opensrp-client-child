@@ -127,6 +127,8 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_PHONE_NUMBER = "mother_phone_number";
         public static final String IS_REMOTE_CLIENT = "is_remote_client";
         public static final String OPENSRP_ID = "opensrp_id";
+        public static final String OA_SERVICE_DATE = "OA_Service_Date";
+        public static final String WEIGHT_KG = "Weight_Kg";
     }
 
     public static final class INTENT_KEY {
@@ -172,6 +174,7 @@ public final class Constants extends AllConstants {
         public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
+        public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 
     public static final class CHILD_STATUS {
@@ -236,5 +239,6 @@ public final class Constants extends AllConstants {
 
     public static class JSON_FORM {
         public static String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
+        public static String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 }

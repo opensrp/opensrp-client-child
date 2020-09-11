@@ -1140,6 +1140,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static FormTag formTag(AllSharedPreferences allSharedPreferences) {
         FormTag formTag = new FormTag();
         formTag.providerId = allSharedPreferences.fetchRegisteredANM();
+        formTag.team = allSharedPreferences.fetchDefaultTeam(allSharedPreferences.fetchRegisteredANM());
+        formTag.teamId = allSharedPreferences.fetchDefaultTeamId(allSharedPreferences.fetchRegisteredANM());
         formTag.appVersion = ChildLibrary.getInstance().getApplicationVersion();
         formTag.appVersionName = ChildLibrary.getInstance().getApplicationVersionName();
         formTag.databaseVersion = ChildLibrary.getInstance().getDatabaseVersion();

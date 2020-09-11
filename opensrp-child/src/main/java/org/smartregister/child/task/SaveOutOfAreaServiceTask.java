@@ -25,6 +25,9 @@ import org.smartregister.location.helper.LocationHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.ResourceBundle;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -33,6 +36,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
     private final Context context;
     private final String formString;
+    private static String defaultLocationId;
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
     private ChildRegisterContract.ProgressDialogCallback progressDialogCallback;
@@ -44,6 +48,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         this.weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
         this.vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
         this.progressDialogCallback = progressDialogCallback;
+        defaultLocationId = LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation());
     }
 
     /**
@@ -65,23 +70,23 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         int foundFields = 0;
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
-            if (curField.getString(JsonFormConstants.KEY).equals("Weight_Kg")) {
+            if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.WEIGHT_KG)) {
                 foundFields++;
                 if (StringUtils.isNotEmpty(curField.getString(JsonFormConstants.VALUE))) {
                     weight = new Weight();
                     weight.setBaseEntityId("");
                     weight.setKg(Float.parseFloat(curField.getString(JsonFormConstants.VALUE)));
                     weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(LocationHelper.getInstance().getDefaultLocation());
+                    weight.setLocationId(defaultLocationId);
                     weight.setUpdatedAt(null);
                 }
-            } else if (curField.getString(JsonFormConstants.KEY).equals("OA_Service_Date")) {
+            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.OA_SERVICE_DATE)) {
                 foundFields++;
                 serviceDate = curField.getString(JsonFormConstants.VALUE);
             } else if (curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.ZEIR_ID)
                     || curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.OPENSRP_ID)) {
                 foundFields++;
-                openSrpId = formatChildUniqueId(curField.getString(JsonFormConstants.VALUE));
+                openSrpId = curField.getString(JsonFormConstants.VALUE);
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
                 cardId = curField.getString(JsonFormConstants.VALUE);
             }
@@ -122,6 +127,15 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         String openSrpId = null;
         String cardId = null;
 
+        for (int index = 0; index < fields.length(); index++){
+            JSONObject curField = fields.getJSONObject(index);
+            if (curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.ZEIR_ID) ||
+                    curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.OPENSRP_ID)){
+                openSrpId = curField.getString(JsonFormConstants.VALUE);
+                break;
+            }
+        }
+
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
             if (curField.has(Constants.IS_VACCINE_GROUP) && curField.getBoolean(Constants.IS_VACCINE_GROUP) &&
@@ -134,14 +148,13 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                         curVaccine.setBaseEntityId("");
                         curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
                         curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                        curVaccine.setLocationId(LocationHelper.getInstance().getDefaultLocation());
+                        curVaccine.setLocationId(defaultLocationId);
                         curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
                         curVaccine.setUpdatedAt(null);
-
                         vaccines.add(curVaccine);
                     }
                 }
-            } else if (curField.getString(JsonFormConstants.KEY).equals("OA_Service_Date")) {
+            } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.OA_SERVICE_DATE)) {
                 serviceDate = curField.getString(JsonFormConstants.VALUE);
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
                 cardId = curField.getString(JsonFormConstants.VALUE);
@@ -184,25 +197,9 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             Utils.updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
 
         } catch (Exception e) {
-            Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
 
-    }
-
-    /**
-     * This method formats the child unique id obtained from a JSON Form to something that is useable
-     *
-     * @param unformattedId The unformatted unique identifier
-     * @return A formatted ID or the original id if method is unable to format
-     */
-    private static String formatChildUniqueId(String unformattedId) {
-        if (StringUtils.isNotBlank(unformattedId) && !unformattedId.contains("-")) {
-            StringBuilder stringBuilder = new StringBuilder(unformattedId);
-            stringBuilder.insert(unformattedId.length() - 1, '-');
-            unformattedId = stringBuilder.toString();
-        }
-
-        return unformattedId;
     }
 
     @Override
@@ -224,7 +221,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 }
             }
         } catch (Exception e) {
-            Log.e(SaveOutOfAreaServiceTask.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
         return null;
     }
