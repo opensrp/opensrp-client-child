@@ -129,6 +129,14 @@ public final class Constants extends AllConstants {
         public static final String OPENSRP_ID = "opensrp_id";
         public static final String OA_SERVICE_DATE = "OA_Service_Date";
         public static final String WEIGHT_KG = "Weight_Kg";
+        public static final String PRIVATE_SECTOR_VACCINE = "private_sector_vaccine";
+        public static final String VACCINE_DATE = "vaccine_date";
+        public static final String DYNAMIC_FIELD = "dynamic_field";
+        public static final String SELECTED_VACCINES = "selected_vaccines";
+        public static final String SELECTED_VACCINES_COUNTER = "selected_vaccines_counter";
+        public static final String CONCEPT = "concept";
+        public static final String TEXT = "text";
+
     }
 
     public static final class INTENT_KEY {
@@ -140,6 +148,10 @@ public final class Constants extends AllConstants {
         public static final String LOCATION_ID = "location_id";
         public static final String PROVIDER_ID = "provider_id";
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
+    }
+
+    public interface Tables {
+        String EC_DYNAMIC_VACCINES = "ec_dynamic_vaccines";
     }
 
     public static class ENTITY {

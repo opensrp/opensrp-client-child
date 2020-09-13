@@ -3,9 +3,11 @@ package org.smartregister.child.task;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.listener.OnSaveDynamicVaccinesListener;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.JsonFormUtils;
 import org.smartregister.child.util.Utils;
@@ -25,10 +27,14 @@ import static org.smartregister.util.JsonFormUtils.getJSONObject;
 import static org.smartregister.util.Utils.getAllSharedPreferences;
 
 public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
+
+    private OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
     private String jsonString;
     private String baseEntityId;
 
-    public SaveDynamicVaccinesTask(String jsonString, String entityId) {
+    public SaveDynamicVaccinesTask(OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener,
+                                   String jsonString, String entityId) {
+        this.onSaveDynamicVaccinesListener = onSaveDynamicVaccinesListener;
         this.jsonString = jsonString;
         this.baseEntityId = entityId;
     }
@@ -36,8 +42,8 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         try {
-            JSONObject jsonForm = new JSONObject(jsonString);
 
+            JSONObject jsonForm = new JSONObject(jsonString);
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             if (fields == null) {
                 return null;
@@ -47,7 +53,10 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
             Event baseEvent = JsonFormUtils.createEvent(fields, getJSONObject(jsonForm, JsonFormUtils.METADATA),
                     formTag, baseEntityId, jsonForm.getString(JsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
 
-            if (baseEvent != null) {
+            String vaccineField = jsonForm.getString(Constants.KEY.DYNAMIC_FIELD);
+
+            if (baseEvent != null && StringUtils.isNoneBlank(vaccineField)) {
+                Utils.processExtraVaccinesEventObs(baseEvent, vaccineField);
                 JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(baseEvent));
                 ECSyncHelper syncHelper = ChildLibrary.getInstance().getEcSyncHelper();
                 syncHelper.addEvent(baseEvent.getBaseEntityId(), eventJson, BaseRepository.TYPE_Unsynced);
@@ -64,8 +73,9 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
+
     @Override
     protected void onPostExecute(Void aVoid) {
-
+        onSaveDynamicVaccinesListener.onSaveDynamicVaccine();
     }
 }

@@ -340,5 +340,6 @@
     <string name="child_archive_record_task_dialog_message">Please wait ... Archiving record.</string>
     <string name="error_recording_out_of_catchment_service">An error occured when recording out of catchment service. Try again later.</string>
     <string name="record_dynamic_vaccines">Record private sector vaccines</string>
+    <string name="extra_vaccines">Extra vaccines in private sector</string>
 
 </resources>

@@ -38,6 +38,7 @@ import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
@@ -590,5 +591,41 @@ public class Utils extends org.smartregister.util.Utils {
             ChildLibrary.getInstance().getClientProcessorForJava().processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         }
+    }
+
+
+    public static void processExtraVaccinesEventObs(Event baseEvent, String vaccineField) {
+        List<Obs> eventObs = baseEvent.getObs();
+        ArrayList<String> vaccineLabels = new ArrayList<>();
+        List<Obs> newObs = new ArrayList<>();
+        int vaccinesCounter = 0;
+        for (Obs obs : eventObs) {
+            if (vaccineField.equalsIgnoreCase(obs.getFieldCode())) {
+                vaccineLabels.add((String) obs.getHumanReadableValues().get(0));
+                vaccinesCounter++;
+            } else {
+                newObs.add(obs);
+            }
+        }
+
+        Obs vaccineObs = new Obs()
+                .withFieldCode(Constants.KEY.SELECTED_VACCINES)
+                .withFormSubmissionField(Constants.KEY.SELECTED_VACCINES)
+                .withFieldDataType(Constants.KEY.TEXT)
+                .withFieldType(Constants.KEY.CONCEPT)
+                .withsaveObsAsArray(false)
+                .withValue(StringUtils.join(vaccineLabels, ","));
+
+        Obs vaccinesCounterObs = new Obs()
+                .withFieldCode(Constants.KEY.SELECTED_VACCINES_COUNTER)
+                .withFormSubmissionField(Constants.KEY.SELECTED_VACCINES_COUNTER)
+                .withFieldDataType(Constants.KEY.TEXT)
+                .withFieldType(Constants.KEY.CONCEPT)
+                .withValue(vaccinesCounter)
+                .withsaveObsAsArray(false);
+
+        newObs.add(vaccineObs);
+        newObs.add(vaccinesCounterObs);
+        baseEvent.withObs(newObs);
     }
 }

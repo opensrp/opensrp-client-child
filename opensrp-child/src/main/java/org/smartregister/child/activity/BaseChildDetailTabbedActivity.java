@@ -21,6 +21,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,9 +46,11 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
 import org.smartregister.child.contract.IChildDetails;
+import org.smartregister.child.dao.ChildDao;
 import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
+import org.smartregister.child.listener.OnSaveDynamicVaccinesListener;
 import org.smartregister.child.listener.StatusChangeListener;
 import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
@@ -120,7 +123,7 @@ import static org.smartregister.util.Utils.getValue;
  */
 
 public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
-        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener {
+        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener, OnSaveDynamicVaccinesListener {
 
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
@@ -145,6 +148,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<ServiceHolder> removeServicesList = new ArrayList<>();
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
+    private List<Pair<String, String>> extraChildVaccines;
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -200,6 +204,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
         Bundle extras = this.getIntent().getExtras();
@@ -221,11 +226,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             childDetails.setColumnmaps(details);
 
             detailsMap = childDetails.getColumnmaps();
+            locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
         }
 
-        locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
-
         setContentView(getContentView());
+
+        setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
 
         childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
@@ -233,6 +239,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
         childUnderFiveFragment.showRecurringServices(true);
+        childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
 
@@ -302,9 +309,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         //Services
         for (ServiceHolder serviceHolder : editServicesList) {
-
             saveService(serviceHolder.wrapper, serviceHolder.view);
-
         }
         editServicesList.clear();
 
@@ -330,7 +335,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-
         adapter.addFragment(childDataFragment, getString(R.string.registration_data));
         adapter.addFragment(childUnderFiveFragment, getString(R.string.under_five_history));
         viewPager.setAdapter(adapter);
@@ -558,13 +562,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected void launchDynamicVaccinesForm(String dynamicVaccinesForm) {
+    protected void launchDynamicVaccinesForm(String dynamicVaccinesForm, String multiSelectFieldName) {
+
         try {
             JSONObject jsonObject = FormUtils.getInstance(getContext()).getFormJson(dynamicVaccinesForm);
             jsonObject.put(Constants.KEY.ENTITY_ID, childDetails.getCaseId());
             if (jsonObject.has(JsonFormUtils.METADATA)) {
                 jsonObject.getJSONObject(JsonFormUtils.METADATA).put(JsonFormUtils.ENCOUNTER_LOCATION, locationId);
             }
+            jsonObject.put(Constants.KEY.DYNAMIC_FIELD, multiSelectFieldName);
             jsonObject.put(Constants.KEY.ENTITY_ID, childDetails.entityId());
             startFormActivity(jsonObject.toString());
         } catch (Exception e) {
@@ -602,7 +608,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                         break;
                     case Constants.EventType.DYNAMIC_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(jsonString, childDetails.entityId()), null);
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId()), null);
                         break;
                 }
             } catch (Exception e) {
@@ -615,10 +621,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             JsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
-    }
-
-    protected void saveDynamicVaccines(String jsonString) {
-
     }
 
     protected void updateRegistration(String jsonString) {
@@ -640,6 +642,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected Class onBackActivity() {
         return Utils.metadata().childImmunizationActivity;
+    }
+
+    @Override
+    public void onSaveDynamicVaccine() {
+        showProgressDialog();
+        viewPager.setCurrentItem(1, true);
+        setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+        childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+        childUnderFiveFragment.updateExtraVaccinesView();
+        hideProgressDialog();
     }
 
     protected void confirmReportDeceased(final String json) {
@@ -749,7 +761,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
-        //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
@@ -771,16 +782,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (grantResults.length == 0) {
             return;
         }
-        switch (requestCode) {
-            case PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE:
-                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
-                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    dispatchTakePictureIntent();
-                }
-                break;
-            default:
-                break;
-
+        if (requestCode == PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE) {
+            if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                dispatchTakePictureIntent();
+            }
         }
     }
 
@@ -821,7 +827,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers,
                                          final List<Vaccine> vaccineList, final boolean undo) {
-        if (view == null || !(view instanceof ImmunizationRowGroup)) {
+        if (!(view instanceof ImmunizationRowGroup)) {
             return;
         }
         final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
@@ -893,7 +899,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public void updateVaccineGroupViews(View view) {
-        if (view == null || !(view instanceof ImmunizationRowGroup)) {
+        if (!(view instanceof ImmunizationRowGroup)) {
             return;
         }
         final ImmunizationRowGroup vaccineGroup = (ImmunizationRowGroup) view;
@@ -975,9 +981,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             Gender gender = Gender.UNKNOWN;
             String genderString = getValue(childDetails, Constants.KEY.GENDER, false);
-            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
+            if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
+            } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.MALE;
             }
 
@@ -1159,7 +1165,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         Serializable serializable = savedInstanceState.getSerializable("child_details");
-        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+        if (serializable instanceof CommonPersonObjectClient) {
             this.childDetails = (CommonPersonObjectClient) serializable;
         }
 
@@ -1209,6 +1215,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         startActivityForResult(intent, REQUEST_CODE_GET_JSON);
 
 
+    }
+
+    public List<Pair<String, String>> getExtraChildVaccines() {
+        return extraChildVaccines;
+    }
+
+    public void setExtraChildVaccines(List<Pair<String, String>> extraChildVaccines) {
+        this.extraChildVaccines = extraChildVaccines;
     }
 
     public class ServiceHolder {
