@@ -67,11 +67,23 @@ public class BaseChildImmunizationPresenterTest {
         PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
         Mockito.doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
 
-        Mockito.doReturn(new ArrayList<>(Arrays.asList(new String[]{"3.9", "4.0", "4.6", "5.1"}))).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        Height height = new Height();
+        height.setCm(39f);
+        Height height2 = new Height();
+        height2.setCm(46f);
+        Height height3 = new Height();
+        height3.setCm(51f);
+        List<Height> heights = new ArrayList<>(Arrays.asList(new Height[]{height, height2, height3}));
+
+        Mockito.doReturn(heights).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
 
         List<Height> heightList = presenter.getAllHeights(childDetails);
         Assert.assertNotNull(heightList);
-        Assert.assertEquals(5, heightList.size());
+        Assert.assertEquals(4, heightList.size());
+        Assert.assertEquals("39.0", heightList.get(0).getCm().toString());
+        Assert.assertEquals("46.0", heightList.get(1).getCm().toString());
+        Assert.assertEquals("51.0", heightList.get(2).getCm().toString());
+        Assert.assertEquals("48.0", heightList.get(3).getCm().toString());
 
     }
 

@@ -30,7 +30,7 @@ public interface ChildImmunizationContract {
 
         CommonPersonObjectClient getChildDetails();
 
-        String getString(int updating_dialog_title);
+        String getString(int stringResourceId);
 
         VaccineGroup getLastOpenedView();
 
