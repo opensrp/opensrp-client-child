@@ -750,8 +750,22 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ChildEventClient client = ChildJsonFormUtils.processChildDetailsForm(jsonFormString, formTag);
         Assert.assertNotNull(client);
         Assert.assertNotNull(client.getClient());
+        Assert.assertNotNull(client.getClient().getBaseEntityId());
+        Assert.assertEquals(1, client.getClient().getIdentifiers().size());
+        Assert.assertEquals(1, client.getClient().getAttributes().size());
+        Assert.assertEquals(appVersionName, client.getClient().getClientApplicationVersionName());
+        Assert.assertEquals("Saida", client.getClient().getFirstName());
+        Assert.assertEquals("Mui", client.getClient().getMiddleName());
+        Assert.assertEquals("Mona", client.getClient().getLastName());
+        Assert.assertEquals("Male", client.getClient().getGender());
+
         Assert.assertNotNull(client.getEvent());
+        Assert.assertEquals(provider, client.getEvent().getProviderId());
+        Assert.assertEquals(appVersionName, client.getEvent().getClientApplicationVersionName());
+        Assert.assertNotNull(client.getEvent().getBaseEntityId());
+        Assert.assertEquals(client.getClient().getBaseEntityId(), client.getEvent().getBaseEntityId());
         Assert.assertEquals("Birth Registration", client.getEvent().getEventType());
+        Assert.assertEquals("child", client.getEvent().getEntityType());
     }
 
     @Test
@@ -761,6 +775,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONArray formFields = ChildJsonFormUtils.fields(form, step);
         Assert.assertNotNull(formFields);
+        Assert.assertEquals(22, formFields.length());
     }
 
     @Test
