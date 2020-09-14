@@ -327,5 +327,6 @@
     <string name="str_page_info">Page {0} of {1}</string>
     <string name="dismiss_lookup">Confirm</string>
     <string name="service_point">Service Point: %1$s</string>
+    <string name="record_growth_details"> Record at least one set of growth details (height, Weight)</string>
 
 </resources>

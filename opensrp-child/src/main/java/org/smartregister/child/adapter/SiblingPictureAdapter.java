@@ -9,7 +9,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.view.SiblingPicture;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 09/05/2017.
@@ -18,9 +18,9 @@ import java.util.ArrayList;
 public class SiblingPictureAdapter extends RecyclerView.Adapter<SiblingPicture> {
 
     private final BaseActivity baseActivity;
-    private final ArrayList<String> siblingIds;
+    private final List<String> siblingIds;
 
-    public SiblingPictureAdapter(BaseActivity baseActivity, ArrayList<String> siblingIds) {
+    public SiblingPictureAdapter(BaseActivity baseActivity, List<String> siblingIds) {
         this.baseActivity = baseActivity;
         this.siblingIds = siblingIds;
     }

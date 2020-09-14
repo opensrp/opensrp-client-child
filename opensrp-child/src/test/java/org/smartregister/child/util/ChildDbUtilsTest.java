@@ -158,7 +158,7 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         Assert.assertNotNull(personObjectClient.getCaseId());
         Assert.assertEquals(baseEntityId, personObjectClient.getCaseId());
         Assert.assertNotNull(personObjectClient.getName());
-        Assert.assertEquals("Alfred", personObjectClient.getName());
+        Assert.assertEquals("child", personObjectClient.getName());
         Assert.assertNotNull(personObjectClient.getColumnmaps());
         Assert.assertEquals(3, personObjectClient.getColumnmaps().size());
         Assert.assertEquals(3, personObjectClient.getDetails().size());
