@@ -33,6 +33,7 @@ public class ChildDaoTest extends ChildDao {
 
     @Test
     public void testGetChildExtraVaccines() {
+        Mockito.doReturn(database).when(repository).getReadableDatabase();
 
         MatrixCursor matrixCursor = new MatrixCursor(new String[]{"selected_vaccines", "vaccine_date"});
         matrixCursor.addRow(new Object[]{"Vaccine 1 - FIRST VACCINE,Vaccine 2 - SECOND VACCINE ", "2019-03-09"});
