@@ -1,22 +1,17 @@
 package org.smartregister.child.fragment;
 
-import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +66,6 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.child.util.Utils.createGroupNameTextView;
-import static org.smartregister.immunization.R.id.vaccine;
 import static org.smartregister.immunization.util.VaccinatorUtils.dpToPx;
 import static org.smartregister.util.Utils.convertDateFormat;
 
@@ -90,7 +84,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private LinearLayout serviceGroupCanvasLL;
     private LinearLayout extraVaccinesLayout;
     private boolean showRecurringServices = true;
-    private List<Pair<String, String>> extraVaccines;
+    private List<Map.Entry<String, String>> extraVaccines;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -445,18 +439,18 @@ public class ChildUnderFiveFragment extends Fragment {
             extraVaccinesLayout.setVisibility(View.VISIBLE);
             extraVaccinesLayout.removeAllViews();
             extraVaccinesLayout.addView(getSectionTitle(R.color.black, R.string.extra_vaccines));
-            for (Pair<String, String> vaccine : extraVaccines) {
+            for (Map.Entry<String, String> vaccine : extraVaccines) {
                 RelativeLayout immunizationRow = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.view_immunization_row_card, null);
                 TextView label = immunizationRow.findViewById(R.id.name_tv);
                 label.setMaxWidth(dpToPx(getActivity(), 240f));
-                label.setText(vaccine.first);
+                label.setText(vaccine.getKey());
 
                 Button statusButton = immunizationRow.findViewById(R.id.status_iv);
                 statusButton.setBackgroundResource(org.smartregister.immunization.R.drawable.vaccine_card_background_green);
                 statusButton.setVisibility(View.VISIBLE);
 
                 TextView dateTextView = immunizationRow.findViewById(R.id.status_text_tv);
-                dateTextView.setText(convertDateFormat(vaccine.second, true));
+                dateTextView.setText(convertDateFormat(vaccine.getValue(), true));
 
                 extraVaccinesLayout.addView(immunizationRow);
             }
@@ -637,11 +631,11 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    public void setExtraVaccines(List<Pair<String, String>> extraVaccines) {
+    public void setExtraVaccines(List<Map.Entry<String, String>> extraVaccines) {
         this.extraVaccines = extraVaccines;
     }
 
-    public List<Pair<String, String>> getExtraVaccines() {
+    public List<Map.Entry<String, String>> getExtraVaccines() {
         return extraVaccines;
     }
 }

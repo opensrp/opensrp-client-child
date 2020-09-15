@@ -224,7 +224,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     protected String getOutOfCatchmentServiceFormName() {
-        return Constants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE;
+        return Constants.JsonForm.OUT_OF_CATCHMENT_SERVICE;
     }
 
     private void moveToMyCatchmentArea(final List<String> ids) {

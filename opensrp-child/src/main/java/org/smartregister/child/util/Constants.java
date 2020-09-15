@@ -249,8 +249,8 @@ public final class Constants extends AllConstants {
         String ATTRIBUTES = "attributes";
     }
 
-    public static class JSON_FORM {
-        public static String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
-        public static String DYNAMIC_VACCINES = "dynamic_vaccines";
+    public interface JsonForm {
+        String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
+        String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 }

@@ -25,7 +25,6 @@ import org.smartregister.location.helper.LocationHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import timber.log.Timber;
 
@@ -36,7 +35,6 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
     private final Context context;
     private final String formString;
-    private static String defaultLocationId;
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
     private ChildRegisterContract.ProgressDialogCallback progressDialogCallback;
@@ -48,7 +46,6 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         this.weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
         this.vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
         this.progressDialogCallback = progressDialogCallback;
-        defaultLocationId = LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation());
     }
 
     /**
@@ -77,7 +74,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                     weight.setBaseEntityId("");
                     weight.setKg(Float.parseFloat(curField.getString(JsonFormConstants.VALUE)));
                     weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(defaultLocationId);
+                    weight.setLocationId(LocationHelper.getInstance()
+                            .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
                     weight.setUpdatedAt(null);
                 }
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.OA_SERVICE_DATE)) {
@@ -127,10 +125,10 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         String openSrpId = null;
         String cardId = null;
 
-        for (int index = 0; index < fields.length(); index++){
+        for (int index = 0; index < fields.length(); index++) {
             JSONObject curField = fields.getJSONObject(index);
             if (curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.ZEIR_ID) ||
-                    curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.OPENSRP_ID)){
+                    curField.getString(JsonFormConstants.KEY).equalsIgnoreCase(Constants.KEY.OPENSRP_ID)) {
                 openSrpId = curField.getString(JsonFormConstants.VALUE);
                 break;
             }
@@ -148,7 +146,8 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                         curVaccine.setBaseEntityId("");
                         curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
                         curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                        curVaccine.setLocationId(defaultLocationId);
+                        curVaccine.setLocationId(LocationHelper.getInstance()
+                                .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
                         curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
                         curVaccine.setUpdatedAt(null);
                         vaccines.add(curVaccine);

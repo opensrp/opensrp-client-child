@@ -21,7 +21,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -148,7 +147,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<ServiceHolder> removeServicesList = new ArrayList<>();
     private List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
-    private List<Pair<String, String>> extraChildVaccines;
+    private List<Map.Entry<String, String>> extraChildVaccines;
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -782,11 +781,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (grantResults.length == 0) {
             return;
         }
-        if (requestCode == PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE) {
-            if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
-                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                dispatchTakePictureIntent();
-            }
+        if (requestCode == PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE &&
+                PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA,
+                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            dispatchTakePictureIntent();
         }
     }
 
@@ -1217,11 +1215,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     }
 
-    public List<Pair<String, String>> getExtraChildVaccines() {
+    public List<Map.Entry<String, String>> getExtraChildVaccines() {
         return extraChildVaccines;
     }
 
-    public void setExtraChildVaccines(List<Pair<String, String>> extraChildVaccines) {
+    public void setExtraChildVaccines(List<Map.Entry<String, String>> extraChildVaccines) {
         this.extraChildVaccines = extraChildVaccines;
     }
 

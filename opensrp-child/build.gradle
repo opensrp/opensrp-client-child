@@ -26,8 +26,8 @@ android {
     defaultConfig {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-//        versionCode Integer.parseInt(project.VERSION_CODE)
-//        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -108,9 +108,9 @@ dependencies {
     }
 
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
-    api('org.smartregister:opensrp-client-configurable-views:1.1.4-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-configurable-views:1.1.5-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -172,6 +172,8 @@ dependencies {
 
     // PowerMock
     def powerMockVersion = '1.7.4'
+
+    testImplementation 'org.mockito:mockito-core:3.1.0'
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
@@ -205,4 +207,4 @@ coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"
 }
 
-//apply from: '../maven.gradle'
+apply from: '../maven.gradle'

@@ -1780,7 +1780,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     }
                 }
                 JsonFormUtils.addChildRegLocHierarchyQuestions(form);
-            } else if (Constants.JSON_FORM.OUT_OF_CATCHMENT_SERVICE.equals(formName)) {
+            } else if (Constants.JsonForm.OUT_OF_CATCHMENT_SERVICE.equals(formName)) {
                 JsonFormUtils.addAvailableVaccines(context, form);
             } else {
                 Timber.w("Unsupported form requested for launch %s", formName);
@@ -1808,14 +1808,13 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     private static void injectOpenSrpId(String entityId, JSONObject form) throws JSONException {
         if (StringUtils.isNoneBlank(entityId)) {
-            entityId = entityId.replace("-", "");
             JSONArray fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
             for (int i = 0; i < fields.length(); i++) {
                 JSONObject field = fields.getJSONObject(i);
                 if (field.getString(JsonFormConstants.KEY).equalsIgnoreCase(JsonFormUtils.ZEIR_ID) ||
                         field.getString(JsonFormUtils.KEY).equalsIgnoreCase(JsonFormUtils.OPENSRP_ID)) {
                     field.remove(JsonFormUtils.VALUE);
-                    field.put(JsonFormUtils.VALUE, entityId);
+                    field.put(JsonFormUtils.VALUE, entityId.replace("-", ""));
                     field.put(READ_ONLY, true);
                     break;
                 }
