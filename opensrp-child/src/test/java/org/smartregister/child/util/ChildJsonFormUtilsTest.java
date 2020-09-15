@@ -40,7 +40,6 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
-import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.form.FormLocation;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.location.helper.LocationHelper;
@@ -48,7 +47,6 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.Repository;
-import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.JsonFormUtils;
@@ -629,7 +627,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     @Test
     public void testAddAvailableVaccinesShouldPopulateForm() throws Exception {
         JSONObject formObject = new JSONObject(registrationForm);
-        int initialSize = formObject.optJSONObject(STEP1).optJSONArray(JsonFormConstants.FIELDS).length();
+        int initialSize = formObject.optJSONObject(STEP1).optJSONArray(FIELDS).length();
         Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines",
                 RuntimeEnvironment.application, formObject);
         JSONObject step1 = formObject.optJSONObject(STEP1);
