@@ -27,8 +27,14 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results          |
 | `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view          |   
 | `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                            |
+| `use.new.advance.search.approach`     | Boolean | false   | Use new advance search feature that is based on client search endpoint |
+| `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms  |
 
 ## Multi-language support for Immunization Group Names shown on the Register for Upcoming Statuses
+
+>NOTE: If you set the `multi.language.support` app property to true, you are required to use JMAG (Json Multi Language Asset Generator) tool to generate string properties 
+file used for translating the forms. The tool will also add placeholders in places of form strings in the respective form while generating the properties file. Refer to 
+[Native Form Documentation](https://github.com/OpenSRP/opensrp-client-native-form#multi-language-support-mls) for more info.
 
 You can enable multi-language support for Group Names shown on the register for upcoming statuses eg. `Upcoming 10 weeks`. :frowning: This means you need to add multiple string for the same group name [since this](https://github.com/OpenSRP/opensrp-client-immunization#multi-language-support) is also supported.
 
