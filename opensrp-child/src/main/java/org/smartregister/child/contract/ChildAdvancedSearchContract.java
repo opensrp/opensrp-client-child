@@ -12,6 +12,7 @@ public interface ChildAdvancedSearchContract {
 
     interface Presenter extends ChildRegisterFragmentContract.Presenter {
         void search(Map<String, String> searchMap, boolean isLocal);
+        String getCountQuery();
     }
 
     interface View extends ChildRegisterFragmentContract.View {
@@ -22,6 +23,8 @@ public interface ChildAdvancedSearchContract {
         String filterAndSortQuery();
 
         Cursor getRawCustomQueryForAdapter(String query);
+
+        void updateMatchingResults(int count);
 
     }
 

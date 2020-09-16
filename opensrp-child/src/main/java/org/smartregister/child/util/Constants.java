@@ -126,6 +126,17 @@ public final class Constants extends AllConstants {
         public static final String BIRTH_DATE = "birth_date";
         public static final String MOTHER_PHONE_NUMBER = "mother_phone_number";
         public static final String IS_REMOTE_CLIENT = "is_remote_client";
+        public static final String OPENSRP_ID = "opensrp_id";
+        public static final String OA_SERVICE_DATE = "OA_Service_Date";
+        public static final String WEIGHT_KG = "Weight_Kg";
+        public static final String PRIVATE_SECTOR_VACCINE = "private_sector_vaccine";
+        public static final String VACCINE_DATE = "vaccine_date";
+        public static final String DYNAMIC_FIELD = "dynamic_field";
+        public static final String SELECTED_VACCINES = "selected_vaccines";
+        public static final String SELECTED_VACCINES_COUNTER = "selected_vaccines_counter";
+        public static final String CONCEPT = "concept";
+        public static final String TEXT = "text";
+
     }
 
     public static final class INTENT_KEY {
@@ -137,6 +148,10 @@ public final class Constants extends AllConstants {
         public static final String LOCATION_ID = "location_id";
         public static final String PROVIDER_ID = "provider_id";
         public static final String NEXT_APPOINTMENT_DATE = "next_appointment_date";
+    }
+
+    public interface Tables {
+        String EC_DYNAMIC_VACCINES = "ec_dynamic_vaccines";
     }
 
     public static class ENTITY {
@@ -171,6 +186,7 @@ public final class Constants extends AllConstants {
         public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
+        public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 
     public static final class CHILD_STATUS {
@@ -231,5 +247,10 @@ public final class Constants extends AllConstants {
         String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         String BASE_ENTITY_ID = "baseEntityId";
         String ATTRIBUTES = "attributes";
+    }
+
+    public interface JsonForm {
+        String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
+        String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 }

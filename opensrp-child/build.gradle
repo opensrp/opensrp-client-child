@@ -108,9 +108,9 @@ dependencies {
     }
 
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
-    api('org.smartregister:opensrp-client-configurable-views:1.1.4-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-configurable-views:1.1.5-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -172,6 +172,7 @@ dependencies {
 
     // PowerMock
     def powerMockVersion = '1.7.4'
+
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"

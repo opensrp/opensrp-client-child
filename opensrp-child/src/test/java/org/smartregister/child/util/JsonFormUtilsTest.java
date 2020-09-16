@@ -398,8 +398,8 @@ public class JsonFormUtilsTest {
         Assert.assertEquals(2, childMotherDetailModels.size());
         ChildMotherDetailModel firstChild = childMotherDetailModels.get(0);
         ChildMotherDetailModel secondChild = childMotherDetailModels.get(1);
-        Assert.assertEquals(firstChild.getColumnValuesFromJson().length, 12);
-        Assert.assertEquals(secondChild.getColumnValuesFromJson().length, 12);
+        Assert.assertEquals(firstChild.getColumnValuesFromJson().length, 13);
+        Assert.assertEquals(secondChild.getColumnValuesFromJson().length, 13);
         Assert.assertEquals("Melvis", firstChild.getFirstName());
         Assert.assertEquals("Anto", secondChild.getFirstName());
         Assert.assertEquals("Linda", firstChild.getMotherFirstName());
