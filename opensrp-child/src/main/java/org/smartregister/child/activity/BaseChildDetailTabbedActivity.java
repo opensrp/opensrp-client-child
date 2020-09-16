@@ -1081,7 +1081,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             final ServiceRowGroup serviceRowGroup = (ServiceRowGroup) view;
 
-            ArrayList wrappers = new ArrayList<>();
+            ArrayList<ServiceWrapper> wrappers = new ArrayList<>();
             wrappers.add(serviceWrapper);
 
             serviceWrapper.setUpdatedVaccineDate(null, false);
