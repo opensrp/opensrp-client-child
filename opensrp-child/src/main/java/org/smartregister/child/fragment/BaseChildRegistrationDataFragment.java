@@ -148,7 +148,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     public void loadData(Map<String, String> detailsMap) {
         RecyclerView mRecyclerView1 = getActivity().findViewById(R.id.recyclerView);
         resetAdapterData(detailsMap);
-
         mRecyclerView1.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView1.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView1.setAdapter(mAdapter);
@@ -256,6 +255,16 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 }
                 break;
             case JsonFormConstants.SPINNER:
+                boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                        .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
+                if (useNewMLSApproach && !field.getOptions().isEmpty() && StringUtils.isNotBlank(raw)) {
+                    for (Map<String, String> option : field.getOptions()){
+                        if (option.containsKey(JsonFormConstants.KEY) && raw.equalsIgnoreCase(option.get(JsonFormConstants.KEY))) {
+                            result = option.get(JsonFormConstants.TEXT);
+                            break;
+                        }
+                    }
+                }
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
                 }

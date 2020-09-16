@@ -44,7 +44,6 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
     @Override
     protected void attachBaseContext(android.content.Context base) {
-
         String language = LangUtils.getLanguage(base);
         super.attachBaseContext(LangUtils.setAppLocale(base, language));
     }
