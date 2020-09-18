@@ -34,6 +34,11 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
         return editMap;
     }
 
+    @Override
+    public String[] getColumns() {
+        return new String[0];
+    }
+
 
     protected String[] mainColumns() {
         return Utils.metadata().getRegisterQueryProvider().mainColumns();

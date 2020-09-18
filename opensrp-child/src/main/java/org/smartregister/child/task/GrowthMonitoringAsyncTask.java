@@ -95,7 +95,6 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
 
     }
 
-
     private void updateRecordWeight(GrowthMonitoringViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {
 
         View recordGrowth = updateWrapper.getConvertView().findViewById(R.id.record_growth);

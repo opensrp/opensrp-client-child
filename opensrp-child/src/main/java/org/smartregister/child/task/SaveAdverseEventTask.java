@@ -7,14 +7,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.repository.EventClientRepository;
 
 import java.util.Date;
 import java.util.Iterator;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -88,7 +90,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                             if (entityValue.equals(ChildJsonFormUtils.CONCEPT)) {
                                 ChildJsonFormUtils.addToJSONObject(jsonObject, Constants.KEY.KEY, key);
                                 ChildJsonFormUtils.addObservation(event, jsonObject);
-                            } else if ("encounter".equals(entityValue)) {
+                            } else if (Constants.ENCOUNTER.equals(entityValue)) {
                                 String entityIdValue = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.OPENMRS_ENTITY_ID);
                                 if (entityIdValue.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                     Date eventDate = ChildJsonFormUtils.formatDate(value, false);
@@ -102,7 +104,6 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 }
             }
 
-
             if (event != null) {
                 JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
                 eventClientRepository.addEvent(event.getBaseEntityId(), eventJson);
@@ -110,10 +111,9 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
             }
 
         } catch (Exception e) {
-            Log.e(SaveAdverseEventTask.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
 
         return null;
     }
-
 }

@@ -1,9 +1,8 @@
 package org.smartregister.child.util;
 
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import net.sqlcipher.SQLException;
+import net.sqlcipher.database.SQLiteDatabase;
 
 import timber.log.Timber;
 

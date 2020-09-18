@@ -327,7 +327,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
         clientAdapter.setTotalcount(matrixCursor.getCount());
-        Log.v("total count here", "" + clientAdapter.getTotalcount());
+        Timber.v("Total count here%s", clientAdapter.getTotalcount());
         clientAdapter.setCurrentlimit(20);
         if (clientAdapter.getTotalcount() > 0) {
             clientAdapter.setCurrentlimit(clientAdapter.getTotalcount());
@@ -353,23 +353,19 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                     }
                 };
             } else {
-                return null;
+                return new CursorLoader(getContext());
             }
         } else {
             globalQrSearch = false;
-            switch (id) {
-                case LOADER_ID:
-                    // Returns a new CursorLoader
-                    return new CursorLoader(getActivity()) {
-                        @Override
-                        public Cursor loadInBackground() {
-                            return matrixCursor;
-                        }
-                    };
-                default:
-                    // An invalid id was passed in
-                    return null;
-            }
+            if (id == LOADER_ID) {// Returns a new CursorLoader
+                return new CursorLoader(getActivity()) {
+                    @Override
+                    public Cursor loadInBackground() {
+                        return matrixCursor;
+                    }
+                };
+            }// An invalid id was passed in
+            return new CursorLoader(getContext());
         }
     }
 

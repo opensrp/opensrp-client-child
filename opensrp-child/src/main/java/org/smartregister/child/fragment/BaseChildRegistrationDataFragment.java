@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
+import com.vijay.jsonwizard.utils.NativeFormLangUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -23,6 +24,7 @@ import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.Field;
 import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.KeyValueItem;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
@@ -126,12 +128,19 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     protected Form getForm() {
         try {
-            return AssetHandler.jsonStringToJava(new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString(),
-                    Form.class);
+            if (getActivity() != null) {
+                String jsonString = new FormUtils(getActivity()).getFormJson(getRegistrationForm()).toString();
+                boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                        .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
+                if (useNewMLSApproach) {
+                    jsonString = NativeFormLangUtils.getTranslatedString(jsonString, getContext());
+                }
+                return AssetHandler.jsonStringToJava(jsonString, Form.class);
+            }
         } catch (Exception e) {
             Timber.e(e);
-            return null;
         }
+        return null;
     }
 
     protected abstract String getRegistrationForm();
@@ -184,7 +193,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
      * Useful in specifiy other fields e.g. father_nationality = value of father_nationality_other
      *
      * @param fieldKey field name
-     * @param label    Field label
      * @param value    value of the field
      * @return true if field is skippable false otherwise
      */
@@ -249,7 +257,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         if (stringResourceIds != null && stringResourceIds.size() > 0) {
             label = stringResourceIds.get(raw);
         }
-
         return label;
     }
 

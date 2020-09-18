@@ -173,10 +173,31 @@ public class UtilsTest {
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
         Map<String, String> details = new HashMap<>();
         details.put(Constants.KEY.BASE_ENTITY_ID, "232-erer7");
-        Event result = Utils.createArchiveRecordEvent(details);
+        String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
+        Assert.assertNotNull(baseEntityId);
+        Event result = Utils.createArchiveRecordEvent(baseEntityId);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFormSubmissionId());
-        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq(details.get(Constants.KEY.BASE_ENTITY_ID)), Mockito.any(JSONObject.class));
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq(baseEntityId), Mockito.any(JSONObject.class));
+    }
+
+    @Test
+    public void testCreateArchiveRecordEventShouldCreateValidEvents() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        List<String> baseEntityIds = new ArrayList<>();
+        baseEntityIds.add("231-erer7");
+        baseEntityIds.add("232-erer7");
+        List<Event> result = Utils.createArchiveRecordEvents(baseEntityIds);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 2);
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq("231-erer7"), Mockito.any(JSONObject.class));
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq("232-erer7"), Mockito.any(JSONObject.class));
     }
 
     @Test

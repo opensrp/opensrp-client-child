@@ -1,7 +1,5 @@
 package org.smartregister.child.model;
 
-import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +19,8 @@ import org.smartregister.domain.ResponseStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -93,7 +93,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 }
             }
         } catch (JSONException e) {
-            Log.e(getClass().getName(), "", e);
+            Timber.e(e);
         }
         return "";
 
@@ -105,7 +105,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return jsonObject.getJSONObject(field);
             }
         } catch (JSONException e) {
-            Log.e(getClass().getName(), "", e);
+            Timber.e(e);
         }
         return null;
 
@@ -117,7 +117,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return jsonArray.getJSONObject(position);
             }
         } catch (JSONException e) {
-            Log.e(getClass().getName(), "", e);
+            Timber.e(e);
         }
         return null;
 
@@ -130,7 +130,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return new JSONArray(response.payload());
             }
         } catch (Exception e) {
-            Log.e(getClass().getName(), "", e);
+            Timber.e(e);
         }
         return null;
     }

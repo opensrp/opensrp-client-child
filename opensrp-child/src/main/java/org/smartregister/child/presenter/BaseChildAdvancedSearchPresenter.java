@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.interactor.ChildAdvancedSearchInteractor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.util.Constants;
@@ -25,10 +26,10 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
         implements ChildAdvancedSearchContract.Presenter, ChildAdvancedSearchContract.InteractorCallBack {
 
     public static final String TABLE_NAME = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
-    private WeakReference<ChildAdvancedSearchContract.View> viewReference;
-    private ChildAdvancedSearchContract.Model model;
-
     private static final String BIRTH_DATE = "birth_date";
+    protected ChildAdvancedSearchContract.Model model;
+    private WeakReference<ChildAdvancedSearchContract.View> viewReference;
+    private String currentCondition;
 
     public BaseChildAdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier,
                                             BaseChildAdvancedSearchModel advancedSearchModel) {
@@ -58,11 +59,9 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
             getView().showProgressView();
             getView().switchViews(true);
             localQueryInitialize(editMap);
-
             getView().countExecute();
             getView().filterandSortInInitializeQueries();
             getView().hideProgressView();
-
         } else {
             getView().showProgressView();
             getView().switchViews(true);
@@ -73,30 +72,28 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
                 }
             }
             interactor.search(cleanMapForAdvancedSearch(editMap), this, searchMap.get(Constants.KEY.ZEIR_ID));
-
         }
     }
 
+    @Override
+    public String getCountQuery() {
+        return model.countSelect(currentCondition);
+    }
+
     protected Map<String, String> cleanMapForAdvancedSearch(Map<String, String> editMap) {
+        Date date = new Date(0);
+        String startDate = DateUtil.yyyyMMdd.format(date);
+        String endDate = DateUtil.yyyyMMdd.format(new Date());
 
-        if (editMap.containsKey(START_DATE) || editMap.containsKey(END_DATE)) {
-
-            Date date0 = new Date(0);
-            String startDate = DateUtil.yyyyMMdd.format(date0);
-
-            Date now = new Date();
-            String endDate = DateUtil.yyyyMMdd.format(now);
-
-            if (editMap.containsKey(START_DATE)) {
-                startDate = editMap.remove(START_DATE);
-            }
-            if (editMap.containsKey(END_DATE)) {
-                endDate = editMap.remove(END_DATE);
-            }
-
-            String bDate = startDate + ":" + endDate;
-            editMap.put(BIRTH_DATE, bDate);
+        if (editMap.containsKey(START_DATE)) {
+            startDate = editMap.remove(START_DATE);
         }
+        if (editMap.containsKey(END_DATE)) {
+            endDate = editMap.remove(END_DATE);
+        }
+
+        String bDate = startDate + ":" + endDate;
+        editMap.put(BIRTH_DATE, bDate);
 
         return editMap;
     }
@@ -107,14 +104,12 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     }
 
     private void localQueryInitialize(Map<String, String> editMap) {
-
-        String mainCondition = model.getMainConditionString(editMap);
-
-        String countSelect = model.countSelect(mainCondition);
-        String mainSelect = model.mainSelect(mainCondition);
-
+        currentCondition = model.getMainConditionString(editMap);
+        String countSelect = model.countSelect(currentCondition);
+        String mainSelect = model.mainSelect(currentCondition);
         getView().initializeQueryParams(TABLE_NAME, countSelect, mainSelect);
         getView().initializeAdapter(visibleColumns);
+        getView().updateMatchingResults(((BaseAdvancedSearchFragment) getView()).clientAdapter.totalcount);
     }
 
     @Override
@@ -124,19 +119,15 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
 
     @Override
     public void onResultsFound(Response<String> response, String opensrpID) {
-        matrixCursor = model.createMatrixCursor(response);//To Do magic cursors
-        AdvancedMatrixCursor advancedMatrixCursor = getRemoteLocalMatrixCursor(matrixCursor);
+        AdvancedMatrixCursor advancedMatrixCursor = getRemoteLocalMatrixCursor(model.createMatrixCursor(response));
         setMatrixCursor(advancedMatrixCursor);
-
-        advancedMatrixCursor.moveToFirst();
+        getMatrixCursor().moveToFirst();
         getView().recalculatePagination(advancedMatrixCursor);
-
         getView().filterandSortInInitializeQueries();
         getView().hideProgressView();
-
     }
 
-    protected abstract AdvancedMatrixCursor getRemoteLocalMatrixCursor(AdvancedMatrixCursor matrixCursor);
+    protected abstract AdvancedMatrixCursor getRemoteLocalMatrixCursor(AdvancedMatrixCursor remoteCursor);
 
     public void setModel(ChildAdvancedSearchContract.Model model) {
         this.model = model;
@@ -145,6 +136,4 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     public void setInteractor(ChildAdvancedSearchContract.Interactor interactor) {
         this.interactor = interactor;
     }
-
-
 }

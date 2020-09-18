@@ -443,7 +443,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/mother_guardian_phone_number_hint"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
+                    android:inputType="number"
                     android:paddingStart="@dimen/advanced_search_label_padding"
                     android:paddingLeft="@dimen/advanced_search_label_padding"
                     android:textColor="@color/client_list_grey"
