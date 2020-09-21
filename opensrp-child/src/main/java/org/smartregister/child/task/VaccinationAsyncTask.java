@@ -443,7 +443,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     ids.add(entityId);
                 }
                 //Also include Father base entity Id to pull Father events
-                if (org.smartregister.child.util.Utils.metadata().childRegister.getFatherRelationKey() != null && StringUtils.isNoneBlank(fatherBaseEntityId)) {
+                if (ChildLibrary.getInstance().metadata().childRegister.getFatherRelationKey() != null && StringUtils.isNoneBlank(fatherBaseEntityId)) {
                     ids.add(fatherBaseEntityId);
                 }
 

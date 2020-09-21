@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
-import org.smartregister.child.fragment.BaseAdvancedSearchFragment;
 import org.smartregister.child.interactor.ChildAdvancedSearchInteractor;
 import org.smartregister.child.model.BaseChildAdvancedSearchModel;
 import org.smartregister.child.util.Constants;
@@ -109,7 +108,6 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
         String mainSelect = model.mainSelect(currentCondition);
         getView().initializeQueryParams(TABLE_NAME, countSelect, mainSelect);
         getView().initializeAdapter(visibleColumns);
-        getView().updateMatchingResults(((BaseAdvancedSearchFragment) getView()).clientAdapter.totalcount);
     }
 
     @Override

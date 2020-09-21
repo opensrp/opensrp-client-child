@@ -198,16 +198,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         super.onSyncComplete(fetchStatus);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-//
-//        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-//        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-//            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
-//        }
-    }
-
     private void setUpQRCodeScanButtonView(View view) {
         FrameLayout qrCodeScanImageView = view.findViewById(R.id.scan_qr_code);
         if (qrCodeScanImageView != null) {

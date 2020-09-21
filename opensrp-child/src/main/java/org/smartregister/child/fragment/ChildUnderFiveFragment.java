@@ -125,7 +125,7 @@ public class ChildUnderFiveFragment extends Fragment {
             heightWidgetLayout.setVisibility(View.VISIBLE);
         }
 
-        org.smartregister.child.util.Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
 
         updateExtraVaccinesView();
 
@@ -224,7 +224,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
             }
 
-            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
+            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(Utils.formatNumber(String.valueOf(weight.getKg())))));
 
             boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
             weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));

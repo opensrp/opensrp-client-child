@@ -387,112 +387,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 List<View> lookUpViews = lookupMap.get(Constants.KEY.MOTHER);
                 if (lookUpViews != null && !lookUpViews.isEmpty()) {
 
-                    for (View view : lookUpViews) {
-
-                        String key = (String) view.getTag(com.vijay.jsonwizard.R.id.key);
-                        String text = "";
-
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.firstName)) {
-                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.firstName, true);
-                        }
-
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
-                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.lastName, true);
-                        }
-
-                        if (StringUtils.endsWithIgnoreCase(key, MotherLookUpUtils.birthDate)) {
-                            String dobString = getValue(client.getColumnmaps(), MotherLookUpUtils.dob, false);
-                            Date motherDob = Utils.dobStringToDate(dobString);
-                            if (motherDob != null) {
-                                try {
-                                    text = mlsLookupDateFormatter.format(motherDob);
-                                } catch (Exception e) {
-                                    Timber.e(e);
-                                }
-                            }
-
-                            motherDOBMaterialEditText = (MaterialEditText) view;
-                        }
-
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
-                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true);
-                        }
-
-                        if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
-                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH), true);
-                        }
-
-                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA)) {
-                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
-                        }
-
-
-                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA_OTHER)) {
-                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER.toLowerCase(Locale.ENGLISH), true);
-                        }
-
-                        if (key.equalsIgnoreCase(Constants.RESIDENTIAL_ADDRESS)) {
-                            text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS.toLowerCase(Locale.ENGLISH), true);
-                        }
-
-
-                        if (key.equalsIgnoreCase(Constants.PREFERRED_LANGUAGE)) {
-                            text = getValue(client.getColumnmaps(), Constants.PREFERRED_LANGUAGE.toLowerCase(Locale.ENGLISH), true);
-                        }
-
-                        if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.IS_CONSENTED)) {
-                            text = getValue(client.getColumnmaps(), MotherLookUpUtils.IS_CONSENTED, false);
-                        }
-
-
-                        if (view instanceof MaterialEditText) {
-                            MaterialEditText materialEditText = (MaterialEditText) view;
-                            materialEditText.setEnabled(false);
-                            materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
-                            materialEditText.setText(text);
-                            materialEditText.setInputType(InputType.TYPE_NULL);
-
-                        } else {
-
-                            if ("Mother_Guardian_Date_Birth_Unknown".equalsIgnoreCase(key)) {
-
-                                view.setVisibility(View.GONE);
-
-                            } else if (Constants.PREFERRED_LANGUAGE.equalsIgnoreCase(key)) {
-
-                                spinner = ((MaterialSpinner) ((ViewGroup) (view)).getChildAt(0));
-
-                                try {
-                                    JSONArray itemKeys = (JSONArray) spinner.getTag(com.vijay.jsonwizard.R.id.keys);
-
-                                    int selected = 0;
-                                    for (int i = 0; i < itemKeys.length(); i++) {
-
-                                        if (itemKeys.get(i).toString().equalsIgnoreCase(text)) {
-                                            selected = i;
-                                            break;
-                                        }
-                                    }
-
-                                    spinner.setSelection(selected);
-
-                                } catch (JSONException e) {
-
-                                    Timber.e(e, e.getMessage());
-                                }
-
-                                spinner.setEnabled(false);
-
-                            } else if (MotherLookUpUtils.IS_CONSENTED.equalsIgnoreCase(key)) {
-
-                                compatCheckBox = (AppCompatCheckBox) ((ViewGroup) ((LinearLayout) view).getChildAt(1)).getChildAt(0);
-                                compatCheckBox.setChecked(StringUtils.containsIgnoreCase(text, MotherLookUpUtils.IS_CONSENTED));
-                                compatCheckBox.setEnabled(false);
-
-                            }
-                        }
-
-                    }
+                    setFieldValue(client, mlsLookupDateFormatter, lookUpViews);
 
                     updateFormLookupField(client);
 
@@ -502,6 +397,115 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                     }
                 }
             }
+        }
+    }
+
+    private void setFieldValue(CommonPersonObjectClient client, SimpleDateFormat mlsLookupDateFormatter, List<View> lookUpViews) {
+        for (View view : lookUpViews) {
+
+            String key = (String) view.getTag(com.vijay.jsonwizard.R.id.key);
+            String text = "";
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.firstName)) {
+                text = getValue(client.getColumnmaps(), MotherLookUpUtils.firstName, true);
+            }
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
+                text = getValue(client.getColumnmaps(), MotherLookUpUtils.lastName, true);
+            }
+
+            if (StringUtils.endsWithIgnoreCase(key, MotherLookUpUtils.birthDate)) {
+                String dobString = getValue(client.getColumnmaps(), MotherLookUpUtils.dob, false);
+                Date motherDob = Utils.dobStringToDate(dobString);
+                if (motherDob != null) {
+                    try {
+                        text = mlsLookupDateFormatter.format(motherDob);
+                    } catch (Exception e) {
+                        Timber.e(e);
+                    }
+                }
+
+                motherDOBMaterialEditText = (MaterialEditText) view;
+            }
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
+                text = getValue(client.getColumnmaps(), MotherLookUpUtils.NRC_NUMBER, true);
+            }
+
+            if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER)) {
+                text = getValue(client.getColumnmaps(), MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH), true);
+            }
+
+            if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA)) {
+                text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA, true);
+            }
+
+
+            if (key.equalsIgnoreCase(Constants.RESIDENTIAL_AREA_OTHER)) {
+                text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_AREA_OTHER.toLowerCase(Locale.ENGLISH), true);
+            }
+
+            if (key.equalsIgnoreCase(Constants.RESIDENTIAL_ADDRESS)) {
+                text = getValue(client.getColumnmaps(), Constants.RESIDENTIAL_ADDRESS.toLowerCase(Locale.ENGLISH), true);
+            }
+
+
+            if (key.equalsIgnoreCase(Constants.PREFERRED_LANGUAGE)) {
+                text = getValue(client.getColumnmaps(), Constants.PREFERRED_LANGUAGE.toLowerCase(Locale.ENGLISH), true);
+            }
+
+            if (StringUtils.equalsIgnoreCase(key, MotherLookUpUtils.IS_CONSENTED)) {
+                text = getValue(client.getColumnmaps(), MotherLookUpUtils.IS_CONSENTED, false);
+            }
+
+
+            if (view instanceof MaterialEditText) {
+                MaterialEditText materialEditText = (MaterialEditText) view;
+                materialEditText.setEnabled(false);
+                materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
+                materialEditText.setText(text);
+                materialEditText.setInputType(InputType.TYPE_NULL);
+
+            } else {
+
+                if ("Mother_Guardian_Date_Birth_Unknown".equalsIgnoreCase(key)) {
+
+                    view.setVisibility(View.GONE);
+
+                } else if (Constants.PREFERRED_LANGUAGE.equalsIgnoreCase(key)) {
+
+                    spinner = ((MaterialSpinner) ((ViewGroup) (view)).getChildAt(0));
+
+                    try {
+                        JSONArray itemKeys = (JSONArray) spinner.getTag(com.vijay.jsonwizard.R.id.keys);
+
+                        int selected = 0;
+                        for (int i = 0; i < itemKeys.length(); i++) {
+
+                            if (itemKeys.get(i).toString().equalsIgnoreCase(text)) {
+                                selected = i;
+                                break;
+                            }
+                        }
+
+                        spinner.setSelection(selected);
+
+                    } catch (JSONException e) {
+
+                        Timber.e(e, e.getMessage());
+                    }
+
+                    spinner.setEnabled(false);
+
+                } else if (MotherLookUpUtils.IS_CONSENTED.equalsIgnoreCase(key)) {
+
+                    compatCheckBox = (AppCompatCheckBox) ((ViewGroup) ((LinearLayout) view).getChildAt(1)).getChildAt(0);
+                    compatCheckBox.setChecked(StringUtils.containsIgnoreCase(text, MotherLookUpUtils.IS_CONSENTED));
+                    compatCheckBox.setEnabled(false);
+
+                }
+            }
+
         }
     }
 

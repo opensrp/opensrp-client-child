@@ -2213,10 +2213,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         @Override
         protected void onPostExecute(ArrayList<String> baseEntityIds) {
             super.onPostExecute(baseEntityIds);
-            baseEntityIds = this.allSiblingChildrenBaseEntityIds;
             ArrayList<String> ids = new ArrayList<>();
-            if (baseEntityIds != null) {
-                ids = baseEntityIds;
+            if (this.allSiblingChildrenBaseEntityIds != null) {
+                ids = this.allSiblingChildrenBaseEntityIds;
             }
 
             Collections.reverse(ids);

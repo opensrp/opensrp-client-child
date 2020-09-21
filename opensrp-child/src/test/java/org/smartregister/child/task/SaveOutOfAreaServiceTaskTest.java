@@ -107,7 +107,7 @@ public class SaveOutOfAreaServiceTaskTest {
         Date date = new GregorianCalendar(2020, Calendar.JULY, 28).getTime();
 
         Assert.assertEquals(4.0, weight.getKg(), 0.0);
-        Assert.assertEquals("835-2", weight.getProgramClientId());
+        Assert.assertEquals("8352", weight.getProgramClientId());
         Assert.assertEquals(date, weight.getDate());
     }
 

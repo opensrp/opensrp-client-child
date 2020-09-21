@@ -1070,24 +1070,32 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         } else if (jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY).equalsIgnoreCase(ChildJsonFormUtils.CONCEPT)) {
             jsonObject.put(ChildJsonFormUtils.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.KEY), childDetails));
         } else if (jsonObject.has(Constants.JSON_FORM_KEY.SUB_TYPE) && jsonObject.getString(Constants.JSON_FORM_KEY.SUB_TYPE).equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
-            if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
-                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
-            } else {
-                jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD), childDetails));
-            }
+            setSubTypeFieldValue(childDetails, jsonObject);
         } else if (jsonObject.has(JsonFormConstants.OPTIONS_FIELD_NAME)) {
-            String val = getMappedValue(prefix + jsonObject.getString(ChildJsonFormUtils.KEY), childDetails);
-            String key = prefix + jsonObject.getString(ChildJsonFormUtils.KEY);
-
-            if (!TextUtils.isEmpty(val)) {
-                JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
-                jsonObject.put(JsonFormConstants.VALUE, array);
-            }
+            setOptionFieldValue(childDetails, jsonObject, prefix);
         } else {
             jsonObject.put(ChildJsonFormUtils.VALUE, getMappedValue(prefix + jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
         }
 
         jsonObject.put(ChildJsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(ChildJsonFormUtils.KEY)));
+    }
+
+    private static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
+        if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
+            jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
+        } else {
+            jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD), childDetails));
+        }
+    }
+
+    private static void setOptionFieldValue(Map<String, String> childDetails, JSONObject jsonObject, String prefix) throws JSONException {
+        String val = getMappedValue(prefix + jsonObject.getString(ChildJsonFormUtils.KEY), childDetails);
+        String key = prefix + jsonObject.getString(ChildJsonFormUtils.KEY);
+
+        if (!TextUtils.isEmpty(val)) {
+            JSONArray array = new JSONArray(val.charAt(0) == '[' ? val : "[" + key + "]");
+            jsonObject.put(JsonFormConstants.VALUE, array);
+        }
     }
 
     private static void setFormFieldInitDataCleanUp(Map<String, String> childDetails, String
@@ -1507,9 +1515,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent,
                                             String entityId, String encounterType, String bindType) {
 
-
         List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Arrays.asList(entityId));
-
 
         Set<String> eligibleBindTypeEvents = eventTypeMap.get(bindType);
         EventClient existingEventClient = null;
@@ -1519,9 +1525,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 break;
             }
         }
-        boolean alreadyExists = eventClients.size() > 0;
-        org.smartregister.domain.Event domainEvent = alreadyExists ? eventClients.get(0).getEvent() : null;
 
+        boolean alreadyExists = eventClients.size() > 0;
 
         org.smartregister.domain.Event existingEvent = existingEventClient != null ? existingEventClient.getEvent() : null;
 

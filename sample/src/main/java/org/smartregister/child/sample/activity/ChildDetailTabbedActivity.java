@@ -82,15 +82,6 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 Utils.startAsyncTask(
                         new LoadAsyncTask(org.smartregister.child.enums.Status.EDIT_GROWTH, detailsMap, getChildDetails(), this, getChildDataFragment(), getChildUnderFiveFragment(), getOverflow()),
                         null);
-
-
-               /*  Disable hide menu items feature for Weight
-
-                saveButton.setVisibility(View.VISIBLE);
-                for (int i = 0; i < overflow.size(); i++) {
-                    overflow.getItem(i).setVisible(false);
-                }*/
-
                 return true;
 
             case R.id.report_deceased:
@@ -107,6 +98,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
+            case R.id.record_dynamic_vaccines:
+                launchDynamicVaccinesForm("dynamic_vaccines", "private_sector_vaccines");
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

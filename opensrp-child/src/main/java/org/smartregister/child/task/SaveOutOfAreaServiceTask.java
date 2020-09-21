@@ -8,6 +8,7 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -139,20 +140,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             if (curField.has(Constants.IS_VACCINE_GROUP) && curField.getBoolean(Constants.IS_VACCINE_GROUP) &&
                     curField.getString(JsonFormConstants.TYPE).equals(JsonFormConstants.CHECK_BOX)) {
                 JSONArray options = curField.getJSONArray(JsonFormConstants.OPTIONS_FIELD_NAME);
-                for (int j = 0; j < options.length(); j++) {
-                    JSONObject curOption = options.getJSONObject(j);
-                    if (curOption.getString(JsonFormConstants.VALUE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        Vaccine curVaccine = new Vaccine();
-                        curVaccine.setBaseEntityId("");
-                        curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
-                        curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                        curVaccine.setLocationId(LocationHelper.getInstance()
-                                .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
-                        curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
-                        curVaccine.setUpdatedAt(null);
-                        vaccines.add(curVaccine);
-                    }
-                }
+                addSingleVaccine(context, openSrpContext, vaccines, options);
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.OA_SERVICE_DATE)) {
                 serviceDate = curField.getString(JsonFormConstants.VALUE);
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
@@ -177,6 +165,23 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
         }
 
         return vaccines;
+    }
+
+    private static void addSingleVaccine(Context context, org.smartregister.Context openSrpContext, ArrayList<Vaccine> vaccines, JSONArray options) throws JSONException {
+        for (int j = 0; j < options.length(); j++) {
+            JSONObject curOption = options.getJSONObject(j);
+            if (curOption.getString(JsonFormConstants.VALUE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                Vaccine curVaccine = new Vaccine();
+                curVaccine.setBaseEntityId("");
+                curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
+                curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
+                curVaccine.setLocationId(LocationHelper.getInstance()
+                        .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
+                curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
+                curVaccine.setUpdatedAt(null);
+                vaccines.add(curVaccine);
+            }
+        }
     }
 
     public static void addVaccine(VaccineRepository vaccineRepository, Vaccine vaccine) {

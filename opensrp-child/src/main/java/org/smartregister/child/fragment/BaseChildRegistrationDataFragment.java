@@ -15,7 +15,6 @@ import com.vijay.jsonwizard.utils.NativeFormLangUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
@@ -227,20 +226,6 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     }
 
     public String getPrefix(String entityId) {
-        if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
-            return "mother_";
-        else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
-            return "father_";
-        else return "";
-    }
-
-    @NotNull
-    private String getKey(Field field, String key) {
-        String prefix = getPrefixByEntityId(field.getEntityId());
-        return !key.startsWith(prefix) ? prefix + key : key;
-    }
-
-    private String getPrefixByEntityId(String entityId) {
         if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
             return "mother_";
         else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))

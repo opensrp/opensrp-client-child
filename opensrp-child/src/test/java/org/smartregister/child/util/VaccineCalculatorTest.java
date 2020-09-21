@@ -52,7 +52,6 @@ public class VaccineCalculatorTest extends BaseUnitTest {
 
     @Before
     public void setUp() {
-
         MockitoAnnotations.initMocks(this);
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
         Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();

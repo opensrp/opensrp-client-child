@@ -545,6 +545,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This method launches dynamic vaccines form. The form has a list of vaccines selected from the multiselect
+     * widget plus the date the vaccine(s) were administered.
+     *
+     * @param dynamicVaccinesForm  name of the form
+     * @param multiSelectFieldName field containing list of extra vaccines
+     */
     protected void launchDynamicVaccinesForm(String dynamicVaccinesForm, String multiSelectFieldName) {
 
         try {
@@ -579,8 +586,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 Timber.d(jsonString);
 
                 JSONObject form = new JSONObject(jsonString);
-                String string = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
-                switch (string) {
+                String encounterType = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
+                switch (encounterType) {
                     case Constants.EventType.DEATH:
                         confirmReportDeceased(jsonString);
                         break;
@@ -593,6 +600,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         break;
                     case Constants.EventType.DYNAMIC_VACCINES:
                         Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId()), null);
+                        break;
+                    default:
                         break;
                 }
             } catch (Exception e) {
@@ -1184,15 +1193,14 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public void startFormActivity(String formData, Form formParam) {
-
         Intent intent = new Intent(getApplicationContext(), Utils.metadata().childFormActivity);
-
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.FORM, formParam);
         intent.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, formData);
-
+        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"))) {
+            intent.putExtra(JsonFormConstants.PERFORM_FORM_TRANSLATION, true);
+        }
         startActivityForResult(intent, REQUEST_CODE_GET_JSON);
-
-
     }
 
     public List<Map.Entry<String, String>> getExtraChildVaccines() {
