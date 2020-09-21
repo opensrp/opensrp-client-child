@@ -230,6 +230,7 @@ public final class Constants extends AllConstants {
 
     public static class VACCINE {
         public static final String BCG2 = "bcg2";
+        public static final String BCG = "bcg";
     }
 
     public static final class LOCAL_DATE_TIME {
