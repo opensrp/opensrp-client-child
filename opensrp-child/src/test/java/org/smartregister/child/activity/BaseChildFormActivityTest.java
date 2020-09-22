@@ -90,8 +90,4 @@ public class BaseChildFormActivityTest {
                 "on ec_child_details.relational_id=ec_mother_details.base_entity_id join ec_mother_details " +
                 "on ec_mother_details.base_entity_id = ec_client.base_entity_id WHERE  first_name Like '%sonia%' ;", lookUpQuery);
     }
-
-    @Test
-    public void testMainConditionString(){
-    }
 }
