@@ -5,12 +5,14 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
@@ -37,6 +39,9 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
 
     @Mock
     protected ChildRegisterContract.Model model;
+
+    @Mock
+    private ChildRegisterContract.View view;
 
     private BaseChildRegisterPresenter baseChildRegisterPresenter;
 
@@ -209,5 +214,50 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
         baseChildRegisterPresenter.onRegistrationSaved(true);
         Mockito.verify(view, Mockito.times(1)).refreshList(Mockito.eq(FetchStatus.fetched));
         Mockito.verify(view, Mockito.times(1)).hideProgressDialog();
+    }
+
+    @Test
+    public void testSaveLanguage() {
+
+        BaseChildRegisterPresenter baseChildRegisterPresenter = Mockito.spy(new BaseChildRegisterPresenter(view, null));
+        baseChildRegisterPresenter.setModel(model);
+        Assert.assertNotNull(baseChildRegisterPresenter);
+
+        String swahiliLang = "swa";
+        baseChildRegisterPresenter.saveLanguage(swahiliLang);
+
+        ArgumentCaptor<String> selectLanguageCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(model).saveLanguage(selectLanguageCaptor.capture());
+
+        String capturedLang = selectLanguageCaptor.getValue();
+
+        Assert.assertNotNull(capturedLang);
+        Assert.assertEquals(swahiliLang, capturedLang);
+
+        ArgumentCaptor<String> displayToastCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).displayToast(displayToastCaptor.capture());
+
+        String capturedToastMessage = displayToastCaptor.getValue();
+
+        Assert.assertNotNull(capturedToastMessage);
+        Assert.assertEquals("swa selected", capturedToastMessage);
+    }
+
+    @Test
+    public void testOnNoUniqueIdReturnsCorrectMessage() {
+
+        BaseChildRegisterPresenter baseChildRegisterPresenter = Mockito.spy(new BaseChildRegisterPresenter(view, null));
+        baseChildRegisterPresenter.setModel(model);
+        Assert.assertNotNull(baseChildRegisterPresenter);
+
+        baseChildRegisterPresenter.onNoUniqueId();
+
+        ArgumentCaptor<Integer> stringMessageResourceIdCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(view).displayShortToast(stringMessageResourceIdCaptor.capture());
+
+        Integer capturedResourceId = stringMessageResourceIdCaptor.getValue();
+
+        Assert.assertNotNull(capturedResourceId);
+        Assert.assertEquals(R.string.no_unique_id, capturedResourceId.intValue());
     }
 }
