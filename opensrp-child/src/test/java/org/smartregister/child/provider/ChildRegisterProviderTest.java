@@ -24,6 +24,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
@@ -124,6 +125,12 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Mockito.doReturn(RuntimeEnvironment.application).when(opensrpContext).applicationContext();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        Mockito.doReturn(true).when(appProperties).hasProperty(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
 
         ChildRegisterProvider.RegisterViewHolder registerViewHolder = new ChildRegisterProvider.RegisterViewHolder(linearLayout);
         Map<String, String> details = new HashMap<>();

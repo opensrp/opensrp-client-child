@@ -174,7 +174,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
 
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)) {
-            org.smartregister.child.util.Utils.htmlEnhancedText(viewHolder.patientName, MessageFormat.format("{0} {1}", StringUtils.capitalize(childName), " <font color='#eeaa5f'>ooC</font>"));
+            org.smartregister.child.util.Utils.htmlEnhancedText(viewHolder.patientName, MessageFormat.format("{0} {1}", StringUtils.capitalize(childName), " <font color='#eeaa5f'>"+context.getString(R.string.ooc)+"</font>"));
         } else {
             fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
         }
