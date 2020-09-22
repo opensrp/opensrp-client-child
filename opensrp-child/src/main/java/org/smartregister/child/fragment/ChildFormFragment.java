@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
