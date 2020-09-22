@@ -226,7 +226,7 @@ public class Utils extends org.smartregister.util.Utils {
      */
     public static void updateFTSForCombinedVaccineAlternatives(VaccineRepository vaccineRepository, Vaccine vaccine) {
 
-        List<String> ftsVaccineNames = getAlternativeCombinedVaccines(VaccineRepository.removeHyphen(vaccine.getName()), ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
+        List<String> ftsVaccineNames = getAlternativeCombinedVaccines(VaccineRepository.removeHyphen(vaccine.getName()), ImmunizationLibrary.COMBINED_VACCINES_MAP);
 
         if (ftsVaccineNames != null) {
 

@@ -26,6 +26,7 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.customviews.MaterialSpinner;
 import com.vijay.jsonwizard.domain.Form;
 import com.vijay.jsonwizard.fragments.JsonWizardFormFragment;
+import com.vijay.jsonwizard.presenters.JsonFormFragmentPresenter;
 import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
@@ -176,7 +177,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     @VisibleForTesting
     protected ValidationStatus validateView(View dataView){
-        return getPresenter().validate(this, dataView, false);
+        return JsonFormFragmentPresenter.validate(this, dataView, false);
     }
 
     //Mother Lookup

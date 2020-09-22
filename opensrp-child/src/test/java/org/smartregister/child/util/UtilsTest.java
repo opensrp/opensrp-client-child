@@ -328,7 +328,7 @@ public class UtilsTest {
     public void testUpdateFTSForCombinedVaccineAlternativesShouldPassCorrectValues() {
         ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-        immunizationLibrary.COMBINED_VACCINES_MAP.put("opv", "opv1/pcv1");
+        ImmunizationLibrary.COMBINED_VACCINES_MAP.put("opv", "opv1/pcv1");
         VaccineRepository vaccineRepository = Mockito.mock(VaccineRepository.class);
         Vaccine vaccine = new Vaccine();
         vaccine.setName("opv");

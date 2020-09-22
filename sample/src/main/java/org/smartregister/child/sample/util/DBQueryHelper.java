@@ -16,8 +16,7 @@ import java.util.List;
 
 public class DBQueryHelper {
 
-    public static final String getHomeRegisterCondition() {
-        //return String.format(" %s is null ", Constants.KEY.DATE_REMOVED)
+    public static String getHomeRegisterCondition() {
         return Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL AND " +
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DOD + " IS NULL";
     }
@@ -33,7 +32,8 @@ public class DBQueryHelper {
                 AND + " (" + Constants.CHILD_STATUS.INACTIVE + IS_NULL_OR + Constants.CHILD_STATUS.INACTIVE + " != " + TRUE + " ) " +
                 AND + " (" + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + IS_NULL_OR + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != " + TRUE + " ) " +
                 AND + " ( ";
-        List<VaccineRepo.Vaccine> vaccines = ImmunizationLibrary.getInstance().getVaccineCacheMap().get(Constants.CHILD_TYPE).vaccineRepo;
+
+        List<VaccineRepo.Vaccine> vaccines = ImmunizationLibrary.getVaccineCacheMap().get(Constants.CHILD_TYPE).vaccineRepo;
 
         vaccines.remove(VaccineRepo.Vaccine.opv0);
         vaccines.remove(VaccineRepo.Vaccine.opv4);
