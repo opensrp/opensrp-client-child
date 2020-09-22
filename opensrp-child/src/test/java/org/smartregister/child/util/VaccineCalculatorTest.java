@@ -21,6 +21,7 @@ import org.smartregister.immunization.domain.jsonmapping.Due;
 import org.smartregister.immunization.domain.jsonmapping.Expiry;
 import org.smartregister.immunization.domain.jsonmapping.Schedule;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
@@ -54,7 +55,8 @@ public class VaccineCalculatorTest extends BaseUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
-        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD)
+        ;
     }
 
     @Test
@@ -197,6 +199,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
         ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
 
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD)
+        ;
     }
 }
