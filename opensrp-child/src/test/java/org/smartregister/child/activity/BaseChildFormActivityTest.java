@@ -37,15 +37,14 @@ public class BaseChildFormActivityTest {
     @Spy
     private AppProperties appProperties;
 
-    ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null,
-            null, true);
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         appProperties.setProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, String.valueOf(3000));
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
         childFormActivity = Robolectric.buildActivity(ChildFormActivityShadow.class).get();
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null,
+                null, true);
         metadata.updateChildRegister("test", "test",
                 "test", "ChildRegister",
                 "test", "test",
