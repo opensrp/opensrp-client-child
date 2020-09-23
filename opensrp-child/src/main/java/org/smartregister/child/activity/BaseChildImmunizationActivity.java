@@ -276,6 +276,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
+    public LinearLayout getServiceGroupCanvasLL() {
+        return serviceGroupCanvasLL;
+    }
+
+
     protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
