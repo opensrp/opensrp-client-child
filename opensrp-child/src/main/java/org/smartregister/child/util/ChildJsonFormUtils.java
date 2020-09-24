@@ -136,31 +136,31 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             return null;
         }
 
-        String entityId = id;
+        String zeirId = id;
         form.getJSONObject(METADATA).put(ENCOUNTER_LOCATION, currentLocationId);
 
         if (Utils.metadata().childRegister.formName.equals(formName)) {
-            if (StringUtils.isBlank(entityId)) {
-                entityId = Utils.getNextOpenMrsId();
-                if (StringUtils.isBlank(entityId) || (ChildLibrary.getInstance().getUniqueIdRepository().countUnUsedIds() < 1L)) {
+            if (StringUtils.isBlank(zeirId)) {
+                zeirId = Utils.getNextOpenMrsId();
+                if (StringUtils.isBlank(zeirId) || (ChildLibrary.getInstance().getUniqueIdRepository().countUnUsedIds() < 1L)) {
                     Timber.e("JsonFormUtils --> UniqueIds are empty or only one unused found");
                     return null;
                 }
             }
 
-            if (StringUtils.isNotBlank(entityId)) {
-                entityId = entityId.replace("-", "");
+            if (StringUtils.isNotBlank(zeirId)) {
+                zeirId = zeirId.replace("-", "");
             }
 
             Map<String, String> locationMetadata = ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
             metadata.putAll(locationMetadata);
 
-            metadata.put(ChildJsonFormUtils.ZEIR_ID, entityId); //inject zeir id into the form
+            metadata.put(ChildJsonFormUtils.ZEIR_ID, zeirId); //inject zeir id into the form
 
             prePopulateJsonFormFields(form, metadata, new ArrayList<String>());
         } else if (formName.equals(Utils.metadata().childRegister.outOfCatchmentFormName)) {
-            if (StringUtils.isNotBlank(entityId)) {
-                entityId = entityId.replace("-", "");
+            if (StringUtils.isNotBlank(zeirId)) {
+                zeirId = zeirId.replace("-", "");
             } else {
                 JSONArray fields = form.getJSONObject(ChildJsonFormUtils.STEP1).getJSONArray(ChildJsonFormUtils.FIELDS);
                 for (int i = 0; i < fields.length(); i++) {
@@ -177,7 +177,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 if (jsonObject.getString(ChildJsonFormUtils.KEY).equalsIgnoreCase(ChildJsonFormUtils.ZEIR_ID)) {
                     jsonObject.remove(ChildJsonFormUtils.VALUE);
-                    jsonObject.put(ChildJsonFormUtils.VALUE, entityId);
+                    jsonObject.put(ChildJsonFormUtils.VALUE, zeirId);
                 }
             }
 
@@ -1147,11 +1147,11 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     protected static void processPhoto(String baseEntityId, JSONObject jsonObject) throws JSONException {
-        Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
-
-        if (StringUtils.isNotBlank(photo.getFilePath())) {
-            jsonObject.put(ChildJsonFormUtils.VALUE, photo.getFilePath());
-
+        if (StringUtils.isNotBlank(baseEntityId)) {
+            Photo photo = ImageUtils.profilePhotoByClientID(baseEntityId, Utils.getProfileImageResourceIDentifier());
+            if (StringUtils.isNotBlank(photo.getFilePath())) {
+                jsonObject.put(ChildJsonFormUtils.VALUE, photo.getFilePath());
+            }
         }
     }
 

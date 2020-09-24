@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,6 +50,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -94,6 +96,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             }
         }
     };
+
     private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener =
             new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
                 @Override
@@ -384,7 +387,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         String fieldName = keyAliasMap.get(key) != null ? keyAliasMap.get(key) : key;
                         String value = getCurrentFieldValue(client.getColumnmaps(), fieldName);
                         if (StringUtils.isNotBlank(value))
-                            setValueOnView(value, view);
+                            setValueOnView(fieldName, value, view);
                     }
                     updateFormLookupField(client);
                 }
@@ -393,16 +396,28 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     /**
-     * Sometimes the names used for keys are different
-     * @return a map of key against their names
+     * Map the name of field as in form json to the column name of the client object returned after mother lookup
+     * For instance you may name your field as Mother_Guardian_First_Name whereas the client object returned
+     * uses first_name. So this map will map the field key to the column name. E.g. Mother_Guardian_First_Name -> first_name
+     *
+     * @return a map of key against their column names.
      */
     @NotNull
     protected HashMap<String, String> getKeyAliasMap() {
         return new HashMap<>();
     }
 
+    /**
+     * Return a list of fields you do not want to format their field values
+     * @return non humanized (formatted) field values
+     */
+    @NotNull
+    protected HashSet<String> getNonHumanizedFields() {
+        return new HashSet<>();
+    }
+
     private String getCurrentFieldValue(Map<String, String> columnMaps, String fieldName) {
-        String value = getValue(columnMaps, fieldName, true);
+        String value = getValue(columnMaps, fieldName, !getNonHumanizedFields().contains(fieldName));
         if (getActivity() != null) {
             Locale locale = getActivity().getResources().getConfiguration().locale;
             SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
@@ -422,26 +437,44 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         return value;
     }
 
-    private void setValueOnView(String value, View view) {
+    protected void setValueOnView(String fieldName, String value, View view) {
         if (view instanceof MaterialEditText) {
             MaterialEditText materialEditText = (MaterialEditText) view;
             materialEditText.setEnabled(false);
             materialEditText.setTag(R.id.after_look_up, true);
             materialEditText.setText(value);
             materialEditText.setInputType(InputType.TYPE_NULL);
-
         } else if (view instanceof RelativeLayout) {
-            ViewGroup spinnerViewGroup = (ViewGroup) view;
-            if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
-                MaterialSpinner spinner = (MaterialSpinner) spinnerViewGroup.getChildAt(0);
-                for (int index = 0; index < spinner.getAdapter().getCount(); index++) {
-                    if (String.valueOf(spinner.getAdapter().getItem(index)).equalsIgnoreCase(value)) {
-                        spinner.setSelection(index + 1);
-                        break;
-                    }
+            setSpinnerValue(value, (ViewGroup) view);
+        } else if (view instanceof LinearLayout) {
+            setCheckboxValue(fieldName, value, (ViewGroup) view);
+        }
+    }
+
+    private void setCheckboxValue(String fieldName, String value, ViewGroup viewGroup) {
+        if (viewGroup.getChildCount() == 2 && viewGroup.getChildAt(1) instanceof LinearLayout) {
+            LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
+            if (innerLayout.getChildAt(0) instanceof AppCompatCheckBox) {
+                AppCompatCheckBox checkBox = (AppCompatCheckBox) innerLayout.getChildAt(0);
+                if (value.contains(fieldName)) {
+                    checkBox.setChecked(true);
+                } else {
+                    checkBox.setChecked(false);
                 }
-                spinner.setEnabled(false);
             }
+        }
+    }
+
+    private void setSpinnerValue(String value, ViewGroup spinnerViewGroup) {
+        if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
+            MaterialSpinner spinner = (MaterialSpinner) spinnerViewGroup.getChildAt(0);
+            for (int index = 0; index < spinner.getAdapter().getCount(); index++) {
+                if (String.valueOf(spinner.getAdapter().getItem(index)).equalsIgnoreCase(value)) {
+                    spinner.setSelection(index + 1);
+                    break;
+                }
+            }
+            spinner.setEnabled(false);
         }
     }
 
@@ -522,7 +555,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     public String getRelevantTextViewString(String currentKey) {
-        String toreturn = "";
+        String relevantText = "";
         if (getMainView() != null) {
             int childCount = getMainView().getChildCount();
             for (int i = 0; i < childCount; i++) {
@@ -531,11 +564,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                     TextView textView = (TextView) view;
                     String key = (String) textView.getTag(com.vijay.jsonwizard.R.id.key);
                     if (key.equals(currentKey)) {
-                        toreturn = textView.getText().toString();
+                        relevantText = textView.getText().toString();
                     }
                 }
             }
         }
-        return toreturn;
+        return relevantText;
     }
 }
