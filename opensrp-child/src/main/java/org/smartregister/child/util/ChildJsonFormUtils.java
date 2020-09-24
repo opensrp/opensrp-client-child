@@ -109,6 +109,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
     public static final String GENDER = "gender";
     public static final String M_ZEIR_ID = "M_ZEIR_ID";
+    public static final String F_ZEIR_ID = "F_ZEIR_ID";
     private static final String ENCOUNTER = "encounter";
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
@@ -1427,7 +1428,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getSubFormIdentifierMap();
+        Map<String, String> identifierMap = getSubFormIdentifierMap(bindType);
         Date birthDate = formatDate(stringBirthDate, true);
         birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
@@ -1470,14 +1471,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static Client getClient(Map<String, String> clientMap, Date birthDate, Date
             deathDate, boolean birthDateApprox, boolean deathDateApprox) {
 
-        Client client = (Client) new Client(clientMap.get(Constants.ENTITY_ID))
+        return (Client) new Client(clientMap.get(Constants.ENTITY_ID))
                 .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
                 .withBirthdate(birthDate, birthDateApprox)
                 .withDeathdate(deathDate, deathDateApprox)
                 .withGender(clientMap.get(GENDER))
                 .withDateCreated(new Date());
-
-        return client;
     }
 
     private static Map<String, String> getClientAttributes(JSONArray fields, String bindType, String relationalId) {
@@ -1499,13 +1498,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static Map<String, String> getSubFormIdentifierMap() {
+    private static Map<String, String> getSubFormIdentifierMap(String bindType) {
         Map<String, String> identifiers = new HashMap<>();
-        String motherZeirId = Utils.getNextOpenMrsId();
-        if (StringUtils.isBlank(motherZeirId)) {
+        String parentZEIRId = Utils.getNextOpenMrsId();
+        if (StringUtils.isBlank(parentZEIRId)) {
             return identifiers;
         }
-        identifiers.put(M_ZEIR_ID, motherZeirId);
+        if (bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+            identifiers.put(M_ZEIR_ID, parentZEIRId);
+        } else if (bindType.equalsIgnoreCase(Constants.KEY.FATHER)) {
+            identifiers.put(F_ZEIR_ID, parentZEIRId);
+        }
         return identifiers;
     }
 
@@ -1532,13 +1535,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Set<String> eligibleBindTypeEvents = eventTypeMap.get(bindType);
         EventClient existingEventClient = null;
-        for (EventClient eventClient : eventClients) {
-            if (eligibleBindTypeEvents.contains(eventClient.getEvent().getEventType())) {
-                existingEventClient = eventClient;
-                break;
+        if(eligibleBindTypeEvents != null) {
+            for (EventClient eventClient : eventClients) {
+                if (eligibleBindTypeEvents.contains(eventClient.getEvent().getEventType())) {
+                    existingEventClient = eventClient;
+                    break;
+                }
             }
         }
-
         boolean alreadyExists = eventClients.size() > 0;
 
         org.smartregister.domain.Event existingEvent = existingEventClient != null ? existingEventClient.getEvent() : null;
@@ -1599,7 +1603,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
             processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
-            getClientIdsFromClientsJsonArray(clients);
+            List<String> clientIds = getClientIdsFromClientsJsonArray(clients);
+            Timber.i("Moved %s  client(s) to new catchment area.", clientIds.size());
 
             return true;
         } catch (Exception e) {

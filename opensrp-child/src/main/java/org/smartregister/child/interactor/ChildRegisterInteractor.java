@@ -222,16 +222,16 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         } else {
             if (baseClient != null) {
                 //mark OPENSRP ID as used
-                String openSrpId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID);
-                getUniqueIdRepository().close(openSrpId);
-
-                String motherOpenSrpId = baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID);
-
-                if (motherOpenSrpId != null) {
-                    getUniqueIdRepository().close(motherOpenSrpId);
-                }
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID));
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID));
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.F_ZEIR_ID));
             }
         }
+    }
+
+    private void markUniqueIdAsUsed(String openSrpId) {
+        if (StringUtils.isNotBlank(openSrpId))
+            getUniqueIdRepository().close(openSrpId);
     }
 
     private void addEvent(UpdateRegisterParams params, List<String> currentFormSubmissionIds, Event baseEvent) throws JSONException {
@@ -252,7 +252,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
-        if (!TextUtils.isEmpty(weight) && !isClientMother(identifiers)) {
+        if (StringUtils.isNotBlank(weight) && !isClientMother(identifiers)) {
             WeightWrapper weightWrapper = new WeightWrapper();
             weightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
             weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
@@ -271,10 +271,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
-        if (!TextUtils.isEmpty(height) && !isClientMother(identifiers)) {
+        if (StringUtils.isNotBlank(height) && !isClientMother(identifiers)) {
             HeightWrapper heightWrapper = new HeightWrapper();
             heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : 0);
+            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.parseFloat(height) : 0);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             heightWrapper.setUpdatedHeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));
             heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));

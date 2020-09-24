@@ -386,8 +386,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         String key = (String) view.getTag(com.vijay.jsonwizard.R.id.key);
                         String fieldName = keyAliasMap.get(key) != null ? keyAliasMap.get(key) : key;
                         String value = getCurrentFieldValue(client.getColumnmaps(), fieldName);
-                        if (StringUtils.isNotBlank(value))
-                            setValueOnView(fieldName, value, view);
+                        setValueOnView(fieldName, value, view);
                     }
                     updateFormLookupField(client);
                 }
@@ -409,6 +408,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     /**
      * Return a list of fields you do not want to format their field values
+     *
      * @return non humanized (formatted) field values
      */
     @NotNull
@@ -438,16 +438,18 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     protected void setValueOnView(String fieldName, String value, View view) {
-        if (view instanceof MaterialEditText) {
-            MaterialEditText materialEditText = (MaterialEditText) view;
-            materialEditText.setEnabled(false);
-            materialEditText.setTag(R.id.after_look_up, true);
-            materialEditText.setText(value);
-            materialEditText.setInputType(InputType.TYPE_NULL);
-        } else if (view instanceof RelativeLayout) {
-            setSpinnerValue(value, (ViewGroup) view);
-        } else if (view instanceof LinearLayout) {
-            setCheckboxValue(fieldName, value, (ViewGroup) view);
+        if (StringUtils.isNotBlank(value)) {
+            if (view instanceof MaterialEditText) {
+                MaterialEditText materialEditText = (MaterialEditText) view;
+                materialEditText.setEnabled(false);
+                materialEditText.setTag(R.id.after_look_up, true);
+                materialEditText.setText(value);
+                materialEditText.setInputType(InputType.TYPE_NULL);
+            } else if (view instanceof RelativeLayout) {
+                setSpinnerValue(value, (ViewGroup) view);
+            } else if (view instanceof LinearLayout) {
+                setCheckboxValue(fieldName, value, (ViewGroup) view);
+            }
         }
     }
 
