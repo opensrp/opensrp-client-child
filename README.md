@@ -163,11 +163,13 @@ More on Native form library widgets can be found [here](https://github.com/OpenS
 ### Supporting Mother Lookup
 
 Mother lookup functionality is a feature that allows you to search for a list of available mothers when doing child registration. This comes in handy
-when you want to register a sibling to an existing child. This functionality pre-populates the mother form fields in the form, when you select a mother from the search results.
-To include this functionality in your app first denote the lookup fields in the form json with the following attribute.
+when you want to register a sibling to an existing child. This functionality pre-populates the mother form fields, when you select a mother from the search results.
+
+To include this functionality in your app first apply the following attributes to the child enrollment form json.
 
 ```json 
- "look_up": "true"
+ "look_up": "true",
+ "entity_id": "mother"
 ```
 
 > Note: Mother lookup dialog will only  be shown on  fields of type `EditText` since the dialog is only triggered by the `TextWatcher` listener. However other fields that are not of the type

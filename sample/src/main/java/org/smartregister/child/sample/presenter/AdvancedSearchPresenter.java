@@ -8,8 +8,8 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.sample.cursor.CreateRemoteLocalCursor;
 import org.smartregister.child.sample.model.AdvancedSearchModel;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.sample.util.DBQueryHelper;
+import org.smartregister.child.util.DBConstants;
 
 public class AdvancedSearchPresenter extends BaseChildAdvancedSearchPresenter {
     public AdvancedSearchPresenter(ChildAdvancedSearchContract.View view, String viewConfigurationIdentifier) {

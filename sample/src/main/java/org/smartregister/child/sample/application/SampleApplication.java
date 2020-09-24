@@ -8,7 +8,6 @@ import com.evernote.android.job.JobManager;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
-import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.sample.BuildConfig;
 import org.smartregister.child.sample.SampleAppRegisterQueryProvider;

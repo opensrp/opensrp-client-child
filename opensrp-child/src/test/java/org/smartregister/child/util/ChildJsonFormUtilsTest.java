@@ -634,8 +634,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
         Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines",
                 RuntimeEnvironment.application, formObject);
-        JSONObject step1 = formObject.optJSONObject(JsonFormConstants.STEP1);
-        JSONArray fields = step1.optJSONArray(JsonFormConstants.FIELDS);
+        JSONObject step1 = formObject.optJSONObject(STEP1);
+        JSONArray fields = step1.optJSONArray(FIELDS);
         Assert.assertEquals((initialSize + 7), fields.length()); // 6 vaccine groups + a label
         for (int i = 0; i < fields.length(); i++) {
             JSONObject field = fields.optJSONObject(i);
