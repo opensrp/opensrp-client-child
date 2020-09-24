@@ -27,8 +27,14 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results          |
 | `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view          |   
 | `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                            |
+| `use.new.advance.search.approach`     | Boolean | false   | Use new advance search feature that is based on client search endpoint |
+| `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms  |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
+
+>NOTE: If you set the `multi.language.support` app property to true, you are required to use JMAG (Json Multi Language Asset Generator) tool to generate string properties 
+file used for translating the forms. The tool will also add placeholders in places of form strings in the respective form while generating the properties file. Refer to 
+[Native Form Documentation](https://github.com/OpenSRP/opensrp-client-native-form#multi-language-support-mls) for more info.
 
 You can enable multi-language support for Group Names shown on the register for upcoming statuses eg. `Upcoming 10 weeks`. :frowning: This means you need to add multiple string for the same group name [since this](https://github.com/OpenSRP/opensrp-client-immunization#multi-language-support) is also supported.
 
@@ -153,3 +159,22 @@ Example updated config:
 ```
 
 More on Native form library widgets can be found [here](https://github.com/OpenSRP/opensrp-client-native-form)
+
+### Supporting Mother Lookup
+
+Mother lookup functionality is a feature that allows you to search for a list of available mothers when doing child registration. This comes in handy
+when you want to register a sibling to an existing child. This functionality pre-populates the mother form fields, when you select a mother from the search results.
+
+To include this functionality in your app first apply the following attributes to the child enrollment form json.
+
+```json 
+ "look_up": "true",
+ "entity_id": "mother"
+```
+
+> Note: Mother lookup dialog will only  be shown on  fields of type `EditText` since the dialog is only triggered by the `TextWatcher` listener. However other fields that are not of the type
+>`EditText` are also filled with the returned values.
+
+Next override 2 classes `org.smartregister.child.activity.BaseChildFormActivity` and`org.smartregister.child.fragment.ChildFormFragment` class. The subclass of `ChildFormFragment` is used in `BaseChildFormActivity`. Also remember to register the subclass of the `BaseChildFormActivity` to your `AndroidManifest.xml` file.
+ 
+Inside the overridden `ChildFormFragment` class. Override the method `org.smartregister.child.fragment.ChildFormFragment.getKeyAliasMap` and return a map of the **key** field name against the column name of the client object returned by mother lookup. If you do not want a field value to be formatted before being set on the view, add them to the method `org.smartregister.child.sample.fragment.SampleChildFormFragment.getNonHumanizedFields`.

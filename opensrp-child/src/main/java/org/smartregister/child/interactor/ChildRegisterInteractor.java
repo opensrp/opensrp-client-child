@@ -17,9 +17,8 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
-import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
@@ -139,22 +138,18 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     if (baseClient != null) {
                         JSONObject clientJson = new JSONObject(ChildJsonFormUtils.gson.toJson(baseClient));
                         if (params.isEditMode()) {
-                            try {
-                                ChildJsonFormUtils.mergeAndSaveClient(baseClient);
-                            } catch (Exception e) {
-                                Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
+                            //Create new Father registration event in the case where the father details are provided while updating child/mother details.
+                            if (Constants.EventType.FATHER_REGISTRATION.equalsIgnoreCase(baseEvent.getEventType())) {
+                                addClient(jsonString, params, baseClient, clientJson);
+                            } else {
+                                try {
+                                    ChildJsonFormUtils.mergeAndSaveClient(baseClient);
+                                } catch (Exception e) {
+                                    Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
+                                }
                             }
                         } else {
-
-                            getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
-
-                            // This prevents a crash when the birth date of a mother is not available in the clientJson
-                            // We also don't need to process the mother's weight & height
-                            processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
-
-                            if (getAppProperties().getPropertyBoolean(ChildAppProperties.KEY.MONITOR_HEIGHT)) {
-                                processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
-                            }
+                            addClient(jsonString, params, baseClient, clientJson);
                         }
                     }
 
@@ -181,6 +176,15 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         } catch (Exception e) {
             Timber.e(e, "ChildRegisterInteractor --> saveRegistration");
         }
+    }
+
+    private void addClient(String jsonString, UpdateRegisterParams params, Client baseClient, JSONObject clientJson) throws JSONException {
+        getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
+
+        // This prevents a crash when the birthdate of a mother is not available in the clientJson
+        // We also don't need to process the mother's weight & height
+        processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+        processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
     }
 
     private void addImageLocation(String jsonString, int i, Client baseClient, Event baseEvent) {
@@ -218,16 +222,16 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         } else {
             if (baseClient != null) {
                 //mark OPENSRP ID as used
-                String openSrpId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID);
-                getUniqueIdRepository().close(openSrpId);
-
-                String motherOpenSrpId = baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID);
-
-                if (motherOpenSrpId != null) {
-                    getUniqueIdRepository().close(motherOpenSrpId);
-                }
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID));
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID));
+                markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.F_ZEIR_ID));
             }
         }
+    }
+
+    private void markUniqueIdAsUsed(String openSrpId) {
+        if (StringUtils.isNotBlank(openSrpId))
+            getUniqueIdRepository().close(openSrpId);
     }
 
     private void addEvent(UpdateRegisterParams params, List<String> currentFormSubmissionIds, Event baseEvent) throws JSONException {
@@ -248,7 +252,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
-        if (!TextUtils.isEmpty(weight) && !isClientMother(identifiers)) {
+        if (StringUtils.isNotBlank(weight) && !isClientMother(identifiers)) {
             WeightWrapper weightWrapper = new WeightWrapper();
             weightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
             weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
@@ -267,10 +271,10 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
         // This prevents a crash when the birthdate of a mother is not available in the clientJson
         // We also don't need to process the mother's weight & height
-        if (!TextUtils.isEmpty(height) && !isClientMother(identifiers)) {
+        if (StringUtils.isNotBlank(height) && !isClientMother(identifiers)) {
             HeightWrapper heightWrapper = new HeightWrapper();
             heightWrapper.setGender(clientJson.getString(FormEntityConstants.Person.gender.name()));
-            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.valueOf(height) : 0);
+            heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.parseFloat(height) : 0);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             heightWrapper.setUpdatedHeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));
             heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));

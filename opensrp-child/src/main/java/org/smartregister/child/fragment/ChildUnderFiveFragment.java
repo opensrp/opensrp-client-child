@@ -9,8 +9,9 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableRow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -48,7 +50,6 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.util.DateUtil;
-import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.util.ArrayList;
@@ -62,6 +63,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
+import static org.smartregister.child.util.Utils.createGroupNameTextView;
+import static org.smartregister.immunization.util.VaccinatorUtils.dpToPx;
+import static org.smartregister.util.Utils.convertDateFormat;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -74,6 +81,10 @@ public class ChildUnderFiveFragment extends Fragment {
     private View heightWidgetLayout;
     private Boolean curVaccineMode;
     private Boolean curServiceMode;
+    private LinearLayout serviceGroupCanvasLL;
+    private LinearLayout extraVaccinesLayout;
+    private boolean showRecurringServices = true;
+    private List<Map.Entry<String, String>> extraVaccines;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -106,13 +117,17 @@ public class ChildUnderFiveFragment extends Fragment {
 
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
+        serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
+        extraVaccinesLayout = fragmentContainer.findViewById(R.id.extra_vaccines);
 
         if (monitorGrowth) {
             heightWidgetLayout = underFiveFragment.findViewById(R.id.height_widget_layout);
             heightWidgetLayout.setVisibility(View.VISIBLE);
         }
 
-        org.smartregister.child.util.Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+
+        updateExtraVaccinesView();
 
         return underFiveFragment;
     }
@@ -122,6 +137,11 @@ public class ChildUnderFiveFragment extends Fragment {
         if (getActivity() instanceof IChildDetails) {
             ((IChildDetails) getActivity()).setChildDetails(this.detailsMap);
         }
+    }
+
+
+    public void showRecurringServices(boolean showRecurringServices) {
+        this.showRecurringServices = showRecurringServices;
     }
 
     public void loadGrowthMonitoringView(List<Weight> weightList, List<Height> heightList, boolean editGrowthMonitoringMode) {
@@ -196,15 +216,15 @@ public class ChildUnderFiveFragment extends Fragment {
                 Date birth = Utils.dobStringToDate(birthDate);
                 if (birth != null) {
                     long timeDiff = Math.abs(weightDate.getTime() - birth.getTime());
-                    Log.v("timeDiff is ", timeDiff + "");
+                    Timber.v("%s", timeDiff);
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff, Locale.ENGLISH);
-                        Log.v("age is ", formattedAge);
+                        Timber.v(formattedAge);
                     }
                 }
             }
 
-            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(org.smartregister.child.util.Utils.formatNumber(String.valueOf(weight.getKg())))));
+            weightMap.put(weight.getId() - 1, Pair.create(formattedAge, Utils.kgStringSuffix(Utils.formatNumber(String.valueOf(weight.getKg())))));
 
             boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
             weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
@@ -235,10 +255,10 @@ public class ChildUnderFiveFragment extends Fragment {
                 Date birth = getBirthDate();
                 if (birth != null) {
                     long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
-                    Log.v("timeDiff is ", timeDiff + "");
+                    Timber.v("%s", timeDiff);
                     if (timeDiff >= 0) {
                         formattedAge = DateUtil.getDuration(timeDiff, Locale.ENGLISH);
-                        Log.v("age is ", formattedAge);
+                        Timber.v(formattedAge);
                     }
                 }
             }
@@ -267,7 +287,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private List<Weight> getWeights(List<Weight> weights) {
         List<Weight> weightList = new ArrayList<>();
         List<Weight> formattedWeights = getChildSpecificWeights(weights);
-        if (formattedWeights != null && !formattedWeights.isEmpty()) {
+        if (!formattedWeights.isEmpty()) {
             if (formattedWeights.size() <= 5) {
                 weightList = formattedWeights;
             } else {
@@ -282,7 +302,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private List<Height> getHeights(List<Height> heights) {
         List<Height> heightList = new ArrayList<>();
         List<Height> formattedHeights = getChildSpecificHeights(heights);
-        if (formattedHeights != null && !formattedHeights.isEmpty()) {
+        if (!formattedHeights.isEmpty()) {
             if (heights.size() <= 5) {
                 heightList = heights;
             } else {
@@ -315,15 +335,6 @@ public class ChildUnderFiveFragment extends Fragment {
         return weightList;
     }
 
-    private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
-        TableRow tableRow = fragmentContainer.findViewById(R.id.tablerowcontainer);
-        TextView label = tableRow.findViewById(R.id.label);
-        TextView value = tableRow.findViewById(R.id.value);
-
-        label.setText(labelString);
-        value.setText(valueString);
-    }
-
     public void updateVaccinationViews(List<Vaccine> vaccines, List<Alert> alertList, boolean editVaccineMode) {
         boolean showVaccine = curVaccineMode == null || !curVaccineMode.equals(editVaccineMode);
         if (fragmentContainer != null && showVaccine) {
@@ -335,17 +346,10 @@ public class ChildUnderFiveFragment extends Fragment {
 
             LinearLayout vaccineGroupCanvasLL = fragmentContainer.findViewById(R.id.immunizations);
             vaccineGroupCanvasLL.removeAllViews();
-
-            CustomFontTextView title = new CustomFontTextView(getActivity());
-            title.setAllCaps(true);
-            title.setTextAppearance(getActivity(), android.R.style.TextAppearance_Medium);
-            title.setTextColor(getResources().getColor(R.color.text_black));
-            title.setText(getString(R.string.immunizations));
-            vaccineGroupCanvasLL.addView(title);
+            vaccineGroupCanvasLL.addView(getSectionTitle(R.color.text_black, R.string.immunizations));
 
             boolean addedBcg2Vaccine = false;
             List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
-            TextView groupNameTextView;
             for (VaccineGroup vaccineGroup : supportedVaccines) {
 
                 if (!addedBcg2Vaccine) {
@@ -358,13 +362,11 @@ public class ChildUnderFiveFragment extends Fragment {
                     @Override
                     public void onUndoClick(ImmunizationRowGroup vaccineGroup, VaccineWrapper vaccine) {
                         addVaccinationDialogFragment(Arrays.asList(vaccine), vaccineGroup);
-
                     }
                 });
 
-                groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), vaccineGroup.name);
+                TextView groupNameTextView = createGroupNameTextView(getActivity(), vaccineGroup.name);
                 vaccineGroupCanvasLL.addView(groupNameTextView);
-
                 vaccineGroupCanvasLL.addView(curGroup);
             }
 
@@ -373,27 +375,29 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
+        if (getActivity() != null) {
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
 
-        Date dob = getBirthDate();
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
+            Date dob = getBirthDate();
+            if (dob == null) {
+                dob = Calendar.getInstance().getTime();
+            }
 
-        List<Vaccine> vaccineList =
-                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
-        if (vaccineList == null) {
-            vaccineList = new ArrayList<>();
-        }
+            List<Vaccine> vaccineList =
+                    ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+            if (vaccineList == null) {
+                vaccineList = new ArrayList<>();
+            }
 
-        VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment
-                .newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
+            VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment
+                    .newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
+            vaccinationDialogFragment.show(ft, DIALOG_TAG);
+        }
     }
 
     private Date getBirthDate() {
@@ -411,16 +415,8 @@ public class ChildUnderFiveFragment extends Fragment {
                 serviceRecords = services;
             }
 
-            LinearLayout serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
             serviceGroupCanvasLL.removeAllViews();
-
-            CustomFontTextView title = new CustomFontTextView(getActivity());
-            title.setAllCaps(true);
-            title.setTextAppearance(getActivity(), android.R.style.TextAppearance_Medium);
-            title.setTextColor(getResources().getColor(R.color.text_black));
-            title.setText(getString(R.string.recurring));
-            serviceGroupCanvasLL.addView(title);
-            TextView groupNameTextView;
+            serviceGroupCanvasLL.addView(getSectionTitle(R.color.black, R.string.recurring));
 
             try {
                 for (String type : serviceTypeMap.keySet()) {
@@ -433,16 +429,49 @@ public class ChildUnderFiveFragment extends Fragment {
                         }
                     });
 
-                    groupNameTextView = org.smartregister.child.util.Utils.createGroupNameTextView(getActivity(), type);
+                    TextView groupNameTextView = createGroupNameTextView(getActivity(), type);
                     serviceGroupCanvasLL.addView(groupNameTextView);
                     serviceGroupCanvasLL.addView(curGroup);
                 }
             } catch (Exception e) {
-                Log.e(getClass().getName(), Log.getStackTraceString(e));
+                Timber.e(Log.getStackTraceString(e));
             }
 
             curServiceMode = editServiceMode;
         }
+    }
+
+    public void updateExtraVaccinesView() {
+        if (!getExtraVaccines().isEmpty() && getActivity() != null) {
+            extraVaccinesLayout.setVisibility(View.VISIBLE);
+            extraVaccinesLayout.removeAllViews();
+            extraVaccinesLayout.addView(getSectionTitle(R.color.black, R.string.extra_vaccines));
+            for (Map.Entry<String, String> vaccine : extraVaccines) {
+                RelativeLayout immunizationRow = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.view_immunization_row_card, null);
+                TextView label = immunizationRow.findViewById(R.id.name_tv);
+                label.setMaxWidth(dpToPx(getActivity(), 240f));
+                label.setText(vaccine.getKey());
+
+                Button statusButton = immunizationRow.findViewById(R.id.status_iv);
+                statusButton.setBackgroundResource(org.smartregister.immunization.R.drawable.vaccine_card_background_green);
+                statusButton.setVisibility(View.VISIBLE);
+
+                TextView dateTextView = immunizationRow.findViewById(R.id.status_text_tv);
+                dateTextView.setText(convertDateFormat(vaccine.getValue(), true));
+
+                extraVaccinesLayout.addView(immunizationRow);
+            }
+
+        }
+    }
+
+    private CustomFontTextView getSectionTitle(int textColorResource, int textResource) {
+        CustomFontTextView title = new CustomFontTextView(getActivity());
+        title.setAllCaps(true);
+        title.setTextAppearance(getActivity(), android.R.style.TextAppearance_Medium);
+        title.setTextColor(getResources().getColor(textColorResource));
+        title.setText(getString(textResource));
+        return title;
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
@@ -505,7 +534,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         HeightWrapper heightWrapper = null;
 
-        if (GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH)) {
+        if (GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH)) {
             heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
         }
 
@@ -543,7 +572,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private Weight getWeight(List<Weight> weights, long weightPosition) {
         Weight displayWeight = new Weight();
         for (Weight weight : weights) {
-            if (weight.getDate().getTime() == weightPosition) {
+            if (Utils.isSameDay(weightPosition, weight.getDate().getTime(), null)) {
                 displayWeight = weight;
             }
         }
@@ -580,7 +609,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private Height getHeight(List<Height> heights, long heightPosition) {
         Height displayHeight = new Height();
         for (Height height : heights) {
-            if (height.getDate().getTime() == heightPosition) {
+            if (Utils.isSameDay(heightPosition, height.getDate().getTime(), null)) {
                 displayHeight = height;
             }
         }
@@ -598,4 +627,22 @@ public class ChildUnderFiveFragment extends Fragment {
         return Utils.getName(firstName, lastName).trim();
     }
 
+    /**
+     * Do not show the recurring services
+     */
+    public void hideOrShowRecurringServices() {
+        if (this.showRecurringServices) {
+            serviceGroupCanvasLL.setVisibility(View.VISIBLE);
+        } else {
+            serviceGroupCanvasLL.setVisibility(View.GONE);
+        }
+    }
+
+    public void setExtraVaccines(List<Map.Entry<String, String>> extraVaccines) {
+        this.extraVaccines = extraVaccines;
+    }
+
+    public List<Map.Entry<String, String>> getExtraVaccines() {
+        return extraVaccines;
+    }
 }

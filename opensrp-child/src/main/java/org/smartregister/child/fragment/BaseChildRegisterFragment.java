@@ -3,13 +3,10 @@ package org.smartregister.child.fragment;
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,8 +55,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener, LocationPickerView.OnLocationChangeListener {
 
     private View filterSection;
-    private int dueOverdueCount = 0;
-    private LocationPickerView clinicSelection;
+    protected LocationPickerView clinicSelection;
     private TextView overdueCountTV;
 
     @Override
@@ -167,7 +163,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
         updateSearchView();
         updateLocationText();
-        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildRegisterActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+        if (getActivity() != null)
+            Utils.refreshDataCaptureStrategyBanner(getActivity(), ((BaseChildRegisterActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
 
     @Override
@@ -196,16 +193,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         super.onSyncComplete(fetchStatus);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-//
-//        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
-//        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-//            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
-//        }
     }
 
     private void setUpQRCodeScanButtonView(View view) {
@@ -292,8 +279,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 overdueCountTV.setClickable(false);
             }
         } else {
-            Log.e(BaseChildRegisterFragment.class.getCanonicalName(),
-                    "Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
+            Timber.e("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
         }
     }
 
@@ -318,8 +304,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         ChildRegisterProvider childRegisterProvider =
                 new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,
                         paginationViewHandler, context().alertService());
-        clientAdapter =
-                new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context()
+                .commonrepository(this.tablename));
         clientAdapter.setCurrentlimit(20);
         clientsView.setAdapter(clientAdapter);
     }
@@ -327,7 +313,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
         clientAdapter.setTotalcount(matrixCursor.getCount());
-        Log.v("total count here", "" + clientAdapter.getTotalcount());
+        Timber.v("Total count here%s", clientAdapter.getTotalcount());
         clientAdapter.setCurrentlimit(20);
         if (clientAdapter.getTotalcount() > 0) {
             clientAdapter.setCurrentlimit(clientAdapter.getTotalcount());
@@ -353,30 +339,25 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                     }
                 };
             } else {
-                return null;
+                return new CursorLoader(getContext());
             }
         } else {
             globalQrSearch = false;
-            switch (id) {
-                case LOADER_ID:
-                    // Returns a new CursorLoader
-                    return new CursorLoader(getActivity()) {
-                        @Override
-                        public Cursor loadInBackground() {
-                            return matrixCursor;
-                        }
-                    };
-                default:
-                    // An invalid id was passed in
-                    return null;
-            }
+            if (id == LOADER_ID) {// Returns a new CursorLoader
+                return new CursorLoader(getActivity()) {
+                    @Override
+                    public Cursor loadInBackground() {
+                        return matrixCursor;
+                    }
+                };
+            }// An invalid id was passed in
+            return new CursorLoader(getContext());
         }
     }
 
 
     private String filterAndSortQuery() {
         SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
-
         String query = "";
         try {
             if (isValidFilterForFts(commonRepository())) {
@@ -421,61 +402,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
-    private int count(String mainConditionString) {
-
-        int count = 0;
-
-        Cursor c = null;
-
-        try {
-            SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(countSelect);
-            String query = "";
-            if (isValidFilterForFts(commonRepository())) {
-                String sql = sqb.countQueryFts(tablename, "", mainConditionString, "");
-                Log.i(getClass().getName(), query);
-
-                count = commonRepository().countSearchIds(sql);
-            } else {
-                sqb.addCondition(filters);
-                query = sqb.orderbyCondition(presenter().getDefaultSortQuery());
-                query = sqb.Endquery(query);
-
-                Log.i(getClass().getName(), query);
-                c = commonRepository().rawCustomQueryForAdapter(query);
-                c.moveToFirst();
-                count = c.getInt(0);
-            }
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.toString(), e);
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return count;
-    }
-
     @Override
     public void onLocationChange(final String newLocation) {
         Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
-    private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
-        @Override
-        protected Pair<Integer, Integer> doInBackground(Void... params) {
-            int overdueCount = count(filterSelectionCondition(true));
-
-            dueOverdueCount = count(filterSelectionCondition(false));
-            return Pair.create(overdueCount, dueOverdueCount);
-        }
-
-        @Override
-        protected void onPostExecute(Pair<Integer, Integer> pair) {
-            int overDue = pair.first;
-            dueOverdueCount = pair.second;
-
-            updateDueOverdueCountText(overDue);
-
-        }
-    }
 }

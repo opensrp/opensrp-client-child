@@ -1,6 +1,8 @@
 <resources>
 
     <!-- general -->
+    <string name="app_name" translatable="false">Child Module</string>
+
     <string name="no_unique_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
     <string name="error_unable_to_start_form">An error occurred when starting the form.</string>
     <string name="no_matching_record_found_on_this_device">No matching record found on this device.</string>
@@ -292,9 +294,14 @@
     <string name="_10_weeks">10 Weeks</string>
     <string name="_14_weeks">14 Weeks</string>
     <string name="_5_months">5 Months</string>
+    <string name="_2_months">2 Months</string>
+    <string name="_3_months">3 Months</string>
+    <string name="_4_months">4 Months</string>
     <string name="_6_months">6 Months</string>
     <string name="_7_months">7 Months</string>
     <string name="_9_months">9 Months</string>
+    <string name="_11_months">11 Months</string>
+    <string name="_12_months">12 Months</string>
     <string name="_15_months">15 Months</string>
     <string name="_18_months">18 Months</string>
     <string name="_22_months">22 Months</string>
@@ -328,5 +335,15 @@
     <string name="dismiss_lookup">Confirm</string>
     <string name="service_point">Service Point: %1$s</string>
     <string name="record_growth_details"> Record at least one set of growth details (height, Weight)</string>
+
+    <string name="child_birth_registration_number">Child\'s birth registration number</string>
+    <string name="child_unique_id">Child\'s unique government ID</string>
+    <string name="child_archive_record_text">Archive Record</string>
+    <string name="child_archive_record_description">The record will be archived and will not be available in the register</string>
+    <string name="child_archive_dialog_title">Are you sure you want archive record?</string>
+    <string name="child_archive_record_task_dialog_message">Please wait ... Archiving record.</string>
+    <string name="error_recording_out_of_catchment_service">An error occured when recording out of catchment service. Try again later.</string>
+    <string name="record_dynamic_vaccines">Record private sector vaccines</string>
+    <string name="extra_vaccines">Extra vaccines in private sector</string>
 
 </resources>

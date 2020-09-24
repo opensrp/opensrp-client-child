@@ -20,7 +20,10 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildFormActivity;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.RegisterActionParams;
+import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
@@ -79,13 +82,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     private CommonRepository commonRepository;
 
     private VaccinationAsyncTask vaccinationAsyncTask;
-    private ImmunizationLibrary immunizationLibrary;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
+        ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
 
         Map<String, Object> vaccineRepoMap = new HashMap<>();
 
@@ -132,7 +134,13 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-
+        ChildMetadata childMetaData = new ChildMetadata(BaseChildFormActivity.class, null, null, null, true, new RegisterQueryProvider());
+        childMetaData.updateChildRegister("test", "test",
+                "test", "ChildRegisterEvent",
+                "ChildRegisterUpdateEvent", "OOCSEventType",
+                "test-config",
+                "childRelKey", "out_of_catchment_area_form");
+        Mockito.doReturn(childMetaData).when(childLibrary).metadata();
         AppProperties appProperties = Mockito.mock(AppProperties.class);
 
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();

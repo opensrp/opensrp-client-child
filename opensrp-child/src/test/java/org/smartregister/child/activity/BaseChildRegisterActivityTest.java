@@ -97,7 +97,7 @@ public class BaseChildRegisterActivityTest {
 
         doReturn(context).when(childLibrary).context();
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         childMetadata.updateChildRegister(
                 "test",
                 "test",
@@ -155,7 +155,7 @@ public class BaseChildRegisterActivityTest {
         doReturn(context).when(childLibrary).context();
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, true);
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         childMetadata.updateChildRegister(
                 "test",
                 "test",

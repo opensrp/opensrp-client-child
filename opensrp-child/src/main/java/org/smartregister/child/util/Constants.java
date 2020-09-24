@@ -39,6 +39,9 @@ public final class Constants extends AllConstants {
     public static final String MOTHER_LOOKUP_UNDO_DEFAULT_DURATION = "10000";
     public static final String SHOW_BCG_SCAR = "show_bcg_scar";
     public static final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
+    public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
+    public static final String CLIENT_RELATIONSHIP = "client_relationship";
+    public static final String ENCOUNTER = "encounter";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
@@ -59,11 +62,11 @@ public final class Constants extends AllConstants {
         public static final String SUB_TYPE = "sub_type";
         public static final String LOCATION_SUB_TYPE = "location";
         public static final String VALUE_FIELD = "value_field";
+        public static final String RELATIONSHIPS = "relationships";
     }
 
     public static class JSON_FORM_EXTRA {
         public static final String NEXT = "next";
-
     }
 
     public static class OPENMRS {
@@ -87,6 +90,7 @@ public final class Constants extends AllConstants {
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
+        public static final String FATHER = "father";
         public static final String FIRST_NAME = "first_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
@@ -101,6 +105,7 @@ public final class Constants extends AllConstants {
         public static final String DOB_UNKNOWN = "dob_unknown";
         public static final String MOTHER_DOB_UNKNOWN = "mother_dob_unknown";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
+        public static final String FATHER_BASE_ENTITY_ID = "father_base_entity_id";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";
@@ -108,6 +113,7 @@ public final class Constants extends AllConstants {
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
+        public static final String MOTHER_GUARDIAN_NUMBER = "mother_guardian_number";
         public static final String ID = "id";
         public static final String NRC_NUMBER = "nrc_number";
         public static final String FATHER_NAME = "father_name";
@@ -116,6 +122,24 @@ public final class Constants extends AllConstants {
         public static final String MOTHER_DOB = "mother_dob";
         public static final String MOTHER_NRC_NUMBER = "mother_nrc_number";
         public static final String FIRST_HEALTH_FACILITY_CONTACT = "first_health_facility_contact";
+        public static final String FATHER_RELATIONAL_ID = "father_relational_id";
+        public static final String CHILD_HIV_STATUS = "child_hiv_status";
+        public static final String CHILD_TREATMENT = "child_treatment";
+        public static final String IS_CLOSED = "is_closed";
+        public static final String BIRTH_DATE = "birth_date";
+        public static final String MOTHER_PHONE_NUMBER = "mother_phone_number";
+        public static final String IS_REMOTE_CLIENT = "is_remote_client";
+        public static final String OPENSRP_ID = "opensrp_id";
+        public static final String OA_SERVICE_DATE = "OA_Service_Date";
+        public static final String WEIGHT_KG = "Weight_Kg";
+        public static final String PRIVATE_SECTOR_VACCINE = "private_sector_vaccine";
+        public static final String VACCINE_DATE = "vaccine_date";
+        public static final String DYNAMIC_FIELD = "dynamic_field";
+        public static final String SELECTED_VACCINES = "selected_vaccines";
+        public static final String SELECTED_VACCINES_COUNTER = "selected_vaccines_counter";
+        public static final String CONCEPT = "concept";
+        public static final String TEXT = "text";
+
     }
 
     public static final class INTENT_KEY {
@@ -133,7 +157,12 @@ public final class Constants extends AllConstants {
         public static final String PERSON = "person";
     }
 
+    public interface Tables {
+        String EC_DYNAMIC_VACCINES = "ec_dynamic_vaccines";
+    }
+
     public static class ENTITY {
+
         public static final String MOTHER = "mother";
     }
 
@@ -153,14 +182,18 @@ public final class Constants extends AllConstants {
 
     //Temporary to move implementation
     public static final class EventType {
-
         public static final String AEFI = "AEFI";
         public static final String BITRH_REGISTRATION = "Birth Registration";
         public static final String UPDATE_BITRH_REGISTRATION = "Update Birth Registration";
         public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
+        public static final String FATHER_REGISTRATION = "Father Registration";
         public static final String DEATH = "Death";
         public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
         public static final String VACCINATION = "Vaccination";
+        public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
+        public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
+        public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
+        public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
     }
 
     public static final class CHILD_STATUS {
@@ -209,4 +242,25 @@ public final class Constants extends AllConstants {
         public static final String MINUTE_OF_HOUR = "minuteOfHour";
         public static final String SECOND_OF_MINUTE = "secondOfMinute";
     }
+
+    public interface Client {
+        String DATE_CREATED = "dateCreated";
+        String FIRST_NAME = "firstName";
+        String LAST_NAME = "lastName";
+        String BIRTHDATE = "birthdate";
+        String ID_LOWER_CASE = "_id";
+        String IDENTIFIERS = "identifiers";
+        String GENDER = "gender";
+        String RELATIONSHIPS = "relationships";
+        String INACTIVE = "inactive";
+        String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+        String BASE_ENTITY_ID = "baseEntityId";
+        String ATTRIBUTES = "attributes";
+    }
+
+    public interface JsonForm {
+        String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
+        String DYNAMIC_VACCINES = "dynamic_vaccines";
+    }
 }
+

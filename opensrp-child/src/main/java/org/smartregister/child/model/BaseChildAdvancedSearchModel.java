@@ -2,12 +2,21 @@ package org.smartregister.child.model;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.domain.Response;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import timber.log.Timber;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
         implements ChildAdvancedSearchContract.Model {
@@ -43,6 +52,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
     @Override
     public String getMainConditionString(Map<String, String> editMap) {
+        convertDateToDesiredFormat(editMap);
         final String table = Utils.metadata().getRegisterQueryProvider().getDemographicTable();
         final String childDetailsTable = Utils.metadata().getRegisterQueryProvider().getChildDetailsTable();
 
@@ -129,8 +139,9 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             String value = entry.getValue();
             if (key.contains(Constants.CHILD_STATUS.ACTIVE) || key.contains(Constants.CHILD_STATUS.INACTIVE) || key.contains(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
 
+                boolean isActive = key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE);
                 if (StringUtils.isBlank(statusConditionString)) {
-                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                    if (isActive) {
                         statusConditionString += " ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
                                 " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
@@ -139,7 +150,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                         statusConditionString += " " + key + " = '" + value + "'";
                     }
                 } else {
-                    if (key.contains(Constants.CHILD_STATUS.ACTIVE) && !key.contains(Constants.CHILD_STATUS.INACTIVE)) {
+                    if (isActive) {
                         statusConditionString += " OR ( ( " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.INACTIVE + " != '" + Boolean.TRUE
                                 .toString() + "' ) " +
                                 " AND ( " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " IS NULL OR " + childDetailsTable + "." + Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE
@@ -161,7 +172,24 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
             }
         }
 
-        return mainConditionString;
+        return String.format("%s AND (%s is null AND %s == '0')", mainConditionString,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.DATE_REMOVED,
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + Constants.KEY.IS_CLOSED);
+    }
+
+    private void convertDateToDesiredFormat(Map<String, String> editMap) {
+        try {
+            if(editMap.containsKey(START_DATE) && editMap.containsKey(END_DATE)) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                SimpleDateFormat desiredDateFormat = new SimpleDateFormat("YYY-MM-dd", Locale.getDefault());
+                Date parsedStartDate = simpleDateFormat.parse(editMap.get(START_DATE));
+                Date parsedEndDate = simpleDateFormat.parse(editMap.get(END_DATE));
+                editMap.put(START_DATE, desiredDateFormat.format(parsedStartDate));
+                editMap.put(END_DATE, desiredDateFormat.format(parsedEndDate));
+            }
+        } catch (ParseException e) {
+            Timber.e(e, "Error converting dates to right format");
+        }
     }
 
     private String removeLastSemiColon(String str) {
@@ -174,4 +202,10 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         }
         return s;
     }
+
+    @Override
+    public List<ChildMotherDetailModel> getChildMotherDetailModels(Response<String> response) {
+        return ChildJsonFormUtils.processReturnedAdvanceSearchResults(response);
+    }
+
 }

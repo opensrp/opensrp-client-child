@@ -13,7 +13,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
@@ -28,8 +30,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CoreLibrary.class})
+@PrepareForTest({CoreLibrary.class, ChildLibrary.class})
 public class ChildAdvancedSearchInteractorTest {
+
+    @Mock
+    private ChildLibrary childLibrary;
+
     @Mock
     private CoreLibrary coreLibrary;
 
@@ -46,18 +52,22 @@ public class ChildAdvancedSearchInteractorTest {
 
     @Before
     public void setUp() {
-        childAdvancedSearchInteractor = new ChildAdvancedSearchInteractor(Mockito.mock(AppExecutors.class));
         MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        ChildAppProperties appProperties = new ChildAppProperties();
+        PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
+        childAdvancedSearchInteractor = new ChildAdvancedSearchInteractor(Mockito.mock(AppExecutors.class));
     }
 
     @Test
-    public void testEnchanceStatusFilter() throws Exception {
-        Method enchanceStatusFilterMethod = ChildAdvancedSearchInteractor.class.getDeclaredMethod("enchanceStatusFilter", Map.class);
-        enchanceStatusFilterMethod.setAccessible(true);
+    public void testEnhanceStatusFilter() throws Exception {
+        Method enhanceStatusFilter = ChildAdvancedSearchInteractor.class.getDeclaredMethod("enhanceStatusFilter", Map.class);
+        enhanceStatusFilter.setAccessible(true);
 
         Map<String, String> map = new HashMap<>();
         map.put("key", "test");
-        enchanceStatusFilterMethod.invoke(childAdvancedSearchInteractor, map);
+        enhanceStatusFilter.invoke(childAdvancedSearchInteractor, map);
 
         Assert.assertEquals(map.get(Constants.CHILD_STATUS.ACTIVE), "false");
 

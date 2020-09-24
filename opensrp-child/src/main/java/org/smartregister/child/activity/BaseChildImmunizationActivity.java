@@ -276,6 +276,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
+    public LinearLayout getServiceGroupCanvasLL() {
+        return serviceGroupCanvasLL;
+    }
+
+
     protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
@@ -1538,9 +1543,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     for (VaccineWrapper curWrapper : groupWrappers) {
                         String curWrapperName = curWrapper.getName().trim();
                         // Check if current wrapper is one of the combined vaccines
-                        if (ImmunizationLibrary.getInstance().COMBINED_VACCINES.contains(curWrapperName)) {
+                        if (ImmunizationLibrary.COMBINED_VACCINES.contains(curWrapperName)) {
                             // Check if any of the sister vaccines is currAffectedVaccineName
-                            String[] allSisters = ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
+                            String[] allSisters = ImmunizationLibrary.COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
                             for (String allSister : allSisters) {
                                 if (allSister.replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
                                     curWrapperName = allSister;
@@ -1574,7 +1579,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         for (VaccineGroup curGroup : affectedGroups.keySet()) {
             try {
                 vaccineGroups.remove(curGroup);
-                addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
+                addVaccineGroup(Integer.parseInt((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
                         curGroup.getVaccineData(), vaccineList, alerts);
             } catch (Exception e) {
                 Timber.e(e);
@@ -1798,7 +1803,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
 

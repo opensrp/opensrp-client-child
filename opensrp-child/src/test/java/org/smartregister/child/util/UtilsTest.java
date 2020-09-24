@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,18 +23,28 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.domain.UniqueId;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.sync.ClientProcessorForJava;
+import org.smartregister.sync.helper.ECSyncHelper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
@@ -46,7 +57,16 @@ public class UtilsTest {
     private UniqueIdRepository uniqueIdRepository;
 
     @Mock
-    android.content.Context context;
+    private android.content.Context context;
+
+    @Mock
+    private CoreLibrary coreLibrary;
+
+    @Mock
+    private Context opensrpContext;
+
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
 
     @Before
     public void setUp() {
@@ -143,6 +163,72 @@ public class UtilsTest {
     }
 
     @Test
+    public void testCreateArchiveRecordEventShouldCreateValidEvent() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        Map<String, String> details = new HashMap<>();
+        details.put(Constants.KEY.BASE_ENTITY_ID, "232-erer7");
+        String baseEntityId = details.get(Constants.KEY.BASE_ENTITY_ID);
+        Assert.assertNotNull(baseEntityId);
+        Event result = Utils.createArchiveRecordEvent(baseEntityId);
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getFormSubmissionId());
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq(baseEntityId), Mockito.any(JSONObject.class));
+    }
+
+    @Test
+    public void testCreateArchiveRecordEventShouldCreateValidEvents() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        List<String> baseEntityIds = new ArrayList<>();
+        baseEntityIds.add("231-erer7");
+        baseEntityIds.add("232-erer7");
+        List<Event> result = Utils.createArchiveRecordEvents(baseEntityIds);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 2);
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq("231-erer7"), Mockito.any(JSONObject.class));
+        Mockito.verify(ecSyncHelper, Mockito.times(1)).addEvent(Mockito.eq("232-erer7"), Mockito.any(JSONObject.class));
+    }
+
+    @Test
+    public void testInitiateEventProcessingShouldInitEventProcessing() throws Exception {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
+        ClientProcessorForJava clientProcessorForJava = Mockito.mock(ClientProcessorForJava.class);
+        Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        long now = new Date().getTime();
+        Mockito.doReturn(now).when(allSharedPreferences).fetchLastUpdatedAtDate(0);
+
+        List<String> list = Arrays.asList("233-sdsd");
+        List<Event> eventList = new ArrayList<>();
+
+        Utils.initiateEventProcessing(list);
+        Mockito.doReturn(eventList).when(ecSyncHelper).getEvents(list);
+        Mockito.verify(clientProcessorForJava, Mockito.times(1)).processClient(Mockito.<EventClient>anyList());
+        Mockito.verify(allSharedPreferences).saveLastUpdatedAtDate(Mockito.eq(now));
+    }
+
+    @After
+    public void tearDown() {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+    }
+
+
     public void testGetProfileImageResourceIDentifier() {
         int i = Utils.getProfileImageResourceIDentifier();
         Assert.assertEquals(R.mipmap.ic_child, i);
@@ -242,7 +328,7 @@ public class UtilsTest {
     public void testUpdateFTSForCombinedVaccineAlternativesShouldPassCorrectValues() {
         ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-        immunizationLibrary.COMBINED_VACCINES_MAP.put("opv", "opv1/pcv1");
+        ImmunizationLibrary.COMBINED_VACCINES_MAP.put("opv", "opv1/pcv1");
         VaccineRepository vaccineRepository = Mockito.mock(VaccineRepository.class);
         Vaccine vaccine = new Vaccine();
         vaccine.setName("opv");
@@ -271,4 +357,11 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
+    @Test
+    public void testIsSameDayShouldReturnTrue() throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+        long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
+        long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
+        Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));
+    }
 }

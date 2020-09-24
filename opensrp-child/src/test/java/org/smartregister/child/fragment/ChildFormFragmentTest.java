@@ -5,7 +5,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
-import com.vijay.jsonwizard.customviews.MaterialSpinner;
 import com.vijay.jsonwizard.domain.Form;
 import com.vijay.jsonwizard.interfaces.JsonApi;
 import com.vijay.jsonwizard.utils.ValidationStatus;
@@ -100,15 +98,6 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
         ReflectionHelpers.setField(formFragment, "lookedUp", true);
 
-        MaterialEditText motherDOBMaterialEditText = new MaterialEditText(RuntimeEnvironment.application);
-        ReflectionHelpers.setField(formFragment, "motherDOBMaterialEditText", motherDOBMaterialEditText);
-
-        MaterialSpinner materialSpinner = new MaterialSpinner(RuntimeEnvironment.application);
-        ReflectionHelpers.setField(formFragment, "spinner", materialSpinner);
-
-        AppCompatCheckBox appCompatCheckBox = new AppCompatCheckBox(RuntimeEnvironment.application);
-        ReflectionHelpers.setField(formFragment, "compatCheckBox", appCompatCheckBox);
-
         Mockito.doReturn(lookupMap).when(formFragment).getLookUpMap();
 
         Mockito.doNothing().when(formFragment).writeMetaDataValue(Mockito.anyString(), Mockito.any(Map.class));
@@ -125,20 +114,6 @@ public class ChildFormFragmentTest extends BaseUnitTest {
                 Assert.assertFalse((Boolean) materialEditText.getTag(com.vijay.jsonwizard.R.id.after_look_up));
             }
         }
-        Assert.assertFalse((Boolean) ReflectionHelpers.getField(formFragment, "lookedUp"));
-
-        Assert.assertTrue(motherDOBMaterialEditText.isEnabled());
-        Assert.assertTrue(motherDOBMaterialEditText.getText().toString().isEmpty());
-        Assert.assertFalse((Boolean) motherDOBMaterialEditText.getTag(com.vijay.jsonwizard.R.id.after_look_up));
-
-
-        Assert.assertTrue(materialSpinner.isEnabled());
-        Assert.assertEquals(0, materialSpinner.getSelectedItemPosition());
-
-
-        Assert.assertTrue(appCompatCheckBox.isEnabled());
-        Assert.assertFalse(appCompatCheckBox.isChecked());
-
     }
 
     @Test
@@ -187,17 +162,13 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         CommonPersonObjectClient personObjectClient = new CommonPersonObjectClient(caseId, details, firstName + " " + lastName);
         personObjectClient.setColumnmaps(details);
         formFragment = PowerMockito.spy(formFragment);
-
         ReflectionHelpers.setField(formFragment, "lookedUp", false);
         Mockito.doNothing().when(formFragment).clearView();
         Mockito.doNothing().when(formFragment).writeMetaDataValue(Mockito.anyString(), Mockito.any(Map.class));
         Mockito.doReturn(getLookUpMap()).when(formFragment).getLookUpMap();
         Activity activity = Robolectric.setupActivity(FragmentActivity.class);
         Mockito.doReturn(activity).when(formFragment).getActivity();
-        MaterialEditText motherDOBMaterialEditText = new MaterialEditText(RuntimeEnvironment.application);
-        ReflectionHelpers.setField(formFragment, "motherDOBMaterialEditText", motherDOBMaterialEditText);
         Whitebox.invokeMethod(formFragment, "lookupDialogDismissed", personObjectClient);
-        Assert.assertFalse(((MaterialEditText) ReflectionHelpers.getField(formFragment, "motherDOBMaterialEditText")).isEnabled());
         Assert.assertTrue((Boolean) ReflectionHelpers.getField(formFragment, "lookedUp"));
         Mockito.verify(formFragment, Mockito.times(1)).writeMetaDataValue(Mockito.anyString(), Mockito.<String, String>anyMap());
         List<View> viewList = formFragment.getLookUpMap().get(Constants.KEY.MOTHER);
@@ -209,7 +180,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
                     Assert.assertEquals("Janet", materialEditText.getText().toString());
                 } else if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.lastName)) {
                     Assert.assertEquals("Denice", materialEditText.getText().toString());
-                } else if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC)) {
+                } else if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.NRC_NUMBER)) {
                     Assert.assertEquals("1234", materialEditText.getText().toString());
                 }
             }

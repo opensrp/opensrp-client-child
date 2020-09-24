@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -20,8 +19,8 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.IMotherLookup;
 import org.smartregister.child.fragment.ChildFormFragment;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.MotherLookUpUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
@@ -33,18 +32,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 01/03/2019.
  */
 public class BaseChildFormActivity extends JsonFormActivity implements IMotherLookup {
     private ChildFormFragment childFormFragment;
-    private String TAG = BaseChildFormActivity.class.getCanonicalName();
     private boolean enableOnCloseDialog = true;
     private JSONObject form;
 
     @Override
     protected void attachBaseContext(android.content.Context base) {
-
         String language = LangUtils.getLanguage(base);
         super.attachBaseContext(LangUtils.setAppLocale(base, language));
     }
@@ -55,7 +54,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         try {
             form = new JSONObject(currentJsonState());
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
         }
 
         enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
@@ -77,7 +76,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
 
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
         }
     }
 
@@ -153,7 +152,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
                     }).setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Log.d(TAG, "No button on dialog in " + JsonFormActivity.class.getCanonicalName());
+                            Timber.d("No button on dialog in %s", JsonFormActivity.class.getCanonicalName());
                         }
                     }).create();
 
@@ -166,27 +165,25 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
     public void validateActivateNext() {
         Fragment fragment = getVisibleFragment();
-        if (fragment != null && fragment instanceof ChildFormFragment) {
+        if (fragment instanceof ChildFormFragment) {
             ((ChildFormFragment) fragment).validateActivateNext();
         }
     }
 
     public Fragment getVisibleFragment() {
         List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null && fragment.isVisible()) return fragment;
-            }
+        for (Fragment fragment : fragments) {
+            if (fragment != null && fragment.isVisible()) return fragment;
         }
         return null;
     }
 
     public boolean checkIfBalanceNegative() {
         boolean balancecheck = true;
-        String balancestring = childFormFragment.getRelevantTextViewString(Constants.BALANCE);
+        String balanceString = childFormFragment.getRelevantTextViewString(Constants.BALANCE);
 
-        if (balancestring.contains(Constants.NEW_BALANCE) && StringUtils.isNumeric(balancestring)) {
-            int balance = Integer.parseInt(balancestring.replace(Constants.NEW_BALANCE_, "").trim());
+        if (balanceString.contains(Constants.NEW_BALANCE) && StringUtils.isNumeric(balanceString)) {
+            int balance = Integer.parseInt(balanceString.replace(Constants.NEW_BALANCE_, "").trim());
             if (balance < 0) {
                 balancecheck = false;
             }
@@ -305,7 +302,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
     }
 
-    private static boolean isDate(String dobString) {
+    public static boolean isDate(String dobString) {
         try {
             DateUtil.yyyyMMdd.parse(dobString);
             return true;

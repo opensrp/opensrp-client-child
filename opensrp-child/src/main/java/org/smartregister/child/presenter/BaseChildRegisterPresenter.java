@@ -2,6 +2,7 @@ package org.smartregister.child.presenter;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -128,7 +129,7 @@ public class BaseChildRegisterPresenter
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Timber.e(e);
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -144,7 +145,7 @@ public class BaseChildRegisterPresenter
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
         } catch (Exception e) {
-            Timber.e(e);
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -153,7 +154,7 @@ public class BaseChildRegisterPresenter
         try {
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
-            Timber.e(e);
+            Timber.e(Log.getStackTraceString(e));
             getView().displayToast(R.string.error_unable_to_start_form);
         }
     }

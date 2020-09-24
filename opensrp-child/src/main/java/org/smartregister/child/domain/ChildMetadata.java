@@ -3,6 +3,7 @@ package org.smartregister.child.domain;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
+import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.view.activity.BaseProfileActivity;
 
@@ -15,6 +16,7 @@ import java.util.Set;
 public class ChildMetadata {
     public final Class childFormActivity;
     public final Class childImmunizationActivity;
+    private Class<? extends BaseChildRegisterActivity> childRegisterActivity;
     public final Class profileActivity;
     public final boolean formWizardValidateRequiredFieldsBefore;
     private ArrayList<String> locationLevels;
@@ -26,10 +28,12 @@ public class ChildMetadata {
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         Class<? extends BaseChildRegisterActivity> childRegisterActivity,
                          boolean formWizardValidateRequiredFieldsBefore) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
+        this.childRegisterActivity = childRegisterActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
         setRegisterQueryProvider(new RegisterQueryProvider());
     }
@@ -37,11 +41,13 @@ public class ChildMetadata {
     public ChildMetadata(Class<? extends JsonFormActivity> childFormActivity,
                          Class<? extends BaseProfileActivity> profileActivity,
                          Class<? extends BaseChildImmunizationActivity> childImmunizationActivity,
+                         Class<? extends BaseChildRegisterActivity> childRegisterActivity,
                          boolean formWizardValidateRequiredFieldsBefore,
                          RegisterQueryProvider registerQueryProvider) {
         this.childFormActivity = childFormActivity;
         this.profileActivity = profileActivity;
         this.childImmunizationActivity = childImmunizationActivity;
+        this.childRegisterActivity = childRegisterActivity;
         this.formWizardValidateRequiredFieldsBefore = formWizardValidateRequiredFieldsBefore;
         this.registerQueryProvider = registerQueryProvider;
     }
@@ -75,6 +81,11 @@ public class ChildMetadata {
 
         public final String outOfCatchmentFormName;
 
+        //Father details captured  in Unicef-Tunisia client project
+        private String fatherTable;
+
+        private String fatherRelationKey;
+
 
         public ChildRegister(String formName, String tableName, String parentTableName, String registerEventType,
                              String updateEventType, String outOfCatchmentServiceEventType, String config, String childCareGiverRelationKey,
@@ -88,6 +99,22 @@ public class ChildMetadata {
             this.config = config;
             this.childCareGiverRelationKey = childCareGiverRelationKey;
             this.outOfCatchmentFormName = outOfCatchmentFormName;
+        }
+
+        public void setFatherTable(String fatherTable) {
+            this.fatherTable = fatherTable;
+        }
+
+        public void setFatherRelationKey(String fatherRelationKey) {
+            this.fatherRelationKey = fatherRelationKey;
+        }
+
+        public String getFatherTable() {
+            return fatherTable;
+        }
+
+        public String getFatherRelationKey() {
+            return fatherRelationKey;
         }
     }
 
@@ -138,6 +165,15 @@ public class ChildMetadata {
 
     public void setRegisterQueryProvider(RegisterQueryProvider registerQueryProvider) {
         this.registerQueryProvider = registerQueryProvider;
+    }
+
+    public void setupFatherRelation(String fatherTable, String fatherRelationKey){
+        this.childRegister.setFatherTable(fatherTable);
+        this.childRegister.setFatherRelationKey(fatherRelationKey);
+    }
+
+    public Class<? extends BaseChildRegisterActivity> getChildRegisterActivity() {
+        return childRegisterActivity;
     }
 }
 
