@@ -159,3 +159,20 @@ Example updated config:
 ```
 
 More on Native form library widgets can be found [here](https://github.com/OpenSRP/opensrp-client-native-form)
+
+### Supporting Mother Lookup
+
+Mother lookup functionality is a feature that allows you to search for a list of available mothers when doing child registration. This comes in handy
+when you want to register a sibling to an existing child. This functionality pre-populates the mother form fields in the form, when you select a mother from the search results.
+To include this functionality in your app first denote the lookup fields in the form json with the following attribute.
+
+```json 
+ "look_up": "true"
+```
+
+> Note: Mother lookup dialog will only  be shown on  fields of type `EditText` since the dialog is only triggered by the `TextWatcher` listener. However other fields that are not of the type
+>`EditText` are also filled with the returned values.
+
+Next override 2 classes `org.smartregister.child.activity.BaseChildFormActivity` and`org.smartregister.child.fragment.ChildFormFragment` class. The subclass of `ChildFormFragment` is used in `BaseChildFormActivity`. Also remember to register the subclass of the `BaseChildFormActivity` to your `AndroidManifest.xml` file.
+ 
+Inside the overridden `ChildFormFragment` class. Override the method `org.smartregister.child.fragment.ChildFormFragment.getKeyAliasMap` and return a map of the **key** field name against the column name of the client object returned by mother lookup. If you do not want a field value to be formatted before being set on the view, add them to the method `org.smartregister.child.sample.fragment.SampleChildFormFragment.getNonHumanizedFields`.
