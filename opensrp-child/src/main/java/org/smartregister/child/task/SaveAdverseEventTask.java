@@ -76,6 +76,11 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 .withFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
 
 
+        //add metadata
+        addMetadata(fields, event, metadata);
+    }
+
+    private void addMetadata(JSONArray fields, Event event, JSONObject metadata) throws Exception {
         for (int i = 0; i < fields.length(); i++) {
             JSONObject jsonObject = ChildJsonFormUtils.getJSONObject(fields, i);
             String value = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.VALUE);
@@ -111,12 +116,9 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-
         if (event != null) {
             JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
             eventClientRepository.addEvent(event.getBaseEntityId(), eventJson);
-
         }
     }
-
 }
