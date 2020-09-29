@@ -2,11 +2,14 @@ package org.smartregister.child.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,7 @@ import android.widget.LinearLayout;
 import org.smartregister.child.R;
 import org.smartregister.child.event.ClientStatusUpdateEvent;
 import org.smartregister.child.listener.StatusChangeListener;
+import org.smartregister.child.task.ArchiveRecordTask;
 import org.smartregister.child.util.Constants;
 import org.smartregister.util.Utils;
 
@@ -88,6 +92,7 @@ public class StatusEditDialogFragment extends DialogFragment {
         LinearLayout activeLayout = dialogView.findViewById(R.id.activelayout);
         LinearLayout inactiveLayout = dialogView.findViewById(R.id.inactivelayout);
         LinearLayout lostToFollowUpLayout = dialogView.findViewById(R.id.losttofollowuplayout);
+        LinearLayout childArchiveRecordLayout = dialogView.findViewById(R.id.child_archive_record_layout);
         final ImageView activeImageView = dialogView.findViewById(R.id.active_check);
         final ImageView inactiveImageView = dialogView.findViewById(R.id.inactive_check);
         final ImageView lostToFollowUpImageView = dialogView.findViewById(R.id.lost_to_followup_check);
@@ -145,8 +150,35 @@ public class StatusEditDialogFragment extends DialogFragment {
             }
         });
 
+        childArchiveRecordLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AppThemeAlertDialog)
+                        .setTitle(R.string.child_archive_record_text)
+                        .setCancelable(true)
+                        .setMessage(R.string.child_archive_dialog_title)
+                        .setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                archiveChildRecord(details);
+                            }
+                        }).setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+
+                dialog.show();
+            }
+        });
+
 
         return dialogView;
+    }
+
+    protected void archiveChildRecord(@NonNull Map<String, String> details) {
+        new ArchiveRecordTask(getActivity(), details).execute();
     }
 
     private enum STATUS {
@@ -192,23 +224,26 @@ public class StatusEditDialogFragment extends DialogFragment {
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(inactive, false);
                         updateViews = true;
+                        details.put(inactive, "false");
                     }
 
                     if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                             details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(lostToFollowUp, false);
+                        details.put(lostToFollowUp, "false");
                         updateViews = true;
                     }
-
                     break;
 
                 case IN_ACTIVE:
                     if (!details.containsKey(inactive) || !(details.containsKey(inactive) && details.get(inactive) != null &&
                             details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(inactive, true);
+                        details.put(inactive, "true");
                         if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                 details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(lostToFollowUp, false);
+                            details.put(lostToFollowUp, "false");
                         }
                         updateViews = true;
                     }
@@ -218,9 +253,11 @@ public class StatusEditDialogFragment extends DialogFragment {
                             !(details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null &&
                                     details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(lostToFollowUp, true);
+                        details.put(lostToFollowUp, "true");
                         if (details.containsKey(inactive) && details.get(inactive) != null &&
                                 details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(inactive, false);
+                            details.put(inactive, "false");
                         }
                         updateViews = true;
                     }
@@ -266,8 +303,7 @@ public class StatusEditDialogFragment extends DialogFragment {
                     org.smartregister.child.util.Utils.postEvent(new ClientStatusUpdateEvent(status.toString()));
                 }
             }
-
-            listener.updateStatus();
+            listener.updateStatus(details);
             dismiss();
 
         }

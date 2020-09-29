@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -19,7 +20,10 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildFormActivity;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.RegisterActionParams;
+import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.wrapper.VaccineViewRecordUpdateWrapper;
@@ -78,13 +82,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     private CommonRepository commonRepository;
 
     private VaccinationAsyncTask vaccinationAsyncTask;
-    private ImmunizationLibrary immunizationLibrary;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
+        ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
 
         Map<String, Object> vaccineRepoMap = new HashMap<>();
 
@@ -131,7 +134,13 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-
+        ChildMetadata childMetaData = new ChildMetadata(BaseChildFormActivity.class, null, null, null, true, new RegisterQueryProvider());
+        childMetaData.updateChildRegister("test", "test",
+                "test", "ChildRegisterEvent",
+                "ChildRegisterUpdateEvent", "OOCSEventType",
+                "test-config",
+                "childRelKey", "out_of_catchment_area_form");
+        Mockito.doReturn(childMetaData).when(childLibrary).metadata();
         AppProperties appProperties = Mockito.mock(AppProperties.class);
 
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
@@ -536,7 +545,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
         verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
-        verify(textView).setText("09-09-2020");
+
+        ArgumentCaptor<Integer> argument = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Object> argument2 = ArgumentCaptor.forClass(Object.class);
+        verify(view).setTag(argument.capture(), argument2.capture());
+
+        assertEquals(R.id.next_appointment_date, (long)argument.getValue());
     }
 
     @Test

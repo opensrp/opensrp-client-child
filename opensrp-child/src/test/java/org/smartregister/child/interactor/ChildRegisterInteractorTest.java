@@ -54,7 +54,6 @@ public class ChildRegisterInteractorTest {
     public MockitoRule mockitoRule = MockitoJUnit.rule();
     private ChildRegisterInteractor interactor;
     private String jsonEnrollmentForm = JsonFormAssetsUtils.childEnrollmentJsonForm;
-    private String womanRegistrationClient = "{\"firstName\":\"Mary\",\"lastName\":\"Janostri\",\"birthdate\":\"2009-06-20T02:00:00.000+02:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"baseEntityId\":\"f2f5dfb6-5110-42f6-88bb-951a070f5df2\",\"identifiers\":{\"M_ZEIR_ID\":\"14656508_mother\"},\"addresses\":[],\"attributes\":{},\"dateCreated\":\"2019-06-24T12:45:44.100+02:00\",\"dateEdited\":\"2019-06-25T10:23:10.491+02:00\",\"serverVersion\":1561451012837,\"type\":\"Client\",\"id\":\"703652b4-3516-49a2-80f8-2ace440e4fad\",\"revision\":\"v3\"}";
     private String childRegistrationClient = "{\"firstName\":\"Doe\",\"middleName\":\"Jane\",\"lastName\":\"Jane\",\"birthdate\":\"2019-07-02T02:00:00.000+02:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"mother\":[\"bdf50ebc-c352-421c-985d-9e9880d9ec58\",\"bdf50ebc-c352-421c-985d-9e9880d9ec58\"]},\"baseEntityId\":\"c4badbf0-89d4-40b9-8c37-68b0371797ed\",\"identifiers\":{\"zeir_id\":\"14750004\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"Not sure\"}}],\"attributes\":{\"age\":\"0.0\",\"Birth_Certificate\":\"ADG\\/23652432\\/1234\",\"second_phone_number\":\"0972343243\"},\"dateCreated\":\"2019-07-02T15:42:57.838+02:00\",\"serverVersion\":1562074977828,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"b8798571-dee6-43b5-a289-fc75ab703792\",\"revision\":\"v1\"}";
 
     @Mock
@@ -88,6 +87,7 @@ public class ChildRegisterInteractorTest {
         updateRegisterParam.setFormTag(formTag);
 
 
+        String womanRegistrationClient = "{\"firstName\":\"Mary\",\"lastName\":\"Janostri\",\"birthdate\":\"2009-06-20T02:00:00.000+02:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"baseEntityId\":\"f2f5dfb6-5110-42f6-88bb-951a070f5df2\",\"identifiers\":{\"M_ZEIR_ID\":\"14656508_mother\"},\"addresses\":[],\"attributes\":{},\"dateCreated\":\"2019-06-24T12:45:44.100+02:00\",\"dateEdited\":\"2019-06-25T10:23:10.491+02:00\",\"serverVersion\":1561451012837,\"type\":\"Client\",\"id\":\"703652b4-3516-49a2-80f8-2ace440e4fad\",\"revision\":\"v3\"}";
         JSONObject clientJson = Mockito.spy(new JSONObject(womanRegistrationClient));
         interactor.processWeight(identifiers, jsonEnrollmentForm, updateRegisterParam, clientJson);
         Mockito.verify(clientJson, Mockito.times(0))

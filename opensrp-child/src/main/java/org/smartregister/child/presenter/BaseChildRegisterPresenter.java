@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
@@ -127,7 +129,7 @@ public class BaseChildRegisterPresenter
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -138,20 +140,12 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void closeChildRecord(String jsonString) {
-
         try {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
-            Log.d("JSONResult", jsonString);
-            //getView().showProgressDialog(jsonString.contains(Constants.EventType.CLOSE) ? R.string.removing_dialog_title
-            // : R.string.saving_dialog_title);
-
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
-
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -160,7 +154,7 @@ public class BaseChildRegisterPresenter
         try {
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
             getView().displayToast(R.string.error_unable_to_start_form);
         }
     }

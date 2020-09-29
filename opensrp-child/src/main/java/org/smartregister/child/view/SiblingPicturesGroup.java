@@ -12,7 +12,7 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.adapter.SiblingPictureAdapter;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 09/05/2017.
@@ -49,7 +49,7 @@ public class SiblingPicturesGroup extends LinearLayout {
         siblingsGV.setRowHeight(context.getResources().getDimensionPixelSize(R.dimen.sibling_profile_pic_height));
     }
 
-    public void setSiblingBaseEntityIds(BaseActivity baseActivity, ArrayList<String> baseEntityIds) {
+    public void setSiblingBaseEntityIds(BaseActivity baseActivity, List <String> baseEntityIds) {
         SiblingPictureAdapter siblingPictureAdapter = new SiblingPictureAdapter(baseActivity, baseEntityIds);
         siblingsGV.setAdapter(siblingPictureAdapter);
     }

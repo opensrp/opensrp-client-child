@@ -56,7 +56,7 @@ public class BaseChildAdvancedSearchPresenterTest {
 
         PowerMockito.mockStatic(ChildLibrary.class);
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
-                null, true, new RegisterQueryProvider());
+                null, null, true, new RegisterQueryProvider());
         metadata.updateChildRegister("test", "ec_client",
                 "ec_client", "test",
                 "test", "test",

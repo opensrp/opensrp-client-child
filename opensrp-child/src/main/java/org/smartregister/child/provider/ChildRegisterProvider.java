@@ -18,7 +18,6 @@ import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.GrowthMonitoringAsyncTask;
@@ -66,7 +65,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
     private HeightRepository heightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
-    private boolean isOutOfCatchment = false;
+    protected boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
                                  View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
@@ -93,7 +92,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @Override
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder viewHolder) {
-        isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
         if (visibleColumns.isEmpty()) {
             populatePatientColumn(pc, client, viewHolder);

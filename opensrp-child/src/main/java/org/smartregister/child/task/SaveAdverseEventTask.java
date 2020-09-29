@@ -7,14 +7,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
-import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.repository.EventClientRepository;
 
 import java.util.Date;
 import java.util.Iterator;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -40,7 +42,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
         try {
             processAdverseEvent();
         } catch (Exception e) {
-            Log.e(SaveAdverseEventTask.class.getCanonicalName(), Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
         }
 
         return null;

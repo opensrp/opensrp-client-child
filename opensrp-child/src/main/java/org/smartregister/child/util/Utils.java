@@ -25,8 +25,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.Weeks;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
@@ -40,10 +42,13 @@ import org.smartregister.child.domain.EditWrapper;
 import org.smartregister.child.event.BaseEvent;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -63,6 +68,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -220,7 +226,7 @@ public class Utils extends org.smartregister.util.Utils {
      */
     public static void updateFTSForCombinedVaccineAlternatives(VaccineRepository vaccineRepository, Vaccine vaccine) {
 
-        List<String> ftsVaccineNames = getAlternativeCombinedVaccines(VaccineRepository.removeHyphen(vaccine.getName()), ImmunizationLibrary.getInstance().COMBINED_VACCINES_MAP);
+        List<String> ftsVaccineNames = getAlternativeCombinedVaccines(VaccineRepository.removeHyphen(vaccine.getName()), ImmunizationLibrary.COMBINED_VACCINES_MAP);
 
         if (ftsVaccineNames != null) {
 
@@ -392,7 +398,7 @@ public class Utils extends org.smartregister.util.Utils {
         try {
             for (Map.Entry<String, String> entry : rawDetails.entrySet()) {
                 String val = entry.getValue();
-                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val.toLowerCase())) {
+                if (!TextUtils.isEmpty(val) && !"null".equalsIgnoreCase(val)) {
                     clean.put(entry.getKey(), entry.getValue());
                 }
             }
@@ -573,6 +579,34 @@ public class Utils extends org.smartregister.util.Utils {
         return (dueDate != null && (expiryDate == null || allowedExpiredVaccineEntry || expiryDate.after(Calendar.getInstance().getTime())));
     }
 
+    @NonNull
+    public static Event createArchiveRecordEvent(@NonNull String baseEntityId) throws Exception {
+        FormTag formTag = ChildJsonFormUtils.formTag(getAllSharedPreferences());
+        Event archiveRecordEvent = ChildJsonFormUtils.createEvent(new JSONArray(), new JSONObject(), formTag, baseEntityId, Constants.EventType.ARCHIVE_CHILD_RECORD, "");
+        ChildJsonFormUtils.tagSyncMetadata(archiveRecordEvent);
+        JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(archiveRecordEvent));
+        ChildLibrary.getInstance().getEcSyncHelper().addEvent(archiveRecordEvent.getBaseEntityId(), eventJson);
+        return archiveRecordEvent;
+    }
+
+    public static List<Event> createArchiveRecordEvents(List<String> baseEntityIds) throws Exception {
+        List<Event> archiveRecordEvents = new ArrayList<>();
+        for (String baseEntityId : baseEntityIds) {
+            Event archiveRecordEvent = createArchiveRecordEvent(baseEntityId);
+            archiveRecordEvents.add(archiveRecordEvent);
+        }
+        return archiveRecordEvents;
+    }
+
+    public static void initiateEventProcessing(@android.support.annotation.Nullable List<String> formSubmissionIds) throws Exception {
+        if (formSubmissionIds != null && !formSubmissionIds.isEmpty()) {
+            long lastSyncTimeStamp = getAllSharedPreferences().fetchLastUpdatedAtDate(0);
+            Date lastSyncDate = new Date(lastSyncTimeStamp);
+            ChildLibrary.getInstance().getClientProcessorForJava().processClient(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
+            getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
+        }
+    }
+
     public static void refreshDataCaptureStrategyBanner(Activity context, String selectedLocation) {
 
         View dataCaptureStrategyView = context.findViewById(R.id.advanced_data_capture_strategy_wrapper);
@@ -591,5 +625,50 @@ public class Utils extends org.smartregister.util.Utils {
             gender = Gender.MALE;
         }
         return gender;
+    }
+
+    public static boolean isSameDay(long timeA, long timeB, @Nullable DateTimeZone dateTimeZone) {
+        DateTimeZone timeZone = dateTimeZone;
+        if (timeZone == null) {
+            timeZone = DateTimeZone.forID("GMT");
+        }
+        long startOfTheDayTimeA = new DateTime(timeA).withZone(timeZone).withTimeAtStartOfDay().getMillis();
+        long startOfTheDayTimeB = new DateTime(timeB).withZone(timeZone).withTimeAtStartOfDay().getMillis();
+        return startOfTheDayTimeA == startOfTheDayTimeB;
+    }
+
+    public static void processExtraVaccinesEventObs(Event baseEvent, String vaccineField) {
+        List<Obs> eventObs = baseEvent.getObs();
+        ArrayList<String> vaccineLabels = new ArrayList<>();
+        List<Obs> newObs = new ArrayList<>();
+        int vaccinesCounter = 0;
+        for (Obs obs : eventObs) {
+            if (vaccineField.equalsIgnoreCase(obs.getFieldCode())) {
+                vaccineLabels.add((String) obs.getHumanReadableValues().get(0));
+                vaccinesCounter++;
+            } else {
+                newObs.add(obs);
+            }
+        }
+
+        Obs vaccineObs = new Obs()
+                .withFieldCode(Constants.KEY.SELECTED_VACCINES)
+                .withFormSubmissionField(Constants.KEY.SELECTED_VACCINES)
+                .withFieldDataType(Constants.KEY.TEXT)
+                .withFieldType(Constants.KEY.CONCEPT)
+                .withsaveObsAsArray(false)
+                .withValue(StringUtils.join(vaccineLabels, ","));
+
+        Obs vaccinesCounterObs = new Obs()
+                .withFieldCode(Constants.KEY.SELECTED_VACCINES_COUNTER)
+                .withFormSubmissionField(Constants.KEY.SELECTED_VACCINES_COUNTER)
+                .withFieldDataType(Constants.KEY.TEXT)
+                .withFieldType(Constants.KEY.CONCEPT)
+                .withValue(vaccinesCounter)
+                .withsaveObsAsArray(false);
+
+        newObs.add(vaccineObs);
+        newObs.add(vaccinesCounterObs);
+        baseEvent.withObs(newObs);
     }
 }

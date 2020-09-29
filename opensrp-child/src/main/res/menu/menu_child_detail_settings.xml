@@ -19,4 +19,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/report_adverse_event" android:title="@string/report_adverse_event"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/record_dynamic_vaccines" android:title="@string/record_dynamic_vaccines"
+        android:orderInCategory="100" android:visible="false" app:showAsAction="never" />
 </menu>

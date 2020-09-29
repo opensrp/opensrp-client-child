@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.view.View;
 
 import org.smartregister.child.R;
+import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
@@ -24,6 +25,7 @@ public class AdvancedSearchClientsProvider extends ChildRegisterProvider {
     }
 
     public void getView(Cursor cursor, SmartRegisterClient client, RegisterViewHolder convertView) {
+        isOutOfCatchment = cursor instanceof AdvancedMatrixCursor;
         super.getView(cursor, client, convertView);
 
     }

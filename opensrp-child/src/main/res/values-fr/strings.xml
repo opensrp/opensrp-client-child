@@ -325,4 +325,5 @@
     <string name="str_page_info">Page {0} de {1}</string>
     <string name="dismiss_lookup">Sauvegarder</string>
     <string name="service_point">Point de service: %1$s</string>
+    <string name="record_growth_details"> Enregistrez au moins la croissance ou la hauteur</string>
 </resources>

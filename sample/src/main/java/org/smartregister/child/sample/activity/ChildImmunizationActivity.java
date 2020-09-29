@@ -96,4 +96,10 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
     public void onRegistrationSaved(boolean isEdit) {
         //Do nothing
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getServiceGroupCanvasLL().setVisibility(View.VISIBLE);
+    }
 }

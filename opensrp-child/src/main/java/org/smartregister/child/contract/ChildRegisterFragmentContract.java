@@ -56,7 +56,6 @@ public interface ChildRegisterFragmentContract {
         AdvancedMatrixCursor createMatrixCursor(Response<String> response);
 
         JSONArray getJsonArray(Response<String> response);
-
     }
 
 

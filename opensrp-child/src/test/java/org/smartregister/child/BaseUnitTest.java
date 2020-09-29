@@ -11,7 +11,6 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.smartregister.Context;
-import org.smartregister.growthmonitoring.BuildConfig;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
@@ -23,7 +22,7 @@ import org.smartregister.service.AlertService;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
 @Config(sdk = Build.VERSION_CODES.O_MR1)
-@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*"})
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*"})
 public abstract class BaseUnitTest {
 
     public void mockImmunizationLibrary(@NonNull ImmunizationLibrary immunizationLibrary, @NonNull Context context, @NonNull VaccineRepository vaccineRepository, @NonNull AlertService alertService) {

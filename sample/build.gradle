@@ -46,6 +46,8 @@ android {
         buildConfigField "String[]", "ALLOWED_LEVELS", '{"Health Facility"}'
         buildConfigField "String", "DEFAULT_LEVEL", '"Health Facility"'
         buildConfigField "String[]", "DATA_CAPTURE_LEVELS", '{"Mobile Clinic"}'
+        buildConfigField "String","OAUTH_CLIENT_ID",'"opensrp-trusted-client"'
+        buildConfigField "String","OAUTH_CLIENT_SECRET",'"O@aTHS#cr3t"'
 
         if (project.rootProject.file("local.properties").exists()) {
 
@@ -134,7 +136,7 @@ dependencies {
         exclude group: 'com.ibm.fhir', module: 'fhir-model'
     }
 
-    implementation 'com.ibm.fhir:fhir-model:4.2.3'
+    jarJar 'com.ibm.fhir:fhir-model:4.2.3'
 
     implementation fileTree(dir: "./build/libs", include: ['*.jar'])
 

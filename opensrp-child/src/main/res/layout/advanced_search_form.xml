@@ -222,6 +222,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/card_support_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -247,7 +248,7 @@
                     android:id="@+id/scanCardButton"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:background="@drawable/advanced_search_qr_code"
                     android:paddingStart="@dimen/register_search_bar_min_margin"
                     android:paddingLeft="@dimen/register_search_bar_min_margin"
@@ -256,6 +257,58 @@
                     android:text="@string/scan_card"
                     android:textColor="@color/advance_search_qr_code"
                     android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/child_birth_reg_number_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/child_birth_reg_number"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/child_birth_registration_number"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:paddingStart="@dimen/advanced_search_label_padding"
+                    android:paddingLeft="@dimen/advanced_search_label_padding"
+                    android:textColor="@color/client_list_grey"
+                    android:textColorHint="@color/light_grey"
+                    android:textSize="@dimen/advanced_search_text_size"
+                    app:met_floatingLabel="highlight"
+                    app:met_floatingLabelText="@string/child_birth_registration_number"
+                    app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
+                    app:met_primaryColor="@color/light_blue"
+                    app:met_singleLineEllipsis="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/child_unique_reg_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:id="@+id/child_reg"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/child_unique_id"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:paddingStart="@dimen/advanced_search_label_padding"
+                    android:paddingLeft="@dimen/advanced_search_label_padding"
+                    android:textColor="@color/client_list_grey"
+                    android:textColorHint="@color/light_grey"
+                    android:textSize="@dimen/advanced_search_text_size"
+                    app:met_floatingLabel="highlight"
+                    app:met_floatingLabelText="@string/child_unique_id"
+                    app:met_floatingLabelTextSize="@dimen/advanced_search_text_size"
+                    app:met_primaryColor="@color/light_blue"
+                    app:met_singleLineEllipsis="true" />
             </LinearLayout>
 
             <LinearLayout
@@ -390,7 +443,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/mother_guardian_phone_number_hint"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
+                    android:inputType="number"
                     android:paddingStart="@dimen/advanced_search_label_padding"
                     android:paddingLeft="@dimen/advanced_search_label_padding"
                     android:textColor="@color/client_list_grey"
@@ -410,6 +463,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/date_of_birth_range_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
@@ -431,7 +485,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dialog_content_margin"
                         android:layout_marginEnd="@dimen/dialog_content_margin"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
 
                     <com.vijay.jsonwizard.customviews.NumericDatePicker
                         android:id="@+id/date_picker_numeric"
