@@ -857,6 +857,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * Update value tag for fields of type tree with the locationId
+     *
+     * @param fields JSONArray of form fields
+     * @throws JSONException
+     */
     protected static void processLocationFields(JSONArray fields) throws JSONException {
         for (int i = 0; i < fields.length(); i++) {
             if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) && fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE)) {
@@ -1535,7 +1541,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Set<String> eligibleBindTypeEvents = eventTypeMap.get(bindType);
         EventClient existingEventClient = null;
-        if(eligibleBindTypeEvents != null) {
+        if (eligibleBindTypeEvents != null) {
             for (EventClient eventClient : eventClients) {
                 if (eligibleBindTypeEvents.contains(eventClient.getEvent().getEventType())) {
                     existingEventClient = eventClient;
