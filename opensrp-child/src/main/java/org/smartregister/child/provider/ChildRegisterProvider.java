@@ -159,8 +159,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         return viewHolder instanceof FooterViewHolder;
     }
 
-    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client,
-                                       final RegisterViewHolder viewHolder) {
+    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client, final RegisterViewHolder viewHolder) {
 
         String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
@@ -173,8 +172,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childName = String.format(context.getString(R.string.child_name), motherFirstName.trim());
         }
 
-        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)) {
-            org.smartregister.child.util.Utils.htmlEnhancedText(viewHolder.patientName, MessageFormat.format("{0} {1}", StringUtils.capitalize(childName), " <font color='#eeaa5f'>"+context.getString(R.string.ooc)+"</font>"));
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(Utils.getValue(pc.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false))) {
+            org.smartregister.child.util.Utils.htmlEnhancedText(viewHolder.patientName, MessageFormat.format("{0} {1}", StringUtils.capitalize(childName), " <font color='#eeaa5f'>" + context.getString(R.string.ooc) + "</font>"));
         } else {
             fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
         }

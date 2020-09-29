@@ -206,6 +206,10 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
                 activity.updateStatus(true);
             }
 
+        } catch (Exception e) {
+            Timber.e(e);
+        } finally {
+
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -213,9 +217,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
                     activity.hideProgressDialog();
                 }
             });
-
-        } catch (Exception e) {
-            Timber.e(e);
         }
     }
 }

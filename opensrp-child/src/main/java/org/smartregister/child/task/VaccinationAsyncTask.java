@@ -441,7 +441,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 String entityId = pc.entityId();
 
                 List<String> ids = new ArrayList<>();
-                if(StringUtils.isNoneBlank(motherBaseEntityId) && StringUtils.isNoneBlank(entityId)) {
+                if (StringUtils.isNoneBlank(motherBaseEntityId) && StringUtils.isNoneBlank(entityId)) {
                     ids.add(motherBaseEntityId);
                     ids.add(entityId);
                 }

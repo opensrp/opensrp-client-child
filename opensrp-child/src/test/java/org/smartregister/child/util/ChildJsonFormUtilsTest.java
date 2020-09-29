@@ -223,16 +223,16 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject populatedForm = ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId, metadata);
         Assert.assertNotNull(populatedForm);
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1));
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS));
 
-        JSONArray fields = populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS);
+        JSONArray fields = populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         Assert.assertEquals(26, fields.length());
-        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(fields, "zeir_id"));
-        Assert.assertEquals("Janet", JsonFormUtils.getFieldValue(fields, "first_name"));
-        Assert.assertEquals("Doe", JsonFormUtils.getFieldValue(fields, "last_name"));
-        Assert.assertEquals("Male", JsonFormUtils.getFieldValue(fields, "Sex"));
-        Assert.assertEquals("2.1", JsonFormUtils.getFieldValue(fields, "Birth_Weight"));
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "zeir_id"));
+        Assert.assertEquals("Janet", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "first_name"));
+        Assert.assertEquals("Doe", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "last_name"));
+        Assert.assertEquals("Male", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "Sex"));
+        Assert.assertEquals("2.1", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "Birth_Weight"));
     }
 
     @Test
@@ -259,10 +259,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject populatedForm = ChildJsonFormUtils.getFormAsJson(form, formName, entityId, "", null);
         Assert.assertNotNull(populatedForm);
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1));
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS));
-        Assert.assertEquals(26, populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS).length());
-        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS), "zeir_id"));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS));
+        Assert.assertEquals(26, populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS).length());
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS), "zeir_id"));
     }
 
     @Test

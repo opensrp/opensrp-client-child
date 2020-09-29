@@ -256,6 +256,8 @@ public final class Constants extends AllConstants {
         String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         String BASE_ENTITY_ID = "baseEntityId";
         String ATTRIBUTES = "attributes";
+        String MANAGING_ORG_LOCATION_ID = "managing_organization_location_id";
+        String IS_OUT_OF_CATCHMENT = "is_out_of_catchment";
     }
 
     public interface JsonForm {

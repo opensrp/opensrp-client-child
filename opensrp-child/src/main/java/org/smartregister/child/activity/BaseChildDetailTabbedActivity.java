@@ -400,7 +400,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public void renderProfileWidget(Map<String, String> childDetails) {
-        findViewById(R.id.outOfCatchement).setVisibility(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? View.VISIBLE : View.GONE);
         TextView profilename = findViewById(R.id.name);
         TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
@@ -424,6 +423,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     formattedAge = DateUtil.getDuration(timeDiff);
                 }
             }
+
+            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false));
+            findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
+            overflow.findItem(R.id.registration_data).setEnabled(!showOutOfCatchmentText);
+
         }
 
         profileage.setText(" " + formattedAge);

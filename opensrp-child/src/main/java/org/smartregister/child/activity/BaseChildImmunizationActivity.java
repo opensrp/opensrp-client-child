@@ -240,9 +240,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         nextAppointmentDateView = findViewById(R.id.next_appointment_date);
         growthChartButton = findViewById(R.id.growth_chart_button);
         siblingPicturesGroup = findViewById(R.id.sibling_pictures);
-
-      // findViewById(R.id.outOfCatchement).setVisibility(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? View.VISIBLE : View.GONE);
-
     }
 
     private void setUpToolbar() {
@@ -466,10 +463,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (isDataOk()) {
             name = constructChildName();
             childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
-        }
 
-        nameTV.setText(name);
-        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+            findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
+
+            nameTV.setText(name);
+            childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+        }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
@@ -1464,7 +1464,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences()));
         vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);

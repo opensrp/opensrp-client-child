@@ -52,7 +52,7 @@
     <string name="woman_last_vaccine">LAST VACCINE</string>
     <string name="woman_next_vaacine">NEXT VACCINE DUE</string>
     <string name="woman_alphabetical_sort">Alphabetical (Name)</string>
-    <string name="id_sort" translatable="false">System ID </string>
+    <string name="id_sort">System ID </string>
     <string name="woman_details_title">Woman Profile</string>
     <string name="day">DAY\n</string>
     <string name="bcg">BCG\n</string>
@@ -178,6 +178,7 @@
     <string name="matching_results">%1$s matching results found.</string>
     <string name="check_child_bcg_scar">"Check for child's BCG scar"</string>
     <string name="move_to_catchment_confirm_dialog_title">Confirm Move</string>
+    <string name="move_to_catchment_confirm_dialog_title_">Confirm Move (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Are you sure you want to move this record to your catchment area?</string>
     <string name="mother_lookup_results">Matching Records</string>
     <string name="dismiss">Dismiss</string>
@@ -335,7 +336,7 @@
     <string name="dismiss_lookup">Confirm</string>
     <string name="service_point">Service Point: %1$s</string>
     <string name="record_growth_details"> Record at least one set of growth details (height, Weight)</string>
-    <string name="ooc" translatable="false">ooC</string>
+    <string name="ooc" translatable="false">OoC</string>
 
     <string name="child_birth_registration_number">Child\'s birth registration number</string>
     <string name="child_unique_id">Child\'s unique government ID</string>
@@ -346,5 +347,8 @@
     <string name="error_recording_out_of_catchment_service">An error occured when recording out of catchment service. Try again later.</string>
     <string name="record_dynamic_vaccines">Record private sector vaccines</string>
     <string name="extra_vaccines">Extra vaccines in private sector</string>
+    <string name="permanently">Permanently</string>
+    <string name="temporarily">Temporarily</string>
+    <string name="choose_how">Choose how</string>
 
 </resources>

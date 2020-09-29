@@ -302,10 +302,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
 
         ChildRegisterProvider childRegisterProvider =
-                new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler,
-                        paginationViewHandler, context().alertService());
-        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context()
-                .commonrepository(this.tablename));
+                new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
+        clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
         clientAdapter.setCurrentlimit(20);
         clientsView.setAdapter(clientAdapter);
     }

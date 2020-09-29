@@ -28,6 +28,7 @@ import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.cloudant.models.Client;
+import org.smartregister.domain.Location;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
@@ -261,7 +262,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                         .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
                 if (useNewMLSApproach && !field.getOptions().isEmpty() && StringUtils.isNotBlank(raw)) {
-                    for (Map<String, String> option : field.getOptions()){
+                    for (Map<String, String> option : field.getOptions()) {
                         if (option.containsKey(JsonFormConstants.KEY) && raw.equalsIgnoreCase(option.get(JsonFormConstants.KEY))) {
                             result = option.get(JsonFormConstants.TEXT);
                             break;
@@ -271,7 +272,8 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
                 } else if (field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
-                    result = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw).getProperties().getName();
+                    Location loc = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw);
+                    result = loc != null ? loc.getProperties().getName() : "";
                 }
                 break;
             case JsonFormConstants.TREE:
