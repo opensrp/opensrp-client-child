@@ -47,10 +47,8 @@ public class ChildLibraryTest extends BaseUnitTest {
 
     @Test
     public void testGetLocationRepositoryReturnsRepositoryInstance() {
-        MockitoAnnotations.initMocks(this);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         childLibrary.setApplicationVersionName("1.2.0");
-        Mockito.doReturn(context).when(childLibrary).context();
         Mockito.doReturn(locationRepository).when(childLibrary).getLocationRepository();
         LocationRepository repository = ChildLibrary.getInstance().getLocationRepository();
         Mockito.verify(ChildLibrary.getInstance()).getLocationRepository();
