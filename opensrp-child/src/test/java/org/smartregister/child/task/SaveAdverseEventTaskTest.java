@@ -17,6 +17,9 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -68,5 +71,16 @@ public class SaveAdverseEventTaskTest {
         verify(eventClientRepository).addEvent(argument.capture(), argument2.capture());
         assertEquals("123", argument.getValue());
         assertEquals("loc-123", argument2.getValue().getString("childLocationId"));
+        assertEquals("123", argument2.getValue().getString("baseEntityId"));
+        assertEquals("child", argument2.getValue().getString("entityType"));
+        assertEquals("AEFI", argument2.getValue().getString("eventType"));
+        assertEquals("Event", argument2.getValue().getString("type"));
+        assertEquals("345", argument2.getValue().getString("providerId"));
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        Date dt = dateFormat.parse(argument2.getValue().getString("eventDate"));
+        assertEquals(dateFormat.parse("2020-09-08T00:00:00.000Z"), dt);
+
+        assertEquals(11, argument2.getValue().getJSONArray("obs").length());
     }
 }
