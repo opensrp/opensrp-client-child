@@ -175,6 +175,7 @@
     <string name="matching_results">تم العثور على %1$s نتائج مطابقة</string>
     <string name="check_child_bcg_scar">تحقق من وجود ندبة لقاح السل عند الطفل</string>
     <string name="move_to_catchment_confirm_dialog_title">تأكيد الخطوة</string>
+    <string name="move_to_catchment_confirm_dialog_title_">تأكيد الخطوة (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">هل أنت متأكد من أنك تريد نقل هذا السجل إلى منطقة التغطية لديك؟</string>
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
@@ -334,7 +335,6 @@
     <string name="dismiss_lookup">حفظ</string>
     <string name="service_point">نقطة خدمة: %1$s</string>
     <string name="record_growth_details"> سجل على الأقل النمو أو الارتفاع</string>
-
     <string name="child_birth_registration_number">رقم تسجيل في مضمون ولادة الطفل</string>
     <string name="child_unique_id">الهوية الحكومية الفريدة للطفل</string>
     <string name="child_archive_record_text">أرشيف السجل</string>
@@ -344,5 +344,7 @@
     <string name="error_recording_out_of_catchment_service">حدث خطأ عند تسجيل الخروج من الخدمة . حاول مرة أخرى في وقت لاحق.</string>
     <string name="record_dynamic_vaccines">سجل لقاحات القطاع الخاص</string>
     <string name="extra_vaccines">لقاحات اضافية في القطاع الخاص</string>
-
+    <string name="permanently">إطلاقا</string>
+    <string name="temporarily">مؤقتا</string>
+    <string name="choose_how">اختر كيف</string>
 </resources>

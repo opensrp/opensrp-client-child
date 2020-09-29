@@ -44,8 +44,7 @@ public class ChildImmunizationActivity extends BaseChildImmunizationActivity {
         return 0;
     }
 
-    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails,
-                                     RegisterClickables registerClickables) {
+    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
 
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();

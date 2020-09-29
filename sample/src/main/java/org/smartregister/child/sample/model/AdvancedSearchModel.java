@@ -15,7 +15,6 @@ import org.smartregister.domain.Response;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -62,23 +61,20 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
                 jsonValues.add(getJsonObject(jsonArray, i));
             }
 
-            Collections.sort(jsonValues, new Comparator<JSONObject>() {
-                @Override
-                public int compare(JSONObject lhs, JSONObject rhs) {
+            Collections.sort(jsonValues, (lhs, rhs) -> {
 
-                    if (!lhs.has("child") || !rhs.has("child")) {
-                        return 0;
-                    }
-
-                    JSONObject lhsChild = getJsonObject(lhs, "child");
-                    JSONObject rhsChild = getJsonObject(rhs, "child");
-
-                    String lhsZeirId = getJsonString(getJsonObject(lhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
-                    String rhsZeirId = getJsonString(getJsonObject(rhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
-
-                    return lhsZeirId.compareTo(rhsZeirId);
-
+                if (!lhs.has("child") || !rhs.has("child")) {
+                    return 0;
                 }
+
+                JSONObject lhsChild = getJsonObject(lhs, "child");
+                JSONObject rhsChild = getJsonObject(rhs, "child");
+
+                String lhsZeirId = getJsonString(getJsonObject(lhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
+                String rhsZeirId = getJsonString(getJsonObject(rhsChild, "identifiers"), Constants.KEY.ZEIR_ID.toUpperCase());
+
+                return lhsZeirId.compareTo(rhsZeirId);
+
             });
 
             for (JSONObject client : jsonValues) {
