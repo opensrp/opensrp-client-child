@@ -31,7 +31,7 @@ public class MoveToMyCatchmentUtilsTest {
     @Test
     public void testProcessMoveToCatchmentWhenEventIsZeroWithCoreLibraryInstanceNull(){
         PowerMockito
-                .when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(AllSharedPreferences.class), Mockito.mock(JSONObject.class)))
+                .when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(AllSharedPreferences.class)))
         .thenReturn(false);
 
         Assert.assertFalse(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(AllSharedPreferences.class), Mockito.mock(JSONObject.class)));

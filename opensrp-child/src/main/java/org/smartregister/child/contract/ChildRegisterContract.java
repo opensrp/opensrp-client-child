@@ -72,6 +72,8 @@ public interface ChildRegisterContract {
 
         void processHeight(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException;
 
+        void processTetanus(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException;
+
         boolean isClientMother(@NonNull Map<String, String> identifiers);
 
     }

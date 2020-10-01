@@ -27,6 +27,9 @@ import org.smartregister.domain.UniqueId;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -181,10 +184,13 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     private void addClient(String jsonString, UpdateRegisterParams params, Client baseClient, JSONObject clientJson) throws JSONException {
         getSyncHelper().addClient(baseClient.getBaseEntityId(), clientJson);
 
-        // This prevents a crash when the birthdate of a mother is not available in the clientJson
-        // We also don't need to process the mother's weight & height
+        processOtherBirthRegistrationEncounters(jsonString, params, baseClient, clientJson);
+    }
+
+    private void processOtherBirthRegistrationEncounters(String jsonString, UpdateRegisterParams params, Client baseClient, JSONObject clientJson) throws JSONException {
         processWeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
         processHeight(baseClient.getIdentifiers(), jsonString, params, clientJson);
+        processTetanus(baseClient.getIdentifiers(), jsonString, params, clientJson);
     }
 
     private void addImageLocation(String jsonString, int i, Client baseClient, Event baseEvent) {
@@ -281,6 +287,35 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             heightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, params.getStatus());
+        }
+    }
+
+    @Override
+    public void processTetanus(@NonNull Map<String, String> identifiers, @NonNull String jsonEnrollmentFormString, @NonNull UpdateRegisterParams params, @NonNull JSONObject clientJson) throws JSONException {
+        String tetanusProtection = ChildJsonFormUtils.getFieldValue(jsonEnrollmentFormString, ChildJsonFormUtils.STEP1, Constants.KEY.BIRTH_TETANUS_PROTECTION);
+
+        if (StringUtils.isNotBlank(tetanusProtection) && !isClientMother(identifiers)) {
+
+            if (!TextUtils.isEmpty(tetanusProtection) && tetanusProtection.contains("Yes")) {
+
+                VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+
+                Vaccine vaccineObj = new Vaccine();
+                vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+                vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
+                vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
+                vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+                vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().allSharedPreferences()));
+                vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccineObj.getLocationId(), ChildLibrary.getInstance().context().allSharedPreferences()));
+                vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
+                vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
+              //  vaccineObj.setEventId(ChildJsonFormUtils.generateRandomUUIDString());
+                vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
+                vaccineObj.setCreatedAt(new Date());
+
+                Utils.addVaccine(vaccineRepository, vaccineObj);
+
+            }
         }
     }
 
