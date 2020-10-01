@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -210,7 +211,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         setContentView(getContentView());
 
-        setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+        try {
+
+            setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+
+        } catch (SQLiteException exception) {
+            Timber.e(exception);
+        }
 
         childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
@@ -426,7 +433,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
             boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false));
             findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
-            overflow.findItem(R.id.registration_data).setEnabled(!showOutOfCatchmentText);
+
+            if (overflow != null) {
+                getOverflow().findItem(R.id.registration_data).setEnabled(!showOutOfCatchmentText);
+            }
 
         }
 

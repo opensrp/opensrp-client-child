@@ -87,6 +87,7 @@ public final class Constants extends AllConstants {
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String BIRTH_HEIGHT = "Birth_Height";
+        public static final String BIRTH_TETANUS_PROTECTION = "Birth_Tetanus_Protection";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
@@ -263,6 +264,10 @@ public final class Constants extends AllConstants {
     public interface JsonForm {
         String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
         String DYNAMIC_VACCINES = "dynamic_vaccines";
+    }
+
+    public interface VACCINE_CODE {
+        String TETANUS = "epnt";
     }
 }
 
