@@ -175,8 +175,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 curVaccine.setBaseEntityId("");
                 curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
                 curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                curVaccine.setLocationId(LocationHelper.getInstance()
-                        .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
+                curVaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
                 curVaccine.setCalculation(VaccinatorUtils.getVaccineCalculation(context, curVaccine.getName()));
                 curVaccine.setUpdatedAt(null);
                 vaccines.add(curVaccine);
