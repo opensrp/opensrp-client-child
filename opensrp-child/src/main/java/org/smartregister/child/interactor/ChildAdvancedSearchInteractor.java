@@ -73,7 +73,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         }
         String paramString = "";
         if (!searchParameters.isEmpty()) {
-            enhanceStatusFilter(searchParameters);
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -171,7 +170,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     @NotNull
     private String getChildBirthDateParameter(Map<String, String> searchParameters, String name) {
         String birthDate = "";
-        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE) ;
+        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE);
 
         String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
         if (StringUtils.isNoneBlank(birthDates) && birthDates.length == 2 && StringUtils.isNoneBlank(name)) {

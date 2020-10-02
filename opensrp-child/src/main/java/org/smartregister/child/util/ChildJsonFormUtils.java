@@ -635,6 +635,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+        return event;
+    }
+
+    private static Event getEventAndTag(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
+
+        Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, childType);
 
         ChildJsonFormUtils.tagSyncMetadata(event);
 
@@ -663,7 +669,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         db.addEvent(event.getBaseEntityId(), eventJson);
 
         //Update Child Entity to include death date
-        Event updateChildDetailsEvent = getEvent(providerId, locationId, entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
+        Event updateChildDetailsEvent = getEventAndTag(providerId, locationId, entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
 
         addMetaData(context, updateChildDetailsEvent, new Date());
 
@@ -1683,16 +1689,21 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             convertAndPersistEvent(moveToCatchmentSyncEvent);
 
-            processTriggerClientProcessorAndUpdateFTS(opensrpContext, clients);
         }
 
-        JSONObject event;
-        //Persist client events
+        List<String> formSubmissionIds = new ArrayList<>();
+
         for (int i = 0; i < events.length(); i++) {
-            event = events.getJSONObject(i);
-            event.put("version", System.currentTimeMillis());
-            ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.optString(ClientProcessor.baseEntityIdJSONKey), event);
+            if (!MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT.equals(events.getJSONObject(i).optString("eventType"))) {
+                formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
+            }
         }
+
+        List<EventClient> eventList = new ArrayList<>();
+        eventList.addAll(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
+
+        ChildLibrary.getInstance().getClientProcessorForJava().processClient(eventList);
+        getClientIdsFromClientsJsonArray(clients);
     }
 
     private static List<String> getClientIdsFromClientsJsonArray(JSONArray clients) throws JSONException {
@@ -1809,7 +1820,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             final String DATA_TYPE = "text";
 
-            Event event = getEvent(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
 
             String formSubmissionField = "From_ProviderId";
             List<Object> vall = new ArrayList<>();
@@ -1986,7 +1997,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     public static void createBCGScarEvent(Context context, String baseEntityId, String providerId, String locationId) {
         try {
-            Event event = getEvent(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
 
             final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             final String YES_CONCEPT = "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -2032,7 +2043,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             locationName = locationHelper.getDefaultLocation();
         }
 
-        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+        Event event = getEventAndTag(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
         ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
