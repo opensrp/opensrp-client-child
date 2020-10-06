@@ -2,6 +2,7 @@ package org.smartregister.child.util;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.utils.FormUtils;
@@ -57,7 +58,10 @@ import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.JsonFormUtils;
 import org.smartregister.view.activity.BaseProfileActivity;
+import org.smartregister.view.activity.DrishtiApplication;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -69,6 +73,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import id.zelory.compressor.Compressor;
 
 import static com.vijay.jsonwizard.constants.JsonFormConstants.FIELDS;
 import static com.vijay.jsonwizard.constants.JsonFormConstants.STEP1;
@@ -140,6 +146,24 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
     private UniqueId uniqueId;
+
+    @Mock
+    private DrishtiApplication drishtiApplication;
+
+    @Mock
+    private Compressor compressor;
+
+    @Mock
+    private Bitmap bitmap;
+
+    @Mock
+    private File file;
+
+    @Mock
+    private ImageRepository imageRepository;
+
+    @Mock
+    private org.smartregister.Context mContext;
 
     @Before
     public void setUp() {
@@ -713,7 +737,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
     }
 
-
     @Test
     public void testFormTagCreatesValidInstance() {
 
@@ -1000,5 +1023,32 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ChildEventClient childEventClient = ChildJsonFormUtils.processFatherRegistrationForm(jsonForm, relationalId, base);
         Assert.assertNull(childEventClient);
+    }
+
+    @Test
+    public void testSaveImageShouldSaveNewImageWithEntityIdAsFileName() throws IOException {
+        String providerId = "a52e91ae-f1ab-4c81-a2b5-1c2d258f6afe";
+        String entityId = "357fbff7-8073-4495-a980-528c613298e8";
+        String imageLocation = "src/test/resources/test-image.JPEG";
+        String appDir = "src/test/resources";
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        Mockito.when(childLibrary.getCompressor()).thenReturn(compressor);
+        Mockito.when(compressor.compressToBitmap(ArgumentMatchers.any(File.class))).thenReturn(bitmap);
+
+        ReflectionHelpers.setStaticField(DrishtiApplication.class, "mInstance", drishtiApplication);
+        Mockito.when(drishtiApplication.getApplicationContext()).thenReturn(context);
+        Mockito.when(context.getDir(ArgumentMatchers.anyString(), ArgumentMatchers.anyInt())).thenReturn(file);
+        Mockito.when(drishtiApplication.getAppDir()).thenReturn(appDir);
+
+        Mockito.when(Utils.context()).thenReturn(mContext);
+        Mockito.when(mContext.imageRepository()).thenReturn(imageRepository);
+
+        ChildJsonFormUtils.saveImage(providerId, entityId, imageLocation);
+
+        String newFilePath = appDir + "/" + entityId + ".JPEG";
+        File newFile = new File(newFilePath);
+        Assert.assertTrue(newFile.exists());
+        newFile.delete();
     }
 }
