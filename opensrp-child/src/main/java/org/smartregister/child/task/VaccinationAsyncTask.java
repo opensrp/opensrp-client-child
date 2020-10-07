@@ -101,6 +101,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
+        executeInBackground();
+        return null;
+    }
+
+    private void executeInBackground() {
         vaccines = vaccineRepository.findByEntityId(entityId);
 
         List<Alert> alerts = alertService.findByEntityId(entityId);
@@ -144,8 +149,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
         }
-
-        return null;
     }
 
     private Boolean getIsGroupPartial(String vaccine) {

@@ -36,7 +36,9 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.GroupVaccineCount;
 import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccineCache;
+import org.smartregister.service.AlertService;
 import org.smartregister.util.AppProperties;
 import org.smartregister.view.contract.SmartRegisterClient;
 
@@ -80,6 +82,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @Mock
     private CommonRepository commonRepository;
+
+    @Mock
+    private VaccineRepository vaccineRepository;
+
+    @Mock
+    private AlertService alertService;
 
     private VaccinationAsyncTask vaccinationAsyncTask;
 
@@ -148,11 +156,12 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         when(registerActionParams.getConvertView()).thenReturn(view);
         when(registerActionParams.getProfileInfoView()).thenReturn(view);
+        when(registerActionParams.getEntityId()).thenReturn("baseEntityId");
 
         vaccinationAsyncTask = new VaccinationAsyncTask(registerActionParams
                 , commonRepository
-                , null
-                , null
+                , vaccineRepository
+                , alertService
                 , RuntimeEnvironment.application);
     }
 
@@ -572,5 +581,24 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         verify(view).setClickable(true);
         verify(view).setEnabled(true);
+    }
+
+    @Test
+    public void testExecuteInBackground() throws Exception {
+        Method executeInBackground = VaccinationAsyncTask.class.getDeclaredMethod("executeInBackground");
+        executeInBackground.setAccessible(true);
+
+        List<org.smartregister.immunization.domain.Vaccine> vaccineList = new ArrayList<>();
+        org.smartregister.immunization.domain.Vaccine newVaccine = new org.smartregister.immunization.domain.Vaccine(0l, "baseEntityId", "programClientid", "OPV 0", 0,
+                new Date(),
+                "anmId", "locationId", "syncStatus", "hia2Status", 0l,
+                "eventId", "formSubmissionId", 0, new Date());
+        vaccineList.add(newVaccine);
+        when(vaccineRepository.findByEntityId("baseEntityId")).thenReturn(vaccineList);
+
+        executeInBackground.invoke(vaccinationAsyncTask);
+
+        verify(vaccineRepository).findByEntityId("baseEntityId");
+        verify(alertService).findByEntityId("baseEntityId");
     }
 }
