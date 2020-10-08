@@ -146,7 +146,6 @@ public final class Constants extends AllConstants {
     public static final class INTENT_KEY {
         public static final String JSON = "json";
         public static final String BASE_ENTITY_ID = "base_entity_id";
-        public static final String RECORD_ACTION = "record_action";
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
         public static final String LOCATION_ID = "location_id";
@@ -189,8 +188,6 @@ public final class Constants extends AllConstants {
         public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
         public static final String FATHER_REGISTRATION = "Father Registration";
         public static final String DEATH = "Death";
-        public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
-        public static final String VACCINATION = "Vaccination";
         public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
