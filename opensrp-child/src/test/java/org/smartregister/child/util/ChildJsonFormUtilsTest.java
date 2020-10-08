@@ -79,9 +79,6 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-import static com.vijay.jsonwizard.constants.JsonFormConstants.FIELDS;
-import static com.vijay.jsonwizard.constants.JsonFormConstants.STEP1;
-
 public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock

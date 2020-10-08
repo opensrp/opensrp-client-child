@@ -73,10 +73,10 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 if (StringUtils.isNotEmpty(curField.getString(JsonFormConstants.VALUE))) {
                     weight = new Weight();
                     weight.setBaseEntityId("");
+                    weight.setOutOfCatchment(1);
                     weight.setKg(Float.parseFloat(curField.getString(JsonFormConstants.VALUE)));
                     weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(LocationHelper.getInstance()
-                            .getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
+                    weight.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
                     weight.setUpdatedAt(null);
                 }
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.OA_SERVICE_DATE)) {
@@ -118,8 +118,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
      * @param outOfAreaForm  Out of area form to extract recorded vaccines from
      * @return A list of recorded vaccines
      */
-    private static ArrayList<Vaccine> getVaccineObjects(Context context, org.smartregister.Context openSrpContext,
-                                                        JSONObject outOfAreaForm) throws Exception {
+    private static ArrayList<Vaccine> getVaccineObjects(Context context, org.smartregister.Context openSrpContext, JSONObject outOfAreaForm) throws Exception {
         ArrayList<Vaccine> vaccines = new ArrayList<>();
         JSONArray fields = outOfAreaForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         String serviceDate = null;
@@ -148,8 +147,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
-        SimpleDateFormat dateFormat =
-                new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
         for (Vaccine curVaccine : vaccines) {
             if (serviceDate != null) {
                 curVaccine.setDate(dateFormat.parse(serviceDate));
@@ -173,6 +171,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             if (curOption.getString(JsonFormConstants.VALUE).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 Vaccine curVaccine = new Vaccine();
                 curVaccine.setBaseEntityId("");
+                curVaccine.setOutOfCatchment(1);
                 curVaccine.setName(curOption.getString(JsonFormConstants.KEY));
                 curVaccine.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
                 curVaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation()));
@@ -181,28 +180,6 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
                 vaccines.add(curVaccine);
             }
         }
-    }
-
-    public static void addVaccine(VaccineRepository vaccineRepository, Vaccine vaccine) {
-        try {
-            if (vaccineRepository == null || vaccine == null) {
-                return;
-            }
-
-            // Add the vaccine
-            vaccineRepository.add(vaccine);
-
-            String name = vaccine.getName();
-            if (StringUtils.isBlank(name) || !name.contains("/")) {
-                return;
-            }
-
-            Utils.updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
-
-        } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
-        }
-
     }
 
     @Override
@@ -220,7 +197,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             ArrayList<Vaccine> vaccines = getVaccineObjects(context, ChildLibrary.getInstance().context(), form);
             if (vaccines.size() > 0) {
                 for (Vaccine curVaccine : vaccines) {
-                    addVaccine(vaccineRepository, curVaccine);
+                    Utils.addVaccine(vaccineRepository, curVaccine);
                 }
             }
         } catch (Exception e) {

@@ -214,21 +214,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         searchParameters.remove(getMotherGuardianPhoneNumber());
     }
 
-    private void enhanceStatusFilter(Map<String, String> map) {
-
-        if (!map.containsKey(Constants.CHILD_STATUS.ACTIVE)) {
-            map.put(Constants.CHILD_STATUS.ACTIVE, "false");
-        }
-        if (!map.containsKey(Constants.CHILD_STATUS.INACTIVE)) {
-            map.put(Constants.CHILD_STATUS.INACTIVE, "false");
-        }
-
-        if (!map.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
-            map.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "false");
-        }
-
-    }
-
     public DristhiConfiguration getDristhiConfiguration() {
         if (this.dristhiConfiguration == null) {
             this.dristhiConfiguration = CoreLibrary.getInstance().context().configuration();

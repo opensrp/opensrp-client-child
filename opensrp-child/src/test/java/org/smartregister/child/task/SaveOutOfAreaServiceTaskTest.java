@@ -18,8 +18,6 @@ import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
@@ -30,8 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @PrepareForTest({LocationHelper.class})
@@ -52,12 +48,6 @@ public class SaveOutOfAreaServiceTaskTest {
 
     @Mock
     private LocationHelper locationHelper;
-
-    @Mock
-    private VaccineRepository vaccineRepository;
-
-    @Mock
-    private Vaccine vaccine;
 
     private SaveOutOfAreaServiceTask saveOutOfAreaServiceTask;
 
@@ -109,27 +99,6 @@ public class SaveOutOfAreaServiceTaskTest {
         Assert.assertEquals(4.0, weight.getKg(), 0.0);
         Assert.assertEquals("8352", weight.getProgramClientId());
         Assert.assertEquals(date, weight.getDate());
-    }
-
-    @Test
-    public void testAddVaccineWhenArgsAreNull() {
-        SaveOutOfAreaServiceTask.addVaccine(null, null);
-        verify(vaccineRepository, never()).add(vaccine);
-    }
-
-    @Test
-    public void testAddVaccineWhenArgsAreNotNull(){
-        SaveOutOfAreaServiceTask.addVaccine(vaccineRepository, vaccine);
-        verify(vaccineRepository).add(vaccine);
-    }
-
-    @Test
-    public void testAddVaccineWhenVaccineNameIsSet(){
-        when(vaccine.getName()).thenReturn("BCG/OPV");
-
-        SaveOutOfAreaServiceTask.addVaccine(vaccineRepository, vaccine);
-
-        verify(vaccineRepository).add(vaccine);
     }
 
 }
