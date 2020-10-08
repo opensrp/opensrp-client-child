@@ -170,6 +170,10 @@ public final class Constants extends AllConstants {
         public static final int TRUE = 1;
     }
 
+    public interface BOOLEAN_STRING {
+        String TRUE = "true";
+    }
+
     public static class FormActivity {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }

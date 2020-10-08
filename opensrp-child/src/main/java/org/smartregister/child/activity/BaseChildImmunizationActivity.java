@@ -861,6 +861,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
+        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false)) ? 1 : 0);
         return vaccine;
     }
 
@@ -1455,12 +1456,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             return;
         }
 
-
+        boolean isOutOfCatchmentVaccine = Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
         Vaccine vaccine = new Vaccine();
         if (tag.getDbKey() != null) {
             vaccine = vaccineRepository.find(tag.getDbKey());
         }
-        vaccine.setBaseEntityId(childDetails.entityId());
+        vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
@@ -1473,6 +1474,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
+
+        vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
         Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
         setLastModified(true);

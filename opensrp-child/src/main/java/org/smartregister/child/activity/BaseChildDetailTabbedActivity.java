@@ -93,6 +93,7 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -114,8 +115,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by raihan on 1/03/2017.
@@ -415,13 +414,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         String dobString;
         String formattedAge = "";
         if (isDataOk()) {
-            name = getValue(childDetails, Constants.KEY.FIRST_NAME, true) + " " +
-                    getValue(childDetails, Constants.KEY.LAST_NAME, true);
-            childId = getValue(childDetails, Constants.KEY.ZEIR_ID, false);
+            name = Utils.getValue(childDetails, Constants.KEY.FIRST_NAME, true) + " " +
+                    Utils.getValue(childDetails, Constants.KEY.LAST_NAME, true);
+            childId = Utils.getValue(childDetails, Constants.KEY.ZEIR_ID, false);
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails, Constants.KEY.DOB, false);
+            dobString = Utils.getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
@@ -431,7 +430,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 }
             }
 
-            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false));
+            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false));
             findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             if (overflow != null) {
@@ -885,10 +884,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     public void saveVaccine(VaccineWrapper vaccineWrapper) {
         Vaccine vaccine = new Vaccine();
+
+        boolean isOutOfCatchmentVaccine = Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+
         if (vaccineWrapper.getDbKey() != null) {
             vaccine = ImmunizationLibrary.getInstance().vaccineRepository().find(vaccineWrapper.getDbKey());
         }
-        vaccine.setBaseEntityId(childDetails.entityId());
+        vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
         vaccine.setName(vaccineWrapper.getName());
         vaccine.setDate(vaccineWrapper.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(vaccineWrapper.getUpdatedVaccineDate().toDate().getTime());
@@ -903,6 +905,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
+
+        vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
         Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
         vaccineWrapper.setDbKey(vaccine.getId());
 
@@ -944,22 +949,26 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
         if (weightWrapper != null && (weightWrapper.getWeight() != null)) {
+
+            boolean isOutOfCatchmentVaccine = Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+
             WeightRepository weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
             Weight weight = new Weight();
             if (weightWrapper.getDbKey() != null) {
                 weight = weightRepository.find(weightWrapper.getDbKey());
             }
-            weight.setBaseEntityId(childDetails.entityId());
+            weight.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(weight.getSyncStatus()) ? "" : childDetails.entityId());
             weight.setKg(weightWrapper.getWeight());
             weight.setDate(weightWrapper.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
             if (StringUtils.isNotBlank(locationId)) {
                 weight.setLocationId(locationId);
             }
+            weight.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
 
             Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
-            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
@@ -967,19 +976,21 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             } else {
                 weightRepository.add(weight);
             }
-
             weightWrapper.setDbKey(weight.getId());
         }
     }
 
     private void updateHeightWrapper(HeightWrapper heightWrapper) {
         if (heightWrapper != null && (heightWrapper.getHeight() != null)) {
+
+            boolean isOutOfCatchmentVaccine = Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+
             HeightRepository heightRepository = GrowthMonitoringLibrary.getInstance().heightRepository();
             Height height = new Height();
             if (heightWrapper.getDbKey() != null) {
                 height = heightRepository.find(heightWrapper.getDbKey());
             }
-            height.setBaseEntityId(childDetails.entityId());
+            height.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(height.getSyncStatus()) ? "" : childDetails.entityId());
             height.setCm(heightWrapper.getHeight());
             height.setDate(heightWrapper.getUpdatedHeightDate().toDate());
             height.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
@@ -987,9 +998,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 height.setLocationId(locationId);
             }
 
+            height.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
             Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
-            String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
@@ -1013,7 +1026,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 //Date Birth
                 JSONObject dateBirthJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_BIRTH);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
-                String dobString = getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
+                String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, true);
                 Date dob = Utils.dobStringToDate(dobString);
                 if (dob != null) {
                     dateBirthJSONObject.put(ChildJsonFormUtils.VALUE, simpleDateFormat.format(dob));
