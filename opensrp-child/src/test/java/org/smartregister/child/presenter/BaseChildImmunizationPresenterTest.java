@@ -15,7 +15,9 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,9 @@ public class BaseChildImmunizationPresenterTest {
 
     @Mock
     private HeightRepository heightRepository;
+
+    @Mock
+    private WeightRepository weightRepository;
 
 
     private BaseChildImmunizationPresenter presenter;
@@ -84,6 +89,30 @@ public class BaseChildImmunizationPresenterTest {
         Assert.assertEquals("46.0", heightList.get(1).getCm().toString());
         Assert.assertEquals("51.0", heightList.get(2).getCm().toString());
         Assert.assertEquals("48.0", heightList.get(3).getCm().toString());
+
+    }
+
+    @Test
+    public void getAllWeights() {
+
+        PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
+        PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
+        Mockito.doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
+
+        Weight weight = new Weight();
+        weight.setKg(2.8f);
+        Weight weight2 = new Weight();
+        weight2.setKg(4.4f);
+        List<Weight> weights = new ArrayList<>(Arrays.asList(new Weight[]{weight, weight2,}));
+
+        Mockito.doReturn(weights).when(weightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+
+        List<Weight> weightList = presenter.getAllWeights(childDetails);
+        Assert.assertNotNull(weightList);
+        Assert.assertEquals(3, weightList.size());
+        Assert.assertEquals("2.8", weightList.get(0).getKg().toString());
+        Assert.assertEquals("3.6", weightList.get(2).getKg().toString());
+        Assert.assertEquals("4.4", weightList.get(1).getKg().toString());
 
     }
 
