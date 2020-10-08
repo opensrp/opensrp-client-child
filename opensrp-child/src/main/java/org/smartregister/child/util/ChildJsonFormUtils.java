@@ -192,7 +192,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     /**
-     * Generates location tree for location type fields
+     * Generate location tree for location type fields
      *
      * @param form JSON form object
      * @return Map of key-value pairs with location openmrs_entity_id as key and the location id as the value
@@ -214,12 +214,26 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * Generate a JSON array of user's assigned location names
+     *
+     * @param locationTags List of location tag names
+     * @return JSON array of default location names
+     */
     private static String generateLocationString(List<String> locationTags) {
         List<String> locationNames = LocationHelper.getInstance().generateDefaultLocationHierarchy(locationTags);
         return AssetHandler.javaToJsonString(locationNames, new TypeToken<List<String>>() {
         }.getType());
     }
 
+    /**
+     * Generate form location tree hierarchy
+     *
+     * @param locationTags  List of location levels to be displayed in the tree hierarchy
+     * @param showOther     Flag on whether to display the "Other" option in the tree
+     * @param selectableTag Tag name of level that should be selectable in the tree
+     * @return FormLocationTree object
+     */
     private static FormLocationTree generateFormLocationTree(List<String> locationTags, boolean showOther, String selectableTag) {
         ArrayList<String> allowedLevels = (ArrayList<String>) locationTags;
 
@@ -359,16 +373,31 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return curQuestion;
     }
 
+    /**
+     * Fetch configured locations levels
+     *
+     * @return List of location level names
+     */
     @NotNull
     private static List<String> getLocationLevels() {
         return Utils.metadata().getLocationLevels();
     }
 
+    /**
+     * Fetch configured list of health facility levels
+     *
+     * @return List of health facility level names
+     */
     @NotNull
     private static List<String> getHealthFacilityLevels() {
         return Utils.metadata().getHealthFacilityLevels();
     }
 
+    /**
+     * Fetch list of configured allowed levels
+     *
+     * @return List of allowed level names
+     */
     @NotNull
     private static List<String> getAllowedLevels() {
         return LocationHelper.getInstance().getAllowedLevels();
@@ -478,8 +507,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-    private static void addLocationTree(@NonNull String widgetKey, @NonNull JSONObject
-            widget, @NonNull String updateString, @NonNull String treeType) {
+    private static void addLocationTree(@NonNull String widgetKey, @NonNull JSONObject widget,
+                                        @NonNull String updateString, @NonNull String treeType) {
         try {
             if (widgetKey.equals(widget.optString(JsonFormConstants.KEY))) {
                 widget.put(treeType, new JSONArray(updateString));
@@ -489,13 +518,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void addLocationTreeDefault(@NonNull String widgetKey, @NonNull JSONObject
-            widget, @NonNull String updateString) {
+    private static void addLocationTreeDefault(@NonNull String widgetKey, @NonNull JSONObject widget,
+                                               @NonNull String updateString) {
         addLocationTree(widgetKey, widget, updateString, JsonFormConstants.DEFAULT);
     }
 
-    public static void saveReportDeceased(Context context, String jsonString, String
-            locationId, String entityId) {
+    public static void saveReportDeceased(Context context, String jsonString,
+                                          String locationId, String entityId) {
         try {
 
             String providerId = ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM();
@@ -599,8 +628,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
     }
 
-    private static Event getEvent(String providerId, String locationId, String entityId, String
-            encounterType, Date encounterDate, String childType) {
+    private static Event getEvent(String providerId, String locationId, String entityId,
+                                  String encounterType, Date encounterDate, String childType) {
+
         Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
                 .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
@@ -611,9 +641,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
-    private static void createDeathEventObject(Context context, String providerId, String
-            locationId, String entityId, EventClientRepository db, Date encounterDate, String
-                                                       encounterDateTimeString, Event event) throws JSONException {
+    private static void createDeathEventObject(Context context, String providerId, String locationId,
+                                               String entityId, EventClientRepository db, Date encounterDate,
+                                               String encounterDateTimeString, Event event) throws JSONException {
+
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
 
         //After saving, Unsync(remove) this event's details
@@ -651,10 +682,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    //Update All FTS for each client
-    public static void updateChildFTSTablesSearchOnly(String
-                                                              tableName, List<String> entityIds) {
-
+    /**
+     * Update All FTS for each client
+     *
+     * @param tableName
+     * @param entityIds
+     */
+    public static void updateChildFTSTablesSearchOnly(String tableName, List<String> entityIds) {
         ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName).updateSearch(entityIds);
     }
 
@@ -857,6 +891,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * Update value tag for fields of type tree with the locationId
+     *
+     * @param fields JSONArray of form fields
+     * @throws JSONException
+     */
     protected static void processLocationFields(JSONArray fields) throws JSONException {
         for (int i = 0; i < fields.length(); i++) {
             if (fields.getJSONObject(i).has(JsonFormConstants.TYPE) && fields.getJSONObject(i).getString(JsonFormConstants.TYPE).equals(JsonFormConstants.TREE)) {
@@ -966,8 +1006,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             return;
         }
         OutputStream os = null;
-        try {
 
+        try {
             if (StringUtils.isNotBlank(entityId)) {
                 final String absoluteFileName = DrishtiApplication.getAppDir() + File.separator + entityId + ".JPEG";
 
@@ -986,7 +1026,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 ImageRepository imageRepo = Utils.context().imageRepository();
                 imageRepo.add(profileImage);
             }
-
         } catch (FileNotFoundException e) {
             Timber.e(e, "JsonFormUtils --> Failed to save static image to disk");
         } finally {
@@ -998,7 +1037,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
         }
-
     }
 
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
@@ -1054,9 +1092,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void setFormFieldValues
-            (Map<String, String> childDetails, List<String> nonEditableFields, JSONObject
-                    jsonObject) throws JSONException {
+    private static void setFormFieldValues(Map<String, String> childDetails, List<String> nonEditableFields, JSONObject jsonObject)
+            throws JSONException {
 
         String prefix = "";
 
@@ -1100,7 +1137,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         jsonObject.put(ChildJsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(ChildJsonFormUtils.KEY)));
     }
 
-
     private static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
         if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
             jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
@@ -1120,7 +1156,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     private static void setFormFieldInitDataCleanUp(Map<String, String> childDetails, String prefix) {
-
         //Inject if missing for entity age processing
         String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
         String dobUnknownKey = prefix + "dob_unknown";
@@ -1229,7 +1264,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
-
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
         } catch (Exception e) {
@@ -1238,8 +1272,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId,
-                                                                 ChildEventClient base) {
+    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
         } catch (Exception e) {
@@ -1249,7 +1282,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType) throws JSONException {
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType)
+            throws JSONException {
 
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
 
@@ -1401,7 +1435,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-
     /**
      * Get Relations for the child with the provided entity id
      *
@@ -1421,9 +1454,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-
     private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId) {
-
         if (StringUtils.isBlank(bindType)) {
             return null;
         }
@@ -1468,8 +1499,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date
-            deathDate, boolean birthDateApprox, boolean deathDateApprox) {
+    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate,
+                                    boolean birthDateApprox, boolean deathDateApprox) {
 
         return (Client) new Client(clientMap.get(Constants.ENTITY_ID))
                 .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
@@ -1526,7 +1557,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return dateApprox;
     }
 
-
     private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent,
                                             String entityId, String encounterType, String bindType) {
 
@@ -1535,7 +1565,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Set<String> eligibleBindTypeEvents = eventTypeMap.get(bindType);
         EventClient existingEventClient = null;
-        if(eligibleBindTypeEvents != null) {
+        if (eligibleBindTypeEvents != null) {
             for (EventClient eventClient : eventClients) {
                 if (eligibleBindTypeEvents.contains(eventClient.getEvent().getEventType())) {
                     existingEventClient = eventClient;
@@ -1559,8 +1589,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             addSaveReportDeceasedObservations(fields, event);
     }
 
-    private static Event getSubFormEvent(Event parent, String entityId, String
-            encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
+    private static Event getSubFormEvent(Event parent, String entityId, String encounterType,
+                                         String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
+
         Event event = (Event) new Event().withBaseEntityId(alreadyExists ? existingEvent.getBaseEntityId() : entityId)
                 .withEventDate(parent.getEventDate())
                 .withEventType(alreadyExists ? existingEvent.getEventType() : encounterType)
@@ -1836,9 +1867,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @param currentLocationId           OpenMRS id for the current device's location
      * @throws Exception
      */
+    public static void startForm(Activity context, int jsonFormActivityRequestCode, String formName,
+                                 String uniqueId, String currentLocationId) throws Exception {
 
-    public static void startForm(Activity context, int jsonFormActivityRequestCode, String
-            formName, String uniqueId, String currentLocationId) throws Exception {
         String entityId = uniqueId;
         JSONObject form = new FormUtils(context).getFormJson(formName);
         if (form != null) {
@@ -1960,7 +1991,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         return detailsMap;
     }
-
 
     /**
      * This method is used to process the result returned by advance search using the new approach.
