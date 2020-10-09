@@ -12,6 +12,7 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.domain.Response;
+import org.smartregister.view.contract.IField;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -175,5 +176,20 @@ public class AdvancedSearchModel extends BaseChildAdvancedSearchModel {
             Log.e(getClass().getName(), e.toString(), e);
         }
         return date;
+    }
+
+    @Override
+    public String countSelect(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public String mainSelect(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public String getSortText(IField iField) {
+        return null;
     }
 }
