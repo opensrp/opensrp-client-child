@@ -33,6 +33,8 @@ import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.interactor.ChildFormInteractor;
@@ -97,10 +99,10 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     };
 
-    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener =
-            new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+    private final Listener<Map<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener =
+            new Listener<Map<CommonPersonObject, List<CommonPersonObject>>>() {
                 @Override
-                public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
+                public void onEvent(Map<CommonPersonObject, List<CommonPersonObject>> data) {
                     if (!lookedUp) {
                         showMotherLookUp(data);
                     }
@@ -179,11 +181,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     //Mother Lookup
-    public Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener() {
+    public Listener<Map<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener() {
         return motherLookUpListener;
     }
 
-    private void showMotherLookUp(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
+    private void showMotherLookUp(final Map<CommonPersonObject, List<CommonPersonObject>> map) {
         if (!map.isEmpty()) {
             tapToView(map);
         } else {
@@ -193,7 +195,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     }
 
-    private void tapToView(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
+    private void tapToView(final Map<CommonPersonObject, List<CommonPersonObject>> map) {
         snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, String.valueOf(map.size())),
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
@@ -207,7 +209,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     }
 
-    private void updateResults(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
+    private void updateResults(final Map<CommonPersonObject, List<CommonPersonObject>> map) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.mother_lookup_results, null);
 
@@ -402,7 +404,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
      * @return a map of key against their column names.
      */
     @NotNull
-    protected HashMap<String, String> getKeyAliasMap() {
+    protected Map<String, String> getKeyAliasMap() {
         return new HashMap<>();
     }
 
@@ -441,9 +443,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         if (StringUtils.isNotBlank(value)) {
             if (view instanceof MaterialEditText) {
                 MaterialEditText materialEditText = (MaterialEditText) view;
-                materialEditText.setEnabled(false);
                 materialEditText.setTag(R.id.after_look_up, true);
                 materialEditText.setText(value);
+                materialEditText.setEnabled(false);
                 materialEditText.setInputType(InputType.TYPE_NULL);
             } else if (view instanceof RelativeLayout) {
                 setSpinnerValue(value, (ViewGroup) view);
@@ -468,15 +470,21 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void setSpinnerValue(String value, ViewGroup spinnerViewGroup) {
-        if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
-            MaterialSpinner spinner = (MaterialSpinner) spinnerViewGroup.getChildAt(0);
-            for (int index = 0; index < spinner.getAdapter().getCount(); index++) {
-                if (String.valueOf(spinner.getAdapter().getItem(index)).equalsIgnoreCase(value)) {
-                    spinner.setSelection(index + 1);
-                    break;
+        try {
+            if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
+                MaterialSpinner spinner = (MaterialSpinner) spinnerViewGroup.getChildAt(0);
+
+                JSONArray keysArray = (JSONArray) spinner.getTag(R.id.keys);
+                for (int index = 0; index < spinner.getAdapter().getCount(); index++) {
+                    if ((keysArray != null && keysArray.length() > 0 && keysArray.getString(index).equalsIgnoreCase(value)) || String.valueOf(spinner.getAdapter().getItem(index)).equalsIgnoreCase(value)) {
+                        spinner.setSelection(index + 1);
+                        break;
+                    }
                 }
+                spinner.setEnabled(false);
             }
-            spinner.setEnabled(false);
+        } catch (JSONException e) {
+            Timber.e(e);
         }
     }
 
