@@ -9,6 +9,9 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.ViewConfiguration;
+import org.smartregister.view.contract.IField;
+import org.smartregister.view.contract.IView;
+import org.smartregister.view.contract.IViewConfiguration;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -26,7 +29,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
 
     protected RegisterConfiguration config;
 
-    protected Set<org.smartregister.configurableviews.model.View> visibleColumns = new TreeSet<>();
+    protected Set<IView> visibleColumns = new TreeSet<>();
 
     protected String viewConfigurationIdentifier;
 
@@ -49,7 +52,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
             return;
         }
 
-        ViewConfiguration viewConfiguration = model.getViewConfiguration(viewConfigurationIdentifier);
+        IViewConfiguration viewConfiguration = model.getViewConfiguration(viewConfigurationIdentifier);
         if (viewConfiguration != null) {
             config = (RegisterConfiguration) viewConfiguration.getMetadata();
             setVisibleColumns(model.getRegisterActiveColumns(viewConfigurationIdentifier));
@@ -84,7 +87,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
         // TODO implement search global
     }
 
-    private void setVisibleColumns(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    private void setVisibleColumns(Set<IView> visibleColumns) {
         this.visibleColumns = visibleColumns;
     }
 
@@ -94,7 +97,7 @@ public abstract class BaseChildRegisterFragmentPresenter implements ChildRegiste
     }
 
     @Override
-    public void updateSortAndFilter(List<Field> filterList, Field sortField) {
+    public void updateSortAndFilter(List<IField> filterList, IField sortField) {
         String filterText = model.getFilterText(filterList, getView().getString(R.string.filter));
         String sortText = model.getSortText(sortField);
 

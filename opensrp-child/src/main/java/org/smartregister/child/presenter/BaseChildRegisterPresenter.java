@@ -95,12 +95,16 @@ public class BaseChildRegisterPresenter
     }
 
     @Override
-    public void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception {
+    public void startForm(String formName, String entityId, String metadata, String currentLocationId) {
         Map<String, String> metadataMap = StringUtils.isBlank(metadata) ? new HashMap<String, String>() : (Map<String, String>) new Gson()
                 .fromJson(metadata, new TypeToken<Map<String, String>>() {
                 }.getType());
 
-        startForm(formName, entityId, metadataMap, currentLocationId);
+        try {
+            startForm(formName, entityId, metadataMap, currentLocationId);
+        } catch (Exception e) {
+            Timber.e(e);
+        }
     }
 
     @Override

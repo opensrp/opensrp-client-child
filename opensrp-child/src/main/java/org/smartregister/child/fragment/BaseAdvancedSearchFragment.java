@@ -57,6 +57,7 @@ import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
+import org.smartregister.view.contract.IView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -274,7 +275,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     public abstract void populateSearchableFields(View view);
 
     @Override
-    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    public void initializeAdapter(Set<IView> visibleColumns) {
 
         RepositoryHolder repoHolder = new RepositoryHolder();
 

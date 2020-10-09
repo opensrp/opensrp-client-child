@@ -38,6 +38,7 @@ import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
+import org.smartregister.view.contract.IView;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
@@ -291,7 +292,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-    public void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns) {
+    public void initializeAdapter(Set<IView> visibleColumns) {
         RepositoryHolder repositoryHolder = new RepositoryHolder();
         repositoryHolder.setCommonRepository(commonRepository());
         repositoryHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());

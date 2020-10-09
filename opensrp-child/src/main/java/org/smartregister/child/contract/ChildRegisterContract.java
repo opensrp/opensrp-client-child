@@ -26,7 +26,7 @@ public interface ChildRegisterContract {
 
         void saveLanguage(String language);
 
-        void startForm(String formName, String entityId, String metadata, String currentLocationId) throws Exception;
+        void startForm(String formName, String entityId, String metadata, String currentLocationId);
 
         void startForm(String formName, String entityId, Map<String, String> metadata, String currentLocationId) throws Exception;
 
