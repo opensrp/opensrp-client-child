@@ -317,9 +317,9 @@ public class Utils extends org.smartregister.util.Utils {
 
         Gender gender = Gender.UNKNOWN;
         String genderString = weightWrapper.getGender();
-        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+        if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
             gender = Gender.FEMALE;
-        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+        } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
             gender = Gender.MALE;
         }
 

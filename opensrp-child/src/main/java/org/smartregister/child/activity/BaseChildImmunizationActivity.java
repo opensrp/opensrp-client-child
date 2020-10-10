@@ -727,9 +727,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
         String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+        if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
             return getString(R.string.her);
-        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+        } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
             return getString(R.string.him);
         }
 
@@ -996,7 +996,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
                         ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
                 if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
-                    showCheckBcgScarNotification(null);
+                    showCheckBcgScarNotification();
                 }
 
                 break;
@@ -1048,8 +1048,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         fragmentTransaction.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
-        UndoVaccinationDialogFragment undoVaccinationDialogFragment =
-                UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
+        UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -1059,7 +1058,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         });
     }
 
-    private void showCheckBcgScarNotification(Alert alert) {
+    private void showCheckBcgScarNotification() {
         if (!bcgScarNotificationShown) {
             bcgScarNotificationShown = true;
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);

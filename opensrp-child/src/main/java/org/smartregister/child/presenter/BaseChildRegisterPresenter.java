@@ -15,7 +15,7 @@ import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
-import org.smartregister.child.util.ChildJsonFormUtils;
+import org.smartregister.child.util.OutOfAreaServiceUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.repository.AllSharedPreferences;
 
@@ -135,7 +135,7 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void saveOutOfCatchmentService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        ChildJsonFormUtils.processOutOfAreaService(jsonString, progressDialogCallback);
+        OutOfAreaServiceUtils.processOutOfAreaService(jsonString, progressDialogCallback);
     }
 
     @Override

@@ -73,7 +73,7 @@ public class LookUpTextWatcher implements TextWatcher {
         lookUpMap.put(mEntityId, entityLookUp);
 
 
-        Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener = null;
+        Listener<Map<CommonPersonObject, List<CommonPersonObject>>> listener = null;
         if (formFragment instanceof ChildFormFragment) {
             ChildFormFragment childFormFragment = (ChildFormFragment) formFragment;
             listener = childFormFragment.motherLookUpListener();
@@ -85,7 +85,7 @@ public class LookUpTextWatcher implements TextWatcher {
 
     }
 
-    protected void initiateLookUp(Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener) {
+    protected void initiateLookUp(Listener<Map<CommonPersonObject, List<CommonPersonObject>>> listener) {
         MotherLookUpUtils.motherLookUp(ChildLibrary.getInstance().context(), formFragment.getActivity(), lookUpMap.get(mEntityId), listener, null);
     }
 }
