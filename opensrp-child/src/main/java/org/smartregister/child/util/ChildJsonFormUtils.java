@@ -1621,11 +1621,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return array;
     }
 
-    public static void processOutOfAreaService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(ChildLibrary.getInstance().context().applicationContext(), jsonString, progressDialogCallback);
-        Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
-    }
-
     public static boolean processMoveToCatchment(org.smartregister.Context openSRPContext, MoveToCatchmentEvent moveToCatchmentEvent) {
         try {
             JSONObject jsonObject = moveToCatchmentEvent.getJsonObject();

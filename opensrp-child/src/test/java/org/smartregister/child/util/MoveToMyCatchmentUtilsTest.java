@@ -20,7 +20,7 @@ import org.smartregister.child.domain.MoveToCatchmentEvent;
 public class MoveToMyCatchmentUtilsTest {
 
     @Mock
-    private org.smartregister.Context context;
+    private Context context;
 
     @Before
     public void setUp() {
