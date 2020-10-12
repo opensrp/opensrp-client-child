@@ -861,7 +861,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
-        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false)) ? 1 : 0);
+        String isOutOfCatchement = isDataOk() && childDetails.getColumnmaps() != null && childDetails.getColumnmaps().containsKey(Constants.Client.IS_OUT_OF_CATCHMENT) ? Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false) : "false";
+        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(isOutOfCatchement) ? 1 : 0);
         return vaccine;
     }
 

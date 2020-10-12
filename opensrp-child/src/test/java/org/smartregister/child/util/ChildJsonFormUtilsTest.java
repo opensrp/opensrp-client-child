@@ -28,6 +28,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
@@ -225,11 +226,11 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONArray fields = populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         Assert.assertEquals(26, fields.length());
-        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "zeir_id"));
-        Assert.assertEquals("Janet", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "first_name"));
-        Assert.assertEquals("Doe", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "last_name"));
-        Assert.assertEquals("Male", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "Sex"));
-        Assert.assertEquals("2.1", JsonFormUtils.getFieldValue(JsonFormConstants.FIELDS, "Birth_Weight"));
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.toString(), Constants.KEY.ZEIR_ID));
+        Assert.assertEquals("Janet", JsonFormUtils.getFieldValue(fields, "first_name"));
+        Assert.assertEquals("Doe", JsonFormUtils.getFieldValue(fields, "last_name"));
+        Assert.assertEquals("Male", JsonFormUtils.getFieldValue(fields, "Sex"));
+        Assert.assertEquals("2.1", JsonFormUtils.getFieldValue(fields, "Birth_Weight"));
     }
 
     @Test
@@ -645,8 +646,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ContentValues contentValues = allCommonsRepoUpdate.getValue();
         Assert.assertNotNull(contentValues);
 
-        Assert.assertEquals(contentValues.get(Constants.KEY.DOD), "19-05-2020");
-        Assert.assertEquals(contentValues.get(Constants.KEY.DATE_REMOVED), Utils.getTodaysDate());
+        Assert.assertEquals("19-05-2020", contentValues.get(Constants.KEY.DOD));
+        Assert.assertEquals(Utils.getTodaysDate(), contentValues.get(Constants.KEY.DATE_REMOVED));
 
 
         ContentValues contentValues1 = dbUpdateDateOfRemoval.getValue();
@@ -765,6 +766,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
 
         Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
 
         String attributeName = "Child_Status";
         String attributeValue = "Inactive";

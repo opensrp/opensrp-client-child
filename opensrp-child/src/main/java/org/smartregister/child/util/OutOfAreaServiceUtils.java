@@ -2,7 +2,6 @@ package org.smartregister.child.util;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,26 +34,26 @@ public class OutOfAreaServiceUtils {
      */
     public static Weight getRecordedWeight(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm, String locationId, Map<String, String> metadata)
             throws JSONException, ParseException {
-        Weight weight = null;
-        JSONArray fields = outOfAreaForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
 
+        Weight weight = null;
+
+        JSONArray fields = outOfAreaForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
 
         for (int i = 0; i < fields.length(); i++) {
             JSONObject curField = fields.getJSONObject(i);
-            if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.WEIGHT_KG)) {
-                if (StringUtils.isNotEmpty(curField.getString(JsonFormConstants.VALUE))) {
-                    weight = new Weight();
-                    weight.setBaseEntityId("");
-                    weight.setOutOfCatchment(1);
-                    weight.setKg(Float.parseFloat(curField.getString(JsonFormConstants.VALUE)));
-                    weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
-                    weight.setLocationId(locationId);
-                    weight.setUpdatedAt(null);
+            if (curField != null && curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.WEIGHT_KG)) {
+                weight = new Weight();
+                weight.setBaseEntityId("");
+                weight.setOutOfCatchment(1);
+                weight.setKg(Float.valueOf(String.valueOf(curField.getDouble(JsonFormConstants.VALUE))));
+                weight.setAnmId(openSrpContext.allSharedPreferences().fetchRegisteredANM());
+                weight.setLocationId(locationId);
+                weight.setUpdatedAt(null);
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
-                    weight.setDate(dateFormat.parse(metadata.get(Constants.KEY.OA_SERVICE_DATE)));
-                    weight.setProgramClientId(metadata.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) ? metadata.get(Constants.KEY.NFC_CARD_IDENTIFIER) : metadata.get(Constants.KEY.OPENSRP_ID));
-                }
+                SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+                weight.setDate(dateFormat.parse(metadata.get(Constants.KEY.OA_SERVICE_DATE)));
+                weight.setProgramClientId(metadata.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) ? metadata.get(Constants.KEY.NFC_CARD_IDENTIFIER) : metadata.get(Constants.KEY.OPENSRP_ID));
+
             }
         }
 
@@ -87,7 +86,7 @@ public class OutOfAreaServiceUtils {
     private static void addSingleVaccine(org.smartregister.Context openSrpContext, ArrayList<Vaccine> vaccines, JSONArray options, String locationId, Map<String, String> metadata) throws JSONException, ParseException {
         for (int j = 0; j < options.length(); j++) {
             JSONObject curOption = options.getJSONObject(j);
-            if (curOption.getString(JsonFormConstants.VALUE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (curOption.getBoolean(JsonFormConstants.VALUE)) {
                 Vaccine curVaccine = new Vaccine();
                 curVaccine.setBaseEntityId("");
                 curVaccine.setOutOfCatchment(1);

@@ -13,11 +13,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
 
 @PrepareForTest({MoveToMyCatchmentUtilsTest.class, ChildJsonFormUtils.class, ChildLibrary.class, CoreLibrary.class})
-public class MoveToMyCatchmentUtilsTest {
+public class MoveToMyCatchmentUtilsTest extends BasePowerMockUnitTest {
 
     @Mock
     private Context context;
@@ -30,7 +31,7 @@ public class MoveToMyCatchmentUtilsTest {
 
     @Test
     public void testProcessMoveToCatchmentWhenEventIsZeroWithCoreLibraryInstanceNull() {
-        PowerMockito.when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class))).thenReturn(false);
+        PowerMockito.when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class))).thenReturn(null);
         Assert.assertFalse(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class)));
     }
 
@@ -39,7 +40,7 @@ public class MoveToMyCatchmentUtilsTest {
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
         jsonObject.put(Constants.NO_OF_EVENTS, 20);
 
-        PowerMockito.when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class))).thenReturn(true);
+        PowerMockito.when(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class))).thenReturn(null);
         Assert.assertFalse(MoveToMyCatchmentUtils.processMoveToCatchment(Mockito.mock(Context.class), Mockito.mock(MoveToCatchmentEvent.class)));
     }
 }
