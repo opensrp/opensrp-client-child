@@ -1,6 +1,5 @@
 package org.smartregister.child.task;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import org.json.JSONObject;
@@ -25,15 +24,12 @@ import timber.log.Timber;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
-
-    private final Context context;
     private final String formString;
     private WeightRepository weightRepository;
     private VaccineRepository vaccineRepository;
     private ChildRegisterContract.ProgressDialogCallback progressDialogCallback;
 
-    public SaveOutOfAreaServiceTask(Context context, String formString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        this.context = context;
+    public SaveOutOfAreaServiceTask(String formString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
         this.formString = formString;
         this.weightRepository = GrowthMonitoringLibrary.getInstance().weightRepository();
         this.vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
