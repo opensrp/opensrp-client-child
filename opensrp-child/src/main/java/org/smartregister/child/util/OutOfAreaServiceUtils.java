@@ -5,7 +5,6 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -106,7 +105,7 @@ public class OutOfAreaServiceUtils {
     }
 
     public static void processOutOfAreaService(String outOfAreaJsonFormString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(ChildLibrary.getInstance().context().applicationContext(), outOfAreaJsonFormString, progressDialogCallback);
+        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(outOfAreaJsonFormString, progressDialogCallback);
         Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
     }
 
