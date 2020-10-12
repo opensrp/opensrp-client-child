@@ -57,8 +57,9 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
     @Test
     public void testGetRecordedWeight() throws JSONException, ParseException {
 
-        Map<String, String> metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(new JSONObject(outOfAreaFormWithWeight));
-        Weight weight = OutOfAreaServiceUtils.getRecordedWeight(opensrpContext, new JSONObject(outOfAreaFormWithWeight), locationId, metadata);
+        JSONObject outOfAreaFormJsonObject = new JSONObject(outOfAreaFormWithWeight);
+        Map<String, String> metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(outOfAreaFormJsonObject);
+        Weight weight = OutOfAreaServiceUtils.getRecordedWeight(opensrpContext, outOfAreaFormJsonObject, locationId, metadata);
 
         Assert.assertNotNull(weight);
         Assert.assertEquals(Float.valueOf("3.7"), weight.getKg());
@@ -67,11 +68,13 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
     @Test
     public void testGetRecordedVaccines() throws Exception {
 
+        JSONObject outOfAreaFormJsonObject = new JSONObject(outOfAreaForm);
+
         PowerMockito.mockStatic(VaccinatorUtils.class);
         PowerMockito.when(VaccinatorUtils.getVaccineCalculation(ArgumentMatchers.eq(context), ArgumentMatchers.anyString())).thenReturn(4);
 
-        Map<String, String> metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(new JSONObject(outOfAreaForm));
-        List<Vaccine> vaccines = OutOfAreaServiceUtils.getRecordedVaccines(opensrpContext, new JSONObject(outOfAreaForm), locationId, metadata);
+        Map<String, String> metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(outOfAreaFormJsonObject);
+        List<Vaccine> vaccines = OutOfAreaServiceUtils.getRecordedVaccines(opensrpContext, outOfAreaFormJsonObject, locationId, metadata);
         Assert.assertNotNull(vaccines);
     }
 
