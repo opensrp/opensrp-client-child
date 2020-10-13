@@ -20,7 +20,7 @@ public class BaseViewRecordUpdateWrapperTest {
     @Mock
     private SmartRegisterClient smartRegisterClient;
 
-    BaseViewRecordUpdateWrapper baseViewRecordUpdateWrapper;
+    private BaseViewRecordUpdateWrapper baseViewRecordUpdateWrapper;
 
     @Before
     public void setUp() {
