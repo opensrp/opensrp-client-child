@@ -465,7 +465,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
             boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
-            findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
+            findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
             childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));

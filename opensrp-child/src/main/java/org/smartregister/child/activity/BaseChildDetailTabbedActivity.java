@@ -431,7 +431,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             }
 
             boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false));
-            findViewById(R.id.outOfCatchement).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
+            findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             if (overflow != null) {
                 getOverflow().findItem(R.id.registration_data).setEnabled(!showOutOfCatchmentText);
