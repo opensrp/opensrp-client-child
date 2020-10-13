@@ -5,9 +5,7 @@ import android.content.Intent;
 
 import com.evernote.android.job.DailyJob;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -25,7 +23,7 @@ import java.lang.ref.WeakReference;
 public class ArchiveClientsJobTest extends BaseUnitTest {
 
     @Test
-    public void onRunDailyJob() {
+    public void onRunDailyJobShouldReturnSuccessAndCallStartService() {
         ArchiveClientsJob archiveClientsJob = new ArchiveClientsJob(ArchiveClientRecordIntentService.class);
 
         Context context = Mockito.spy(RuntimeEnvironment.application);
