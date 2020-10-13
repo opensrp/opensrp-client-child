@@ -25,16 +25,19 @@ public class ChildMotherDetailModelTest {
     @Test(expected = NullPointerException.class)
     public void testChildMotherDetailModelThrowsNullPointerExceptionWhenChildJsonObjectIsNull() {
         ChildMotherDetailModel model = new ChildMotherDetailModel(null, new JSONObject());
+        Assert.assertNull(model);
     }
 
     @Test(expected = NullPointerException.class)
     public void testChildMotherDetailModelThrowsNullPointerExceptionWhenMotherJsonObjectIsNull() {
         ChildMotherDetailModel model = new ChildMotherDetailModel(new JSONObject(), null);
+        Assert.assertNull(model);
     }
 
     @Test(expected = NullPointerException.class)
     public void testChildMotherDetailModelThrowsNullPointerExceptionWhenJsonObjectsAreNull() {
         ChildMotherDetailModel model = new ChildMotherDetailModel(null, null);
+        Assert.assertNull(model);
     }
 
     @Test()
