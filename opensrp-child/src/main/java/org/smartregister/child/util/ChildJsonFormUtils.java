@@ -1636,10 +1636,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
 
-            List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(events);
+            List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
 
             if (moveToCatchmentEvent.isPermanent()) {
-
 
                 processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
                 processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
@@ -1687,9 +1686,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         List<String> formSubmissionIds = new ArrayList<>();
 
         for (int i = 0; i < events.length(); i++) {
-            if (!MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT.equals(events.getJSONObject(i).optString("eventType"))) {
-                formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
-            }
+            formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
         }
 
         List<EventClient> eventList = new ArrayList<>();
