@@ -12,12 +12,12 @@ import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
-import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.event.Listener;
+import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.sync.intent.SyncIntentService;
 
 import java.io.UnsupportedEncodingException;
@@ -47,7 +47,7 @@ public class MoveToMyCatchmentUtils {
             @Override
             protected MoveToCatchmentEvent doInBackground(Void... params) {
                 publishProgress();
-                return getMoveToCatchmentEvent(ids, isPermanent, true);
+                return createMoveToCatchmentEvent(ids, isPermanent, true);
             }
 
             @Override
@@ -59,8 +59,8 @@ public class MoveToMyCatchmentUtils {
     }
 
     @Nullable
-    public static MoveToCatchmentEvent getMoveToCatchmentEvent(List<String> ids, boolean isPermanent, boolean shouldCreateEvent) {
-        Response<String> response = move(ids);
+    public static MoveToCatchmentEvent createMoveToCatchmentEvent(List<String> ids, boolean isPermanent, boolean shouldCreateEvent) {
+        Response<String> response = httpRequest(ids);
         if (response.isFailure()) {
             return null;
         } else {
@@ -73,8 +73,8 @@ public class MoveToMyCatchmentUtils {
         }
     }
 
-    private static Response<String> move(List<String> ids) {
-        if (ids == null || ids.isEmpty()) {
+    private static Response<String> httpRequest(List<String> baseEntityIds) {
+        if (baseEntityIds == null || baseEntityIds.isEmpty()) {
             return new Response<>(ResponseStatus.failure, "entityId doesn't exist");
         }
 
@@ -82,7 +82,7 @@ public class MoveToMyCatchmentUtils {
         DristhiConfiguration configuration = context.configuration();
 
         String baseUrl = configuration.dristhiBaseURL();
-        String idString = StringUtils.join(ids, ",");
+        String idString = StringUtils.join(baseEntityIds, ",");
 
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
         String uri = baseUrl + SyncIntentService.SYNC_URL + paramString;
@@ -100,22 +100,18 @@ public class MoveToMyCatchmentUtils {
         }
     }
 
-    public static boolean processMoveToCatchment(Context opensrpContext, MoveToCatchmentEvent moveToCatchmentEvent) {
-        return ChildJsonFormUtils.processMoveToCatchment(opensrpContext, moveToCatchmentEvent);
-    }
-
-    public static List<Pair<Event, JSONObject>> createEventList(JSONArray events) throws JSONException {
+    public static List<Pair<Event, JSONObject>> createEventList(ECSyncHelper ecSyncHelper, JSONArray events) throws JSONException {
         List<Pair<Event, JSONObject>> eventList = new ArrayList<>();
 
         for (int i = 0; i < events.length(); i++) {
             JSONObject jsonEvent = events.getJSONObject(i);
-            Event event = ChildLibrary.getInstance().getEcSyncHelper().convert(jsonEvent, Event.class);
+            Event event = ecSyncHelper.convert(jsonEvent, Event.class);
             if (event == null) {
                 continue;
             }
 
             // Skip previous move to catchment events
-            if (MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
+            if (MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType()) || MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT.equals(event.getEventType())) {
                 continue;
             }
 

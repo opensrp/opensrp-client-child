@@ -76,7 +76,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = new Listener<MoveToCatchmentEvent>() {
         public void onEvent(final MoveToCatchmentEvent moveToCatchmentEvent) {
             if (moveToCatchmentEvent != null) {
-                if (MoveToMyCatchmentUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
+                if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
                     clientAdapter.notifyDataSetChanged();
                     ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
                     ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
