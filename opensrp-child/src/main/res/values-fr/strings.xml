@@ -6,10 +6,10 @@
     <string name="no_matching_record_found_on_this_device">Aucun records corréspondants retrouvés sur cet apareil.</string>
 
     <!-- menu -->
-    <string name="add_member">Ajouter Membre</string>
+    <string name="add_member">Ajouter membre</string>
     <string name="sort">Trier</string>
     <string name="home">Acceuil</string>
-    <string name="add_child">Ajouter Enfant</string>
+    <string name="add_child">Ajouter enfant</string>
     <string name="job_aids">Aides Professionnelles</string>
 
     <!-- warning -->
@@ -20,7 +20,7 @@
     <string name="home_field_monitor_label">Stock</string>
     <string name="child_entries">Enfant</string>
     <string name="child_profile">ENFANT</string>
-    <string name="child_DOB">Date de Naissance</string>
+    <string name="child_DOB">Date de naissance</string>
     <string name="child_reminder">Rappel</string>
     <string name="child_next_vaccine">Vaccination Dûe</string>
     <string name="child_register_title">Registre d\'enfants</string>
@@ -75,12 +75,12 @@
     <string name="field_title">Stock régistre</string>
     <string name="str_field_search_hint">Rechercher le régistre</string>
     <string name="pick_report">Rapport</string>
-    <string name="field_details_title">Position du Stock</string>
+    <string name="field_details_title">Position du stock</string>
     <string name="title_activity_vaccine_report">Rapport de Vaccination</string>
     <string name="action_settings">Paramètres</string>
     <string name="section_format">Salut le monde! de la section : %1$d</string>
     <string name="userNameText">Nom de l\'utilisateur</string>
-    <string name="passwordText">Mot de Passe</string>
+    <string name="passwordText">Mot de passe</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Bonjour fragment vierge</string>
     <string name="undo">Annuler</string>
@@ -93,7 +93,7 @@
     <string name="form_saved_failed_dialog_message">Erreur rencontrée  qui empêche l\'enrégistration du formulaire.</string>
     <string name="ok_button_label">OK</string>
     <string name="forminputerror">Veuillez réviser le formulaire et corriger le ou les informations omises ou eronnées identifiés dans la case rouge. </string>
-    <string name="okforminputerror">Ok</string>
+    <string name="okforminputerror">ok</string>
     <string name="child_followup">Suivi de l\'enfant</string>
     <string name="woman_followup">Suivi de la femme</string>
     <string name="edit">Réviser</string>
@@ -104,16 +104,16 @@
     <string name="global_search">Recherche globale</string>
     <string name="navigation_drawer_open">Ouvrir le volet de navigation</string>
     <string name="navigation_drawer_close">Fermez le volet de navigation</string>
-    <string name="child_siblings">%s FRÈRES ET/OU SOEURS</string>
+    <string name="child_siblings">%s frères et sœurs</string>
     <string name="female_sex_id">elle</string>
     <string name="male_sex_id">lui</string>
     <string name="label_zeir">ID</string>
-    <string name="label_immunization_records">IMMUNISATION ET SERVICES </string>
+    <string name="label_immunization_records">SERVICES D\'IMMUNISATION &amp; </string>
     <string name="str_search_hint">Rechercher nom ou ID</string>
     <string name="scan_qr_code">Scanner le code QR</string>
     <string name="zeir">ID</string>
     <string name="select_location">Selectionner le site</string>
-    <string name="no_openmrs_id">Aucune ID unique retrouvées. Cliquez sur la touche sync pour en obtenir plus de Ids. Si l\'erreur se reproduit contactez l\'administrateur du système.</string>
+    <string name="no_openmrs_id">Aucune Id unique retrouvées. Cliquez sur la touche sync pour en obtenir plus de Ids. Si l\'erreur se reproduit contactez l\'administrateur du système.</string>
     <string name="edit_registration_data">Modifier les données enregistrées</string>
     <string name="edit_immunization_data">Modifier les données d\'immunization</string>
     <string name="edit_recurring_services_data">Modifier les données de services récurrents</string>
@@ -136,7 +136,7 @@
     <string name="service_location">Site de la structure sanitaire</string>
     <string name="ic_check">&#xe038;</string>
     <string name="no_record">Aucun(s) dossier(s) trouvé(s)!</string>
-    <string name="overdue_due">Attendu/en retard (%1$s)</string>
+    <string name="overdue_due">Attendu/à rendre (%1$s)</string>
     <string name="saving_dialog_title">Enregistration en cours...</string>
     <string name="updating_dialog_title">Mise à jour en cours...</string>
     <string name="please_wait_message">Veuillez patienter</string>
@@ -149,8 +149,8 @@
     <string name="client_status">Status du beneficiaire</string>
     <string name="active">Actif</string>
     <string name="inactive">Inactif</string>
-    <string name="lost_to_follow_up">Perdu de vue</string>
-    <string name="lost_to_follow_up_with_nl">Perdu \nde vue</string>
+    <string name="lost_to_follow_up">Perdu au suivi</string>
+    <string name="lost_to_follow_up_with_nl">Perdu au \nSuivi</string>
     <string name="status">État</string>
     <string name="opensrp_id">Système ID</string>
     <string name="iz_id_hint">Numéro d\'identification</string>
@@ -159,14 +159,14 @@
     <string name="first_name_hint">Prénom</string>
     <string name="last_name">Nom</string>
     <string name="last_name_hint">Nom</string>
-    <string name="mother_guardian_name">Nom de la mère / du tuteur</string>
-    <string name="mother_guardian_name_hint">Nom de la mère / du tuteur</string>
+    <string name="mother_guardian_name">Nom de la mère/gardienne</string>
+    <string name="mother_guardian_name_hint">Nom de la mère/gardienne</string>
     <string name="mother_guardian_first_name_hint">Nom de la mère / du tuteur</string>
     <string name="mother_guardian_last_name_hint">Nom de famille de la mère / du tuteur</string>
-    <string name="mother_guardian_nrc">CNE de la mère/du tuteur</string>
+    <string name="mother_guardian_nrc">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc_hint">CNE de la mère/du tuteur</string>
-    <string name="mother_guardian_phone_number"> No téléphone de la mère / du tuteur</string>
-    <string name="mother_guardian_phone_number_hint">No téléphone de la mère / du tuteur</string>
+    <string name="mother_guardian_phone_number">Numéro CNE de la mère/gardienne</string>
+    <string name="mother_guardian_phone_number_hint">Numéro CNE de la mère/gardienne</string>
     <string name="date_birth_range">Période de naissance</string>
     <string name="start_date_hint">Selectionnez la date de début</string>
     <string name="end_date_hint">Selectionnez la date de fin</string>
@@ -255,7 +255,7 @@
     <string name="him">lui</string>
     <string name="her">elle</string>
 
-    <string name="scan_nfc_card">Lancer le scan NFC de la carte &#8230;</string>
+    <string name="scan_nfc_card">Lancer le scan NFC de la carte &amp;#8230</string>
     <string name="register_card">Emettre une carte</string>
     <string name="registering_card">Enregistrement de la carte pour %1$s&#8230; </string>
 
@@ -273,7 +273,7 @@
     <string name="mother_guardian_matches">%1$s résultats trouvés mère / du tuteur.</string>
     <string name="neutral_sex_id">lui ou elle</string>
     <string name="date_first_seen">Date de première visite</string>
-    <string name="child_status">Statut de l\'enfant</string>
+    <string name="child_status">Statut d\'enfant</string>
     <string name="notifications_on">Notifications activées.</string>
     <string name="notifications_off">Notifications désactivées. L\'enfant absent pour une période de temps.</string>
     <string name="notifications_off_child_cannot_be_located">Notifications désactivées; enfant perdu de vue</string>
@@ -285,19 +285,26 @@
     <string name="next_visit">Prochaine visite</string>
     <string name="next_visit_colon">Prochaine visite :</string>
     <string name="refreshing">Mise à jour&#8230;</string>
-    <string name="at_birth">à la naissance</string>
-    <string name="after_lmp">Après dernières règles</string>
 
+    <string name="at_birth">À la naissance</string>
     <string name="_6_weeks">6 Semaines</string>
     <string name="_10_weeks">10 Semaines</string>
     <string name="_14_weeks">14 Semaines</string>
     <string name="_5_months">5 Mois</string>
+    <string name="_2_months">2 Mois</string>
+    <string name="_3_months">3 Mois</string>
+    <string name="_4_months">4 Mois</string>
     <string name="_6_months">6 Mois</string>
     <string name="_7_months">7 Mois</string>
     <string name="_9_months">9 Mois</string>
+    <string name="_11_months">11 Mois</string>
+    <string name="_12_months">12 Mois</string>
     <string name="_15_months">15 Mois</string>
     <string name="_18_months">18 Mois</string>
     <string name="_22_months">22 Mois</string>
+    <string name="after_lmp">Après dernières règles</string>
+    <string name="dismiss_lookup">Confirmer</string>
+    <string name="child_birth_registration_number">Numéro d\'enregistrement de naissance de l\'enfant</string>
     <string name="_4_weeks_after_tt_1">4 Semaines Après le TT 1</string>
     <string name="_26_weeks_after_tt_2">26 Semaines Après le TT 2</string>
     <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
@@ -323,7 +330,6 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="str_page_info">Page {0} de {1}</string>
-    <string name="dismiss_lookup">Sauvegarder</string>
     <string name="service_point">Point de service: %1$s</string>
     <string name="record_growth_details"> Enregistrez au moins la croissance ou la hauteur</string>
 </resources>
