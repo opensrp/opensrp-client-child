@@ -5,12 +5,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -116,31 +118,32 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         RecurringServiceRecordRepository recurringServiceRecordRepository =
                 ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
 
-        if (recurringServiceRecordRepository != null) {
+        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+                &&  recurringServiceRecordRepository != null) {
             serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
-        }
+            NamedObject<List<ServiceRecord>> serviceNamedObject =
+                    new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+            map.put(serviceNamedObject.name, serviceNamedObject);
 
-        NamedObject<List<ServiceRecord>> serviceNamedObject =
-                new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-        map.put(serviceNamedObject.name, serviceNamedObject);
-
-        Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-        if (recurringServiceTypeRepository != null) {
-            List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-            for (ServiceType serviceType : serviceTypes) {
-                String type = serviceType.getType();
-                List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
-                if (serviceTypeList == null) {
-                    serviceTypeList = new ArrayList<>();
+            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
+            if (recurringServiceTypeRepository != null) {
+                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                for (ServiceType serviceType : serviceTypes) {
+                    String type = serviceType.getType();
+                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                    if (serviceTypeList == null) {
+                        serviceTypeList = new ArrayList<>();
+                    }
+                    serviceTypeList.add(serviceType);
+                    serviceTypeMap.put(type, serviceTypeList);
                 }
-                serviceTypeList.add(serviceType);
-                serviceTypeMap.put(type, serviceTypeList);
             }
-        }
 
-        NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
-                new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-        map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                    new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+        }
 
         List<Alert> alertList = new ArrayList<>();
         AlertService alertService = getOpenSRPContext().alertService();

@@ -372,6 +372,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         updateViews();
 
+        if (!Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+            getServiceGroupCanvasLL().setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -410,9 +414,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             updateViewTask.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         }
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
-        updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
-        updateViewTask
-                .setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
+
+        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+            updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
+            updateViewTask.setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
+        }
+
         updateViewTask.setAlertService(alertService);
         Utils.startAsyncTask(updateViewTask, null);
     }
@@ -1686,7 +1694,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {
             VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-            ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
+            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+                ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
+            }
         }
     }
 
@@ -1774,11 +1785,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 height = heightRepository.findUnSyncedByEntityId(childDetails.entityId());
             }
 
-            if (recurringServiceRecordRepository != null) {
+            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+                    &&  recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             }
 
-            if (recurringServiceTypeRepository != null) {
+            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+                    && recurringServiceTypeRepository != null) {
                 List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
                 for (ServiceType serviceType : serviceTypes) {
                     String type = serviceType.getType();

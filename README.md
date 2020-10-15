@@ -29,6 +29,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                            |
 | `use.new.advance.search.approach`     | Boolean | false   | Use new advance search feature that is based on client search endpoint |
 | `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms  |
+| `recurring.services.enabled`              | Boolean | true   | Show recurring services |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
