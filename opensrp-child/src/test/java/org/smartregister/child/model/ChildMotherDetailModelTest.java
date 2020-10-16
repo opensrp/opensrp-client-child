@@ -62,7 +62,7 @@ public class ChildMotherDetailModelTest {
         Assert.assertNull(model.getMotherLastName());
     }
 
-    @Test()
+    @Test
     public void testChildMotherDetailModelSetsAllFieldsCorrectlyWhenMotherAndChildJsonObjectsAreSet() throws JSONException {
         JSONArray searchResults = new JSONArray(searchResponse);
 
