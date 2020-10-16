@@ -9,6 +9,7 @@ public class MoveToCatchmentEvent {
     private JSONObject jsonObject;
     private boolean permanent;
     private boolean createEvent;
+    private boolean migrateTemporary;
 
     public MoveToCatchmentEvent(JSONObject jsonObject, boolean permanent, boolean createEvent) {
         this.jsonObject = jsonObject;
@@ -26,5 +27,13 @@ public class MoveToCatchmentEvent {
 
     public boolean isCreateEvent() {
         return createEvent;
+    }
+
+    public void setMigrateTemporary(boolean migrateTemporary) {
+        this.migrateTemporary = migrateTemporary;
+    }
+
+    public boolean isMigrateTemporary() {
+        return migrateTemporary;
     }
 }

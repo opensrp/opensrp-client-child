@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.domain.Response;
@@ -53,6 +54,44 @@ public class MoveToMyCatchmentUtils {
             @Override
             protected void onPostExecute(MoveToCatchmentEvent result) {
                 listener.onEvent(result);
+                progressDialog.dismiss();
+            }
+        }, null);
+    }
+
+    public static void migrateTemporaryToMyCatchment(final List<String> ids, final Listener<MoveToCatchmentEvent> listener, final ProgressDialog progressDialog) {
+
+        org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, MoveToCatchmentEvent>() {
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
+            @Override
+            protected MoveToCatchmentEvent doInBackground(Void... params) {
+
+                JSONObject clientEvents = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityId(ids.get(0));
+                try {
+                    JSONArray clients = new JSONArray();
+                    clients.put(clientEvents.get("client"));
+                    clientEvents.put(Constants.CLIENTS, clients);
+                    clientEvents.put(Constants.NO_OF_EVENTS, clientEvents.getJSONArray(Constants.EVENTS).length());
+                } catch (JSONException e) {
+                    Timber.e(e);
+                }
+
+                MoveToCatchmentEvent moveToCatchmentEvent = new MoveToCatchmentEvent(clientEvents, true, false);
+                moveToCatchmentEvent.setMigrateTemporary(true);
+
+                listener.onEvent(moveToCatchmentEvent);
+
+                return moveToCatchmentEvent;
+            }
+
+            @Override
+            protected void onPostExecute(MoveToCatchmentEvent result) {
+
                 progressDialog.dismiss();
             }
         }, null);

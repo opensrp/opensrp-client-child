@@ -337,4 +337,5 @@
     <string name="permanently">إطلاقا</string>
     <string name="temporarily">مؤقتا</string>
     <string name="choose_how">اختر كيف</string>
+    <string name="move_permanently">اذهب بشكل دائم</string>
 </resources>

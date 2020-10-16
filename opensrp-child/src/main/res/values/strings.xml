@@ -350,5 +350,6 @@
     <string name="permanently">Permanently</string>
     <string name="temporarily">Temporarily</string>
     <string name="choose_how">Choose how</string>
+    <string name="move_permanently">Move Permanently</string>
 
 </resources>

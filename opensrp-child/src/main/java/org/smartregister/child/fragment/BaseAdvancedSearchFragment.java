@@ -194,7 +194,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             recordGrowth(view);
         } else if (view.getId() == R.id.move_to_catchment && view.getTag(R.id.move_to_catchment_ids) != null && view.getTag(R.id.move_to_catchment_ids) instanceof List) {
             List<String> ids = (List<String>) view.getTag(R.id.move_to_catchment_ids);
-            moveToMyCatchmentArea(ids);
+            boolean isMigrateTemporary = Boolean.valueOf(String.valueOf(view.getTag(R.id.migrate_temporary)));
+            moveToMyCatchmentArea(ids, isMigrateTemporary);
         }
     }
 
@@ -226,18 +227,18 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         return Constants.JsonForm.OUT_OF_CATCHMENT_SERVICE;
     }
 
-    private void moveToMyCatchmentArea(final List<String> ids) {
-        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)) {
+    private void moveToMyCatchmentArea(final List<String> ids, boolean isMigrateTemporary) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && !isMigrateTemporary) {
 
-            showMoveToCatchmentChoiceDialog(ids);
+            showMoveToCatchmentChoiceDialog(ids, false);
 
         } else {
 
-            showMoveToCatchmentDialog(ids, true);
+            showMoveToCatchmentDialog(ids, true, isMigrateTemporary);
         }
     }
 
-    private void showMoveToCatchmentChoiceDialog(final List<String> ids) {
+    private void showMoveToCatchmentChoiceDialog(final List<String> ids, final boolean isMigrateTemporary) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getActivity().getString(R.string.choose_how));
@@ -247,7 +248,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                showMoveToCatchmentDialog(ids, which == 0);
+                showMoveToCatchmentDialog(ids, which == 0, isMigrateTemporary);
 
             }
         });
@@ -256,7 +257,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     }
 
-    private void showMoveToCatchmentDialog(final List<String> ids, final boolean isPermanent) {
+    private void showMoveToCatchmentDialog(final List<String> ids, final boolean isPermanent, final boolean isMigrateTemporary) {
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
                 .setTitle(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? getActivity().getString(R.string.move_to_catchment_confirm_dialog_title_, isPermanent ? getActivity().getString(R.string.permanently) : getActivity().getString(R.string.temporarily)) : getActivity().getString(R.string.move_to_catchment_confirm_dialog_title))
@@ -267,7 +268,13 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
                                 progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
-                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog, isPermanent);
+                                if (isMigrateTemporary) {
+
+                                    MoveToMyCatchmentUtils.migrateTemporaryToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
+
+                                } else {
+                                    MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog, isPermanent);
+                                }
                             }
                         }).create();
 

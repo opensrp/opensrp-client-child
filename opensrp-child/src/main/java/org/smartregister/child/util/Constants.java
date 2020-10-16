@@ -260,6 +260,7 @@ public final class Constants extends AllConstants {
         String ATTRIBUTES = "attributes";
         String MANAGING_ORG_LOCATION_ID = "managing_organization_location_id";
         String IS_OUT_OF_CATCHMENT = "is_out_of_catchment";
+        String OUT_OF_CATCHMENT_SYNC_TIME = "out_of_catchment_sync_time";
     }
 
     public interface JsonForm {

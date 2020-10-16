@@ -830,6 +830,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             Client baseClient = ChildJsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
+            baseClient.setClientType(Constants.KEY.CHILD);
 
             Event baseEvent = ChildJsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1478,7 +1479,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Map<String, String> clientMap = getClientAttributes(fields, bindType, entityRelationId);
 
-        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox);
+        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox, bindType);
         client.withAddresses(addresses).withAttributes(extractAttributes(fields, clientMap.get(Constants.BIND_TYPE))).withIdentifiers(identifierMap);
 
         if (addresses.isEmpty()) {
@@ -1503,14 +1504,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate,
-                                    boolean birthDateApprox, boolean deathDateApprox) {
+    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate, boolean birthDateApprox, boolean deathDateApprox, String bindType) {
 
         return (Client) new Client(clientMap.get(Constants.ENTITY_ID))
                 .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
                 .withBirthdate(birthDate, birthDateApprox)
                 .withDeathdate(deathDate, deathDateApprox)
                 .withGender(clientMap.get(GENDER))
+                .withClientType(bindType)
                 .withDateCreated(new Date());
     }
 
@@ -1630,11 +1631,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             JSONArray events = getOutOFCatchmentJsonArray(jsonObject, Constants.EVENTS);
             JSONArray clients = getOutOFCatchmentJsonArray(jsonObject, Constants.CLIENTS);
 
-            if (!moveToCatchmentEvent.isPermanent()) {
-                tagClients(clients);
-            }
+            tagClients(clients, moveToCatchmentEvent.isPermanent());
 
-            ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
+            if (!moveToCatchmentEvent.isMigrateTemporary())
+                ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
 
             List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
 
@@ -1657,11 +1657,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return false;
     }
 
-    private static void tagClients(JSONArray clientList) throws JSONException {
+    private static void tagClients(JSONArray clientList, boolean isPermanent) throws JSONException {
 
         for (int i = 0; i < clientList.length(); i++) {
 
-            clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, true);
+            clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, !isPermanent);
+            clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.OUT_OF_CATCHMENT_SYNC_TIME, Calendar.getInstance().getTime());
         }
     }
 
@@ -1686,7 +1687,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         List<String> formSubmissionIds = new ArrayList<>();
 
         for (int i = 0; i < events.length(); i++) {
-            formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
+            if (!MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT.equals(events.getJSONObject(i).getString("eventType"))) {
+                formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
+            }
         }
 
         List<EventClient> eventList = new ArrayList<>();

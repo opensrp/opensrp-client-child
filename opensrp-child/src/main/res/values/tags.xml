@@ -13,4 +13,5 @@
     <item name="growth_edit_flag" type="id" />
     <item name="next_appointment_date" type="id" />
     <item name="move_to_catchment_ids" type="id" />
+    <item name="migrate_temporary" type="id" />
 </resources>

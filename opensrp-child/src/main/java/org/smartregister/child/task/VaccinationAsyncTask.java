@@ -35,6 +35,7 @@ import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -413,13 +414,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
+        View moveToCatchment = catchmentView.findViewById(R.id.move_to_catchment);
+        TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
         if (commonRepository != null) {
             CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
 
             View recordVaccination = catchmentView.findViewById(R.id.record_vaccination);
             recordVaccination.setVisibility(View.VISIBLE);
 
-            View moveToCatchment = catchmentView.findViewById(R.id.move_to_catchment);
             moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
@@ -431,7 +433,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     }
                 });
 
-                TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
                 moveToCatchmentText.setText(context.getString(R.string.move_to_catchment));
 
                 //Use child relation id as mothers base entity id or look for mother base entity id
@@ -455,9 +456,19 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 moveToCatchment.setClickable(true);
                 moveToCatchment.setEnabled(true);
                 moveToCatchment.setOnClickListener(onClickListener);
-
                 moveToCatchment.setVisibility(View.VISIBLE);
                 recordVaccination.setVisibility(View.GONE);
+            } else {
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getValue(pc.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false))) {
+                    moveToCatchmentText.setText(context.getString(R.string.move_permanently));
+                    moveToCatchment.setTag(R.id.move_to_catchment_ids, Arrays.asList(new String[]{pc.entityId()}));
+                    moveToCatchment.setClickable(true);
+                    moveToCatchment.setEnabled(true);
+                    moveToCatchment.setOnClickListener(onClickListener);
+                    moveToCatchment.setTag(R.id.migrate_temporary, true);
+                    moveToCatchment.setVisibility(View.VISIBLE);
+                    recordVaccination.setVisibility(View.GONE);
+                }
             }
 
         }

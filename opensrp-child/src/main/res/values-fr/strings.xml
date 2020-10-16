@@ -331,4 +331,5 @@
     <string name="temporarily">Temporairement</string>
     <string name="choose_how">Choisissez comment</string>
     <string name="id_sort">System ID</string>
+    <string name="move_permanently">Allez en \npermanence</string>
 </resources>
