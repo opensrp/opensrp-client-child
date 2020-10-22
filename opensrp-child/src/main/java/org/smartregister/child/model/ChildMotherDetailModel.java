@@ -60,7 +60,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
             Timber.e(e, "Error parsing Advanced Search Client JSON");
         }
     }
-    
+
     private String getRelationalId(String entityType) throws JSONException {
         if (childJson.has(Constants.Client.RELATIONSHIPS)) {
             JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
@@ -82,8 +82,8 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
 
     private String getStringFromJson(String jsonKey, String actualKey) {
         JSONObject jsonObject = childJson.optJSONObject(jsonKey);
-        if(jsonObject != null){
-            return  jsonObject.optString(actualKey, null);
+        if (jsonObject != null) {
+            return jsonObject.optString(actualKey, null);
         }
         return null;
     }

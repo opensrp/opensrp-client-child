@@ -36,6 +36,7 @@ import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
+import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
@@ -43,6 +44,8 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
+import org.smartregister.domain.Response;
+import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.form.FormLocation;
@@ -1050,5 +1053,85 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         File newFile = new File(newFilePath);
         Assert.assertTrue(newFile.exists());
         newFile.delete();
+    }
+
+    @Test(expected = Exception.class)
+    public void testProcessReturnedAdvanceSearchResultsThrowsExceptionWhenResponseIsNull() {
+        List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(null);
+        Assert.assertNull(models);
+    }
+
+    @Test
+    public void testProcessReturnedAdvanceSearchResultsReturnsEmptyListWhenResponseStatusIsFailure() {
+        Response<String> response = new Response<>(ResponseStatus.failure, null);
+
+        List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(response);
+        Assert.assertNotNull(models);
+        Assert.assertEquals(0, models.size());
+    }
+
+    @Test(expected = Exception.class)
+    public void testProcessReturnedAdvanceSearchResultsThrowsExceptionWhenResponseStatusIsSuccessAndPayloadIsNull() {
+        Response<String> response = new Response<>(ResponseStatus.success, null);
+
+        List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(response);
+        Assert.assertNull(models);
+    }
+
+    @Test
+    public void testProcessReturnedAdvanceSearchResultsReturnsEmptyListWhenResponseStatusIsSuccessAndPayloadIsEmptyJSONArray() {
+        Response<String> response = new Response<>(ResponseStatus.success, "[]");
+
+        List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(response);
+        Assert.assertNotNull(models);
+        Assert.assertEquals(0, models.size());
+    }
+
+    @Test
+    public void testProcessReturnedAdvanceSearchResultsReturnsCorrectChildData() {
+        String searchResponse = "[{\"type\":\"Client\",\"dateCreated\":\"2020-10-13T07:57:11.105+01:00\",\"serverVersion\":1600329284434,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":11,\"baseEntityId\":\"20770b0a-f8e9-4ed5-bf25-bb10c4a2cfbc\",\"identifiers\":{\"zeir_id\":\"2000000\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Small villa\",\"address2\":\"Illinois\"}}],\"attributes\":{\"age\":\"0.18\",\"child_reg\":\"19012990192\",\"ga_at_birth\":\"39\",\"sms_recipient\":\"mother\",\"place_of_birth\":\"hospital\",\"birth_registration_number\":\"2020/0809\",\"inactive\":\"false\",\"lost_to_follow_up\":\"true\"},\"firstName\":\"Benjamin\",\"lastName\":\"Franklin\",\"birthdate\":\"2020-08-09T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Male\",\"relationships\":{\"father\":[\"ef052dab-564e-47c6-8550-dbedc50ae06f\"],\"mother\":[\"29a28f93-779d-4936-aee2-1fdb02eee9b9\"]},\"teamId\":\"8c1112a5-7d17-41b3-b8fa-e1dafa87e9e4\",\"_id\":\"c0e7fd14-308a-4475-bc1b-1b651f5bf105\",\"_rev\":\"v1\"},{\"type\":\"Client\",\"dateCreated\":\"2020-10-16T07:57:11.105+01:00\",\"serverVersion\":1,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":11,\"baseEntityId\":\"4e7eec63-ba90-44b5-9eea-e2835c5582c3\",\"identifiers\":{\"zeir_id\":\"1000000\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Large Villa\",\"address2\":\"Nimesota\"}}],\"attributes\":{\"age\":\"0.5\",\"child_reg\":\"19013000000\",\"ga_at_birth\":\"30\",\"sms_recipient\":\"mother\",\"place_of_birth\":\"hospital\",\"birth_registration_number\":\"2020/0900\",\"inactive\":\"false\",\"lost_to_follow_up\":\"false\"},\"firstName\":\"Anto\",\"lastName\":\"Nio\",\"birthdate\":\"2020-05-05T00:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"father\":[\"ef052dab-564e-47c6-8550-dbedc50ae06f\"],\"mother\":[\"29a28f93-779d-4936-aee2-1fdb02eee9b9\"]},\"teamId\":\"6eac92bd-5886-436e-9a3b-ebec540a8cf5\",\"_id\":\"8e57d028-b112-4ff7-a19b-ea0b144c98d2\",\"_rev\":\"v1\"},{\"type\":\"Client\",\"dateCreated\":\"2020-10-13T07:57:11.144+01:00\",\"serverVersion\":1600329284435,\"baseEntityId\":\"29a28f93-779d-4936-aee2-1fdb02eee9b9\",\"identifiers\":{\"M_ZEIR_ID\":\"100003-3\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Small villa\",\"address2\":\"Illinois\"}}],\"attributes\":{\"first_birth\":\"yes\",\"mother_rubella\":\"yes\",\"mother_tdv_doses\":\"2_plus_tdv_doses\",\"rubella_serology\":\"yes\",\"serology_results\":\"negative\",\"mother_nationality\":\"other\",\"second_phone_number\":\"23233232\",\"mother_guardian_number\":\"07456566\",\"mother_nationality_other\":\"American\"},\"firstName\":\"Gates\",\"lastName\":\"Belinda\",\"birthdate\":\"1973-01-01T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"_id\":\"95c4951a-aadb-4b41-8e50-8f7566fea40b\",\"_rev\":\"v1\"}]";
+
+        Response<String> response = new Response<>(ResponseStatus.success, searchResponse);
+
+        List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(response);
+
+        Assert.assertNotNull(models);
+        Assert.assertEquals(2, models.size());
+
+        // child 1
+        ChildMotherDetailModel model = models.get(0);
+
+        Assert.assertEquals("c0e7fd14-308a-4475-bc1b-1b651f5bf105", model.getId());
+        Assert.assertEquals("20770b0a-f8e9-4ed5-bf25-bb10c4a2cfbc", model.getChildBaseEntityId());
+        Assert.assertEquals("Benjamin", model.getFirstName());
+        Assert.assertEquals("Franklin", model.getLastName());
+        Assert.assertEquals("Male", model.getGender());
+        Assert.assertEquals("2020-08-09T13:00:00.000+01:00", model.getDateOfBirth());
+        Assert.assertEquals("29a28f93-779d-4936-aee2-1fdb02eee9b9", model.getRelationalId());
+        Assert.assertEquals("29a28f93-779d-4936-aee2-1fdb02eee9b9", model.getMotherBaseEntityId());
+        Assert.assertEquals("ef052dab-564e-47c6-8550-dbedc50ae06f", model.getFatherBaseEntityId());
+        Assert.assertEquals("2000000", model.getZeirId());
+        Assert.assertEquals("false", model.getInActive());
+        Assert.assertEquals("true", model.getLostFollowUp());
+        Assert.assertEquals("Gates", model.getMotherFirstName());
+        Assert.assertEquals("Belinda", model.getMotherLastName());
+
+        // child 2
+        model = models.get(1);
+
+        Assert.assertEquals("8e57d028-b112-4ff7-a19b-ea0b144c98d2", model.getId());
+        Assert.assertEquals("4e7eec63-ba90-44b5-9eea-e2835c5582c3", model.getChildBaseEntityId());
+        Assert.assertEquals("Anto", model.getFirstName());
+        Assert.assertEquals("Nio", model.getLastName());
+        Assert.assertEquals("Female", model.getGender());
+        Assert.assertEquals("2020-05-05T00:00:00.000+01:00", model.getDateOfBirth());
+        Assert.assertEquals("29a28f93-779d-4936-aee2-1fdb02eee9b9", model.getRelationalId());
+        Assert.assertEquals("29a28f93-779d-4936-aee2-1fdb02eee9b9", model.getMotherBaseEntityId());
+        Assert.assertEquals("ef052dab-564e-47c6-8550-dbedc50ae06f", model.getFatherBaseEntityId());
+        Assert.assertEquals("1000000", model.getZeirId());
+        Assert.assertEquals("false", model.getInActive());
+        Assert.assertEquals("false", model.getLostFollowUp());
+        Assert.assertEquals("Gates", model.getMotherFirstName());
+        Assert.assertEquals("Belinda", model.getMotherLastName());
     }
 }
