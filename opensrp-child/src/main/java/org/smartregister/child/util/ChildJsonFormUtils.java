@@ -2039,7 +2039,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @param relationalId  base entity id of the relation e.g mother base entity id
      * @return Json for the given relational id
      */
-    private static JSONObject getRelationshipJson(JSONArray searchResults, String relationalId) throws JSONException {
+    public static JSONObject getRelationshipJson(JSONArray searchResults, String relationalId) throws JSONException {
         for (int index = 0; index < searchResults.length(); index++) {
             JSONObject searchResult = searchResults.getJSONObject(index);
             if (searchResult.has(Constants.Client.BASE_ENTITY_ID) &&
