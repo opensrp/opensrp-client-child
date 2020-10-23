@@ -14,7 +14,7 @@
 
     <!-- warning -->
     <string name="any_changes_you_make">سيتم فقد أي تغييرات قمت بإجرائها</string>
-    <string name="id_sort">معرف النظام </string>
+
     <string name="invalid_device_date">يجب أن يكون تاريخ الجهاز الحالي بعد آخر وقت للخادم الذي تمت مزامنته والذي كان</string>
     <string name="home_women_label">المراة</string>
     <string name="home_field_monitor_label">المخزون</string>
@@ -152,11 +152,11 @@
     <string name="lost_to_follow_up">انقطاع المتابعة</string>
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
+    <string name="opensrp_id">معرف النظام</string>
     <string name="iz_id_hint">System ID</string>
+    <string name="card_id_hint">رقم بطاقة</string>
     <string name="first_name">الاسم</string>
     <string name="first_name_hint">الاسم</string>
-    <string name="opensrp_id">معرف النظام</string>
-    <string name="card_id_hint">رقم بطاقة</string>
     <string name="last_name">الاسم العائلى</string>
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
@@ -282,28 +282,35 @@
     <string name="search_results">نتائج البحث</string>
     <string name="qr_code_label">شفرة الاستجابة السريعة</string>
     <string name="next_visit">الزيارة القادمة</string>
-    <string name="refreshing">جارى التحديث&#8230;</string>
     <string name="next_visit_colon">الزيارة القادمة :</string>
+    <string name="refreshing">جارى التحديث&#8230;</string>
 
     <string name="at_birth">عند الولادة</string>
     <string name="_6_weeks">6 أسابيع</string>
     <string name="_10_weeks">10 أسابيع</string>
     <string name="_14_weeks">14 أسبوعا</string>
     <string name="_5_months">5 أشهر</string>
+    <string name="_2_months">شهرين</string>
+    <string name="_3_months">3 اشهر</string>
+    <string name="_4_months">4 اشهر</string>
     <string name="_6_months">6 أشهر</string>
     <string name="_7_months">7 أشهر</string>
     <string name="_9_months">9 أشهر</string>
+    <string name="_11_months">11 شهرا</string>
+    <string name="_12_months">12 شهرا</string>
     <string name="_15_months">15 شهراً</string>
     <string name="_18_months">18 شهرا</string>
     <string name="_22_months"> 22 شهرا</string>
-
+    <string name="_4_weeks_after_tt_1">4 أسابيع بعد TT 1</string>
+    <string name="_26_weeks_after_tt_2">26 أسبوعًا بعد TT 2</string>
+    <string name="_1_year_after_tt_3"> 1 سنة بعد TT 3</string>
+    <string name="_1_year_after_tt_4"> 1 سنة بعد TT 4</string>
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
-    <string name="unable_to_move_to_my_catchment">غير قادر على الحركة إلى منطقتي</string>
-
     <string name="activate_new_card">تنشيط البطاقة</string>
     <string name="system_id_colon">معرف النظام :</string>
     <string name="zeir_id">معرف النظام</string>
     <string name="age_colon">العمر :</string>
+    <string name="unable_to_move_to_my_catchment">غير قادر على الحركة إلى منطقتي</string>
     <string name="search_criteria_includes">تتضمن معايير البحث</string>
     <string name="start_date">تاريخ البدء</string>
     <string name="end_date">تاريخ الانتهاء</string>
@@ -317,13 +324,25 @@
     <string name="cannot_be_given_with_the_other_dose">  لا يمكن ان يعطى مع جرعة %1$s الأخرى</string>
     <string name="n_period_due">%1$s\nمتوقع</string>
 
+    <string name="after_lmp">After LMP</string>
+
     <string name="n_period_overdue">%1$s\nمتأخر</string>
 
     <string name="mother_name">الأم/ الحاضن: %1$s</string>
+    <string name="child_name">\"B/o %1$s</string>
     <string name="str_page_info">{1}من{0}صفحة</string>
-
-    <string name="after_lmp">After LMP</string>
     <string name="dismiss_lookup">حفظ</string>
     <string name="service_point">نقطة خدمة: %1$s</string>
     <string name="record_growth_details"> سجل على الأقل النمو أو الارتفاع</string>
+
+    <string name="child_birth_registration_number">رقم تسجيل في مضمون ولادة الطفل</string>
+    <string name="child_unique_id">الهوية الحكومية الفريدة للطفل</string>
+    <string name="child_archive_record_text">أرشيف السجل</string>
+    <string name="child_archive_record_description">سيتم أرشفة السجل ولن يكون متاحًا في السجل</string>
+    <string name="child_archive_dialog_title">هل أنت متأكد أنك تريد سجل الأرشيف؟</string>
+    <string name="child_archive_record_task_dialog_message">الرجاء الانتظار ... أرشفة السجل.</string>
+    <string name="error_recording_out_of_catchment_service">حدث خطأ عند تسجيل الخروج من الخدمة . حاول مرة أخرى في وقت لاحق.</string>
+    <string name="record_dynamic_vaccines">سجل لقاحات القطاع الخاص</string>
+    <string name="extra_vaccines">لقاحات اضافية في القطاع الخاص</string>
+
 </resources>
