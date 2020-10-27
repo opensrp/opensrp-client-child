@@ -138,9 +138,8 @@ public class BaseChildImmunizationPresenterTest {
         PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.mockStatic(ChildJsonFormUtils.class);
 
-        commonPersonObject.setColumnmaps(getChildDetailsMap());
-
         PowerMockito.when(commonPersonObjectClient.entityId()).thenReturn(TEST_BASE_ENTITY_ID);
+        PowerMockito.when(commonPersonObject.getColumnmaps()).thenReturn(getChildDetailsMap());
         PowerMockito.when(Utils.getEcChildDetails(TEST_BASE_ENTITY_ID)).thenReturn(commonPersonObject);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(ChildJsonFormUtils.updateClientAttribute(context, getChildDetails(), locationHelper, Constants.CHILD_STATUS.INACTIVE, false)).thenReturn(getChildDetailsMap());
