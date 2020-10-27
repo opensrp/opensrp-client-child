@@ -57,6 +57,12 @@ public class BaseChildImmunizationPresenterTest {
     @Mock
     private LocationHelper locationHelper;
 
+    @Mock
+    private CommonPersonObject commonPersonObject;
+
+    @Mock
+    private CommonPersonObjectClient commonPersonObjectClient;
+
     private BaseChildImmunizationPresenter presenter;
 
     @Before
@@ -132,11 +138,17 @@ public class BaseChildImmunizationPresenterTest {
         PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.mockStatic(ChildJsonFormUtils.class);
 
-        PowerMockito.when(Utils.getEcChildDetails(TEST_BASE_ENTITY_ID)).thenReturn(getCommonPersonObject());
+        commonPersonObject.setColumnmaps(getChildDetailsMap());
+
+        PowerMockito.when(commonPersonObjectClient.entityId()).thenReturn(TEST_BASE_ENTITY_ID);
+        PowerMockito.when(Utils.getEcChildDetails(TEST_BASE_ENTITY_ID)).thenReturn(commonPersonObject);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(ChildJsonFormUtils.updateClientAttribute(context, getChildDetails(), locationHelper, Constants.CHILD_STATUS.INACTIVE, false)).thenReturn(getChildDetailsMap());
 
-        presenter.activateChildStatus(context, getChildDetails());
+        presenter.activateChildStatus(context, commonPersonObjectClient);
+
+        Mockito.verify(commonPersonObjectClient).entityId();
+        Mockito.verify(commonPersonObject).getColumnmaps();
     }
 
     private CommonPersonObjectClient getChildDetails() {
@@ -151,13 +163,6 @@ public class BaseChildImmunizationPresenterTest {
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
-    }
-
-    private CommonPersonObject getCommonPersonObject() {
-        CommonPersonObject commonPersonObjectChild = new CommonPersonObject("5423-awewe", "12", getChildDetailsMap(), "child");
-        commonPersonObjectChild.setColumnmaps(getChildDetailsMap());
-
-        return commonPersonObjectChild;
     }
 
     private HashMap<String, String> getChildDetailsMap() {
