@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.TextViewCompat;
+import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
@@ -316,9 +317,9 @@ public class Utils extends org.smartregister.util.Utils {
 
         Gender gender = Gender.UNKNOWN;
         String genderString = weightWrapper.getGender();
-        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+        if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
             gender = Gender.FEMALE;
-        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+        } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
             gender = Gender.MALE;
         }
 
@@ -670,5 +671,13 @@ public class Utils extends org.smartregister.util.Utils {
         newObs.add(vaccineObs);
         newObs.add(vaccinesCounterObs);
         baseEvent.withObs(newObs);
+    }
+
+    public static void htmlEnhancedText(TextView textView, String bodyData) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            textView.setText(Html.fromHtml(bodyData, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            textView.setText(Html.fromHtml(bodyData));
+        }
     }
 }

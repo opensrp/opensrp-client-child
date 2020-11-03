@@ -30,7 +30,6 @@ import com.vijay.jsonwizard.customviews.RadioButton;
 import com.vijay.jsonwizard.utils.FormUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
@@ -38,6 +37,7 @@ import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
+import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
@@ -73,10 +73,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View, View.OnClickListener {
     public static final String START_DATE = "start_date";
     public static final String END_DATE = "end_date";
-    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
-        public void onEvent(final JSONObject jsonObject) {
-            if (jsonObject != null) {
-                if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
+    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = new Listener<MoveToCatchmentEvent>() {
+        public void onEvent(final MoveToCatchmentEvent moveToCatchmentEvent) {
+            if (moveToCatchmentEvent != null) {
+                if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
                     clientAdapter.notifyDataSetChanged();
                     ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
                     ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
@@ -192,8 +192,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         } else if ((view.getId() == R.id.patient_column || view.getId() == R.id.child_profile_info_layout)
                 && view.getTag() != null) {
             recordGrowth(view);
-        } else if (view.getId() == R.id.move_to_catchment && view.getTag(R.id.move_to_catchment_ids)
-                != null && view.getTag(R.id.move_to_catchment_ids) instanceof List) {
+        } else if (view.getId() == R.id.move_to_catchment && view.getTag(R.id.move_to_catchment_ids) != null && view.getTag(R.id.move_to_catchment_ids) instanceof List) {
             List<String> ids = (List<String>) view.getTag(R.id.move_to_catchment_ids);
             moveToMyCatchmentArea(ids);
         }
@@ -228,9 +227,39 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     private void moveToMyCatchmentArea(final List<String> ids) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)) {
+
+            showMoveToCatchmentChoiceDialog(ids);
+
+        } else {
+
+            showMoveToCatchmentDialog(ids, true);
+        }
+    }
+
+    private void showMoveToCatchmentChoiceDialog(final List<String> ids) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(getActivity().getString(R.string.choose_how));
+
+        String[] choices = {getActivity().getString(R.string.permanently), getActivity().getString(R.string.temporarily)};
+        builder.setItems(choices, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                showMoveToCatchmentDialog(ids, which == 0);
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    private void showMoveToCatchmentDialog(final List<String> ids, final boolean isPermanent) {
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
-                .setTitle(R.string.move_to_catchment_confirm_dialog_title)
+                .setTitle(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? getActivity().getString(R.string.move_to_catchment_confirm_dialog_title_, isPermanent ? getActivity().getString(R.string.permanently) : getActivity().getString(R.string.temporarily)) : getActivity().getString(R.string.move_to_catchment_confirm_dialog_title))
                 .setCancelable(false)
                 .setPositiveButton(R.string.no_button_label, null)
                 .setNegativeButton(R.string.yes_button_label,
@@ -238,7 +267,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
                                 progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
-                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog);
+                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog, isPermanent);
                             }
                         }).create();
 

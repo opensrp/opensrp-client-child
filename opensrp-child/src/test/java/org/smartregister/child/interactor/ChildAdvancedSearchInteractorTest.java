@@ -16,7 +16,6 @@ import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
-import org.smartregister.child.util.Constants;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.service.HTTPAgent;
@@ -58,20 +57,6 @@ public class ChildAdvancedSearchInteractorTest {
         ChildAppProperties appProperties = new ChildAppProperties();
         PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
         childAdvancedSearchInteractor = new ChildAdvancedSearchInteractor(Mockito.mock(AppExecutors.class));
-    }
-
-    @Test
-    public void testEnhanceStatusFilter() throws Exception {
-        Method enhanceStatusFilter = ChildAdvancedSearchInteractor.class.getDeclaredMethod("enhanceStatusFilter", Map.class);
-        enhanceStatusFilter.setAccessible(true);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("key", "test");
-        enhanceStatusFilter.invoke(childAdvancedSearchInteractor, map);
-
-        Assert.assertEquals(map.get(Constants.CHILD_STATUS.ACTIVE), "false");
-
-        Assert.assertEquals(map.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP), "false");
     }
 
     @Test

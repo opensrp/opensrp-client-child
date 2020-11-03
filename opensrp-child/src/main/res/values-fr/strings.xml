@@ -175,6 +175,7 @@
     <string name="matching_results">%1$s résultats corrépondants trouvés</string>
     <string name="check_child_bcg_scar">Vérifiez pour la cicatrice BCG de l\'enfant</string>
     <string name="move_to_catchment_confirm_dialog_title">Confirmez la destination du déplacement</string>
+    <string name="move_to_catchment_confirm_dialog_title_">Confirmez la destination du déplacement (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacé cette dossier à votre zone sanitaire?</string>
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
@@ -331,7 +332,6 @@
     <string name="dismiss_lookup">Confirmer</string>
     <string name="service_point">Point de service: %1$s</string>
     <string name="record_growth_details"> Enregistrez au moins la croissance ou la hauteur</string>
-
     <string name="child_birth_registration_number">Numéro d\'enregistrement de naissance de l\'enfant</string>
     <string name="child_unique_id">Identifiant unique du citoyen</string>
     <string name="child_archive_record_text">Enregistrement d\'archives</string>
@@ -341,5 +341,8 @@
     <string name="error_recording_out_of_catchment_service">Une erreur s\'est produite lors de l\'enregistrement hors du service de captage. Réessayez plus tard.</string>
     <string name="record_dynamic_vaccines">Enregistrement de vaccins du secteur privé</string>
     <string name="extra_vaccines">Vaccins supplémentaires dans le secteur privé</string>
-
+    <string name="permanently">Définitivement</string>
+    <string name="temporarily">Temporairement</string>
+    <string name="choose_how">Choisissez comment</string>
+    <string name="id_sort">System ID</string>
 </resources>

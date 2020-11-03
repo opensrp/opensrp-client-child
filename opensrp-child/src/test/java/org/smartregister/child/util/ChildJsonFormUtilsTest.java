@@ -79,9 +79,6 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-import static com.vijay.jsonwizard.constants.JsonFormConstants.FIELDS;
-import static com.vijay.jsonwizard.constants.JsonFormConstants.STEP1;
-
 public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
@@ -226,12 +223,12 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject populatedForm = ChildJsonFormUtils.getFormAsJson(form, formName, entityId, currentLocationId, metadata);
         Assert.assertNotNull(populatedForm);
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1));
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS));
 
-        JSONArray fields = populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS);
+        JSONArray fields = populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
         Assert.assertEquals(26, fields.length());
-        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(fields, "zeir_id"));
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.toString(), Constants.KEY.ZEIR_ID));
         Assert.assertEquals("Janet", JsonFormUtils.getFieldValue(fields, "first_name"));
         Assert.assertEquals("Doe", JsonFormUtils.getFieldValue(fields, "last_name"));
         Assert.assertEquals("Male", JsonFormUtils.getFieldValue(fields, "Sex"));
@@ -262,10 +259,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject populatedForm = ChildJsonFormUtils.getFormAsJson(form, formName, entityId, "", null);
         Assert.assertNotNull(populatedForm);
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1));
-        Assert.assertNotNull(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS));
-        Assert.assertEquals(26, populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS).length());
-        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS), "zeir_id"));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1));
+        Assert.assertNotNull(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS));
+        Assert.assertEquals(26, populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS).length());
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(populatedForm.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS), "zeir_id"));
     }
 
     @Test
@@ -651,8 +648,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ContentValues contentValues = allCommonsRepoUpdate.getValue();
         Assert.assertNotNull(contentValues);
 
-        Assert.assertEquals(contentValues.get(Constants.KEY.DOD), "19-05-2020");
-        Assert.assertEquals(contentValues.get(Constants.KEY.DATE_REMOVED), Utils.getTodaysDate());
+        Assert.assertEquals("19-05-2020", contentValues.get(Constants.KEY.DOD));
+        Assert.assertEquals(Utils.getTodaysDate(), contentValues.get(Constants.KEY.DATE_REMOVED));
 
 
         ContentValues contentValues1 = dbUpdateDateOfRemoval.getValue();
@@ -665,12 +662,11 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     @PrepareForTest(ImmunizationLibrary.class)
     public void testAddAvailableVaccinesShouldPopulateForm() throws Exception {
         JSONObject formObject = new JSONObject(registrationForm);
-        int initialSize = formObject.optJSONObject(STEP1).optJSONArray(FIELDS).length();
+        int initialSize = formObject.optJSONObject(JsonFormConstants.STEP1).optJSONArray(JsonFormConstants.FIELDS).length();
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-        Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines",
-                RuntimeEnvironment.application, formObject);
-        JSONObject step1 = formObject.optJSONObject(STEP1);
-        JSONArray fields = step1.optJSONArray(FIELDS);
+        Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines", RuntimeEnvironment.application, formObject);
+        JSONObject step1 = formObject.optJSONObject(JsonFormConstants.STEP1);
+        JSONArray fields = step1.optJSONArray(JsonFormConstants.FIELDS);
         Assert.assertEquals((initialSize + 7), fields.length()); // 6 vaccine groups + a label
         for (int i = 0; i < fields.length(); i++) {
             JSONObject field = fields.optJSONObject(i);
@@ -772,6 +768,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
 
         Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
 
         String attributeName = "Child_Status";
         String attributeValue = "Inactive";

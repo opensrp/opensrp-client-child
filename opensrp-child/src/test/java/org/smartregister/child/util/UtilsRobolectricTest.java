@@ -16,6 +16,7 @@ import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.Expiry;
+import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.immunization.util.VaccineCache;
 import org.smartregister.util.AssetHandler;
 
@@ -38,7 +39,7 @@ public class UtilsRobolectricTest {
     @Before
     public void setUp() {
         ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class, Mockito.CALLS_REAL_METHODS);
-        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines();
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
         HashMap<String, VaccineCache> vaccineCacheHashMap = new HashMap<>();
         vaccineCacheHashMap.put("child", new VaccineCache());

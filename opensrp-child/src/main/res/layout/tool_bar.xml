@@ -176,12 +176,12 @@
 
     <ImageView
         android:layout_width="@dimen/smart_register_nav_bar_separator"
-        android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/sort_selection"
-        android:layout_toRightOf="@+id/sort_selection"
+        android:layout_height="fill_parent"
+        android:layout_toEndOf="@+id/filter_selection"
+        android:layout_toRightOf="@+id/filter_selection"
         android:scaleType="fitXY"
         android:src="@drawable/separator"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <org.smartregister.view.LocationPickerView
         android:id="@+id/clinic_selection"
@@ -224,10 +224,10 @@
         android:layout_toStartOf="@id/clinic_selection"
         android:layout_toLeftOf="@id/clinic_selection"
         android:background="@drawable/transparent_gray_background"
-        android:paddingStart="15dp"
         android:gravity="center"
-        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
         android:paddingLeft="15dp"
+        android:paddingEnd="15dp"
         android:visibility="gone" />
 
     <ImageView

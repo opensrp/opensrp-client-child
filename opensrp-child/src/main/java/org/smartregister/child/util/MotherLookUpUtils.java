@@ -42,19 +42,19 @@ public class MotherLookUpUtils {
     public static final String RELATIONALID = "relationalid";
 
     public static void motherLookUp(final Context context, final Activity activityContext, final EntityLookUp entityLookUp,
-                                    final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener,
+                                    final Listener<Map<CommonPersonObject, List<CommonPersonObject>>> listener,
                                     final ProgressBar progressBar) {
 
         org.smartregister.util.Utils
-                .startAsyncTask(new AsyncTask<Void, Void, HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+                .startAsyncTask(new AsyncTask<Void, Void, Map<CommonPersonObject, List<CommonPersonObject>>>() {
                     @Override
-                    protected HashMap<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
+                    protected Map<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
                         publishProgress();
                         return lookUp(context, activityContext, entityLookUp);
                     }
 
                     @Override
-                    protected void onPostExecute(HashMap<CommonPersonObject, List<CommonPersonObject>> result) {
+                    protected void onPostExecute(Map<CommonPersonObject, List<CommonPersonObject>> result) {
                         listener.onEvent(result);
                         if (progressBar != null) {
                             progressBar.setVisibility(View.GONE);
@@ -70,8 +70,8 @@ public class MotherLookUpUtils {
                 }, null);
     }
 
-    private static HashMap<CommonPersonObject, List<CommonPersonObject>> lookUp(Context context, Activity activityContext, EntityLookUp entityLookUp) {
-        HashMap<CommonPersonObject, List<CommonPersonObject>> results = new HashMap<>();
+    private static Map<CommonPersonObject, List<CommonPersonObject>> lookUp(Context context, Activity activityContext, EntityLookUp entityLookUp) {
+        Map<CommonPersonObject, List<CommonPersonObject>> results = new HashMap<>();
         if (context == null) {
             return results;
         }

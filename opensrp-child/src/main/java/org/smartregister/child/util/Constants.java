@@ -87,6 +87,7 @@ public final class Constants extends AllConstants {
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String BIRTH_HEIGHT = "Birth_Height";
+        public static final String BIRTH_TETANUS_PROTECTION = "Birth_Tetanus_Protection";
         public static final String LOOK_UP = "look_up";
         public static final String ENTITY_ID = "entity_id";
         public static final String MOTHER = "mother";
@@ -145,7 +146,6 @@ public final class Constants extends AllConstants {
     public static final class INTENT_KEY {
         public static final String JSON = "json";
         public static final String BASE_ENTITY_ID = "base_entity_id";
-        public static final String RECORD_ACTION = "record_action";
         public static final String EXTRA_CHILD_DETAILS = "child_details";
         public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
         public static final String LOCATION_ID = "location_id";
@@ -170,6 +170,10 @@ public final class Constants extends AllConstants {
         public static final int TRUE = 1;
     }
 
+    public interface BOOLEAN_STRING {
+        String TRUE = "true";
+    }
+
     public static class FormActivity {
         public static final String EnableOnCloseDialog = "EnableOnCloseDialog";
     }
@@ -188,8 +192,6 @@ public final class Constants extends AllConstants {
         public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
         public static final String FATHER_REGISTRATION = "Father Registration";
         public static final String DEATH = "Death";
-        public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
-        public static final String VACCINATION = "Vaccination";
         public static final String UPDATE_FATHER_DETAILS = "Update Father Details";
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
@@ -256,11 +258,17 @@ public final class Constants extends AllConstants {
         String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         String BASE_ENTITY_ID = "baseEntityId";
         String ATTRIBUTES = "attributes";
+        String MANAGING_ORG_LOCATION_ID = "managing_organization_location_id";
+        String IS_OUT_OF_CATCHMENT = "is_out_of_catchment";
     }
 
     public interface JsonForm {
         String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
         String DYNAMIC_VACCINES = "dynamic_vaccines";
+    }
+
+    public interface VACCINE_CODE {
+        String TETANUS = "epnt";
     }
 }
 

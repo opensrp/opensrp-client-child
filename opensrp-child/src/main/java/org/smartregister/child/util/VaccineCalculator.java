@@ -35,7 +35,7 @@ public class VaccineCalculator {
     public static Date getVaccineDueDate(@NonNull Vaccine vaccineMapping, @NonNull Date dob
             , @NonNull List<org.smartregister.immunization.domain.Vaccine> issuedVaccines) {
         if (vaccineMapping.schedule != null) {
-            if (!doesVaccinePassConditions(vaccineMapping.schedule.conditions, issuedVaccines)) {
+            if (!doesVaccinePassConditions(vaccineMapping.schedule.conditions, issuedVaccines, dob)) {
                 return null;
             }
 
@@ -49,8 +49,8 @@ public class VaccineCalculator {
             Collection<Schedule> schedules = vaccineMapping.schedules.values();
             int passedScheduleConditions = 0;
 
-            for (Schedule schedule: schedules) {
-                if (doesVaccinePassConditions(schedule.conditions, issuedVaccines)) {
+            for (Schedule schedule : schedules) {
+                if (doesVaccinePassConditions(schedule.conditions, issuedVaccines, dob)) {
                     passedScheduleConditions++;
                 }
             }
@@ -59,7 +59,7 @@ public class VaccineCalculator {
                 return null;
             }
 
-            for (Schedule schedule: schedules) {
+            for (Schedule schedule : schedules) {
                 if (schedule.due != null && schedule.due.size() > 0) {
                     return VaccineTrigger.init(Constants.CHILD_TYPE, schedule.due.get(0))
                             .getFireDate(issuedVaccines, dob);
@@ -85,7 +85,7 @@ public class VaccineCalculator {
     @Nullable
     public static Date getVaccineExpiryDate(@NonNull Date dob, @NonNull Vaccine vaccine) {
         if (vaccine.schedules != null) {
-            for (Schedule schedule: vaccine.schedules.values()) {
+            for (Schedule schedule : vaccine.schedules.values()) {
                 if (schedule.expiry != null && schedule.expiry.size() > 0) {
                     return getVaccineExpiryDate(dob, schedule.expiry.get(0));
                 }
@@ -93,23 +93,23 @@ public class VaccineCalculator {
         } else if (vaccine.schedule != null
                 && vaccine.schedule.expiry != null
                 && vaccine.schedule.expiry.size() > 0) {
-                return getVaccineExpiryDate(dob, vaccine.schedule.expiry.get(0));
+            return getVaccineExpiryDate(dob, vaccine.schedule.expiry.get(0));
         }
 
         return null;
     }
 
-    private static boolean doesVaccinePassConditions(@Nullable List<Condition> conditions, List<org.smartregister.immunization.domain.Vaccine> vaccineList) {
+    private static boolean doesVaccinePassConditions(@Nullable List<Condition> conditions, List<org.smartregister.immunization.domain.Vaccine> vaccineList, Date dob) {
         if (conditions == null) {
             return true;
 
         } else {
             int passedConditions = 0;
-            for (Condition condition: conditions) {
+            for (Condition condition : conditions) {
                 VaccineCondition vaccineCondition = VaccineCondition.init(Constants.CHILD_TYPE, condition);
 
                 if (vaccineCondition != null) {
-                    if (vaccineCondition.passes(vaccineList)) {
+                    if (vaccineCondition.passes(dob, vaccineList)) {
                         passedConditions++;
                     }
                 } else {

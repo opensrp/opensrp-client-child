@@ -30,14 +30,13 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
-import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
+import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.model.ChildMotherDetailModel;
-import org.smartregister.child.task.SaveOutOfAreaServiceTask;
 import org.smartregister.clientandeventmodel.Address;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
@@ -114,6 +113,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static final String IDENTIFIERS = "identifiers";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private static final String OPENSRP_ID = "opensrp_id";
+    private static final String FORM_SUBMISSION_FIELD = "formsubmissionField";
     private static Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
         {
             put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
@@ -144,7 +144,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (StringUtils.isBlank(zeirId)) {
                 zeirId = Utils.getNextOpenMrsId();
                 if (StringUtils.isBlank(zeirId) || (ChildLibrary.getInstance().getUniqueIdRepository().countUnUsedIds() < 1L)) {
-                    Timber.e("JsonFormUtils --> UniqueIds are empty or only one unused found");
+                    Timber.e("ChildJsonFormUtils --> UniqueIds are empty or only one unused found");
                     return null;
                 }
             }
@@ -184,9 +184,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             ChildJsonFormUtils.addAvailableVaccines(ChildLibrary.getInstance().context().applicationContext(), form);
         } else {
-            Timber.w("JsonFormUtils --> Unsupported form requested for launch %s", formName);
+            Timber.w("ChildJsonFormUtils --> Unsupported form requested for launch %s", formName);
         }
-        Timber.d("JsonFormUtils --> form is %s", form.toString());
+        Timber.d("ChildJsonFormUtils --> form is %s", form.toString());
 
         return form;
     }
@@ -209,7 +209,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return updateLocationTree(questions, defaultLocationString, defaultFacilityString, allLevels, healthFacilities);
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> addRegistrationFormLocationHierarchyQuestions");
+            Timber.e(e, "ChildJsonFormUtils --> addRegistrationFormLocationHierarchyQuestions");
             return null;
         }
     }
@@ -304,7 +304,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     questionList.put(curQuestion);
                 }
             } catch (JSONException e) {
-                Timber.e(e, "JsonFormUtils --> addAvailableVaccines");
+                Timber.e(e, "ChildJsonFormUtils --> addAvailableVaccines");
             }
         }
     }
@@ -514,7 +514,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 widget.put(treeType, new JSONArray(updateString));
             }
         } catch (JSONException e) {
-            Timber.e(e, "JsonFormUtils --> addLocationTree");
+            Timber.e(e, "ChildJsonFormUtils --> addLocationTree");
         }
     }
 
@@ -573,7 +573,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> saveReportDeceased");
+            Timber.e(e, "ChildJsonFormUtils --> saveReportDeceased");
         }
     }
 
@@ -616,7 +616,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void processClients(AllSharedPreferences allSharedPreferences, ECSyncHelper ecSyncHelper) throws Exception {
+    private static void processClients(AllSharedPreferences allSharedPreferences, @NonNull ECSyncHelper ecSyncHelper) throws Exception {
         long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
         Date lastSyncDate = new Date(lastSyncTimeStamp);
 
@@ -628,13 +628,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
     }
 
-    private static Event getEvent(String providerId, String locationId, String entityId,
-                                  String encounterType, Date encounterDate, String childType) {
-
+    private static Event getEvent(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
         Event event = (Event) new Event().withBaseEntityId(entityId) //should be different for main and subform
                 .withEventDate(encounterDate).withEventType(encounterType).withLocationId(locationId)
                 .withProviderId(providerId).withEntityType(childType)
                 .withFormSubmissionId(generateRandomUUIDString()).withDateCreated(new Date());
+        return event;
+    }
+
+    private static Event getEventAndTag(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
+
+        Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, childType);
 
         ChildJsonFormUtils.tagSyncMetadata(event);
 
@@ -663,7 +667,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         db.addEvent(event.getBaseEntityId(), eventJson);
 
         //Update Child Entity to include death date
-        Event updateChildDetailsEvent = getEvent(providerId, locationId, entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
+        Event updateChildDetailsEvent = getEventAndTag(providerId, locationId, entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
 
         addMetaData(context, updateChildDetailsEvent, new Date());
 
@@ -722,7 +726,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
 
         } catch (SecurityException e) {
-            Timber.e(e, "JsonFormUtils --> MissingPermission --> getSimSerialNumber");
+            Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
             Timber.e(e);
         }
@@ -739,12 +743,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
-        event.setLocationId(locationId(allSharedPreferences));
+        event.setLocationId(getProviderLocationId(allSharedPreferences));
 
         String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
         event.setChildLocationId(childLocationId);
 
-        if (StringUtils.isNotBlank(childLocationId) && childLocationId.startsWith(AllConstants.ADVANCED_DATA_CAPTURE_STRATEGY_PREFIX)) {
+        if (StringUtils.isNotBlank(childLocationId) && LocationHelper.getInstance().getAdvancedDataCaptureStrategies().contains(childLocationId)) {
             event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
         }
 
@@ -786,7 +790,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    public static String locationId(AllSharedPreferences allSharedPreferences) {
+    public static String getProviderLocationId(AllSharedPreferences allSharedPreferences) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
         if (StringUtils.isBlank(userLocationId)) {
@@ -849,7 +853,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> processChildDetailsForm");
+            Timber.e(e, "ChildJsonFormUtils --> processChildDetailsForm");
             return null;
         }
     }
@@ -887,7 +891,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             genderObject.put(Constants.KEY.VALUE, genderValue);
         } catch (JSONException e) {
-            Timber.e(e, "JsonFormUtils --> processGender");
+            Timber.e(e, "ChildJsonFormUtils --> processGender");
         }
     }
 
@@ -922,7 +926,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             lastInteractedWith.put(Constants.KEY.VALUE, Calendar.getInstance().getTimeInMillis());
             fields.put(lastInteractedWith);
         } catch (JSONException e) {
-            Timber.e(e, "JsonFormUtils --> lastInteractedWith");
+            Timber.e(e, "ChildJsonFormUtils --> lastInteractedWith");
         }
     }
 
@@ -971,7 +975,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
         } catch (JSONException e) {
-            Timber.e(e, "JsonFormUtils --> dobUnknownUpdateFromAge");
+            Timber.e(e, "ChildJsonFormUtils --> dobUnknownUpdateFromAge");
         }
     }
 
@@ -1027,13 +1031,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 imageRepo.add(profileImage);
             }
         } catch (FileNotFoundException e) {
-            Timber.e(e, "JsonFormUtils --> Failed to save static image to disk");
+            Timber.e(e, "ChildJsonFormUtils --> Failed to save static image to disk");
         } finally {
             if (os != null) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    Timber.e(e, "JsonFormUtils --> Failed to close static images output stream after attempting to write image");
+                    Timber.e(e, "ChildJsonFormUtils --> Failed to close static images output stream after attempting to write image");
                 }
             }
         }
@@ -1068,7 +1072,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 return form.toString();
             }
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> getMetadataForEditForm");
+            Timber.e(e, "ChildJsonFormUtils --> getMetadataForEditForm");
         }
 
         return "";
@@ -1233,7 +1237,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return step1.has(FIELDS) ? step1.getJSONArray(FIELDS) : null;
         } catch (JSONException e) {
-            Timber.e(e, "JsonFormUtils --> fields");
+            Timber.e(e, "ChildJsonFormUtils --> fields");
         }
         return null;
     }
@@ -1267,7 +1271,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> processMotherRegistrationForm");
+            Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
@@ -1276,7 +1280,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> processFatherRegistrationForm");
+            Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
             return null;
         }
     }
@@ -1431,7 +1435,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 childClient.addRelationship(Constants.KEY.MOTHER, existingMotherRelationalId);
             }
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> addRelationship");
+            Timber.e(e, "ChildJsonFormUtils --> addRelationship");
         }
     }
 
@@ -1615,13 +1619,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return array;
     }
 
-    public static void processOutOfAreaService(String jsonString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
-        SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(ChildLibrary.getInstance().context().applicationContext(), jsonString, progressDialogCallback);
-        Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
-    }
-
-    public static boolean processMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, JSONObject jsonObject) {
+    public static boolean processMoveToCatchment(org.smartregister.Context openSRPContext, MoveToCatchmentEvent moveToCatchmentEvent) {
         try {
+            JSONObject jsonObject = moveToCatchmentEvent.getJsonObject();
             int eventsCount = jsonObject.has(Constants.NO_OF_EVENTS) ? jsonObject.getInt(Constants.NO_OF_EVENTS) : 0;
             if (eventsCount == 0) {
                 return false;
@@ -1630,19 +1630,70 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             JSONArray events = getOutOFCatchmentJsonArray(jsonObject, Constants.EVENTS);
             JSONArray clients = getOutOFCatchmentJsonArray(jsonObject, Constants.CLIENTS);
 
-            ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
-            addProcessMoveToCatchment(context, allSharedPreferences, createEventList(events));
-            processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
+            if (!moveToCatchmentEvent.isPermanent()) {
+                tagClients(clients);
+            }
 
-            List<String> clientIds = getClientIdsFromClientsJsonArray(clients);
-            Timber.i("Moved %s  client(s) to new catchment area.", clientIds.size());
+            ChildLibrary.getInstance().getEcSyncHelper().batchSave(events, clients);
+
+            List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
+
+            if (moveToCatchmentEvent.isPermanent()) {
+
+                processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
+                processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
+
+            } else {
+
+                processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent());
+
+            }
 
             return true;
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> processMoveToCatchment");
+            Timber.e(e, "ChildJsonFormUtils --> processMoveToCatchment");
         }
 
         return false;
+    }
+
+    private static void tagClients(JSONArray clientList) throws JSONException {
+
+        for (int i = 0; i < clientList.length(); i++) {
+
+            clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, true);
+        }
+    }
+
+    private static void processTriggerClientProcessorAndUpdateFTS(org.smartregister.Context openSRPContext, JSONArray clients) throws Exception {
+        processClients(openSRPContext.allSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
+
+        List<String> clientIds = getClientIdsFromClientsJsonArray(clients);
+
+        Timber.i("Moved %s  client(s) to new catchment area.", clientIds.size());
+    }
+
+    public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent) throws Exception {
+
+        if (createEvent) {
+
+            Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients);
+
+            convertAndPersistEvent(moveToCatchmentSyncEvent);
+
+        }
+
+        List<String> formSubmissionIds = new ArrayList<>();
+
+        for (int i = 0; i < events.length(); i++) {
+            formSubmissionIds.add(events.getJSONObject(i).getString("formSubmissionId"));
+        }
+
+        List<EventClient> eventList = new ArrayList<>();
+        eventList.addAll(ChildLibrary.getInstance().getEcSyncHelper().getEvents(formSubmissionIds));
+
+        ChildLibrary.getInstance().getClientProcessorForJava().processClient(eventList);
+        getClientIdsFromClientsJsonArray(clients);
     }
 
     private static List<String> getClientIdsFromClientsJsonArray(JSONArray clients) throws JSONException {
@@ -1650,10 +1701,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         for (int i = 0; i < clients.length(); i++) {
             if (!clients.getJSONObject(i).getJSONObject(IDENTIFIERS).has(M_ZEIR_ID)) {
-                clientBaseEntityIds.add(clients.getJSONObject(i).getString("baseEntityId"));
-                ContentValues v = new ContentValues();
-                v.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
-                updateChildFTSTables(v, clients.getJSONObject(i).getString("baseEntityId"));
+
+                clientBaseEntityIds.add(clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
+                updateChildFTSTables(contentValues, clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
             }
         }
 
@@ -1664,34 +1717,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return jsonObject.has(clients) ? jsonObject.getJSONArray(clients) : new JSONArray();
     }
 
-    private static List<Pair<Event, JSONObject>> createEventList(JSONArray events) throws JSONException {
-        List<Pair<Event, JSONObject>> eventList = new ArrayList<>();
-
-        for (int i = 0; i < events.length(); i++) {
-            JSONObject jsonEvent = events.getJSONObject(i);
-            Event event = ChildLibrary.getInstance().getEcSyncHelper().convert(jsonEvent, Event.class);
-            if (event == null) {
-                continue;
-            }
-
-            // Skip previous move to catchment events
-            if (MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
-                continue;
-            }
-
-            if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
-                eventList.add(0, Pair.create(event, jsonEvent));
-            } else if (!eventList.isEmpty() && Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
-                eventList.add(1, Pair.create(event, jsonEvent));
-            } else {
-                eventList.add(Pair.create(event, jsonEvent));
-            }
-        }
-
-        return eventList;
-    }
-
-    private static void addProcessMoveToCatchment(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
+    private static void processMoveToCatchmentPermanent(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
 
@@ -1714,7 +1740,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (Constants.EventType.BITRH_REGISTRATION.equals(event.getEventType())
                     || Constants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())
                     || Constants.EventType.FATHER_REGISTRATION.equals(event.getEventType())) {
-                createMoveToCatchmentEvent(context, localProviderIdentifiers, event);
+
+                //Create move to catchment event;
+                Event moveToCatchmentEvent = ChildJsonFormUtils.createMoveToCatchmentEvent(context, localProviderIdentifiers, event);
+                convertAndPersistEvent(moveToCatchmentEvent);
             }
 
             /*
@@ -1741,13 +1770,11 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void createMoveToCatchmentEvent(Context context, Identifiers transferToIdentifiers, Event event) {
-        //Create move to catchment event;
-        Event moveToCatchmentEvent = ChildJsonFormUtils.processChangeOfCatchmentObservations(context, transferToIdentifiers, event);
-        if (moveToCatchmentEvent != null) {
-            JSONObject moveToCatchmentJsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(moveToCatchmentEvent);
-            if (moveToCatchmentJsonEvent != null) {
-                ChildLibrary.getInstance().getEcSyncHelper().addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+    private static void convertAndPersistEvent(Event event) {
+        if (event != null) {
+            JSONObject jsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
+            if (jsonEvent != null) {
+                ChildLibrary.getInstance().getEcSyncHelper().addEvent(event.getBaseEntityId(), jsonEvent);
             }
         }
     }
@@ -1764,7 +1791,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    public static Event processChangeOfCatchmentObservations(Context context, Identifiers toIdentifiers, Event referenceEvent) {
+    public static Event createMoveToCatchmentEvent(Context context, Identifiers toIdentifiers, Event referenceEvent) {
         try {
             //From Identifiers
             String fromLocationId = referenceEvent.getLocationId();
@@ -1781,10 +1808,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 return null;
             }
 
-            final String FORM_SUBMISSION_FIELD = "formsubmissionField";
             final String DATA_TYPE = "text";
 
-            Event event = getEvent(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
 
             String formSubmissionField = "From_ProviderId";
             List<Object> vall = new ArrayList<>();
@@ -1852,7 +1878,41 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return event;
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> createMoveToCatchmentEvent");
+            Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentEvent");
+            return null;
+        }
+    }
+
+    public static Event createMoveToCatchmentSyncEvent(org.smartregister.Context opensrpContext, JSONArray clientList) {
+        try {
+
+            if (clientList == null) {
+                return null;
+            }
+
+            final String DATA_TYPE = "text";
+
+            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(opensrpContext.allSharedPreferences()), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
+
+            List<Object> val = new ArrayList<>();
+
+            String clientBaseEntityId = "";
+
+            for (int i = 0; i < clientList.length(); i++) {
+
+                val.add(clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey));
+
+                clientBaseEntityId = clientList.getJSONObject(i).getJSONObject(ChildJsonFormUtils.IDENTIFIERS).has(Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey) : clientBaseEntityId;
+            }
+
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD, "", val, new ArrayList<>(), null, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD));
+            event.setBaseEntityId(clientBaseEntityId);
+
+            addMetaData(opensrpContext.applicationContext(), event, new Date());
+
+            return event;
+        } catch (Exception e) {
+            Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentSyncEvent");
             return null;
         }
     }
@@ -1904,7 +1964,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"))) {
                 intent.putExtra(JsonFormConstants.PERFORM_FORM_TRANSLATION, true);
             }
-            Timber.d("JsonFormUtils --> form is %s", form.toString());
+            Timber.d("ChildJsonFormUtils --> form is %s", form.toString());
             context.startActivityForResult(intent, jsonFormActivityRequestCode);
         }
     }
@@ -1927,7 +1987,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     public static void createBCGScarEvent(Context context, String baseEntityId, String providerId, String locationId) {
         try {
-            Event event = getEvent(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
 
             final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             final String YES_CONCEPT = "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -1946,7 +2006,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 ECSyncHelper.getInstance(context).addEvent(baseEntityId, eventJson);
             }
         } catch (Exception e) {
-            Timber.e(e, "JsonFormUtils --> createBCGScarEvent");
+            Timber.e(e, "ChildJsonFormUtils --> createBCGScarEvent");
         }
     }
 
@@ -1973,12 +2033,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             locationName = locationHelper.getDefaultLocation();
         }
 
-        Event event = getEvent(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+        Event event = getEventAndTag(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
         ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(allSharedPreferences, ECSyncHelper.getInstance(openSRPContext.applicationContext()));
+        processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
 
         //update details
         Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
@@ -2048,5 +2108,30 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             }
         }
         return null;
+    }
+
+
+    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
+        try {
+            if (jsonObject != null && jsonObject.has(field)) {
+                return jsonObject.getJSONObject(field);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
+    }
+
+    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
+        try {
+            if (jsonArray != null && jsonArray.length() > 0) {
+                return jsonArray.getJSONObject(position);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
     }
 }

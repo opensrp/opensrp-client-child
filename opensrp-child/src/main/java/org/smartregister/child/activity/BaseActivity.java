@@ -665,7 +665,7 @@ toggle.syncState();
     }
 
     public void hideProgressDialog() {
-        if (progressDialog != null) {
+        if (progressDialog != null && !isFinishing()) {
             progressDialog.dismiss();
         }
     }

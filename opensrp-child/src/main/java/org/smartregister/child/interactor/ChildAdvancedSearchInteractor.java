@@ -73,7 +73,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         }
         String paramString = "";
         if (!searchParameters.isEmpty()) {
-            enhanceStatusFilter(searchParameters);
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -171,7 +170,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     @NotNull
     private String getChildBirthDateParameter(Map<String, String> searchParameters, String name) {
         String birthDate = "";
-        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE) ;
+        String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE);
 
         String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
         if (StringUtils.isNoneBlank(birthDates) && birthDates.length == 2 && StringUtils.isNoneBlank(name)) {
@@ -213,21 +212,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
         searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
         searchParameters.remove(getMotherGuardianPhoneNumber());
-    }
-
-    private void enhanceStatusFilter(Map<String, String> map) {
-
-        if (!map.containsKey(Constants.CHILD_STATUS.ACTIVE)) {
-            map.put(Constants.CHILD_STATUS.ACTIVE, "false");
-        }
-        if (!map.containsKey(Constants.CHILD_STATUS.INACTIVE)) {
-            map.put(Constants.CHILD_STATUS.INACTIVE, "false");
-        }
-
-        if (!map.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP)) {
-            map.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "false");
-        }
-
     }
 
     public DristhiConfiguration getDristhiConfiguration() {

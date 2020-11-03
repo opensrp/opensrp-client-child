@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
@@ -22,6 +21,7 @@ import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.task.GrowthMonitoringAsyncTask;
 import org.smartregister.child.task.VaccinationAsyncTask;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
@@ -159,13 +159,11 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         return viewHolder instanceof FooterViewHolder;
     }
 
-    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client,
-                                       final RegisterViewHolder viewHolder) {
+    private void populatePatientColumn(CommonPersonObjectClient pc, SmartRegisterClient client, final RegisterViewHolder viewHolder) {
 
         String firstName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.FIRST_NAME, true);
         String lastName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LAST_NAME, true);
         String childName = Utils.getName(firstName, lastName);
-
 
         fillValue(viewHolder.childOpensrpID, Utils.getValue(pc.getColumnmaps(), Constants.KEY.ZEIR_ID, false));
 
@@ -174,7 +172,11 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childName = String.format(context.getString(R.string.child_name), motherFirstName.trim());
         }
 
-        fillValue(viewHolder.patientName, WordUtils.capitalize(childName));
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(Utils.getValue(pc.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false))) {
+            org.smartregister.child.util.Utils.htmlEnhancedText(viewHolder.patientName, MessageFormat.format("{0} {1}", StringUtils.capitalize(childName), " <font color='#eeaa5f'>" + context.getString(R.string.ooc) + "</font>"));
+        } else {
+            fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
+        }
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);

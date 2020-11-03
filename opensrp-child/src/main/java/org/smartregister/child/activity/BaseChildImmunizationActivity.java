@@ -240,7 +240,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         nextAppointmentDateView = findViewById(R.id.next_appointment_date);
         growthChartButton = findViewById(R.id.growth_chart_button);
         siblingPicturesGroup = findViewById(R.id.sibling_pictures);
-
     }
 
     private void setUpToolbar() {
@@ -472,10 +471,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (isDataOk()) {
             name = constructChildName();
             childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
-        }
 
-        nameTV.setText(name);
-        childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+            findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
+
+            nameTV.setText(name);
+            childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+        }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
@@ -725,9 +727,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
         String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
-        if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.FEMALE)) {
+        if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
             return getString(R.string.her);
-        } else if (genderString != null && genderString.toLowerCase().equals(Constants.GENDER.MALE)) {
+        } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
             return getString(R.string.him);
         }
 
@@ -867,6 +869,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
+        String isOutOfCatchement = isDataOk() && childDetails.getColumnmaps() != null && childDetails.getColumnmaps().containsKey(Constants.Client.IS_OUT_OF_CATCHMENT) ? Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false) : "false";
+        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(isOutOfCatchement) ? 1 : 0);
         return vaccine;
     }
 
@@ -993,7 +997,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
                         ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
                 if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
-                    showCheckBcgScarNotification(null);
+                    showCheckBcgScarNotification();
                 }
 
                 break;
@@ -1045,8 +1049,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         fragmentTransaction.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
-        UndoVaccinationDialogFragment undoVaccinationDialogFragment =
-                UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
+        UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -1056,7 +1059,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         });
     }
 
-    private void showCheckBcgScarNotification(Alert alert) {
+    private void showCheckBcgScarNotification() {
         if (!bcgScarNotificationShown) {
             bcgScarNotificationShown = true;
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
@@ -1461,16 +1464,16 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             return;
         }
 
-
+        boolean isOutOfCatchmentVaccine = Constants.BOOLEAN_STRING.TRUE.equals(Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
         Vaccine vaccine = new Vaccine();
         if (tag.getDbKey() != null) {
             vaccine = vaccineRepository.find(tag.getDbKey());
         }
-        vaccine.setBaseEntityId(childDetails.entityId());
+        vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.locationId(getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences()));
         vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -1479,6 +1482,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
+
+        vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
         Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
         setLastModified(true);
