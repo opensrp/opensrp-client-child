@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -81,9 +83,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-    public void setUniqueID(String s) {
+    public void setUniqueID(String uniqueID) {
         if (getSearchView() != null) {
-            getSearchView().setText(s);
+            getSearchView().setText(uniqueID);
         }
     }
 
@@ -259,11 +261,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             if (clinicSelection != null) {
                 clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
                 String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-                context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+                getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
             }
         } catch (Exception e) {
             Timber.e(e);
         }
+    }
+
+    @VisibleForTesting
+    protected Context getOpenSRPContext(){
+        return context();
     }
 
     protected abstract String filterSelectionCondition(boolean urgentOnly);
