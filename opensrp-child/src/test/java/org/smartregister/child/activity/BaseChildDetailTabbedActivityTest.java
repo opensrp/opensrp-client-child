@@ -24,8 +24,11 @@ import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.Vaccine;
@@ -55,7 +58,13 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     private WeightRepository weightRepository;
 
     @Mock
+    private HeightRepository heightRepository;
+
+    @Mock
     private Weight weight;
+
+    @Mock
+    private Height height;
 
     @Mock
     private Context opensrpContext;
@@ -155,6 +164,40 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(weight).setBaseEntityId("id-1");
         verify(weight).setOutOfCatchment(0);
         verify(weight).setAnmId("user-1");
+    }
+
+    @Test
+    public void testUpdateHeightWrapper() throws Exception {
+        BaseChildDetailTabbedActivity baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
+        PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
+
+        Mockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
+        Mockito.when(growthMonitoringLibrary.heightRepository()).thenReturn(heightRepository);
+        Mockito.when(heightRepository.find(any(Long.class))).thenReturn(height);
+        Mockito.doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
+
+        Method updateHeightWrapper = BaseChildDetailTabbedActivity.class.getDeclaredMethod("updateHeightWrapper", HeightWrapper.class);
+        updateHeightWrapper.setAccessible(true);
+
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put(Constants.KEY.FIRST_NAME, "John");
+        childDetails.put(Constants.KEY.LAST_NAME, "Doe");
+
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetails", getChildDetails());
+
+        HeightWrapper heightWrapper = new HeightWrapper();
+        heightWrapper.setDbKey(3l);
+        heightWrapper.setUpdatedHeightDate(new DateTime().minusHours(1), true);
+        heightWrapper.setHeight(45f);
+
+        updateHeightWrapper.invoke(baseChildDetailTabbedActivity, heightWrapper);
+
+        verify(height).setCm(45f);
+        verify(height).setBaseEntityId("id-1");
+        verify(height).setOutOfCatchment(0);
+        verify(height).setAnmId("user-1");
     }
 
     private CommonPersonObjectClient getChildDetails() {
