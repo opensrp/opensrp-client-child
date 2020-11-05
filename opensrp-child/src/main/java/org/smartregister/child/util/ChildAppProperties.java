@@ -40,12 +40,12 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
 
         public static final String FEATURE_RECURRING_SERVICE_ENABLED = "recurring.services.enabled";
 
+        // vaccine status color
+        public static final String VACCINE_OVERDUE_STATUS_HIDE = "vaccine.overdue.status.hide";
+
         //novel features
         public final static class NOVEL {
             public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";
         }
-
-        // vaccine status color
-        public static final String VACCINE_OVERDUE_STATUS_HIDE = "vaccine.overdue.status.hide";
     }
 }
