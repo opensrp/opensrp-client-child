@@ -32,7 +32,6 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Service
         public static final String MONITOR_HEIGHT = "monitor.height";
 
-
         //Search configuration
         public static final String USE_NEW_ADVANCE_SEARCH_APPROACH = "use.new.advance.search.approach";
 
@@ -46,5 +45,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
             public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";
         }
 
+        // vaccine status color
+        public static final String VACCINE_OVERDUE_STATUS_HIDE = "vaccine.overdue.status.hide";
     }
 }

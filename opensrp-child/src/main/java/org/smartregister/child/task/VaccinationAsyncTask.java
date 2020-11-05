@@ -69,6 +69,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View childProfileInfoLayout;
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
     private boolean upcomingLightBlueDisabled = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED);
+    private boolean hideOverdueVaccine = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.VACCINE_OVERDUE_STATUS_HIDE) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.VACCINE_OVERDUE_STATUS_HIDE);
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
@@ -313,7 +314,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-
             recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
@@ -328,16 +328,22 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
-
-
+            } else if (hideOverdueVaccine) {
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             }
         } else if (state.equals(State.OVERDUE)) {
 
             recordVaccinationText.setText(getAlertMessage(state, groupName));
-            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
-            recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
+            if (hideOverdueVaccine) {
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+                recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
+            } else {
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
+                recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
+            }
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
             if (StringUtils.isNotBlank(groupName) && (StringUtils.containsIgnoreCase(groupName, Constants.KEY.WEEK) || StringUtils.containsIgnoreCase(groupName, Constants.KEY.MONTH)) &&

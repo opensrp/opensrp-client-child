@@ -30,6 +30,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `use.new.advance.search.approach`     | Boolean | false   | Use new advance search feature that is based on client search endpoint |
 | `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms                          |
 | `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
+| `vaccine.overdue.status.hide`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
