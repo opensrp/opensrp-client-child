@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.view.Menu;
 
@@ -21,6 +23,7 @@ import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -43,9 +46,11 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@PrepareForTest({GrowthMonitoringLibrary.class})
+@PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class})
 public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Rule
@@ -212,5 +217,25 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
+    }
+
+    @Test
+    public void testInitLoadChildDetails() throws Exception {
+        BaseChildDetailTabbedActivity baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
+        PowerMockito.mockStatic(ChildDbUtils.class);
+
+        Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
+        initLoadChildDetails.setAccessible(true);
+
+        Intent intent = new Intent();
+        intent.putExtra(Constants.INTENT_KEY.LOCATION_ID, "loc-1");
+        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, "id-1");
+
+        doReturn(intent).when(baseChildDetailTabbedActivity).getIntent();
+        when(ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId("id-1")).thenReturn(getChildDetails());
+
+        Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
+        Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
+        Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
     }
 }
