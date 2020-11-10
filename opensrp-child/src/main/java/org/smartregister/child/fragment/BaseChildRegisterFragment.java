@@ -31,6 +31,7 @@ import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -360,8 +361,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
+    @VisibleForTesting
+    @Override
+    protected boolean isValidFilterForFts(CommonRepository commonRepository) {
+        return super.isValidFilterForFts(commonRepository);
+    }
 
-    private String filterAndSortQuery() {
+    @VisibleForTesting
+    protected String filterAndSortQuery() {
         SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
         String query = "";
         try {
@@ -376,7 +383,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
             } else {
-                if (!TextUtils.isEmpty(filters) && TextUtils.isEmpty(Sortqueries)) {
+                if (!TextUtils.isEmpty(filters) && !TextUtils.isEmpty(Sortqueries)) {
                     sqb.addCondition(filters);
                     query = sqb.orderbyCondition(Sortqueries);
                     query = sqb.Endquery(sqb.addlimitandOffset(query

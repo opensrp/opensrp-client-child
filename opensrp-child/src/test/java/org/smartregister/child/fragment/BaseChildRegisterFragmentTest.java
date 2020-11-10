@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,9 +24,13 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
+import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
@@ -41,6 +46,8 @@ import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.LocationPickerView;
+
+import java.util.Arrays;
 
 /**
  * Created by ndegwamartin on 03/11/2020.
@@ -67,22 +74,28 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Mock
     private AlertService alertService;
-    @Mock
-    private LayoutInflater inflater;
+
     @Mock
     private ViewGroup container;
+
     @Mock
     private Bundle savedInstanceState;
+
     @Mock
     private FragmentActivity activity;
+
     @Mock
     private Window window;
+
     @Mock
     private View view;
+
     @Mock
     private EditText editText;
+
     @Mock
     private RecyclerViewPaginatedAdapter clientAdapter;
+
     @Mock
     private ChildMetadata childMetadata;
 
@@ -96,16 +109,21 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     private AdvancedMatrixCursor advancedMatrixCursor;
 
     @Mock
-    private View filterSection;
-
-    @Mock
     private LocationHelper locationHelper;
-
     @Mock
     private LocationPickerView clinicSelection;
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
+
+    @Mock
+    private CoreLibrary coreLibrary;
+
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Mock
+    protected View filterSection;
 
     private String TEST_ID = "unique-identifier";
     private String TEST_LOCATION_ID = "some-test-location";
@@ -118,8 +136,17 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
     }
 
+    @After
+    public void tearDown() {
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+    }
+
     @Test
     public void testOnCreateView() {
+
+        LayoutInflater inflater = Mockito.spy(LayoutInflater.class);
 
         BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
@@ -162,10 +189,12 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
-        Whitebox.setInternalState(baseChildRegisterFragment, "clinicSelection", overdueCountTextView);
 
-        PowerMockito.mockStatic(LocationHelper.class);
-        PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
+        Mockito.doReturn(TEST_LOCATION).when(clinicSelection).getSelectedItem();
+        Whitebox.setInternalState(baseChildRegisterFragment, "clinicSelection", clinicSelection);
+
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
         Mockito.doReturn(TEST_LOCATION).when(locationHelper).getOpenMrsReadableName(ArgumentMatchers.anyString());
         Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(ArgumentMatchers.anyString());
         Mockito.doReturn(context).when(baseChildRegisterFragment).getOpenSRPContext();
@@ -173,13 +202,11 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         baseChildRegisterFragment.updateLocationText();
 
-
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(allSharedPreferences).savePreference(Constants.CURRENT_LOCATION_ID, argumentCaptor.capture());
+        Mockito.verify(allSharedPreferences).savePreference(ArgumentMatchers.eq(Constants.CURRENT_LOCATION_ID), argumentCaptor.capture());
 
         String capturedLocationId = argumentCaptor.getValue();
         Assert.assertEquals(TEST_LOCATION_ID, capturedLocationId);
-
     }
 
     @Test
@@ -295,5 +322,169 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         PowerMockito.verifyStatic(Utils.class);
         Utils.refreshDataCaptureStrategyBanner(activity, TEST_LOCATION_ID);
+    }
+
+    @Test
+    public void testFilterAndSortQueryForValidFilterForFts() {
+
+        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
+        Assert.assertNotNull(baseChildRegisterFragment);
+
+        CommonRepository commonRepository = Mockito.mock(CommonRepository.class);
+        Mockito.doReturn(commonRepository).when(baseChildRegisterFragment).commonRepository();
+
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
+        Mockito.doReturn(true).when(baseChildRegisterFragment).isValidFilterForFts(commonRepository);
+
+        // Mockito.doReturn(20).when(clientAdapter).getTotalcount();
+        Mockito.doReturn(20).when(clientAdapter).getCurrentlimit();
+        Mockito.doReturn(0).when(clientAdapter).getCurrentoffset();
+        Mockito.doReturn(Arrays.asList(new String[]{"6", "9", "12"})).when(commonRepository).findSearchIds(ArgumentMatchers.anyString());
+
+        String searchText = "some random search text";
+
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null,
+                null, null, true);
+        metadata.updateChildRegister("test", "test",
+                "test", "ChildRegister",
+                "test", "test",
+                "test",
+                "test", "test");
+
+        Mockito.when(Utils.metadata()).thenReturn(metadata);
+
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
+        Whitebox.setInternalState(baseChildRegisterFragment, "mainSelect", "SELECT * FROM ec_clients");
+        Whitebox.setInternalState(baseChildRegisterFragment, "mainCondition", "WHERE id = 5");
+        Whitebox.setInternalState(baseChildRegisterFragment, "Sortqueries", "SORT BY ID DESC");
+        Whitebox.setInternalState(baseChildRegisterFragment, "filters", searchText);
+
+        String expectedQuery = "select ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id,ec_client.first_name,ec_client.last_name,mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob,ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number,ec_client.client_reg_date,ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 from ec_child_details join ec_mother_details on ec_child_details.relational_id = ec_mother_details.base_entity_id join ec_client on ec_client.base_entity_id = ec_child_details.base_entity_id join ec_client mother on mother.base_entity_id = ec_mother_details.base_entity_id where _id IN ('6','9','12')";
+
+        String result = baseChildRegisterFragment.filterAndSortQuery();
+
+        Assert.assertEquals(expectedQuery, result);
+
+    }
+
+
+    @Test
+    public void testFilterAndSortQueryForInvalidFilterForFts() {
+
+        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
+        Assert.assertNotNull(baseChildRegisterFragment);
+
+        CommonRepository commonRepository = Mockito.mock(CommonRepository.class);
+        Mockito.doReturn(commonRepository).when(baseChildRegisterFragment).commonRepository();
+
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
+        Mockito.doReturn(false).when(baseChildRegisterFragment).isValidFilterForFts(commonRepository);
+
+        Mockito.doReturn(20).when(clientAdapter).getCurrentlimit();
+        Mockito.doReturn(0).when(clientAdapter).getCurrentoffset();
+
+        String searchText = "some random search text";
+
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
+        Whitebox.setInternalState(baseChildRegisterFragment, "mainSelect", "SELECT * FROM ec_clients");
+        Whitebox.setInternalState(baseChildRegisterFragment, "filters", searchText);
+        Whitebox.setInternalState(baseChildRegisterFragment, "Sortqueries", "SORT BY ID DESC");
+
+        String expectedQuery = "SELECT * FROM ec_clients some random search text ORDER BY SORT BY ID DESC  LIMIT 0,20;";
+
+        String result = baseChildRegisterFragment.filterAndSortQuery();
+
+        Assert.assertEquals(expectedQuery, result);
+
+    }
+
+
+    @Test
+    public void testToggleFilterSelectionWithNullTag() {
+
+        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
+        Assert.assertNotNull(baseChildRegisterFragment);
+
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+
+        Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+
+        ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<String> filterStringCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> joinTableStringCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> filterSelectConditionCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Boolean> qrCodeCaptor = ArgumentCaptor.forClass(Boolean.class);
+
+        baseChildRegisterFragment.toggleFilterSelection();
+
+        Mockito.verify(baseChildRegisterFragment).filter(filterStringCaptor.capture(), joinTableStringCaptor.capture(), filterSelectConditionCaptor.capture(), qrCodeCaptor.capture());
+        Mockito.verify(filterSection).setTag(tagCaptor.capture());
+        Mockito.verify(filterSection).setBackgroundResource(bgResourceCaptor.capture());
+
+        String capturedTag = tagCaptor.getValue();
+        Integer resIdTag = bgResourceCaptor.getValue();
+
+        Assert.assertEquals("PRESSED", capturedTag);
+        Assert.assertEquals(new Integer(R.drawable.transparent_clicked_background), resIdTag);
+
+        String filterString = filterStringCaptor.getValue();
+        String joinTable = joinTableStringCaptor.getValue();
+        String filterSelect = filterSelectConditionCaptor.getValue();
+        boolean qrCodeCaptorValue = qrCodeCaptor.getValue();
+
+        Assert.assertEquals("", filterString);
+        Assert.assertEquals("", joinTable);
+        Assert.assertEquals("ID = 8", filterSelect);
+        Assert.assertEquals(false, qrCodeCaptorValue);
+
+    }
+    @Test
+    public void testToggleFilterSelectionWithTag() {
+
+        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
+        Assert.assertNotNull(baseChildRegisterFragment);
+
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+
+        Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
+        Mockito.doReturn("PRESSED").when(filterSection).getTag();
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+
+        ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<String> filterStringCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> joinTableStringCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> filterSelectConditionCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Boolean> qrCodeCaptor = ArgumentCaptor.forClass(Boolean.class);
+
+        baseChildRegisterFragment.toggleFilterSelection();
+
+        Mockito.verify(baseChildRegisterFragment).filter(filterStringCaptor.capture(), joinTableStringCaptor.capture(), filterSelectConditionCaptor.capture(), qrCodeCaptor.capture());
+        Mockito.verify(filterSection).setTag(tagCaptor.capture());
+        Mockito.verify(filterSection).setBackgroundResource(bgResourceCaptor.capture());
+
+        String capturedTag = tagCaptor.getValue();
+        Integer resIdTag = bgResourceCaptor.getValue();
+
+        Assert.assertEquals(null, capturedTag);
+        Assert.assertEquals(new Integer(R.drawable.transparent_gray_background), resIdTag);
+
+        String filterString = filterStringCaptor.getValue();
+        String joinTable = joinTableStringCaptor.getValue();
+        String filterSelect = filterSelectConditionCaptor.getValue();
+        boolean qrCodeCaptorValue = qrCodeCaptor.getValue();
+
+        Assert.assertEquals("", filterString);
+        Assert.assertEquals("", joinTable);
+        Assert.assertEquals("", filterSelect);
+        Assert.assertEquals(false, qrCodeCaptorValue);
+
+
     }
 }
