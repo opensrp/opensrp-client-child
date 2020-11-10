@@ -57,6 +57,7 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
