@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
@@ -14,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
@@ -21,8 +25,10 @@ import org.powermock.reflect.Whitebox;
 import org.robolectric.RuntimeEnvironment;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -36,6 +42,8 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.util.AppProperties;
+import org.smartregister.util.DateUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -50,7 +58,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class})
+@PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class, ChildLibrary.class, DateUtil.class})
 public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Rule
@@ -77,9 +85,18 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     @Mock
     private AllSharedPreferences allSharedPreferences;
 
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Spy
+    private AppProperties appProperties;
+
+    private BaseChildDetailTabbedActivity baseChildDetailTabbedActivity;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
     }
 
     @Test
@@ -139,7 +156,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Test
     public void testUpdateWeightWrapper() throws Exception {
-        BaseChildDetailTabbedActivity baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
 
         Mockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
@@ -173,7 +189,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Test
     public void testUpdateHeightWrapper() throws Exception {
-        BaseChildDetailTabbedActivity baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
 
         Mockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
@@ -221,7 +236,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Test
     public void testInitLoadChildDetails() throws Exception {
-        BaseChildDetailTabbedActivity baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
         PowerMockito.mockStatic(ChildDbUtils.class);
 
         Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
@@ -237,5 +251,45 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
         Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
         Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
+    }
+
+    @Test
+    public void testRenderProfileWidget() {
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put("baseEntityId", "id-1");
+        childDetails.put(Constants.KEY.FIRST_NAME, "John");
+        childDetails.put(Constants.KEY.LAST_NAME, "Doe");
+        childDetails.put(Constants.KEY.ZEIR_ID, "id-1");
+        childDetails.put(Constants.KEY.DOB, "1990-05-09");
+        childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
+        childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+
+        TextView profilename = Mockito.mock(TextView.class);
+        TextView profileOpenSrpId = Mockito.mock(TextView.class);
+        TextView profileage = Mockito.mock(TextView.class);
+        View view = Mockito.mock(View.class);
+        ImageView imageView = Mockito.mock(ImageView.class);
+        doReturn(profilename).when(baseChildDetailTabbedActivity).findViewById(R.id.name);
+        doReturn(profileOpenSrpId).when(baseChildDetailTabbedActivity).findViewById(R.id.idforclient);
+        doReturn(profileage).when(baseChildDetailTabbedActivity).findViewById(R.id.ageforclient);
+        doReturn(view).when(baseChildDetailTabbedActivity).findViewById(R.id.outOfCatchment);
+
+        CommonPersonObjectClient commonPersonObjectClient = getChildDetails();
+        commonPersonObjectClient.setCaseId(null);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetails", commonPersonObjectClient);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "profileImageIV", imageView);
+
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.mockStatic(DateUtil.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        appProperties.setProperty(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT, String.valueOf(true));
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
+        baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
+
+        verify(view).setVisibility(View.GONE);
+        verify(profileOpenSrpId).setText(" id1");
+        verify(profilename).setText("John Doe");
     }
 }
