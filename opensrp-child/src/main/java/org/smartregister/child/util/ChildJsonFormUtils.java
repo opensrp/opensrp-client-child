@@ -250,6 +250,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return new FormLocationTree(locationsString, formLocationList);
     }
 
+    /**
+     * Add questions for each vaccine group
+     *
+     * @param context Form context
+     * @param form    JSON form object
+     */
     public static void addAvailableVaccines(Context context, JSONObject form) {
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(context);
         if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
@@ -523,10 +529,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         addLocationTree(widgetKey, widget, updateString, JsonFormConstants.DEFAULT);
     }
 
+    /**
+     * Record death of child
+     *
+     * @param context    Form context
+     * @param jsonString JSON form
+     * @param locationId Location Id
+     * @param entityId   Child Id
+     */
     public static void saveReportDeceased(Context context, String jsonString,
                                           String locationId, String entityId) {
         try {
-
             String providerId = ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             EventClientRepository db = ChildLibrary.getInstance().eventClientRepository();
             JSONObject jsonForm = new JSONObject(jsonString);
@@ -555,10 +568,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             addSaveReportDeceasedObservations(fields, event);
             updateMetadata(metadata, event);
 
-
             if (event != null) {
                 createDeathEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
-
 
                 ContentValues values = new ContentValues();
                 values.put(Constants.KEY.DOD, encounterDateField);
@@ -567,11 +578,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 updateDateOfRemoval(entityId, encounterDateTimeString);//TO DO Refactor  with better
 
-                //     Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
+                // Utils.postEvent(new ClientDirtyFlagEvent(entityId, encounterType));
             }
 
             processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
-
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> saveReportDeceased");
         }
@@ -696,6 +706,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName).updateSearch(entityIds);
     }
 
+    /**
+     * Add event form metadata
+     *
+     * @param context Form context
+     * @param event   Event
+     * @param start   Start date
+     * @return Event update with metadata
+     */
     @SuppressLint("MissingPermission")
     public static Event addMetaData(Context context, Event event, Date start) {
         Map<String, String> metaFields = new HashMap<>();
@@ -721,10 +739,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         String deviceId = "";
         try {
-
             TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
-
         } catch (SecurityException e) {
             Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
@@ -760,6 +776,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
+    /**
+     * Get child's location Id
+     *
+     * @param defaultLocationId    Default location Id
+     * @param allSharedPreferences Saved preferences
+     * @return Location Id of child
+     */
     @Nullable
     public static String getChildLocationId(@NonNull String defaultLocationId, @NonNull AllSharedPreferences allSharedPreferences) {
         String currentLocality = allSharedPreferences.fetchCurrentLocality();
@@ -1043,16 +1066,32 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * Get JSON form string of the form populated with child's details
+     *
+     * @param context      Form context
+     * @param childDetails Map of child details to populate form
+     * @return JSON string of the form metadata
+     */
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails) {
         return getMetadataForEditForm(context, childDetails, new ArrayList<String>());
     }
 
+    /**
+     * Get JSON form string of the form populated with child's details
+     *
+     * @param context           Form context
+     * @param childDetails      Map of child details to populate form
+     * @param nonEditableFields List of fields not editable on the form
+     * @return JSON string of the form metadata
+     */
     public static String getMetadataForEditForm(Context context, Map<String, String> childDetails, List<String> nonEditableFields) {
         try {
             JSONObject form = new FormUtils(context).getFormJson(Utils.metadata().childRegister.formName);
 
             if (form != null) {
                 ChildJsonFormUtils.addRegistrationFormLocationHierarchyQuestions(form);
+
                 Timber.d("Form is %s", form.toString());
 
                 form.put(ChildJsonFormUtils.ENTITY_ID, childDetails.get(Constants.KEY.BASE_ENTITY_ID));
