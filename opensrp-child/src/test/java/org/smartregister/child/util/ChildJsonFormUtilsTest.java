@@ -1131,4 +1131,53 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals("Gates", model.getMotherFirstName());
         Assert.assertEquals("Belinda", model.getMotherLastName());
     }
+
+    @Test
+    public void testGetRelationalIdByTypeReturnsNullWhenRelationshipsAreNotSet() throws JSONException {
+        String entityId = "184a6d7f-760f-401c-8194-4fd6828094e1";
+        String client = "{\"firstName\":\"Martha\",\"middleName\":\"Thomes\",\"lastName\":\"Athame\",\"birthdate\":\"2018-11-12T00:00:00.000+03:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"baseEntityId\":\"184a6d7f-760f-401c-8194-4fd6828094e1\",\"identifiers\":{\"zeir_id\":\"123456789\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"123 Home\"}}],\"attributes\":{\"age\":\"2.0\",\"Birth_Certificate\":\"ADG/01234/56789\",\"second_phone_number\":\"721234567\"},\"dateCreated\":\"2020-11-12T17:16:00.000+03:00\",\"serverVersion\":1605201360000,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"597dee4a-9568-4006-bca9-8efccbded2a0\",\"revision\":\"v1\"}";
+        JSONObject clientJsonObject = new JSONObject(client);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildMetadata metadata = new ChildMetadata(
+                BaseChildFormActivity.class,
+                null,
+                null,
+                null,
+                true,
+                new RegisterQueryProvider()
+        );
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
+        Mockito.when(eventClientRepository.getClientByBaseEntityId(entityId)).thenReturn(clientJsonObject);
+
+        String relationalId = ChildJsonFormUtils.getRelationalIdByType(entityId, Constants.KEY.MOTHER);
+        Assert.assertNull(relationalId);
+    }
+
+    @Test
+    public void testGetRelationalIdByTypeReturnsBaseEntityIdValueWhenRelationshipsAreSet() throws JSONException {
+        String entityId = "184a6d7f-760f-401c-8194-4fd6828094e1";
+        String client = "{\"firstName\":\"Martha\",\"middleName\":\"Thomes\",\"lastName\":\"Athame\",\"birthdate\":\"2018-11-12T00:00:00.000+03:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"mother\":[\"082fbd1e-e4c8-4f7a-92dc-57abe81aee42\"]},\"baseEntityId\":\"184a6d7f-760f-401c-8194-4fd6828094e1\",\"identifiers\":{\"zeir_id\":\"123456789\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"123 Home\"}}],\"attributes\":{\"age\":\"2.0\",\"Birth_Certificate\":\"ADG/01234/56789\",\"second_phone_number\":\"721234567\"},\"dateCreated\":\"2020-11-12T17:16:00.000+03:00\",\"serverVersion\":1605201360000,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"597dee4a-9568-4006-bca9-8efccbded2a0\",\"revision\":\"v1\"}";
+        JSONObject clientJsonObject = new JSONObject(client);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildMetadata metadata = new ChildMetadata(
+                BaseChildFormActivity.class,
+                null,
+                null,
+                null,
+                true,
+                new RegisterQueryProvider()
+        );
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
+        Mockito.when(eventClientRepository.getClientByBaseEntityId(entityId)).thenReturn(clientJsonObject);
+
+        String relationalId = ChildJsonFormUtils.getRelationalIdByType(entityId, Constants.KEY.MOTHER);
+        Assert.assertNotNull(relationalId);
+        Assert.assertEquals("184a6d7f-760f-401c-8194-4fd6828094e1", entityId);
+    }
 }
