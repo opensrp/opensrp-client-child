@@ -69,7 +69,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private View childProfileInfoLayout;
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
     private boolean upcomingLightBlueDisabled = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED);
-    private boolean hideOverdueVaccine = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.VACCINE_OVERDUE_STATUS_HIDE) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.VACCINE_OVERDUE_STATUS_HIDE);
+    private boolean hideOverdueVaccineStatus = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS);
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
@@ -328,7 +328,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
-            } else if (hideOverdueVaccine) {
+            } else if (hideOverdueVaccineStatus) {
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             }
@@ -337,7 +337,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
-            if (hideOverdueVaccine) {
+            if (hideOverdueVaccineStatus) {
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             } else {

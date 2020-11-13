@@ -605,7 +605,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @Test
     public void testUpdateRecordVaccinationWhenIsHideOverdueEnabled() throws Exception {
-        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccine", true);
+        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccineStatus", true);
 
         Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
         updateRecordVaccination.setAccessible(true);
@@ -642,7 +642,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @Test
     public void testUpdateRecordVaccinationWhenIsHideOverdueDisabled() throws Exception {
-        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccine", false);
+        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccineStatus", false);
 
         Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
         updateRecordVaccination.setAccessible(true);
