@@ -58,8 +58,10 @@ import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
+import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.JsonFormUtils;
+import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseProfileActivity;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -78,6 +80,9 @@ import java.util.Map;
 import java.util.Set;
 
 import id.zelory.compressor.Compressor;
+
+import static org.smartregister.util.JsonFormUtils.FIELDS;
+import static org.smartregister.util.JsonFormUtils.STEP1;
 
 public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
@@ -164,6 +169,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
     private org.smartregister.Context mContext;
+
+    @Mock
+    private CloudantDataHandler cloudantDataHandler;
 
     @Before
     public void setUp() {
@@ -734,6 +742,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", null);
     }
 
     @Test
@@ -1052,6 +1061,111 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         newFile.delete();
     }
 
+    @Test
+    public void testGetMetadataForEditFormReturnsEmptyStringOnError() {
+        String forEditForm = ChildJsonFormUtils.getMetadataForEditForm(context, new HashMap<String, String>());
+        Assert.assertEquals("", forEditForm);
+    }
+
+    @Test
+    public void testGetMetadataForEditFormPopulatesFormCorrectly() throws Exception {
+        String entityId = "6497c0ab-0483-4441-b6ed-f30be8040ce0";
+
+        ArrayList<String> healthFacilities = new ArrayList<>();
+        healthFacilities.add("Karura Health Centre");
+
+        ArrayList<String> allowedLevels = new ArrayList<>();
+        allowedLevels.add("Health Facility");
+
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", cloudantDataHandler);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        Mockito.when(context.getApplicationContext()).thenReturn(RuntimeEnvironment.application.getApplicationContext());
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(context.getResources()).thenReturn(RuntimeEnvironment.application.getResources());
+
+        LocationPickerView view = Mockito.mock(LocationPickerView.class);
+        Mockito.when(childLibrary.getLocationPickerView(ArgumentMatchers.any(Context.class))).thenReturn(view);
+        Mockito.when(view.getSelectedItem()).thenReturn("Karura Health Centre");
+
+        ChildMetadata childMetadata = new ChildMetadata(
+                BaseChildFormActivity.class,
+                BaseProfileActivity.class,
+                BaseChildImmunizationActivity.class,
+                null,
+                true
+        );
+        childMetadata.updateChildRegister(
+                "child_registration",
+                "childTable",
+                "guardianTable",
+                "Birth Registration",
+                "Birth Registration",
+                "Immunization",
+                "none",
+                "12345",
+                "Out of Catchment");
+        childMetadata.setFieldsWithLocationHierarchy(new HashSet<>(allowedLevels));
+        childMetadata.setHealthFacilityLevels(healthFacilities);
+        childMetadata.setLocationLevels(allowedLevels);
+
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
+
+        List<String> hierarchy = new ArrayList<>();
+        hierarchy.add("Karura Health Centre");
+        Mockito.when(locationHelper.generateDefaultLocationHierarchy(ArgumentMatchers.<String>anyList())).thenReturn(hierarchy);
+        Mockito.when(locationHelper.getOpenMrsLocationHierarchy(ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean())).thenReturn(hierarchy);
+
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put(Constants.KEY.ZEIR_ID, entityId);
+        childDetails.put(Constants.KEY.FIRST_NAME, "Hames");
+        childDetails.put(Constants.KEY.LAST_NAME, "Guez");
+        childDetails.put(Constants.KEY.GENDER, "Male");
+        childDetails.put(Constants.KEY.DOB, "2020-11-01");
+        childDetails.put(Constants.KEY.FIRST_HEALTH_FACILITY_CONTACT, "2020-11-10");
+        childDetails.put("birth_weight", "3");
+        childDetails.put("birth_height", "12");
+        childDetails.put("mother_first_name", "Loving");
+        childDetails.put("mother_last_name", "Mom");
+        childDetails.put("mother_dob", "2000-01-01");
+        childDetails.put("mother_guardian_phone_number", "700123123");
+        childDetails.put("birth_place", "Health Facility");
+        childDetails.put("home_facility", "Karura Health Centre");
+        childDetails.put("address2", "123 Kiamb");
+
+        String forEditForm = ChildJsonFormUtils.getMetadataForEditForm(context, childDetails);
+        Assert.assertNotNull(forEditForm);
+
+        JSONObject populatedForm = JsonFormUtils.toJSONObject(forEditForm);
+
+        Assert.assertEquals("Karura Health Centre", populatedForm.getJSONObject("metadata").getString("encounter_location"));
+
+        Assert.assertNotNull(populatedForm);
+        Assert.assertNotNull(populatedForm.getJSONObject(STEP1));
+        Assert.assertNotNull(populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS));
+
+        JSONArray fields = populatedForm.getJSONObject(STEP1).getJSONArray(FIELDS);
+        Assert.assertEquals(22, fields.length());
+        Assert.assertEquals(entityId.replace("-", ""), JsonFormUtils.getFieldValue(fields, Constants.KEY.ZEIR_ID));
+        Assert.assertEquals("Hames", JsonFormUtils.getFieldValue(fields, Constants.KEY.FIRST_NAME));
+        Assert.assertEquals("Guez", JsonFormUtils.getFieldValue(fields, Constants.KEY.LAST_NAME));
+        Assert.assertEquals("Male", JsonFormUtils.getFieldValue(fields, Constants.KEY.GENDER));
+        Assert.assertEquals("01-11-2020", JsonFormUtils.getFieldValue(fields, "birth_date"));
+        Assert.assertEquals("10-11-2020", JsonFormUtils.getFieldValue(fields, Constants.KEY.FIRST_HEALTH_FACILITY_CONTACT));
+        Assert.assertEquals("3", JsonFormUtils.getFieldValue(fields, "birth_weight"));
+        Assert.assertEquals("12", JsonFormUtils.getFieldValue(fields, "birth_height"));
+        Assert.assertEquals("Loving", JsonFormUtils.getFieldValue(fields, "mother_guardian_first_name"));
+        Assert.assertEquals("Mom", JsonFormUtils.getFieldValue(fields, "mother_guardian_last_name"));
+        Assert.assertEquals("01-01-2000", JsonFormUtils.getFieldValue(fields, "mother_dob"));
+        Assert.assertEquals("700123123", JsonFormUtils.getFieldValue(fields, "mother_guardian_phone_number"));
+        Assert.assertEquals("Health Facility", JsonFormUtils.getFieldValue(fields, "birth_place"));
+        Assert.assertEquals("[\"Karura Health Centre\"]", JsonFormUtils.getFieldValue(fields, "home_facility"));
+        Assert.assertEquals("123 Kiamb", JsonFormUtils.getFieldValue(fields, "residential_address"));
+    }
+
     @Test(expected = Exception.class)
     public void testProcessReturnedAdvanceSearchResultsThrowsExceptionWhenResponseIsNull() {
         List<ChildMotherDetailModel> models = ChildJsonFormUtils.processReturnedAdvanceSearchResults(null);
@@ -1130,5 +1244,54 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals("false", model.getLostFollowUp());
         Assert.assertEquals("Gates", model.getMotherFirstName());
         Assert.assertEquals("Belinda", model.getMotherLastName());
+    }
+
+    @Test
+    public void testGetRelationalIdByTypeReturnsNullWhenRelationshipsAreNotSet() throws JSONException {
+        String entityId = "184a6d7f-760f-401c-8194-4fd6828094e1";
+        String client = "{\"firstName\":\"Martha\",\"middleName\":\"Thomes\",\"lastName\":\"Athame\",\"birthdate\":\"2018-11-12T00:00:00.000+03:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"baseEntityId\":\"184a6d7f-760f-401c-8194-4fd6828094e1\",\"identifiers\":{\"zeir_id\":\"123456789\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"123 Home\"}}],\"attributes\":{\"age\":\"2.0\",\"Birth_Certificate\":\"ADG/01234/56789\",\"second_phone_number\":\"721234567\"},\"dateCreated\":\"2020-11-12T17:16:00.000+03:00\",\"serverVersion\":1605201360000,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"597dee4a-9568-4006-bca9-8efccbded2a0\",\"revision\":\"v1\"}";
+        JSONObject clientJsonObject = new JSONObject(client);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildMetadata metadata = new ChildMetadata(
+                BaseChildFormActivity.class,
+                null,
+                null,
+                null,
+                true,
+                new RegisterQueryProvider()
+        );
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
+        Mockito.when(eventClientRepository.getClientByBaseEntityId(entityId)).thenReturn(clientJsonObject);
+
+        String relationalId = ChildJsonFormUtils.getRelationalIdByType(entityId, Constants.KEY.MOTHER);
+        Assert.assertNull(relationalId);
+    }
+
+    @Test
+    public void testGetRelationalIdByTypeReturnsBaseEntityIdValueWhenRelationshipsAreSet() throws JSONException {
+        String entityId = "184a6d7f-760f-401c-8194-4fd6828094e1";
+        String client = "{\"firstName\":\"Martha\",\"middleName\":\"Thomes\",\"lastName\":\"Athame\",\"birthdate\":\"2018-11-12T00:00:00.000+03:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"mother\":[\"082fbd1e-e4c8-4f7a-92dc-57abe81aee42\"]},\"baseEntityId\":\"184a6d7f-760f-401c-8194-4fd6828094e1\",\"identifiers\":{\"zeir_id\":\"123456789\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"123 Home\"}}],\"attributes\":{\"age\":\"2.0\",\"Birth_Certificate\":\"ADG/01234/56789\",\"second_phone_number\":\"721234567\"},\"dateCreated\":\"2020-11-12T17:16:00.000+03:00\",\"serverVersion\":1605201360000,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"597dee4a-9568-4006-bca9-8efccbded2a0\",\"revision\":\"v1\"}";
+        JSONObject clientJsonObject = new JSONObject(client);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildMetadata metadata = new ChildMetadata(
+                BaseChildFormActivity.class,
+                null,
+                null,
+                null,
+                true,
+                new RegisterQueryProvider()
+        );
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
+        Mockito.when(eventClientRepository.getClientByBaseEntityId(entityId)).thenReturn(clientJsonObject);
+
+        String relationalId = ChildJsonFormUtils.getRelationalIdByType(entityId, Constants.KEY.MOTHER);
+        Assert.assertNotNull(relationalId);
+        Assert.assertEquals("184a6d7f-760f-401c-8194-4fd6828094e1", entityId);
     }
 }
