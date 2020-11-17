@@ -5,13 +5,12 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$androidToolsBuildGradle"
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.3'
     }
 }
 
 plugins {
     id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.8.4'
+    id 'com.github.kt3k.coveralls' version '2.10.2'
     id 'com.android.library'
 }
 
