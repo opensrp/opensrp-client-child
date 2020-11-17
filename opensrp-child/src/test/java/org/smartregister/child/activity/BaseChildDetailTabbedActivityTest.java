@@ -1,7 +1,13 @@
 package org.smartregister.child.activity;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.TabLayout;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.view.menu.MenuBuilder;
 import android.view.Menu;
 import android.view.View;
@@ -14,10 +20,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.opensrp.api.constants.Gender;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
@@ -28,6 +36,7 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
@@ -292,4 +301,98 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(profileOpenSrpId).setText(" id1");
         verify(profilename).setText("John Doe");
     }
+
+    @Test
+    public void testSetupViewsWhenFeatureImagesIsDisabledAndDetailsSideNavigationIsEnabled() {
+        ImageView profileImageIV = Mockito.mock(ImageView.class);
+        ImageView profileImageEditIcon = Mockito.mock(ImageView.class);
+        DrawerLayout drawerLayout = Mockito.mock(DrawerLayout.class);
+
+        doReturn(profileImageIV).when(baseChildDetailTabbedActivity).findViewById(R.id.profile_image_iv);
+        doReturn(profileImageEditIcon).when(baseChildDetailTabbedActivity).findViewById(R.id.profile_image_edit_icon);
+        doReturn(drawerLayout).when(baseChildDetailTabbedActivity).findViewById(R.id.drawer_layout);
+
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        appProperties.setProperty(ChildAppProperties.KEY.FEATURE_IMAGES_ENABLED, String.valueOf(false));
+        doReturn(appProperties).when(childLibrary).getProperties();
+
+        Mockito.doNothing().when(baseChildDetailTabbedActivity).renderProfileWidget(null);
+
+        doReturn(new int[]{R.color.gender_neutral_dark_green, R.color.gender_neutral_green, R.color.gender_neutral_light_green}).when(baseChildDetailTabbedActivity).updateGenderViews(any(Gender.class));
+
+        Resources resources = Mockito.mock(Resources.class);
+        doReturn(resources).when(baseChildDetailTabbedActivity).getResources();
+        doReturn(Color.GREEN).when(resources).getColor(R.color.gender_neutral_green);
+        doReturn(Color.GRAY).when(resources).getColor(R.color.dark_grey);
+
+        ChildDetailsToolbar childDetailsToolbar = Mockito.mock(ChildDetailsToolbar.class);
+        TabLayout tabLayout = Mockito.mock(TabLayout.class);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetailsToolbar", childDetailsToolbar);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "tabLayout", tabLayout);
+
+        ConstraintLayout constraintLayout = Mockito.mock(ConstraintLayout.class);
+        doReturn(constraintLayout).when(baseChildDetailTabbedActivity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
+
+        baseChildDetailTabbedActivity.setupViews();
+
+        verify(profileImageIV).setOnClickListener(null);
+        verify(profileImageEditIcon).setVisibility(View.GONE);
+
+        ArgumentCaptor<ColorDrawable> colorDrawableArgumentCaptor = ArgumentCaptor.forClass(ColorDrawable.class);
+        verify(childDetailsToolbar).setBackground(colorDrawableArgumentCaptor.capture());
+        Assert.assertEquals(Color.GREEN, ((ColorDrawable)colorDrawableArgumentCaptor.getValue()).getColor());
+
+        verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
+        verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
+    }
+
+    @Test
+    public void testSetupViewsWhenFeatureImagesIsEnabledAndDetailsSideNavigationIsDisabled() {
+        ImageView profileImageIV = Mockito.mock(ImageView.class);
+        ImageView profileImageEditIcon = Mockito.mock(ImageView.class);
+        DrawerLayout drawerLayout = Mockito.mock(DrawerLayout.class);
+
+        doReturn(profileImageIV).when(baseChildDetailTabbedActivity).findViewById(R.id.profile_image_iv);
+        doReturn(profileImageEditIcon).when(baseChildDetailTabbedActivity).findViewById(R.id.profile_image_edit_icon);
+        doReturn(drawerLayout).when(baseChildDetailTabbedActivity).findViewById(R.id.drawer_layout);
+
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        appProperties.setProperty(ChildAppProperties.KEY.FEATURE_IMAGES_ENABLED, String.valueOf(true));
+        appProperties.setProperty(ChildAppProperties.KEY.DETAILS_SIDE_NAVIGATION_ENABLED, String.valueOf(false));
+        doReturn(appProperties).when(childLibrary).getProperties();
+
+        Mockito.doNothing().when(baseChildDetailTabbedActivity).renderProfileWidget(null);
+
+        doReturn(new int[]{R.color.gender_neutral_dark_green, R.color.gender_neutral_green, R.color.gender_neutral_light_green}).when(baseChildDetailTabbedActivity).updateGenderViews(any(Gender.class));
+
+        Resources resources = Mockito.mock(Resources.class);
+        doReturn(resources).when(baseChildDetailTabbedActivity).getResources();
+        doReturn(Color.GREEN).when(resources).getColor(R.color.gender_neutral_green);
+        doReturn(Color.GRAY).when(resources).getColor(R.color.dark_grey);
+
+        ChildDetailsToolbar childDetailsToolbar = Mockito.mock(ChildDetailsToolbar.class);
+        TabLayout tabLayout = Mockito.mock(TabLayout.class);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetailsToolbar", childDetailsToolbar);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "tabLayout", tabLayout);
+
+        ConstraintLayout constraintLayout = Mockito.mock(ConstraintLayout.class);
+        doReturn(constraintLayout).when(baseChildDetailTabbedActivity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
+
+        baseChildDetailTabbedActivity.setupViews();
+
+        verify(profileImageEditIcon).setVisibility(View.VISIBLE);
+        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+        ArgumentCaptor<ColorDrawable> colorDrawableArgumentCaptor = ArgumentCaptor.forClass(ColorDrawable.class);
+        verify(childDetailsToolbar).setBackground(colorDrawableArgumentCaptor.capture());
+        Assert.assertEquals(Color.GREEN, ((ColorDrawable)colorDrawableArgumentCaptor.getValue()).getColor());
+
+        verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
+        verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
+    }
+
 }
