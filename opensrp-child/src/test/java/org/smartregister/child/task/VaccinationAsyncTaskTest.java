@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
@@ -123,7 +124,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         vaccineRepoMap.put("vaccines.json", Arrays.asList(new VaccineGroup[]{vaccineGroup}));
 
-        when(immunizationLibrary.getVaccinesConfigJsonMap()).thenReturn(vaccineRepoMap);
+        PowerMockito.when(immunizationLibrary.getVaccinesConfigJsonMap()).thenReturn(vaccineRepoMap);
 
         HashMap<String, VaccineCache> vaccineCacheHashMap = new HashMap<>();
 
