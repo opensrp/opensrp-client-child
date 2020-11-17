@@ -158,12 +158,12 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     public void testUpdateWeightWrapper() throws Exception {
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
 
-        Mockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.when(growthMonitoringLibrary.weightRepository()).thenReturn(weightRepository);
-        Mockito.when(weightRepository.find(any(Long.class))).thenReturn(weight);
-        Mockito.doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
-        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
-        Mockito.doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
+        when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
+        when(growthMonitoringLibrary.weightRepository()).thenReturn(weightRepository);
+        when(weightRepository.find(any(Long.class))).thenReturn(weight);
+        doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
+        doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
 
         Method updateWeightWrapper = BaseChildDetailTabbedActivity.class.getDeclaredMethod("updateWeightWrapper", WeightWrapper.class);
         updateWeightWrapper.setAccessible(true);
@@ -191,12 +191,12 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     public void testUpdateHeightWrapper() throws Exception {
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
 
-        Mockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.when(growthMonitoringLibrary.heightRepository()).thenReturn(heightRepository);
-        Mockito.when(heightRepository.find(any(Long.class))).thenReturn(height);
-        Mockito.doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
-        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
-        Mockito.doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
+        when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
+        when(growthMonitoringLibrary.heightRepository()).thenReturn(heightRepository);
+        when(heightRepository.find(any(Long.class))).thenReturn(height);
+        doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
+        doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
 
         Method updateHeightWrapper = BaseChildDetailTabbedActivity.class.getDeclaredMethod("updateHeightWrapper", HeightWrapper.class);
         updateHeightWrapper.setAccessible(true);
@@ -284,7 +284,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
 
         appProperties.setProperty(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT, String.valueOf(true));
-        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        doReturn(appProperties).when(childLibrary).getProperties();
 
         baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
 
