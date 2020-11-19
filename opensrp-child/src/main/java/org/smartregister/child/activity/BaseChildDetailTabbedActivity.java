@@ -141,10 +141,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private String locationId = "";
     private ImageView profileImageIV;
     private boolean monitorGrowth = false;
-    private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
-    private List<ServiceHolder> editServicesList = new ArrayList<>();
-    private List<ServiceHolder> removeServicesList = new ArrayList<>();
-    private List<Long> dbKeysForDelete = new ArrayList<>();
+    private final List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
+    private final List<ServiceHolder> editServicesList = new ArrayList<>();
+    private final List<ServiceHolder> removeServicesList = new ArrayList<>();
+    private final List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
     private List<Map.Entry<String, String>> extraChildVaccines;
 
@@ -778,6 +778,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
+        MenuItem item = overflow.findItem(R.id.record_dynamic_vaccines);
+        if (item != null) item.setEnabled(canEditRegistrationData);
     }
 
     @Override
