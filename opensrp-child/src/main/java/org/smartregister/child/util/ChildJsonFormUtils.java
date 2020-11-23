@@ -876,6 +876,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             //Add previous relational ids if they existed.
             addRelationships(baseClient, jsonString);
 
+            //Set client location as event's
+            baseClient.setLocationId(baseEvent.getLocationId());
+
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processChildDetailsForm");
@@ -1385,6 +1388,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
 
                 lastInteractedWith(fields);
+
+                //Set client location as event's
+                baseClient.setLocationId(baseEvent.getLocationId());
 
                 return new ChildEventClient(subformClient, subFormEvent);
             }

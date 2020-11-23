@@ -1,24 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/write_to_card" android:title="@string/write_to_card"
-        android:orderInCategory="100" app:showAsAction="never" android:visible="false" />
-    <item android:id="@+id/register_card" android:title="@string/register_card"
-        android:orderInCategory="100" app:showAsAction="never" android:visible="false" />
-    <item android:id="@+id/change_status" android:title="@string/change_status"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/registration_data" android:title="@string/edit_registration_data"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/weight_data" android:title="@string/edit_growth_data"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/immunization_data" android:title="@string/edit_immunization_data"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/recurring_services_data" android:title="@string/edit_recurring_services_data"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/report_deceased" android:title="@string/report_deceased"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/report_adverse_event" android:title="@string/report_adverse_event"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/record_dynamic_vaccines" android:title="@string/record_dynamic_vaccines"
-        android:orderInCategory="100" android:visible="false" app:showAsAction="never" />
+    <item
+        android:id="@+id/write_to_card"
+        android:orderInCategory="100"
+        android:title="@string/write_to_card"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/register_card"
+        android:orderInCategory="100"
+        android:title="@string/register_card"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/change_status"
+        android:orderInCategory="100"
+        android:title="@string/change_status"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/registration_data"
+        android:orderInCategory="100"
+        android:title="@string/edit_registration_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/weight_data"
+        android:orderInCategory="100"
+        android:title="@string/edit_growth_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/immunization_data"
+        android:orderInCategory="100"
+        android:title="@string/edit_immunization_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/recurring_services_data"
+        android:orderInCategory="100"
+        android:title="@string/edit_recurring_services_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/report_deceased"
+        android:orderInCategory="100"
+        android:title="@string/report_deceased"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/report_adverse_event"
+        android:orderInCategory="100"
+        android:title="@string/report_adverse_event"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/record_dynamic_vaccines"
+        android:orderInCategory="100"
+        android:title="@string/record_dynamic_vaccines"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/report_lost_card"
+        android:orderInCategory="100"
+        android:title="@string/report_lost_card"
+        android:visible="false"
+        android:actionLayout="@layout/wrapped_menu_item_layout"
+        app:showAsAction="never" />
 </menu>
