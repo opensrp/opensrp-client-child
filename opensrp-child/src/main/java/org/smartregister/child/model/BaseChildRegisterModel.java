@@ -2,7 +2,6 @@ package org.smartregister.child.model;
 
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 

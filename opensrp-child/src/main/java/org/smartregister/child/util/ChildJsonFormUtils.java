@@ -876,8 +876,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             //Add previous relational ids if they existed.
             addRelationships(baseClient, jsonString);
 
-            //Set client location as event's
-            baseClient.setLocationId(baseEvent.getLocationId());
+            tagClientLocation(baseClient, baseEvent);
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
@@ -1388,13 +1387,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
 
                 lastInteractedWith(fields);
-
-                //Set client location as event's
-                baseClient.setLocationId(baseEvent.getLocationId());
+                tagClientLocation(baseClient, baseEvent);
 
                 return new ChildEventClient(subformClient, subFormEvent);
             }
         }
+    }
+
+    private static void tagClientLocation(Client baseClient, Event baseEvent) {
+        //Tag client with event's location and team
+        baseClient.setLocationId(baseEvent.getLocationId());
+        baseClient.setTeamId(baseEvent.getTeamId());
     }
 
     private static boolean validateFatherDetails(String jsonString) {
