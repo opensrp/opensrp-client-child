@@ -6,6 +6,7 @@ import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildTabbedDetailsContract;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.clientandeventmodel.DateUtil;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -41,20 +42,13 @@ public class BaseChildDetailsPresenter implements ChildTabbedDetailsContract.Pre
         if (getView() != null) {
             JSONObject client = eventClientRepository.getClientByBaseEntityId(baseEntityId);
             try {
-
                 JSONObject clientAttributes = client.getJSONObject(AllConstants.ATTRIBUTES);
-                Date currentTime = Calendar.getInstance().getTime();
                 clientAttributes.put(CARD_STATUS, CardStatus.needs_card.name());
-                clientAttributes.put(CARD_STATUS_DATE, currentTime);
-
+                Date currentTime = Calendar.getInstance().getTime();
+                clientAttributes.put(CARD_STATUS_DATE, DateUtil.fromDate(currentTime));
                 client.put(AllConstants.ATTRIBUTES, clientAttributes);
-
                 eventClientRepository.addorUpdateClient(baseEntityId, client);
-
-                String orderDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-                        .format(currentTime);
-                getView().notifyLostCardReported(orderDate);
-
+                getView().notifyLostCardReported(new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH).format(currentTime));
             } catch (JSONException e) {
                 Timber.e(e);
             }
