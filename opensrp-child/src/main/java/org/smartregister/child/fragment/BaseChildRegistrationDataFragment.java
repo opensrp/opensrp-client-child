@@ -175,7 +175,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             }
 
             //TODO Temporary fix for spinner setting value as hint when nothing is selected
-            if (field.getType().equalsIgnoreCase(JsonFormConstants.SPINNER) && field.getHint().equalsIgnoreCase(value)) {
+            if (JsonFormConstants.SPINNER.equalsIgnoreCase(field.getType()) && value != null && value.equalsIgnoreCase(field.getHint())) {
                 value = null;
             }
 
@@ -220,16 +220,16 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
         String value;
         value = detailsMap.get(field.getKey().toLowerCase(Locale.getDefault()));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.getDefault()));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase(Locale.getDefault())));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(key.toLowerCase(Locale.getDefault()));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.getDefault()));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase(Locale.getDefault())));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(key.toLowerCase(Locale.getDefault()));
         return value;
     }
 
     public String getPrefix(String entityId) {
-        if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
+        if (!StringUtils.isBlank(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
             return "mother_";
-        else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
+        else if (!StringUtils.isBlank(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
             return "father_";
         else return "";
     }
