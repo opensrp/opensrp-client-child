@@ -3,7 +3,7 @@ package org.smartregister.child.contract;
 public interface ChildTabbedDetailsContract {
 
     interface View {
-        void notifyLostCardReported(String orderDate);
+        void notifyLostCardReported(String cardStatusDate);
     }
 
     interface Presenter {

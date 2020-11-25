@@ -119,6 +119,7 @@ import java.util.Map;
 
 import timber.log.Timber;
 
+import static org.smartregister.clientandeventmodel.DateUtil.*;
 import static org.smartregister.util.Utils.showToast;
 
 /**
@@ -155,6 +156,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private List<Map.Entry<String, String>> extraChildVaccines;
     private LostCardDialogFragment lostCardDialogFragment;
     private ChildTabbedDetailsContract.Presenter presenter;
+    public final SimpleDateFormat ddMmYyyyDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -1251,11 +1253,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Override
-    public void notifyLostCardReported(String orderDate) {
+    public void notifyLostCardReported(String cardStatusDate) {
         showToast(this, getString(R.string.card_reported_as_lost));
         MenuItem reportLostCardMenu = overflow.findItem(R.id.report_lost_card);
         if (reportLostCardMenu != null) {
-            reportLostCardMenu.setTitle(getString(R.string.card_ordered_with_date, orderDate));
+            reportLostCardMenu.setTitle(getString(R.string.card_ordered_with_date, ddMmYyyyDateFormat.format(getDateFromString(cardStatusDate))));
             reportLostCardMenu.setEnabled(false);
         }
         getLostCardDialogFragment().dismiss();
