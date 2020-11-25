@@ -20,7 +20,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -367,79 +366,47 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setUpMyCatchmentControls(view, myCatchment, outsideInside, R.id.my_catchment_layout);
 
         active = view.findViewById(R.id.active);
-        active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !inactive.isChecked() && !lostToFollowUp.isChecked()) {
-                    active.setChecked(true);
-                }
+        active.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !inactive.isChecked() && !lostToFollowUp.isChecked()) {
+                active.setChecked(true);
             }
         });
         inactive = view.findViewById(R.id.inactive);
-        inactive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !active.isChecked() && !lostToFollowUp.isChecked()) {
-                    inactive.setChecked(true);
-                }
+        inactive.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !active.isChecked() && !lostToFollowUp.isChecked()) {
+                inactive.setChecked(true);
             }
         });
         lostToFollowUp = view.findViewById(R.id.lost_to_follow_up);
-        lostToFollowUp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !active.isChecked() && !inactive.isChecked()) {
-                    lostToFollowUp.setChecked(true);
-                }
+        lostToFollowUp.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !active.isChecked() && !inactive.isChecked()) {
+                lostToFollowUp.setChecked(true);
             }
         });
 
         final View activeLayout = view.findViewById(R.id.active_layout);
-        activeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                active.toggle();
-            }
-        });
+        activeLayout.setOnClickListener(v -> active.toggle());
 
         final View inactiveLayout = view.findViewById(R.id.inactive_layout);
-        inactiveLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                inactive.toggle();
-            }
-        });
+        inactiveLayout.setOnClickListener(v -> inactive.toggle());
 
         final View lostToFollowUpLayout = view.findViewById(R.id.lost_to_follow_up_layout);
-        lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                lostToFollowUp.toggle();
-            }
-        });
+        lostToFollowUpLayout.setOnClickListener(v -> lostToFollowUp.toggle());
     }
 
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
-        myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    outsideInside.setChecked(!isChecked);
-                }
+        myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!Utils.isConnectedToNetwork(getActivity())) {
+                myCatchment.setChecked(true);
+                outsideInside.setChecked(false);
+            } else {
+                outsideInside.setChecked(!isChecked);
             }
         });
 
         View myCatchmentLayout = view.findViewById(p);
-        myCatchmentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myCatchment.toggle();
-            }
-        });
+        myCatchmentLayout.setOnClickListener(v -> myCatchment.toggle());
     }
 
     private void setUpSearchButtons() {
@@ -455,18 +422,15 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpQRCodeButton(View view) {
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
         if (!ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
-            qrCodeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getActivity() == null) {
-                        return;
-                    }
-                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-                    baseRegisterActivity.startQrCodeScanner();
-
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+            qrCodeButton.setOnClickListener(view1 -> {
+                if (getActivity() == null) {
+                    return;
                 }
+                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                baseRegisterActivity.startQrCodeScanner();
+
+                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
+                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
             });
         } else {
             qrCodeButton.setVisibility(View.GONE);
@@ -640,7 +604,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     protected abstract String getMainCondition();
 
-    private void search() {
+    public void search() {
         if (myCatchment.isChecked()) {
             isLocal = true;
         } else if (outsideInside.isChecked()) {
@@ -652,7 +616,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         ((ChildAdvancedSearchContract.Presenter) presenter).search(editMap, isLocal);
     }
 
-    protected abstract Map<String, String> getSearchMap(boolean outOfarea);
+    protected abstract Map<String, String> getSearchMap(boolean outOfArea);
 
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {

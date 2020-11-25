@@ -29,7 +29,7 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +113,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 presenter().startForm(formName, entityId, metaData, locationId);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
@@ -126,7 +126,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 presenter().startForm(formName, entityId, metaData, locationId);
             }
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Timber.e(Log.getStackTraceString(e));
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
@@ -153,13 +153,18 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             barcodeSearchTerm =
                     barcodeSearchTerm.contains("/") ? barcodeSearchTerm.substring(barcodeSearchTerm.lastIndexOf('/') + 1) :
                             barcodeSearchTerm;
-
-            //Set value and refresh form values!
-            advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
+            updateSearchItems(barcodeSearchTerm);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
 
+    /**
+     * Override method to set project specific search items
+     * @param barcodeSearchTerm barcode reader result
+     */
+    protected void updateSearchItems(String barcodeSearchTerm) {
+        advancedSearchFormData.put(Constants.KEY.ZEIR_ID, barcodeSearchTerm);
     }
 
     @Override
@@ -226,7 +231,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         setFormData(advancedSearchFormData);
         isAdvancedSearch = false;
         advancedSearchFormData = new HashMap<>();
-
     }
 
     private void setFormData(HashMap<String, String> formData) {
@@ -235,7 +239,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     @Override
     public List<String> getViewIdentifiers() {
-        return Arrays.asList(Utils.metadata().childRegister.config);
+        return Collections.singletonList(Utils.metadata().childRegister.config);
     }
 
     @Override
@@ -264,14 +268,13 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             // mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
             setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Timber.e(e);
         }
-
     }
 
     public abstract void startNFCCardScanner();
 
-    //To be overriden
+    //To be overridden
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
         presenter().saveForm(jsonString, updateRegisterParam);
     }
@@ -279,7 +282,5 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     public void dissmissProgressDialog() {
         hideProgressDialog();
-
     }
-
 }
