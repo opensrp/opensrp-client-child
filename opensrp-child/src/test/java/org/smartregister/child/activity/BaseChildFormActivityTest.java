@@ -1,6 +1,6 @@
 package org.smartregister.child.activity;
 
-import androidx.core.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import org.junit.After;
 import org.junit.Assert;
