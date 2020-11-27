@@ -11,6 +11,6 @@ import org.smartregister.child.util.Utils;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Utils.class})
-@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*"})
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*"})
 public abstract class BasePowerMockUnitTest {
 }
