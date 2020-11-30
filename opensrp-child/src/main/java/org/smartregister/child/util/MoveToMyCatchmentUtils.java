@@ -2,7 +2,8 @@ package org.smartregister.child.util;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Pair;
+
+import androidx.core.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;

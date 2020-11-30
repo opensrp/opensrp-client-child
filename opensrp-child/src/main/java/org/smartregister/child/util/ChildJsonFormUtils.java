@@ -9,7 +9,7 @@ import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Pair;
+import androidx.core.util.Pair;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
