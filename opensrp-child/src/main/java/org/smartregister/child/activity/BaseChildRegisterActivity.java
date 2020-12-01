@@ -2,12 +2,13 @@ package org.smartregister.child.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.bottomnavigation.LabelVisibilityMode;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 

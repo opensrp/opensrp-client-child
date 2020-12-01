@@ -6,10 +6,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Pair;
+
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;

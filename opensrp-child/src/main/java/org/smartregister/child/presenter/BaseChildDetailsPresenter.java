@@ -5,14 +5,11 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildTabbedDetailsContract;
-import org.smartregister.repository.EventClientRepository;
 import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.repository.EventClientRepository;
 
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 import timber.log.Timber;
 

@@ -1,7 +1,8 @@
 package org.smartregister.child.job;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import org.smartregister.child.service.intent.ArchiveClientRecordIntentService;
 import org.smartregister.job.BaseJob;

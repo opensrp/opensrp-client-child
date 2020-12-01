@@ -4,9 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +13,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.VisibleForTesting;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.Context;
@@ -270,7 +271,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @VisibleForTesting
-    protected Context getOpenSRPContext(){
+    protected Context getOpenSRPContext() {
         return context();
     }
 

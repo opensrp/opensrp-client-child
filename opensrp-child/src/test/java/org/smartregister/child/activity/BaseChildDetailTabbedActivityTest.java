@@ -1,7 +1,8 @@
 package org.smartregister.child.activity;
 
-import android.support.v7.view.menu.MenuBuilder;
 import android.view.Menu;
+
+import androidx.appcompat.view.menu.MenuBuilder;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;

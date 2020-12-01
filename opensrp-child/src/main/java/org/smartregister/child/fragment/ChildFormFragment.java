@@ -3,10 +3,6 @@ package org.smartregister.child.fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -20,6 +16,11 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatCheckBox;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -67,21 +68,17 @@ import static org.smartregister.util.Utils.getValue;
 public class ChildFormFragment extends JsonWizardFormFragment {
 
     public static final String TAG = ChildFormFragment.class.getName();
-
-    private Snackbar snackbar = null;
-    private AlertDialog alertDialog = null;
-    private boolean lookedUp = false;
-
     private static final int showResultsDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_SHOW_RESULTS_DURATION, Constants.MOTHER_LOOKUP_SHOW_RESULTS_DEFAULT_DURATION));
-
     private static final int undoChoiceDuration = Integer.parseInt(ChildLibrary
             .getInstance()
             .getProperties()
             .getProperty(Constants.PROPERTY.MOTHER_LOOKUP_UNDO_DURATION, Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION));
-
+    private Snackbar snackbar = null;
+    private AlertDialog alertDialog = null;
+    private boolean lookedUp = false;
     private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -280,16 +277,16 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
         float textSize = getActivity().getResources().getDimension(R.dimen.snack_bar_text_size);
 
-        View snackbarView = snackbar.getView();
+        View snackbarView = getSnackBarView(snackbar);
         snackbarView.setMinimumHeight(Float.valueOf(textSize).intValue());
         snackbarView.setBackgroundResource(R.color.accent);
 
-        final Button actionView = snackbarView.findViewById(android.support.design.R.id.snackbar_action);
+        final Button actionView = snackbarView.findViewById(R.id.snackbar_action);
         actionView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         actionView.setGravity(Gravity.CENTER);
         actionView.setTextColor(getResources().getColor(R.color.white));
 
-        TextView textView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        TextView textView = snackbarView.findViewById(R.id.snackbar_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(Gravity.CENTER);
         textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_error, 0, 0, 0);
@@ -333,16 +330,16 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
         float textSize = getActivity().getResources().getDimension(R.dimen.snack_bar_text_size);
 
-        View snackbarView = snackbar.getView();
+        View snackbarView = getSnackBarView(snackbar);
         snackbarView.setMinimumHeight(Float.valueOf(textSize).intValue());
         snackbarView.setBackgroundResource(R.color.accent);
 
-        final Button actionView = snackbarView.findViewById(android.support.design.R.id.snackbar_action);
+        final Button actionView = snackbarView.findViewById(R.id.snackbar_action);
         actionView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         actionView.setGravity(Gravity.CENTER);
         actionView.setTextColor(getResources().getColor(R.color.white));
 
-        TextView textView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        TextView textView = snackbarView.findViewById(R.id.snackbar_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(Gravity.CENTER);
         textView.setOnClickListener(new View.OnClickListener() {
@@ -358,23 +355,33 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         textView.setAllCaps(true);
         textView.setTypeface(Typeface.DEFAULT_BOLD);
 
-        snackbarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // actionView.performClick();
-            }
+        snackbarView.setOnClickListener(v -> {
+            // actionView.performClick();
         });
 
-        snackbar.show();
+        showSnackBar(snackbar);
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                snackbar.dismiss();
-            }
-        }, showResultsDuration);
+        handler.postDelayed(() -> dismissSnackBar(snackbar), showResultsDuration);
 
+    }
+
+    @VisibleForTesting
+    @NotNull
+    protected void showSnackBar(Snackbar snackbar) {
+        snackbar.show();
+    }
+
+    @VisibleForTesting
+    @NotNull
+    protected void dismissSnackBar(Snackbar snackbar) {
+        snackbar.dismiss();
+    }
+
+    @VisibleForTesting
+    @NotNull
+    protected View getSnackBarView(Snackbar snackbar) {
+        return snackbar.getView();
     }
 
     protected void lookupDialogDismissed(CommonPersonObjectClient client) {

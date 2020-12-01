@@ -1,7 +1,8 @@
 package org.smartregister.child;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
