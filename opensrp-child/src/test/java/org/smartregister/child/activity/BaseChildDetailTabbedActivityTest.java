@@ -173,6 +173,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
         doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
+        doReturn(10L).when(weight).getId();
 
         Method updateWeightWrapper = BaseChildDetailTabbedActivity.class.getDeclaredMethod("updateWeightWrapper", WeightWrapper.class);
         updateWeightWrapper.setAccessible(true);
@@ -194,6 +195,9 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(weight).setBaseEntityId("id-1");
         verify(weight).setOutOfCatchment(0);
         verify(weight).setAnmId("user-1");
+
+        verify(weightRepository).add(weight);
+        Assert.assertEquals(10L, weightWrapper.getDbKey().longValue());
     }
 
     @Test
@@ -206,6 +210,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         doReturn(opensrpContext).when(baseChildDetailTabbedActivity).getOpenSRPContext();
         doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         doReturn("user-1").when(allSharedPreferences).fetchRegisteredANM();
+        doReturn(10L).when(height).getId();
 
         Method updateHeightWrapper = BaseChildDetailTabbedActivity.class.getDeclaredMethod("updateHeightWrapper", HeightWrapper.class);
         updateHeightWrapper.setAccessible(true);
@@ -227,6 +232,9 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(height).setBaseEntityId("id-1");
         verify(height).setOutOfCatchment(0);
         verify(height).setAnmId("user-1");
+
+        verify(heightRepository).add(height);
+        Assert.assertEquals(10L, heightWrapper.getDbKey().longValue());
     }
 
     private CommonPersonObjectClient getChildDetails() {
@@ -291,6 +299,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         PowerMockito.mockStatic(ChildLibrary.class);
         PowerMockito.mockStatic(DateUtil.class);
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        PowerMockito.when(DateUtil.getDuration(any(Long.class))).thenReturn("10y");
 
         appProperties.setProperty(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT, String.valueOf(true));
         doReturn(appProperties).when(childLibrary).getProperties();
@@ -300,6 +309,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(view).setVisibility(View.GONE);
         verify(profileOpenSrpId).setText(" id1");
         verify(profilename).setText("John Doe");
+        verify(profileage).setText(" 10y");
     }
 
     @Test
@@ -331,7 +341,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         TabLayout tabLayout = Mockito.mock(TabLayout.class);
         Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetailsToolbar", childDetailsToolbar);
         Whitebox.setInternalState(baseChildDetailTabbedActivity, "tabLayout", tabLayout);
-
         ConstraintLayout constraintLayout = Mockito.mock(ConstraintLayout.class);
         doReturn(constraintLayout).when(baseChildDetailTabbedActivity).findViewById(R.id.advanced_data_capture_strategy_wrapper);
 
@@ -346,6 +355,8 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
         verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
         verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
+
+        verify(baseChildDetailTabbedActivity).renderProfileWidget(null);
     }
 
     @Test
@@ -393,6 +404,8 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
         verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
         verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
+
+        verify(baseChildDetailTabbedActivity).renderProfileWidget(null);
     }
 
 }
