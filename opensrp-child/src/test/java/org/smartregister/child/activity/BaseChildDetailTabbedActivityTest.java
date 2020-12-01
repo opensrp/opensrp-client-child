@@ -241,6 +241,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
         HashMap<String, String> childDetails = new HashMap<>();
         childDetails.put("baseEntityId", "id-1");
+        childDetails.put(Constants.KEY.FIRST_NAME, "John");
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
@@ -406,6 +407,23 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
 
         verify(baseChildDetailTabbedActivity).renderProfileWidget(null);
+    }
+
+    @Test
+    public void testSetActivityTitle() {
+        ChildDetailsToolbar childDetailsToolbar = Mockito.mock(ChildDetailsToolbar.class);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetailsToolbar", childDetailsToolbar);
+
+        CommonPersonObjectClient commonPersonObjectClient = getChildDetails();
+        commonPersonObjectClient.setCaseId(null);
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetails", commonPersonObjectClient);
+
+        TextView titleView = Mockito.mock(TextView.class);
+        doReturn(titleView).when(childDetailsToolbar).findViewById(R.id.title);
+
+        baseChildDetailTabbedActivity.setActivityTitle();
+
+        verify(titleView).setText("John");
     }
 
 }
