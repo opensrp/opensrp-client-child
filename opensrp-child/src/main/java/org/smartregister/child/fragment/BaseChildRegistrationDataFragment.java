@@ -1,14 +1,15 @@
 package org.smartregister.child.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.utils.NativeFormLangUtils;
@@ -77,7 +78,11 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        try {
+            super.onCreate(savedInstanceState);
+        } catch (IllegalStateException e) {
+            Timber.e(e);
+        }
         Form form = getForm();
         setFields(form.getStep1().getFields());
         unformattedNumberFields = addUnFormattedNumberFields("");
@@ -175,7 +180,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             }
 
             //TODO Temporary fix for spinner setting value as hint when nothing is selected
-            if (field.getType().equalsIgnoreCase(JsonFormConstants.SPINNER) && field.getHint().equalsIgnoreCase(value)) {
+            if (JsonFormConstants.SPINNER.equalsIgnoreCase(field.getType()) && value != null && value.equalsIgnoreCase(field.getHint())) {
                 value = null;
             }
 
@@ -220,16 +225,16 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     private String getFieldValue(Map<String, String> detailsMap, Field field, String key) {
         String value;
         value = detailsMap.get(field.getKey().toLowerCase(Locale.getDefault()));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.getDefault()));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase(Locale.getDefault())));
-        value = !TextUtils.isEmpty(value) ? value : detailsMap.get(key.toLowerCase(Locale.getDefault()));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + key.toLowerCase(Locale.getDefault()));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(getPrefix(field.getEntityId()) + cleanOpenMRSEntityId(field.getOpenmrsEntityId().toLowerCase(Locale.getDefault())));
+        value = !StringUtils.isBlank(value) ? value : detailsMap.get(key.toLowerCase(Locale.getDefault()));
         return value;
     }
 
     public String getPrefix(String entityId) {
-        if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
+        if (!StringUtils.isBlank(entityId) && entityId.equalsIgnoreCase(Constants.KEY.MOTHER))
             return "mother_";
-        else if (!TextUtils.isEmpty(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
+        else if (!StringUtils.isBlank(entityId) && entityId.equalsIgnoreCase(Constants.KEY.FATHER))
             return "father_";
         else return "";
     }

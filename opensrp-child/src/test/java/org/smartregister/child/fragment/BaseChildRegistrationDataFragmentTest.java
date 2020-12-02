@@ -1,20 +1,21 @@
 package org.smartregister.child.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.common.collect.ImmutableMap;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -22,11 +23,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
@@ -54,9 +55,8 @@ import java.util.Map;
 /**
  * Created by ndegwamartin on 04/08/2020.
  */
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({CoreLibrary.class, ChildLibrary.class})
-public class BaseChildRegistrationDataFragmentTest {
+public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest {
 
     private BaseChildRegistrationDataFragment baseChildRegistrationDataFragment;
 
@@ -118,9 +118,11 @@ public class BaseChildRegistrationDataFragmentTest {
         Mockito.doReturn(step).when(form).getStep1();
         fields = generateFormFieldsForTest();
         List<String> unformattedNumberFields = new ArrayList<>();
+        unformattedNumberFields.add("key2");
 
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "fields", fields);
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "mAdapter", adapter);
+        Assert.assertNotNull(baseChildRegistrationDataFragment.getmAdapter());
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "unformattedNumberFields", unformattedNumberFields);
         Mockito.doReturn(fields).when(step).getFields();
 
@@ -128,6 +130,18 @@ public class BaseChildRegistrationDataFragmentTest {
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
         ChildAppProperties appProperties = new ChildAppProperties();
         PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
+    }
+
+    @Test
+    public void testGetPrefix() {
+        String prefix = baseChildRegistrationDataFragment.getPrefix(Constants.KEY.MOTHER);
+        Assert.assertEquals("mother_", prefix);
+
+        prefix = baseChildRegistrationDataFragment.getPrefix(Constants.KEY.FATHER);
+        Assert.assertEquals("father_", prefix);
+
+        prefix = baseChildRegistrationDataFragment.getPrefix("other-random-value");
+        Assert.assertEquals("", prefix);
     }
 
     @Test
@@ -315,6 +329,33 @@ public class BaseChildRegistrationDataFragmentTest {
     }
 
     @Test
+    public void testCleanValueRetrievesValueForSpinnerUsingNewMLSApproach() {
+
+        ChildAppProperties appProperties = new ChildAppProperties();
+        appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
+
+        PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
+
+        String rawValue = "Fr";
+
+        Field f = new Field();
+        f.setHint("Select Language");
+
+        List<Map<String, String>> options = new ArrayList<>();
+        options.add(ImmutableMap.of(JsonFormConstants.KEY, "En", JsonFormConstants.TEXT, "English"));
+        options.add(ImmutableMap.of(JsonFormConstants.KEY, "Fr", JsonFormConstants.TEXT, "French"));
+        Whitebox.setInternalState(f, "options", options);
+
+        Whitebox.setInternalState(f, "key", "language_spinner");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.SPINNER);
+
+        String value = baseChildRegistrationDataFragment.cleanValue(f, rawValue);
+        Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));
+        Assert.assertEquals("French", value);
+    }
+
+
+    @Test
     public void testCleanValueRetrievesDatabaseValueForSpinnerSubtypeLocation() {
         String rawValue = "";
 
@@ -382,22 +423,64 @@ public class BaseChildRegistrationDataFragmentTest {
         Assert.assertEquals(detailsMap.size(), adapterCaptor.getAllValues().get(0).getItemCount());
     }
 
+    @Test
+    public void testResetAdapterDataPopulatesAdapterWithMapForFildsWithAliasNameOnQuery() {
+        List<Field> fieldsList = new ArrayList<>();
+        List<Field> formFields = generateFormFieldsForTest();
+        fieldsList.add(formFields.get(0));
+        fieldsList.add(formFields.get(1));
+        Map<String, String> fieldNameAliasMap = new HashMap<>();
+        fieldNameAliasMap.put("key1", "key-1-alias");
+        fieldNameAliasMap.put("key2", "key-2-alias");
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "fields", fieldsList);
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "stringResourceIds", baseChildRegistrationDataFragment.getDataRowLabelResourceIds());
+        Whitebox.setInternalState(baseChildRegistrationDataFragment, "fieldNameAliasMap", fieldNameAliasMap);
+
+        Map<String, String> detailsMap = new HashMap<>();
+        detailsMap.put("key-1-alias", "Value 1");
+        detailsMap.put("key-2-alias", "Value 2");
+
+        baseChildRegistrationDataFragment.resetAdapterData(detailsMap);
+
+        ArgumentCaptor<ChildRegistrationDataAdapter> adapterCaptor = ArgumentCaptor.forClass(ChildRegistrationDataAdapter.class);
+
+        Mockito.verify(baseChildRegistrationDataFragment, Mockito.atLeast(detailsMap.size())).getResourceLabel(ArgumentMatchers.any(String.class));
+        Mockito.verify(baseChildRegistrationDataFragment).setmAdapter(adapterCaptor.capture());
+        Assert.assertEquals(detailsMap.size(), adapterCaptor.getAllValues().get(0).getItemCount());
+    }
+
+    @Test
+    public void testFormatRenderValue() {
+        Field field = new Field();
+        field.setHint("OpenSRP ID");
+        Whitebox.setInternalState(field, "key", "key1");
+        Whitebox.setInternalState(field, "renderType", "id");
+        Whitebox.setInternalState(field, "type", JsonFormConstants.EDIT_TEXT);
+
+        String formatted = baseChildRegistrationDataFragment.formatRenderValue(field, "839340034921");
+        Assert.assertNotNull(formatted);
+        Assert.assertEquals("8393-4003-4921", formatted);
+    }
+
     private List<Field> generateFormFieldsForTest() {
         fields = new ArrayList<>();
         Field f = new Field();
         f.setHint("Hint A");
         Whitebox.setInternalState(f, "key", "key1");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.EDIT_TEXT);
         fields.add(f);
 
         f = new Field();
         f.setHint("Hint B");
         Whitebox.setInternalState(f, "key", "key2");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.EDIT_TEXT);
         fields.add(f);
 
         f = new Field();
         f.setHint("OpenSRP ID");
         Whitebox.setInternalState(f, "key", "key3");
         Whitebox.setInternalState(f, "renderType", "id");
+        Whitebox.setInternalState(f, "type", JsonFormConstants.EDIT_TEXT);
         fields.add(f);
 
         f = new Field();

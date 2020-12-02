@@ -1,10 +1,6 @@
 package org.smartregister.child.fragment;
 
 import android.app.Activity;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.menu.MenuBuilder;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -13,6 +9,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.FragmentActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.domain.Form;
@@ -24,6 +26,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -190,26 +193,33 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
     @Test
     public void testShowFinalActionSnackBarShouldShowSnackBar() throws Exception {
+
         formFragment = PowerMockito.spy(formFragment);
+
         Activity activity = Robolectric.setupActivity(FragmentActivity.class);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        Button actionView = new Button(RuntimeEnvironment.application);
-        actionView.setId(android.support.design.R.id.snackbar_action);
-        TextView textView = new TextView(RuntimeEnvironment.application);
-        textView.setId(android.support.design.R.id.snackbar_text);
+
+        CoordinatorLayout parentLayout = new CoordinatorLayout(activity);
+        LinearLayout linearLayout = new LinearLayout(activity);
+
+        Button actionView = new Button(activity);
+        actionView.setId(com.google.android.material.R.id.snackbar_action);
         linearLayout.addView(actionView);
+
+        TextView textView = new TextView(activity);
+        textView.setId(com.google.android.material.R.id.snackbar_text);
         linearLayout.addView(textView);
+
+        parentLayout.addView(linearLayout);
 
         Mockito.doReturn(activity).when(formFragment).getActivity();
         Mockito.doReturn(activity.getResources()).when(formFragment).getResources();
-
-        Snackbar snackbar = Mockito.mock(Snackbar.class);
-        Mockito.doReturn(linearLayout).when(snackbar).getView();
+        Mockito.doReturn(linearLayout).when(formFragment).getSnackBarView(ArgumentMatchers.any(Snackbar.class));
+        Snackbar snackbar = Snackbar.make(parentLayout, R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
 
         ReflectionHelpers.setStaticField(ChildFormFragment.class, "showResultsDuration", 0);
         Whitebox.invokeMethod(formFragment, "showFinalActionSnackBar", snackbar);
-        Mockito.verify(snackbar, Mockito.times(1)).show();
-        Mockito.verify(snackbar, Mockito.times(1)).dismiss();
+        Mockito.verify(formFragment, Mockito.times(1)).showSnackBar(ArgumentMatchers.any(Snackbar.class));
+        Mockito.verify(formFragment, Mockito.times(1)).dismissSnackBar(ArgumentMatchers.any(Snackbar.class));
 
     }
 
@@ -274,9 +284,9 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
         Button actionView = new Button(RuntimeEnvironment.application);
         Button actionViewSpy = Mockito.spy(actionView);
-        actionViewSpy.setId(android.support.design.R.id.snackbar_action);
+        actionViewSpy.setId(com.google.android.material.R.id.snackbar_action);
         TextView textView = new TextView(RuntimeEnvironment.application);
-        textView.setId(android.support.design.R.id.snackbar_text);
+        textView.setId(com.google.android.material.R.id.snackbar_text);
         linearLayout.addView(actionViewSpy);
         linearLayout.addView(textView);
 

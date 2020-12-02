@@ -1,7 +1,6 @@
 package org.smartregister.child.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentActivity;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -444,6 +445,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertEquals(false, qrCodeCaptorValue);
 
     }
+
     @Test
     public void testToggleFilterSelectionWithTag() {
 

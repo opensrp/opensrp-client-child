@@ -2,10 +2,12 @@ package org.smartregister.child.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
@@ -45,7 +47,11 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
     @Override
     protected void attachBaseContext(android.content.Context base) {
         String language = LangUtils.getLanguage(base);
-        super.attachBaseContext(LangUtils.setAppLocale(base, language));
+        Configuration newConfiguration = LangUtils.setAppLocale(base, language);
+
+        super.attachBaseContext(base);
+
+        applyOverrideConfiguration(newConfiguration);
     }
 
     @Override
