@@ -474,7 +474,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         String capturedTag = tagCaptor.getValue();
         Integer resIdTag = bgResourceCaptor.getValue();
 
-        Assert.assertEquals(null, capturedTag);
+        Assert.assertNull(capturedTag);
         Assert.assertEquals(new Integer(R.drawable.transparent_gray_background), resIdTag);
 
         String filterString = filterStringCaptor.getValue();

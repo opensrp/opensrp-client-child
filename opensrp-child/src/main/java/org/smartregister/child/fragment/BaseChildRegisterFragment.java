@@ -251,7 +251,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                filter("", "", presenter().getMainCondition(), false);
+                filter("", "", mainCondition, false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }

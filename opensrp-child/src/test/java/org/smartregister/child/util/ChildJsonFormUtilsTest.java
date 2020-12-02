@@ -639,7 +639,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         Mockito.verify(eventClientRepository).addorUpdateClient(Mockito.eq(entityId), eventClientAddOrUpdateClient.capture());
 
-        Mockito.verify(eventClientRepository, Mockito.times(2))
+        Mockito.verify(eventClientRepository, Mockito.atLeastOnce())
                 .addEvent(Mockito.eq(entityId), Mockito.any(JSONObject.class));
 
         Mockito.verify(allCommonsRepository)

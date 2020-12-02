@@ -73,19 +73,17 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View, View.OnClickListener {
     public static final String START_DATE = "start_date";
     public static final String END_DATE = "end_date";
-    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = new Listener<MoveToCatchmentEvent>() {
-        public void onEvent(final MoveToCatchmentEvent moveToCatchmentEvent) {
-            if (moveToCatchmentEvent != null) {
-                if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
-                    clientAdapter.notifyDataSetChanged();
-                    ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
-                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-                } else {
-                    Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
-                }
+    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = moveToCatchmentEvent -> {
+        if (moveToCatchmentEvent != null) {
+            if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
+                clientAdapter.notifyDataSetChanged();
+                ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
+                ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
             } else {
-                Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
+                Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
             }
+        } else {
+            Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
         }
     };
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
@@ -113,7 +111,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private ProgressDialog progressDialog;
     private AdvanceSearchDatePickerDialog startDateDatePicker;
     private AdvanceSearchDatePickerDialog endDateDatePicker;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
             Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
 
     @Override
@@ -243,14 +241,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         builder.setTitle(getActivity().getString(R.string.choose_how));
 
         String[] choices = {getActivity().getString(R.string.permanently), getActivity().getString(R.string.temporarily)};
-        builder.setItems(choices, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                showMoveToCatchmentDialog(ids, which == 0);
-
-            }
-        });
+        builder.setItems(choices, (dialog, which) -> showMoveToCatchmentDialog(ids, which == 0));
         AlertDialog dialog = builder.create();
         dialog.show();
 
