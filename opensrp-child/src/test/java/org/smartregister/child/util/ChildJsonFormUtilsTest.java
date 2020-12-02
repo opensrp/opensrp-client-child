@@ -357,6 +357,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Context context = Mockito.mock(Context.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
         String providerId = "providerId";
@@ -634,6 +635,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         String reportDeceasedForm = "{\"count\":\"1\",\"encounter_type\":\"Death\",\"entity_id\":\"\",\"metadata\":{\"start\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"start\",\"openmrs_entity_id\":\"163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"2020-05-19 10:26:41\"},\"end\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"end\",\"openmrs_entity_id\":\"163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"2020-05-19 10:27:18\"},\"today\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"encounter\",\"openmrs_entity_id\":\"encounter_date\",\"value\":\"19-05-2020\"},\"deviceid\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"deviceid\",\"openmrs_entity_id\":\"163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"358240051111110\"},\"subscriberid\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"subscriberid\",\"openmrs_entity_id\":\"163150AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"310260000000000\"},\"simserial\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"simserial\",\"openmrs_entity_id\":\"163151AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"89014103211118510720\"},\"phonenumber\":{\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_data_type\":\"phonenumber\",\"openmrs_entity_id\":\"163152AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"value\":\"+15555215554\"},\"encounter_location\":\"\"},\"step1\":{\"title\":\"Report Deceased\",\"fields\":[{\"key\":\"Date_of_Death\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_entity_id\":\"1543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"openmrs_data_type\":\"date\",\"type\":\"date_picker\",\"hint\":\"Date of death \",\"expanded\":false,\"min_date\":\"19-05-2020\",\"max_date\":\"today\",\"v_required\":{\"value\":\"true\",\"err\":\"Date cannot be past today's date\"},\"constraints\":[{\"type\":\"date\",\"ex\":\"greaterThanEqualTo(., step1:Date_Birth)\",\"err\":\"Date of death can't occur before date of birth\"}],\"is-rule-check\":false,\"value\":\"19-05-2020\"},{\"key\":\"Cause_Death\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_entity_id\":\"160218AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"type\":\"edit_text\",\"hint\":\"Suspected cause of death\",\"edit_type\":\"name\",\"value\":\"something terrible\"},{\"key\":\"Place_Death\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_entity_id\":\"1541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"openmrs_data_type\":\"select one\",\"type\":\"spinner\",\"hint\":\"Where did the death occur? \",\"values\":[\"Health facility\",\"Home\"],\"openmrs_choice_ids\":{\"Health facility\":\"1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"Home\":\"1536AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"},\"v_required\":{\"value\":\"true\",\"err\":\"Please select one option\"},\"value\":\"Home\"},{\"key\":\"Date_Birth\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"\",\"openmrs_entity_id\":\"\",\"type\":\"date_picker\",\"hint\":\"Child's DOB\",\"read_only\":true,\"hidden\":true,\"is_visible\":false,\"is-rule-check\":false,\"value\":\"19-05-2020\"}]},\"invisible_required_fields\":\"[]\",\"details\":{\"appVersionName\":\"1.8.1-SNAPSHOT\",\"formVersion\":\"\"}}";
         ChildJsonFormUtils.saveReportDeceased(context, reportDeceasedForm, "434-2342", entityId);
 
@@ -775,6 +777,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.doReturn(openSrpContext).when(coreLibrary).context();
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
@@ -888,6 +891,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         FormTag formTag = ChildJsonFormUtils.formTag(allSharedPreferences);
 
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
 

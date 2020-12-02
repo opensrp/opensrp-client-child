@@ -39,13 +39,15 @@ public class BaseChildDetailsPresenter implements ChildTabbedDetailsContract.Pre
         if (getView() != null) {
             JSONObject client = eventClientRepository.getClientByBaseEntityId(baseEntityId);
             try {
-                JSONObject clientAttributes = client.getJSONObject(AllConstants.ATTRIBUTES);
-                String cardStatusDate = DateUtil.fromDate( Calendar.getInstance().getTime());
-                clientAttributes.put(CARD_STATUS, CardStatus.needs_card.name());
-                clientAttributes.put(CARD_STATUS_DATE, cardStatusDate);
-                client.put(AllConstants.ATTRIBUTES, clientAttributes);
-                eventClientRepository.addorUpdateClient(baseEntityId, client);
-                getView().notifyLostCardReported(cardStatusDate);
+                if (client != null) {
+                    JSONObject clientAttributes = client.getJSONObject(AllConstants.ATTRIBUTES);
+                    String cardStatusDate = DateUtil.fromDate(Calendar.getInstance().getTime());
+                    clientAttributes.put(CARD_STATUS, CardStatus.needs_card.name());
+                    clientAttributes.put(CARD_STATUS_DATE, cardStatusDate);
+                    client.put(AllConstants.ATTRIBUTES, clientAttributes);
+                    eventClientRepository.addorUpdateClient(baseEntityId, client);
+                    getView().notifyLostCardReported(cardStatusDate);
+                }
             } catch (JSONException e) {
                 Timber.e(e);
             }

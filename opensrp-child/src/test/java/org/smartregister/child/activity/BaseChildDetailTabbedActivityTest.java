@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -33,11 +35,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
+import org.smartregister.child.fragment.LostCardDialogFragment;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
@@ -57,9 +61,11 @@ import org.smartregister.util.AppProperties;
 import org.smartregister.util.DateUtil;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -354,7 +360,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
         ArgumentCaptor<ColorDrawable> colorDrawableArgumentCaptor = ArgumentCaptor.forClass(ColorDrawable.class);
         verify(childDetailsToolbar).setBackground(colorDrawableArgumentCaptor.capture());
-        Assert.assertEquals(Color.GREEN, ((ColorDrawable)colorDrawableArgumentCaptor.getValue()).getColor());
+        Assert.assertEquals(Color.GREEN, colorDrawableArgumentCaptor.getValue().getColor());
 
         verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
         verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
@@ -403,7 +409,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
         ArgumentCaptor<ColorDrawable> colorDrawableArgumentCaptor = ArgumentCaptor.forClass(ColorDrawable.class);
         verify(childDetailsToolbar).setBackground(colorDrawableArgumentCaptor.capture());
-        Assert.assertEquals(Color.GREEN, ((ColorDrawable)colorDrawableArgumentCaptor.getValue()).getColor());
+        Assert.assertEquals(Color.GREEN, colorDrawableArgumentCaptor.getValue().getColor());
 
         verify(tabLayout).setTabTextColors(Color.GRAY, Color.GREEN);
         verify(tabLayout).setSelectedTabIndicatorColor(Color.GREEN);
@@ -426,6 +432,25 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         baseChildDetailTabbedActivity.setActivityTitle();
 
         verify(titleView).setText("John");
+    }
+
+    @Test
+    public void testNotifyLostCardReported() {
+        View.OnClickListener clickListener = Mockito.mock(View.OnClickListener.class);
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext().getResources()).when(baseChildDetailTabbedActivity).getResources();
+        LostCardDialogFragment lostCardDialogFragment = Mockito.spy(new LostCardDialogFragment(ApplicationProvider.getApplicationContext(), clickListener));
+
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
+        menu.add(0, R.id.report_lost_card, 1, "Report Lost Card");
+        ReflectionHelpers.setField(baseChildDetailTabbedActivity, "lostCardDialogFragment", lostCardDialogFragment);
+        ReflectionHelpers.setField(baseChildDetailTabbedActivity, "overflow", menu);
+        ReflectionHelpers.setField(baseChildDetailTabbedActivity, "ddMmYyyyDateFormat", new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH));
+        baseChildDetailTabbedActivity.notifyLostCardReported("2020-11-24T16:55:42.748Z");
+        MenuItem item = menu.findItem(R.id.report_lost_card);
+        Assert.assertEquals(item.getTitle().toString(), "Card Ordered: 24-11-2020");
+        Assert.assertFalse(item.isEnabled());
+        Mockito.verify(lostCardDialogFragment, Mockito.atMost(1)).dismiss();
     }
 
 }

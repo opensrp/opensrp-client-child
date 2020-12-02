@@ -18,7 +18,6 @@ public class TestChildApp extends DrishtiApplication {
         context.updateApplicationContext(getApplicationContext());
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
-
         setTheme(R.style.Theme_AppCompat);
     }
 

@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -121,7 +122,6 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
-import static org.smartregister.util.Utils.showToast;
 
 /**
  * Created by raihan on 1/03/2017.
@@ -1256,7 +1256,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     public void notifyLostCardReported(String cardStatusDate) {
-        showToast(this, getString(R.string.card_reported_as_lost));
+        Toast.makeText(getContext(), getString(R.string.card_reported_as_lost), Toast.LENGTH_LONG).show();
         MenuItem reportLostCardMenu = overflow.findItem(R.id.report_lost_card);
         if (reportLostCardMenu != null) {
             reportLostCardMenu.setTitle(getString(R.string.card_ordered_with_date, ddMmYyyyDateFormat.format(getDateFromString(cardStatusDate))));

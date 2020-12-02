@@ -33,6 +33,7 @@ import org.smartregister.domain.db.EventClient;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
@@ -48,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChildLibrary.class, Utils.class})
+@PrepareForTest({ChildLibrary.class, Utils.class, LocationHelper.class})
 public class UtilsTest {
     @Mock
     private ChildLibrary childLibrary;
@@ -67,6 +68,9 @@ public class UtilsTest {
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
+
+    @Mock
+    private LocationHelper locationHelper;
 
     @Before
     public void setUp() {
@@ -166,6 +170,7 @@ public class UtilsTest {
     public void testCreateArchiveRecordEventShouldCreateValidEvent() throws Exception {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
@@ -185,6 +190,7 @@ public class UtilsTest {
     public void testCreateArchiveRecordEventShouldCreateValidEvents() throws Exception {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
@@ -226,6 +232,7 @@ public class UtilsTest {
     public void tearDown() {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
     }
 
 
