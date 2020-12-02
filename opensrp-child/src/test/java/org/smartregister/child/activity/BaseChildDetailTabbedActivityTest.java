@@ -437,8 +437,8 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     @Test
     public void testNotifyLostCardReported() {
         View.OnClickListener clickListener = Mockito.mock(View.OnClickListener.class);
-        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
-        Mockito.doReturn(ApplicationProvider.getApplicationContext().getResources()).when(baseChildDetailTabbedActivity).getResources();
+        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+        doReturn(ApplicationProvider.getApplicationContext().getResources()).when(baseChildDetailTabbedActivity).getResources();
         LostCardDialogFragment lostCardDialogFragment = Mockito.spy(new LostCardDialogFragment(ApplicationProvider.getApplicationContext(), clickListener));
 
         Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
@@ -450,7 +450,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         MenuItem item = menu.findItem(R.id.report_lost_card);
         Assert.assertEquals(item.getTitle().toString(), "Card Ordered: 24-11-2020");
         Assert.assertFalse(item.isEnabled());
-        Mockito.verify(lostCardDialogFragment, Mockito.atMost(1)).dismiss();
+        verify(lostCardDialogFragment, Mockito.atMost(1)).dismiss();
     }
 
 }
