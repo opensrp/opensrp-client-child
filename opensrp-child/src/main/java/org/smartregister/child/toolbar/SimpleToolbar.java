@@ -1,10 +1,11 @@
 package org.smartregister.child.toolbar;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
+
+import androidx.annotation.Nullable;
 
 import org.smartregister.child.R;
 import org.smartregister.view.customcontrols.CustomFontTextView;

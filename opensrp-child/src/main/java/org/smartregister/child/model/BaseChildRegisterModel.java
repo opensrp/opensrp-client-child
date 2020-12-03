@@ -1,7 +1,6 @@
 package org.smartregister.child.model;
 
 import android.content.ContentValues;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -26,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
@@ -49,14 +49,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     @Override
     public void saveLanguage(String language) {
         // TODO Save Language
-        //Map<String, String> langs = getAvailableLanguagesMap();
-        //Utils.saveLanguage(Utils.getKeyByValue(langs, language));
     }
-
-    /*private Map<String, String> getAvailableLanguagesMap() {
-        return null;
-        //return AncApplication.getJsonSpecHelper().getAvailableLanguagesMap();
-    }*/
 
     @Override
     public String getLocationId(String locationName) {
@@ -159,7 +152,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         String dob = null;
         try {
-            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy")));
+            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())));
 
         } catch (Exception e) {
             Timber.e(e);
@@ -191,7 +184,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         try {
             formUtils = new FormUtils(Utils.context().applicationContext());
         } catch (Exception e) {
-            Log.e(BaseChildRegisterModel.class.getCanonicalName(), e.getMessage(), e);
+            Timber.e(e);
         }
 
         return formUtils;
@@ -200,7 +193,6 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     public void setFormUtils(FormUtils formUtils) {
         this.formUtils = formUtils;
     }
-
 
     @Override
     public String getInitials() {

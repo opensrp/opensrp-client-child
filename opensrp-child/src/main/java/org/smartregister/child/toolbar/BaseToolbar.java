@@ -1,10 +1,11 @@
 package org.smartregister.child.toolbar;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 17/02/2017.

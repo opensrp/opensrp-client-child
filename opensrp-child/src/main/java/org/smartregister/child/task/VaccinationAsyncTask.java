@@ -2,13 +2,14 @@ package org.smartregister.child.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;

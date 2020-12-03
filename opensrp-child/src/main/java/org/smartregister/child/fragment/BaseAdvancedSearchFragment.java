@@ -9,9 +9,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -20,10 +17,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
@@ -73,19 +73,17 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View, View.OnClickListener {
     public static final String START_DATE = "start_date";
     public static final String END_DATE = "end_date";
-    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = new Listener<MoveToCatchmentEvent>() {
-        public void onEvent(final MoveToCatchmentEvent moveToCatchmentEvent) {
-            if (moveToCatchmentEvent != null) {
-                if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
-                    clientAdapter.notifyDataSetChanged();
-                    ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
-                    ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
-                } else {
-                    Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
-                }
+    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = moveToCatchmentEvent -> {
+        if (moveToCatchmentEvent != null) {
+            if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
+                clientAdapter.notifyDataSetChanged();
+                ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
+                ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
             } else {
-                Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
+                Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
             }
+        } else {
+            Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
         }
     };
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
@@ -113,7 +111,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private ProgressDialog progressDialog;
     private AdvanceSearchDatePickerDialog startDateDatePicker;
     private AdvanceSearchDatePickerDialog endDateDatePicker;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
             Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
 
     @Override
@@ -243,14 +241,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         builder.setTitle(getActivity().getString(R.string.choose_how));
 
         String[] choices = {getActivity().getString(R.string.permanently), getActivity().getString(R.string.temporarily)};
-        builder.setItems(choices, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                showMoveToCatchmentDialog(ids, which == 0);
-
-            }
-        });
+        builder.setItems(choices, (dialog, which) -> showMoveToCatchmentDialog(ids, which == 0));
         AlertDialog dialog = builder.create();
         dialog.show();
 
@@ -367,79 +358,47 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         setUpMyCatchmentControls(view, myCatchment, outsideInside, R.id.my_catchment_layout);
 
         active = view.findViewById(R.id.active);
-        active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !inactive.isChecked() && !lostToFollowUp.isChecked()) {
-                    active.setChecked(true);
-                }
+        active.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !inactive.isChecked() && !lostToFollowUp.isChecked()) {
+                active.setChecked(true);
             }
         });
         inactive = view.findViewById(R.id.inactive);
-        inactive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !active.isChecked() && !lostToFollowUp.isChecked()) {
-                    inactive.setChecked(true);
-                }
+        inactive.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !active.isChecked() && !lostToFollowUp.isChecked()) {
+                inactive.setChecked(true);
             }
         });
         lostToFollowUp = view.findViewById(R.id.lost_to_follow_up);
-        lostToFollowUp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked && !active.isChecked() && !inactive.isChecked()) {
-                    lostToFollowUp.setChecked(true);
-                }
+        lostToFollowUp.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (!isChecked && !active.isChecked() && !inactive.isChecked()) {
+                lostToFollowUp.setChecked(true);
             }
         });
 
         final View activeLayout = view.findViewById(R.id.active_layout);
-        activeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                active.toggle();
-            }
-        });
+        activeLayout.setOnClickListener(v -> active.toggle());
 
         final View inactiveLayout = view.findViewById(R.id.inactive_layout);
-        inactiveLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                inactive.toggle();
-            }
-        });
+        inactiveLayout.setOnClickListener(v -> inactive.toggle());
 
         final View lostToFollowUpLayout = view.findViewById(R.id.lost_to_follow_up_layout);
-        lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                lostToFollowUp.toggle();
-            }
-        });
+        lostToFollowUpLayout.setOnClickListener(v -> lostToFollowUp.toggle());
     }
 
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
-        myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!Utils.isConnectedToNetwork(getActivity())) {
-                    myCatchment.setChecked(true);
-                    outsideInside.setChecked(false);
-                } else {
-                    outsideInside.setChecked(!isChecked);
-                }
+        myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!Utils.isConnectedToNetwork(getActivity())) {
+                myCatchment.setChecked(true);
+                outsideInside.setChecked(false);
+            } else {
+                outsideInside.setChecked(!isChecked);
             }
         });
 
         View myCatchmentLayout = view.findViewById(p);
-        myCatchmentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myCatchment.toggle();
-            }
-        });
+        myCatchmentLayout.setOnClickListener(v -> myCatchment.toggle());
     }
 
     private void setUpSearchButtons() {
@@ -455,18 +414,15 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpQRCodeButton(View view) {
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
         if (!ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
-            qrCodeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getActivity() == null) {
-                        return;
-                    }
-                    BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
-                    baseRegisterActivity.startQrCodeScanner();
-
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                    ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+            qrCodeButton.setOnClickListener(view1 -> {
+                if (getActivity() == null) {
+                    return;
                 }
+                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                baseRegisterActivity.startQrCodeScanner();
+
+                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
+                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
             });
         } else {
             qrCodeButton.setVisibility(View.GONE);
@@ -640,7 +596,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     protected abstract String getMainCondition();
 
-    private void search() {
+    public void search() {
         if (myCatchment.isChecked()) {
             isLocal = true;
         } else if (outsideInside.isChecked()) {
@@ -652,7 +608,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         ((ChildAdvancedSearchContract.Presenter) presenter).search(editMap, isLocal);
     }
 
-    protected abstract Map<String, String> getSearchMap(boolean outOfarea);
+    protected abstract Map<String, String> getSearchMap(boolean outOfArea);
 
     @Override
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {

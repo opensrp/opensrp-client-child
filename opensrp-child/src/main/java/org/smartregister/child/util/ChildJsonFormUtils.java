@@ -6,9 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import androidx.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.google.common.collect.ImmutableSet;
@@ -764,7 +765,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
         event.setChildLocationId(childLocationId);
 
-        if (StringUtils.isNotBlank(childLocationId) && LocationHelper.getInstance().getAdvancedDataCaptureStrategies().contains(childLocationId)) {
+        List<String> advancedDataCaptureStrategies = LocationHelper.getInstance().getAdvancedDataCaptureStrategies();
+        if (StringUtils.isNotBlank(childLocationId) && advancedDataCaptureStrategies != null &&
+                advancedDataCaptureStrategies.contains(childLocationId)) {
             event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
         }
 
@@ -873,6 +876,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             //Add previous relational ids if they existed.
             addRelationships(baseClient, jsonString);
+
+            tagClientLocation(baseClient, baseEvent);
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
@@ -1383,10 +1388,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
 
                 lastInteractedWith(fields);
-
+                ChildJsonFormUtils.tagSyncMetadata(baseEvent);
+                tagClientLocation(baseClient, baseEvent);
                 return new ChildEventClient(subformClient, subFormEvent);
             }
         }
+    }
+
+    private static void tagClientLocation(Client baseClient, Event baseEvent) {
+        //Tag client with event's location and team
+        baseClient.setLocationId(baseEvent.getLocationId());
+        baseClient.setTeamId(baseEvent.getTeamId());
     }
 
     private static boolean validateFatherDetails(String jsonString) {

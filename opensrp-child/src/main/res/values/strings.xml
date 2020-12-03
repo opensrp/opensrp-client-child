@@ -345,10 +345,17 @@
     <string name="child_archive_dialog_title">Are you sure you want archive record?</string>
     <string name="child_archive_record_task_dialog_message">Please wait ... Archiving record.</string>
     <string name="error_recording_out_of_catchment_service">An error occured when recording out of catchment service. Try again later.</string>
-    <string name="record_dynamic_vaccines">Record private sector vaccines</string>
+    <string name="record_dynamic_vaccines">Record Private Sector Vaccines</string>
     <string name="extra_vaccines">Extra vaccines in private sector</string>
     <string name="permanently">Permanently</string>
     <string name="temporarily">Temporarily</string>
     <string name="choose_how">Choose how</string>
+    <string name="report_lost_card">Report Lost or Damaged Card</string>
+    <string name="report_lost_dialog_title">Report lost or damaged card?</string>
+    <string name="report_lost_card_dialog_message">Report the child card as lost or damaged. A new card will be ordered for the child</string>
+    <string name="card_reported_as_lost">Card reported as lost or damaged. A new card will be ordered</string>
+    <string name="new_card_ordered">Report lost or damaged card \n (new card on order)</string>
+    <string name="new_card_to_be_delivered">A new card is on order and will be delivered after printing.</string>
+    <string name="card_ordered_with_date">Card Ordered: %1$s</string>
 
 </resources>

@@ -1,11 +1,12 @@
 package org.smartregister.child.view;
 
-import androidx.core.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.util.Pair;
 
 import org.junit.Assert;
 import org.junit.Before;

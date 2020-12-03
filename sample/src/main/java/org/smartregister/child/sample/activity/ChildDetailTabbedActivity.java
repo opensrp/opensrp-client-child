@@ -2,6 +2,7 @@ package org.smartregister.child.sample.activity;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -23,7 +24,7 @@ import java.util.Map;
  * Created by ndegwamartin on 06/03/2019.
  */
 public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
-    private static List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
+    private static final List<String> nonEditableFields = Arrays.asList("Date_Birth", "Sex", "ZEIR_ID", "Birth_Facility_Name", "Birth_Facility_Name_Other");
 
     @Override
     public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
@@ -38,6 +39,13 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
     @Override
     public ChildRegistrationDataFragment getChildRegistrationDataFragment() {
         return new ChildRegistrationDataFragment();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        overflow.findItem(R.id.report_lost_card).setVisible(true);
+        return true;
     }
 
     @Override
@@ -100,6 +108,9 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
                 return launchAdverseEventForm();
             case R.id.record_dynamic_vaccines:
                 launchDynamicVaccinesForm("dynamic_vaccines", "private_sector_vaccines");
+                return true;
+            case R.id.report_lost_card:
+                //TODO
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

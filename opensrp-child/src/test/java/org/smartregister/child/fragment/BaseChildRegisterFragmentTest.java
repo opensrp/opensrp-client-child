@@ -54,7 +54,6 @@ import java.util.Arrays;
  * Created by ndegwamartin on 03/11/2020.
  */
 
-
 @PrepareForTest({ImmunizationLibrary.class, Utils.class})
 public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
@@ -126,15 +125,18 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Mock
     protected View filterSection;
 
-    private String TEST_ID = "unique-identifier";
-    private String TEST_LOCATION_ID = "some-test-location";
-    private String TEST_LOCATION = "Some Test Location";
+    private final String TEST_ID = "unique-identifier";
+    private final String TEST_LOCATION_ID = "some-test-location";
+    private final String TEST_LOCATION = "Some Test Location";
+    private BaseChildRegisterFragment baseChildRegisterFragment;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
         Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
+        Whitebox.setInternalState(baseChildRegisterFragment, "mainCondition", "is_closed IS NOT 1");
     }
 
     @After
@@ -146,10 +148,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Test
     public void testOnCreateView() {
-
         LayoutInflater inflater = Mockito.spy(LayoutInflater.class);
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Mockito.doReturn(window).when(activity).getWindow();
@@ -170,11 +170,9 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Test
     public void testSetUniqueID() {
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Mockito.doReturn(editText).when(baseChildRegisterFragment).getSearchView();
 
         baseChildRegisterFragment.setUniqueID(TEST_ID);
-
 
         ArgumentCaptor<String> integerArgumentCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(editText).setText(integerArgumentCaptor.capture());
@@ -187,9 +185,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testUpdateLocationText() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
-
 
         Mockito.doReturn(TEST_LOCATION).when(clinicSelection).getSelectedItem();
         Whitebox.setInternalState(baseChildRegisterFragment, "clinicSelection", clinicSelection);
@@ -213,7 +209,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testUpdateDueOverdueCountTextWhenOverdueCountGreaterThanZero() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         int totalCount = 7;
@@ -235,12 +230,9 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testUpdateDueOverdueCountTextWhenOverdueCountEqualToZero() {
 
-
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         int totalCount = 0;
-
 
         Whitebox.setInternalState(baseChildRegisterFragment, "overdueCountTV", overdueCountTextView);
         baseChildRegisterFragment.updateDueOverdueCountText(totalCount);
@@ -263,7 +255,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testRecalculatePagination() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
@@ -283,7 +274,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testCountExecute() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
@@ -312,7 +302,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testOnLocationChange() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Mockito.doReturn(activity).when(baseChildRegisterFragment).getActivity();
@@ -328,7 +317,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @Test
     public void testFilterAndSortQueryForValidFilterForFts() {
 
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         CommonRepository commonRepository = Mockito.mock(CommonRepository.class);
@@ -342,7 +330,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         // Mockito.doReturn(20).when(clientAdapter).getTotalcount();
         Mockito.doReturn(20).when(clientAdapter).getCurrentlimit();
         Mockito.doReturn(0).when(clientAdapter).getCurrentoffset();
-        Mockito.doReturn(Arrays.asList(new String[]{"6", "9", "12"})).when(commonRepository).findSearchIds(ArgumentMatchers.anyString());
+        Mockito.doReturn(Arrays.asList("6", "9", "12")).when(commonRepository).findSearchIds(ArgumentMatchers.anyString());
 
         String searchText = "some random search text";
 
@@ -373,8 +361,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Test
     public void testFilterAndSortQueryForInvalidFilterForFts() {
-
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         CommonRepository commonRepository = Mockito.mock(CommonRepository.class);
@@ -406,8 +392,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Test
     public void testToggleFilterSelectionWithNullTag() {
-
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
@@ -448,8 +432,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Test
     public void testToggleFilterSelectionWithTag() {
-
-        BaseChildRegisterFragment baseChildRegisterFragment = Mockito.mock(BaseChildRegisterFragment.class, Mockito.CALLS_REAL_METHODS);
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
@@ -474,7 +456,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         String capturedTag = tagCaptor.getValue();
         Integer resIdTag = bgResourceCaptor.getValue();
 
-        Assert.assertEquals(null, capturedTag);
+        Assert.assertNull(capturedTag);
         Assert.assertEquals(new Integer(R.drawable.transparent_gray_background), resIdTag);
 
         String filterString = filterStringCaptor.getValue();
@@ -484,9 +466,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Assert.assertEquals("", filterString);
         Assert.assertEquals("", joinTable);
-        Assert.assertEquals("", filterSelect);
-        Assert.assertEquals(false, qrCodeCaptorValue);
-
-
+        Assert.assertEquals("is_closed IS NOT 1", filterSelect);
+        Assert.assertFalse(qrCodeCaptorValue);
     }
 }

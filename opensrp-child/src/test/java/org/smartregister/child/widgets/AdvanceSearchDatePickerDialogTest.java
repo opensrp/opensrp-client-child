@@ -1,7 +1,8 @@
 package org.smartregister.child.widgets;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.junit.Assert;
 import org.junit.Before;
