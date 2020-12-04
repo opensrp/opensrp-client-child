@@ -1,7 +1,8 @@
 package org.smartregister.child.view;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.task.GetChildDetailsTask;

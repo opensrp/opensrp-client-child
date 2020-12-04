@@ -3,10 +3,11 @@ package org.smartregister.child.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v17.leanback.widget.HorizontalGridView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
+
+import androidx.leanback.widget.HorizontalGridView;
 
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;

@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +14,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.VisibleForTesting;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -29,6 +32,7 @@ import org.smartregister.child.provider.ChildRegisterProvider;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -81,9 +85,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @Override
-    public void setUniqueID(String s) {
+    public void setUniqueID(String uniqueID) {
         if (getSearchView() != null) {
-            getSearchView().setText(s);
+            getSearchView().setText(uniqueID);
         }
     }
 
@@ -247,7 +251,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                filter("", "", "", false);
+                filter("", "", mainCondition, false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }
@@ -259,11 +263,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             if (clinicSelection != null) {
                 clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
                 String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-                context().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+                getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
             }
         } catch (Exception e) {
             Timber.e(e);
         }
+    }
+
+    @VisibleForTesting
+    protected Context getOpenSRPContext() {
+        return context();
     }
 
     protected abstract String filterSelectionCondition(boolean urgentOnly);
@@ -353,8 +362,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
+    @VisibleForTesting
+    @Override
+    protected boolean isValidFilterForFts(CommonRepository commonRepository) {
+        return super.isValidFilterForFts(commonRepository);
+    }
 
-    private String filterAndSortQuery() {
+    @VisibleForTesting
+    protected String filterAndSortQuery() {
         SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
         String query = "";
         try {
@@ -369,7 +384,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
             } else {
-                if (!TextUtils.isEmpty(filters) && TextUtils.isEmpty(Sortqueries)) {
+                if (!TextUtils.isEmpty(filters) && !TextUtils.isEmpty(Sortqueries)) {
                     sqb.addCondition(filters);
                     query = sqb.orderbyCondition(Sortqueries);
                     query = sqb.Endquery(sqb.addlimitandOffset(query

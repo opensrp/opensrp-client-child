@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.evernote.android.job.DailyJob;
+import com.evernote.android.job.Job;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,12 +31,12 @@ public class ArchiveClientsJobTest extends BaseUnitTest {
         ReflectionHelpers.setField(archiveClientsJob, "mContextReference", new WeakReference<Context>(context));
         ReflectionHelpers.setField(archiveClientsJob, "mApplicationContext", context);
 
-        DailyJob.DailyJobResult dailyJobResult = archiveClientsJob.onRunDailyJob(null);
+        Job.Result result = archiveClientsJob.onRunJob(null);
 
         // Assertions & verifications
         ArgumentCaptor<Intent> argumentMatcher = ArgumentCaptor.forClass(Intent.class);
 
-        Assert.assertEquals(DailyJob.DailyJobResult.SUCCESS, dailyJobResult);
+        Assert.assertEquals(Job.Result.SUCCESS, result);
         Mockito.verify(context).startService(argumentMatcher.capture());
         Assert.assertEquals(ArchiveClientRecordIntentService.class.getName(), argumentMatcher.getValue().getComponent().getClassName());
     }

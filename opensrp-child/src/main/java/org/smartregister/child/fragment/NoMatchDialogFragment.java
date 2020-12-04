@@ -1,20 +1,23 @@
 package org.smartregister.child.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.R;
 import org.smartregister.view.activity.BaseRegisterActivity;
+
+import timber.log.Timber;
 
 @SuppressLint("ValidFragment")
 public class NoMatchDialogFragment extends DialogFragment {
@@ -34,8 +37,8 @@ public class NoMatchDialogFragment extends DialogFragment {
     public static NoMatchDialogFragment launchDialog(BaseRegisterActivity activity, String dialogTag, String opensrpID) {
         NoMatchDialogFragment noMatchDialogFragment = new NoMatchDialogFragment(activity, opensrpID);
         if (activity != null) {
-            FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
-            Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
+            FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
+            Fragment prev = activity.getSupportFragmentManager().findFragmentByTag(dialogTag);
             if (prev != null) {
                 fragmentTransaction.remove(prev);
             }
@@ -52,11 +55,11 @@ public class NoMatchDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
+        setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Widget_DeviceDefault_Light);
     }
 
     @Override
-    public void onCancel(DialogInterface dialogInterface) {
+    public void onCancel(@NotNull DialogInterface dialogInterface) {
         super.onCancel(dialogInterface);
         baseRegisterActivity.setSearchTerm("");
     }
@@ -94,7 +97,7 @@ public class NoMatchDialogFragment extends DialogFragment {
         }
 
         private void goToAdvancedSearch(String uniqueId) {
-            Log.i(TAG, uniqueId);
+            Timber.i(uniqueId);
             // TODO Implement Advanced Search Page
         }
     }

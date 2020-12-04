@@ -14,13 +14,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -31,7 +24,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
@@ -44,13 +46,16 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.adapter.ViewPagerAdapter;
+import org.smartregister.child.contract.ChildTabbedDetailsContract;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.dao.ChildDao;
 import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
+import org.smartregister.child.fragment.LostCardDialogFragment;
 import org.smartregister.child.listener.OnSaveDynamicVaccinesListener;
 import org.smartregister.child.listener.StatusChangeListener;
+import org.smartregister.child.presenter.BaseChildDetailsPresenter;
 import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
@@ -116,12 +121,15 @@ import java.util.Map;
 
 import timber.log.Timber;
 
+import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
+
 /**
  * Created by raihan on 1/03/2017.
  */
 
 public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
-        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener, StatusChangeListener, ServiceActionListener, OnSaveDynamicVaccinesListener {
+        implements IChildDetails, VaccinationActionListener, GrowthMonitoringActionListener,
+        StatusChangeListener, ServiceActionListener, OnSaveDynamicVaccinesListener, ChildTabbedDetailsContract.View {
 
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
@@ -141,12 +149,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private String locationId = "";
     private ImageView profileImageIV;
     private boolean monitorGrowth = false;
-    private List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
-    private List<ServiceHolder> editServicesList = new ArrayList<>();
-    private List<ServiceHolder> removeServicesList = new ArrayList<>();
-    private List<Long> dbKeysForDelete = new ArrayList<>();
+    private final List<VaccineWrapper> editImmunizationCacheMap = new ArrayList<>();
+    private final List<ServiceHolder> editServicesList = new ArrayList<>();
+    private final List<ServiceHolder> removeServicesList = new ArrayList<>();
+    private final List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
     private List<Map.Entry<String, String>> extraChildVaccines;
+    private LostCardDialogFragment lostCardDialogFragment;
+    private ChildTabbedDetailsContract.Presenter presenter;
+    public final SimpleDateFormat ddMmYyyyDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -172,7 +183,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         boolean showWeightEdit = false;
 
-        if (weightList.size() > 1) {//Dissallow editing when only birth weight exists
+        if (weightList.size() > 1) {//Disallow editing when only birth weight exists
 
             for (int i = 0; i < weightList.size(); i++) {
                 Weight weight = weightList.get(i);
@@ -200,8 +211,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         BaseChildDetailTabbedActivity.overflow = overflow;
     }
 
+    public LostCardDialogFragment getLostCardDialogFragment() {
+        return lostCardDialogFragment;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        presenter = new BaseChildDetailsPresenter(this);
+
+        lostCardDialogFragment = new LostCardDialogFragment(this, view ->
+                presenter.reportLostCard(childDetails.getCaseId()));
 
         monitorGrowth = GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         super.onCreate(savedInstanceState);
@@ -230,12 +249,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         saveButton = childDetailsToolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetOptionsMenu();
-                processEditedServices();
-            }
+        saveButton.setOnClickListener(view -> {
+            resetOptionsMenu();
+            processEditedServices();
         });
 
         childDetailsToolbar.showOverflowMenu();
@@ -269,12 +285,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         });
         setupViewPager(viewPager);
 
-        childDetailsToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        childDetailsToolbar.setNavigationOnClickListener(v -> onBackPressed());
         setActivityTitle();
         tabLayout.setupWithViewPager(viewPager);
         setupViews();
@@ -463,7 +474,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             Field field = TabLayout.class.getDeclaredField("mTabStrip");
             field.setAccessible(true);
             Object object = field.get(tabLayout);
-            Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
+            Class<?> c = Class.forName("com.google.android.material.snackbar.widget.TabLayout$SlidingTabStrip");
             Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
             method.setAccessible(true);
             method.invoke(object, getResources().getColor(normalShade)); //now its ok
@@ -494,7 +505,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         BaseChildDetailTabbedActivity.gender = gender;
         if (isDataOk() && childDetails.entityId() != null) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
-            profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
+            profileImageIV.setTag(R.id.entity_id, childDetails.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
         }
@@ -556,6 +567,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.report_lost_card) lostCardDialogFragment.launch();
         return super.onOptionsItemSelected(item);
     }
 
@@ -593,6 +605,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
@@ -778,6 +791,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
+        MenuItem item = overflow.findItem(R.id.record_dynamic_vaccines);
+        if (item != null) item.setEnabled(canEditRegistrationData);
     }
 
     @Override
@@ -1239,7 +1254,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         this.extraChildVaccines = extraChildVaccines;
     }
 
-    public class ServiceHolder {
+    @Override
+    public void notifyLostCardReported(String cardStatusDate) {
+        Toast.makeText(getContext(), getString(R.string.card_reported_as_lost), Toast.LENGTH_LONG).show();
+        MenuItem reportLostCardMenu = overflow.findItem(R.id.report_lost_card);
+        if (reportLostCardMenu != null) {
+            reportLostCardMenu.setTitle(getString(R.string.card_ordered_with_date, ddMmYyyyDateFormat.format(getDateFromString(cardStatusDate))));
+            reportLostCardMenu.setEnabled(false);
+        }
+        getLostCardDialogFragment().dismiss();
+    }
+
+    public static class ServiceHolder {
         public View view;
         public ServiceWrapper wrapper;
 

@@ -1,9 +1,10 @@
 package org.smartregister.child.toolbar;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MenuItem;
+
+import androidx.annotation.Nullable;
 
 import org.smartregister.child.R;
 
