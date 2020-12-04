@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -601,5 +602,79 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         verify(vaccineRepository).findByEntityId("baseEntityId");
         verify(alertService).findByEntityId("baseEntityId");
+    }
+
+    @Test
+    public void testUpdateRecordVaccinationWhenIsHideOverdueEnabled() throws Exception {
+        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccineStatus", true);
+
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+
+        Map<String, Object> nv = new HashMap<>();
+        Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.urgent, "startDate", "expiryDate", true);
+        nv.put(Constants.KEY.ALERT, alert);
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(view).setBackgroundColor(RuntimeEnvironment.application.getResources().getColor(R.color.white));
+
+        alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
+        nv.clear();
+        nv.put(Constants.KEY.ALERT, alert);
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView, times(2)).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+    }
+
+    @Test
+    public void testUpdateRecordVaccinationWhenIsHideOverdueDisabled() throws Exception {
+        Whitebox.setInternalState(vaccinationAsyncTask, "hideOverdueVaccineStatus", false);
+
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+
+        Map<String, Object> nv = new HashMap<>();
+        Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.urgent, "startDate", "expiryDate", true);
+        nv.put(Constants.KEY.ALERT, alert);
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.status_bar_text_almost_white));
+
+        alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
+        nv.clear();
+        nv.put(Constants.KEY.ALERT, alert);
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(nv);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView, times(2)).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.status_bar_text_almost_white));
+
     }
 }
