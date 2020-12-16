@@ -126,12 +126,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
         VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails, ChildImmunizationContract.View, IGetSiblings {
 
+    private final boolean recurringServiceEnabled = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"));
     public static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
     private static Boolean monitorGrowth = false;
-
     protected LinearLayout floatingActionButton;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
@@ -249,16 +250,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         toolbar = (LocationSwitcherToolbar) getToolbar();
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToRegisterPage();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> goToRegisterPage());
         toolbar.setOnLocationChangeListener(this);
-        //       View view= toolbar.findViewById(R.id.immunization_separator);
-        //        view.setBackground(R.drawable.vertical_seperator_female);
-
         toolbar.init(this);
     }
 
@@ -372,8 +365,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         updateViews();
 
-        if (!Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+        if (!recurringServiceEnabled) {
             getServiceGroupCanvasLL().setVisibility(View.GONE);
         }
     }
@@ -386,12 +378,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void updateViews() {
-        profileNamelayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchDetailActivity(getActivity(), childDetails, null);
-            }
-        });
+        profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -400,7 +387,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateGenderViews();
 
         toolbar.setTitle(getActivityTitle());
-        ((TextView) toolbar.findViewById(R.id.title)).setText(getActivityTitle());//Called differently Fixes wierd bug
+        ((TextView) toolbar.findViewById(R.id.title)).setText(getActivityTitle());//Called differently Fixes weird bug
 
         updateAgeViews();
         updateChildIdViews();
@@ -415,8 +402,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
         updateViewTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
 
-        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+        if (recurringServiceEnabled) {
             updateViewTask.setRecurringServiceTypeRepository(ImmunizationLibrary.getInstance().recurringServiceTypeRepository());
             updateViewTask.setRecurringServiceRecordRepository(ImmunizationLibrary.getInstance().recurringServiceRecordRepository());
         }
@@ -473,7 +459,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             name = constructChildName();
             childId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.ZEIR_ID, false);
 
-            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
+            boolean showOutOfCatchmentText = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)
+                    && Boolean.parseBoolean(org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false));
             findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
@@ -515,11 +502,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
         Serializable serializable = savedInstanceState.getSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-        if (serializable != null && serializable instanceof CommonPersonObjectClient) {
+        if (serializable instanceof CommonPersonObjectClient) {
             childDetails = (CommonPersonObjectClient) serializable;
         }
     }
@@ -609,37 +596,31 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void undoServiceOnClickListener(ServiceGroup curGroup) {
-        curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
-            @Override
-            public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                if (dialogOpen) {
-                    return;
-                }
+        curGroup.setOnServiceUndoClickListener((serviceGroup, serviceWrapper) -> {
+            if (dialogOpen) {
+                return;
+            }
 
-                dialogOpen = true;
-                if (isChildActive) {
-                    addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
-                } else {
-                    showActivateChildStatusDialogBox();
-                }
+            dialogOpen = true;
+            if (isChildActive) {
+                addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+            } else {
+                showActivateChildStatusDialogBox();
             }
         });
     }
 
     private void serviceOnClickListener(ServiceGroup curGroup) {
-        curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
-            @Override
-            public void onClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                if (dialogOpen) {
-                    return;
-                }
+        curGroup.setOnServiceClickedListener((serviceGroup, serviceWrapper) -> {
+            if (dialogOpen) {
+                return;
+            }
 
-                dialogOpen = true;
-                if (isChildActive) {
-                    addServiceDialogFragment(serviceWrapper, serviceGroup);
-                } else {
-                    showActivateChildStatusDialogBox();
-                }
+            dialogOpen = true;
+            if (isChildActive) {
+                addServiceDialogFragment(serviceWrapper, serviceGroup);
+            } else {
+                showActivateChildStatusDialogBox();
             }
         });
     }
@@ -669,12 +650,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceDialogFragment serviceDialogFragment =
                 ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
-        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        serviceDialogFragment.setOnDismissListener(dialog -> dialogOpen = false);
     }
 
     private void showActivateChildStatusDialogBox() {
@@ -688,21 +664,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ft.addToBackStack(null);
 
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
-        activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
-                    Utils.startAsyncTask(saveChildStatusTask, null);
-                }
+        activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
+                Utils.startAsyncTask(saveChildStatusTask, null);
             }
         });
-        activateChildStatusFragmentDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        activateChildStatusFragmentDialog.setOnDismissListener(dialog -> dialogOpen = false);
         activateChildStatusFragmentDialog.show(ft, DIALOG_TAG);
     }
 
@@ -718,12 +686,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
         undoServiceDialogFragment.show(ft, DIALOG_TAG);
-        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        undoServiceDialogFragment.setOnDismissListener(dialog -> dialogOpen = false);
     }
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
@@ -1031,12 +994,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         VaccinationDialogFragment vaccinationDialogFragment =
                 VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
-        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        vaccinationDialogFragment.setOnDismissListener(dialog -> dialogOpen = false);
 
     }
 
@@ -1052,12 +1010,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(fragmentTransaction, DIALOG_TAG);
-        undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        undoVaccinationDialogFragment.setOnDismissListener(dialog -> dialogOpen = false);
     }
 
     private void showCheckBcgScarNotification() {
@@ -1065,20 +1018,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             bcgScarNotificationShown = true;
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
-            new BCGNotificationDialog(this, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            new BCGNotificationDialog(this, (dialog, which) -> {
 
-                    onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
-                    Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
-                }
-            }, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
+                Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
+            }, (dialog, which) -> {
 
-                    onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
-                    Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
-                }
+                onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
+                Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }).show();
         }
     }
@@ -1138,12 +1085,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
-        growthChartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.startAsyncTask(new ShowGrowthChartTask(presenter, childDetails), null);
-            }
-        });
+        growthChartButton.setOnClickListener(v -> Utils.startAsyncTask(new ShowGrowthChartTask(presenter, childDetails), null));
     }
 
     @NotNull
@@ -1438,21 +1380,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             vaccineGroup.post(new Runnable() {
                 @Override
                 public void run() {
-                    vaccineGroup.setVaccineCardAdapterLoadingListener(new VaccineCardAdapterLoadingListener() {
-                        @Override
-                        public void onFinishedLoadingVaccineWrappers() {
-                            ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
-                            if (!vaccineWrappers.isEmpty()) {
-                                final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
-                                recordAllTV.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        recordAllTV.performClick();
-                                    }
-                                });
-                            } else {
-                                performRecordAllClick(index + 1);
-                            }
+                    vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
+                        ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
+                        if (!vaccineWrappers.isEmpty()) {
+                            final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
+                            recordAllTV.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recordAllTV.performClick();
+                                }
+                            });
+                        } else {
+                            performRecordAllClick(index + 1);
                         }
                     });
                 }
@@ -1529,18 +1468,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (!weightNotificationShown) {
             weightNotificationShown = true;
             showNotification(R.string.record_growth_notification, R.drawable.ic_weight_notification, R.string.record_growth,
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showGrowthDialog(recordGrowth);
-                            hideNotification();
-                        }
-                    }, R.string.cancel, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            hideNotification();
-                        }
-                    }, null);
+                    v -> {
+                        showGrowthDialog(recordGrowth);
+                        hideNotification();
+                    }, R.string.cancel, v -> hideNotification(), null);
         }
     }
 
@@ -1701,8 +1632,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {
             VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))) {
+            if (recurringServiceEnabled) {
                 ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
             }
         }
@@ -1792,14 +1722,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 height = heightRepository.findUnSyncedByEntityId(childDetails.entityId());
             }
 
-            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+            if (recurringServiceEnabled
                     &&  recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             }
 
-            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+            if (recurringServiceEnabled
                     && recurringServiceTypeRepository != null) {
                 List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
                 for (ServiceType serviceType : serviceTypes) {

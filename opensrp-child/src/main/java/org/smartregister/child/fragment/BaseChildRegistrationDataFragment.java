@@ -266,7 +266,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.SPINNER:
                 boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                         .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
-                if (useNewMLSApproach && !field.getOptions().isEmpty() && StringUtils.isNotBlank(raw)) {
+                if (useNewMLSApproach && field.getOptions() != null && !field.getOptions().isEmpty() && StringUtils.isNotBlank(raw)) {
                     for (Map<String, String> option : field.getOptions()) {
                         if (option.containsKey(JsonFormConstants.KEY) && raw.equalsIgnoreCase(option.get(JsonFormConstants.KEY))) {
                             result = option.get(JsonFormConstants.TEXT);

@@ -43,6 +43,9 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         // vaccine status color
         public static final String HIDE_OVERDUE_VACCINE_STATUS = "hide.overdue.vaccine.status";
 
+        //Show extra vaccines
+        public static final String SHOW_EXTRA_VACCINES = "show.extra.vaccines";
+
         //novel features
         public final static class NOVEL {
             public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";

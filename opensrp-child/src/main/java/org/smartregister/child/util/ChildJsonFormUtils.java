@@ -159,7 +159,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             metadata.put(ChildJsonFormUtils.ZEIR_ID, zeirId); //inject zeir id into the form
 
-            prePopulateJsonFormFields(form, metadata, new ArrayList<String>());
+            prePopulateJsonFormFields(form, metadata, new ArrayList<>());
         } else if (formName.equals(Utils.metadata().childRegister.outOfCatchmentFormName)) {
             if (StringUtils.isNotBlank(zeirId)) {
                 zeirId = zeirId.replace("-", "");
@@ -1130,7 +1130,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @param nonEditableFields List of fields that should not be editable
      * @throws JSONException
      */
-    private static void prePopulateJsonFormFields(JSONObject form, Map<String, String> childDetails, List<String> nonEditableFields) throws JSONException {
+    public static void prePopulateJsonFormFields(JSONObject form, Map<String, String> childDetails, List<String> nonEditableFields) throws JSONException {
         JSONObject stepOne = form.getJSONObject(ChildJsonFormUtils.STEP1);
         JSONArray jsonArray = stepOne.getJSONArray(ChildJsonFormUtils.FIELDS);
 
@@ -1185,7 +1185,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         jsonObject.put(ChildJsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(ChildJsonFormUtils.KEY)));
     }
 
-    private static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
+    public static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
         if (!jsonObject.has(Constants.JSON_FORM_KEY.VALUE_FIELD) || jsonObject.getString(Constants.JSON_FORM_KEY.VALUE_FIELD).equalsIgnoreCase(jsonObject.getString(ChildJsonFormUtils.KEY))) {
             jsonObject.put(JsonFormConstants.VALUE, getMappedValue(jsonObject.getString(ChildJsonFormUtils.OPENMRS_ENTITY_ID), childDetails));
         } else {
@@ -1250,7 +1250,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         String dateString = Utils.getValue(childDetails, key, false);
         dateString = StringUtils.isBlank(dateString) ? Utils.getValue(childDetails, key.toLowerCase(Locale.ENGLISH), false) : dateString;
         String isDOBUnknown = childDetails.get(prefix + Constants.KEY.DOB_UNKNOWN);
-        if (isDOBUnknown == null || !Boolean.valueOf(isDOBUnknown)) {
+        if (isDOBUnknown == null || !Boolean.parseBoolean(isDOBUnknown)) {
             Date date = Utils.dobStringToDate(dateString);
             if (StringUtils.isNotBlank(dateString) && date != null) {
                 jsonObject.put(ChildJsonFormUtils.VALUE, DATE_FORMAT.format(date));
