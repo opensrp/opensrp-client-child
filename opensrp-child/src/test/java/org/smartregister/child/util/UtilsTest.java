@@ -366,7 +366,7 @@ public class UtilsTest {
 
     @Test
     public void testIsSameDayShouldReturnTrue() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
         long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
         Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));

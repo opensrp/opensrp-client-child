@@ -591,10 +591,11 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         executeInBackground.setAccessible(true);
 
         List<org.smartregister.immunization.domain.Vaccine> vaccineList = new ArrayList<>();
-        org.smartregister.immunization.domain.Vaccine newVaccine = new org.smartregister.immunization.domain.Vaccine(0l, "baseEntityId", "programClientid", "OPV 0", 0,
+        org.smartregister.immunization.domain.Vaccine newVaccine = new org.smartregister.immunization.domain.Vaccine(
+                0l, "baseEntityId", "programClientid", "OPV 0", 0,
                 new Date(),
                 "anmId", "locationId", "syncStatus", "hia2Status", 0l,
-                "eventId", "formSubmissionId", 0, new Date());
+                "eventId", "formSubmissionId", 0, new Date(), 1);
         vaccineList.add(newVaccine);
         when(vaccineRepository.findByEntityId("baseEntityId")).thenReturn(vaccineList);
 
