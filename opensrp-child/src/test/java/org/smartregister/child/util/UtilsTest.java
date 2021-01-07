@@ -6,8 +6,6 @@ import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.time.DateUtils;
-import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,14 +43,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ChildLibrary.class, Utils.class, LocationHelper.class})
