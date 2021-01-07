@@ -6,6 +6,8 @@ import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,10 +45,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ChildLibrary.class, Utils.class, LocationHelper.class})
@@ -366,7 +372,7 @@ public class UtilsTest {
 
     @Test
     public void testIsSameDayShouldReturnTrue() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
         long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
         Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));
