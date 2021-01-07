@@ -108,7 +108,7 @@
     <string name="female_sex_id">dela</string>
     <string name="male_sex_id">dele</string>
     <string name="label_zeir">DI</string>
-    <string name="label_immunization_records">VACINAÇÃO &amp; amp; SERVIÇOS</string>
+    <string name="label_immunization_records">VACINAÇÃO &amp; SERVIÇOS</string>
     <string name="str_search_hint">Pesquisar nome ou DI</string>
     <string name="scan_qr_code">Scan o código QR</string>
     <string name="zeir">DI</string>
