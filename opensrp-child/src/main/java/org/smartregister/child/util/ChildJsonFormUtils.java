@@ -1388,8 +1388,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
 
                 lastInteractedWith(fields);
-                ChildJsonFormUtils.tagSyncMetadata(baseEvent);
-                tagClientLocation(baseClient, baseEvent);
+                ChildJsonFormUtils.tagSyncMetadata(subFormEvent);
+                tagClientLocation(subformClient, subFormEvent);
                 return new ChildEventClient(subformClient, subFormEvent);
             }
         }

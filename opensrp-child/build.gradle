@@ -135,7 +135,6 @@ dependencies {
     }
 
     api('org.smartregister:opensrp-client-immunization:3.0.4-SNAPSHOT@aar') {
-
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
