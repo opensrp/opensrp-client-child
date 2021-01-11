@@ -7,6 +7,8 @@ import android.widget.EditText;
 
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,18 +16,23 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.activity.BaseChildFormActivity;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.EntityLookUp;
 import org.smartregister.child.fragment.ChildFormFragment;
+import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.child.shadows.ChildFormActivityShadow;
 import org.smartregister.child.util.Constants;
 import org.smartregister.event.Listener;
 import org.smartregister.util.AppProperties;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-
 
 public class LookUpTextWatcherTest extends BaseUnitTest {
 
@@ -38,7 +45,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
     private AppProperties appProperties;
 
     @Before
-    public void setUp() {
+    public void setUp() throws JSONException {
         MockitoAnnotations.initMocks(this);
 
         Mockito.doReturn("20").when(appProperties)
@@ -50,10 +57,24 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
                         Constants.MOTHER_LOOKUP_UNDO_DEFAULT_DURATION);
 
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null, null, true, new RegisterQueryProvider());
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
-        formFragment = new ChildFormFragment();
+        formFragment = Mockito.spy(ChildFormFragment.class);
+        ChildFormActivityShadow childFormActivityShadow =  Robolectric.buildActivity(ChildFormActivityShadow.class).get();
+        String formJson = "{\"count\":\"1\",\"encounter_type\":\"Birth Registration\",\"step1\":{\"title\":\"{{child_enrollment.step1.title}}\"," +
+                "\"fields\":[{\"key\":\"first_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"person\",\"openmrs_entity_id\":\"first_name\"," +
+                "\"entity_id\":\"mother\",\"look_up\":\"true\",\"type\":\"edit_text\",\"hint\":\"First name\",\"edit_type\":\"name\"}," +
+                "{\"key\":\"last_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"person\",\"openmrs_entity_id\":\"last_name\",\"entity_id\":\"mother\"," +
+                "\"look_up\":\"true\",\"type\":\"edit_text\",\"hint\":\"Last name\",\"edit_type\":\"name\"}]}}";
+        childFormActivityShadow.setmJSONObject(new JSONObject(formJson));
+        ReflectionHelpers.setField(childFormActivityShadow, "calculationLogicViews", new LinkedHashMap<>());
+        ReflectionHelpers.setField(childFormActivityShadow, "skipLogicViews", new LinkedHashMap<>());
+        ReflectionHelpers.setField(childFormActivityShadow, "constrainedViews", new LinkedHashMap<>());
+        Mockito.doReturn(childFormActivityShadow).when(formFragment).getContext();
+
     }
 
     @Test

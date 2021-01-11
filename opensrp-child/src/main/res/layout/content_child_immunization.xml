@@ -125,7 +125,6 @@
                             android:layout_marginStart="5dp"
                             android:layout_marginLeft="5dp"
                             android:gravity="left"
-                            android:text="20/02/2018"
                             android:textColor="@color/easy_black"
                             android:textSize="@dimen/activity_sub_title_size"
                             android:textStyle="bold" />

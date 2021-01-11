@@ -487,6 +487,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate())) {
             ((View) nextAppointmentDateView.getParent()).setVisibility(View.VISIBLE);
             nextAppointmentDateView.setText(registerClickables.getNextAppointmentDate());
+        } else {
+            ((View) nextAppointmentDateView.getParent()).setVisibility(View.GONE);
         }
     }
 
@@ -1794,7 +1796,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                     .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
-                    &&  recurringServiceRecordRepository != null) {
+                    && recurringServiceRecordRepository != null) {
                 serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             }
 
