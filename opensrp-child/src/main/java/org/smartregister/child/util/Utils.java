@@ -23,11 +23,11 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.Weeks;
 import org.json.JSONArray;
@@ -78,6 +78,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import timber.log.Timber;
 
@@ -629,14 +630,12 @@ public class Utils extends org.smartregister.util.Utils {
         return gender;
     }
 
-    public static boolean isSameDay(long timeA, long timeB, @Nullable DateTimeZone dateTimeZone) {
-        DateTimeZone timeZone = dateTimeZone;
-        if (timeZone == null) {
-            timeZone = DateTimeZone.forID("GMT");
-        }
-        long startOfTheDayTimeA = new DateTime(timeA).withZone(timeZone).withTimeAtStartOfDay().getMillis();
-        long startOfTheDayTimeB = new DateTime(timeB).withZone(timeZone).withTimeAtStartOfDay().getMillis();
-        return startOfTheDayTimeA == startOfTheDayTimeB;
+    public static boolean isSameDay(long timeA, long timeB, @Nullable TimeZone dateTimeZone) {
+        Calendar calendarA = Calendar.getInstance();
+        calendarA.setTimeInMillis(timeA);
+        Calendar calendarB = Calendar.getInstance();
+        calendarB.setTimeInMillis(timeB);
+        return DateUtils.isSameDay(calendarA, calendarB);
     }
 
     public static void processExtraVaccinesEventObs(Event baseEvent, String vaccineField) {

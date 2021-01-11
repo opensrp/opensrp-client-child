@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
@@ -79,30 +80,24 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private Snackbar snackbar = null;
     private AlertDialog alertDialog = null;
     private boolean lookedUp = false;
-    private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (alertDialog != null && alertDialog.isShowing()) {
-                alertDialog.dismiss();
-                CommonPersonObjectClient client = null;
-                if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-                    client = (CommonPersonObjectClient) view.getTag();
-                }
+    private final View.OnClickListener lookUpRecordOnClickLister = view -> {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+            CommonPersonObjectClient client = null;
+            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
+                client = (CommonPersonObjectClient) view.getTag();
+            }
 
-                if (client != null) {
-                    lookupDialogDismissed(client);
-                }
+            if (client != null) {
+                lookupDialogDismissed(client);
             }
         }
     };
 
     private final Listener<Map<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener =
-            new Listener<Map<CommonPersonObject, List<CommonPersonObject>>>() {
-                @Override
-                public void onEvent(Map<CommonPersonObject, List<CommonPersonObject>> data) {
-                    if (!lookedUp) {
-                        showMotherLookUp(data);
-                    }
+            data -> {
+                if (!lookedUp) {
+                    showMotherLookUp(data);
                 }
             };
 
@@ -294,29 +289,14 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         textView.setPadding(paddingInt, 0, 0, 0);
         textView.setTextColor(getResources().getColor(R.color.white));
 
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionView.performClick();
-            }
-        });
+        textView.setOnClickListener(v -> actionView.performClick());
 
-        snackbarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionView.performClick();
-            }
-        });
+        snackbarView.setOnClickListener(v -> actionView.performClick());
 
         snackbar.show();
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                snackbar.dismiss();
-            }
-        }, showResultsDuration);
+        handler.postDelayed(snackbar::dismiss, showResultsDuration);
 
     }
 
@@ -342,12 +322,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         TextView textView = snackbarView.findViewById(R.id.snackbar_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(Gravity.CENTER);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearMotherLookUp();
-            }
-        });
+        textView.setOnClickListener(v -> clearMotherLookUp());
         textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_error, 0, 0, 0);
         textView.setCompoundDrawablePadding(paddingInt);
         textView.setPadding(paddingInt, 0, 0, 0);
@@ -467,11 +442,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
             if (innerLayout.getChildAt(0) instanceof AppCompatCheckBox) {
                 AppCompatCheckBox checkBox = (AppCompatCheckBox) innerLayout.getChildAt(0);
-                if (value.contains(fieldName)) {
-                    checkBox.setChecked(true);
-                } else {
-                    checkBox.setChecked(false);
-                }
+                checkBox.setChecked(value.contains(fieldName));
             }
         }
     }
@@ -506,13 +477,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
 
     protected void clearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setDuration(undoChoiceDuration);
-        snackbar.setAction(R.string.dismiss_lookup, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-            }
-        });
+        snackbar.setDuration(BaseTransientBottomBar.LENGTH_LONG);
+        snackbar.setAction(R.string.dismiss_lookup, v -> snackbar.dismiss());
         showFinalActionSnackBar(snackbar);
     }
 
