@@ -2,8 +2,6 @@ package org.smartregister.child.listener;
 
 import android.view.MenuItem;
 
-import androidx.appcompat.view.menu.MenuBuilder;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -11,8 +9,6 @@ import org.mockito.Mockito;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.view.activity.BaseRegisterActivity;
-
-import static org.junit.Assert.*;
 
 public class ChildBottomNavigationListenerTest {
 
