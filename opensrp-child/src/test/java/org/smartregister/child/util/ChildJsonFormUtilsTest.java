@@ -189,6 +189,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     private static final String TEST_BASE_URL = "https://abc.def";
 
+    private String[] baseEntityIds = new String[]{"fb8ce328-04d9", "bf1043a2-cb00"};
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -1315,8 +1317,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals("184a6d7f-760f-401c-8194-4fd6828094e1", entityId);
     }
 
-    String[] baseEntityIds = new String[]{"fb8ce328-04d9", "bf1043a2-cb00"};
-
     @Test
     public void testProcessMoveToCatchmentReturnsFalseWhenBaseEntityIdsAreNotSet() throws JSONException {
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(null, false, false);
@@ -1394,7 +1394,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
         Mockito.when(openSrpContext.configuration()).thenReturn(dristhiConfiguration);
         Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
-        Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn("https://abc.def");
+        Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn(TEST_BASE_URL);
         Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
 
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
@@ -1423,7 +1423,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
                 "Out of Catchment");
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(openSrpContext.allCommonsRepositoryobjects(ArgumentMatchers.anyString())).thenReturn(allCommonsRepository);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
 
         @Nullable
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, false);
