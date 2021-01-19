@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +30,10 @@ import org.smartregister.view.activity.BaseRegisterActivity;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NoMatchDialogFragmentTest extends BaseUnitTest {
 
@@ -54,6 +58,9 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
     @Mock
     private Button button;
 
+    @Mock
+    private Fragment prevFragment;
+
     private NoMatchDialogFragment fragment;
 
     private Context context;
@@ -75,13 +82,35 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
     }
 
     @Test
-    public void testLaunchDialog() {
-        Mockito.when(baseRegisterActivity.getSupportFragmentManager()).thenReturn(fragmentManager);
-        Mockito.when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
+    public void testLaunchDialogWhenActivityIsNotNullAndPreviousFragmentIsNull() {
+        when(baseRegisterActivity.getSupportFragmentManager()).thenReturn(fragmentManager);
+        when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
 
         NoMatchDialogFragment.launchDialog(baseRegisterActivity, "tag123", "Id123");
 
         Mockito.verify(fragmentManager).findFragmentByTag("tag123");
+    }
+
+    @Test
+    public void testLaunchDialogWhenActivityIsNull() {
+        when(baseRegisterActivity.getSupportFragmentManager()).thenReturn(fragmentManager);
+        when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
+
+        NoMatchDialogFragment noMatchDialogFragment = NoMatchDialogFragment.launchDialog(null, "tag123", "Id123");
+
+        Assert.assertNull(noMatchDialogFragment);
+    }
+
+    @Test
+    public void testLaunchDialogWhenPreviousFragmentIsNotNull() {
+        when(baseRegisterActivity.getSupportFragmentManager()).thenReturn(fragmentManager);
+        when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
+
+        doReturn(prevFragment).when(fragmentManager).findFragmentByTag("tag123");
+
+        NoMatchDialogFragment noMatchDialogFragment = NoMatchDialogFragment.launchDialog(baseRegisterActivity, "tag123", "Id123");
+
+        verify(fragmentTransaction).remove(prevFragment);
     }
 
     @Test
@@ -90,7 +119,7 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
         Mockito.doReturn(button).when(viewGroup).findViewById(R.id.cancel_no_match_dialog);
         Mockito.doReturn(button).when(viewGroup).findViewById(R.id.go_to_advanced_search);
 
-        View v = fragment.onCreateView(layoutInflater, null, null);
+        fragment.onCreateView(layoutInflater, null, null);
 
         verify(viewGroup).findViewById(R.id.cancel_no_match_dialog);
         verify(viewGroup).findViewById(R.id.go_to_advanced_search);
