@@ -1,5 +1,12 @@
 package org.smartregister.child.fragment;
 
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -12,11 +19,17 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.smartregister.child.BaseUnitTest;
+import org.smartregister.child.R;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class NoMatchDialogFragmentTest extends BaseUnitTest {
 
@@ -32,13 +45,28 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
     @Mock
     private FragmentTransaction fragmentTransaction;
 
+    @Mock
+    private LayoutInflater layoutInflater;
+
+    @Mock
+    private ViewGroup viewGroup;
+
+    @Mock
+    private Button button;
+
     private NoMatchDialogFragment fragment;
+
+    private Context context;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         fragment = new NoMatchDialogFragment(baseRegisterActivity, "123");
+        context = RuntimeEnvironment.application;
+
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
+        activity.getSupportFragmentManager().beginTransaction().add(fragment, "Tasks").commit();
     }
 
     @Test
@@ -54,6 +82,46 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
         NoMatchDialogFragment.launchDialog(baseRegisterActivity, "tag123", "Id123");
 
         Mockito.verify(fragmentManager).findFragmentByTag("tag123");
+    }
+
+    @Test
+    public void testOnCreateView() {
+        Mockito.doReturn(viewGroup).when(layoutInflater).inflate(R.layout.dialog_no_match, null, false);
+        Mockito.doReturn(button).when(viewGroup).findViewById(R.id.cancel_no_match_dialog);
+        Mockito.doReturn(button).when(viewGroup).findViewById(R.id.go_to_advanced_search);
+
+        View v = fragment.onCreateView(layoutInflater, null, null);
+
+        verify(viewGroup).findViewById(R.id.cancel_no_match_dialog);
+        verify(viewGroup).findViewById(R.id.go_to_advanced_search);
+
+        verify(button, times(2)).setOnClickListener(any());
+    }
+
+    @Test
+    public void testOnCancel() {
+        fragment.onCancel(null);
+
+        verify(baseRegisterActivity).setSearchTerm("");
+    }
+
+    @Test
+    public void testNoMatchDialogActionHandlerWhenCancelIsClicked() {
+        View v = fragment.onCreateView(LayoutInflater.from(context), null, null);
+
+        v.findViewById(R.id.cancel_no_match_dialog).performClick();
+
+        verify(baseRegisterActivity).setSearchTerm("");
+    }
+
+    @Test
+    public void testNoMatchDialogActionHandlerWhenGoIsClicked() {
+        View v = fragment.onCreateView(LayoutInflater.from(context), null, null);
+
+        v.findViewById(R.id.go_to_advanced_search).performClick();
+
+        verify(baseRegisterActivity).setSearchTerm("");
+        verify(baseRegisterActivity).setSelectedBottomBarMenuItem(R.id.action_search);
     }
 
 }
