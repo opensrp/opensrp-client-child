@@ -443,7 +443,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     public void updateExtraVaccinesView() {
-        if (!getExtraVaccines().isEmpty() && getActivity() != null) {
+        if (getExtraVaccines() != null && !getExtraVaccines().isEmpty() && getActivity() != null) {
             extraVaccinesLayout.setVisibility(View.VISIBLE);
             extraVaccinesLayout.removeAllViews();
             extraVaccinesLayout.addView(getSectionTitle(R.color.black, R.string.extra_vaccines));

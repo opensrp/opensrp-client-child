@@ -253,13 +253,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
             if (isLegacyAlerts) {
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
-                recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationCheck.setImageResource(R.drawable.ic_harvey_100);
-                recordVaccinationCheck.setVisibility(View.VISIBLE);
 
             }
+            recordVaccinationCheck.setVisibility(View.VISIBLE);
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);

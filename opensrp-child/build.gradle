@@ -77,6 +77,7 @@ android {
     }
 
     compileOptions {
+
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
@@ -98,9 +99,9 @@ allprojects {
 
 dependencies {
  
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
-    api('org.smartregister:opensrp-client-core:4.0.0-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:4.0.6-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -113,7 +114,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 
-    api('org.smartregister:opensrp-client-native-form:1.14.6.1-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-native-form:1.14.8.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'appcompat-v7'
@@ -134,8 +135,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    api('org.smartregister:opensrp-client-immunization:3.0.3-SNAPSHOT@aar') {
-
+    api('org.smartregister:opensrp-client-immunization:3.0.4-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'

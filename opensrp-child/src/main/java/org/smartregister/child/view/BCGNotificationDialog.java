@@ -23,7 +23,6 @@ public class BCGNotificationDialog {
     private final int NO = 1;
     private final int SELECTED_OPTION = 2;
     private final int THEME = R.style.AppThemeAlertDialog;
-
     private AlertDialog alertDialog;
     private AlertDialog subDialogPositive;
     private AlertDialog subDialogNegative;
@@ -49,30 +48,22 @@ public class BCGNotificationDialog {
         String[] singleChoiceItems = context.getResources().getStringArray(R.array.bcg_notification_options);
         alertDialog = new AlertDialog.Builder(context, THEME)
                 .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_scar, null))
-                .setSingleChoiceItems(singleChoiceItems, -1, new DialogInterface.OnClickListener() {
+                .setSingleChoiceItems(singleChoiceItems, -1, (dialogInterface, selectedIndex) -> {
 
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int selectedIndex) {
+                    ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                    selectedOption.put(SELECTED_OPTION, selectedIndex);
+                }).setPositiveButton(R.string.ok_button_label, (dialogInterface, selectedIndex) -> {
 
-                        ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-                        selectedOption.put(SELECTED_OPTION, selectedIndex);
-                    }
-                }).setPositiveButton(R.string.ok_button_label, new DialogInterface.OnClickListener() {
+                    alertDialog =
+                            new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
+                                    .getAlertDialogInstance();
 
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int selectedIndex) {
-
-                        alertDialog =
-                                new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
-                                        .getAlertDialogInstance();
-
-                        if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
-                            subDialogPositive.show();
-                            increaseBtnTextSizeTabletDevice(subDialogPositive);
-                        } else {
-                            subDialogNegative.show();
-                            increaseBtnTextSizeTabletDevice(subDialogNegative);
-                        }
+                    if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
+                        subDialogPositive.show();
+                        increaseBtnTextSizeTabletDevice(subDialogPositive);
+                    } else {
+                        subDialogNegative.show();
+                        increaseBtnTextSizeTabletDevice(subDialogNegative);
                     }
                 }).setNegativeButton(R.string.dismiss_button_label, null).create();
 
@@ -87,6 +78,12 @@ public class BCGNotificationDialog {
                         .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
                         .setNegativeButton(R.string.go_back_button_label, backListener).create();
     }
+
+
+    public AlertDialog getAlertDialog() {
+        return alertDialog;
+    }
+
 
     private AlertDialog getAlertDialogInstance() {
         return alertDialog;

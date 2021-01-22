@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.watchers.LookUpTextWatcher;
 
-
 /**
  * Created by keyman on 11/04/2017.
  */

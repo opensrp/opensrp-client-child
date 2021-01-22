@@ -22,6 +22,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.Utils;
@@ -33,6 +34,7 @@ import org.smartregister.immunization.domain.jsonmapping.Vaccine;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.util.AppProperties;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class})
+@PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class, ChildLibrary.class})
 @RunWith(PowerMockRunner.class)
 public class BaseChildImmunizationActivityTest {
 
@@ -56,6 +58,9 @@ public class BaseChildImmunizationActivityTest {
     private CoreLibrary coreLibrary;
 
     @Mock
+    private ChildLibrary childLibrary;
+
+    @Mock
     private Context context;
 
     @Mock
@@ -67,6 +72,10 @@ public class BaseChildImmunizationActivityTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
         baseChildImmunizationActivity = new TestChildImmunizationActivity();
     }
 

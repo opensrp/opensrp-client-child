@@ -111,8 +111,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
         map.put(vaccineNamedObject.name, vaccineNamedObject);
 
-        List<ServiceRecord> serviceRecords = new ArrayList<>();
-
         RecurringServiceTypeRepository recurringServiceTypeRepository =
                 ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
         RecurringServiceRecordRepository recurringServiceRecordRepository =
@@ -121,7 +119,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                 .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
                 &&  recurringServiceRecordRepository != null) {
-            serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+            List<ServiceRecord> serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             NamedObject<List<ServiceRecord>> serviceNamedObject =
                     new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
             map.put(serviceNamedObject.name, serviceNamedObject);
@@ -160,12 +158,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                activity.showProgressDialog(activity.getString(R.string.refreshing), null);
-            }
-        });
+        activity.runOnUiThread(() -> activity.showProgressDialog(activity.getString(R.string.refreshing), null));
     }
 
     @Override

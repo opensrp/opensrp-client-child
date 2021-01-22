@@ -158,6 +158,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private LostCardDialogFragment lostCardDialogFragment;
     private ChildTabbedDetailsContract.Presenter presenter;
     public final SimpleDateFormat ddMmYyyyDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+    public final boolean showExtraVaccines = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.SHOW_EXTRA_VACCINES, "false"));
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -231,7 +233,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         try {
 
-            setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+            if (showExtraVaccines) {
+                setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+            }
 
         } catch (SQLiteException exception) {
             Timber.e(exception);
@@ -243,7 +247,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
         childUnderFiveFragment.showRecurringServices(true);
-        childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+        if (showExtraVaccines) {
+            childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+        }
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
 
@@ -675,8 +681,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void onSaveDynamicVaccine() {
         showProgressDialog();
         viewPager.setCurrentItem(1, true);
-        setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
-        childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+        if (showExtraVaccines) {
+            setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+            childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+        }
         childUnderFiveFragment.updateExtraVaccinesView();
         hideProgressDialog();
     }
