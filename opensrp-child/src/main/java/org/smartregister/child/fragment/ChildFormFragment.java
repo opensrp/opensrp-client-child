@@ -426,6 +426,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             if (view instanceof MaterialEditText) {
                 MaterialEditText materialEditText = (MaterialEditText) view;
                 materialEditText.setTag(R.id.after_look_up, true);
+                materialEditText.setTag(R.id.raw_value, materialEditText.getText().toString());
                 materialEditText.setText(value);
                 materialEditText.setEnabled(false);
                 materialEditText.setInputType(InputType.TYPE_NULL);
@@ -491,9 +492,10 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                     if (view instanceof MaterialEditText) {
                         MaterialEditText materialEditText = (MaterialEditText) view;
                         materialEditText.setEnabled(true);
-                        enableEditText(materialEditText);
-                        materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
+                        materialEditText.setInputType(InputType.TYPE_CLASS_TEXT);
                         materialEditText.setText("");
+                        materialEditText.setTag(R.id.after_look_up, false);
+                        materialEditText.setTag(R.id.raw_value, materialEditText.getText().toString());
                     } else if (view instanceof RelativeLayout) {
                         ViewGroup spinnerViewGroup = (ViewGroup) view;
                         if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
@@ -511,10 +513,6 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 lookedUp = false;
             }
         }
-    }
-
-    private void enableEditText(MaterialEditText editText) {
-        editText.setInputType(InputType.TYPE_CLASS_TEXT);
     }
 
     public void getLabelViewFromTag(String labeltext, String todisplay) {
