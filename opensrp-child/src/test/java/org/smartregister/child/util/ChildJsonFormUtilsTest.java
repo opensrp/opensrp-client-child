@@ -79,6 +79,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1365,6 +1366,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
 
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
+        jsonObject.put(Constants.EVENTS, getEvents());
+        jsonObject.put(Constants.CLIENTS, getClients());
         jsonObject.put(Constants.NO_OF_EVENTS, 2);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(2L);
@@ -1374,12 +1377,26 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
         Mockito.when(childLibrary.getClientProcessorForJava()).thenReturn(clientProcessorForJava);
 
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
+        childMetadata.updateChildRegister(
+                "OoC",
+                "childTable",
+                "guardianTable",
+                "Birth Registration",
+                "Birth Registration",
+                "Immunization",
+                "none",
+                "345",
+                "Out of Catchment");
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+
         @Nullable
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
         Assert.assertNotNull(event);
         Assert.assertTrue(event.isPermanent());
         Assert.assertTrue(event.isCreateEvent());
-        Assert.assertEquals(event.getJsonObject().length(), 1);
         Assert.assertNotNull(event.getJsonObject().has(Constants.NO_OF_EVENTS));
         Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
 
@@ -1400,7 +1417,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
         jsonObject.put(Constants.EVENTS, getEvents());
         jsonObject.put(Constants.CLIENTS, getClients());
-        jsonObject.put(Constants.NO_OF_EVENTS, 1);
+        jsonObject.put(Constants.NO_OF_EVENTS, 2);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(1L);
         Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
@@ -1409,7 +1426,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
         Mockito.when(childLibrary.getClientProcessorForJava()).thenReturn(clientProcessorForJava);
 
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         childMetadata.updateChildRegister(
                 "OoC",
@@ -1425,12 +1441,11 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
 
-        @Nullable
-        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, false);
+        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, true);
         Assert.assertNotNull(event);
         Assert.assertFalse(event.isPermanent());
-        Assert.assertFalse(event.isCreateEvent());
-        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 1);
+        Assert.assertTrue(event.isCreateEvent());
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
 
         boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
         Assert.assertTrue(moveToCatchment);
@@ -1440,12 +1455,70 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONArray events = new JSONArray();
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type", "Event");
-        jsonObject.put("formSubmissionId", "aeefe323-3781-4e0d-a8a0-9e5c98efe9d7");
-        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
-        jsonObject.put("entityType", "child");
+//        jsonObject.put("type", "Event");
+//        jsonObject.put("formSubmissionId", "aeefe323-3781-4e0d-a8a0-9e5c98efe9d7");
+//        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+//        jsonObject.put("entityType", "child");
+//        jsonObject.put("serverVersion", 123L);
+        jsonObject.put("eventId", "b1e71b7e-b4b3-412c-a760-149fbbad7648");
         jsonObject.put("baseEntityId", "7fcace2d-0c50-4baa-b851-52b81c8d975d");
-        jsonObject.put("serverVersion", 123L);
+        jsonObject.put("identifiers", new HashMap<>());
+        jsonObject.put("locationId", "");
+        jsonObject.put("childLocationId", "");
+        jsonObject.put("eventDate", new Date());
+        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+        jsonObject.put("formSubmissionId", "aeefe323-3781-4e0d-a8a0-9e5c98efe9d7");
+        jsonObject.put("providerId", "");
+        jsonObject.put("status", "active");
+        jsonObject.put("statusHistory", new HashMap<>());
+        jsonObject.put("priority", "");
+        jsonObject.put("episodeOfCare", new ArrayList<>());
+        jsonObject.put("referrals", new ArrayList<>());
+        jsonObject.put("category", "");
+        jsonObject.put("duration", 1);
+        jsonObject.put("reason", "");
+        jsonObject.put("obs", new ArrayList<>());
+        jsonObject.put("entityType", "child");
+        jsonObject.put("details", new HashMap<>());
+        jsonObject.put("version", 123L);
+        jsonObject.put("photos", new ArrayList<>());
+        jsonObject.put("team", "");
+        jsonObject.put("teamId", "");
+        jsonObject.put("syncStatus", "unsynced");
+
+        events.put(jsonObject);
+
+        jsonObject = new JSONObject();
+//        jsonObject.put("type", "Event");
+//        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+//        jsonObject.put("entityType", "child");
+//        jsonObject.put("baseEntityId", "8d2747fa-8072-4b47-b313-d835a7e51bac");
+//        jsonObject.put("serverVersion", 234L);
+        jsonObject.put("eventId", "f659b714-a9cf-4d44-a34a-25f74f93934c");
+        jsonObject.put("baseEntityId", "8d2747fa-8072-4b47-b313-d835a7e51bac");
+        jsonObject.put("identifiers", new HashMap<>());
+        jsonObject.put("locationId", "");
+        jsonObject.put("childLocationId", "");
+        jsonObject.put("eventDate", new Date());
+        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+        jsonObject.put("formSubmissionId", "2aa4797a-92c2-458c-93c4-0e8da2b30f62");
+        jsonObject.put("providerId", "");
+        jsonObject.put("status", "active");
+        jsonObject.put("statusHistory", new HashMap<>());
+        jsonObject.put("priority", "");
+        jsonObject.put("episodeOfCare", new ArrayList<>());
+        jsonObject.put("referrals", new ArrayList<>());
+        jsonObject.put("category", "");
+        jsonObject.put("duration", 1);
+        jsonObject.put("reason", "");
+        jsonObject.put("obs", new ArrayList<>());
+        jsonObject.put("entityType", "child");
+        jsonObject.put("details", new HashMap<>());
+        jsonObject.put("version", 234L);
+        jsonObject.put("photos", new ArrayList<>());
+        jsonObject.put("team", "");
+        jsonObject.put("teamId", "");
+        jsonObject.put("syncStatus", "unsynced");
 
         events.put(jsonObject);
 
@@ -1472,6 +1545,27 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonObject.put("clientType", "");
         jsonObject.put("locationId", "aaf05413-d3d7-4e9d-9004-bcee1a27125e");
         jsonObject.put("teamId", "c591fa51-f129-4389-b887-ea43c6b9d12c");
+        jsonObject.put("syncStatus", "unsynced");
+
+        clients.put(jsonObject);
+
+        jsonObject = new JSONObject();
+        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("baseEntityId", 65432);
+        jsonObject.put("firstName", "Sam");
+        jsonObject.put("middleName", "Wel");
+        jsonObject.put("lastName", "Who");
+        jsonObject.put("birthdate", null);
+        jsonObject.put("deathdate", null);
+        jsonObject.put("birthdateApprox", false);
+        jsonObject.put("deathdateApprox", false);
+        jsonObject.put("gender", "FEMALE");
+        jsonObject.put("relationships", Arrays.asList(""));
+        jsonObject.put("attributes", new JSONObject());
+        jsonObject.put("relationalBaseEntityId", "a8ab2185-e02b-42c6-8d4c-b9aee1390c01");
+        jsonObject.put("clientType", "");
+        jsonObject.put("locationId", "a290480a-a773-4f51-bf49-c0227e1a3fa3");
+        jsonObject.put("teamId", "60383788-d5bb-4092-8dcb-7d2b28baa7df");
         jsonObject.put("syncStatus", "unsynced");
 
         clients.put(jsonObject);
