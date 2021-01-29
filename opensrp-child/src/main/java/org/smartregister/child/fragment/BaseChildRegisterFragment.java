@@ -285,7 +285,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     protected abstract String filterSelectionCondition(boolean urgentOnly);
 
-    public void updateDueOverdueCountText() {
+    protected void updateDueOverdueCountText() {
         if (overdueCountTV != null) {
             if (overDueCount > 0) {
                 overdueCountTV.setText(String.valueOf(overDueCount));
