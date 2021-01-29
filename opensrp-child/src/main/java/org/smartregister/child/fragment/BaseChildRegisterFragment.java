@@ -40,6 +40,7 @@ import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
@@ -61,6 +62,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private View filterSection;
     protected LocationPickerView clinicSelection;
     private TextView overdueCountTV;
+    private int overDueCount = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -165,6 +167,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             toggleFilterSelection();
         }
 
+        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
+        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            updateDueOverdueCountText();
+        }
+
         updateSearchView();
         updateLocationText();
         if (getActivity() != null)
@@ -197,6 +204,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         super.onSyncComplete(fetchStatus);
+        updateDueOverdueCountText();
     }
 
     private void setUpQRCodeScanButtonView(View view) {
@@ -251,7 +259,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                filter("", "", mainCondition, false);
+                filter("", "", getMainCondition(), false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
             }
@@ -277,7 +285,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     protected abstract String filterSelectionCondition(boolean urgentOnly);
 
-    public void updateDueOverdueCountText(int overDueCount) {
+    protected void updateDueOverdueCountText() {
         if (overdueCountTV != null) {
             if (overDueCount > 0) {
                 overdueCountTV.setText(String.valueOf(overDueCount));
@@ -410,6 +418,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
             clientAdapter.setCurrentlimit(20);
             clientAdapter.setCurrentoffset(0);
+
+            // For overdue count
+            // FIXME: Count generated on first sync is not correct
+            String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+                    .getCountExecuteQuery(filterSelectionCondition(true),"");
+            Timber.i(sqlOverdueCount);
+            overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+            Timber.i("Total Overdue Count %d", overDueCount);
         } catch (Exception e) {
             Timber.e(e);
         }
