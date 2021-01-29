@@ -211,10 +211,9 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Assert.assertNotNull(baseChildRegisterFragment);
 
-        int totalCount = 7;
-
         Whitebox.setInternalState(baseChildRegisterFragment, "overdueCountTV", overdueCountTextView);
-        baseChildRegisterFragment.updateDueOverdueCountText(totalCount);
+        Whitebox.setInternalState(baseChildRegisterFragment, "overDueCount", 7);
+        baseChildRegisterFragment.updateDueOverdueCountText();
 
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -232,10 +231,9 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Assert.assertNotNull(baseChildRegisterFragment);
 
-        int totalCount = 0;
-
         Whitebox.setInternalState(baseChildRegisterFragment, "overdueCountTV", overdueCountTextView);
-        baseChildRegisterFragment.updateDueOverdueCountText(totalCount);
+        Whitebox.setInternalState(baseChildRegisterFragment, "overDueCount", 0);
+        baseChildRegisterFragment.updateDueOverdueCountText();
 
         ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
 
