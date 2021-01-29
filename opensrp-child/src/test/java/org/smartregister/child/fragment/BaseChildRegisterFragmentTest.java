@@ -434,7 +434,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
 
-        Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
+        Mockito.doReturn("is_closed IS NOT 1").when(baseChildRegisterFragment).getMainCondition();
         Mockito.doReturn("PRESSED").when(filterSection).getTag();
         Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
 
@@ -442,12 +442,12 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> filterStringCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> joinTableStringCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> filterSelectConditionCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> mainConditionCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Boolean> qrCodeCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         baseChildRegisterFragment.toggleFilterSelection();
 
-        Mockito.verify(baseChildRegisterFragment).filter(filterStringCaptor.capture(), joinTableStringCaptor.capture(), filterSelectConditionCaptor.capture(), qrCodeCaptor.capture());
+        Mockito.verify(baseChildRegisterFragment).filter(filterStringCaptor.capture(), joinTableStringCaptor.capture(), mainConditionCaptor.capture(), qrCodeCaptor.capture());
         Mockito.verify(filterSection).setTag(tagCaptor.capture());
         Mockito.verify(filterSection).setBackgroundResource(bgResourceCaptor.capture());
 
@@ -459,7 +459,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         String filterString = filterStringCaptor.getValue();
         String joinTable = joinTableStringCaptor.getValue();
-        String filterSelect = filterSelectConditionCaptor.getValue();
+        String filterSelect = mainConditionCaptor.getValue();
         boolean qrCodeCaptorValue = qrCodeCaptor.getValue();
 
         Assert.assertEquals("", filterString);
