@@ -11,8 +11,6 @@ import org.robolectric.annotation.Config;
 import org.smartregister.child.TestChildApp;
 import org.smartregister.child.impl.activity.TestBaseChildRegisterActivity;
 
-import org.junit.Assert;
-
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)

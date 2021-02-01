@@ -2,27 +2,21 @@ package org.smartregister.child;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.child.util.DBConstants;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
 import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.BaseProfileActivity;
 import org.smartregister.view.activity.DrishtiApplication;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import timber.log.Timber;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import timber.log.Timber;
 
 public class TestChildApp extends DrishtiApplication {
 
