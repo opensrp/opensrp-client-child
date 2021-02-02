@@ -184,6 +184,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="change_status">Change Status</string>
     <string name="write_to_card">Write to Card</string>
+    <string name="verify_caregiver">Verify Caregiver</string>
     <string name="title_activity_stock_control">StockControlActivity</string>
     <string name="device_timezone_changed">"The device's timezone changed. Please login again."</string>
     <string name="device_time_changed">"The device's time has changed. Please login again."</string>
