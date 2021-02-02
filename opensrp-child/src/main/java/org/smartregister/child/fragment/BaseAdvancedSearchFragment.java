@@ -30,6 +30,7 @@ import com.vijay.jsonwizard.customviews.RadioButton;
 import com.vijay.jsonwizard.utils.FormUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
@@ -77,13 +78,13 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         if (moveToCatchmentEvent != null) {
             if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
                 clientAdapter.notifyDataSetChanged();
-                ((BaseRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
-                ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+                ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
+                ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
             } else {
-                Utils.showShortToast(getActivity(), getActivity().getString(R.string.an_error_occured));
+                Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
             }
         } else {
-            Utils.showShortToast(getActivity(), getActivity().getString(R.string.unable_to_move_to_my_catchment));
+            Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.unable_to_move_to_my_catchment));
         }
     };
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
@@ -122,7 +123,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     private void initProgressDialog() {
-        progressDialog = new ProgressDialog(getActivity());
+        progressDialog = new ProgressDialog(requireActivity());
         progressDialog.setCancelable(false);
     }
 
@@ -152,7 +153,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         super.onPause();
 
         if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
-            getActivity().unregisterReceiver(connectionChangeReciever);
+            requireActivity().unregisterReceiver(connectionChangeReciever);
             registeredConnectionChangeReceiver = false;
         }
     }
@@ -168,7 +169,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         if (listMode) {
             switchViews(false);
         } else {
-            ((BaseRegisterActivity) getActivity()).switchToBaseFragment();
+            ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
         }
     }
 
@@ -203,20 +204,20 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             registerClickables.setRecordAll(Constants.RECORD_ACTION.VACCINATION.equals(view.getTag(org.smartregister.child.R.id.record_action)));
             registerClickables.setNextAppointmentDate(view.getTag(R.id.next_appointment_date) != null ? String.valueOf(view.getTag(R.id.next_appointment_date)) : "");
         }
-        BaseChildImmunizationActivity.launchActivity(getActivity(), (CommonPersonObjectClient) view.getTag(), registerClickables);
+        BaseChildImmunizationActivity.launchActivity(requireActivity(), (CommonPersonObjectClient) view.getTag(), registerClickables);
     }
 
     protected void recordService(String openSrpId) {
-        if (getActivity() != null) {
+        if (requireActivity() != null) {
             try {
-                ChildJsonFormUtils.startForm(getActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
-                        ChildLibrary.getInstance().getLocationPickerView(getActivity()).getSelectedItem());
+                ChildJsonFormUtils.startForm(requireActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
+                        ChildLibrary.getInstance().getLocationPickerView(requireActivity()).getSelectedItem());
             } catch (Exception e) {
-                Utils.showShortToast(getActivity(), getString(R.string.error_recording_out_of_catchment_service));
+                Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
                 Timber.e(e, "Error recording Out of Catchment Service");
             }
         } else {
-            Utils.showShortToast(getActivity(), getString(R.string.error_recording_out_of_catchment_service));
+            Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
         }
     }
 
@@ -237,10 +238,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
     private void showMoveToCatchmentChoiceDialog(final List<String> ids) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(getActivity().getString(R.string.choose_how));
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        builder.setTitle(requireActivity().getString(R.string.choose_how));
 
-        String[] choices = {getActivity().getString(R.string.permanently), getActivity().getString(R.string.temporarily)};
+        String[] choices = {requireActivity().getString(R.string.permanently), requireActivity().getString(R.string.temporarily)};
         builder.setItems(choices, (dialog, which) -> showMoveToCatchmentDialog(ids, which == 0));
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -248,9 +249,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     private void showMoveToCatchmentDialog(final List<String> ids, final boolean isPermanent) {
-        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.PathAlertDialog)
+        AlertDialog dialog = new AlertDialog.Builder(requireActivity(), R.style.PathAlertDialog)
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
-                .setTitle(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? getActivity().getString(R.string.move_to_catchment_confirm_dialog_title_, isPermanent ? getActivity().getString(R.string.permanently) : getActivity().getString(R.string.temporarily)) : getActivity().getString(R.string.move_to_catchment_confirm_dialog_title))
+                .setTitle(ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT) ? requireActivity().getString(R.string.move_to_catchment_confirm_dialog_title_, isPermanent ? requireActivity().getString(R.string.permanently) : requireActivity().getString(R.string.temporarily)) : requireActivity().getString(R.string.move_to_catchment_confirm_dialog_title))
                 .setCancelable(false)
                 .setPositiveButton(R.string.no_button_label, null)
                 .setNegativeButton(R.string.yes_button_label,
@@ -303,7 +304,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         repoHolder.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         repoHolder.setCommonRepository(commonRepository());
 
-        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(getActivity(), repoHolder, visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
+        AdvancedSearchClientsProvider advancedSearchProvider = new AdvancedSearchClientsProvider(requireActivity(), repoHolder, visibleColumns, registerActionHandler, paginationViewHandler, ChildLibrary.getInstance().context().alertService());
 
         clientAdapter = new RecyclerViewPaginatedAdapter(null, advancedSearchProvider, context().commonrepository(this.tablename));
         clientsView.setAdapter(clientAdapter);
@@ -389,7 +390,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!Utils.isConnectedToNetwork(getActivity())) {
+            if (!Utils.isConnectedToNetwork(requireActivity())) {
                 myCatchment.setChecked(true);
                 outsideInside.setChecked(false);
             } else {
@@ -415,14 +416,14 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         qrCodeButton = view.findViewById(R.id.qrCodeButton);
         if (!ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED) || ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_SCAN_QR_ENABLED)) {
             qrCodeButton.setOnClickListener(view1 -> {
-                if (getActivity() == null) {
+                if (requireActivity() == null) {
                     return;
                 }
-                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) getActivity();
+                BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) requireActivity();
                 baseRegisterActivity.startQrCodeScanner();
 
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearch(true);
-                ((BaseChildRegisterActivity) getActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
+                ((BaseChildRegisterActivity) requireActivity()).setAdvancedSearch(true);
+                ((BaseChildRegisterActivity) requireActivity()).setAdvancedSearchFormData(createSelectedFieldMap());
             });
         } else {
             qrCodeButton.setVisibility(View.GONE);
@@ -472,7 +473,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void switchViews(boolean showList) {
         if (showList) {
-            Utils.hideKeyboard(getActivity());
+            Utils.hideKeyboard(requireActivity());
 
             advancedSearchForm.setVisibility(View.GONE);
             listViewLayout.setVisibility(View.VISIBLE);
@@ -510,7 +511,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     private void updateSearchLimits() {
-        if (Utils.isConnectedToNetwork(getActivity())) {
+        if (Utils.isConnectedToNetwork(requireActivity())) {
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
         } else {
@@ -522,7 +523,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             connectionChangeReciever = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    if (!Utils.isConnectedToNetwork(getActivity())) {
+                    if (!Utils.isConnectedToNetwork(requireActivity())) {
                         myCatchment.setChecked(true);
                         outsideInside.setChecked(false);
                     }
@@ -531,7 +532,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            getActivity().registerReceiver(connectionChangeReciever, intentFilter);
+            requireActivity().registerReceiver(connectionChangeReciever, intentFilter);
             registeredConnectionChangeReceiver = true;
         }
 
@@ -644,11 +645,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public @NotNull Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == LOADER_ID) {
             return new AdvanceSearchCursorLoader(this);
         }
-        return new CursorLoader(getContext());
+        return new CursorLoader(requireContext());
     }
 
 
@@ -703,17 +704,17 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         private final BaseAdvancedSearchFragment advancedSearchFragment;
 
         public AdvanceSearchCursorLoader(BaseAdvancedSearchFragment advancedSearchFragment) {
-            super(advancedSearchFragment.getActivity());
+            super(advancedSearchFragment.requireActivity());
             this.advancedSearchFragment = advancedSearchFragment;
         }
 
         @Override
         public Cursor loadInBackground() {
             AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) advancedSearchFragment.presenter).getMatrixCursor();
-            if (advancedSearchFragment.getActivity() != null && (advancedSearchFragment.isLocal || matrixCursor == null)) {
+            if (advancedSearchFragment.requireActivity() != null && (advancedSearchFragment.isLocal || matrixCursor == null)) {
                 String query = advancedSearchFragment.filterAndSortQuery();
                 Cursor cursor = advancedSearchFragment.commonRepository().rawCustomQueryForAdapter(query);
-                advancedSearchFragment.getActivity().runOnUiThread(new Runnable() {
+                advancedSearchFragment.requireActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         advancedSearchFragment.hideProgressView();
