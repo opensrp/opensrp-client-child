@@ -333,12 +333,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 for (String type : serviceTypeMap.keySet()) {
                     ServiceRowGroup curGroup = new ServiceRowGroup(getActivity(), editServiceMode);
                     curGroup.setData(childDetails, serviceTypeMap.get(type), serviceRecords, alertList);
-                    curGroup.setOnServiceUndoClickListener(new ServiceRowGroup.OnServiceUndoClickListener() {
-                        @Override
-                        public void onUndoClick(ServiceRowGroup serviceRowGroup, ServiceWrapper service) {
-                            addServiceDialogFragment(service, serviceRowGroup);
-                        }
-                    });
+                    curGroup.setOnServiceUndoClickListener((serviceRowGroup, service) -> addServiceDialogFragment(service, serviceRowGroup));
 
                     TextView groupNameTextView = createGroupNameTextView(getActivity(), type);
                     serviceGroupCanvasLL.addView(groupNameTextView);

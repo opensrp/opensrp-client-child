@@ -37,9 +37,9 @@ public interface ChildUnderFiveFragmentContract {
 
         HeightWrapper getHeightWrapper(WrapperParam heightParam);
 
-        Weight getWeight(List<Weight> weights, long weightPosition);
+        Weight getWeight(List<Weight> weights, long dateRecordedTimestamp);
 
-        Height getHeight(List<Height> heights, long heightPosition);
+        Height getHeight(List<Height> heights, long dateRecordedTimestamp);
 
         void sortTheWeightsInDescendingOrder(List<Weight> weightList);
 

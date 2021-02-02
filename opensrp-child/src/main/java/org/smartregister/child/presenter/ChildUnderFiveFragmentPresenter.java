@@ -1,5 +1,7 @@
 package org.smartregister.child.presenter;
 
+import androidx.annotation.VisibleForTesting;
+
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
@@ -13,6 +15,8 @@ import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.util.ImageUtils;
 
 import java.util.ArrayList;
@@ -87,9 +91,9 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
     @Override
     public List<Weight> getChildSpecificWeights(String baseEntityId, List<Weight> weights) {
         List<Weight> weightList = new ArrayList<>();
-        for (Weight height : weights) {
-            if (height.getBaseEntityId().equals(baseEntityId)) {
-                weightList.add(height);
+        for (Weight weight : weights) {
+            if (weight.getBaseEntityId().equals(baseEntityId)) {
+                weightList.add(weight);
             }
         }
 
@@ -107,7 +111,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(weightParams.getBaseEntityId());
 
-        List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(weightParams.getBaseEntityId());
+        List<Weight> weightList = getWeightRepository().findByEntityId(weightParams.getBaseEntityId());
         Weight weight = getWeight(weightList, weightParams.getPosition());
 
         if (!weightList.isEmpty()) {
@@ -125,11 +129,16 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         return weightWrapper;
     }
 
+    @VisibleForTesting
+    protected WeightRepository getWeightRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightRepository();
+    }
+
     @Override
-    public Weight getWeight(List<Weight> weights, long weightPosition) {
+    public Weight getWeight(List<Weight> weights, long dateRecordedTimestamp) {
         Weight displayWeight = new Weight();
         for (Weight weight : weights) {
-            if (Utils.isSameDay(weightPosition, weight.getDate().getTime(), null)) {
+            if (Utils.isSameDay(dateRecordedTimestamp, weight.getDate().getTime(), null)) {
                 displayWeight = weight;
             }
         }
@@ -142,7 +151,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setId(heightParam.getBaseEntityId());
 
-        List<Height> heightList = GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(heightParam.getBaseEntityId());
+        List<Height> heightList = getHeightRepository().findByEntityId(heightParam.getBaseEntityId());
         Height height = getHeight(heightList, heightParam.getPosition());
 
         if (!heightList.isEmpty()) {
@@ -160,11 +169,15 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         return heightWrapper;
     }
 
+    protected HeightRepository getHeightRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightRepository();
+    }
+
     @Override
-    public Height getHeight(List<Height> heights, long heightPosition) {
+    public Height getHeight(List<Height> heights, long dateRecordedTimestamp) {
         Height displayHeight = new Height();
         for (Height height : heights) {
-            if (Utils.isSameDay(heightPosition, height.getDate().getTime(), null)) {
+            if (Utils.isSameDay(dateRecordedTimestamp, height.getDate().getTime(), null)) {
                 displayHeight = height;
             }
         }
