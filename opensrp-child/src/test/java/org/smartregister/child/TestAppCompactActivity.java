@@ -7,20 +7,19 @@ import org.smartregister.child.listener.StatusChangeListener;
 import java.util.Map;
 
 public class TestAppCompactActivity extends AppCompatActivity implements StatusChangeListener {
-    public TestAppCompactActivity() {}
 
     @Override
     public void updateStatus() {
-
+        // No implementation
     }
 
     @Override
     public void updateStatus(Map<String, String> details) {
-
+        // No implementation
     }
 
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
-
+        // No implementation
     }
 }
