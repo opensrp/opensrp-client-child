@@ -22,7 +22,7 @@ import org.smartregister.service.AlertService;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.O_MR1)
+@Config(application = TestChildApp.class, sdk = Build.VERSION_CODES.O_MR1)
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
 public abstract class BaseUnitTest {
 
