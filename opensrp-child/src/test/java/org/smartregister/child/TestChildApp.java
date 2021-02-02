@@ -2,13 +2,17 @@ package org.smartregister.child;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.configurableviews.ConfigurableViewsLibrary;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.BaseProfileActivity;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -29,6 +33,9 @@ public class TestChildApp extends DrishtiApplication {
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
         ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
+        GrowthMonitoringLibrary.init(context, repository, 1, 1);
+        CommonFtsObject commonFtsObject = Mockito.mock(CommonFtsObject.class);
+        ImmunizationLibrary.init(context, repository, commonFtsObject, 1, 1);
         setTheme(R.style.Theme_AppCompat);
     }
 

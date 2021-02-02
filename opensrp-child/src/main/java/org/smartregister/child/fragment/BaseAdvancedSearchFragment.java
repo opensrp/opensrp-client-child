@@ -208,16 +208,12 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     protected void recordService(String openSrpId) {
-        if (requireActivity() != null) {
-            try {
-                ChildJsonFormUtils.startForm(requireActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
-                        ChildLibrary.getInstance().getLocationPickerView(requireActivity()).getSelectedItem());
-            } catch (Exception e) {
-                Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
-                Timber.e(e, "Error recording Out of Catchment Service");
-            }
-        } else {
+        try {
+            ChildJsonFormUtils.startForm(requireActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
+                    ChildLibrary.getInstance().getLocationPickerView(requireActivity()).getSelectedItem());
+        } catch (Exception e) {
             Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
+            Timber.e(e, "Error recording Out of Catchment Service");
         }
     }
 
@@ -711,15 +707,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         @Override
         public Cursor loadInBackground() {
             AdvancedMatrixCursor matrixCursor = ((BaseChildAdvancedSearchPresenter) advancedSearchFragment.presenter).getMatrixCursor();
-            if (advancedSearchFragment.requireActivity() != null && (advancedSearchFragment.isLocal || matrixCursor == null)) {
+            advancedSearchFragment.requireActivity();
+            if (advancedSearchFragment.isLocal || matrixCursor == null) {
                 String query = advancedSearchFragment.filterAndSortQuery();
                 Cursor cursor = advancedSearchFragment.commonRepository().rawCustomQueryForAdapter(query);
-                advancedSearchFragment.requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        advancedSearchFragment.hideProgressView();
-                    }
-                });
+                advancedSearchFragment.requireActivity().runOnUiThread(advancedSearchFragment::hideProgressView);
                 return cursor;
             } else {
                 return matrixCursor;
