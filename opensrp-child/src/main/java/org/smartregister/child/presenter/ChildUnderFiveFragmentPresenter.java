@@ -31,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by ndegwamartin on 01/12/2020.
  */
@@ -47,7 +45,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         if (profileImage != null) {
             photo.setFilePath(profileImage.getFilepath());
         } else {
-            String gender = getValue(detailsMap, Constants.KEY.GENDER, true);
+            String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
             photo.setResourceId(ImageUtils.profileImageResourceByGender(gender));
         }
         return photo;
