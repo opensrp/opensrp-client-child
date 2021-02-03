@@ -1,7 +1,6 @@
 package org.smartregister.child.contract;
 
 import org.smartregister.child.domain.WrapperParam;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -19,7 +18,7 @@ public interface ChildUnderFiveFragmentContract {
 
     interface Presenter {
 
-        Photo getProfilePhotoByClient(CommonPersonObjectClient commonPersonObjectClient);
+        Photo getProfilePhotoByClient(Map<String, String> detailsMap);
 
         String constructChildName(Map<String, String> detailsMap);
 
@@ -44,5 +43,7 @@ public interface ChildUnderFiveFragmentContract {
         void sortTheWeightsInDescendingOrder(List<Weight> weightList);
 
         void sortTheHeightsInDescendingOrder(List<Height> heightList);
+
+        WrapperParam getWrapperParam(Map<String, String> detailsMap, long growthRecordPosition);
     }
 }

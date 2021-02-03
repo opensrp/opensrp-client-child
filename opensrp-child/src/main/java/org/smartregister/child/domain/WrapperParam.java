@@ -2,6 +2,8 @@ package org.smartregister.child.domain;
 
 import org.smartregister.domain.Photo;
 
+import java.util.Date;
+
 /**
  * Created by ndegwamartin on 01/12/2020.
  */
@@ -14,6 +16,7 @@ public class WrapperParam {
     private Photo photo;
     private String pmtctStatus;
     private String baseEntityId;
+    private Date dob;
 
     public String getBaseEntityId() {
         return baseEntityId;
@@ -77,5 +80,13 @@ public class WrapperParam {
 
     public void setPmtctStatus(String pmtctStatus) {
         this.pmtctStatus = pmtctStatus;
+    }
+
+    public Date getDob() {
+        return dob;
+    }
+
+    public void setDob(Date dob) {
+        this.dob = dob;
     }
 }
