@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.text.HtmlCompat;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -577,8 +578,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void updateSearchCriteria(String searchCriteriaString) {
         if (searchCriteria != null) {
-            searchCriteria.setText(Html.fromHtml(searchCriteriaString));
+//            searchCriteria.setPaintFlags(0);
+            searchCriteria.setText(HtmlCompat.fromHtml(searchCriteriaString, HtmlCompat.FROM_HTML_MODE_LEGACY));
             searchCriteria.setVisibility(View.VISIBLE);
+
         }
     }
 

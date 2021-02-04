@@ -41,7 +41,7 @@ public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<Arra
         ArrayList<ServiceWrapper> list = new ArrayList<>();
 
         for (ServiceWrapper tag : params) {
-            RecurringServiceUtils.saveService(tag, childDetails.entityId(), null, null);
+            RecurringServiceUtils.saveService(tag, childDetails.entityId(), null, null, null, null, null);
             list.add(tag);
 
             ServiceSchedule
