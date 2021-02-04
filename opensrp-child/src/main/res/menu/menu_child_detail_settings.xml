@@ -19,6 +19,14 @@
         android:title="@string/register_card"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/blacklist_card"
+        android:orderInCategory="100"
+        android:title="@string/blacklist_card"
+        android:visible="false"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/change_status"
         android:orderInCategory="100"

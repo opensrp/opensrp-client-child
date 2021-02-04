@@ -461,7 +461,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             if (overflow != null) {
                 getOverflow().findItem(R.id.registration_data).setEnabled(!showOutOfCatchmentText);
             }
-
         }
 
         profileage.setText(" " + formattedAge);
@@ -576,6 +575,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             overflow.findItem(R.id.verify_caregiver).setVisible(true);
             overflow.findItem(R.id.write_to_card).setVisible(true);
             overflow.findItem(R.id.register_card).setVisible(true);
+            overflow.findItem(R.id.blacklist_card).setVisible(true);
         }
 
         Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);//Loading data here because we affect state of the menu item
@@ -760,20 +760,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         negativeButton.setVisibility(View.VISIBLE);
         negativeButton.setText(getResources().getString(R.string.confirm_button_label));
         negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
-        negativeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveReportDeceasedJson(json);
-                builder.dismiss();
+        negativeButton.setOnClickListener(v -> {
+            saveReportDeceasedJson(json);
+            builder.dismiss();
 
-                navigateToRegisterActivity();
-            }
+            navigateToRegisterActivity();
         });
 
         builder.setView(notificationsLayout);
         builder.show();
     }
-
 
     protected String getChildName() {
 
@@ -988,12 +984,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             vaccineGroup.updateViews();
         } else {
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    vaccineGroup.updateViews();
-                }
-            });
+            handler.post(() -> vaccineGroup.updateViews());
         }
     }
 
@@ -1097,8 +1088,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 JSONObject dateDeathJSONObject = ChildJsonFormUtils.getFieldJSONObject(jsonArray, Constants.JSON_FORM_KEY.DATE_DEATH);
                 dateDeathJSONObject.put(JsonFormConstants.MIN_DATE, simpleDateFormat.format(dob));
 
-
             }
+
             return form == null ? null : form.toString();
 
         } catch (Exception e) {
