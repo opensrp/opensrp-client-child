@@ -16,11 +16,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
+import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
 import org.smartregister.child.contract.IChildDetails;
+import org.smartregister.child.domain.WrapperParam;
+import org.smartregister.child.presenter.ChildUnderFiveFragmentPresenter;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
@@ -45,7 +47,6 @@ import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.fragment.ServiceEditDialogFragment;
 import org.smartregister.immunization.fragment.VaccinationEditDialogFragment;
-import org.smartregister.immunization.util.ImageUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
@@ -56,8 +57,6 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,9 +85,10 @@ public class ChildUnderFiveFragment extends Fragment {
     private LinearLayout extraVaccinesLayout;
     private boolean showRecurringServices = true;
     private List<Map.Entry<String, String>> extraVaccines;
+    private ChildUnderFiveFragmentContract.Presenter presenter;
 
     public ChildUnderFiveFragment() {
-        // Required empty public constructor
+        presenter = new ChildUnderFiveFragmentPresenter();
     }
 
     public static ChildUnderFiveFragment newInstance(Bundle bundle) {
@@ -152,16 +152,15 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    private void createGrowthLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer,
-                                    boolean editMode) {
+    private void createGrowthLayout(List<Weight> weights, List<Height> heights, LinearLayout fragmentContainer, boolean editMode) {
         WidgetFactory widgetFactory = new WidgetFactory();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
-        List<Weight> weightList = getWeights(weights);
+        List<Weight> weightList = presenter.getWeights(childDetails.getCaseId(), weights);
 
         // Sort the weights
-        sortTheWeightsInDescendingOrder(weightList);
+        presenter.sortTheWeightsInDescendingOrder(weightList);
 
         LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners, weightList);
 
@@ -172,10 +171,10 @@ public class ChildUnderFiveFragment extends Fragment {
 
         if (monitorGrowth) {
             ArrayList<Boolean> heightEditMode = new ArrayList<>();
-            List<Height> heightList = getHeights(heights);
+            List<Height> heightList = presenter.getHeights(childDetails.getCaseId(), heights);
 
             // Sort the heights
-            sortTheHeightsInDescendingOrder(heightList);
+            presenter.sortTheHeightsInDescendingOrder(heightList);
             ArrayList<View.OnClickListener> heightListeners = new ArrayList<>();
 
             LinkedHashMap<Long, Pair<String, String>> heightMap =
@@ -186,24 +185,6 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         ((NestedScrollView) ((View) fragmentContainer.getParent()).findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
-    }
-
-    private void sortTheWeightsInDescendingOrder(List<Weight> weightList) {
-        Collections.sort(weightList, new Comparator<Weight>() {
-            @Override
-            public int compare(Weight o1, Weight o2) {
-                return (o1 != null && o2 != null && o2.getDate() != null) ? o2.getDate().compareTo(o1.getDate()) : 0;
-            }
-        });
-    }
-
-    private void sortTheHeightsInDescendingOrder(List<Height> heightList) {
-        Collections.sort(heightList, new Comparator<Height>() {
-            @Override
-            public int compare(Height o1, Height o2) {
-                return (o1 != null && o2 != null && o2.getDate() != null) ? o2.getDate().compareTo(o1.getDate()) : 0;
-            }
-        });
     }
 
     private LinkedHashMap<Long, Pair<String, String>> updateWeightMap(boolean editMode, ArrayList<Boolean> weightEditMode, ArrayList<View.OnClickListener> listeners, List<Weight> weightList) {
@@ -231,12 +212,7 @@ public class ChildUnderFiveFragment extends Fragment {
             weightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
             final long weightTaken = weight.getDate().getTime();
-            View.OnClickListener onClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showGrowthMonitoringDialog(weightTaken);
-                }
-            };
+            View.OnClickListener onClickListener = v -> showGrowthMonitoringDialog(weightTaken);
             listeners.add(onClickListener);
         }
 
@@ -244,16 +220,14 @@ public class ChildUnderFiveFragment extends Fragment {
         return weightMap;
     }
 
-    private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode, ArrayList<Boolean> heightEditMode,
-                                                                      ArrayList<View.OnClickListener> listeners,
-                                                                      List<Height> heightList) {
+    private LinkedHashMap<Long, Pair<String, String>> updateHeightMap(boolean editMode, ArrayList<Boolean> heightEditMode, ArrayList<View.OnClickListener> listeners, List<Height> heightList) {
         LinkedHashMap<Long, Pair<String, String>> heightMap = new LinkedHashMap<>();
         for (int i = 0; i < heightList.size(); i++) {
             Height height = heightList.get(i);
             String formattedAge = "";
             if (height.getDate() != null) {
                 Date heightDate = height.getDate();
-                Date birth = getBirthDate();
+                Date birth = presenter.getBirthDate(childDetails.getColumnmaps());
                 if (birth != null) {
                     long timeDiff = Math.abs(heightDate.getTime() - birth.getTime());
                     Timber.v("%s", timeDiff);
@@ -270,70 +244,11 @@ public class ChildUnderFiveFragment extends Fragment {
             heightEditMode.add(lessThanThreeMonthsEventCreated && editMode && !formattedAge.startsWith("0"));
 
             final long heightTaken = height.getDate().getTime();
-            View.OnClickListener onClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showGrowthMonitoringDialog(heightTaken);
-                }
-            };
+            View.OnClickListener onClickListener = v -> showGrowthMonitoringDialog(heightTaken);
             listeners.add(onClickListener);
-
-
         }
 
         return heightMap;
-    }
-
-    @NotNull
-    private List<Weight> getWeights(List<Weight> weights) {
-        List<Weight> weightList = new ArrayList<>();
-        List<Weight> formattedWeights = getChildSpecificWeights(weights);
-        if (!formattedWeights.isEmpty()) {
-            if (formattedWeights.size() <= 5) {
-                weightList = formattedWeights;
-            } else {
-                weightList = formattedWeights.subList(0, 5);
-            }
-        }
-
-        return weightList;
-    }
-
-    @NotNull
-    private List<Height> getHeights(List<Height> heights) {
-        List<Height> heightList = new ArrayList<>();
-        List<Height> formattedHeights = getChildSpecificHeights(heights);
-        if (!formattedHeights.isEmpty()) {
-            if (heights.size() <= 5) {
-                heightList = heights;
-            } else {
-                heightList = heights.subList(0, 5);
-            }
-        }
-
-        return heightList;
-    }
-
-    private List<Height> getChildSpecificHeights(List<Height> heights) {
-        List<Height> heightList = new ArrayList<>();
-        for (Height height : heights) {
-            if (height.getBaseEntityId().equals(childDetails.getCaseId())) {
-                heightList.add(height);
-            }
-        }
-
-        return heightList;
-    }
-
-    private List<Weight> getChildSpecificWeights(List<Weight> weights) {
-        List<Weight> weightList = new ArrayList<>();
-        for (Weight height : weights) {
-            if (height.getBaseEntityId().equals(childDetails.getCaseId())) {
-                weightList.add(height);
-            }
-        }
-
-        return weightList;
     }
 
     public void updateVaccinationViews(List<Vaccine> vaccines, List<Alert> alertList, boolean editVaccineMode) {
@@ -359,12 +274,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
                 ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editVaccineMode);
                 curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
-                curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
-                    @Override
-                    public void onUndoClick(ImmunizationRowGroup vaccineGroup, VaccineWrapper vaccine) {
-                        addVaccinationDialogFragment(Arrays.asList(vaccine), vaccineGroup);
-                    }
-                });
+                curGroup.setOnVaccineUndoClickListener((vaccineGroup1, vaccine) -> addVaccinationDialogFragment(Arrays.asList(vaccine), vaccineGroup1));
 
                 TextView groupNameTextView = createGroupNameTextView(getActivity(), vaccineGroup.name);
                 vaccineGroupCanvasLL.addView(groupNameTextView);
@@ -384,7 +294,7 @@ public class ChildUnderFiveFragment extends Fragment {
             }
             ft.addToBackStack(null);
 
-            Date dob = getBirthDate();
+            Date dob = presenter.getBirthDate(childDetails.getColumnmaps());
             if (dob == null) {
                 dob = Calendar.getInstance().getTime();
             }
@@ -401,13 +311,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    private Date getBirthDate() {
-        String birthDate = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-        return Utils.dobStringToDate(birthDate);
-    }
-
-    public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> services,
-                                   List<Alert> alertList, boolean editServiceMode) {
+    public void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> services, List<Alert> alertList, boolean editServiceMode) {
         boolean showService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
         if (fragmentContainer != null && showService) {
 
@@ -508,7 +412,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         fragmentTransaction.addToBackStack(null);
 
-        String childName = constructChildName();
+        String childName = presenter.constructChildName(detailsMap);
         String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
         String motherFirstName = Utils.getValue(detailsMap, Constants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
@@ -529,103 +433,31 @@ public class ChildUnderFiveFragment extends Fragment {
             dob = Calendar.getInstance().getTime();
         }
 
-        Photo photo = getProfilePhotoByClient();
+        Photo photo = presenter.getProfilePhotoByClient(childDetails);
 
-        WeightWrapper weightWrapper = getWeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
+        String pmmtctStatus = Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false);
+
+        WrapperParam wrapperParams = new WrapperParam();
+        wrapperParams.setBaseEntityId(childDetails.entityId());
+        wrapperParams.setChildName(childName);
+        wrapperParams.setPosition(growthRecordPosition);
+        wrapperParams.setDuration(duration);
+        wrapperParams.setGender(gender);
+        wrapperParams.setOpenSrpId(openSrpId);
+        wrapperParams.setPhoto(photo);
+        wrapperParams.setPmtctStatus(pmmtctStatus);
+
+        WeightWrapper weightWrapper = presenter.getWeightWrapper(wrapperParams);
 
         HeightWrapper heightWrapper = null;
 
         if (GrowthMonitoringLibrary.getInstance().getAppProperties().hasProperty(AppProperties.KEY.MONITOR_GROWTH) && GrowthMonitoringLibrary.getInstance().getAppProperties().getPropertyBoolean(AppProperties.KEY.MONITOR_GROWTH)) {
-            heightWrapper = getHeightWrapper(growthRecordPosition, childName, gender, openSrpId, duration, photo);
+            heightWrapper = presenter.getHeightWrapper(wrapperParams);
         }
 
         EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
         editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
-    }
-
-    @NotNull
-    private WeightWrapper getWeightWrapper(long weightPosition, String childName, String gender, String openSrpId,
-                                           String duration, Photo photo) {
-        WeightWrapper weightWrapper = new WeightWrapper();
-        weightWrapper.setId(childDetails.entityId());
-
-        List<Weight> weightList =
-                GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(childDetails.entityId());
-
-        Weight weight = getWeight(weightList, weightPosition);
-
-        if (!weightList.isEmpty()) {
-            weightWrapper.setWeight(weight.getKg());
-            weightWrapper.setUpdatedWeightDate(new DateTime(weight.getDate()), false);
-            weightWrapper.setDbKey(weight.getId());
-        }
-
-        weightWrapper.setGender(gender);
-        weightWrapper.setPatientName(childName);
-        weightWrapper.setPatientNumber(openSrpId);
-        weightWrapper.setPatientAge(duration);
-        weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
-        return weightWrapper;
-    }
-
-    private Weight getWeight(List<Weight> weights, long weightPosition) {
-        Weight displayWeight = new Weight();
-        for (Weight weight : weights) {
-            if (Utils.isSameDay(weightPosition, weight.getDate().getTime(), null)) {
-                displayWeight = weight;
-            }
-        }
-
-        return displayWeight;
-    }
-
-    @NotNull
-    private HeightWrapper getHeightWrapper(long heightPosition, String childName, String gender, String openSrpId,
-                                           String duration, Photo photo) {
-        HeightWrapper heightWrapper = new HeightWrapper();
-        heightWrapper.setId(childDetails.entityId());
-
-        List<Height> heightList =
-                GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(childDetails.entityId());
-        Height height = getHeight(heightList, heightPosition);
-
-        if (!heightList.isEmpty()) {
-            heightWrapper.setHeight(height.getCm());
-            heightWrapper.setUpdatedHeightDate(new DateTime(height.getDate()), false);
-            heightWrapper.setDbKey(height.getId());
-        }
-
-        heightWrapper.setGender(gender);
-        heightWrapper.setPatientName(childName);
-        heightWrapper.setPatientNumber(openSrpId);
-        heightWrapper.setPatientAge(duration);
-        heightWrapper.setPhoto(photo);
-        heightWrapper.setPmtctStatus(
-                Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false));
-        return heightWrapper;
-    }
-
-    private Height getHeight(List<Height> heights, long heightPosition) {
-        Height displayHeight = new Height();
-        for (Height height : heights) {
-            if (Utils.isSameDay(heightPosition, height.getDate().getTime(), null)) {
-                displayHeight = height;
-            }
-        }
-
-        return displayHeight;
-    }
-
-    protected Photo getProfilePhotoByClient() {
-        return ImageUtils.profilePhotoByClient(childDetails);
-    }
-
-    private String constructChildName() {
-        String firstName = Utils.getValue(detailsMap, Constants.KEY.FIRST_NAME, true);
-        String lastName = Utils.getValue(detailsMap, Constants.KEY.LAST_NAME, true);
-        return Utils.getName(firstName, lastName).trim();
     }
 
     /**
