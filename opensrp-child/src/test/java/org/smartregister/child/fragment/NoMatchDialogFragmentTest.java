@@ -26,7 +26,6 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
-
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
