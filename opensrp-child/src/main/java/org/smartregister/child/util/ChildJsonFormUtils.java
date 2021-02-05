@@ -31,6 +31,7 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
+import org.smartregister.child.dao.ChildDao;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
@@ -91,6 +92,8 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
+import static org.smartregister.util.Utils.*;
+
 /**
  * Created by ndegwamartin on 26/02/2019.
  */
@@ -115,12 +118,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private static final String OPENSRP_ID = "opensrp_id";
     private static final String FORM_SUBMISSION_FIELD = "formsubmissionField";
-    private static Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
+    private static final String LABEL_TEXT_STYLE = "label_text_style";
+    private static final Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
         {
             put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
             put(Constants.KEY.MOTHER, ImmutableSet.of(Constants.EventType.NEW_WOMAN_REGISTRATION, Constants.EventType.UPDATE_MOTHER_DETAILS));
         }
     };
+
+    public enum RecurringServices {
+        Deworming, ITN, Vit_A
+    }
 
     /**
      * Populate metadata onto form
@@ -314,6 +322,51 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 Timber.e(e, "ChildJsonFormUtils --> addAvailableVaccines");
             }
         }
+        addRecurringServices(context, form);
+    }
+
+    public static void addRecurringServices(Context context, JSONObject form) {
+        boolean showRecurringServices = getBooleanProperty(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES);
+        JSONArray fields = fields(form, JsonFormConstants.STEP1);
+        if (showRecurringServices && fields != null) {
+
+            JSONObject recurringServiceQuestion = new JSONObject();
+            try {
+                recurringServiceQuestion.put(KEY, Constants.KEY.RECURRING_SERVICE_TYPES);
+                recurringServiceQuestion.put(JsonFormConstants.TYPE, JsonFormConstants.CHECK_BOX);
+                recurringServiceQuestion.put(JsonFormConstants.LABEL, context.getString(R.string.recurring_services_provided));
+                recurringServiceQuestion.put(JsonFormConstants.TEXT_COLOR, "#000000");
+                recurringServiceQuestion.put(LABEL_TEXT_STYLE, "bold");
+                recurringServiceQuestion.put(OPENMRS_ENTITY_PARENT, Constants.KEY.RECURRING_SERVICE_TYPES);
+                recurringServiceQuestion.put(OPENMRS_ENTITY, CONCEPT);
+                recurringServiceQuestion.put(OPENMRS_ENTITY_ID, Constants.KEY.RECURRING_SERVICE_TYPES);
+
+                List<String> recurringServiceTypes = ChildDao.getRecurringServiceTypes();
+                JSONArray options = new JSONArray();
+                for (String recurringServiceType : recurringServiceTypes) {
+                    createRecurringServiceOption(context, options, recurringServiceType);
+                }
+                if (options.length() > 0) {
+                    recurringServiceQuestion.put(JsonFormConstants.OPTIONS_FIELD_NAME, options);
+                    fields.put(recurringServiceQuestion);
+                }
+            } catch (JSONException e) {
+                Timber.e(e);
+            }
+        }
+    }
+
+    private static void createRecurringServiceOption(Context context, JSONArray options, String recurringServiceType)
+            throws JSONException {
+        Map<String, String> serviceLabels = new HashMap<String, String>() {{
+            put(RecurringServices.Deworming.name(), context.getString(R.string.deworming));
+            put(RecurringServices.ITN.name(), context.getString(R.string.itn));
+            put(RecurringServices.Vit_A.name(), context.getString(R.string.vita_a));
+        }};
+        JSONObject option = new JSONObject();
+        option.put(JsonFormConstants.KEY, recurringServiceType);
+        option.put(JsonFormConstants.TEXT, serviceLabels.get(recurringServiceType));
+        options.put(option);
     }
 
     @NotNull
@@ -349,6 +402,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         JSONObject vaccinationLabel = new JSONObject();
         vaccinationLabel.put(JsonFormConstants.KEY, "Vaccines_Provided_Label");
         vaccinationLabel.put("type", "label");
+        vaccinationLabel.put("label_text_size", "20sp");
+        vaccinationLabel.put("label_text_style", "bold");
+        vaccinationLabel.put("text_color", "#000000");
         vaccinationLabel.put("text", context.getString(R.string.which_vaccinations_were_provided));
         vaccinationLabel.put("openmrs_entity_parent", "-");
         vaccinationLabel.put("openmrs_entity", "-");
@@ -693,7 +749,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllCommonsRepository allCommonsRepository = ChildLibrary.getInstance().context().allCommonsRepositoryobjects(tableName);
         if (allCommonsRepository != null) {
             allCommonsRepository.update(tableName, values, entityId);
-            updateChildFTSTablesSearchOnly(tableName, Arrays.asList(new String[]{entityId}));
+            updateChildFTSTablesSearchOnly(tableName, Arrays.asList(entityId));
         }
     }
 

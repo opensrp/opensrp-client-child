@@ -141,6 +141,7 @@ public final class Constants extends AllConstants {
         public static final String CONCEPT = "concept";
         public static final String TEXT = "text";
 
+        public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
     }
 
     public static final class INTENT_KEY {
