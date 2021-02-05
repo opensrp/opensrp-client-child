@@ -85,7 +85,6 @@ import org.smartregister.immunization.fragment.UndoVaccinationDialogFragment;
 import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
-import org.smartregister.immunization.listener.VaccineCardAdapterLoadingListener;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -1565,10 +1564,16 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
+        String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences());
+        String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
+        String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
+        String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
+        backgroundTask.setChildLocationId(childLocationId);
+        backgroundTask.setTeam(team);
+        backgroundTask.setTeamId(teamId);
         backgroundTask.setView(view);
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
@@ -1775,12 +1780,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    public class SaveServiceTask
-            extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
+    public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>,
+            List<ServiceRecord>, List<Alert>>> {
 
         private View view;
         private String providerId;
         private String locationId;
+        private String team;
+        private String teamId;
+        private String childLocationId;
 
         public void setView(View view) {
             this.view = view;
@@ -1794,6 +1802,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             this.locationId = locationId;
         }
 
+        public void setChildLocationId(String childLocationId) {
+            this.childLocationId = childLocationId;
+        }
+
+        public void setTeamId(String teamId) {
+            this.teamId = teamId;
+        }
+
+        public void setTeam(String team) {
+            this.team = team;
+        }
+
         @Override
         protected Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> doInBackground(
                 ServiceWrapper... params) {
@@ -1801,12 +1821,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             ArrayList<ServiceWrapper> list = new ArrayList<>();
 
             for (ServiceWrapper tag : params) {
-                RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId);
+                RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId,
+                        team, teamId, childLocationId);
                 setLastModified(true);
                 list.add(tag);
 
-                ServiceSchedule
-                        .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
             }
 
             List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
