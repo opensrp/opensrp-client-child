@@ -2,26 +2,43 @@ package org.smartregister.child.util;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.task.SaveOutOfAreaServiceTask;
+import org.smartregister.child.util.Constants.EventType;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.util.VaccinatorUtils;
+import org.smartregister.repository.BaseRepository;
+import org.smartregister.util.JsonFormUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+
+import timber.log.Timber;
+
+import static org.smartregister.util.Utils.getBooleanProperty;
 
 /**
  * Created by ndegwamartin on 10/10/2020.
  */
 public class OutOfAreaServiceUtils {
+
+    public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
+    public static final String RECURRING_SERVICE_DATE = "recurring_service_date";
 
     /**
      * Constructs a weight object using the out of service area form
@@ -141,5 +158,55 @@ public class OutOfAreaServiceUtils {
             }
         }
         return metadata;
+    }
+
+    /**
+     * Create out of area service recurring services event
+     *
+     * @param outOfAreaFormJsonObject out of catchment form
+     * @param metadata                out of area service metadata
+     */
+    public static void createOutOfAreaRecurringServiceEvents(JSONObject outOfAreaFormJsonObject, Map<String, String> metadata) {
+        //Copy metadata (to avoid mutation) and remove service date into a variable
+        Map<String, String> metadataCopy = new HashMap<>(metadata);
+        String serviceDate = metadataCopy.remove(Constants.KEY.OA_SERVICE_DATE);
+
+        boolean showRecurringServices = getBooleanProperty(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES);
+        if (showRecurringServices && StringUtils.isNotBlank(serviceDate)) {
+            try {
+                JSONArray fields = JsonFormUtils.fields(outOfAreaFormJsonObject);
+                JSONObject recurringServiceTypes =
+                        JsonFormUtils.getFieldJSONObject(fields, Constants.KEY.RECURRING_SERVICE_TYPES);
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
+                Event newEvent = new Event();
+
+                newEvent.withBaseEntityId("")
+                        .withEventType(EventType.OUT_OF_AREA_RECURRING_SERVICE)
+                        .withEventDate(dateFormat.parse(serviceDate))
+                        .withEntityType(EventType.OUT_OF_AREA_RECURRING_SERVICE)
+                        .withFormSubmissionId(UUID.randomUUID().toString())
+                        .withDateCreated(new Date());
+
+                if(recurringServiceTypes != null) {
+                    JSONArray value = recurringServiceTypes.getJSONArray(JsonFormConstants.VALUE);
+                    List<String> list = new ArrayList<>();
+                    for (int index = 0; index < value.length(); index++) {
+                        list.add(value.getString(index));
+                    }
+                    newEvent.setDetails(new HashMap<String, String>() {
+                        {
+                            put(RECURRING_SERVICE_TYPES, Arrays.toString(list.toArray()));
+                            put(RECURRING_SERVICE_DATE, serviceDate);
+                        }
+                    });
+                    newEvent.setIdentifiers(metadataCopy);
+                    ChildLibrary.getInstance().getEcSyncHelper().addEvent(newEvent.getBaseEntityId(),
+                            new JSONObject(ChildJsonFormUtils.gson.toJson(newEvent)), BaseRepository.TYPE_Unsynced);
+                }
+            } catch (JSONException | ParseException e) {
+                Timber.e(e);
+            }
+        }
     }
 }

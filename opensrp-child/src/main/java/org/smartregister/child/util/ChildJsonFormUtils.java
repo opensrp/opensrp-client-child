@@ -88,11 +88,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import timber.log.Timber;
 
-import static org.smartregister.util.Utils.*;
+import static org.smartregister.util.Utils.getBooleanProperty;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -127,7 +128,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     };
 
     public enum RecurringServices {
-        Deworming, ITN, Vit_A
+        deworming, itn, vit_a
     }
 
     /**
@@ -341,12 +342,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 recurringServiceQuestion.put(OPENMRS_ENTITY, CONCEPT);
                 recurringServiceQuestion.put(OPENMRS_ENTITY_ID, Constants.KEY.RECURRING_SERVICE_TYPES);
 
-                List<String> recurringServiceTypes = ChildDao.getRecurringServiceTypes();
-                JSONArray options = new JSONArray();
-                for (String recurringServiceType : recurringServiceTypes) {
-                    createRecurringServiceOption(context, options, recurringServiceType);
-                }
-                if (options.length() > 0) {
+                Map<String, String> serviceLabels = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {
+                    {
+                        put(RecurringServices.deworming.name(), context.getString(R.string.deworming));
+                        put(RecurringServices.itn.name(), context.getString(R.string.itn));
+                        put(RecurringServices.vit_a.name(), context.getString(R.string.vita_a));
+                    }
+                };
+
+                JSONArray options = createRecurringServiceOptions(serviceLabels, ChildDao.getRecurringServiceTypes());
+
+                if (options != null && options.length() > 0) {
                     recurringServiceQuestion.put(JsonFormConstants.OPTIONS_FIELD_NAME, options);
                     fields.put(recurringServiceQuestion);
                 }
@@ -356,17 +362,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void createRecurringServiceOption(Context context, JSONArray options, String recurringServiceType)
+    private static JSONArray createRecurringServiceOptions(Map<String, String> serviceLabels,
+                                                           List<String> recurringServiceTypes)
             throws JSONException {
-        Map<String, String> serviceLabels = new HashMap<String, String>() {{
-            put(RecurringServices.Deworming.name(), context.getString(R.string.deworming));
-            put(RecurringServices.ITN.name(), context.getString(R.string.itn));
-            put(RecurringServices.Vit_A.name(), context.getString(R.string.vita_a));
-        }};
-        JSONObject option = new JSONObject();
-        option.put(JsonFormConstants.KEY, recurringServiceType);
-        option.put(JsonFormConstants.TEXT, serviceLabels.get(recurringServiceType));
-        options.put(option);
+        JSONArray options = new JSONArray();
+        for (String recurringServiceType : recurringServiceTypes) {
+            JSONObject option = new JSONObject();
+            option.put(JsonFormConstants.KEY, recurringServiceType.toLowerCase());
+            option.put(JsonFormConstants.TEXT, serviceLabels.get(recurringServiceType));
+            options.put(option);
+        }
+        return options;
     }
 
     @NotNull
@@ -375,7 +381,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         for (VaccineGroup curVaccineGroup : supportedVaccines) {
             for (Vaccine curVaccine : curVaccineGroup.vaccines) {
                 if (!vaccineTypeConstraints.containsKey(curVaccine.type)) {
-                    vaccineTypeConstraints.put(curVaccine.type, new ArrayList<JSONObject>());
+                    vaccineTypeConstraints.put(curVaccine.type, new ArrayList<>());
                 }
                 ArrayList<String> vaccineNamesDefined = new ArrayList<>();
                 if (curVaccine.vaccine_separator != null) {

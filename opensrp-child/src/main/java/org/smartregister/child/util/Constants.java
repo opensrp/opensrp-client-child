@@ -197,6 +197,7 @@ public final class Constants extends AllConstants {
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
+        public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_recurring_service";
     }
 
     public static final class CHILD_STATUS {
