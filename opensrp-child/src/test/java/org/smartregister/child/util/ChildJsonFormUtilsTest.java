@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import androidx.annotation.Nullable;
+
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.utils.FormUtils;
 
@@ -28,6 +30,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
+import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
@@ -36,6 +39,7 @@ import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
+import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.clientandeventmodel.Client;
@@ -57,9 +61,11 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.service.HTTPAgent;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.CredentialsHelper;
 import org.smartregister.util.JsonFormUtils;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseProfileActivity;
@@ -81,9 +87,11 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.smartregister.util.JsonFormUtils.FIELDS;
 import static org.smartregister.util.JsonFormUtils.STEP1;
 
+@PrepareForTest({CredentialsHelper.class})
 public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
@@ -111,6 +119,12 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Captor
     private ArgumentCaptor ecSyncHelperAddEventCaptor;
+
+    @Mock
+    private DristhiConfiguration dristhiConfiguration;
+
+    @Mock
+    private HTTPAgent httpAgent;
 
     @Mock
     private ECSyncHelper ecSyncHelper;
@@ -172,6 +186,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Mock
     private CloudantDataHandler cloudantDataHandler;
+
+    private static final String TEST_BASE_URL = "https://abc.def";
+
+    private String[] baseEntityIds = new String[]{"fb8ce328-04d9", "bf1043a2-cb00"};
 
     @Before
     public void setUp() {
@@ -1297,5 +1315,204 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         String relationalId = ChildJsonFormUtils.getRelationalIdByType(entityId, Constants.KEY.MOTHER);
         Assert.assertNotNull(relationalId);
         Assert.assertEquals("184a6d7f-760f-401c-8194-4fd6828094e1", entityId);
+    }
+
+    @Test
+    public void testProcessMoveToCatchmentReturnsFalseWhenBaseEntityIdsAreNotSet() throws JSONException {
+        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(null, false, false);
+        Assert.assertNull(event);
+
+        boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
+        Assert.assertFalse(moveToCatchment);
+    }
+
+    @Test
+    public void testProcessMoveToCatchmentReturnsFalseWhenEventsCountIsZero() throws JSONException {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.configuration()).thenReturn(dristhiConfiguration);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn("https://abc.def");
+        Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
+
+        JSONObject jsonObject = Mockito.spy(JSONObject.class);
+        jsonObject.put(Constants.NO_OF_EVENTS, 0);
+
+        Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(0L);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+
+        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
+        Assert.assertNotNull(event);
+        Assert.assertTrue(event.isPermanent());
+        Assert.assertTrue(event.isCreateEvent());
+        Assert.assertEquals(event.getJsonObject().length(), 1);
+        Assert.assertNotNull(event.getJsonObject().has(Constants.NO_OF_EVENTS));
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 0);
+
+        boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
+        Assert.assertFalse(moveToCatchment);
+    }
+
+    @Test
+    public void testProcessMoveToCatchmentReturnsTrueWhenEventsSetAndMoveIsPermanent() throws JSONException {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.configuration()).thenReturn(dristhiConfiguration);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn("https://abc.def");
+        Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
+
+        JSONObject jsonObject = Mockito.spy(JSONObject.class);
+        jsonObject.put(Constants.EVENTS, getEvents());
+        jsonObject.put(Constants.CLIENTS, getClients());
+        jsonObject.put(Constants.NO_OF_EVENTS, 2);
+
+        Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(2L);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
+        Mockito.when(childLibrary.getClientProcessorForJava()).thenReturn(clientProcessorForJava);
+
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
+        childMetadata.updateChildRegister(
+                "OoC",
+                "childTable",
+                "guardianTable",
+                "Birth Registration",
+                "Birth Registration",
+                "Immunization",
+                "none",
+                "345",
+                "Out of Catchment");
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+
+        @Nullable
+        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
+        Assert.assertNotNull(event);
+        Assert.assertTrue(event.isPermanent());
+        Assert.assertTrue(event.isCreateEvent());
+        Assert.assertNotNull(event.getJsonObject().has(Constants.NO_OF_EVENTS));
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
+
+        boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
+        Assert.assertTrue(moveToCatchment);
+    }
+
+    @Test
+    public void testProcessMoveToCatchmentReturnsTrueWhenEventsSetAndMoveIsNotPermanent() throws JSONException {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.configuration()).thenReturn(dristhiConfiguration);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn(TEST_BASE_URL);
+        Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
+
+        JSONObject jsonObject = Mockito.spy(JSONObject.class);
+        jsonObject.put(Constants.EVENTS, getEvents());
+        jsonObject.put(Constants.CLIENTS, getClients());
+        jsonObject.put(Constants.NO_OF_EVENTS, 2);
+
+        Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(1L);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
+        Mockito.when(childLibrary.getClientProcessorForJava()).thenReturn(clientProcessorForJava);
+
+        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
+        childMetadata.updateChildRegister(
+                "OoC",
+                "childTable",
+                "guardianTable",
+                "Birth Registration",
+                "Birth Registration",
+                "Immunization",
+                "none",
+                "345",
+                "Out of Catchment");
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
+        Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+
+        MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, true);
+        Assert.assertNotNull(event);
+        Assert.assertFalse(event.isPermanent());
+        Assert.assertTrue(event.isCreateEvent());
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
+
+        boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
+        Assert.assertTrue(moveToCatchment);
+    }
+
+    private JSONArray getEvents() throws JSONException {
+        JSONArray events = new JSONArray();
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("eventId", "b1e71b7e-b4b3-412c-a760-149fbbad7648");
+        jsonObject.put("baseEntityId", "7fcace2d-0c50-4baa-b851-52b81c8d975d");
+        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+        jsonObject.put("formSubmissionId", "aeefe323-3781-4e0d-a8a0-9e5c98efe9d7");
+        jsonObject.put("syncStatus", "unsynced");
+
+        events.put(jsonObject);
+
+        jsonObject = new JSONObject();
+        jsonObject.put("eventId", "f659b714-a9cf-4d44-a34a-25f74f93934c");
+        jsonObject.put("baseEntityId", "8d2747fa-8072-4b47-b313-d835a7e51bac");
+        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
+        jsonObject.put("formSubmissionId", "2aa4797a-92c2-458c-93c4-0e8da2b30f62");
+        jsonObject.put("syncStatus", "unsynced");
+
+        events.put(jsonObject);
+
+        return events;
+    }
+
+    private JSONArray getClients() throws JSONException {
+        JSONArray clients = new JSONArray();
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("baseEntityId", 54321);
+        jsonObject.put("firstName", "John");
+        jsonObject.put("middleName", "Holmes");
+        jsonObject.put("lastName", "Doe");
+        jsonObject.put("gender", "MALE");
+        jsonObject.put("relationships", new JSONArray());
+        jsonObject.put("attributes", new JSONObject());
+        jsonObject.put("relationalBaseEntityId", "5e8f5e72-189d-4c86-bd1e-260c28aa38ff");
+        jsonObject.put("clientType", "");
+        jsonObject.put("locationId", "aaf05413-d3d7-4e9d-9004-bcee1a27125e");
+        jsonObject.put("teamId", "c591fa51-f129-4389-b887-ea43c6b9d12c");
+        jsonObject.put("syncStatus", "unsynced");
+
+        clients.put(jsonObject);
+
+        jsonObject = new JSONObject();
+        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("baseEntityId", 65432);
+        jsonObject.put("firstName", "Sam");
+        jsonObject.put("middleName", "Wel");
+        jsonObject.put("lastName", "Who");
+        jsonObject.put("gender", "FEMALE");
+        jsonObject.put("relationships", Arrays.asList(""));
+        jsonObject.put("attributes", new JSONObject());
+        jsonObject.put("relationalBaseEntityId", "a8ab2185-e02b-42c6-8d4c-b9aee1390c01");
+        jsonObject.put("clientType", "");
+        jsonObject.put("locationId", "a290480a-a773-4f51-bf49-c0227e1a3fa3");
+        jsonObject.put("teamId", "60383788-d5bb-4092-8dcb-7d2b28baa7df");
+        jsonObject.put("syncStatus", "unsynced");
+
+        clients.put(jsonObject);
+
+        return clients;
     }
 }

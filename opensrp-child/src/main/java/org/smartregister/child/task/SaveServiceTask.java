@@ -5,6 +5,7 @@ import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -41,11 +42,15 @@ public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<Arra
         ArrayList<ServiceWrapper> list = new ArrayList<>();
 
         for (ServiceWrapper tag : params) {
-            RecurringServiceUtils.saveService(tag, childDetails.entityId(), null, null);
+            String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
+            String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences());
+            String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
+            String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
+            String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
+            RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId, team, teamId, childLocationId);
             list.add(tag);
 
-            ServiceSchedule
-                    .updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+            ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
         }
 
         List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
