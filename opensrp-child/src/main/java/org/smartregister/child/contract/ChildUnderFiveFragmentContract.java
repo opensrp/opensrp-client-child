@@ -1,6 +1,7 @@
 package org.smartregister.child.contract;
 
 import org.smartregister.child.domain.WrapperParam;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -19,6 +20,8 @@ public interface ChildUnderFiveFragmentContract {
     interface Presenter {
 
         Photo getProfilePhotoByClient(Map<String, String> detailsMap);
+
+         Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails);
 
         String constructChildName(Map<String, String> detailsMap);
 

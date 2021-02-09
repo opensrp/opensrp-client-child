@@ -10,6 +10,7 @@ import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
 import org.smartregister.child.domain.WrapperParam;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -36,6 +37,10 @@ import java.util.Map;
  */
 public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentContract.Presenter {
 
+    @Override
+    public Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails) {
+        return ImageUtils.profilePhotoByClient(childDetails);
+    }
 
     @Override
     public Photo getProfilePhotoByClient(Map<String, String> detailsMap) {
