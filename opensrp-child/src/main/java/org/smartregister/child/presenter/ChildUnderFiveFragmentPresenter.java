@@ -12,7 +12,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
-import org.smartregister.domain.ProfileImage;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -43,18 +42,8 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
     }
 
     @Override
-    public Photo getProfilePhotoByClient(Map<String, String> detailsMap) {
-
-        Photo photo = new Photo();
-        ProfileImage profileImage = getImageRepository().findByEntityId(Utils.getValue(detailsMap, Constants.KEY.BASE_ENTITY_ID, false));
-        if (profileImage != null) {
-            photo.setFilePath(profileImage.getFilepath());
-        } else {
-            String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
-            photo.setResourceId(ImageUtils.profileImageResourceByGender(gender));
-        }
-        return photo;
-
+    public Photo getProfilePhotoByClient(Map<String, String> clientDetailsMap) {
+        return ImageUtils.profilePhotoByClient(clientDetailsMap);
     }
 
     protected ImageRepository getImageRepository() {

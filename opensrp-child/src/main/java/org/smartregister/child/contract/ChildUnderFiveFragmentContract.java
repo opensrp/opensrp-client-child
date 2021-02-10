@@ -19,9 +19,9 @@ public interface ChildUnderFiveFragmentContract {
 
     interface Presenter {
 
-        Photo getProfilePhotoByClient(Map<String, String> detailsMap);
+        Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails);
 
-         Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails);
+        Photo getProfilePhotoByClient(Map<String, String> clientDetailsMap);
 
         String constructChildName(Map<String, String> detailsMap);
 
