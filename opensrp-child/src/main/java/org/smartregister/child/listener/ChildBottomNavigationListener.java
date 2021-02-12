@@ -29,7 +29,15 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
         } else if (item.getItemId() == R.id.action_scan_card) {
             ((BaseChildRegisterActivity) baseRegisterActivity).startNFCCardScanner();
         } else if (item.getItemId() == R.id.action_search) {
-            baseRegisterActivity.switchToFragment(1);
+
+            if (baseRegisterActivity instanceof BaseChildRegisterActivity) {
+
+                ((BaseChildRegisterActivity) baseRegisterActivity).startBiometricScan();
+            } else {
+                baseRegisterActivity.switchToFragment(1);
+            }
+
+
         } else if (item.getItemId() == R.id.action_register) {
             baseRegisterActivity.startRegistration();
         }
