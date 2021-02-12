@@ -2,7 +2,6 @@ package org.smartregister.child;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
