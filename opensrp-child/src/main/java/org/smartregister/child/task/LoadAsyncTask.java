@@ -118,7 +118,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                 .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
-                &&  recurringServiceRecordRepository != null) {
+                && recurringServiceRecordRepository != null) {
             List<ServiceRecord> serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             NamedObject<List<ServiceRecord>> serviceNamedObject =
                     new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
@@ -163,13 +163,15 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
-
         try {
-
             MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
-
             if (writeToCard != null) {
                 writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            MenuItem readFromCard = overflow.findItem(R.id.read_from_card);
+            if (readFromCard != null) {
+                readFromCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
             }
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
@@ -201,11 +203,9 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
             }
-
         } catch (Exception e) {
             Timber.e(e);
         } finally {
-
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

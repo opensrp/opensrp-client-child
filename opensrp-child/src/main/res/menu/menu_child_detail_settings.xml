@@ -8,6 +8,12 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/read_from_card"
+        android:orderInCategory="100"
+        android:title="@string/read_from_card"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/write_to_card"
         android:orderInCategory="100"
         android:title="@string/write_to_card"
@@ -19,14 +25,12 @@
         android:title="@string/register_card"
         android:visible="false"
         app:showAsAction="never" />
-
     <item
         android:id="@+id/blacklist_card"
         android:orderInCategory="100"
         android:title="@string/blacklist_card"
         android:visible="false"
         app:showAsAction="never" />
-
     <item
         android:id="@+id/change_status"
         android:orderInCategory="100"
@@ -76,10 +80,10 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/report_lost_card"
+        android:actionLayout="@layout/wrapped_menu_item_layout"
         android:orderInCategory="100"
         android:title="@string/report_lost_card"
         android:visible="false"
-        android:actionLayout="@layout/wrapped_menu_item_layout"
         app:showAsAction="never" />
 
     <item
