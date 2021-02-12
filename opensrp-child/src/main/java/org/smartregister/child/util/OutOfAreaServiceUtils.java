@@ -201,6 +201,7 @@ public class OutOfAreaServiceUtils {
                         }
                     });
                     newEvent.setIdentifiers(metadataCopy);
+                    newEvent.setProviderId(Utils.getAllSharedPreferences().fetchRegisteredANM());
                     ChildLibrary.getInstance().getEcSyncHelper().addEvent(newEvent.getBaseEntityId(),
                             new JSONObject(ChildJsonFormUtils.gson.toJson(newEvent)), BaseRepository.TYPE_Unsynced);
                 }

@@ -63,6 +63,9 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             OutOfAreaServiceUtils.createOutOfAreaRecurringServiceEvents(outOfAreaFormJsonObject, metadata);
 
         } catch (Exception e) {
+            if (progressDialogCallback != null) {
+                progressDialogCallback.dissmissProgressDialog();
+            }
             Timber.e(e);
         }
         return null;
