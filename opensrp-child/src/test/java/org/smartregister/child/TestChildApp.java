@@ -34,7 +34,7 @@ public class TestChildApp extends DrishtiApplication {
         ConfigurableViewsLibrary.init(context);
         ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
         GrowthMonitoringLibrary.init(context, repository, 1, 1);
-        CommonFtsObject commonFtsObject = Mockito.mock(CommonFtsObject.class);
+        CommonFtsObject commonFtsObject = mock(CommonFtsObject.class);
         ImmunizationLibrary.init(context, repository, commonFtsObject, 1, 1);
         setTheme(R.style.Theme_AppCompat);
     }
