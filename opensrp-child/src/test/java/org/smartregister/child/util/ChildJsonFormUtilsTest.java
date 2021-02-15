@@ -90,6 +90,7 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.smartregister.util.JsonFormUtils.FIELDS;
 import static org.smartregister.util.JsonFormUtils.STEP1;
 
@@ -853,7 +854,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, "child");
         commonPersonObjectClient.setColumnmaps(childDetails);
 
-        Mockito.doReturn(dbRecords).when(eventClientRepository).rawQuery(ArgumentMatchers.any(SQLiteDatabase.class), ArgumentMatchers.anyString());
+        Mockito.doReturn(dbRecords).when(eventClientRepository).rawQuery(ArgumentMatchers.any(SQLiteDatabase.class), anyString());
 
         ChildJsonFormUtils.updateClientAttribute(openSrpContext, commonPersonObjectClient, locationHelper, attributeName, attributeValue);
 
@@ -1015,21 +1016,21 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
         Mockito.when(uniqueIdRepository.getNextUniqueId()).thenReturn(uniqueId);
         Mockito.when(uniqueId.getOpenmrsId()).thenReturn(openMrsId);
-        Mockito.when(eventClientRepository.getEventsByBaseEntityIdsAndSyncStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyList())).thenReturn(eventClients);
+        Mockito.when(eventClientRepository.getEventsByBaseEntityIdsAndSyncStatus(anyString(), ArgumentMatchers.anyList())).thenReturn(eventClients);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
         Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(userId);
 
-        Mockito.when(allSharedPreferences.fetchUserLocalityId(ArgumentMatchers.anyString())).thenReturn(userLocalityId);
-        Mockito.when(allSharedPreferences.fetchDefaultLocalityId(ArgumentMatchers.anyString())).thenReturn(defaultLocalityId);
+        Mockito.when(allSharedPreferences.fetchUserLocalityId(anyString())).thenReturn(userLocalityId);
+        Mockito.when(allSharedPreferences.fetchDefaultLocalityId(anyString())).thenReturn(defaultLocalityId);
         Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(currentLocalityId);
-        Mockito.when(allSharedPreferences.fetchDefaultTeam(ArgumentMatchers.anyString())).thenReturn(defaultTeam);
-        Mockito.when(allSharedPreferences.fetchDefaultTeamId(ArgumentMatchers.anyString())).thenReturn(defaultTeamId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(anyString())).thenReturn(defaultTeam);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(anyString())).thenReturn(defaultTeamId);
 
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
-        Mockito.when(locationHelper.getOpenMrsLocationId(ArgumentMatchers.anyString())).thenReturn(openmrsLocalityId);
+        Mockito.when(locationHelper.getOpenMrsLocationId(anyString())).thenReturn(openmrsLocalityId);
 
         ChildEventClient base = new ChildEventClient(new Client(entityId), new Event());
 
@@ -1086,7 +1087,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(DrishtiApplication.class, "mInstance", drishtiApplication);
         Mockito.when(drishtiApplication.getApplicationContext()).thenReturn(context);
-        Mockito.when(context.getDir(ArgumentMatchers.anyString(), ArgumentMatchers.anyInt())).thenReturn(file);
+        Mockito.when(context.getDir(anyString(), ArgumentMatchers.anyInt())).thenReturn(file);
         Mockito.when(DrishtiApplication.getAppDir()).thenReturn(appDir);
 
         Mockito.when(Utils.context()).thenReturn(mContext);
@@ -1156,7 +1157,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         List<String> hierarchy = new ArrayList<>();
         hierarchy.add("Karura Health Centre");
         Mockito.when(locationHelper.generateDefaultLocationHierarchy(ArgumentMatchers.anyList())).thenReturn(hierarchy);
-        Mockito.when(locationHelper.getOpenMrsLocationHierarchy(ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean())).thenReturn(hierarchy);
+        Mockito.when(locationHelper.getOpenMrsLocationHierarchy(anyString(), ArgumentMatchers.anyBoolean())).thenReturn(hierarchy);
 
         Map<String, String> childDetails = new HashMap<>();
         childDetails.put(Constants.KEY.ZEIR_ID, entityId);
@@ -1357,7 +1358,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonObject.put(Constants.NO_OF_EVENTS, 0);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(0L);
-        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
 
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
         Assert.assertNotNull(event);
@@ -1378,16 +1379,20 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
         Mockito.when(openSrpContext.configuration()).thenReturn(dristhiConfiguration);
         Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("sk");
+        Mockito.when(allSharedPreferences.fetchDefaultLocalityId(anyString())).thenReturn("234567890");
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(anyString())).thenReturn("x");
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(anyString())).thenReturn("456789012");
         Mockito.when(dristhiConfiguration.dristhiBaseURL()).thenReturn("https://abc.def");
         Mockito.when(openSrpContext.getHttpAgent()).thenReturn(httpAgent);
 
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
         jsonObject.put(Constants.EVENTS, getEvents());
         jsonObject.put(Constants.CLIENTS, getClients());
-        jsonObject.put(Constants.NO_OF_EVENTS, 2);
+        jsonObject.put(Constants.NO_OF_EVENTS, 1);
 
-        Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(2L);
-        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
+        Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(1L);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
@@ -1406,7 +1411,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
                 "Out of Catchment");
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(openSrpContext.allCommonsRepositoryobjects(ArgumentMatchers.anyString())).thenReturn(allCommonsRepository);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         @Nullable
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
@@ -1414,7 +1421,12 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertTrue(event.isPermanent());
         Assert.assertTrue(event.isCreateEvent());
         Assert.assertNotNull(event.getJsonObject().has(Constants.NO_OF_EVENTS));
-        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 1);
+
+        String jsonEvent = "{\"eventId\":\"b1e71b7e-b4b3-412c-a760-149fbbad7648\",\"baseEntityId\":\"7fcace2d-0c50-4baa-b851-52b81c8d975d\",\"providerId\":\"123456789\",\"identifiers\":{},\"eventType\":\"Birth Registration\",\"formSubmissionId\":\"aeefe323-3781-4e0d-a8a0-9e5c98efe9d7\",\"syncStatus\":\"unsynced\",\"obs\":[{\"fieldType\":\"concept\",\"fieldDataType\":\"select one\",\"fieldCode\":\"160600AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"values\":[],\"keyValPairs\":{},\"humanReadableValues\":[],\"comments\":\"\",\"formSubmissionField\":\"FWCWOMSTRMEN\",\"saveObsAsArray\":false}]}";
+        Event event2 = JsonFormUtils.gson.fromJson(jsonEvent, Event.class);
+        Mockito.when(ecSyncHelper.convert(ArgumentMatchers.any(JSONObject.class), ArgumentMatchers.any())).thenReturn(event2);
+        Mockito.when(ecSyncHelper.convertToJson(ArgumentMatchers.any(Event.class))).thenReturn(new JSONObject(jsonEvent));
 
         boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
         Assert.assertTrue(moveToCatchment);
@@ -1433,10 +1445,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONObject jsonObject = Mockito.spy(JSONObject.class);
         jsonObject.put(Constants.EVENTS, getEvents());
         jsonObject.put(Constants.CLIENTS, getClients());
-        jsonObject.put(Constants.NO_OF_EVENTS, 2);
+        jsonObject.put(Constants.NO_OF_EVENTS, 1);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(1L);
-        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
+        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
@@ -1455,13 +1467,13 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
                 "Out of Catchment");
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(openSrpContext.allCommonsRepositoryobjects(ArgumentMatchers.anyString())).thenReturn(allCommonsRepository);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
 
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, true);
         Assert.assertNotNull(event);
         Assert.assertFalse(event.isPermanent());
         Assert.assertTrue(event.isCreateEvent());
-        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 2);
+        Assert.assertEquals(event.getJsonObject().get(Constants.NO_OF_EVENTS), 1);
 
         boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
         Assert.assertTrue(moveToCatchment);
@@ -1473,20 +1485,12 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("eventId", "b1e71b7e-b4b3-412c-a760-149fbbad7648");
         jsonObject.put("baseEntityId", "7fcace2d-0c50-4baa-b851-52b81c8d975d");
-        jsonObject.put("identifiers", new JSONObject());
+        jsonObject.put("identifiers", getIdentifiers());
         jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
         jsonObject.put("formSubmissionId", "aeefe323-3781-4e0d-a8a0-9e5c98efe9d7");
         jsonObject.put("syncStatus", "unsynced");
-
-        events.put(jsonObject);
-
-        jsonObject = new JSONObject();
-        jsonObject.put("eventId", "f659b714-a9cf-4d44-a34a-25f74f93934c");
-        jsonObject.put("baseEntityId", "8d2747fa-8072-4b47-b313-d835a7e51bac");
-        jsonObject.put("identifiers", new JSONObject());
-        jsonObject.put("eventType", Constants.EventType.BITRH_REGISTRATION);
-        jsonObject.put("formSubmissionId", "2aa4797a-92c2-458c-93c4-0e8da2b30f62");
-        jsonObject.put("syncStatus", "unsynced");
+        jsonObject.put("obs", getObs());
+        jsonObject.put("providerId", "123456789");
 
         events.put(jsonObject);
 
@@ -1547,5 +1551,38 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals(options.getJSONObject(0).getString(JsonFormConstants.KEY), "vit_a");
         Assert.assertEquals(options.getJSONObject(1).getString(JsonFormConstants.KEY), "deworming");
         Assert.assertEquals(options.getJSONObject(2).getString(JsonFormConstants.KEY), "itn");
+    }
+
+    private JSONArray getObs() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("fieldType", "concept");
+        jsonObject.put("fieldDataType", "select one");
+        jsonObject.put("fieldCode", "160600AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        jsonObject.put("parentCode", null);
+        jsonObject.put("values", new JSONArray());
+        jsonObject.put("keyValPairs", new JSONObject());
+        jsonObject.put("humanReadableValues", new JSONArray());
+        jsonObject.put("comments", "");
+        jsonObject.put("formSubmissionField", "FWCWOMSTRMEN");
+        jsonObject.put("saveObsAsArray", false);
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(jsonObject);
+
+        return jsonArray;
+    }
+
+    private JSONArray getIdentifiers() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("providerId", "123456789");
+        jsonObject.put("locationId", "234567890");
+        jsonObject.put("childLocationId", "345678901");
+        jsonObject.put("teamId", "456789012");
+        jsonObject.put("team", "x");
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(jsonObject);
+
+        return jsonArray;
     }
 }
