@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import org.smartregister.child.R;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
+import timber.log.Timber;
+
 /**
  * Created by Jason Rogena - jrogena@ona.io on 12/06/2017.
  */
@@ -46,9 +48,7 @@ public class SimpleToolbar extends BaseToolbar {
             CustomFontTextView titleTV = findViewById(R.id.title);
             titleTV.setText(title);
         } catch (Exception e) {
-            Log.e(TAG, "***************************************");
-            Log.e(TAG, Log.getStackTraceString(e));
-            Log.e(TAG, "***************************************");
+            Timber.e(Log.getStackTraceString(e));
         }
     }
 
