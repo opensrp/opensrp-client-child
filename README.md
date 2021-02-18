@@ -10,27 +10,30 @@ By placing a file named `app.properties` in your implementation assets folder (S
 
 ### Configurable Settings
 
-| Configuration                         | Type    | Default | Description                                                            |
-| --------------------------------------| ------- | ------- | -----------------------------------------------------------------------|
-| `notifications.bcg.enabled`           | Boolean | true    | Show BCG Notifications                                                 |
-| `notifications.weight.enabled`        | Boolean | true    | Show Record Weight pop notification up dialog                          |
-| `home.next.visit.date.enabled`        | Boolean | false   | Show Next Visit date column in home register                           |
-| `home.record.weight.enabled`          | Boolean | true    | Show Record Weight column in home register                             |
-| `feature.nfc.card.enabled`            | Boolean | false   | Enable Scan NFC Card feature                                           |
-| `feature.scan.qr.enabled`             | Boolean | true    | Enable Scan QR feature                                                 |
-| `feature.images.enabled`              | Boolean | true    | Allow profile image capture                                            |
-| `feature.bottom.navigation.enabled`   | Boolean | false   | Show Bottom Navigation menu                                            |
-| `home.toolbar.scan.qr.enabled`        | Boolean | false   | Show Scan QR Code in home register toolbar                             |
-| `home.toolbar.scan.card.enabled`      | Boolean | false   | Show Scan Card in home register toolbar                                |
-| `details.side.navigation.enabled`     | Boolean | true    | Enable side navigation drawer on details page                          |
-| `home.alert.upcoming.blue.disabled`   | Boolean | false   | Disable showing light blue alert for upcoming in 7 days                |
-| `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results                         |
-| `mother.lookup.undo.duration`         | Integer | 10000   | Sets duration of showing the undo look up view                         |
-| `disable.location.picker.view`        | Boolean | false   | Disables LocationPicker View                                           |
-| `use.new.advance.search.approach`     | Boolean | false   | Use new advance search feature that is based on client search endpoint |
-| `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms                          |
-| `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
-| `hide.overdue.vaccine.status`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
+| Configuration                                 | Type    | Default | Description                                                            |
+| ------------------------------------------    | ------- | ------- | -----------------------------------------------------------------------|
+| `notifications.bcg.enabled`                   | Boolean | true    | Show BCG Notifications                                                 |
+| `notifications.weight.enabled`                | Boolean | true    | Show Record Weight pop notification up dialog                          |
+| `home.next.visit.date.enabled`                | Boolean | false   | Show Next Visit date column in home register                           |
+| `home.record.weight.enabled`                  | Boolean | true    | Show Record Weight column in home register                             |
+| `feature.nfc.card.enabled`                    | Boolean | false   | Enable Scan NFC Card feature                                           |
+| `feature.scan.qr.enabled`                     | Boolean | true    | Enable Scan QR feature                                                 |
+| `feature.images.enabled`                      | Boolean | true    | Allow profile image capture                                            |
+| `feature.bottom.navigation.enabled`           | Boolean | false   | Show Bottom Navigation menu                                            |
+| `home.toolbar.scan.qr.enabled`                | Boolean | false   | Show Scan QR Code in home register toolbar                             |
+| `home.toolbar.scan.card.enabled`              | Boolean | false   | Show Scan Card in home register toolbar                                |
+| `details.side.navigation.enabled`             | Boolean | true    | Enable side navigation drawer on details page                          |
+| `home.alert.upcoming.blue.disabled`           | Boolean | false   | Disable showing light blue alert for upcoming in 7 days                |
+| `mother.lookup.show.results.duration`         | Integer | 30000   | Sets duration of showing mother lookup results                         |
+| `mother.lookup.undo.duration`                 | Integer | 10000   | Sets duration of showing the undo look up view                         |
+| `disable.location.picker.view`                | Boolean | false   | Disables LocationPicker View                                           |
+| `use.new.advance.search.approach`             | Boolean | false   | Use new advance search feature that is based on client search endpoint |
+| `multi.language.support`                      | Boolean | false   | Use new Multi Language Support for JSON forms                          |
+| `recurring.services.enabled`                  | Boolean | true    | Show recurring services                                                |
+| `hide.overdue.vaccine.status`                 | Boolean | false   | Hide overdue and due vaccine states indication color                   |
+| `show.out.of.catchment.recurring.services`    | Boolean | false   | SHow recurring services in out pf catchment form                       |
+| `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed    |
+|                                               |         |         | and Fully Immunized U2 if all vaccines are completed                   |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
