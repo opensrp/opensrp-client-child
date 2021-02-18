@@ -266,7 +266,15 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 if (nv != null) {
                     recordVaccinationText.setText(R.string.fully_immunized_label_u1);
                 } else {
-                    recordVaccinationText.setText(R.string.fully_immunized_label_u2);
+                    DateTime dob = Utils.dobStringToDateTime(dobString);
+                    Vaccine mr2 = getVaccine("mr 2", updateWrapper.getVaccines());
+                    // Check if MR2 given date was within second year of child's life
+                    if (mr2 != null
+                            && (mr2.getDate().getTime() - dob.toDate().getTime()  > TimeUnit.MILLISECONDS.convert(730, TimeUnit.DAYS))) {
+                        recordVaccinationText.setText(R.string.fully_immunized_label);
+                    } else {
+                        recordVaccinationText.setText(R.string.fully_immunized_label_u2);
+                    }
                 }
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
             } else {
@@ -407,6 +415,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (updateOutOfCatchment) {
             updateViews(updateWrapper.getConvertView(), updateWrapper.getClient());
         }
+    }
+
+    private Vaccine getVaccine(String name, List<Vaccine> vaccines) {
+        for (Vaccine vaccine : vaccines) {
+            if (vaccine.getName().equalsIgnoreCase(name))
+                return vaccine;
+        }
+        return null;
     }
 
     private String previousStateKey(Vaccine vaccine) {
