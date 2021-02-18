@@ -45,6 +45,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -437,6 +438,38 @@ public class UtilsTest extends BaseUnitTest {
         Assert.assertNotNull(captorValue);
         Assert.assertEquals(View.GONE, captorValue);
 
+    }
+
+    @Test
+    public void testIsFirstYearVaccineDoneTrue() {
+        DateTime dob  = new DateTime(2019, 2, 8, 0,0);
+
+        HashMap<String, Object> sch1 = new HashMap<>();
+        sch1.put("date", new DateTime(2019, 2, 8, 0,0));
+        sch1.put("vaccine", VaccineRepo.Vaccine.opv0);
+        sch1.put("alert", null);
+        sch1.put("status", "done");
+
+        ArrayList<Map<String, Object>> schedules = new ArrayList<>();
+        schedules.add(sch1);
+
+        Assert.assertTrue(Utils.isFirstYearVaccinesDone(schedules, dob));
+    }
+
+    @Test
+    public void testIsFirstYearVaccineDoneFalse() {
+        DateTime dob  = new DateTime(2019, 2, 8, 0,0);
+
+        HashMap<String, Object> sch1 = new HashMap<>();
+        sch1.put("date", new DateTime(2019, 2, 8, 0,0));
+        sch1.put("vaccine", VaccineRepo.Vaccine.opv0);
+        sch1.put("alert", null);
+        sch1.put("status", "due");
+
+        ArrayList<Map<String, Object>> schedules = new ArrayList<>();
+        schedules.add(sch1);
+
+        Assert.assertFalse(Utils.isFirstYearVaccinesDone(schedules, dob));
     }
 
 }
