@@ -60,6 +60,7 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.service.intent.HeightIntentService;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
@@ -79,6 +80,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
@@ -679,5 +681,24 @@ public class Utils extends org.smartregister.util.Utils {
         } else {
             textView.setText(Html.fromHtml(bodyData));
         }
+    }
+
+    public static boolean isFirstYearVaccinesDone(List<Map<String, Object>> scheduleList, DateTime dob) {
+        if (((DateTime.now().getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS))) {
+            return false;
+        }
+        boolean isDone = true;
+        for (Map<String, Object> schedule : scheduleList) {
+            if (!((String) schedule.get("status")).equalsIgnoreCase("done")
+                    // Do not consider BCG 2 if BCG is already given
+                    && !((VaccineRepo.Vaccine) schedule.get("vaccine")).name().equalsIgnoreCase("bcg2")) {
+                DateTime date = (DateTime) schedule.get("date");
+                if (date != null) {
+                    if (((date.getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS)))
+                        isDone = false;
+                }
+            }
+        }
+        return isDone;
     }
 }

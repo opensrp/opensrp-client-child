@@ -357,5 +357,7 @@
     <string name="new_card_ordered">Report lost or damaged card \n (new card on order)</string>
     <string name="new_card_to_be_delivered">A new card is on order and will be delivered after printing.</string>
     <string name="card_ordered_with_date">Card Ordered: %1$s</string>
+    <string name="fully_immunized_label_u1">Fully Immunized U1</string>
+    <string name="fully_immunized_label_u2">Fully Immunized U2</string>
 
 </resources>
