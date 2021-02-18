@@ -684,6 +684,8 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static boolean isFirstYearVaccinesDone(List<Map<String, Object>> scheduleList, DateTime dob) {
+        if (scheduleList == null || dob == null)
+            return false;
         if (((DateTime.now().getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS))) {
             return false;
         }
