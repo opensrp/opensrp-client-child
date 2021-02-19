@@ -202,8 +202,11 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         recordWeightWrapper.setId(R.id.record_weight_wrapper);
         TextView childNextAppointmentWrapper = new TextView(RuntimeEnvironment.application);
         childNextAppointmentWrapper.setId(R.id.child_next_appointment_wrapper);
+        TextView zeirIdWrapper = new TextView(RuntimeEnvironment.application);
+        zeirIdWrapper.setId(R.id.zeir_id_wrapper);
         linearLayout.addView(recordWeightWrapper);
         linearLayout.addView(childNextAppointmentWrapper);
+        linearLayout.addView(zeirIdWrapper);
 
         Mockito.doReturn(linearLayout).when(layoutInflater)
                 .inflate(Mockito.eq(R.layout.child_register_list_row), Mockito.eq(viewGroup), Mockito.eq(false));
@@ -219,6 +222,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
 
         Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.record_weight_wrapper).getVisibility());
         Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.child_next_appointment_wrapper).getVisibility());
+        Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.zeir_id_wrapper).getVisibility());
     }
 
 }
