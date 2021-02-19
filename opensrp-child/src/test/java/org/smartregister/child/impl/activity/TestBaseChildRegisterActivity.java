@@ -21,6 +21,11 @@ public class TestBaseChildRegisterActivity extends BaseChildRegisterActivity {
     }
 
     @Override
+    public void startBiometricScanner() {
+        // Do nothing
+    }
+
+    @Override
     protected void initializePresenter() {
         presenter = new BaseChildRegisterPresenter(this, new BaseChildRegisterModel());
     }

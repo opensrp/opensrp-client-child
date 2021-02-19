@@ -28,6 +28,8 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
             baseRegisterActivity.startQrCodeScanner();
         } else if (item.getItemId() == R.id.action_scan_card) {
             ((BaseChildRegisterActivity) baseRegisterActivity).startNFCCardScanner();
+        }  else if (item.getItemId() == R.id.action_biometric) {
+            ((BaseChildRegisterActivity) baseRegisterActivity).startBiometricScan();
         } else if (item.getItemId() == R.id.action_search) {
 
             if (baseRegisterActivity instanceof BaseChildRegisterActivity) {

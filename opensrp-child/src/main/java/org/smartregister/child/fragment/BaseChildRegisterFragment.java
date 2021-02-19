@@ -236,8 +236,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         FrameLayout scanCardView = view.findViewById(R.id.scan_card);
         if (scanCardView != null &&
                 ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) &&
-                ChildLibrary.getInstance().getProperties()
-                        .getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
+                ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
             scanCardView.setOnClickListener(this);
             scanCardView.setVisibility(View.VISIBLE);
 

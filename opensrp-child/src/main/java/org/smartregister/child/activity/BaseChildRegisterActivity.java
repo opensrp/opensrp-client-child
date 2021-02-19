@@ -80,8 +80,12 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
             }
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
+            }
+
+            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_BIOMETRICS_ENABLED)) {
+                bottomNavigationView.getMenu().removeItem(R.id.action_biometric);
             }
 
             ChildBottomNavigationListener childBottomNavigationListener = new ChildBottomNavigationListener(this);
@@ -278,6 +282,8 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     public abstract void startNFCCardScanner();
+
+    public abstract void startBiometricScanner();
 
     //To be overridden
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
