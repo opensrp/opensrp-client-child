@@ -56,4 +56,9 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     public void startNFCCardScanner() {
         Utils.showToast(this, this.getResources().getString(org.smartregister.child.R.string.scan_card));
     }
+
+    @Override
+    public void startBiometricScanner() {
+        //Implemented
+    }
 }

@@ -80,10 +80,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
             }
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_CARD_ENABLED)) {
-                bottomNavigationView.getMenu().removeItem(R.id.action_scan_card);
-            }
-
             if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_BIOMETRICS_ENABLED)) {
                 bottomNavigationView.getMenu().removeItem(R.id.action_biometric);
             }
