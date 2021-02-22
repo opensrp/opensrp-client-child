@@ -90,10 +90,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         }
     }
 
-    public void startBiometricScan(){
-       //TODO implement/override
-    }
-
     @Override
     public void onBackPressed() {
         if (currentPage == 0) {
@@ -276,8 +272,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             Timber.e(e);
         }
     }
-
-    public abstract void startNFCCardScanner();
 
     public abstract void startBiometricScanner();
 

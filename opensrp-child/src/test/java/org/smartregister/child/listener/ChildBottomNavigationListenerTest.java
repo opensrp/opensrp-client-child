@@ -36,13 +36,9 @@ public class ChildBottomNavigationListenerTest {
         bottomNavigationListener.onNavigationItemSelected(menuItem);
         Mockito.verify(baseRegisterActivity, Mockito.atMost(1)).startQrCodeScanner();
 
-        Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_scan_card);
-        bottomNavigationListener.onNavigationItemSelected(menuItem);
-        Mockito.verify((BaseChildRegisterActivity)baseRegisterActivity, Mockito.atMost(1)).startNFCCardScanner();
-
         Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_biometric);
         bottomNavigationListener.onNavigationItemSelected(menuItem);
-        Mockito.verify((BaseChildRegisterActivity)baseRegisterActivity, Mockito.atMost(1)).startBiometricScan();
+        Mockito.verify((BaseChildRegisterActivity)baseRegisterActivity, Mockito.atMost(1)).startBiometricScanner();
 
         Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_search);
         bottomNavigationListener.onNavigationItemSelected(menuItem);
