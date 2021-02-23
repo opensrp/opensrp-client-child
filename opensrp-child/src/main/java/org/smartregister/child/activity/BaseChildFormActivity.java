@@ -236,8 +236,6 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
                 Utils.metadata().getRegisterQueryProvider().getDemographicTable() + "." + AllConstants.ChildRegistrationFields.GENDER,
                 Constants.KEY.DOB,
                 MotherLookUpUtils.NRC_NUMBER,
-                MotherLookUpUtils.MOTHER_NATIONALITY,
-                MotherLookUpUtils.MOTHER_NATIONALITY_OTHER,
                 MotherLookUpUtils.MOTHER_GUARDIAN_PHONE_NUMBER.toLowerCase(Locale.ENGLISH),
                 Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "is_consented",
                 Utils.metadata().getRegisterQueryProvider().getMotherDetailsTable() + "." + "preferred_language",
