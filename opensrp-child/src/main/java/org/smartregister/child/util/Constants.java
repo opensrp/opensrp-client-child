@@ -142,6 +142,7 @@ public final class Constants extends AllConstants {
         public static final String TEXT = "text";
 
         public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
+        public static final String BOOSTER_VACCINE = "booster_vaccine";
     }
 
     public static final class INTENT_KEY {
@@ -160,6 +161,7 @@ public final class Constants extends AllConstants {
 
     public interface Tables {
         String EC_DYNAMIC_VACCINES = "ec_dynamic_vaccines";
+        String EC_BOOSTER_VACCINES = "ec_booster_vaccines";
     }
 
     public static class ENTITY {
@@ -198,6 +200,7 @@ public final class Constants extends AllConstants {
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
         public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_service_recurring_service";
+        public static final String BOOSTER_VACCINES = "booster_vaccines";
     }
 
     public static final class CHILD_STATUS {
@@ -267,6 +270,7 @@ public final class Constants extends AllConstants {
     public interface JsonForm {
         String OUT_OF_CATCHMENT_SERVICE = "out_of_catchment_service";
         String DYNAMIC_VACCINES = "dynamic_vaccines";
+        String BOOSTER_VACCINES = "booster_vaccines";
     }
 
     public interface VACCINE_CODE {

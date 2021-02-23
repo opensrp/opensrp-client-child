@@ -46,7 +46,14 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Show extra vaccines
         public static final String SHOW_EXTRA_VACCINES = "show.extra.vaccines";
 
+        //Show recurring service on out of catchment form
         public static final String SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES = "show.out.of.catchment.recurring.services";
+
+        //Show booster vaccines
+        public static final String SHOW_BOOSTER_IMMUNIZATIONS = "show.booster.immunizations";
+
+        //Count of extra vaccines to select at a particular time
+        public static final String EXTRA_VACCINES_COUNT = "extra.vaccines.count";
 
         //novel features
         public final static class NOVEL {

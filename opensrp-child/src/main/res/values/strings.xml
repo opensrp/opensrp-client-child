@@ -361,5 +361,8 @@
     <string name="deworming">Deworming tablet</string>
     <string name="itn">Insecticide treated net</string>
     <string name="vita_a">Vitamin A dose</string>
+    <string name="record_booster_immunizations">Record Booster Immunizations</string>
+    <string name="maximum_extra_vaccines_reached">You can only record a maximum of 10 vaccines</string>
+    <string name="booster_immunizations">Booster Immunizations</string>
 
 </resources>
