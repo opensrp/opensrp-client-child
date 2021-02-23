@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.StringRes;
 import androidx.core.util.Pair;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -23,6 +24,7 @@ import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.domain.WrapperParam;
 import org.smartregister.child.presenter.ChildUnderFiveFragmentPresenter;
+import org.smartregister.child.task.SaveDynamicVaccinesTask.DynamicVaccineTypes;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
@@ -83,9 +85,11 @@ public class ChildUnderFiveFragment extends Fragment {
     private Boolean curServiceMode;
     private LinearLayout serviceGroupCanvasLL;
     private LinearLayout extraVaccinesLayout;
+    private LinearLayout boosterImmunizationsLayout;
     private boolean showRecurringServices = true;
     private List<Map.Entry<String, String>> extraVaccines;
-    private ChildUnderFiveFragmentContract.Presenter presenter;
+    private List<Map.Entry<String, String>> boosterImmunizations;
+    private final ChildUnderFiveFragmentContract.Presenter presenter;
 
     public ChildUnderFiveFragment() {
         presenter = new ChildUnderFiveFragmentPresenter();
@@ -120,6 +124,7 @@ public class ChildUnderFiveFragment extends Fragment {
         fragmentContainer = underFiveFragment.findViewById(R.id.container);
         serviceGroupCanvasLL = fragmentContainer.findViewById(R.id.services);
         extraVaccinesLayout = fragmentContainer.findViewById(R.id.extra_vaccines);
+        boosterImmunizationsLayout = fragmentContainer.findViewById(R.id.booster_immunizations);
 
         if (monitorGrowth) {
             heightWidgetLayout = underFiveFragment.findViewById(R.id.height_widget_layout);
@@ -128,7 +133,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
         Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
 
-        updateExtraVaccinesView();
+        updateExtraVaccinesView(DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE);
+        updateExtraVaccinesView(DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS);
 
         return underFiveFragment;
     }
@@ -346,12 +352,23 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    public void updateExtraVaccinesView() {
-        if (getExtraVaccines() != null && !getExtraVaccines().isEmpty() && getActivity() != null) {
-            extraVaccinesLayout.setVisibility(View.VISIBLE);
-            extraVaccinesLayout.removeAllViews();
-            extraVaccinesLayout.addView(getSectionTitle(R.color.black, R.string.extra_vaccines));
-            for (Map.Entry<String, String> vaccine : extraVaccines) {
+    public void updateExtraVaccinesView(DynamicVaccineTypes dynamicVaccineTypes) {
+        if (dynamicVaccineTypes == DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE) {
+            createExtraVaccinesViews(getExtraVaccines(), extraVaccinesLayout, R.string.extra_vaccines);
+        }
+        if (dynamicVaccineTypes == DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS) {
+            createExtraVaccinesViews(getBoosterImmunizations(), boosterImmunizationsLayout, R.string.booster_immunizations);
+        }
+    }
+
+    private void createExtraVaccinesViews(List<Map.Entry<String, String>> vaccinesList, LinearLayout
+            vaccineLayout, @StringRes int titleResource) {
+
+        if (vaccinesList != null && !vaccinesList.isEmpty()) {
+            vaccineLayout.setVisibility(View.VISIBLE);
+            vaccineLayout.removeAllViews();
+            vaccineLayout.addView(getSectionTitle(R.color.black, titleResource));
+            for (Map.Entry<String, String> vaccine : vaccinesList) {
                 RelativeLayout immunizationRow = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.view_immunization_row_card, null);
                 TextView label = immunizationRow.findViewById(R.id.name_tv);
                 label.setMaxWidth(dpToPx(getActivity(), 240f));
@@ -364,9 +381,8 @@ public class ChildUnderFiveFragment extends Fragment {
                 TextView dateTextView = immunizationRow.findViewById(R.id.status_text_tv);
                 dateTextView.setText(convertDateFormat(vaccine.getValue(), true));
 
-                extraVaccinesLayout.addView(immunizationRow);
+                vaccineLayout.addView(immunizationRow);
             }
-
         }
     }
 
@@ -477,5 +493,13 @@ public class ChildUnderFiveFragment extends Fragment {
 
     public List<Map.Entry<String, String>> getExtraVaccines() {
         return extraVaccines;
+    }
+
+    public List<Map.Entry<String, String>> getBoosterImmunizations() {
+        return boosterImmunizations;
+    }
+
+    public void setBoosterImmunizations(List<Map.Entry<String, String>> boosterImmunizations) {
+        this.boosterImmunizations = boosterImmunizations;
     }
 }

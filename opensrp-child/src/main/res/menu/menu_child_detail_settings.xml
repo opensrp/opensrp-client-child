@@ -55,6 +55,12 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/record_booster_immunizations"
+        android:orderInCategory="100"
+        android:title="@string/record_booster_immunizations"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/report_lost_card"
         android:orderInCategory="100"
         android:title="@string/report_lost_card"
