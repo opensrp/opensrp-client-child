@@ -84,10 +84,16 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 bottomNavigationView.getMenu().removeItem(R.id.action_biometric);
             }
 
-            ChildBottomNavigationListener childBottomNavigationListener = new ChildBottomNavigationListener(this);
+            ChildBottomNavigationListener childBottomNavigationListener = getChildBottomNavigationListener();
             bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);
 
         }
+    }
+
+    //Most implementations may have totally different menu items
+    //We can now override on Implementation
+    protected ChildBottomNavigationListener getChildBottomNavigationListener() {
+        return new ChildBottomNavigationListener(this);
     }
 
     @Override
@@ -162,6 +168,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     /**
      * Override method to set project specific search items
+     *
      * @param barcodeSearchTerm barcode reader result
      */
     protected void updateSearchItems(String barcodeSearchTerm) {
@@ -274,6 +281,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     public abstract void startBiometricScanner();
+
+    public void startNFCCardScanner() {
+        //To do override in implementation
+    }
 
     //To be overridden
     public void saveForm(String jsonString, UpdateRegisterParams updateRegisterParam) {
