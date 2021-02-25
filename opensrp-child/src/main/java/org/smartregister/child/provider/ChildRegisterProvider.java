@@ -211,7 +211,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
         fillValue(viewHolder.childAge, durationString);
 
-        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
+        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.CHILD_REGISTER_CARD_NUMBER, false));
 
 
         String gender = Utils.getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
