@@ -1,5 +1,6 @@
 package org.smartregister.child.task;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -61,6 +62,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
     private Map<String, Object> nv = null;
+    private List<Map<String, Object>> nvs = new ArrayList<>();
     private VaccineRepository vaccineRepository;
     private CommonRepository commonRepository;
     private Context context;
@@ -75,6 +77,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private Date lastVaccineDate = null;
+    private Integer count = 0;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -109,7 +112,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private void executeInBackground() {
         vaccines = vaccineRepository.findByEntityId(entityId);
-
         List<Alert> alerts = alertService.findByEntityId(entityId);
 
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
@@ -137,6 +139,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         if (vaccines.isEmpty()) {
             nv = nextVaccineDue(sch, ImmunizationLibrary.getVaccineCacheMap().get(Constants.CHILD_TYPE).vaccineRepo);
+            nvs.add(nv);
         }
 
         if (nv == null) {
@@ -168,10 +171,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         wrapper.setClient(client);
         wrapper.setConvertView(convertView);
         wrapper.setNv(nv);
+        wrapper.setTotalNv(nvs);
         updateRecordVaccination(wrapper);
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void updateRecordVaccination(VaccineViewRecordUpdateWrapper updateWrapper) {
         View recordVaccination = updateWrapper.getConvertView().findViewById(R.id.record_vaccination);
         recordVaccination.setVisibility(View.VISIBLE);
@@ -185,16 +190,47 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         ImageView recordVaccinationHarveyBall = updateWrapper.getConvertView().findViewById(R.id.record_vaccination_harvey_ball);
         recordVaccinationHarveyBall.setVisibility(View.GONE);
 
+        ImageView complianceCheck = updateWrapper.getConvertView().findViewById(R.id.compliance_check);
+        complianceCheck.setVisibility(View.VISIBLE);
+
+        TextView complianceText = updateWrapper.getConvertView().findViewById(R.id.compliance_text);
+        complianceText.setAllCaps(false);
+
         ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.HORIZONTAL);
+
+        ((LinearLayout) complianceCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
 
         State state = State.WAITING;
         String groupName = "";
 
         Map<String, Object> nv = updateWrapper.getNv();
         DateTime dueDate = null;
+        int overDueCount = count;
+       if(updateWrapper.getTotalNv() != null){
+            for(Map<String,Object> vac : updateWrapper.getTotalNv()){
+                Alert alert = null;
+                if (vac.get(Constants.KEY.ALERT) != null && nv.get(Constants.KEY.ALERT) instanceof Alert) {
+                    alert = (Alert) nv.get(Constants.KEY.ALERT);
+                }
+
+                if (alert != null && ((AlertStatus.urgent.equals(alert.status())) || (AlertStatus.expired.equals(alert.status())))) {
+                    overDueCount++;
+                }
+
+            }
+            complianceCheck.setVisibility(View.VISIBLE);
+        complianceText.setText(context.getString(R.string.number_missed, overDueCount));
+        if(overDueCount == 0){
+            complianceCheck.setImageResource(R.drawable.ic_action_check);
+        }else if(overDueCount == 1){
+            complianceCheck.setImageResource(R.drawable.ic_yelllow_flag);
+        }else{
+            complianceCheck.setImageResource(R.drawable.ic_red_flag);
+        }
+        }
+
+
         if (nv != null) {
-
-
             Object dueDateRawObject = nv.get(Constants.KEY.DATE);
             dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
 

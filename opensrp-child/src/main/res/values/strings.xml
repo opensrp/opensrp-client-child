@@ -357,5 +357,8 @@
     <string name="new_card_ordered">Report lost or damaged card \n (new card on order)</string>
     <string name="new_card_to_be_delivered">A new card is on order and will be delivered after printing.</string>
     <string name="card_ordered_with_date">Card Ordered: %1$s</string>
+    
+    <string name="compliance">Compliance</string>
+    <string name="number_missed">%d missed</string>
 
 </resources>

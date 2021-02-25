@@ -12,6 +12,7 @@ public class VaccineViewRecordUpdateWrapper extends BaseViewRecordUpdateWrapper 
 
     private List<Vaccine> vaccines;
     private Map<String, Object> nv = null;
+    private List<Map<String, Object>> totalNv = null;
 
     public List<Vaccine> getVaccines() {
         return vaccines;
@@ -27,5 +28,13 @@ public class VaccineViewRecordUpdateWrapper extends BaseViewRecordUpdateWrapper 
 
     public void setNv(Map<String, Object> nv) {
         this.nv = nv;
+    }
+
+    public List<Map<String, Object>> getTotalNv() {
+        return totalNv;
+    }
+
+    public void setTotalNv(List<Map<String, Object>> totalNv) {
+        this.totalNv = totalNv;
     }
 }
