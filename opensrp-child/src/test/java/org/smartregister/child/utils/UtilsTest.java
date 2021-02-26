@@ -453,7 +453,7 @@ public class UtilsTest extends BaseUnitTest {
         ArrayList<Map<String, Object>> schedules = new ArrayList<>();
         schedules.add(sch1);
 
-        Assert.assertTrue(Utils.isFirstYearVaccinesDone(schedules, dob));
+        Assert.assertTrue(Utils.isAllVaccinesDoneWithIn(schedules, dob, 0, 365));
     }
 
     @Test
@@ -469,7 +469,7 @@ public class UtilsTest extends BaseUnitTest {
         ArrayList<Map<String, Object>> schedules = new ArrayList<>();
         schedules.add(sch1);
 
-        Assert.assertFalse(Utils.isFirstYearVaccinesDone(schedules, dob));
+        Assert.assertFalse(Utils.isAllVaccinesDoneWithIn(schedules, dob, 0, 365));
     }
 
 }
