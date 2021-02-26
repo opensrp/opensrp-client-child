@@ -31,9 +31,9 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `multi.language.support`                      | Boolean | false   | Use new Multi Language Support for JSON forms                          |
 | `recurring.services.enabled`                  | Boolean | true    | Show recurring services                                                |
 | `hide.overdue.vaccine.status`                 | Boolean | false   | Hide overdue and due vaccine states indication color                   |
-| `show.out.of.catchment.recurring.services`    | Boolean | false   | SHow recurring services in out pf catchment form                       |
-| `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed    |
-|                                               |         |         | and Fully Immunized U2 if all vaccines are completed                   |
+| `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out pf catchment form                       |
+| `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed and Fully Immunized U2 if all vaccines are completed    |
+                                                                                   
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
