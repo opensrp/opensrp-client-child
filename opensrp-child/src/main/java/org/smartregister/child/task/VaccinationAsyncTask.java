@@ -77,6 +77,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private Date lastVaccineDate = null;
     private boolean isFirstYearVaccinesDone = false;
+    private boolean isSecondYearVaccinesDone = false;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -118,7 +119,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
-        isFirstYearVaccinesDone = org.smartregister.child.util.Utils.isFirstYearVaccinesDone(sch, dateTime);
+        isFirstYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 0 , 365);
+        isSecondYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 365, 730);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
@@ -263,20 +265,15 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         if (state.equals(State.FULLY_IMMUNIZED)) {
             if (splitFullyImmunizedStatus) {
-                if (nv != null) {
+                if (nv != null && isFirstYearVaccinesDone) {
                     recordVaccinationText.setText(R.string.fully_immunized_label_u1);
+                } else if (isFirstYearVaccinesDone && isSecondYearVaccinesDone) {
+                    recordVaccinationText.setText(R.string.fully_immunized_label_u2);
                 } else {
-                    DateTime dob = Utils.dobStringToDateTime(dobString);
-                    Vaccine mr2 = getVaccine("mr 2", updateWrapper.getVaccines());
-                    // Check if MR2 given date was within second year of child's life
-                    if (mr2 != null
-                            && (mr2.getDate().getTime() - dob.toDate().getTime()  > TimeUnit.MILLISECONDS.convert(730, TimeUnit.DAYS))) {
-                        recordVaccinationText.setText(R.string.fully_immunized_label);
-                    } else {
-                        recordVaccinationText.setText(R.string.fully_immunized_label_u2);
-                    }
+                    recordVaccinationText.setText(R.string.fully_immunized_label);
                 }
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+
             } else {
                 recordVaccinationText.setText(R.string.fully_immunized_label);
                 recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));

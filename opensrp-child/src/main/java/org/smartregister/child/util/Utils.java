@@ -683,24 +683,46 @@ public class Utils extends org.smartregister.util.Utils {
         }
     }
 
-    public static boolean isFirstYearVaccinesDone(List<Map<String, Object>> scheduleList, DateTime dob) {
+    /*
+     *
+     * Return true only if all the Second year vaccines are given with-in
+     * Second year of child's life. Will return false if any vaccine which
+     * was due in second year, given after second year of child's life
+     * @param scheduleList              Child's vaccine schedules
+     * @param dob                       Child's Date of birth
+     * @param minDays                   Minimum limit in days
+     * @param maxDays                   Maximum limit in days
+     */
+    public static boolean isAllVaccinesDoneWithIn(List<Map<String, Object>> scheduleList, DateTime dob, int minDays, int maxDays) {
         if (scheduleList == null || dob == null)
             return false;
-        if (((DateTime.now().getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS))) {
-            return false;
-        }
         boolean isDone = true;
         for (Map<String, Object> schedule : scheduleList) {
-            if (!((String) schedule.get("status")).equalsIgnoreCase("done")
-                    // Do not consider BCG 2 if BCG is already given
-                    && !((VaccineRepo.Vaccine) schedule.get("vaccine")).name().equalsIgnoreCase("bcg2")) {
-                DateTime date = (DateTime) schedule.get("date");
-                if (date != null
-                        && ((date.getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS))) {
+            // Only check vaccines within First year of child's age
+            if (((VaccineRepo.Vaccine) schedule.get("vaccine")).milestoneGapDays() >= minDays
+                    && ((VaccineRepo.Vaccine) schedule.get("vaccine")).milestoneGapDays() < maxDays) {
+                if (!((String) schedule.get("status")).equalsIgnoreCase("done")
+                        // Do not consider BCG 2 if BCG is already given
+                        && !((VaccineRepo.Vaccine) schedule.get("vaccine")).name().equalsIgnoreCase("bcg2")) {
+                    isDone = false;
+                } else if (((String) schedule.get("status")).equalsIgnoreCase("done")) {
+                    if (!vaccineProvidedWithin(schedule, dob, maxDays)) {
                         isDone = false;
+                    }
                 }
             }
         }
         return isDone;
+    }
+
+
+    private static boolean vaccineProvidedWithin(Map<String, Object> schedule, DateTime dob, int days) {
+        boolean providedWithin = false;
+        DateTime date = (DateTime) schedule.get("date");
+        if (date != null
+                && ((date.getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS))) {
+            providedWithin = true;
+        }
+        return providedWithin;
     }
 }
