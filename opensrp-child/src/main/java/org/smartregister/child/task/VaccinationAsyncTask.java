@@ -414,14 +414,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    private Vaccine getVaccine(String name, List<Vaccine> vaccines) {
-        for (Vaccine vaccine : vaccines) {
-            if (vaccine.getName().equalsIgnoreCase(name))
-                return vaccine;
-        }
-        return null;
-    }
-
     private String previousStateKey(Vaccine vaccine) {
         return reverseLookupGroupMap.get(vaccine.getName().toLowerCase(Locale.ENGLISH).replace(" ", ""));
     }

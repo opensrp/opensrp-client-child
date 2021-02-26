@@ -705,10 +705,9 @@ public class Utils extends org.smartregister.util.Utils {
                         // Do not consider BCG 2 if BCG is already given
                         && !((VaccineRepo.Vaccine) schedule.get("vaccine")).name().equalsIgnoreCase("bcg2")) {
                     isDone = false;
-                } else if (((String) schedule.get("status")).equalsIgnoreCase("done")) {
-                    if (!vaccineProvidedWithin(schedule, dob, maxDays)) {
-                        isDone = false;
-                    }
+                } else if (((String) schedule.get("status")).equalsIgnoreCase("done")
+                        && !vaccineProvidedWithin(schedule, dob, maxDays)) {
+                    isDone = false;
                 }
             }
         }
