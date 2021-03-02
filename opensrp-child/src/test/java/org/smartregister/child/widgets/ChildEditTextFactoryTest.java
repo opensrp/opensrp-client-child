@@ -44,6 +44,7 @@ public class ChildEditTextFactoryTest {
         JSONObject jsonObject = new JSONObject("{\"value\": \"text\", \"look_up\":\"true\",\"entity_id\":\"some_entity_id\",\"key\":\"user_first_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"\",\"openmrs_entity_id\":\"\",\"type\":\"edit_text\",\"hint\":\"User First name\",\"edit_type\":\"name\"}");
         Editable editable = new SpannableStringBuilder("text");
         Mockito.doReturn(editable).when(materialEditText).getText();
+        Mockito.doReturn(formActivity).when(formFragment).getJsonApi();
         Mockito.doNothing().when(formActivity).addSkipLogicView(materialEditText);
         Mockito.doNothing().when(formActivity).addCalculationLogicView(materialEditText);
         Mockito.doNothing().when(formActivity).addConstrainedView(materialEditText);

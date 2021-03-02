@@ -382,6 +382,66 @@
         }
       },
       {
+        "key": "mother_nationality",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "person_attribute",
+        "openmrs_entity_id": "mother_nationality",
+        "entity_id": "mother",
+        "look_up": "true",
+        "type": "spinner",
+        "hint": "Mother nationality",
+        "options": [
+          {
+            "key": "tunisian",
+            "text": "Tunisian",
+            "openmrs_entity": "",
+            "openmrs_entity_id": ""
+          },
+          {
+            "key": "other",
+            "text": "Other",
+            "openmrs_entity": "",
+            "openmrs_entity_id": ""
+          },
+          {
+            "key": "unknown",
+            "text": "Unknown",
+            "openmrs_entity": "",
+            "openmrs_entity_id": ""
+          }
+        ],
+        "v_required": {
+          "value": "true",
+          "err": "Mother nationality required"
+        }
+      },
+      {
+        "key": "mother_nationality_other",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "person_attribute",
+        "openmrs_entity_id": "mother_nationality_other",
+        "entity_id": "mother",
+        "look_up": "true",
+        "type": "edit_text",
+        "hint": "Indicate mother nationality",
+        "edit_type": "name",
+        "v_regex": {
+          "value": "[A-Za-z\\s\\.\\-]*",
+          "err": "Enter valid id"
+        },
+        "v_required": {
+          "value": true,
+          "err": "Mother nationality required"
+        },
+        "relevance": {
+          "rules-engine": {
+            "ex-rules": {
+              "rules-file": "child-enrollment-relevance.yml"
+            }
+          }
+        }
+      },
+      {
         "key": "Place_Birth",
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",

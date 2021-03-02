@@ -46,4 +46,24 @@ public class ChildDaoTest extends ChildDao {
 
         Assert.assertEquals(extraVaccines.size(), 3);
     }
+
+    @Test
+    public void testGetRecurringServiceTypes() {
+        Mockito.doReturn(database).when(repository).getReadableDatabase();
+
+        MatrixCursor matrixCursor = new MatrixCursor(new String[]{"type"});
+        matrixCursor.addRow(new Object[]{"Deworming"});
+        matrixCursor.addRow(new Object[]{"ITN"});
+        matrixCursor.addRow(new Object[]{"Vit_A"});
+        Mockito.doReturn(matrixCursor).when(database).rawQuery(
+                "SELECT DISTINCT type FROM recurring_service_types ORDER BY type;",
+                new String[]{});
+
+        List<String> recurringServiceTypes = ChildDao.getRecurringServiceTypes();
+
+        Assert.assertEquals(recurringServiceTypes.size(), 3);
+        Assert.assertEquals(recurringServiceTypes.get(0), "Deworming");
+        Assert.assertEquals(recurringServiceTypes.get(1), "ITN");
+        Assert.assertEquals(recurringServiceTypes.get(2), "Vit_A");
     }
+}
