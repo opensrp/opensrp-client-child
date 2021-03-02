@@ -33,7 +33,7 @@ public class ChildDatePickerFactory extends DatePickerFactory {
                 editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
             }
         } catch (JSONException e) {
-            Timber.e(getClass().getName(), e.toString(), e);
+            Timber.e(e, getClass().getName(), e.toString());
         }
     }
 }

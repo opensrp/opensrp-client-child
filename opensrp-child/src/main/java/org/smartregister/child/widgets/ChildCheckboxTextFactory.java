@@ -7,7 +7,6 @@ import com.vijay.jsonwizard.widgets.CheckBoxFactory;
 
 import org.json.JSONObject;
 
-
 /**
  * Created by ndegwamartin on 2020-03-25.
  */

@@ -2,6 +2,7 @@ package org.smartregister.child.util;
 
 
 import androidx.core.util.Pair;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -11,20 +12,21 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.mockito.Spy;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.SyncConfiguration;
 import org.smartregister.SyncFilter;
-import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
 import org.smartregister.clientandeventmodel.Event;
@@ -36,14 +38,15 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.UserService;
 import org.smartregister.sync.helper.ECSyncHelper;
-import org.smartregister.util.CredentialsHelper;
+import org.smartregister.util.AppProperties;
 
 import java.util.List;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-@PrepareForTest({ChildJsonFormUtils.class, ChildLibrary.class, CoreLibrary.class, CredentialsHelper.class})
-public class MoveToMyCatchmentUtilsTest extends BasePowerMockUnitTest {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 28)
+public class MoveToMyCatchmentUtilsTest {
 
     @Mock
     private Context context;
@@ -64,6 +67,9 @@ public class MoveToMyCatchmentUtilsTest extends BasePowerMockUnitTest {
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
+
+    @Spy
+    private AppProperties appProperties;
 
     private static final String TEST_BASE_URL = "http://test-smartregister.com/";
 
@@ -86,11 +92,13 @@ public class MoveToMyCatchmentUtilsTest extends BasePowerMockUnitTest {
         Mockito.doReturn(response).when(httpAgent).fetch(ArgumentMatchers.anyString());
         Mockito.doReturn(httpAgent).when(context).getHttpAgent();
 
-        PowerMockito.mockStatic(CredentialsHelper.class);
-        PowerMockito.when(CredentialsHelper.shouldMigrate()).thenReturn(false);
-
         SyncConfiguration syncConfiguration = Mockito.mock(SyncConfiguration.class);
         Mockito.doReturn(SyncFilter.LOCATION).when(syncConfiguration).getEncryptionParam();
+
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
+        Mockito.doReturn(appProperties).when(context).getAppProperties();
+        Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
+        context.updateApplicationContext(ApplicationProvider.getApplicationContext());
         CoreLibrary.init(context, syncConfiguration);
 
         ecSyncHelper = Mockito.mock(ECSyncHelper.class, Mockito.CALLS_REAL_METHODS);
@@ -103,7 +111,6 @@ public class MoveToMyCatchmentUtilsTest extends BasePowerMockUnitTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
-        ReflectionHelpers.setField(ecSyncHelper, "eventClientRepository", null);
     }
 
     @Test
