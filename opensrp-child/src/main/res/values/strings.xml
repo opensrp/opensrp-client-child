@@ -364,5 +364,4 @@
     <string name="record_booster_immunizations">Record Booster Immunizations</string>
     <string name="maximum_extra_vaccines_reached">You can only record a maximum of 10 vaccines</string>
     <string name="booster_immunizations">Booster Immunizations</string>
-
 </resources>

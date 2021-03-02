@@ -140,7 +140,6 @@ public final class Constants extends AllConstants {
         public static final String SELECTED_VACCINES_COUNTER = "selected_vaccines_counter";
         public static final String CONCEPT = "concept";
         public static final String TEXT = "text";
-
         public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
         public static final String BOOSTER_VACCINE = "booster_vaccine";
     }
