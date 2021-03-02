@@ -238,7 +238,6 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         showCompliance.setTag(client);
         showCompliance.setOnClickListener(onClickListener);
         showCompliance.setVisibility(View.VISIBLE);
-       // recordVaccination.setTag(R.id.show_compliance, Constants.RECORD_ACTION.NONE);
 
         String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = Utils.getValue(pc.getColumnmaps(), Constants.CHILD_STATUS.INACTIVE, false);

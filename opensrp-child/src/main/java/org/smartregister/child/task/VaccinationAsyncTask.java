@@ -59,10 +59,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private final String dobString;
     private final String lostToFollowUp;
     private final String inactive;
+    protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private List<Vaccine> vaccines = new ArrayList<>();
     private SmartRegisterClient client;
+    private int overDueCount;
     private Map<String, Object> nv = null;
-    private List<Map<String, Object>> nvs = new ArrayList<>();
     private VaccineRepository vaccineRepository;
     private CommonRepository commonRepository;
     private Context context;
@@ -75,7 +76,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private boolean hideOverdueVaccineStatus = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS);
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
-    protected String IS_GROUP_PARTIAL = "isGroupPartial";
     private Date lastVaccineDate = null;
     private Integer count = 0;
 
@@ -137,9 +137,18 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             }
         }
 
+        overDueCount = 0;
+        for (Alert alert : alerts) {
+            String name = alert.visitCode().trim().replace(" ", "").toLowerCase();
+            if (!receivedVaccinesList.contains(name)) {
+                if (AlertStatus.urgent.equals(alert.status())) {
+                    overDueCount++;
+                }
+            }
+        }
+
         if (vaccines.isEmpty()) {
             nv = nextVaccineDue(sch, ImmunizationLibrary.getVaccineCacheMap().get(Constants.CHILD_TYPE).vaccineRepo);
-            nvs.add(nv);
         }
 
         if (nv == null) {
@@ -171,7 +180,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         wrapper.setClient(client);
         wrapper.setConvertView(convertView);
         wrapper.setNv(nv);
-        wrapper.setTotalNv(nvs);
+        wrapper.setTotalAlerts(overDueCount);
         updateRecordVaccination(wrapper);
 
     }
@@ -205,28 +214,15 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         Map<String, Object> nv = updateWrapper.getNv();
         DateTime dueDate = null;
-        int overDueCount = count;
-       if(updateWrapper.getTotalNv() != null){
-            for(Map<String,Object> vac : updateWrapper.getTotalNv()){
-                Alert alert = null;
-                if (vac.get(Constants.KEY.ALERT) != null && nv.get(Constants.KEY.ALERT) instanceof Alert) {
-                    alert = (Alert) nv.get(Constants.KEY.ALERT);
-                }
 
-                if (alert != null && ((AlertStatus.urgent.equals(alert.status())) || (AlertStatus.expired.equals(alert.status())))) {
-                    overDueCount++;
-                }
-
-            }
-            complianceCheck.setVisibility(View.VISIBLE);
+        complianceCheck.setVisibility(View.VISIBLE);
         complianceText.setText(context.getString(R.string.number_missed, overDueCount));
-        if(overDueCount == 0){
+        if (overDueCount == 0) {
             complianceCheck.setImageResource(R.drawable.ic_action_check);
-        }else if(overDueCount == 1){
+        } else if (overDueCount == 1) {
             complianceCheck.setImageResource(R.drawable.ic_yelllow_flag);
-        }else{
+        } else {
             complianceCheck.setImageResource(R.drawable.ic_red_flag);
-        }
         }
 
 
@@ -505,12 +501,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    @VisibleForTesting
-    enum State {
-        DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
-        FULLY_IMMUNIZED
-    }
-
     protected String getAlertMessage(State state, String stateKey) {
 
         String message;
@@ -536,6 +526,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         return message;
+    }
+
+    @VisibleForTesting
+    enum State {
+        DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
+        FULLY_IMMUNIZED
     }
 
 }
