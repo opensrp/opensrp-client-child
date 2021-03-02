@@ -351,5 +351,4 @@
     <string name="new_card_ordered">Comunicar se o cartão foi perdido ou danificado \n (novo cartão foi requisitado)</string>
     <string name="new_card_to_be_delivered">Um novo cartão foi requisitado e será entregue após a impressão.</string>
     <string name="card_ordered_with_date">Cartão Requisitado: %1$s</string>
-
-</resources>
+    </resources>

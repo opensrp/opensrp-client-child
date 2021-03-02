@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- general -->
     <string name="no_unique_id">Aucune ids trouvées. Cliquez sur la touche sync pour en obtenir plus et si l\'erreur se reproduit, contactez l\'administrateur du système.</string>
     <string name="error_unable_to_start_form">Un erreur s\'est produite en lancant le formulaire.</string>
     <string name="no_matching_record_found_on_this_device">Aucun records corréspondants retrouvés sur cet apareil.</string>
@@ -50,6 +49,7 @@
     <string name="woman_last_vaccine">Dernier vaccin</string>
     <string name="woman_next_vaacine">Prochain vaccin attendu</string>
     <string name="woman_alphabetical_sort">Alphabétique (Nom)</string>
+    <string name="id_sort">System ID</string>
     <string name="woman_details_title">Profil de la femme</string>
     <string name="day">JOUR\n</string>
     <string name="bcg">BCG\n</string>
@@ -344,5 +344,4 @@
     <string name="permanently">Définitivement</string>
     <string name="temporarily">Temporairement</string>
     <string name="choose_how">Choisissez comment</string>
-    <string name="id_sort">System ID</string>
-</resources>
+    </resources>
