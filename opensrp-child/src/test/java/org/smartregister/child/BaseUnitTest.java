@@ -12,6 +12,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.smartregister.Context;
+import org.smartregister.child.shadows.CustomFontTextViewShadow;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
@@ -22,7 +23,7 @@ import org.smartregister.service.AlertService;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
-@Config(application = TestChildApp.class, sdk = Build.VERSION_CODES.O_MR1)
+@Config(application = TestChildApp.class,  shadows = {CustomFontTextViewShadow.class}, sdk = Build.VERSION_CODES.O_MR1)
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
 public abstract class BaseUnitTest {
 
