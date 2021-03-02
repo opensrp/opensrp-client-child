@@ -54,4 +54,8 @@ public class SiblingPicturesGroup extends LinearLayout {
         SiblingPictureAdapter siblingPictureAdapter = new SiblingPictureAdapter(baseActivity, baseEntityIds);
         siblingsGV.setAdapter(siblingPictureAdapter);
     }
+
+    public HorizontalGridView getSiblingsGV() {
+        return siblingsGV;
+    }
 }

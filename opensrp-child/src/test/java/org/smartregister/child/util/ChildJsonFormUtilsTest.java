@@ -65,6 +65,7 @@ import org.smartregister.service.HTTPAgent;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 import org.smartregister.util.CredentialsHelper;
 import org.smartregister.util.JsonFormUtils;
 import org.smartregister.view.LocationPickerView;
@@ -185,6 +186,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     private org.smartregister.Context mContext;
 
     @Mock
+    private AppProperties appProperties;
+
+    @Mock
     private CloudantDataHandler cloudantDataHandler;
 
     private static final String TEST_BASE_URL = "https://abc.def";
@@ -269,7 +273,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
+        Mockito.doReturn(appProperties).when(openSrpContext).getAppProperties();
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         childMetadata.updateChildRegister(
                 "",
@@ -692,6 +699,9 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         JSONObject formObject = new JSONObject(registrationForm);
         int initialSize = formObject.optJSONObject(JsonFormConstants.STEP1).optJSONArray(JsonFormConstants.FIELDS).length();
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.doReturn(appProperties).when(openSrpContext).getAppProperties();
         Whitebox.invokeMethod(ChildJsonFormUtils.class, "addAvailableVaccines", RuntimeEnvironment.application, formObject);
         JSONObject step1 = formObject.optJSONObject(JsonFormConstants.STEP1);
         JSONArray fields = step1.optJSONArray(JsonFormConstants.FIELDS);

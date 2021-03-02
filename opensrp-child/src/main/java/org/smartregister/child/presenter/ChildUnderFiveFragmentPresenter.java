@@ -152,7 +152,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         }
 
         heightWrapper.setGender(heightParam.getGender());
-        heightWrapper.setPatientName(heightParam.getGender());
+        heightWrapper.setPatientName(heightParam.getChildName());
         heightWrapper.setPatientNumber(heightParam.getOpenSrpId());
         heightWrapper.setPatientAge(heightParam.getDuration());
         heightWrapper.setPhoto(heightParam.getPhoto());

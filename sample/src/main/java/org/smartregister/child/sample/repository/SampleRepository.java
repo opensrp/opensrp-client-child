@@ -30,17 +30,17 @@ import org.smartregister.util.DatabaseMigrationUtils;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * Created by keyman on 28/07/2017.
  */
 public class SampleRepository extends Repository {
 
-
-    private static final String TAG = SampleRepository.class.getCanonicalName();
     public static char[] PASSWORD = "Sample_PASS".toCharArray();
     protected SQLiteDatabase readableDatabase;
     protected SQLiteDatabase writableDatabase;
-    private Context context;
+    private final Context context;
 
     public SampleRepository(Context context, org.smartregister.Context openSRPContext) {
         super(context, AllConstants.DATABASE_NAME, BuildConfig.DATABASE_VERSION, openSRPContext.session(),
@@ -72,19 +72,12 @@ public class SampleRepository extends Repository {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(SampleRepository.class.getName(),
-                "Upgrading database from version " + oldVersion + " to "
-                        + newVersion + ", which will destroy all old data");
+        Timber.w("Upgrading database from version " + oldVersion + " to "
+                + newVersion + ", which will destroy all old data");
 
         int upgradeTo = oldVersion + 1;
         while (upgradeTo <= newVersion) {
-            switch (upgradeTo) {
-                case 2:
-                    //upgradeToVersion2(db);
-                    break;
-                default:
-                    break;
-            }
+            //TODO upgrade to every single version in switch statement
             upgradeTo++;
         }
     }
@@ -122,7 +115,7 @@ public class SampleRepository extends Repository {
             }
             return readableDatabase;
         } catch (Exception e) {
-            Log.e(TAG, "Database Error. " + e.getMessage());
+            Timber.e("Database Error. %s", e.getMessage());
             return null;
         }
 
@@ -154,13 +147,13 @@ public class SampleRepository extends Repository {
         upgradeToVersion13(database);
         upgradeToVersion14(database);
         upgradeToVersion15RemoveUnnecessaryTables(database);
-
+        upgradeToVersion16(database);
     }
 
     /**
      * Version 2 added some columns to the ec_child table
      *
-     * @param database
+     * @param database SqliteDatabase
      */
     private void upgradeToVersion2(SQLiteDatabase database) {
         try {
@@ -173,7 +166,7 @@ public class SampleRepository extends Repository {
             DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName,
                     newlyAddedFields);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion2 " + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion2 %s", Log.getStackTraceString(e));
         }
     }
 
@@ -192,7 +185,7 @@ public class SampleRepository extends Repository {
             db.execSQL(HeightRepository.UPDATE_TABLE_ADD_FORMSUBMISSION_ID_COL);
             db.execSQL(HeightRepository.FORMSUBMISSION_INDEX);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion3 " + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion3 %s", Log.getStackTraceString(e));
         }
     }
 
@@ -201,7 +194,7 @@ public class SampleRepository extends Repository {
             db.execSQL(AlertRepository.ALTER_ADD_OFFLINE_COLUMN);
             db.execSQL(AlertRepository.OFFLINE_INDEX);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion4" + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion4%s", Log.getStackTraceString(e));
         }
     }
 
@@ -214,7 +207,7 @@ public class SampleRepository extends Repository {
                     .recurringServiceTypeRepository();
             IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion5 " + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion5 %s", Log.getStackTraceString(e));
         }
     }
 
@@ -226,7 +219,7 @@ public class SampleRepository extends Repository {
             HeightZScoreRepository.createTable(db);
             db.execSQL(HeightRepository.ALTER_ADD_Z_SCORE_COLUMN);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion6" + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion6%s", Log.getStackTraceString(e));
         }
     }
 
@@ -241,7 +234,7 @@ public class SampleRepository extends Repository {
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_HIA2_STATUS_COL);
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion7Hia2 " + e.getMessage());
+            Timber.e("upgradeToVersion7Hia2 %s", e.getMessage());
         }
     }
 
@@ -254,7 +247,7 @@ public class SampleRepository extends Repository {
             IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion8RecurringServiceUpdate " + Log.getStackTraceString(e));
+            Timber.e("upgradeToVersion8RecurringServiceUpdate %s", Log.getStackTraceString(e));
         }
     }
 
@@ -270,7 +263,7 @@ public class SampleRepository extends Repository {
             DatabaseMigrationUtils.addFieldsToFTSTable(database, commonFtsObject, Utils.metadata().childRegister.tableName,
                     newlyAddedFields);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion8ReportDeceased " + e.getMessage());
+            Timber.e("upgradeToVersion8ReportDeceased %s", e.getMessage());
         }
     }
 
@@ -292,7 +285,7 @@ public class SampleRepository extends Repository {
             RecurringServiceRecordRepository.migrateCreatedAt(db);
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion12 " + e.getMessage());
+            Timber.e("upgradeToVersion12 %s", e.getMessage());
         }
     }
 
@@ -304,7 +297,7 @@ public class SampleRepository extends Repository {
             db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
             db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_TEAM_COL);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion13 " + e.getMessage());
+            Timber.e("upgradeToVersion13 %s", e.getMessage());
         }
     }
 
@@ -325,7 +318,7 @@ public class SampleRepository extends Repository {
 
             db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion14 " + e.getMessage());
+            Timber.e("upgradeToVersion14 %s", e.getMessage());
         }
     }
 
@@ -342,8 +335,13 @@ public class SampleRepository extends Repository {
 
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion15RemoveUnnecessaryTables " + e.getMessage());
+            Timber.e("upgradeToVersion15RemoveUnnecessaryTables %s", e.getMessage());
         }
+    }
+
+    private void upgradeToVersion16(SQLiteDatabase database) {
+        database.execSQL(VaccineRepository.UPDATE_TABLE_ADD_IS_VOIDED_COL);
+        database.execSQL(VaccineRepository.UPDATE_TABLE_ADD_IS_VOIDED_COL_INDEX);
     }
 
     private void upgradeToVersion9(SQLiteDatabase database) {
@@ -365,7 +363,7 @@ public class SampleRepository extends Repository {
                     Hia2ReportRepository.report_column.values());
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
+            Timber.e("upgradeToVersion9 %s", e.getMessage());
         }
     }
 
