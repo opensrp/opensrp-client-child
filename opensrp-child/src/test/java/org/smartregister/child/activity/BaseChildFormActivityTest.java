@@ -81,12 +81,11 @@ public class BaseChildFormActivityTest {
             }
         };
         String lookUpQuery = childFormActivity.lookUpQuery(entityMap, "table_test");
-        Assert.assertEquals("Select table_test.id as _id , ec_client.relationalid , ec_client.details , zeir_id ," +
-                " first_name , last_name , ec_client.gender , dob , nrc_number , mother_nationality , mother_nationality_other ," +
-                " mother_guardian_phone_number , ec_mother_details.is_consented , ec_mother_details.preferred_language ," +
-                " ec_client.residential_area , ec_client.residential_area_other , ec_client.residential_address ," +
-                " ec_client.base_entity_id FROM table_test  join ec_child_details on " +
-                "ec_child_details.relational_id=ec_mother_details.base_entity_id join ec_mother_details on " +
-                "ec_mother_details.base_entity_id = ec_client.base_entity_id WHERE  first_name Like '%sonia%' ;", lookUpQuery);
+        Assert.assertEquals("Select table_test.id as _id , ec_client.relationalid , ec_client.details , zeir_id , " +
+                "first_name , last_name , ec_client.gender , dob , nrc_number , mother_guardian_phone_number , " +
+                "ec_mother_details.is_consented , ec_mother_details.preferred_language , ec_client.residential_area , " +
+                "ec_client.residential_area_other , ec_client.residential_address , ec_client.base_entity_id FROM table_test  " +
+                "join ec_child_details on ec_child_details.relational_id=ec_mother_details.base_entity_id join ec_mother_details" +
+                " on ec_mother_details.base_entity_id = ec_client.base_entity_id WHERE  first_name Like '%sonia%' ;", lookUpQuery);
     }
 }

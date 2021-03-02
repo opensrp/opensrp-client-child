@@ -2,6 +2,7 @@ package org.smartregister.child.view;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.smartregister.child.activity.BaseActivity;
-import org.junit.Assert;
+
 import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
