@@ -77,7 +77,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
     private Date lastVaccineDate = null;
-    private Integer count = 0;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -140,10 +139,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         overDueCount = 0;
         for (Alert alert : alerts) {
             String name = alert.visitCode().trim().replace(" ", "").toLowerCase();
-            if (!receivedVaccinesList.contains(name)) {
-                if (AlertStatus.urgent.equals(alert.status())) {
+            if ((!receivedVaccinesList.contains(name)) && (AlertStatus.urgent.equals(alert.status()))) {
                     overDueCount++;
-                }
             }
         }
 
