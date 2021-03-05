@@ -137,9 +137,9 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         overDueCount = 0;
-        if(alerts != null){
+        if (alerts != null) {
             for (Alert alert : alerts) {
-                String name = alert.visitCode().trim().replace(" ", "").toLowerCase();
+                String name = alert.visitCode() != null ? alert.visitCode().trim().replace(" ", "").toLowerCase() : "";
                 if ((!receivedVaccinesList.contains(name)) && (AlertStatus.urgent.equals(alert.status()))) {
                     overDueCount++;
                 }
