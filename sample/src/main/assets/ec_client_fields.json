@@ -205,6 +205,20 @@
           "json_mapping": {
             "field": "attributes.preferred_language"
           }
+        },
+        {
+          "column_name": "mother_nationality",
+          "type": "Client",
+          "json_mapping": {
+            "field": "attributes.mother_nationality"
+          }
+        },
+        {
+          "column_name": "mother_nationality_other",
+          "type": "Client",
+          "json_mapping": {
+            "field": "attributes.mother_nationality_other"
+          }
         }
       ]
     },
