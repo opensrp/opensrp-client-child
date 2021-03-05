@@ -61,4 +61,11 @@
         android:visible="false"
         android:actionLayout="@layout/wrapped_menu_item_layout"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/reason_for_defaulting"
+        android:orderInCategory="100"
+        android:title="@string/reason_for_defaulting"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>
