@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -56,18 +55,16 @@ import timber.log.Timber;
 public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegisterProvider.RegisterViewHolder> {
 
     private final LayoutInflater inflater;
+    protected boolean isOutOfCatchment = false;
     private Set<org.smartregister.configurableviews.model.View> visibleColumns;
-
     private View.OnClickListener onClickListener;
     private View.OnClickListener paginationClickListener;
-
     private Context context;
     private CommonRepository commonRepository;
     private WeightRepository weightRepository;
     private HeightRepository heightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
-    protected boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
                                  View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
