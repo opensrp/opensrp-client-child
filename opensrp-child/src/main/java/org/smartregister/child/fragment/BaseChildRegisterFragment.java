@@ -157,6 +157,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                         .getPropertyBoolean(ChildAppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
             }
         }
+
+        if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED)) {
+            view.findViewById(R.id.child_compliance).setVisibility(ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override
@@ -304,7 +309,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     public void showNotFoundPopup(String opensrpID) {
         NoMatchDialogFragment
-                .launchDialog((BaseRegisterActivity) Objects.requireNonNull(getActivity()), DIALOG_TAG, opensrpID);
+                .launchDialog((BaseRegisterActivity) requireActivity(), DIALOG_TAG, opensrpID);
     }
 
     @Override

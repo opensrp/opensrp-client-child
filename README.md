@@ -31,6 +31,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms                          |
 | `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
 | `hide.overdue.vaccine.status`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
+| `home.compliance.enabled`             | Boolean | false   | Hide compliance view                |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 

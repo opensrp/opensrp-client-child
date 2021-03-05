@@ -55,18 +55,16 @@ import timber.log.Timber;
 public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegisterProvider.RegisterViewHolder> {
 
     private final LayoutInflater inflater;
+    protected boolean isOutOfCatchment = false;
     private Set<org.smartregister.configurableviews.model.View> visibleColumns;
-
     private View.OnClickListener onClickListener;
     private View.OnClickListener paginationClickListener;
-
     private Context context;
     private CommonRepository commonRepository;
     private WeightRepository weightRepository;
     private HeightRepository heightRepository;
     private VaccineRepository vaccineRepository;
     private AlertService alertService;
-    protected boolean isOutOfCatchment = false;
 
     public ChildRegisterProvider(Context context, RepositoryHolder repositoryHolder, Set visibleColumns,
                                  View.OnClickListener onClickListener, View.OnClickListener paginationClickListener,
@@ -145,6 +143,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
         view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
                 .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
+
+        if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_COMPLIANCE_ENABLED)) {
+
+            view.findViewById(R.id.ll_compliance).setVisibility(ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(Constants.PROPERTY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+        }
 
         return new RegisterViewHolder(view);
     }
@@ -228,6 +232,13 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         recordVaccination.setTag(R.id.record_action, Constants.RECORD_ACTION.VACCINATION);
 
 
+        View showCompliance = viewHolder.showCompliance;
+        showCompliance.setTag(client);
+        showCompliance.setOnClickListener(onClickListener);
+        if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED)) {
+            showCompliance.setVisibility(ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+        }
         String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = Utils.getValue(pc.getColumnmaps(), Constants.CHILD_STATUS.INACTIVE, false);
 
@@ -307,6 +318,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         private ImageView imageView;
         private View recordGrowth;
         private View recordVaccination;
+        private View showCompliance;
         private View registerColumns;
 
         RegisterViewHolder(View itemView) {
@@ -320,6 +332,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             childProfileInfoLayout = itemView.findViewById(R.id.child_profile_info_layout);
             recordGrowth = itemView.findViewById(R.id.record_growth);
             recordVaccination = itemView.findViewById(R.id.record_vaccination);
+            showCompliance = itemView.findViewById(R.id.ll_compliance);
             registerColumns = itemView.findViewById(R.id.register_columns);
 
         }
