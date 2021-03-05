@@ -362,4 +362,6 @@
     <string name="itn">Insecticide treated net</string>
     <string name="vita_a">Vitamin A dose</string>
 
+    <string name="reason_for_defaulting">Record reason for defaulting</string>
+
 </resources>
