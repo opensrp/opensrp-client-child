@@ -137,10 +137,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         overDueCount = 0;
-        for (Alert alert : alerts) {
-            String name = alert.visitCode().trim().replace(" ", "").toLowerCase();
-            if ((!receivedVaccinesList.contains(name)) && (AlertStatus.urgent.equals(alert.status()))) {
+        if(alerts != null){
+            for (Alert alert : alerts) {
+                String name = alert.visitCode().trim().replace(" ", "").toLowerCase();
+                if ((!receivedVaccinesList.contains(name)) && (AlertStatus.urgent.equals(alert.status()))) {
                     overDueCount++;
+                }
             }
         }
 
@@ -217,7 +219,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         if (overDueCount == 0) {
             complianceCheck.setImageResource(R.drawable.ic_action_check);
         } else if (overDueCount == 1) {
-            complianceCheck.setImageResource(R.drawable.ic_yelllow_flag);
+            complianceCheck.setImageResource(R.drawable.ic_yellow_flag);
         } else {
             complianceCheck.setImageResource(R.drawable.ic_red_flag);
         }

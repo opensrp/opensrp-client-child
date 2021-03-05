@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -237,8 +238,10 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         View showCompliance = viewHolder.showCompliance;
         showCompliance.setTag(client);
         showCompliance.setOnClickListener(onClickListener);
-        showCompliance.setVisibility(View.VISIBLE);
-
+        if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED)) {
+            showCompliance.setVisibility(ChildLibrary.getInstance().getProperties()
+                    .getPropertyBoolean(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+        }
         String lostToFollowUp = Utils.getValue(pc.getColumnmaps(), Constants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = Utils.getValue(pc.getColumnmaps(), Constants.CHILD_STATUS.INACTIVE, false);
 
