@@ -196,7 +196,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
 
             Object dueDateRawObject = nv.get(Constants.KEY.DATE);
-            dueDate = dueDateRawObject != null && dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
+            dueDate = dueDateRawObject instanceof DateTime ? (DateTime) dueDateRawObject : null;
 
             if (nv.get(Constants.KEY.VACCINE) != null && nv.get(Constants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(Constants.KEY.VACCINE);

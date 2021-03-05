@@ -142,6 +142,7 @@ public final class Constants extends AllConstants {
         public static final String TEXT = "text";
         public static final String CHILD_REGISTER_CARD_NUMBER = "child_register_card_number";
 
+        public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
     }
 
     public static final class INTENT_KEY {
@@ -197,6 +198,7 @@ public final class Constants extends AllConstants {
         public static final String UPDATE_MOTHER_DETAILS = "Update Mother Details";
         public static final String ARCHIVE_CHILD_RECORD = "archive_child_record";
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
+        public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_service_recurring_service";
     }
 
     public static final class CHILD_STATUS {

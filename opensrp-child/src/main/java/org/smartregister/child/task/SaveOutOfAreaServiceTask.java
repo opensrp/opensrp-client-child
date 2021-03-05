@@ -41,7 +41,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         try {
 
-            String locationdId = LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation());
+            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation());
             JSONObject outOfAreaFormJsonObject = new JSONObject(formString);
 
             // Get metadata from the form
@@ -49,18 +49,23 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
 
             // Create a weight object if weight was recorded
-            Weight weight = OutOfAreaServiceUtils.getRecordedWeight(ChildLibrary.getInstance().context(), outOfAreaFormJsonObject, locationdId, metadata);
+            Weight weight = OutOfAreaServiceUtils.getRecordedWeight(ChildLibrary.getInstance().context(), outOfAreaFormJsonObject, locationId, metadata);
             if (weight != null) {
                 weightRepository.add(weight);
             }
 
             // Create a vaccine object for all recorded vaccines
-            List<Vaccine> vaccines = OutOfAreaServiceUtils.getRecordedVaccines(ChildLibrary.getInstance().context(), outOfAreaFormJsonObject, locationdId, metadata);
+            List<Vaccine> vaccines = OutOfAreaServiceUtils.getRecordedVaccines(ChildLibrary.getInstance().context(), outOfAreaFormJsonObject, locationId, metadata);
             for (Vaccine curVaccine : vaccines) {
                 Utils.addVaccine(vaccineRepository, curVaccine);
             }
 
+            OutOfAreaServiceUtils.createOutOfAreaRecurringServiceEvents(outOfAreaFormJsonObject, metadata);
+
         } catch (Exception e) {
+            if (progressDialogCallback != null) {
+                progressDialogCallback.dissmissProgressDialog();
+            }
             Timber.e(e);
         }
         return null;

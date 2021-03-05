@@ -1,7 +1,5 @@
 package org.smartregister.child.dao;
 
-import android.database.Cursor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.dao.AbstractDao;
@@ -17,12 +15,9 @@ public class ChildDao extends AbstractDao {
                                                                         String baseEntityColumn, String baseEntityId) {
         String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s'", entry.getKey(), entry.getValue(), tableName,
                 baseEntityColumn, baseEntityId);
-        DataMap<Map.Entry<String, String>> dataMap = new DataMap<Map.Entry<String, String>>() {
-            @Override
-            public Map.Entry<String, String> readCursor(Cursor cursor) {
-                return new AbstractMap.SimpleEntry<>(getCursorValue(cursor, entry.getKey()), getCursorValue(cursor, entry.getValue()));
-            }
-        };
+        DataMap<Map.Entry<String, String>> dataMap = cursor ->
+                new AbstractMap.SimpleEntry<>(getCursorValue(cursor, entry.getKey()),
+                        getCursorValue(cursor, entry.getValue()));
 
         List<Map.Entry<String, String>> result = readData(query, dataMap);
         if (result == null) return new ArrayList<>();
@@ -50,4 +45,17 @@ public class ChildDao extends AbstractDao {
         return vaccinesList;
     }
 
+    /**
+     * Return list of available recurring services
+     * @return recurring services
+     */
+    public static List<String> getRecurringServiceTypes(){
+        String query = "SELECT DISTINCT type FROM recurring_service_types ORDER BY type;";
+
+        DataMap<String> dataMap = cursor -> getCursorValue(cursor, "type");
+
+        List<String> result = readData(query, dataMap);
+        if (result == null) return new ArrayList<>();
+        return result;
+    }
 }

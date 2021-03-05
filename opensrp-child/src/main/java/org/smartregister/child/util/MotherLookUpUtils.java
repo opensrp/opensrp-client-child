@@ -40,6 +40,8 @@ public class MotherLookUpUtils {
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
     public static final String RELATIONALID = "relationalid";
+    public static final String MOTHER_NATIONALITY = "mother_nationality";
+    public static final String MOTHER_NATIONALITY_OTHER = "mother_nationality_other";
 
     public static void motherLookUp(final Context context, final Activity activityContext, final EntityLookUp entityLookUp,
                                     final Listener<Map<CommonPersonObject, List<CommonPersonObject>>> listener,

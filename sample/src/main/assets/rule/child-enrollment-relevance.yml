@@ -12,3 +12,10 @@ priority: 1
 condition: "step1_Mother_Guardian_Date_Birth_Unknown.contains('Mother_Guardian_Date_Birth_Unknown')"
 actions:
   - "isRelevant = true"
+---
+name: step1_mother_nationality_other
+description: mother_nationality_other
+priority: 1
+condition: "step1_mother_nationality == 'other'"
+actions:
+  - "isRelevant = true"
