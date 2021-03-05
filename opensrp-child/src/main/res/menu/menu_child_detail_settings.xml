@@ -66,6 +66,6 @@
         android:id="@+id/reason_for_defaulting"
         android:orderInCategory="100"
         android:title="@string/reason_for_defaulting"
-        android:visible="true"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>
