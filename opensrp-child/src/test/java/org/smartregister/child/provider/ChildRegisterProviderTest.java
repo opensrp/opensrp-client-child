@@ -111,6 +111,9 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         View recordVaccination = new View(RuntimeEnvironment.application);
         recordVaccination.setId(R.id.record_vaccination);
         linearLayout.addView(recordVaccination);
+        View showCompliance = new View(RuntimeEnvironment.application);
+        showCompliance.setId(R.id.ll_compliance);
+        linearLayout.addView(showCompliance);
         View registerColumns = new View(RuntimeEnvironment.application);
         registerColumns.setId(R.id.register_columns);
         linearLayout.addView(registerColumns);
