@@ -163,11 +163,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 view.findViewById(R.id.child_zeir_id_wrapper).setVisibility(View.VISIBLE);
             } else
                 view.findViewById(R.id.child_zeir_id_wrapper).setVisibility(View.GONE);
-        }
 
-        if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED)) {
-            view.findViewById(R.id.child_compliance).setVisibility(ChildLibrary.getInstance().getProperties()
-                    .getPropertyBoolean(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+            if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED)) {
+                view.findViewById(R.id.child_compliance).setVisibility(ChildLibrary.getInstance().getProperties()
+                        .getPropertyBoolean(ChildAppProperties.KEY.HOME_COMPLIANCE_ENABLED) ? View.VISIBLE : View.GONE);
+            }
         }
     }
 
