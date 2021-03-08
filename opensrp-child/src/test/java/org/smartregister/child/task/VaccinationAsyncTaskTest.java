@@ -760,6 +760,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
