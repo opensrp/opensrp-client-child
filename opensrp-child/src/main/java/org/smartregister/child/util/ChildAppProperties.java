@@ -21,6 +21,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
         public static final String HOME_TOOLBAR_SCAN_CARD_ENABLED = "home.toolbar.scan.card.enabled";
         public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
+        public  static final String HOME_COMPLIANCE_ENABLED = "home.compliance.enabled";
 
         //Home styling
         public static final String HOME_ALERT_STYLE_LEGACY = "home.alert.style.legacy";

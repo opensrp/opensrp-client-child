@@ -220,6 +220,8 @@ public final class Constants extends AllConstants {
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
         public static final String HOME_TOOLBAR_SCAN_CARD_ENABLED = "home.toolbar.scan.card.enabled";
         public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
+        public  static final String HOME_COMPLIANCE_ENABLED = "home.compliance.enabled";
+
 
         public static final String FEATURE_BOTTOM_NAVIGATION_ENABLED = "feature.bottom.navigation.enabled";
         public static final String FEATURE_SCAN_QR_ENABLED = "feature.scan.qr.enabled";
