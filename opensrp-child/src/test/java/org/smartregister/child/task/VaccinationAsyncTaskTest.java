@@ -270,6 +270,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(null);
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
 
         List<org.smartregister.immunization.domain.Vaccine> vaccines = new LinkedList<>();
         org.smartregister.immunization.domain.Vaccine vaccine = new org.smartregister.immunization.domain.Vaccine();
@@ -281,6 +282,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -296,11 +299,14 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("true");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
 
         when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -316,11 +322,15 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("true");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -336,11 +346,15 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -356,6 +370,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
@@ -366,6 +382,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -381,6 +399,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.urgent, "startDate", "expiryDate", true);
@@ -391,6 +411,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -406,6 +428,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.expired, "startDate", "expiryDate", true);
@@ -416,6 +440,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -431,6 +457,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.upcoming, "startDate", "expiryDate", true);
@@ -441,6 +468,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -456,6 +485,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
 
         when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(null);
 
@@ -463,6 +493,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -478,6 +510,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
 
         Map<String, Object> nv = new HashMap<>();
         nv.put(Constants.KEY.VACCINE, VaccineRepo.Vaccine.opv2);
@@ -495,6 +528,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -510,6 +545,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         nv.put(Constants.KEY.DATE, new DateTime(new Date()).plusDays(1));
@@ -521,6 +558,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -537,6 +576,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
         when(view.findViewById(R.id.child_next_appointment)).thenReturn(textView);
 
         Map<String, Object> nv = new HashMap<>();
@@ -551,6 +592,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -615,6 +658,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.urgent, "startDate", "expiryDate", true);
@@ -625,6 +670,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
@@ -652,6 +699,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
         when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
         when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getTotalAlerts()).thenReturn(0);
+
 
         Map<String, Object> nv = new HashMap<>();
         Alert alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.urgent, "startDate", "expiryDate", true);
@@ -662,6 +711,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
         when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
         when(imageView.getParent()).thenReturn(linearLayout);
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);

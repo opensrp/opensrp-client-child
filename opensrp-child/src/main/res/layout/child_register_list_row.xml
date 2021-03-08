@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/register_columns"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
@@ -153,6 +154,37 @@
 
 
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_compliance"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/compliance_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="5dp"
+                android:paddingRight="5dp"
+                android:src="@drawable/ic_action_check"/>
+
+        <TextView
+            android:id="@+id/compliance_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/number_missed"
+            android:textAllCaps="false"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/client_list_grey"
+            android:textSize="16sp"
+            />
     </LinearLayout>
 
     <LinearLayout
