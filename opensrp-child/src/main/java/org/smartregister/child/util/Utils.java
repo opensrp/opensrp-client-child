@@ -699,13 +699,13 @@ public class Utils extends org.smartregister.util.Utils {
         boolean isDone = true;
         for (Map<String, Object> schedule : scheduleList) {
             // Only check vaccines within First year of child's age
-            if (((VaccineRepo.Vaccine) schedule.get("vaccine")).milestoneGapDays() >= minDays
-                    && ((VaccineRepo.Vaccine) schedule.get("vaccine")).milestoneGapDays() < maxDays) {
-                if (!((String) schedule.get("status")).equalsIgnoreCase("done")
+            if (((VaccineRepo.Vaccine) schedule.get(Constants.KEY.VACCINE)).milestoneGapDays() >= minDays
+                    && ((VaccineRepo.Vaccine) schedule.get(Constants.KEY.VACCINE)).milestoneGapDays() < maxDays) {
+                if (!((String) schedule.get(Constants.KEY.STATUS)).equalsIgnoreCase(Constants.KEY.DONE)
                         // Do not consider BCG 2 if BCG is already given
-                        && !((VaccineRepo.Vaccine) schedule.get("vaccine")).name().equalsIgnoreCase("bcg2")) {
+                        && !((VaccineRepo.Vaccine) schedule.get(Constants.KEY.VACCINE)).name().equalsIgnoreCase(Constants.VACCINE.BCG2)) {
                     isDone = false;
-                } else if (((String) schedule.get("status")).equalsIgnoreCase("done")
+                } else if (((String) schedule.get(Constants.KEY.STATUS)).equalsIgnoreCase(Constants.KEY.DONE)
                         && !vaccineProvidedWithin(schedule, dob, maxDays)) {
                     isDone = false;
                 }
@@ -717,7 +717,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     private static boolean vaccineProvidedWithin(Map<String, Object> schedule, DateTime dob, int days) {
         boolean providedWithin = false;
-        DateTime date = (DateTime) schedule.get("date");
+        DateTime date = (DateTime) schedule.get(Constants.DATE);
         if (date != null
                 && ((date.getMillis() - dob.getMillis()) < TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS))) {
             providedWithin = true;
