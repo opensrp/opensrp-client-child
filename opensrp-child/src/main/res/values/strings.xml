@@ -366,6 +366,8 @@
     <string name="fully_immunized_label_u1">Fully Immunized U1</string>
     <string name="fully_immunized_label_u2">Fully Immunized U2</string>
 
+    <string name="record_booster_immunizations">Record Booster Immunizations</string>
+    <string name="maximum_extra_vaccines_reached">You can only record a maximum of 10 vaccines</string>
+    <string name="booster_immunizations">Booster Immunizations</string>
     <string name="reason_for_defaulting">Record reason for defaulting</string>
-
 </resources>

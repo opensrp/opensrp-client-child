@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- general -->
     <string name="no_unique_id">لم يتم العثورارقام هوية. انقر على زر المزامنة للحصول على المزيد ، وإذا استمر هذا الخطأ ، اتصل بمسؤول النظام.</string>
     <string name="error_unable_to_start_form">حدث خطأ عند بدء الاستمارة</string>
     <string name="no_matching_record_found_on_this_device">لم يتم العثور على أثر مطابق على هذا الجهاز</string>
@@ -302,6 +301,7 @@
     <string name="_15_months">15 شهراً</string>
     <string name="_18_months">18 شهرا</string>
     <string name="_22_months"> 22 شهرا</string>
+    <string name="after_lmp">After LMP</string>
     <string name="_4_weeks_after_tt_1">4 أسابيع بعد TT 1</string>
     <string name="_26_weeks_after_tt_2">26 أسبوعًا بعد TT 2</string>
     <string name="_1_year_after_tt_3"> 1 سنة بعد TT 3</string>
@@ -320,13 +320,9 @@
     <string name="done_today">إنتهت اليوم</string>
     <string name="record_growth">نمو قياسي</string>
     <string name="growth_monitoring">رصد النمو</string>
-
     <string name="which_vaccinations_were_provided"> ماهي اللقاحات المعطاة؟ </string>
     <string name="cannot_be_given_with_the_other_dose">  لا يمكن ان يعطى مع جرعة %1$s الأخرى</string>
     <string name="n_period_due">%1$s\nمتوقع</string>
-
-    <string name="after_lmp">After LMP</string>
-
     <string name="n_period_overdue">%1$s\nمتأخر</string>
 
     <string name="mother_name">الأم/ الحاضن: %1$s</string>
@@ -347,4 +343,4 @@
     <string name="permanently">إطلاقا</string>
     <string name="temporarily">مؤقتا</string>
     <string name="choose_how">اختر كيف</string>
-</resources>
+    </resources>

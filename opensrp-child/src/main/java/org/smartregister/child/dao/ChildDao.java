@@ -27,11 +27,13 @@ public class ChildDao extends AbstractDao {
     /**
      * Retrieve the selected vaccines that are comma separated and create new list
      *
+     *
+     * @param tableName
      * @param baseEntityId unique id for the client
      * @return a list of selected vaccines with their dates
      */
-    public static List<Map.Entry<String, String>> getChildExtraVaccines(String baseEntityId) {
-        List<Map.Entry<String, String>> extraVaccines = getChildExtraVaccines(Constants.Tables.EC_DYNAMIC_VACCINES,
+    public static List<Map.Entry<String, String>> getChildExtraVaccines(String tableName, String baseEntityId) {
+        List<Map.Entry<String, String>> extraVaccines = getChildExtraVaccines(tableName,
                 new AbstractMap.SimpleEntry<>(Constants.KEY.SELECTED_VACCINES, Constants.KEY.VACCINE_DATE), Constants.KEY.ENTITY_ID, baseEntityId);
         List<Map.Entry<String, String>> vaccinesList = new ArrayList<>();
         for (Map.Entry<String, String> vaccine : extraVaccines) {

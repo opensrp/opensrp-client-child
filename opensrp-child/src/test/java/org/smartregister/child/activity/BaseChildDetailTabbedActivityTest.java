@@ -20,8 +20,11 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -453,4 +456,48 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(lostCardDialogFragment, Mockito.atMost(1)).dismiss();
     }
 
+
+    @Test
+    public void testThatBoosterVaccinesFormIsLaunched() {
+        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+        doReturn(ApplicationProvider.getApplicationContext().getResources()).when(baseChildDetailTabbedActivity).getResources();
+
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
+        menu.add(0, R.id.record_booster_immunizations, 1, "Record Booster Immunizations");
+        ReflectionHelpers.setField(baseChildDetailTabbedActivity, "overflow", menu);
+        MenuItem item = menu.findItem(R.id.record_booster_immunizations);
+        item.setChecked(true);
+        verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).launchDynamicVaccinesForm(Constants.JsonForm.BOOSTER_VACCINES, Constants.KEY.BOOSTER_VACCINE);
+    }
+
+    @Test
+    public void testThatDynamicVaccinesFormIsLaunched() {
+        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+        doReturn(ApplicationProvider.getApplicationContext().getResources()).when(baseChildDetailTabbedActivity).getResources();
+
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
+        menu.add(0, R.id.record_dynamic_vaccines, 1, "Record Private Sector Vaccines");
+        ReflectionHelpers.setField(baseChildDetailTabbedActivity, "overflow", menu);
+        MenuItem item = menu.findItem(R.id.record_dynamic_vaccines);
+        item.setChecked(true);
+        verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).launchDynamicVaccinesForm(Constants.JsonForm.DYNAMIC_VACCINES, Constants.KEY.PRIVATE_SECTOR_VACCINE);
+    }
+
+    @Test
+    @Ignore("Fix issue with CoreLibrary initialization")
+    public void testLaunchDynamicVaccinesForm() throws JSONException {
+        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put(Constants.KEY.ENTITY_ID, "some-base-entity-id");
+
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetails", getChildDetails());
+        baseChildDetailTabbedActivity.launchDynamicVaccinesForm(Constants.JsonForm.DYNAMIC_VACCINES, Constants.KEY.PRIVATE_SECTOR_VACCINE);
+        ArgumentCaptor<JSONObject> formJson = ArgumentCaptor.forClass(JSONObject.class);
+        JSONObject jsonObject = formJson.capture();
+        Assert.assertTrue(jsonObject.has(Constants.KEY.DYNAMIC_FIELD));
+        Assert.assertEquals(jsonObject.getString(Constants.KEY.DYNAMIC_FIELD), Constants.KEY.PRIVATE_SECTOR_VACCINE);
+        Assert.assertTrue(jsonObject.has(Constants.KEY.ENTITY_ID));
+        Assert.assertEquals(jsonObject.getString(Constants.KEY.ENTITY_ID), childDetails.get(Constants.KEY.ENTITY_ID));
+        verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).startFormActivity(jsonObject.toString());
+    }
 }
