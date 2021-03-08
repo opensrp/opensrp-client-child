@@ -141,6 +141,14 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                     .getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED) ? View.VISIBLE : View.GONE);
         }
 
+        if (ChildLibrary.getInstance().getProperties().hasProperty(Constants.PROPERTY.HOME_ZEIR_ID_COL_ENABLED)
+                && ChildLibrary.getInstance().getProperties()
+                .getPropertyBoolean(Constants.PROPERTY.HOME_ZEIR_ID_COL_ENABLED)) {
+            view.findViewById(R.id.zeir_id_wrapper).setVisibility(View.VISIBLE);
+        } else {
+            view.findViewById(R.id.zeir_id_wrapper).setVisibility(View.GONE);
+        }
+
         view.findViewById(R.id.child_next_appointment_wrapper).setVisibility(ChildLibrary.getInstance().getProperties()
                 .getPropertyBoolean(Constants.PROPERTY.HOME_NEXT_VISIT_DATE_ENABLED) ? View.VISIBLE : View.GONE);
 
@@ -207,7 +215,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
         fillValue(viewHolder.childAge, durationString);
 
-        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.EPI_CARD_NUMBER, false));
+        fillValue(viewHolder.childCardNumnber, Utils.getValue(pc.getColumnmaps(), Constants.KEY.CHILD_REGISTER_CARD_NUMBER, false));
 
 
         String gender = Utils.getValue(pc.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);

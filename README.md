@@ -32,6 +32,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
 | `hide.overdue.vaccine.status`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
 | `home.compliance.enabled`             | Boolean | false   | Hide compliance view                |
+| `home.zeir.id.column.enabled`         | Boolean | false   | Show ID column in main register when true                              |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 

@@ -344,9 +344,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 Map<String, String> serviceLabels = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {
                     {
+                        put(RecurringServices.vit_a.name(), context.getString(R.string.vita_a));
                         put(RecurringServices.deworming.name(), context.getString(R.string.deworming));
                         put(RecurringServices.itn.name(), context.getString(R.string.itn));
-                        put(RecurringServices.vit_a.name(), context.getString(R.string.vita_a));
                     }
                 };
 

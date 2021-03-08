@@ -205,8 +205,11 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         recordWeightWrapper.setId(R.id.record_weight_wrapper);
         TextView childNextAppointmentWrapper = new TextView(RuntimeEnvironment.application);
         childNextAppointmentWrapper.setId(R.id.child_next_appointment_wrapper);
+        TextView zeirIdWrapper = new TextView(RuntimeEnvironment.application);
+        zeirIdWrapper.setId(R.id.zeir_id_wrapper);
         linearLayout.addView(recordWeightWrapper);
         linearLayout.addView(childNextAppointmentWrapper);
+        linearLayout.addView(zeirIdWrapper);
 
         Mockito.doReturn(linearLayout).when(layoutInflater)
                 .inflate(Mockito.eq(R.layout.child_register_list_row), Mockito.eq(viewGroup), Mockito.eq(false));
@@ -222,6 +225,42 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
 
         Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.record_weight_wrapper).getVisibility());
         Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.child_next_appointment_wrapper).getVisibility());
+        Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.zeir_id_wrapper).getVisibility());
+    }
+
+    @Test
+    public void testCreateViewHolderShouldShowZEeirIdColumn() {
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LayoutInflater layoutInflater = Mockito.mock(LayoutInflater.class);
+
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        TextView recordWeightWrapper = new TextView(RuntimeEnvironment.application);
+        recordWeightWrapper.setId(R.id.record_weight_wrapper);
+        TextView childNextAppointmentWrapper = new TextView(RuntimeEnvironment.application);
+        childNextAppointmentWrapper.setId(R.id.child_next_appointment_wrapper);
+        TextView zeirIdWrapper = new TextView(RuntimeEnvironment.application);
+        zeirIdWrapper.setId(R.id.zeir_id_wrapper);
+        linearLayout.addView(recordWeightWrapper);
+        linearLayout.addView(childNextAppointmentWrapper);
+        linearLayout.addView(zeirIdWrapper);
+
+        Mockito.doReturn(linearLayout).when(layoutInflater)
+                .inflate(Mockito.eq(R.layout.child_register_list_row), Mockito.eq(viewGroup), Mockito.eq(false));
+        ReflectionHelpers.setField(registerProvider, "inflater", layoutInflater);
+
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        Mockito.doReturn(true).when(appProperties).hasProperty(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(Constants.PROPERTY.HOME_RECORD_WEIGHT_ENABLED);
+        Mockito.doReturn(true).when(appProperties).hasProperty(Constants.PROPERTY.HOME_ZEIR_ID_COL_ENABLED);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(Constants.PROPERTY.HOME_ZEIR_ID_COL_ENABLED);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ChildRegisterProvider.RegisterViewHolder viewHolder = registerProvider.createViewHolder(viewGroup);
+
+        Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.record_weight_wrapper).getVisibility());
+        Assert.assertEquals(View.GONE, viewHolder.itemView.findViewById(R.id.child_next_appointment_wrapper).getVisibility());
+        Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.zeir_id_wrapper).getVisibility());
     }
 
 }
