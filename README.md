@@ -34,6 +34,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `home.compliance.enabled`             | Boolean | false   | Hide compliance view                |
 | `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out pf catchment form                       |
 | `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed and Fully Immunized U2 if all vaccines are completed    |
+| `home.zeir.id.column.enabled`         | Boolean | false   | Show ID column in main register when true                              |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 

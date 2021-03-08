@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
     android:background="#eeeeee"
-    android:orientation="horizontal"
-    android:weightSum="10">
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/child_profile_info_layout"
@@ -84,6 +83,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/zeir_id_wrapper"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="1dp"
@@ -113,14 +113,13 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-
     <LinearLayout
         android:id="@+id/record_weight_wrapper"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
-        android:layout_weight="1.8"
+        android:layout_weight="1.7"
         android:background="#ffffff">
 
         <LinearLayout
@@ -164,6 +163,7 @@
         android:background="@color/white"
         android:gravity="center"
         android:visibility="gone"
+        android:layout_weight="1.8"
         android:orientation="horizontal">
 
             <ImageView
@@ -212,7 +212,7 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2.4"
+        android:layout_weight="3"
         android:background="#ffffff"
         android:orientation="horizontal">
 

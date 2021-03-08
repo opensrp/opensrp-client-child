@@ -140,6 +140,7 @@ public final class Constants extends AllConstants {
         public static final String SELECTED_VACCINES_COUNTER = "selected_vaccines_counter";
         public static final String CONCEPT = "concept";
         public static final String TEXT = "text";
+        public static final String CHILD_REGISTER_CARD_NUMBER = "child_register_card_number";
         public static final String STATUS = "status";
         public static final String DONE = "done";
 
@@ -220,8 +221,9 @@ public final class Constants extends AllConstants {
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
         public static final String HOME_TOOLBAR_SCAN_CARD_ENABLED = "home.toolbar.scan.card.enabled";
         public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
-        public  static final String HOME_COMPLIANCE_ENABLED = "home.compliance.enabled";
+        public static final String HOME_COMPLIANCE_ENABLED = "home.compliance.enabled";
 
+        public static final String HOME_ZEIR_ID_COL_ENABLED = "home.zeir.id.column.enabled";
 
         public static final String FEATURE_BOTTOM_NAVIGATION_ENABLED = "feature.bottom.navigation.enabled";
         public static final String FEATURE_SCAN_QR_ENABLED = "feature.scan.qr.enabled";
