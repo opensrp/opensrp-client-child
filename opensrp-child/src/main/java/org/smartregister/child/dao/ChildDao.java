@@ -52,7 +52,7 @@ public class ChildDao extends AbstractDao {
      * @return recurring services
      */
     public static List<String> getRecurringServiceTypes(){
-        String query = "SELECT DISTINCT type FROM recurring_service_types ORDER BY type;";
+        String query = "SELECT DISTINCT type FROM recurring_service_types";
 
         DataMap<String> dataMap = cursor -> getCursorValue(cursor, "type");
 

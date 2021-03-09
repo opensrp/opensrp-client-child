@@ -362,7 +362,7 @@
     <string name="recurring_services_provided">Other services provided</string>
     <string name="deworming">Deworming</string>
     <string name="itn">ITNs</string>
-    <string name="vita_a">Vitamin A dose</string>
+    <string name="vit_a">Vitamin A dose</string>
     <string name="fully_immunized_label_u1">Fully Immunized U1</string>
     <string name="fully_immunized_label_u2">Fully Immunized U2</string>
 

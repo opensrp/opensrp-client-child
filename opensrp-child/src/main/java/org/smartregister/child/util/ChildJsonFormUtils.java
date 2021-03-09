@@ -120,6 +120,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static final String OPENSRP_ID = "opensrp_id";
     private static final String FORM_SUBMISSION_FIELD = "formsubmissionField";
     private static final String LABEL_TEXT_STYLE = "label_text_style";
+    private static final String RECURRING_SERVICES_FILE = "services.json";
     private static final Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
         {
             put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
@@ -342,15 +343,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 recurringServiceQuestion.put(OPENMRS_ENTITY, CONCEPT);
                 recurringServiceQuestion.put(OPENMRS_ENTITY_ID, Constants.KEY.RECURRING_SERVICE_TYPES);
 
-                Map<String, String> serviceLabels = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {
-                    {
-                        put(RecurringServices.vit_a.name(), context.getString(R.string.vita_a));
-                        put(RecurringServices.deworming.name(), context.getString(R.string.deworming));
-                        put(RecurringServices.itn.name(), context.getString(R.string.itn));
-                    }
-                };
-
-                JSONArray options = createRecurringServiceOptions(serviceLabels, ChildDao.getRecurringServiceTypes());
+                JSONArray options = createRecurringServiceOptions();
 
                 if (options != null && options.length() > 0) {
                     recurringServiceQuestion.put(JsonFormConstants.OPTIONS_FIELD_NAME, options);
@@ -362,15 +355,24 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static JSONArray createRecurringServiceOptions(Map<String, String> serviceLabels,
-                                                           List<String> recurringServiceTypes)
-            throws JSONException {
+    private static JSONArray createRecurringServiceOptions() throws JSONException {
         JSONArray options = new JSONArray();
-        for (String recurringServiceType : recurringServiceTypes) {
-            JSONObject option = new JSONObject();
-            option.put(JsonFormConstants.KEY, recurringServiceType.toLowerCase());
-            option.put(JsonFormConstants.TEXT, serviceLabels.get(recurringServiceType));
-            options.put(option);
+        Context context = ChildLibrary.getInstance().context().applicationContext();
+        JSONArray serviceArray = new JSONArray(AssetHandler.readFileFromAssetsFolder(RECURRING_SERVICES_FILE, context));
+        JSONObject serviceJson = serviceArray.getJSONObject(0);
+        if (serviceJson.has(Constants.JSON_FORM_KEY.SERVVICES)) {
+            JSONArray services = serviceJson.getJSONArray(Constants.JSON_FORM_KEY.SERVVICES);
+            for (int i = 0; i < services.length(); i++) {
+                JSONObject service = services.getJSONObject(i);
+                if (service.has(Constants.TYPE)) {
+                    String serviceType = service.getString(Constants.TYPE);
+                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase();
+                    JSONObject option = new JSONObject();
+                    option.put(JsonFormConstants.KEY, serviceKey);
+                    option.put(JsonFormConstants.TEXT, VaccinatorUtils.getTranslatedVaccineName(context, serviceType));
+                    options.put(option);
+                }
+            }
         }
         return options;
     }
