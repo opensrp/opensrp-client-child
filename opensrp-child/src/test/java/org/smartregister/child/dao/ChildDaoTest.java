@@ -57,7 +57,7 @@ public class ChildDaoTest extends ChildDao {
         matrixCursor.addRow(new Object[]{"ITN"});
         matrixCursor.addRow(new Object[]{"Vit_A"});
         Mockito.doReturn(matrixCursor).when(database).rawQuery(
-                "SELECT DISTINCT type FROM recurring_service_types ORDER BY type;",
+                "SELECT DISTINCT type FROM recurring_service_types",
                 new String[]{});
 
         List<String> recurringServiceTypes = ChildDao.getRecurringServiceTypes();
