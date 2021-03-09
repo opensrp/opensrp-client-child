@@ -357,9 +357,13 @@
     <string name="new_card_ordered">Report lost or damaged card \n (new card on order)</string>
     <string name="new_card_to_be_delivered">A new card is on order and will be delivered after printing.</string>
     <string name="card_ordered_with_date">Card Ordered: %1$s</string>
-    <string name="recurring_services_provided">Did you provide any of the following</string>
-    <string name="deworming">Deworming tablet</string>
-    <string name="itn">Insecticide treated net</string>
+    <string name="compliance">Compliance</string>
+    <string name="number_missed">%d missed</string>
+    <string name="recurring_services_provided">Other services provided</string>
+    <string name="deworming">Deworming</string>
+    <string name="itn">ITNs</string>
     <string name="vita_a">Vitamin A dose</string>
+
+    <string name="reason_for_defaulting">Record reason for defaulting</string>
 
 </resources>

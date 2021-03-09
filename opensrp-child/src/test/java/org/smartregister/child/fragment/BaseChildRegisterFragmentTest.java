@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
@@ -46,6 +47,7 @@ import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
 
 import java.util.Arrays;
@@ -466,5 +468,38 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertEquals("", joinTable);
         Assert.assertEquals("is_closed IS NOT 1", filterSelect);
         Assert.assertFalse(qrCodeCaptorValue);
+    }
+    
+    @Test
+    public void testQRCodeButtonView() throws Exception {
+        LayoutInflater inflater = Mockito.spy(LayoutInflater.class);
+
+        Assert.assertNotNull(baseChildRegisterFragment);
+
+        Mockito.doReturn(window).when(activity).getWindow();
+        Mockito.doReturn(activity).when(baseChildRegisterFragment).getActivity();
+
+        Mockito.doReturn(view).when(inflater).inflate(R.layout.smart_register_activity_customized, container, false);
+        Mockito.doNothing().when(baseChildRegisterFragment).setupViews(view);
+        Mockito.doNothing().when(baseChildRegisterFragment).onResumption();
+
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        Mockito.doReturn(true).when(appProperties).hasProperty(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(Constants.PROPERTY.HOME_TOOLBAR_SCAN_QR_ENABLED);
+        Mockito.doReturn(true).when(appProperties).hasProperty(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED);
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(Constants.PROPERTY.FEATURE_SCAN_QR_ENABLED);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
+        FrameLayout frameLayout = Mockito.mock(FrameLayout.class);
+        frameLayout.setId(R.id.scan_qr_code);
+        Mockito.doReturn(frameLayout).when(view).findViewById(R.id.scan_qr_code);
+
+        View view = baseChildRegisterFragment.onCreateView(inflater, container, savedInstanceState);
+        Whitebox.invokeMethod(baseChildRegisterFragment, "setUpQRCodeScanButtonView", view);
+
+        Mockito.verify(frameLayout).setOnClickListener(baseChildRegisterFragment);
+
     }
 }
