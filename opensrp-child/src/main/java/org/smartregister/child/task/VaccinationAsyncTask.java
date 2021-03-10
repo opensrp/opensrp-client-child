@@ -74,9 +74,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private boolean isLegacyAlerts = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_STYLE_LEGACY);
     private boolean upcomingLightBlueDisabled = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_ALERT_UPCOMING_BLUE_DISABLED);
     private boolean hideOverdueVaccineStatus = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HIDE_OVERDUE_VACCINE_STATUS);
+    private boolean splitFullyImmunizedStatus = ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_SPLIT_FULLY_IMMUNIZED_STATUS) && ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_SPLIT_FULLY_IMMUNIZED_STATUS);
     private Map<String, String> reverseLookupGroupMap;
     private Map<String, GroupVaccineCount> groupVaccineCountMap;
     private Date lastVaccineDate = null;
+    private boolean isFirstYearVaccinesDone = false;
+    private boolean isSecondYearVaccinesDone = false;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -117,6 +120,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
+        isFirstYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 0 , 365);
+        isSecondYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 365, 730);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
@@ -278,9 +283,32 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             state = State.INACTIVE;
         }
 
+        // Show Child Fully Immunized if 1st year of vaccine is complete
+        if (splitFullyImmunizedStatus && state.equals(State.UPCOMING)
+                && isFirstYearVaccinesDone) {
+            if (dueDate == null) {
+                state = State.FULLY_IMMUNIZED;
+            } else {
+                if (dueDate.getMillis() > DateTime.now().getMillis())
+                    state = State.FULLY_IMMUNIZED;
+            }
+        }
+
         if (state.equals(State.FULLY_IMMUNIZED)) {
-            recordVaccinationText.setText(R.string.fully_immunized_label);
-            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+            if (splitFullyImmunizedStatus) {
+                if (nv != null && isFirstYearVaccinesDone) {
+                    recordVaccinationText.setText(R.string.fully_immunized_label_u1);
+                } else if (isFirstYearVaccinesDone && isSecondYearVaccinesDone) {
+                    recordVaccinationText.setText(R.string.fully_immunized_label_u2);
+                } else {
+                    recordVaccinationText.setText(R.string.fully_immunized_label);
+                }
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+
+            } else {
+                recordVaccinationText.setText(R.string.fully_immunized_label);
+                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
+            }
 
             if (isLegacyAlerts) {
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);

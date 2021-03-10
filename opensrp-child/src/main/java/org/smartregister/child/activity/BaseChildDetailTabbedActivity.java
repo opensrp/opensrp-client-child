@@ -60,6 +60,7 @@ import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
 import org.smartregister.child.task.SaveDynamicVaccinesTask;
+import org.smartregister.child.task.SaveDynamicVaccinesTask.DynamicVaccineTypes;
 import org.smartregister.child.task.SaveRegistrationDetailsTask;
 import org.smartregister.child.task.SaveServiceTask;
 import org.smartregister.child.task.SaveVaccinesTask;
@@ -122,6 +123,8 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
+import static org.smartregister.growthmonitoring.util.AppProperties.Entry;
+import static org.smartregister.util.Utils.showToast;
 
 /**
  * Created by raihan on 1/03/2017.
@@ -160,6 +163,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public final SimpleDateFormat ddMmYyyyDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
     public final boolean showExtraVaccines = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
             .getProperty(ChildAppProperties.KEY.SHOW_EXTRA_VACCINES, "false"));
+    public final int extraVaccinesCount = Integer.parseInt(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.EXTRA_VACCINES_COUNT, "10"));
+    public final boolean showBoosterImmunizations = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.SHOW_BOOSTER_IMMUNIZATIONS, "false"));
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -231,24 +238,25 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         setContentView(getContentView());
 
-        try {
-
-            if (showExtraVaccines) {
-                setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
-            }
-
-        } catch (SQLiteException exception) {
-            Timber.e(exception);
-        }
-
         childDataFragment = getChildRegistrationDataFragment();
         childDataFragment.setArguments(this.getIntent().getExtras());
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
         childUnderFiveFragment.showRecurringServices(true);
-        if (showExtraVaccines) {
-            childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+
+        try {
+            if (showExtraVaccines) {
+                setExtraChildVaccines(ChildDao.getChildExtraVaccines(Constants.Tables.EC_DYNAMIC_VACCINES, childDetails.entityId()));
+                childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
+            }
+            if (showBoosterImmunizations) {
+                List<Map.Entry<String, String>> boosterImmunizations =
+                        ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, childDetails.entityId());
+                childUnderFiveFragment.setBoosterImmunizations(boosterImmunizations);
+            }
+        } catch (SQLiteException exception) {
+            Timber.e(exception);
         }
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
@@ -556,6 +564,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         getMenuInflater().inflate(R.menu.menu_child_detail_settings, menu);
         overflow = menu;
 
+        overflow.findItem(R.id.record_dynamic_vaccines).setVisible(showExtraVaccines);
+        overflow.findItem(R.id.record_booster_immunizations).setVisible(showBoosterImmunizations);
+
         //Defaults
         overflow.findItem(R.id.immunization_data).setEnabled(false);
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
@@ -573,7 +584,21 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.report_lost_card) lostCardDialogFragment.launch();
+        int itemId = item.getItemId();
+        if (itemId == R.id.report_lost_card) {
+            lostCardDialogFragment.launch();
+            return true;
+        } else if (itemId == R.id.record_dynamic_vaccines) {
+            if (getExtraChildVaccines().size() < extraVaccinesCount) {
+                launchDynamicVaccinesForm(Constants.JsonForm.DYNAMIC_VACCINES, Constants.KEY.PRIVATE_SECTOR_VACCINE);
+            } else {
+                showToast(this, getString(R.string.maximum_extra_vaccines_reached));
+            }
+            return true;
+        } else if (itemId == R.id.record_booster_immunizations) {
+            launchDynamicVaccinesForm(Constants.JsonForm.BOOSTER_VACCINES, Constants.KEY.BOOSTER_VACCINE);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -632,7 +657,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                         break;
                     case Constants.EventType.DYNAMIC_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId()), null);
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE), null);
+                        break;
+                    case Constants.EventType.BOOSTER_VACCINES:
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS), null);
                         break;
                     default:
                         break;
@@ -678,14 +706,19 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Override
-    public void onSaveDynamicVaccine() {
+    public void onSaveDynamicVaccine(DynamicVaccineTypes dynamicVaccineTypes) {
         showProgressDialog();
         viewPager.setCurrentItem(1, true);
-        if (showExtraVaccines) {
-            setExtraChildVaccines(ChildDao.getChildExtraVaccines(childDetails.entityId()));
+        if (showExtraVaccines && dynamicVaccineTypes == DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE) {
+            setExtraChildVaccines(ChildDao.getChildExtraVaccines(Constants.Tables.EC_DYNAMIC_VACCINES, childDetails.entityId()));
             childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
         }
-        childUnderFiveFragment.updateExtraVaccinesView();
+        if (showBoosterImmunizations && dynamicVaccineTypes == DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS) {
+            List<Entry<String, String>> boosterImmunization =
+                    ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, childDetails.entityId());
+            childUnderFiveFragment.setBoosterImmunizations(boosterImmunization);
+        }
+        childUnderFiveFragment.updateExtraVaccinesView(dynamicVaccineTypes);
         hideProgressDialog();
     }
 
@@ -799,8 +832,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
         overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
         overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
-        MenuItem item = overflow.findItem(R.id.record_dynamic_vaccines);
-        if (item != null) item.setEnabled(canEditRegistrationData);
+        MenuItem recordDynamicVaccines = overflow.findItem(R.id.record_dynamic_vaccines);
+        if (recordDynamicVaccines != null)
+            recordDynamicVaccines.setEnabled(canEditRegistrationData);
+        MenuItem recordBoosterImmunization = overflow.findItem(R.id.record_booster_immunizations);
+        if (recordBoosterImmunization != null)
+            recordBoosterImmunization.setEnabled(canEditRegistrationData);
     }
 
     @Override
