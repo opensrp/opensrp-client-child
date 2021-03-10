@@ -90,7 +90,6 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.smartregister.util.JsonFormUtils.FIELDS;
 import static org.smartregister.util.JsonFormUtils.STEP1;
 
@@ -1358,7 +1357,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonObject.put(Constants.NO_OF_EVENTS, 0);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(0L);
-        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
 
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
         Assert.assertNotNull(event);
@@ -1388,7 +1387,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonObject.put(Constants.NO_OF_EVENTS, 2);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(2L);
-        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
@@ -1407,7 +1406,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
                 "Out of Catchment");
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(ArgumentMatchers.anyString())).thenReturn(allCommonsRepository);
 
         @Nullable
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), true, true);
@@ -1437,7 +1436,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonObject.put(Constants.NO_OF_EVENTS, 2);
 
         Response<String> response = new Response<>(ResponseStatus.success, jsonObject.toString()).withTotalRecords(1L);
-        Mockito.when(httpAgent.fetch(anyString())).thenReturn(response);
+        Mockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(response);
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.when(childLibrary.getEcSyncHelper()).thenReturn(ecSyncHelper);
@@ -1456,7 +1455,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
                 "Out of Catchment");
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(openSrpContext.allCommonsRepositoryobjects(anyString())).thenReturn(allCommonsRepository);
+        Mockito.when(openSrpContext.allCommonsRepositoryobjects(ArgumentMatchers.anyString())).thenReturn(allCommonsRepository);
 
         MoveToCatchmentEvent event = MoveToMyCatchmentUtils.createMoveToCatchmentEvent(Arrays.asList(baseEntityIds), false, true);
         Assert.assertNotNull(event);
