@@ -2,9 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/register_card"
+        android:orderInCategory="100"
+        android:title="@string/register_card"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/verify_caregiver"
         android:orderInCategory="100"
         android:title="@string/verify_caregiver"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/write_passcode"
+        android:orderInCategory="100"
+        android:title="@string/write_passcode"
         android:visible="false"
         app:showAsAction="never" />
     <item
@@ -17,12 +29,6 @@
         android:id="@+id/write_to_card"
         android:orderInCategory="100"
         android:title="@string/write_to_card"
-        android:visible="false"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/register_card"
-        android:orderInCategory="100"
-        android:title="@string/register_card"
         android:visible="false"
         app:showAsAction="never" />
     <item

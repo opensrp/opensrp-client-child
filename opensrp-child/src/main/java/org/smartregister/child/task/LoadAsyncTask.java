@@ -164,6 +164,16 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
         try {
+            MenuItem writePasscode = overflow.findItem(R.id.write_passcode);
+            if (writePasscode != null) {
+                writePasscode.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            MenuItem verifyCaregiver = overflow.findItem(R.id.verify_caregiver);
+            if (verifyCaregiver != null) {
+                verifyCaregiver.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
             MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
             if (writeToCard != null) {
                 writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
@@ -172,6 +182,11 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             MenuItem readFromCard = overflow.findItem(R.id.read_from_card);
             if (readFromCard != null) {
                 readFromCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            MenuItem blacklistCard = overflow.findItem(R.id.blacklist_card);
+            if (blacklistCard != null) {
+                blacklistCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
             }
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
