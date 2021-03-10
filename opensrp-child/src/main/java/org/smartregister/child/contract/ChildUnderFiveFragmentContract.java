@@ -19,7 +19,9 @@ public interface ChildUnderFiveFragmentContract {
 
     interface Presenter {
 
-        Photo getProfilePhotoByClient(CommonPersonObjectClient commonPersonObjectClient);
+        Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails);
+
+        Photo getProfilePhotoByClient(Map<String, String> clientDetailsMap);
 
         String constructChildName(Map<String, String> detailsMap);
 
@@ -37,12 +39,14 @@ public interface ChildUnderFiveFragmentContract {
 
         HeightWrapper getHeightWrapper(WrapperParam heightParam);
 
-        Weight getWeight(List<Weight> weights, long weightPosition);
+        Weight getWeight(List<Weight> weights, long dateRecordedTimestamp);
 
-        Height getHeight(List<Height> heights, long heightPosition);
+        Height getHeight(List<Height> heights, long dateRecordedTimestamp);
 
         void sortTheWeightsInDescendingOrder(List<Weight> weightList);
 
         void sortTheHeightsInDescendingOrder(List<Height> heightList);
+
+        WrapperParam getWrapperParam(Map<String, String> detailsMap, long growthRecordPosition);
     }
 }

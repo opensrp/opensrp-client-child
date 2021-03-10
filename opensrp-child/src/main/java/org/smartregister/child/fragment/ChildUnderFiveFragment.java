@@ -16,7 +16,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
@@ -30,7 +29,6 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -333,12 +331,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 for (String type : serviceTypeMap.keySet()) {
                     ServiceRowGroup curGroup = new ServiceRowGroup(getActivity(), editServiceMode);
                     curGroup.setData(childDetails, serviceTypeMap.get(type), serviceRecords, alertList);
-                    curGroup.setOnServiceUndoClickListener(new ServiceRowGroup.OnServiceUndoClickListener() {
-                        @Override
-                        public void onUndoClick(ServiceRowGroup serviceRowGroup, ServiceWrapper service) {
-                            addServiceDialogFragment(service, serviceRowGroup);
-                        }
-                    });
+                    curGroup.setOnServiceUndoClickListener((serviceRowGroup, service) -> addServiceDialogFragment(service, serviceRowGroup));
 
                     TextView groupNameTextView = createGroupNameTextView(getActivity(), type);
                     serviceGroupCanvasLL.addView(groupNameTextView);
@@ -428,40 +421,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         fragmentTransaction.addToBackStack(null);
 
-        String childName = presenter.constructChildName(detailsMap);
-        String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
-        String motherFirstName = Utils.getValue(detailsMap, Constants.KEY.MOTHER_FIRST_NAME, true);
-        if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
-            childName = "B/o " + motherFirstName.trim();
-        }
-        String openSrpId = Utils.getValue(detailsMap, Constants.KEY.ZEIR_ID, false);
-        String duration = "";
-        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
-        DateTime dateTime = Utils.dobStringToDateTime(dobString);
-
-        Date dob = null;
-        if (dateTime != null) {
-            duration = DateUtil.getDuration(dateTime);
-            dob = dateTime.toDate();
-        }
-
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        Photo photo = presenter.getProfilePhotoByClient(childDetails);
-
-        String pmmtctStatus = Utils.getValue(childDetails.getColumnmaps(), BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false);
-
-        WrapperParam wrapperParams = new WrapperParam();
-        wrapperParams.setBaseEntityId(childDetails.entityId());
-        wrapperParams.setChildName(childName);
-        wrapperParams.setPosition(growthRecordPosition);
-        wrapperParams.setDuration(duration);
-        wrapperParams.setGender(gender);
-        wrapperParams.setOpenSrpId(openSrpId);
-        wrapperParams.setPhoto(photo);
-        wrapperParams.setPmtctStatus(pmmtctStatus);
+        WrapperParam wrapperParams = presenter.getWrapperParam(detailsMap, growthRecordPosition);
 
         WeightWrapper weightWrapper = presenter.getWeightWrapper(wrapperParams);
 
@@ -471,7 +431,7 @@ public class ChildUnderFiveFragment extends Fragment {
             heightWrapper = presenter.getHeightWrapper(wrapperParams);
         }
 
-        EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
+        EditGrowthDialogFragment editWeightDialogFragment = EditGrowthDialogFragment.newInstance(wrapperParams.getDob(), weightWrapper, heightWrapper);
         editWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
 
     }
