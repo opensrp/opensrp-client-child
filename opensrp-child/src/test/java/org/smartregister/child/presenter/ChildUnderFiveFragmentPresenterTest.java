@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.Context;
 import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.WrapperParam;
@@ -27,6 +28,7 @@ import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.util.EasyMap;
 
@@ -53,6 +55,9 @@ public class ChildUnderFiveFragmentPresenterTest extends BasePowerMockUnitTest {
     private ChildUnderFiveFragmentPresenter presenter;
 
     @Mock
+    private Context smartRegisterContext;
+
+    @Mock
     private HeightRepository heightRepository;
 
     @Mock
@@ -61,17 +66,32 @@ public class ChildUnderFiveFragmentPresenterTest extends BasePowerMockUnitTest {
     private String baseEntityId = "somebaseentyid";
 
     @Mock
+    private GrowthMonitoringLibrary growthMonitoringLibrary;
+
+    @Mock
+    private ImmunizationLibrary immunizationLibrary;
+
+    @Mock
     private ImageRepository imageRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", growthMonitoringLibrary);
+
+        Mockito.doReturn(smartRegisterContext).when(immunizationLibrary).context();
+        Mockito.doReturn(imageRepository).when(smartRegisterContext).imageRepository();
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+
+        Mockito.doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
+        Mockito.doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
         presenter = Mockito.spy(new ChildUnderFiveFragmentPresenter());
     }
 
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
     }
 
     @Test
@@ -590,7 +610,8 @@ public class ChildUnderFiveFragmentPresenterTest extends BasePowerMockUnitTest {
         ProfileImage image = new ProfileImage();
         image.setFilepath(TEST_PHOTO_LINE_PATH);
 
-        Mockito.doReturn(image).when(imageRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        Mockito.doReturn(new Photo()).when(presenter).getProfilePhotoByClient(childDetailsMap);
+
 
         WrapperParam wrapperParam = presenter.getWrapperParam(childDetailsMap, 2000092l);
 
