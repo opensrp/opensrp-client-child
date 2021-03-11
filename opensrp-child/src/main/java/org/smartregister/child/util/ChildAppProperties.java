@@ -27,6 +27,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Home styling
         public static final String HOME_ALERT_STYLE_LEGACY = "home.alert.style.legacy";
         public static final String HOME_ALERT_UPCOMING_BLUE_DISABLED = "home.alert.upcoming.blue.disabled";
+        public static final String HOME_SPLIT_FULLY_IMMUNIZED_STATUS = "home.split.fully.immunized.status";
 
         //Details page widgets
         public static final String DETAILS_SIDE_NAVIGATION_ENABLED = "details.side.navigation.enabled";
@@ -48,7 +49,14 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Show extra vaccines
         public static final String SHOW_EXTRA_VACCINES = "show.extra.vaccines";
 
+        //Show recurring service on out of catchment form
         public static final String SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES = "show.out.of.catchment.recurring.services";
+
+        //Show booster vaccines
+        public static final String SHOW_BOOSTER_IMMUNIZATIONS = "show.booster.immunizations";
+
+        //Count of extra vaccines to select at a particular time
+        public static final String EXTRA_VACCINES_COUNT = "extra.vaccines.count";
 
         //novel features
         public final static class NOVEL {

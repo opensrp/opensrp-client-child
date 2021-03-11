@@ -31,7 +31,6 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildFormActivity;
-import org.smartregister.child.dao.ChildDao;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
@@ -88,12 +87,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import timber.log.Timber;
-
-import static org.smartregister.util.Utils.getBooleanProperty;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -120,16 +116,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static final String OPENSRP_ID = "opensrp_id";
     private static final String FORM_SUBMISSION_FIELD = "formsubmissionField";
     private static final String LABEL_TEXT_STYLE = "label_text_style";
+    private static final String RECURRING_SERVICES_FILE = "services.json";
     private static final Map<String, Set<String>> eventTypeMap = new HashMap<String, Set<String>>() {
         {
             put(Constants.KEY.FATHER, ImmutableSet.of(Constants.EventType.FATHER_REGISTRATION, Constants.EventType.UPDATE_FATHER_DETAILS));
             put(Constants.KEY.MOTHER, ImmutableSet.of(Constants.EventType.NEW_WOMAN_REGISTRATION, Constants.EventType.UPDATE_MOTHER_DETAILS));
         }
     };
-
-    public enum RecurringServices {
-        deworming, itn, vit_a
-    }
 
     /**
      * Populate metadata onto form
@@ -327,7 +320,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void addRecurringServices(Context context, JSONObject form) {
-        boolean showRecurringServices = getBooleanProperty(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES);
+        boolean showRecurringServices = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                .getProperty(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES, "false"));
         JSONArray fields = fields(form, JsonFormConstants.STEP1);
         if (showRecurringServices && fields != null) {
 
@@ -342,15 +336,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 recurringServiceQuestion.put(OPENMRS_ENTITY, CONCEPT);
                 recurringServiceQuestion.put(OPENMRS_ENTITY_ID, Constants.KEY.RECURRING_SERVICE_TYPES);
 
-                Map<String, String> serviceLabels = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {
-                    {
-                        put(RecurringServices.vit_a.name(), context.getString(R.string.vita_a));
-                        put(RecurringServices.deworming.name(), context.getString(R.string.deworming));
-                        put(RecurringServices.itn.name(), context.getString(R.string.itn));
-                    }
-                };
-
-                JSONArray options = createRecurringServiceOptions(serviceLabels, ChildDao.getRecurringServiceTypes());
+                JSONArray options = createRecurringServiceOptions(context);
 
                 if (options != null && options.length() > 0) {
                     recurringServiceQuestion.put(JsonFormConstants.OPTIONS_FIELD_NAME, options);
@@ -362,17 +348,30 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static JSONArray createRecurringServiceOptions(Map<String, String> serviceLabels,
-                                                           List<String> recurringServiceTypes)
-            throws JSONException {
+    private static JSONArray createRecurringServiceOptions(Context context) throws JSONException {
         JSONArray options = new JSONArray();
-        for (String recurringServiceType : recurringServiceTypes) {
-            JSONObject option = new JSONObject();
-            option.put(JsonFormConstants.KEY, recurringServiceType.toLowerCase());
-            option.put(JsonFormConstants.TEXT, serviceLabels.get(recurringServiceType));
-            options.put(option);
+        JSONArray serviceArray = getArrayFromFile(context, RECURRING_SERVICES_FILE);
+        JSONObject serviceJson = serviceArray.getJSONObject(0);
+        if (serviceJson.has(Constants.JSON_FORM_KEY.SERVVICES)) {
+            JSONArray services = serviceJson.getJSONArray(Constants.JSON_FORM_KEY.SERVVICES);
+            for (int i = 0; i < services.length(); i++) {
+                JSONObject service = services.getJSONObject(i);
+                if (service.has(Constants.TYPE)) {
+                    String serviceType = service.getString(Constants.TYPE);
+                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase();
+                    JSONObject option = new JSONObject();
+                    option.put(JsonFormConstants.KEY, serviceKey);
+                    option.put(JsonFormConstants.TEXT, VaccinatorUtils.getTranslatedVaccineName(context, serviceType));
+                    options.put(option);
+                }
+            }
         }
         return options;
+    }
+
+    @NotNull
+    public static JSONArray getArrayFromFile(Context context, String fileName) throws JSONException {
+        return new JSONArray(AssetHandler.readFileFromAssetsFolder(fileName, context));
     }
 
     @NotNull
@@ -1463,7 +1462,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         baseClient.setTeamId(baseEvent.getTeamId());
     }
 
-    private static boolean validateFatherDetails(String jsonString) {
+    public static boolean validateFatherDetails(String jsonString) {
         JSONObject jsonForm = toJSONObject(jsonString);
         JSONArray fields = fields(jsonForm);
         boolean isFormValid = false;
@@ -1527,7 +1526,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             }
 
             Context context = ChildLibrary.getInstance().context().applicationContext();
-            JSONArray relationships = new JSONArray(AssetHandler.readFileFromAssetsFolder(FormUtils.ecClientRelationships, context));
+            JSONArray relationships = getArrayFromFile(context, FormUtils.ecClientRelationships);
             JSONObject client = ChildLibrary.getInstance().eventClientRepository().getClientByBaseEntityId(childClient.getBaseEntityId());
             if (client != null && client.has(Constants.JSON_FORM_KEY.RELATIONSHIPS)) {
                 JSONObject relationshipsJson = client.getJSONObject(Constants.JSON_FORM_KEY.RELATIONSHIPS);
