@@ -164,14 +164,19 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
         try {
-            MenuItem writePasscode = overflow.findItem(R.id.write_passcode);
-            if (writePasscode != null) {
-                writePasscode.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            MenuItem registerCard = overflow.findItem(R.id.register_card);
+            if (registerCard != null) {
+                registerCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
             }
 
             MenuItem verifyCaregiver = overflow.findItem(R.id.verify_caregiver);
             if (verifyCaregiver != null) {
                 verifyCaregiver.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
+            }
+
+            MenuItem writePasscode = overflow.findItem(R.id.write_passcode);
+            if (writePasscode != null) {
+                writePasscode.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
             }
 
             MenuItem writeToCard = overflow.findItem(R.id.write_to_card);

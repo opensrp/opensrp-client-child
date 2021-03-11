@@ -369,7 +369,6 @@
     <string name="vit_a">Vitamin A dose</string>
     <string name="fully_immunized_label_u1">Fully Immunized U1</string>
     <string name="fully_immunized_label_u2">Fully Immunized U2</string>
-    <string name="collect_biometrics">Biometric Scanner</string>
     <string name="collect_biometrics">Biometrics</string>
 
     <string name="record_booster_immunizations">Record Booster Immunizations</string>
