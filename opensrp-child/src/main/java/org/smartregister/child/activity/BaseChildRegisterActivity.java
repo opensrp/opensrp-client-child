@@ -80,10 +80,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 bottomNavigationView.getMenu().removeItem(R.id.action_scan_qr);
             }
 
-            if (!ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.HOME_TOOLBAR_SCAN_BIOMETRICS_ENABLED)) {
-                bottomNavigationView.getMenu().removeItem(R.id.action_biometric);
-            }
-
             ChildBottomNavigationListener childBottomNavigationListener = getChildBottomNavigationListener();
             bottomNavigationView.setOnNavigationItemSelectedListener(childBottomNavigationListener);
 
@@ -279,8 +275,6 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             Timber.e(e);
         }
     }
-
-    public abstract void startBiometricScanner();
 
     public void startNFCCardScanner() {
         //To do override in implementation

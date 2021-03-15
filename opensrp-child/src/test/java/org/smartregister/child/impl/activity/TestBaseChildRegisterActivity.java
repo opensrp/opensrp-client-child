@@ -13,11 +13,6 @@ public class TestBaseChildRegisterActivity extends BaseChildRegisterActivity {
     @Override
     public String getRegistrationForm() {
         return null;
-    } 
-
-    @Override
-    public void startBiometricScanner() {
-        // Do nothing
     }
 
     @Override

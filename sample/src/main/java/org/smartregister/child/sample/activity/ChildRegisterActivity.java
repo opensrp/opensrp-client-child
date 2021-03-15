@@ -10,7 +10,6 @@ import org.smartregister.child.presenter.BaseChildRegisterPresenter;
 import org.smartregister.child.sample.fragment.AdvancedSearchFragment;
 import org.smartregister.child.sample.fragment.ChildRegisterFragment;
 import org.smartregister.child.sample.util.SampleConstants;
-import org.smartregister.child.util.Utils;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
@@ -50,10 +49,5 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     @Override
     public String getRegistrationForm() {
         return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
-    }
-
-    @Override
-    public void startBiometricScanner() {
-        Utils.showToast(this, this.getResources().getString(org.smartregister.child.R.string.collect_biometrics));
     }
 }

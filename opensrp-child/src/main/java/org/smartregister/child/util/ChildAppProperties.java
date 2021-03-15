@@ -23,7 +23,6 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         public static final String HOME_TOOLBAR_SCAN_QR_ENABLED = "home.toolbar.scan.qr.enabled";
         public static final String HOME_COMPLIANCE_ENABLED = "home.compliance.enabled";
         public static final String HOME_ZEIR_ID_COL_ENABLED = "home.zeir.id.column.enabled";
-        public static final String HOME_TOOLBAR_SCAN_BIOMETRICS_ENABLED = "home.toolbar.scan.biometrics.enabled";
 
         //Home styling
         public static final String HOME_ALERT_STYLE_LEGACY = "home.alert.style.legacy";

@@ -15,18 +15,11 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_biometric"
-        android:enabled="true"
-        android:icon="@drawable/ic_biometric"
-        android:title="@string/collect_biometrics"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_search"
         android:enabled="true"
         android:icon="@drawable/ic_icon_search"
         android:title="@string/search_menu"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_register"
         android:enabled="true"
