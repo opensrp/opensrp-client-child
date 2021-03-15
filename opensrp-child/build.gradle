@@ -102,7 +102,7 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
 
-    api('org.smartregister:opensrp-client-core:4.2.13-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:4.2.14-MN-ALPHA1-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
