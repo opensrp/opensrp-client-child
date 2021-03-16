@@ -28,15 +28,21 @@ import static org.smartregister.util.Utils.getAllSharedPreferences;
 
 public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
-    private OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
-    private String jsonString;
-    private String baseEntityId;
+    private final OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
+    private final String jsonString;
+    private final String baseEntityId;
+    private final DynamicVaccineTypes dynamicVaccineTypes;
+
+    public enum DynamicVaccineTypes {
+        PRIVATE_SECTOR_VACCINE, BOOSTER_IMMUNIZATIONS
+    }
 
     public SaveDynamicVaccinesTask(OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener,
-                                   String jsonString, String entityId) {
+                                   String jsonString, String entityId, DynamicVaccineTypes dynamicVaccineTypes) {
         this.onSaveDynamicVaccinesListener = onSaveDynamicVaccinesListener;
         this.jsonString = jsonString;
         this.baseEntityId = entityId;
+        this.dynamicVaccineTypes = dynamicVaccineTypes;
     }
 
     @Override
@@ -76,6 +82,6 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        onSaveDynamicVaccinesListener.onSaveDynamicVaccine();
+        onSaveDynamicVaccinesListener.onSaveDynamicVaccine(dynamicVaccineTypes);
     }
 }

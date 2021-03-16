@@ -1,5 +1,7 @@
 package org.smartregister.child;
 
+import android.os.Build;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,9 +10,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -22,8 +28,11 @@ import id.zelory.compressor.Compressor;
 
 
 @RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(RobolectricTestRunner.class)
 @PrepareForTest({ChildLibrary.class})
-public class ChildLibraryTest extends BaseUnitTest {
+@Config(sdk = Build.VERSION_CODES.O_MR1)
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
+public class ChildLibraryTest {
 
     @Mock
     private ChildLibrary childLibrary;

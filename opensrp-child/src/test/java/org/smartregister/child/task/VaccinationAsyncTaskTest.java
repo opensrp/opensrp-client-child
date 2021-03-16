@@ -726,7 +726,46 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView, times(2)).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.status_bar_text_almost_white));
 
+    }
+
+    @Test
+    public void testFullyImmunizedLabelForMr2Vaccine() throws Exception {
+        Method updateRecordVaccination = VaccinationAsyncTask.class.getDeclaredMethod("updateRecordVaccination", VaccineViewRecordUpdateWrapper.class);
+        updateRecordVaccination.setAccessible(true);
+
+        Whitebox.setInternalState(vaccinationAsyncTask, "splitFullyImmunizedStatus", true);
+        Whitebox.setInternalState(vaccinationAsyncTask, "dobString", "2019-01-06T17:00:00.000+05:00");
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2021);
+        cal.set(Calendar.MONTH, Calendar.JANUARY);
+        cal.set(Calendar.DAY_OF_MONTH, 10);
+
+        org.smartregister.immunization.domain.Vaccine mr2 = new org.smartregister.immunization.domain.Vaccine();
+        mr2.setName("MR 2");
+        mr2.setDate(cal.getTime());
+
+        when(vaccineViewRecordUpdateWrapper.getConvertView()).thenReturn(view);
+        when(vaccineViewRecordUpdateWrapper.getLostToFollowUp()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getInactive()).thenReturn("false");
+        when(vaccineViewRecordUpdateWrapper.getNv()).thenReturn(null);
+
+        List<org.smartregister.immunization.domain.Vaccine> vaccines = new LinkedList<>();
+        vaccines.add(mr2);
+        when(vaccineViewRecordUpdateWrapper.getVaccines()).thenReturn(vaccines);
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(view);
+        when(view.findViewById(R.id.record_vaccination_text)).thenReturn(textView);
+        when(view.findViewById(R.id.record_vaccination_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.record_vaccination_harvey_ball)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_check)).thenReturn(imageView);
+        when(view.findViewById(R.id.compliance_text)).thenReturn(textView);
+        when(imageView.getParent()).thenReturn(linearLayout);
+
+        updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
+
+        verify(textView).setText(R.string.fully_immunized_label);
     }
 }

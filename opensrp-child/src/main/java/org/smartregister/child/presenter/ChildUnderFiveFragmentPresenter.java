@@ -1,7 +1,11 @@
 package org.smartregister.child.presenter;
 
+import androidx.annotation.VisibleForTesting;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
 import org.smartregister.child.domain.WrapperParam;
 import org.smartregister.child.util.Constants;
@@ -13,9 +17,15 @@ import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.repository.HeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.util.ImageUtils;
+import org.smartregister.repository.ImageRepository;
+import org.smartregister.util.DateUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,10 +36,18 @@ import java.util.Map;
  */
 public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentContract.Presenter {
 
-
     @Override
     public Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails) {
         return ImageUtils.profilePhotoByClient(childDetails);
+    }
+
+    @Override
+    public Photo getProfilePhotoByClient(Map<String, String> clientDetailsMap) {
+        return ImageUtils.profilePhotoByClient(clientDetailsMap);
+    }
+
+    protected ImageRepository getImageRepository() {
+        return ImmunizationLibrary.getInstance().context().imageRepository();
     }
 
     @Override
@@ -38,7 +56,6 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         String lastName = Utils.getValue(detailsMap, Constants.KEY.LAST_NAME, true);
         return Utils.getName(firstName, lastName).trim();
     }
-
 
     @NotNull
     @Override
@@ -87,9 +104,9 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
     @Override
     public List<Weight> getChildSpecificWeights(String baseEntityId, List<Weight> weights) {
         List<Weight> weightList = new ArrayList<>();
-        for (Weight height : weights) {
-            if (height.getBaseEntityId().equals(baseEntityId)) {
-                weightList.add(height);
+        for (Weight weight : weights) {
+            if (weight.getBaseEntityId().equals(baseEntityId)) {
+                weightList.add(weight);
             }
         }
 
@@ -107,7 +124,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(weightParams.getBaseEntityId());
 
-        List<Weight> weightList = GrowthMonitoringLibrary.getInstance().weightRepository().findByEntityId(weightParams.getBaseEntityId());
+        List<Weight> weightList = getWeightRepository().findByEntityId(weightParams.getBaseEntityId());
         Weight weight = getWeight(weightList, weightParams.getPosition());
 
         if (!weightList.isEmpty()) {
@@ -125,11 +142,16 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         return weightWrapper;
     }
 
+    @VisibleForTesting
+    protected WeightRepository getWeightRepository() {
+        return GrowthMonitoringLibrary.getInstance().weightRepository();
+    }
+
     @Override
-    public Weight getWeight(List<Weight> weights, long weightPosition) {
+    public Weight getWeight(List<Weight> weights, long dateRecordedTimestamp) {
         Weight displayWeight = new Weight();
         for (Weight weight : weights) {
-            if (Utils.isSameDay(weightPosition, weight.getDate().getTime(), null)) {
+            if (Utils.isSameDay(dateRecordedTimestamp, weight.getDate().getTime(), null)) {
                 displayWeight = weight;
             }
         }
@@ -142,7 +164,7 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setId(heightParam.getBaseEntityId());
 
-        List<Height> heightList = GrowthMonitoringLibrary.getInstance().heightRepository().findByEntityId(heightParam.getBaseEntityId());
+        List<Height> heightList = getHeightRepository().findByEntityId(heightParam.getBaseEntityId());
         Height height = getHeight(heightList, heightParam.getPosition());
 
         if (!heightList.isEmpty()) {
@@ -160,11 +182,15 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
         return heightWrapper;
     }
 
+    protected HeightRepository getHeightRepository() {
+        return GrowthMonitoringLibrary.getInstance().heightRepository();
+    }
+
     @Override
-    public Height getHeight(List<Height> heights, long heightPosition) {
+    public Height getHeight(List<Height> heights, long dateRecordedTimestamp) {
         Height displayHeight = new Height();
         for (Height height : heights) {
-            if (Utils.isSameDay(heightPosition, height.getDate().getTime(), null)) {
+            if (Utils.isSameDay(dateRecordedTimestamp, height.getDate().getTime(), null)) {
                 displayHeight = height;
             }
         }
@@ -180,5 +206,51 @@ public class ChildUnderFiveFragmentPresenter implements ChildUnderFiveFragmentCo
     @Override
     public void sortTheHeightsInDescendingOrder(List<Height> heightList) {
         Collections.sort(heightList, (o1, o2) -> (o1 != null && o2 != null && o2.getDate() != null) ? o2.getDate().compareTo(o1.getDate()) : 0);
+    }
+
+    @Override
+    @NotNull
+    public WrapperParam getWrapperParam(Map<String, String> detailsMap, long growthRecordPosition) {
+        String childName = constructChildName(detailsMap);
+        String gender = Utils.getValue(detailsMap, Constants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(detailsMap, Constants.KEY.MOTHER_FIRST_NAME, true);
+        if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
+            childName = "B/o " + motherFirstName.trim();
+        }
+        String openSrpId = Utils.getValue(detailsMap, Constants.KEY.ZEIR_ID, false);
+        String duration = "";
+        String dobString = Utils.getValue(detailsMap, Constants.KEY.DOB, false);
+        DateTime dateTime = Utils.dobStringToDateTime(dobString);
+
+        Date dob = null;
+        if (dateTime != null) {
+            duration = getChildAge(dateTime);
+            dob = dateTime.toDate();
+        }
+
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
+        }
+
+        Photo photo = getProfilePhotoByClient(detailsMap);
+
+        String pmtctStatus = Utils.getValue(detailsMap, BaseChildDetailTabbedActivity.PMTCT_STATUS_LOWER_CASE, false);
+
+        WrapperParam wrapperParams = new WrapperParam();
+        wrapperParams.setBaseEntityId(Utils.getValue(detailsMap, Constants.KEY.BASE_ENTITY_ID, false));
+        wrapperParams.setChildName(childName);
+        wrapperParams.setPosition(growthRecordPosition);
+        wrapperParams.setDuration(duration);
+        wrapperParams.setGender(gender);
+        wrapperParams.setOpenSrpId(openSrpId);
+        wrapperParams.setPhoto(photo);
+        wrapperParams.setPmtctStatus(pmtctStatus);
+        wrapperParams.setDob(dob);
+        return wrapperParams;
+    }
+
+    @VisibleForTesting
+    protected String getChildAge(DateTime dateTime) {
+        return DateUtil.getDuration(dateTime);
     }
 }
