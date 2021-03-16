@@ -219,7 +219,6 @@ public class BaseChildImmunizationActivityTest {
         ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, TestChildImmunizationActivity.class,
                 null, true);
         ChildMetadata metadataObj = Mockito.spy(metadata);
-        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
         when(Utils.metadata()).thenReturn(metadataObj);
         when(context.applicationContext()).thenReturn(Mockito.mock(android.content.Context.class));
 
