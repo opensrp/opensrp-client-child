@@ -230,10 +230,4 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
         verify(view).setVisibility(View.VISIBLE);
         verify(textView).setText("Advanced Search");
     }
-
-    @Test
-    @Ignore
-    public void testClearFormFields() {
-        // to do
-    }
 }
