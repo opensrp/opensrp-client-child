@@ -19,7 +19,6 @@ import com.vijay.jsonwizard.customviews.CheckBox;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
