@@ -68,6 +68,7 @@ import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.util.JsonFormUtils;
+import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -823,7 +824,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
-        event.setLocationId(getProviderLocationId());
+        event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
         String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
         event.setChildLocationId(childLocationId);
@@ -879,14 +880,16 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    public static String getProviderLocationId() {
+    public static String getProviderLocationId(Context context) {
+        LocationPickerView locationPickerView = ChildLibrary.getInstance().getLocationPickerView(context);
+        if (locationPickerView != null) {
+            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
+            if (StringUtils.isBlank(locationId))
+                return  locationId;
+        }
         AllSharedPreferences allSharedPreferences= ChildLibrary.getInstance().context().allSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
-        String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
-        if (StringUtils.isBlank(userLocationId)) {
-            userLocationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
-        }
-        return userLocationId;
+        return  allSharedPreferences.fetchDefaultLocalityId(providerId);
     }
 
     public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
@@ -1828,7 +1831,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static void processMoveToCatchmentPermanent(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
-        String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+        String locationId = getProviderLocationId(context);
 
         //The identifiers for provider we are transferring TO
         Identifiers localProviderIdentifiers = new Identifiers();
@@ -2001,7 +2004,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             final String DATA_TYPE = "text";
 
-            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(opensrpContext.applicationContext()), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
 
             List<Object> val = new ArrayList<>();
 

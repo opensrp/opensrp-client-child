@@ -289,7 +289,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
             vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
             vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId());
+            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
             vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccineObj.getLocationId(), ChildLibrary.getInstance().context().allSharedPreferences()));
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
             vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
