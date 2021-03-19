@@ -821,7 +821,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
-        event.setLocationId(getProviderLocationId(allSharedPreferences));
+        event.setLocationId(getProviderLocationId());
 
         String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
         event.setChildLocationId(childLocationId);
@@ -877,7 +877,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    public static String getProviderLocationId(AllSharedPreferences allSharedPreferences) {
+    public static String getProviderLocationId() {
+        AllSharedPreferences allSharedPreferences= ChildLibrary.getInstance().context().allSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
         if (StringUtils.isBlank(userLocationId)) {
@@ -2004,7 +2005,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             final String DATA_TYPE = "text";
 
-            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(opensrpContext.allSharedPreferences()), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
 
             List<Object> val = new ArrayList<>();
 
