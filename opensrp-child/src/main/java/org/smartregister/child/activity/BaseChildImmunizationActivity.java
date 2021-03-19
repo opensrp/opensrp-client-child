@@ -823,7 +823,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(name);
         vaccine.setDate(date);
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(getOpenSRPContext().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -1414,7 +1414,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId());
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
         vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -1564,7 +1564,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = ChildJsonFormUtils.getProviderLocationId();
+        String locationId = ChildJsonFormUtils.getProviderLocationId(this);
         String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
         String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
         String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);

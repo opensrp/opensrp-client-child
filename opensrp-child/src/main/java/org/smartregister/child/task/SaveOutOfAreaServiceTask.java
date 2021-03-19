@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.OutOfAreaServiceUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -41,7 +42,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         try {
 
-            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(LocationHelper.getInstance().getDefaultLocation());
+            String locationId = ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext());
             JSONObject outOfAreaFormJsonObject = new JSONObject(formString);
 
             // Get metadata from the form
