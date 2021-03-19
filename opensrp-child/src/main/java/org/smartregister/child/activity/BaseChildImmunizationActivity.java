@@ -1421,7 +1421,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId());
         vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
@@ -1572,7 +1572,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences());
+        String locationId = ChildJsonFormUtils.getProviderLocationId();
         String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
         String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
         String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
