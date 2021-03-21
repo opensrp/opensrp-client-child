@@ -147,6 +147,7 @@ public final class Constants extends AllConstants {
 
         public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
         public static final String BOOSTER_VACCINE = "booster_vaccine";
+        public static final String BCG_SCAR = "BCG: scar";
     }
 
     public static final class INTENT_KEY {

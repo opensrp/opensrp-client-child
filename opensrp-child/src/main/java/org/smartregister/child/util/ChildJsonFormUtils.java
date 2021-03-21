@@ -855,7 +855,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             if (StringUtils.isNotBlank(currentLocality)) {
                 String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
+                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equalsIgnoreCase(currentLocalityId)) {
                     return currentLocalityId;
                 }
             }
@@ -878,16 +878,27 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
+    /**
+     * Generic method for obtaining location for submitting event. Defaults to team location;
+     *
+     * @param context Android context required for location picker view
+     * @return Location id used to sync events
+     */
     public static String getProviderLocationId(Context context) {
-        LocationPickerView locationPickerView = ChildLibrary.getInstance().getLocationPickerView(context);
-        if (locationPickerView != null) {
-            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
-            if (StringUtils.isBlank(locationId))
-                return  locationId;
+        AllSharedPreferences allSharedPreferences = org.smartregister.util.Utils.getAllSharedPreferences();
+        try {
+            String currentLocality = allSharedPreferences.getPreference(AllConstants.CURRENT_LOCATION_ID);
+            String openMrsLocationId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+            if (StringUtils.isNotBlank(openMrsLocationId)) return currentLocality;
+        } catch (NullPointerException exception) {
+            LocationPickerView locationPickerView = ChildLibrary.getInstance().getLocationPickerView(context);
+            if (locationPickerView != null) {
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
+                if (StringUtils.isNotBlank(locationId)) return locationId;
+            }
+            Timber.e(exception);
         }
-        AllSharedPreferences allSharedPreferences= ChildLibrary.getInstance().context().allSharedPreferences();
-        String providerId = allSharedPreferences.fetchRegisteredANM();
-        return  allSharedPreferences.fetchDefaultLocalityId(providerId);
+        return allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
     }
 
     public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
@@ -1991,6 +2002,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     formSubmissionField));
 
             addMetaData(context, event, new Date());
+
+            //This event type should be synced to the former location NOT the new one
+            //Reset required fields, client processor should then remove the moved events/clients from the database
+            event.setLocationId(fromLocationId);
+            event.setChildLocationId(referenceEvent.getChildLocationId());
+            event.setTeam(referenceEvent.getTeam());
+            event.setTeamId(referenceEvent.getTeamId());
+            event.setProviderId(referenceEvent.getProviderId());
 
             return event;
         } catch (Exception e) {
