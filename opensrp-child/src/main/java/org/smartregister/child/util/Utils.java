@@ -64,6 +64,8 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.repository.AllSettings;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
 
@@ -200,6 +202,11 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static void addVaccine(VaccineRepository vaccineRepository, Vaccine vaccine) {
+        //Update team and team_id before adding vaccine
+        AllSharedPreferences allSharedPreferences = getAllSharedPreferences();
+        String providerId = allSharedPreferences.fetchRegisteredANM();
+        vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
+        vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
         try {
             if (vaccineRepository == null || vaccine == null) {
                 return;
@@ -214,7 +221,7 @@ public class Utils extends org.smartregister.util.Utils {
                 updateFTSForCombinedVaccineAlternatives(vaccineRepository, vaccine);
             }
 
-            if (vaccine != null && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
+            if (!BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()))
                 Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
 
         } catch (Exception e) {
@@ -316,7 +323,12 @@ public class Utils extends org.smartregister.util.Utils {
         weight.setBaseEntityId(weightWrapper.getId());
         weight.setKg(weightWrapper.getWeight());
         weight.setDate(weightWrapper.isToday() ? Calendar.getInstance().getTime() : weightWrapper.getUpdatedWeightDate().toDate());
-        weight.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+        //Update team, team_id and provider before recording weight
+        AllSharedPreferences allSharedPreferences = getAllSharedPreferences();
+        String providerId = allSharedPreferences.fetchRegisteredANM();
+        weight.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
+        weight.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+        weight.setAnmId(providerId);
         weight.setSyncStatus(syncStatus);
 
         Gender gender = Gender.UNKNOWN;
@@ -337,7 +349,7 @@ public class Utils extends org.smartregister.util.Utils {
 
         weightWrapper.setDbKey(weight.getId());
 
-        if (weight != null && !BaseRepository.TYPE_Synced.equals(syncStatus))
+        if (!BaseRepository.TYPE_Synced.equals(syncStatus))
             Utils.postEvent(new ClientDirtyFlagEvent(weight.getBaseEntityId(), WeightIntentService.EVENT_TYPE));
 
     }
@@ -351,14 +363,19 @@ public class Utils extends org.smartregister.util.Utils {
             height.setBaseEntityId(heightWrapper.getId());
             height.setCm(heightWrapper.getHeight());
             height.setDate(heightWrapper.isToday() ? Calendar.getInstance().getTime() : heightWrapper.getUpdatedHeightDate().toDate());
+            //Update team, team_id and provider before recording height
+            AllSharedPreferences allSharedPreferences = getAllSharedPreferences();
+            String providerId = allSharedPreferences.fetchRegisteredANM();
+            height.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
+            height.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
             height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
             height.setSyncStatus(syncStatus);
 
             Gender gender = Gender.UNKNOWN;
             String genderString = heightWrapper.getGender();
-            if (genderString != null && Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
+            if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
+            } else if (Constants.GENDER.MALE.equalsIgnoreCase(genderString)) {
                 gender = Gender.MALE;
             }
 
@@ -372,7 +389,7 @@ public class Utils extends org.smartregister.util.Utils {
 
             heightWrapper.setDbKey(height.getId());
 
-            if (height != null && !BaseRepository.TYPE_Synced.equals(syncStatus))
+            if (!BaseRepository.TYPE_Synced.equals(syncStatus))
                 Utils.postEvent(new ClientDirtyFlagEvent(height.getBaseEntityId(), HeightIntentService.EVENT_TYPE));
         }
     }

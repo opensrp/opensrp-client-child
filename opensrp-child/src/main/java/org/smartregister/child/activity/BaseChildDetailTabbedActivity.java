@@ -954,6 +954,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         vaccine.setDate(vaccineWrapper.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(vaccineWrapper.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+
         if (StringUtils.isNotBlank(locationId)) {
             vaccine.setLocationId(locationId);
         }

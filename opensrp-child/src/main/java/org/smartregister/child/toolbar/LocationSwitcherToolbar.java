@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.smartregister.AllConstants;
 import org.smartregister.child.R;
@@ -79,18 +80,15 @@ public class LocationSwitcherToolbar extends BaseToolbar {
             if (!Utils.getBooleanProperty(AllConstants.PROPERTY.DISABLE_LOCATION_PICKER_VIEW)) {
                 LocationActionView locationActionView = new LocationActionView(baseActivity);
                 locationActionView.getLocationPickerView()
-                        .setOnLocationChangeListener(new LocationPickerView.OnLocationChangeListener() {
-                            @Override
-                            public void onLocationChange(String newLocation) {
-                                if (onLocationChangeListener != null) {
-                                    onLocationChangeListener.onLocationChanged(newLocation);
-                                }
+                        .setOnLocationChangeListener(newLocation -> {
+                            if (onLocationChangeListener != null) {
+                                onLocationChangeListener.onLocationChanged(newLocation);
                             }
                         });
                 View separatorV = baseActivity.findViewById(R.id.separator_v);
                 separatorV.setVisibility(VISIBLE);
                 baseActivity.getMenu().findItem(R.id.location_switcher).setActionView(locationActionView);
-                separatorV.setBackgroundDrawable(baseActivity.getResources().getDrawable(separatorResourceId));
+                separatorV.setBackground(ResourcesCompat.getDrawable(getResources(), separatorResourceId, null));
             }
         }
     }
