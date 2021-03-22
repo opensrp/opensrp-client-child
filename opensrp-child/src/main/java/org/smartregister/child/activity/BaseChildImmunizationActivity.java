@@ -190,11 +190,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
                         !ChildLibrary.getInstance().getProperties()
                                 .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
-        weightNotificationShown =
-                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-                        ChildLibrary.getInstance().getProperties()
-                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-
+        weightNotificationShown = false;
+        //                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+//                        ChildLibrary.getInstance().getProperties()
+//                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+//
         setLastModified(false);
 
         setUpFloatingActionButton();
@@ -1476,7 +1476,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     v -> {
                         showGrowthDialog(recordGrowth);
                         hideNotification();
-                    }, R.string.cancel, v -> hideNotification(), null);
+                        weightNotificationShown = false;
+                    }, R.string.cancel, v -> {
+                        weightNotificationShown = false;
+                        hideNotification();
+                    }, null);
         }
     }
 
