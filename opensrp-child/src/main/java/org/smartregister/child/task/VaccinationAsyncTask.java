@@ -284,7 +284,8 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         // Show Child Fully Immunized if 1st year of vaccine is complete
-        if (splitFullyImmunizedStatus && state.equals(State.UPCOMING)
+        if (splitFullyImmunizedStatus
+                && (state.equals(State.UPCOMING) || state.equals(State.NO_ALERT))
                 && isFirstYearVaccinesDone) {
             if (dueDate == null) {
                 state = State.FULLY_IMMUNIZED;

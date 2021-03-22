@@ -23,8 +23,10 @@ import org.powermock.reflect.Whitebox;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
+import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.SyncStatus;
@@ -41,6 +43,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 @PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class, ChildLibrary.class})
 @RunWith(PowerMockRunner.class)
@@ -207,5 +212,33 @@ public class BaseChildImmunizationActivityTest {
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
         PowerMockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("providerId");
         PowerMockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
+    }
+
+    @Test
+    public void testLaunchActivity() {
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, TestChildImmunizationActivity.class,
+                null, true);
+        ChildMetadata metadataObj = Mockito.spy(metadata);
+        when(Utils.metadata()).thenReturn(metadataObj);
+        when(context.applicationContext()).thenReturn(Mockito.mock(android.content.Context.class));
+
+        BaseChildImmunizationActivity.launchActivity(context.applicationContext(), getChildDetails(), null);
+
+        Mockito.verify(context.applicationContext(), times(1)).startActivity(Mockito.any());
+    }
+
+    private CommonPersonObjectClient getChildDetails() {
+
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put("baseEntityId", "id-1");
+        childDetails.put(Constants.KEY.FIRST_NAME, "John");
+        childDetails.put(Constants.KEY.DOB, "1990-05-09");
+        childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
+        childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, Constants.KEY.CHILD);
+        commonPersonObjectClient.setColumnmaps(childDetails);
+
+        return commonPersonObjectClient;
     }
 }
