@@ -180,7 +180,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithFemaleValidGenderAndNullDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -196,7 +196,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithValidFemaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -216,7 +216,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithValidMaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -236,7 +236,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithFemaleValidGenderAndNullDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setUpdatedHeightDate(new DateTime(), true);
@@ -253,7 +253,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithValidFemaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setUpdatedHeightDate(new DateTime(), true);
@@ -274,7 +274,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithValidMaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setHeight(20.0f);

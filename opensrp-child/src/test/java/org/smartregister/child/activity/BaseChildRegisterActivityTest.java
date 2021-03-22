@@ -109,7 +109,7 @@ public class BaseChildRegisterActivityTest {
                 "test",
                 "test");
 
-        ChildLibrary.init(context, mock(Repository.class), childMetadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, mock(Repository.class), childMetadata, 1, 1);
         when(Utils.metadata()).thenReturn(childMetadata);
         when(form.getNextLabel()).thenReturn("");
         when(form.isWizard()).thenReturn(true);
@@ -166,7 +166,7 @@ public class BaseChildRegisterActivityTest {
                 "test",
                 "test",
                 "test");
-        ChildLibrary.init(context, mock(Repository.class), childMetadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, mock(Repository.class), childMetadata, 1, 1);
 
         when(Utils.context().allSharedPreferences()).thenReturn(allSharedPreferences);
         when(Utils.metadata()).thenReturn(childMetadata);

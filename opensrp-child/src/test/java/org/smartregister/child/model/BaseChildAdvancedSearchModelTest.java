@@ -80,7 +80,7 @@ public class BaseChildAdvancedSearchModelTest {
                 "test", "test",
                 "test",
                 "test", "test");
-        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, 1, 1);
 
         BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
 
@@ -116,7 +116,7 @@ public class BaseChildAdvancedSearchModelTest {
                 "test", "test",
                 "test",
                 "test", "test");
-        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, 1, 1);
         BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
         Map<String, String> editMap;
         String mainConditionString;
@@ -150,7 +150,7 @@ public class BaseChildAdvancedSearchModelTest {
                 "test", "test",
                 "test",
                 "test", "test");
-        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, 1, 1);
         BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
         Map<String, String> editMap;
         String mainConditionString;
@@ -203,7 +203,7 @@ public class BaseChildAdvancedSearchModelTest {
                 "test", "test",
                 "test",
                 "test", "test");
-        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, BuildConfig.VERSION_CODE, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), metadata, 1, 1);
         BaseChildAdvancedSearchModel baseChildAdvancedSearchModel = Mockito.mock(BaseChildAdvancedSearchModel.class, Mockito.CALLS_REAL_METHODS);
         Map<String, String> editMap;
         String mainConditionString;
