@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -164,35 +165,13 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
         try {
-            MenuItem registerCard = overflow.findItem(R.id.register_card);
-            if (registerCard != null) {
-                registerCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
 
-            MenuItem verifyCaregiver = overflow.findItem(R.id.verify_caregiver);
-            if (verifyCaregiver != null) {
-                verifyCaregiver.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
-
-            MenuItem writePasscode = overflow.findItem(R.id.write_passcode);
-            if (writePasscode != null) {
-                writePasscode.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
-
-            MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
-            if (writeToCard != null) {
-                writeToCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
-
-            MenuItem readFromCard = overflow.findItem(R.id.read_from_card);
-            if (readFromCard != null) {
-                readFromCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
-
-            MenuItem blacklistCard = overflow.findItem(R.id.blacklist_card);
-            if (blacklistCard != null) {
-                blacklistCard.setEnabled(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) != null);
-            }
+            activateMenuItemByValue(overflow, R.id.register_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.verify_caregiver, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.write_passcode, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.write_to_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.read_from_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.blacklist_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Height> heightList = null;
@@ -226,13 +205,17 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         } catch (Exception e) {
             Timber.e(e);
         } finally {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    activity.renderProfileWidget(detailsMap);
-                    activity.hideProgressDialog();
-                }
+            activity.runOnUiThread(() -> {
+                activity.renderProfileWidget(detailsMap);
+                activity.hideProgressDialog();
             });
+        }
+    }
+
+    public static void activateMenuItemByValue(Menu overflow, int menuItemResourceId, String value) {
+        MenuItem menuItem = overflow.findItem(menuItemResourceId);
+        if (menuItem != null) {
+            menuItem.setEnabled(StringUtils.isNotBlank(value));
         }
     }
 }
