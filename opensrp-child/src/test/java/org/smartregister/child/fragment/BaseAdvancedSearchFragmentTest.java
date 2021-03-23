@@ -35,11 +35,12 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.util.AppProperties;
+import org.smartregister.util.Utils;
 
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChildLibrary.class})
+@PrepareForTest({ChildLibrary.class, org.smartregister.util.Utils.class})
 public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
 
     @Rule
@@ -228,5 +229,74 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
 
         verify(view).setVisibility(View.VISIBLE);
         verify(textView).setText("Advanced Search");
+    }
+
+    @Test
+    public void testSetUserVisibleHint(){
+        PowerMockito.mockStatic(Utils.class);
+        Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
+        Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
+
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "outsideInside", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "myCatchment", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "active", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "inactive", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "lostToFollowUp", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "startDate", editText);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "endDate", editText);
+
+        baseAdvancedSearchFragment.setUserVisibleHint(true);
+
+        verify(checkBox, Mockito.times(1)).setChecked(true);
+        verify(checkBox, Mockito.times(2)).setChecked(false);
+        verify(editText, Mockito.times(2)).setText("");
+    }
+
+    @Test
+    public void testSetUserVisibleHintWhenSearchCriteriaIsNotNullAndMatchingResultsIsNotNull(){
+        PowerMockito.mockStatic(Utils.class);
+        Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
+        Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
+
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "outsideInside", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "myCatchment", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "active", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "inactive", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "lostToFollowUp", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "startDate", editText);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "endDate", editText);
+
+        TextView textView = Mockito.mock(TextView.class);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "searchCriteria", textView);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "matchingResults", textView);
+
+        baseAdvancedSearchFragment.setUserVisibleHint(true);
+
+        verify(checkBox, Mockito.times(1)).setChecked(true);
+        verify(checkBox, Mockito.times(2)).setChecked(false);
+        verify(editText, Mockito.times(2)).setText("");
+    }
+
+    @Test
+    public void testSetUserVisibleHintWhenIsConnectedToNetworkIsTrue(){
+        PowerMockito.mockStatic(Utils.class);
+        Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
+        Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
+
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "outsideInside", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "myCatchment", radioButton);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "active", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "inactive", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "lostToFollowUp", checkBox);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "startDate", editText);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "endDate", editText);
+
+        Mockito.when(org.smartregister.child.util.Utils.isConnectedToNetwork(fragmentActivity)).thenReturn(true);
+
+        baseAdvancedSearchFragment.setUserVisibleHint(true);
+
+        verify(checkBox, Mockito.times(1)).setChecked(true);
+        verify(checkBox, Mockito.times(2)).setChecked(false);
+        verify(editText, Mockito.times(2)).setText("");
     }
 }
