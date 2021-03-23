@@ -25,17 +25,19 @@ import java.util.Map;
 public class LoadAsyncTaskTest extends BaseUnitTest {
 
     @Mock
-    Map<String, String> detailsMap;
+    private Map<String, String> detailsMap;
 
     @Mock
-    CommonPersonObjectClient childDetails;
-    @Mock
-    BaseChildDetailTabbedActivity activity;
-    @Mock
-    BaseChildRegistrationDataFragment childDataFragment;
+    private CommonPersonObjectClient childDetails;
 
     @Mock
-    ChildUnderFiveFragment childUnderFiveFragment;
+    private BaseChildDetailTabbedActivity activity;
+
+    @Mock
+    private BaseChildRegistrationDataFragment childDataFragment;
+
+    @Mock
+    private ChildUnderFiveFragment childUnderFiveFragment;
 
     @Mock
     private Menu menu;
