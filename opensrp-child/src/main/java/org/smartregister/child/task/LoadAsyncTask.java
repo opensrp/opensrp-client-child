@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.VisibleForTesting;
+
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
@@ -212,7 +214,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         }
     }
 
-    public static void activateMenuItemByValue(Menu overflow, int menuItemResourceId, String value) {
+    @VisibleForTesting
+    protected void activateMenuItemByValue(Menu overflow, int menuItemResourceId, String value) {
         MenuItem menuItem = overflow.findItem(menuItemResourceId);
         if (menuItem != null) {
             menuItem.setEnabled(StringUtils.isNotBlank(value));
