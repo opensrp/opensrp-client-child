@@ -44,7 +44,7 @@ import java.util.Map;
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChildLibrary.class, org.smartregister.util.Utils.class})
+@PrepareForTest({ChildLibrary.class, Utils.class})
 public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
 
     @Rule
