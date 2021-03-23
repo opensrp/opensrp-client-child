@@ -37,6 +37,10 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.Utils;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
@@ -298,5 +302,44 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
         verify(checkBox, Mockito.times(1)).setChecked(true);
         verify(checkBox, Mockito.times(2)).setChecked(false);
         verify(editText, Mockito.times(2)).setText("");
+    }
+
+    @Test
+    public void testCheckTextFields() throws Exception {
+        Method checkTextFields = BaseAdvancedSearchFragment.class.getDeclaredMethod("checkTextFields");
+        checkTextFields.setAccessible(true);
+
+        Map<String, View> advancedFormSearchableFields = new HashMap<>();
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "advancedFormSearchableFields", advancedFormSearchableFields);
+
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "advancedSearchToolbarSearchButton", button);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "searchButton", button);
+
+        Mockito.doReturn(resources).when(baseAdvancedSearchFragment).getResources();
+
+        checkTextFields.invoke(baseAdvancedSearchFragment);
+
+        verify(button, Mockito.times(2)).setEnabled(false);
+    }
+
+    @Test
+    public void testCheckTextFieldsWhenSearcheableFieldHasValue() throws Exception {
+        Method checkTextFields = BaseAdvancedSearchFragment.class.getDeclaredMethod("checkTextFields");
+        checkTextFields.setAccessible(true);
+
+        TextView textView = Mockito.mock(TextView.class);
+        Mockito.doReturn("test").when(textView).getText();
+        Map<String, View> advancedFormSearchableFields = new HashMap<>();
+        advancedFormSearchableFields.put("test", textView);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "advancedFormSearchableFields", advancedFormSearchableFields);
+
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "advancedSearchToolbarSearchButton", button);
+        Whitebox.setInternalState(baseAdvancedSearchFragment, "searchButton", button);
+
+        Mockito.doReturn(resources).when(baseAdvancedSearchFragment).getResources();
+
+        checkTextFields.invoke(baseAdvancedSearchFragment);
+
+        verify(button, Mockito.times(2)).setEnabled(true);
     }
 }
