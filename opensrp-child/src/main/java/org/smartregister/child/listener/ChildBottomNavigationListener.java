@@ -1,6 +1,5 @@
 package org.smartregister.child.listener;
 
-import android.app.Activity;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -8,32 +7,34 @@ import androidx.annotation.NonNull;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.listener.BottomNavigationListener;
-import org.smartregister.view.activity.BaseRegisterActivity;
+
+import java.lang.ref.WeakReference;
 
 public class ChildBottomNavigationListener extends BottomNavigationListener {
-    private Activity context;
+    private WeakReference<BaseChildRegisterActivity> baseRegisterActivity;
 
-    public ChildBottomNavigationListener(Activity context) {
+    public ChildBottomNavigationListener(BaseChildRegisterActivity context) {
         super(context);
-        this.context = context;
+        this.baseRegisterActivity = new WeakReference<>(context);
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        BaseRegisterActivity baseRegisterActivity = (BaseRegisterActivity) context;
 
         if (item.getItemId() == R.id.action_home) {
-            baseRegisterActivity.switchToBaseFragment();
+            getBaseRegisterActivityReference().switchToBaseFragment();
         } else if (item.getItemId() == R.id.action_scan_qr) {
-            baseRegisterActivity.startQrCodeScanner();
-        } else if (item.getItemId() == R.id.action_scan_card) {
-            ((BaseChildRegisterActivity) baseRegisterActivity).startNFCCardScanner();
+            getBaseRegisterActivityReference().startQrCodeScanner();
         } else if (item.getItemId() == R.id.action_search) {
-            baseRegisterActivity.switchToFragment(1);
+            getBaseRegisterActivityReference().switchToFragment(1);
         } else if (item.getItemId() == R.id.action_register) {
-            baseRegisterActivity.startRegistration();
+            getBaseRegisterActivityReference().startRegistration();
         }
 
         return true;
+    }
+
+    public BaseChildRegisterActivity getBaseRegisterActivityReference() {
+        return baseRegisterActivity != null ? baseRegisterActivity.get() : null;
     }
 }

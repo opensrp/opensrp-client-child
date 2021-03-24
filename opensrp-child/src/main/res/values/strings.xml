@@ -183,7 +183,11 @@
     <string name="mother_lookup_results">Matching Records</string>
     <string name="dismiss">Dismiss</string>
     <string name="change_status">Change Status</string>
+    <string name="write_passcode">Write Passcode</string>
+    <string name="read_from_card">Read Card</string>
     <string name="write_to_card">Write to Card</string>
+    <string name="verify_caregiver">Verify Caregiver</string>
+    <string name="blacklist_card">Blacklist Card</string>
     <string name="title_activity_stock_control">StockControlActivity</string>
     <string name="device_timezone_changed">"The device's timezone changed. Please login again."</string>
     <string name="device_time_changed">"The device's time has changed. Please login again."</string>
@@ -365,6 +369,7 @@
     <string name="vit_a">Vitamin A dose</string>
     <string name="fully_immunized_label_u1">Fully Immunized U1</string>
     <string name="fully_immunized_label_u2">Fully Immunized U2</string>
+    <string name="collect_biometrics">Biometrics</string>
 
     <string name="record_booster_immunizations">Record Booster Immunizations</string>
     <string name="maximum_extra_vaccines_reached">You can only record a maximum of 10 vaccines</string>

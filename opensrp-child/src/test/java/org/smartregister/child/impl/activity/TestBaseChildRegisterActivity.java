@@ -12,12 +12,7 @@ public class TestBaseChildRegisterActivity extends BaseChildRegisterActivity {
 
     @Override
     public String getRegistrationForm() {
-        return  "child_enrollment";
-    }
-
-    @Override
-    public void startNFCCardScanner() {
-        // Do nothing
+        return null;
     }
 
     @Override

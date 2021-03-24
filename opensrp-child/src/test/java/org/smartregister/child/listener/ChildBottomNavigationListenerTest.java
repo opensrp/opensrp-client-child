@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
-import org.smartregister.view.activity.BaseRegisterActivity;
 
 public class ChildBottomNavigationListenerTest {
 
@@ -16,7 +15,7 @@ public class ChildBottomNavigationListenerTest {
     private ChildBottomNavigationListener bottomNavigationListener;
 
     @Mock
-    private BaseRegisterActivity baseRegisterActivity;
+    private BaseChildRegisterActivity baseRegisterActivity;
 
     @Before
     public void setUp() {
@@ -35,10 +34,6 @@ public class ChildBottomNavigationListenerTest {
         Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_scan_qr);
         bottomNavigationListener.onNavigationItemSelected(menuItem);
         Mockito.verify(baseRegisterActivity, Mockito.atMost(1)).startQrCodeScanner();
-
-        Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_scan_card);
-        bottomNavigationListener.onNavigationItemSelected(menuItem);
-        Mockito.verify((BaseChildRegisterActivity)baseRegisterActivity, Mockito.atMost(1)).startNFCCardScanner();
 
         Mockito.when(menuItem.getItemId()).thenReturn(R.id.action_search);
         bottomNavigationListener.onNavigationItemSelected(menuItem);
