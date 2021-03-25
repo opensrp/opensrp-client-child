@@ -206,6 +206,7 @@ public final class Constants extends AllConstants {
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
         public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_service_recurring_service";
         public static final String BOOSTER_VACCINES = "booster_vaccines";
+        public static final String NEXT_APPOINTMENT = "next_appointment";
     }
 
     public static final class CHILD_STATUS {

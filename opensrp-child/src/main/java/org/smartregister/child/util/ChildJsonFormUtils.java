@@ -36,6 +36,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
+import org.smartregister.child.domain.Observation;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.clientandeventmodel.Address;
@@ -1884,7 +1885,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void convertAndPersistEvent(Event event) {
+    public static void convertAndPersistEvent(Event event) {
         if (event != null) {
             JSONObject jsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
             if (jsonEvent != null) {
@@ -2264,5 +2265,36 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
         return null;
 
+    }
+
+    /**
+     * Creates the Next Appointment event
+     *
+     * @param baseEntityId
+     * @param observations A list of obs value to send as part of the event
+     */
+    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations) throws JSONException {
+        Event event = null;
+        if (observations != null) {
+
+            event = getEventAndTag(baseEntityId, Constants.EventType.NEXT_APPOINTMENT, new Date(), Constants.CHILD_TYPE);
+
+            for (Observation ob : observations) {
+
+                addObservation(ob.getKey(), ob.getValue(), ob.getType(), event);
+
+            }
+
+        }
+
+        return event;
+    }
+
+    protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(KEY, key);
+        jsonObject.put(OPENMRS_ENTITY, value);
+        jsonObject.put(OPENMRS_DATA_TYPE, type != null ? type : AllConstants.TEXT);
+        addObservation(event, jsonObject);
     }
 }

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
@@ -39,6 +40,7 @@ import org.smartregister.child.contract.ChildImmunizationContract;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.contract.IGetSiblings;
 import org.smartregister.child.domain.NamedObject;
+import org.smartregister.child.domain.Observation;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.presenter.BaseChildImmunizationPresenter;
@@ -55,9 +57,11 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.BCGNotificationDialog;
 import org.smartregister.child.view.SiblingPicturesGroup;
+import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -107,6 +111,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1941,12 +1946,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
-                affectedVaccines =
-                        VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());
 
+            processNextVaccineDate();
             return list;
         }
 
@@ -1969,6 +1974,36 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
             showVaccineNotifications(vaccineList, alertList);
+        }
+    }
+
+    public void processNextVaccineDate(String baseEntityId) {
+        try {
+
+            List<Observation> observationList = new ArrayList<>();
+
+            observationList.add(new Observation("Treatment_Provided", "BCG Immunization", Observation.TYPE.TEXT));
+            observationList.add(new Observation("Next_Appointment_Date", "2021-09-08", Observation.TYPE.DATE));
+            observationList.add(new Observation("Next_Service_Expected", "2021-10-20", Observation.TYPE.DATE));
+            observationList.add(new Observation("Is_Out_Of_Catchment", "false", Observation.TYPE.TEXT));
+
+
+            List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Collections.singletonList(baseEntityId));
+
+            Event nextVaccineDateEvent = null;
+
+            for (EventClient eventClient : eventClients) {
+                if (Constants.EventType.NEXT_APPOINTMENT.equalsIgnoreCase(eventClient.getEvent().getEventType())) {
+                    nextVaccineDateEvent = eventClient != null ? eventClient.getEvent() : null;
+                    break;
+                }
+            }
+
+            nextVaccineDateEvent = nextVaccineDateEvent != null ? nextVaccineDateEvent : ChildJsonFormUtils.createNextAppointmentEvent("bs", observationList);
+            ChildJsonFormUtils.convertAndPersistEvent(nextVaccineDateEvent);
+
+        } catch (JSONException e) {
+            Timber.e(e);
         }
     }
 }

@@ -58,6 +58,9 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Count of extra vaccines to select at a particular time
         public static final String EXTRA_VACCINES_COUNT = "extra.vaccines.count";
 
+        //Generate an event with the date of the next due vaccine
+        public static final String NEXT_APPOINTMENT_EVENT_ENABLED = "next.appointment.event.enabled";
+
         //novel features
         public final static class NOVEL {
             public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";
