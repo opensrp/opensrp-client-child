@@ -170,6 +170,7 @@ public final class Constants extends AllConstants {
 
     public static class ENTITY {
 
+        public static final String CHILD = "child";
         public static final String MOTHER = "mother";
     }
 

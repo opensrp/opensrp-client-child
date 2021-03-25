@@ -97,12 +97,11 @@ public class BaseChildImmunizationPresenter implements ChildImmunizationContract
     public void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails) {
         try {
             Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
-            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, "child");
+            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, Constants.ENTITY.CHILD);
             if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
                     details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
                     details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(
-                        ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
             }
 
             if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
