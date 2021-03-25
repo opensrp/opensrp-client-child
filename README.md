@@ -22,7 +22,7 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `feature.bottom.navigation.enabled`   | Boolean | false   | Show Bottom Navigation menu                                            |
 | `home.toolbar.scan.qr.enabled`        | Boolean | false   | Show Scan QR Code in home register toolbar                             |
 | `home.toolbar.scan.card.enabled`      | Boolean | false   | Show Scan Card in home register toolbar                                |
-| `home.toolbar.scan.biometrics.enabled`| Boolean | false   | Show Scan Biometrics in home register toolbar                                |
+| `home.toolbar.scan.biometrics.enabled`| Boolean | false   | Show Scan Biometrics in home register toolbar                          |
 | `details.side.navigation.enabled`     | Boolean | true    | Enable side navigation drawer on details page                          |
 | `home.alert.upcoming.blue.disabled`   | Boolean | false   | Disable showing light blue alert for upcoming in 7 days                |
 | `mother.lookup.show.results.duration` | Integer | 30000   | Sets duration of showing mother lookup results                         |
@@ -32,10 +32,11 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `multi.language.support`              | Boolean | false   | Use new Multi Language Support for JSON forms                          |
 | `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
 | `hide.overdue.vaccine.status`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
-| `home.compliance.enabled`             | Boolean | false   | Hide compliance view                |
-| `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out pf catchment form                       |
+| `home.compliance.enabled`             | Boolean | false   | Hide compliance view                                                   |
+| `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out pf catchment form               |
 | `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed and Fully Immunized U2 if all vaccines are completed    |
 | `home.zeir.id.column.enabled`         | Boolean | false   | Show ID column in main register when true                              |
+| `next.appointment.event.enabled`      | Boolean | false   | When set to true creates an event with the next due appointment e.g. next vaccine date |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 
