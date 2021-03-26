@@ -1,8 +1,6 @@
 package org.smartregister.child.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.AllConstants;
-import org.smartregister.child.domain.Observation;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
