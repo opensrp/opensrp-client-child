@@ -123,6 +123,8 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -1436,7 +1438,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(true);
     }
 
-    private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, List<Vaccine> vaccineList) {
+    private void updateVaccineGroupViews(View view, final List<VaccineWrapper> wrappers, List<Vaccine> vaccineList) {
         updateVaccineGroupViews(view, wrappers, vaccineList, false);
     }
 
@@ -1457,15 +1459,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         } else {
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (undo) {
-                        vaccineGroup.setVaccineList(vaccineList);
-                        vaccineGroup.updateWrapperStatus((ArrayList<VaccineWrapper>) wrappers, Constants.KEY.CHILD);
-                    }
-                    vaccineGroup.updateViews((ArrayList<VaccineWrapper>) wrappers);
+            handler.post(() -> {
+                if (undo) {
+                    vaccineGroup.setVaccineList(vaccineList);
+                    vaccineGroup.updateWrapperStatus((ArrayList<VaccineWrapper>) wrappers, Constants.KEY.CHILD);
                 }
+                vaccineGroup.updateViews((ArrayList<VaccineWrapper>) wrappers);
             });
         }
     }
@@ -1912,7 +1911,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, ArrayList<VaccineWrapper>> {
+    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, List<VaccineWrapper>> {
 
         private View view;
         private VaccineRepository vaccineRepository;
@@ -1933,7 +1932,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         @Override
-        protected ArrayList<VaccineWrapper> doInBackground(VaccineWrapper... vaccineWrappers) {
+        protected List<VaccineWrapper> doInBackground(VaccineWrapper... vaccineWrappers) {
 
             ArrayList<VaccineWrapper> list = new ArrayList<>();
             if (vaccineRepository != null) {
@@ -1951,7 +1950,37 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());
 
-            processNextVaccineDate();
+            //Schedule stuff if we support the next appointment event
+
+            if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NEXT_APPOINTMENT_EVENT_ENABLED)) {
+
+                Map<String, Date> receivedVaccines = receivedVaccines(vaccineList);
+                List<Map<String, Object>> generatedScheduleList = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alertList);
+
+                Vaccine previousVaccineGiven = null;
+                Date lastVaccineDate = null;
+                if (!vaccineList.isEmpty()) {
+                    previousVaccineGiven = vaccineList.get(vaccineList.size() - 1);
+                    lastVaccineDate = previousVaccineGiven.getDate();
+                }
+
+                Map<String, Object> nextVaccineMap = VaccinatorUtils.nextVaccineDue(generatedScheduleList, lastVaccineDate);
+                Alert nextVaccineAlert = nextVaccineMap != null ? ((Alert) nextVaccineMap.get(Constants.KEY.ALERT)) : null;
+
+                List<Observation> observationList = new ArrayList<>();
+
+                if (previousVaccineGiven != null) {
+                    observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.TREATMENT_PROVIDED, previousVaccineGiven.getName().toUpperCase(), Observation.TYPE.TEXT));
+                    observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.IS_OUT_OF_CATCHMENT, String.valueOf(previousVaccineGiven.getOutOfCatchment() == 1), Observation.TYPE.TEXT));
+                }
+                if (nextVaccineAlert != null) {
+                    observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_APPOINTMENT_DATE, nextVaccineAlert.startDate(), Observation.TYPE.DATE));
+                    observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_SERVICE_EXPECTED, nextVaccineAlert.scheduleName(), Observation.TYPE.TEXT));
+                }
+
+                processNextVaccineDate(childDetails.entityId(), observationList);
+            }
+
             return list;
         }
 
@@ -1961,7 +1990,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         @Override
-        protected void onPostExecute(ArrayList<VaccineWrapper> list) {
+        protected void onPostExecute(List<VaccineWrapper> list) {
             hideProgressDialog();
             updateVaccineGroupViews(view, list, vaccineList);
             WeightWrapper weightWrapper = (WeightWrapper) recordGrowth.getTag(R.id.weight_wrapper);
@@ -1977,29 +2006,23 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    public void processNextVaccineDate(String baseEntityId) {
+    public void processNextVaccineDate(String baseEntityId, List<Observation> observationList) {
         try {
 
-            List<Observation> observationList = new ArrayList<>();
+            List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unprocessed, Collections.singletonList(baseEntityId));
 
-            observationList.add(new Observation("Treatment_Provided", "BCG Immunization", Observation.TYPE.TEXT));
-            observationList.add(new Observation("Next_Appointment_Date", "2021-09-08", Observation.TYPE.DATE));
-            observationList.add(new Observation("Next_Service_Expected", "2021-10-20", Observation.TYPE.DATE));
-            observationList.add(new Observation("Is_Out_Of_Catchment", "false", Observation.TYPE.TEXT));
-
-
-            List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unsynced, Collections.singletonList(baseEntityId));
-
-            Event nextVaccineDateEvent = null;
+            String formSubmissionId = null;
 
             for (EventClient eventClient : eventClients) {
                 if (Constants.EventType.NEXT_APPOINTMENT.equalsIgnoreCase(eventClient.getEvent().getEventType())) {
-                    nextVaccineDateEvent = eventClient != null ? eventClient.getEvent() : null;
+
+                    formSubmissionId = eventClient.getEvent().getFormSubmissionId();
+
                     break;
                 }
             }
 
-            nextVaccineDateEvent = nextVaccineDateEvent != null ? nextVaccineDateEvent : ChildJsonFormUtils.createNextAppointmentEvent("bs", observationList);
+            Event nextVaccineDateEvent = ChildJsonFormUtils.createNextAppointmentEvent(baseEntityId, observationList, formSubmissionId);
             ChildJsonFormUtils.convertAndPersistEvent(nextVaccineDateEvent);
 
         } catch (JSONException e) {

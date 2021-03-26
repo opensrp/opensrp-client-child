@@ -1708,8 +1708,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             addSaveReportDeceasedObservations(fields, event);
     }
 
-    private static Event getSubFormEvent(Event parent, String entityId, String encounterType,
-                                         String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
+    private static Event getSubFormEvent(Event parent, String entityId, String encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
 
         Event event = (Event) new Event().withBaseEntityId(alreadyExists ? existingEvent.getBaseEntityId() : entityId)
                 .withEventDate(parent.getEventDate())
@@ -2271,13 +2270,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * Creates the Next Appointment event
      *
      * @param baseEntityId
-     * @param observations A list of obs value to send as part of the event
+     * @param observations     A list of obs value to send as part of the event
+     * @param formSubmissionId A formSubmissionId to update an unsynced next appointment Event, can be null, if null a new one will be created in the db
      */
-    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations) throws JSONException {
+    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations, @androidx.annotation.Nullable String formSubmissionId) throws JSONException {
         Event event = null;
         if (observations != null) {
 
-            event = getEventAndTag(baseEntityId, Constants.EventType.NEXT_APPOINTMENT, new Date(), Constants.CHILD_TYPE);
+            event = getEventAndTag(baseEntityId, Constants.EventType.NEXT_APPOINTMENT, new Date(), Constants.CHILD_TYPE).withFormSubmissionId(StringUtils.isNotBlank(formSubmissionId) ? formSubmissionId : generateRandomUUIDString());
 
             for (Observation ob : observations) {
 
@@ -2293,7 +2293,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(KEY, key);
-        jsonObject.put(OPENMRS_ENTITY, value);
+        jsonObject.put(VALUE, value);
         jsonObject.put(OPENMRS_DATA_TYPE, type != null ? type : AllConstants.TEXT);
         addObservation(event, jsonObject);
     }

@@ -42,6 +42,7 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
+import org.smartregister.child.domain.Observation;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.clientandeventmodel.Client;
@@ -201,6 +202,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         jsonObject = new JSONObject();
+
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
     }
@@ -1478,6 +1481,96 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         boolean moveToCatchment = ChildJsonFormUtils.processMoveToCatchment(openSrpContext, event);
         Assert.assertTrue(moveToCatchment);
     }
+
+    @Test
+    public void testCreateNextAppointmentEventGeneratesValidEvent() throws JSONException {
+
+        //Some set up
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+
+        //Test
+        String baseEntityId = "base-entity-id";
+        String formSubmissionId = "form-submission-id";
+        String treatment = "BCG Immunization";
+        String nextAppointment = "2021-09-08";
+        String nextServiceExpected = "OPV Vaccination";
+        String outOfCatchment = "false";
+
+        List<Observation> observationList = new ArrayList<>();
+
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.TREATMENT_PROVIDED, treatment, Observation.TYPE.TEXT));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_APPOINTMENT_DATE, nextAppointment, Observation.TYPE.DATE));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_SERVICE_EXPECTED, nextServiceExpected, Observation.TYPE.DATE));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.IS_OUT_OF_CATCHMENT, outOfCatchment, Observation.TYPE.TEXT));
+
+        Event nextVaccineDateEvent = ChildJsonFormUtils.createNextAppointmentEvent(baseEntityId, observationList, formSubmissionId);
+
+        Assert.assertNotNull(nextVaccineDateEvent);
+
+        Assert.assertEquals(baseEntityId, nextVaccineDateEvent.getBaseEntityId());
+        Assert.assertEquals(formSubmissionId, nextVaccineDateEvent.getFormSubmissionId());
+        Assert.assertTrue(nextVaccineDateEvent.getObs() != null && nextVaccineDateEvent.getObs().size() > 0);
+        Assert.assertEquals(treatment, nextVaccineDateEvent.getObs().get(0).getValue());
+        Assert.assertEquals(nextAppointment, nextVaccineDateEvent.getObs().get(1).getValue());
+        Assert.assertEquals(nextServiceExpected, nextVaccineDateEvent.getObs().get(2).getValue());
+        Assert.assertEquals(outOfCatchment, nextVaccineDateEvent.getObs().get(3).getValue());
+
+    }
+
+
+    @Test
+    public void testCreateNextAppointmentEventGeneratesValidEventWithNoSubmissionId() throws JSONException {
+
+        //Some set up
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+        //Test
+        String baseEntityId = "base-entity-id-2";
+        String treatment = "MR Immunization";
+        String nextAppointment = "2021-10-01";
+        String nextServiceExpected = "MR 2 Immunization";
+        String outOfCatchment = "true";
+
+        List<Observation> observationList = new ArrayList<>();
+
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.TREATMENT_PROVIDED, treatment, Observation.TYPE.TEXT));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_APPOINTMENT_DATE, nextAppointment, Observation.TYPE.DATE));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_SERVICE_EXPECTED, nextServiceExpected, Observation.TYPE.TEXT));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.IS_OUT_OF_CATCHMENT, outOfCatchment, Observation.TYPE.TEXT));
+
+        Event nextVaccineDateEvent = ChildJsonFormUtils.createNextAppointmentEvent(baseEntityId, observationList, null);
+
+        Assert.assertNotNull(nextVaccineDateEvent);
+
+        Assert.assertEquals(baseEntityId, nextVaccineDateEvent.getBaseEntityId());
+        Assert.assertNull(nextVaccineDateEvent.getFormSubmissionId());
+        Assert.assertTrue(nextVaccineDateEvent.getObs() != null && nextVaccineDateEvent.getObs().size() > 0);
+        Assert.assertEquals(treatment, nextVaccineDateEvent.getObs().get(0).getValue());
+        Assert.assertEquals(nextAppointment, nextVaccineDateEvent.getObs().get(1).getValue());
+        Assert.assertEquals(nextServiceExpected, nextVaccineDateEvent.getObs().get(2).getValue());
+        Assert.assertEquals(outOfCatchment, nextVaccineDateEvent.getObs().get(3).getValue());
+
+    }
+
 
     private JSONArray getEvents() throws JSONException {
         JSONArray events = new JSONArray();
