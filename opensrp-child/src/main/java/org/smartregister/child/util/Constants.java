@@ -1,6 +1,8 @@
 package org.smartregister.child.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.AllConstants;
+import org.smartregister.child.domain.Observation;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -284,6 +286,14 @@ public final class Constants extends AllConstants {
 
     public interface VACCINE_CODE {
         String TETANUS = "epnt";
+    }
+
+    public interface NEXT_APPOINTMENT_OBSERVATION_FIELD {
+        String TREATMENT_PROVIDED = "Treatment_Provided";
+        String NEXT_APPOINTMENT_DATE = "Next_Appointment_Date";
+        String NEXT_SERVICE_EXPECTED = "Next_Service_Expected";
+        String IS_OUT_OF_CATCHMENT = "Is_Out_Of_Catchment";
+
     }
 }
 
