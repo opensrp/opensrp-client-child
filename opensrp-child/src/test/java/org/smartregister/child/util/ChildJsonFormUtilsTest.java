@@ -1562,7 +1562,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertNotNull(nextVaccineDateEvent);
 
         Assert.assertEquals(baseEntityId, nextVaccineDateEvent.getBaseEntityId());
-        Assert.assertNull(nextVaccineDateEvent.getFormSubmissionId());
+        Assert.assertNotNull(nextVaccineDateEvent.getFormSubmissionId());
         Assert.assertTrue(nextVaccineDateEvent.getObs() != null && nextVaccineDateEvent.getObs().size() > 0);
         Assert.assertEquals(treatment, nextVaccineDateEvent.getObs().get(0).getValue());
         Assert.assertEquals(nextAppointment, nextVaccineDateEvent.getObs().get(1).getValue());
