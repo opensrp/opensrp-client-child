@@ -307,7 +307,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Nullable
-    private Bundle initLoadChildDetails() {
+    protected Bundle initLoadChildDetails() {
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);

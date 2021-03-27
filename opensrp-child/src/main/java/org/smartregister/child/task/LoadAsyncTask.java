@@ -15,6 +15,7 @@ import org.smartregister.child.util.AsyncTaskUtils;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -41,15 +42,15 @@ import timber.log.Timber;
 import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
-    private Menu overflow;
-    private org.smartregister.child.enums.Status status;
+    private final Menu overflow;
+    private final org.smartregister.child.enums.Status status;
     private boolean fromUpdateStatus = false;
     private boolean monitorGrowth = false;
     private Map<String, String> detailsMap;
-    private CommonPersonObjectClient childDetails;
+    private final CommonPersonObjectClient childDetails;
     private BaseChildDetailTabbedActivity activity;
-    private BaseChildRegistrationDataFragment childDataFragment;
-    private ChildUnderFiveFragment childUnderFiveFragment;
+    private final BaseChildRegistrationDataFragment childDataFragment;
+    private final ChildUnderFiveFragment childUnderFiveFragment;
 
     public LoadAsyncTask(Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
         this.status = org.smartregister.child.enums.Status.NONE;
@@ -74,9 +75,17 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         this.overflow = overflow;
     }
 
+    private void updateBirthWeight() {
+        if (detailsMap.get(Constants.KEY.BIRTH_WEIGHT.toLowerCase()) == null) {
+            HashMap<String, String> updatedMap = ChildDbUtils.fetchChildFirstGrowthAndMonitoring(childDetails.getCaseId());
+            Utils.putAll(childDetails.getColumnmaps(), updatedMap);
+            Utils.putAll(childDetails.getDetails(), updatedMap);
+            Utils.putAll(detailsMap, updatedMap);
+        }
+    }
+
     private void checkProperties() {
         monitorGrowth = CoreLibrary.getInstance().context().getAppProperties().isTrue(AppProperties.KEY.MONITOR_GROWTH);
-
     }
 
     public void setFromUpdateStatus(boolean fromUpdateStatus) {
@@ -85,6 +94,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
     @Override
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
+        updateBirthWeight();
         Map<String, NamedObject<?>> map = new HashMap<>();
         detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
 
@@ -118,7 +128,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
                 .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
-                &&  recurringServiceRecordRepository != null) {
+                && recurringServiceRecordRepository != null) {
             List<ServiceRecord> serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
             NamedObject<List<ServiceRecord>> serviceNamedObject =
                     new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
@@ -164,6 +174,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     @Override
     protected void onPostExecute(Map<String, NamedObject<?>> map) {
 
+        updateBirthWeight();
         try {
 
             MenuItem writeToCard = overflow.findItem(R.id.write_to_card);
