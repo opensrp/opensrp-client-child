@@ -19,7 +19,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.repository.LocationRepository;
 import org.smartregister.repository.Repository;
@@ -93,7 +92,6 @@ public class ChildLibraryTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
