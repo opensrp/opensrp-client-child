@@ -920,6 +920,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             Client baseClient = ChildJsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
+            baseClient.setClientType(Constants.CHILD_TYPE);
 
             Event baseEvent = ChildJsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1593,7 +1594,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Map<String, String> clientMap = getClientAttributes(fields, bindType, entityRelationId);
 
-        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox);
+        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox, bindType);
         client.withAddresses(addresses).withAttributes(extractAttributes(fields, clientMap.get(Constants.BIND_TYPE))).withIdentifiers(identifierMap);
 
         if (addresses.isEmpty()) {
@@ -1618,14 +1619,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate,
-                                    boolean birthDateApprox, boolean deathDateApprox) {
-
-        return (Client) new Client(clientMap.get(Constants.ENTITY_ID))
-                .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
-                .withBirthdate(birthDate, birthDateApprox)
-                .withDeathdate(deathDate, deathDateApprox)
-                .withGender(clientMap.get(GENDER))
+    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate, boolean birthDateApprox, boolean deathDateApprox, String bindType) {
+        return (Client) new Client(clientMap.get(Constants.ENTITY_ID), clientMap.get(Constants.FIRST_NAME), clientMap.get(Constants.MIDDLE_NAME), clientMap.get(Constants.LAST_NAME), birthDate, deathDate, birthDateApprox, deathDateApprox, clientMap.get(GENDER), bindType)
                 .withDateCreated(new Date());
     }
 
