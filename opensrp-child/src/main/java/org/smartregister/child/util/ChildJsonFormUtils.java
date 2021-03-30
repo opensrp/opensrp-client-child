@@ -1185,7 +1185,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 JSONObject metadata = form.getJSONObject(ChildJsonFormUtils.METADATA);
 
-                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION, ChildLibrary.getInstance().getLocationPickerView(context).getSelectedItem());
+                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION, ChildJsonFormUtils.getProviderLocationId(context));
 
                 prePopulateJsonFormFields(form, childDetails, nonEditableFields);
 
@@ -1219,16 +1219,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static void setFormFieldValues(Map<String, String> childDetails, List<String> nonEditableFields, JSONObject jsonObject)
             throws JSONException {
 
-        String prefix = "";
-
-        if (jsonObject.has(JsonFormUtils.ENTITY_ID)) {
-            String entityId = jsonObject.getString(JsonFormUtils.ENTITY_ID);
-            if (entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
-                prefix = "mother_";
-            } else if (entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
-                prefix = "father_";
-            }
-        }
+        String prefix = getEntityPrefix(jsonObject);
 
         String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
         String dobAgeField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
@@ -1259,6 +1250,20 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
 
         jsonObject.put(ChildJsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(ChildJsonFormUtils.KEY)));
+    }
+
+    @NotNull
+    public static String getEntityPrefix(JSONObject jsonObject) throws JSONException {
+        String prefix = "";
+        if (jsonObject.has(JsonFormUtils.ENTITY_ID)) {
+            String entityId = jsonObject.getString(JsonFormUtils.ENTITY_ID);
+            if (entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+                prefix = "mother_";
+            } else if (entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
+                prefix = "father_";
+            }
+        }
+        return prefix;
     }
 
     public static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
