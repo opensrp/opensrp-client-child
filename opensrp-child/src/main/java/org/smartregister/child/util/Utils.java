@@ -64,7 +64,6 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
-import org.smartregister.repository.AllSettings;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -202,15 +201,17 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static void addVaccine(VaccineRepository vaccineRepository, Vaccine vaccine) {
-        //Update team and team_id before adding vaccine
-        AllSharedPreferences allSharedPreferences = getAllSharedPreferences();
-        String providerId = allSharedPreferences.fetchRegisteredANM();
-        vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
-        vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
         try {
             if (vaccineRepository == null || vaccine == null) {
                 return;
             }
+
+            //Update team and team_id before adding vaccine
+            AllSharedPreferences allSharedPreferences = getAllSharedPreferences();
+            String providerId = allSharedPreferences.fetchRegisteredANM();
+            vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
+            vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+
             vaccine.setName(vaccine.getName().trim());
             // Add the vaccine
             vaccineRepository.add(vaccine);

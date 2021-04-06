@@ -31,6 +31,7 @@ import org.powermock.reflect.Whitebox;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.BaseUnitTest;
@@ -206,6 +207,14 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        Mockito.doReturn(openSrpContext).when(coreLibrary).context();
+        Mockito.doReturn(openSrpContext).when(childLibrary).context();
+        Mockito.doReturn(allSharedPreferences).when(openSrpContext).allSharedPreferences();
+        Mockito.doReturn("DefaultLocationId").when(allSharedPreferences).fetchDefaultLocalityId(Mockito.anyString());
+        String someLocation = "some-location";
+        Mockito.doReturn(someLocation).when(allSharedPreferences).getPreference(AllConstants.CURRENT_LOCATION_ID);
+        Mockito.doReturn("some-location-id").when(locationHelper).getOpenMrsLocationId(someLocation);
+
     }
 
     @Test
@@ -1060,7 +1069,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals("mother", event.getEntityType());
         Assert.assertEquals(defaultTeam, event.getTeam());
         Assert.assertEquals(defaultTeamId, event.getTeamId());
-        Assert.assertEquals(userLocalityId, event.getLocationId());
+        Assert.assertEquals(defaultLocalityId, event.getLocationId());
         Assert.assertEquals(openmrsLocalityId, event.getChildLocationId());
         Assert.assertEquals(5, (long) event.getClientApplicationVersion());
         Assert.assertEquals(1, (long) event.getClientDatabaseVersion());
@@ -1129,6 +1138,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(context.getResources()).thenReturn(RuntimeEnvironment.application.getResources());
+        Mockito.doReturn(allSharedPreferences).when(openSrpContext).allSharedPreferences();
+        Mockito.doReturn("Karura Health Centre").when(allSharedPreferences).fetchDefaultLocalityId(Mockito.anyString());
 
         LocationPickerView view = Mockito.mock(LocationPickerView.class);
         Mockito.when(childLibrary.getLocationPickerView(ArgumentMatchers.any(Context.class))).thenReturn(view);
@@ -1184,7 +1195,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         JSONObject populatedForm = JsonFormUtils.toJSONObject(forEditForm);
 
-        Assert.assertEquals("Karura Health Centre", populatedForm.getJSONObject("metadata").getString("encounter_location"));
+        Assert.assertEquals("some-location", populatedForm.getJSONObject("metadata").getString("encounter_location"));
 
         Assert.assertNotNull(populatedForm);
         Assert.assertNotNull(populatedForm.getJSONObject(STEP1));

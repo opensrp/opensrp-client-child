@@ -13,7 +13,6 @@ import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseActivity;
 import org.smartregister.child.view.LocationActionView;
 import org.smartregister.util.Utils;
-import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 /**

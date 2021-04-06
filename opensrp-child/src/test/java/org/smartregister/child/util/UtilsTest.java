@@ -173,6 +173,7 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(childLibrary).context();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
@@ -193,6 +194,7 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(childLibrary).context();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();

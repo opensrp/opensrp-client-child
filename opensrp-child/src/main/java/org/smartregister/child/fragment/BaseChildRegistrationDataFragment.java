@@ -297,7 +297,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 }
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
-                } else if (LocationHelper.getInstance() != null && field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
+                } else if (field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
                     Location location = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw);
                     result = location != null ? location.getProperties().getName() : openMrsLocationName != null ? openMrsLocationName : "";
                 }

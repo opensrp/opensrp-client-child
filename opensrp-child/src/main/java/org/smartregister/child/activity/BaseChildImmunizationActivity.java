@@ -767,7 +767,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
                             vaccine.name = BCG_SCAR_NAME;
                             birthVaccineGroup.vaccines.add(vaccine);
-                            vaccineList.add(createBcgTwoVaccine(new Date(DATE), VaccineRepository.TYPE_Synced));
+                            vaccineList.add(createBcg2Vaccine(new Date(DATE), VaccineRepository.TYPE_Synced));
                             break;
                         }
                     }
@@ -823,7 +823,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return null;
     }
 
-    private Vaccine createBcgTwoVaccine(Date date, String syncStatus) {
+    protected Vaccine createBcg2Vaccine(Date date, String syncStatus) {
         AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         String provider = allSharedPreferences.fetchRegisteredANM();
         Vaccine vaccine = new Vaccine();

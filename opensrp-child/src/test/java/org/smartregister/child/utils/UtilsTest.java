@@ -103,6 +103,8 @@ public class UtilsTest extends BaseUnitTest {
         Mockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
         String providerId = "demo";
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn("sample-team");
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn("sample-team-id");
     }
 
     @Test

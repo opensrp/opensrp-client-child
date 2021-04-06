@@ -14,7 +14,6 @@ import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.location.helper.LocationHelper;
 
 import java.util.List;
 import java.util.Map;
