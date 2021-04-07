@@ -54,17 +54,17 @@ public class LoadAsyncTaskTest extends BasePowerMockUnitTest {
     private AppProperties appProperties;
 
     @Mock
-    private Context context;
-
-    @Mock
     private CoreLibrary coreLibrary;
+    @Mock
+    private Context openSRPContext;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(appProperties).when(context).getAppProperties();
-        Mockito.doReturn(context).when(coreLibrary).context();
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        Mockito.doReturn(openSRPContext).when(coreLibrary).context();
+        Mockito.doReturn(appProperties).when(openSRPContext).getAppProperties();
+        Mockito.doReturn(false).when(appProperties).getPropertyBoolean("monitor.height");
     }
 
     @After

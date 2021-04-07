@@ -76,7 +76,9 @@ public class ChildRegisterInteractorTest {
 
     @After
     public void tearDown(){
-
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
     }
 
     @Test
