@@ -42,13 +42,13 @@ public class MotherLookUpSmartClientsProviderTest extends BaseUnitTest {
         motherDetails.put(Constants.KEY.FIRST_NAME, "Jane");
         motherDetails.put(Constants.KEY.LAST_NAME, "Doe");
         motherDetails.put(Constants.KEY.DOB, "2010-02-02");
-        CommonPersonObject commonPersonObject = new CommonPersonObject("2323-awdtye", "12", motherDetails, "mother");
+        CommonPersonObject commonPersonObject = new CommonPersonObject("2323-awdtye", "12", motherDetails, Constants.ENTITY.MOTHER);
         commonPersonObject.setColumnmaps(motherDetails);
 
         HashMap<String, String> childDetails = new HashMap<>();
         motherDetails.put(Constants.KEY.FIRST_NAME, "John");
         motherDetails.put(Constants.KEY.LAST_NAME, "Doe");
-        CommonPersonObject commonPersonObjectChild = new CommonPersonObject("5423-awewe", "12", childDetails, "child");
+        CommonPersonObject commonPersonObjectChild = new CommonPersonObject("5423-awewe", "12", childDetails, Constants.ENTITY.CHILD);
         commonPersonObjectChild.setColumnmaps(motherDetails);
         List<CommonPersonObject> children = new ArrayList<>();
         children.add(commonPersonObjectChild);

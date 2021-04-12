@@ -19,7 +19,7 @@ public class UpdateOfflineAlertsTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         DateTime birthDateTime = Utils.dobToDateTime(childDetails);
         if (birthDateTime != null) {
-            VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, CHILD);
+            VaccineSchedule.updateOfflineAlertsOnly(childDetails.entityId(), birthDateTime, CHILD);
         }
         return null;
     }

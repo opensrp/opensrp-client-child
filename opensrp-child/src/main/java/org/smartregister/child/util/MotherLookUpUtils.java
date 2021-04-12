@@ -35,7 +35,6 @@ public class MotherLookUpUtils {
     public static final String baseEntityId = "base_entity_id";
     public static final String MOTHER_GUARDIAN_NRC = "Mother_Guardian_NRC";
     public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "Mother_Guardian_Phone_Number";
-    public static final String IS_CONSENTED = "is_consented";
     public static final String RELATIONAL_ID = "relational_id";
     public static final String NRC_NUMBER = "nrc_number";
     public static final String DETAILS = "details";
@@ -145,11 +144,10 @@ public class MotherLookUpUtils {
 
     }
 
-    private static List<CommonPersonObject> findChildren
-            (List<HashMap<String, String>> childList, String motherBaseEnityId) {
+    private static List<CommonPersonObject> findChildren(List<HashMap<String, String>> childList, String motherBaseEnityId) {
         List<CommonPersonObject> foundChildren = new ArrayList<>();
         for (Map<String, String> child : childList) {
-            CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, "child");
+            CommonPersonObject commonPersonObject = new CommonPersonObject(child.get(baseEntityId), child.get(RELATIONALID), child, Constants.ENTITY.CHILD);
             commonPersonObject.setColumnmaps(child);
             String relationalID = getValue(commonPersonObject.getDetails(), RELATIONAL_ID, false);
             if (!foundChildren.contains(commonPersonObject) && relationalID.equals(motherBaseEnityId)) {
