@@ -251,12 +251,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 .setCancelable(false)
                 .setPositiveButton(R.string.no_button_label, null)
                 .setNegativeButton(R.string.yes_button_label,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
-                                progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
-                                MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog, isPermanent);
-                            }
+                        (dialog1, whichButton) -> {
+                            progressDialog.setTitle(R.string.move_to_catchment_dialog_title);
+                            progressDialog.setMessage(getString(R.string.move_to_catchment_dialog_message));
+                            MoveToMyCatchmentUtils.moveToMyCatchment(ids, moveToMyCatchmentListener, progressDialog, isPermanent);
                         }).create();
 
         dialog.show();
@@ -271,7 +269,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
         advancedSearchForm = view.findViewById(R.id.advanced_search_form);
         backButton = view.findViewById(R.id.back_button);
-        backButton.setOnClickListener(registerActionHandler);
+        backButton.setOnClickListener(v -> onBackPressed());
 
         searchCriteria = view.findViewById(R.id.search_criteria);
         matchingResults = view.findViewById(R.id.matching_results);
@@ -494,7 +492,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             advancedSearchForm.setVisibility(View.VISIBLE);
             listViewLayout.setVisibility(View.GONE);
             clientsView.setVisibility(View.INVISIBLE);
-            backButton.setVisibility(View.GONE);
             searchButton.setVisibility(View.VISIBLE);
             advancedSearchToolbarSearchButton.setVisibility(View.VISIBLE);
 

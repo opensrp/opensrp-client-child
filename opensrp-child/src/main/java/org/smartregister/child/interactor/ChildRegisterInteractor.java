@@ -70,25 +70,18 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     @Override
-    public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple,
-                                final ChildRegisterContract.InteractorCallBack callBack) {
+    public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
-                final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
-                appExecutors.mainThread().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (StringUtils.isBlank(entityId)) {
-                            callBack.onNoUniqueId();
-                        } else {
-                            callBack.onUniqueIdFetched(triple, entityId);
-                        }
-                    }
-                });
-            }
+        Runnable runnable = () -> {
+            UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
+            final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
+            appExecutors.mainThread().execute(() -> {
+                if (StringUtils.isBlank(entityId)) {
+                    callBack.onNoUniqueId();
+                } else {
+                    callBack.onUniqueIdFetched(triple, entityId);
+                }
+            });
         };
 
         appExecutors.diskIO().execute(runnable);
@@ -99,17 +92,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                                  final UpdateRegisterParams updateRegisterParams,
                                  final ChildRegisterContract.InteractorCallBack callBack) {
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                saveRegistration(childEventClientList, jsonString, updateRegisterParams);
-                appExecutors.mainThread().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callBack.onRegistrationSaved(updateRegisterParams.isEditMode());
-                    }
-                });
-            }
+        Runnable runnable = () -> {
+            saveRegistration(childEventClientList, jsonString, updateRegisterParams);
+            appExecutors.mainThread().execute(() -> callBack.onRegistrationSaved(updateRegisterParams.isEditMode()));
         };
 
         appExecutors.diskIO().execute(runnable);

@@ -441,11 +441,39 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     private void setCheckboxValue(String fieldName, String value, ViewGroup viewGroup) {
         if (viewGroup.getChildCount() == 2 && viewGroup.getChildAt(1) instanceof LinearLayout) {
             LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
-            if (innerLayout.getChildAt(0) instanceof AppCompatCheckBox) {
-                AppCompatCheckBox checkBox = (AppCompatCheckBox) innerLayout.getChildAt(0);
-                checkBox.setChecked(value.contains(fieldName));
-            }
+            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox.setChecked(value.contains(fieldName));
+            checkBox.setEnabled(false);
+
+        } else if (viewGroup.getChildCount() == 1 && viewGroup.getChildAt(0) instanceof LinearLayout) {
+            LinearLayout innerLayout = ((LinearLayout) viewGroup.getChildAt(0));
+            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox.setChecked(value.contains(fieldName));
+            checkBox.setEnabled(false);
+
         }
+    }
+
+    private void setCheckboxStatus(ViewGroup viewGroup, boolean isEnabled) {
+        if (viewGroup.getChildCount() == 2 && viewGroup.getChildAt(1) instanceof LinearLayout) {
+            LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
+            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox.setEnabled(isEnabled);
+
+        } else if (viewGroup.getChildCount() == 1 && viewGroup.getChildAt(0) instanceof LinearLayout) {
+            LinearLayout innerLayout = ((LinearLayout) viewGroup.getChildAt(0));
+            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox.setEnabled(isEnabled);
+
+        }
+    }
+
+    private AppCompatCheckBox getCheckboxFromLinearLayout(LinearLayout linearLayout) {
+        AppCompatCheckBox checkBox = null;
+        if (linearLayout.getChildAt(0) instanceof AppCompatCheckBox) {
+            checkBox = (AppCompatCheckBox) linearLayout.getChildAt(0);
+        }
+        return checkBox;
     }
 
     private void setSpinnerValue(String value, ViewGroup spinnerViewGroup) {
@@ -473,10 +501,10 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         metadataMap.put(Constants.KEY.VALUE, getValue(client.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
         writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
         lookedUp = true;
-        clearView();
+        renderSnackbarClearView();
     }
 
-    protected void clearView() {
+    protected void renderSnackbarClearView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setDuration(BaseTransientBottomBar.LENGTH_LONG);
         snackbar.setAction(R.string.dismiss_lookup, v -> snackbar.dismiss());
@@ -496,6 +524,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         materialEditText.setText("");
                         materialEditText.setTag(R.id.after_look_up, false);
                         materialEditText.setTag(R.id.raw_value, materialEditText.getText().toString());
+                        materialEditText.setVisibility(View.VISIBLE);
                     } else if (view instanceof RelativeLayout) {
                         ViewGroup spinnerViewGroup = (ViewGroup) view;
                         if (spinnerViewGroup.getChildAt(0) instanceof MaterialSpinner) {
@@ -503,6 +532,9 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                             spinner.setSelected(false);
                             spinner.setEnabled(true);
                         }
+                    } else if (view instanceof LinearLayout) {
+                        ViewGroup checkboxViewGroup = (ViewGroup) view;
+                        setCheckboxStatus(checkboxViewGroup, true);
                     }
                 }
 

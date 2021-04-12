@@ -229,6 +229,13 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         return false;
     }
 
+    /**
+     * This is the implementation of the Mother Lookup query used in the Child Registration form for the fields that have entity type mother and require to be auto-populated
+     *
+     * @param entityMap the key value map of the look up query filter (fields and values)
+     * @param tableName the main table
+     * @return the query string
+     */
     @Override
     public String lookUpQuery(Map<String, String> entityMap, String tableName) {
 

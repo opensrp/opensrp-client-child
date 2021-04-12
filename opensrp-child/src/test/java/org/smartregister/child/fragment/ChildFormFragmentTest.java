@@ -166,7 +166,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         personObjectClient.setColumnmaps(details);
         formFragment = PowerMockito.spy(formFragment);
         ReflectionHelpers.setField(formFragment, "lookedUp", false);
-        Mockito.doNothing().when(formFragment).clearView();
+        Mockito.doNothing().when(formFragment).renderSnackbarClearView();
         Mockito.doNothing().when(formFragment).writeMetaDataValue(Mockito.anyString(), Mockito.any(Map.class));
         Mockito.doReturn(getLookUpMap()).when(formFragment).getLookUpMap();
         Activity activity = Robolectric.setupActivity(FragmentActivity.class);

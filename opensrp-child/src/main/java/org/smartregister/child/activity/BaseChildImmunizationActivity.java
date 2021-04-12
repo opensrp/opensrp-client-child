@@ -1646,7 +1646,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         if (dateTime != null) {
-            VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+            VaccineSchedule.updateOfflineAlertsOnly(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
             if (recurringServiceEnabled) {
                 ServiceSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime);
             }
@@ -1945,7 +1945,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
-                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                affectedVaccines = VaccineSchedule.updateOfflineAlertsAndReturnAffectedVaccineNames(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());

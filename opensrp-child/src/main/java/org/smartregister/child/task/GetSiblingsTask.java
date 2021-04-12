@@ -45,7 +45,7 @@ public class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
 
             List<CommonPersonObject> children = new ArrayList<>();
             for (HashMap<String, String> hashMap : childList) {
-                CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, "child");
+                CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, Constants.ENTITY.CHILD);
                 commonPersonObject.setColumnmaps(hashMap);
                 children.add(commonPersonObject);
             }
