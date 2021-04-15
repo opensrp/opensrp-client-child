@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
@@ -433,39 +434,38 @@ public class ChildFormFragment extends JsonWizardFormFragment {
             } else if (view instanceof RelativeLayout) {
                 setSpinnerValue(value, (ViewGroup) view);
             } else if (view instanceof LinearLayout) {
-                setCheckboxValue(fieldName, value, (ViewGroup) view);
+                setCheckboxIsCheckedValue(fieldName, value, (ViewGroup) view);
             }
         }
     }
 
-    private void setCheckboxValue(String fieldName, String value, ViewGroup viewGroup) {
-        if (viewGroup.getChildCount() == 2 && viewGroup.getChildAt(1) instanceof LinearLayout) {
-            LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
-            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
-            checkBox.setChecked(value.contains(fieldName));
-            checkBox.setEnabled(false);
+    private void setCheckboxIsCheckedValue(@NonNull String fieldName, @NonNull String value, ViewGroup viewGroup) {
+        if (fieldName == null || value == null) {
+            return;
+        }
 
-        } else if (viewGroup.getChildCount() == 1 && viewGroup.getChildAt(0) instanceof LinearLayout) {
-            LinearLayout innerLayout = ((LinearLayout) viewGroup.getChildAt(0));
-            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
-            checkBox.setChecked(value.contains(fieldName));
-            checkBox.setEnabled(false);
-
+        boolean isChecked = value.toLowerCase(Locale.ENGLISH).contains(fieldName.toLowerCase(Locale.ENGLISH));
+        AppCompatCheckBox checkBox = setCheckboxEnabledStatus(viewGroup, false);
+        if (checkBox != null) {
+            checkBox.setChecked(isChecked);
         }
     }
 
-    private void setCheckboxStatus(ViewGroup viewGroup, boolean isEnabled) {
+    private AppCompatCheckBox setCheckboxEnabledStatus(ViewGroup viewGroup, boolean isEnabled) {
+
+        AppCompatCheckBox checkBox = null;
         if (viewGroup.getChildCount() == 2 && viewGroup.getChildAt(1) instanceof LinearLayout) {
             LinearLayout innerLayout = (LinearLayout) viewGroup.getChildAt(1);
-            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox = getCheckboxFromLinearLayout(innerLayout);
             checkBox.setEnabled(isEnabled);
 
         } else if (viewGroup.getChildCount() == 1 && viewGroup.getChildAt(0) instanceof LinearLayout) {
             LinearLayout innerLayout = ((LinearLayout) viewGroup.getChildAt(0));
-            AppCompatCheckBox checkBox = getCheckboxFromLinearLayout(innerLayout);
+            checkBox = getCheckboxFromLinearLayout(innerLayout);
             checkBox.setEnabled(isEnabled);
-
         }
+
+        return checkBox;
     }
 
     private AppCompatCheckBox getCheckboxFromLinearLayout(LinearLayout linearLayout) {
@@ -501,10 +501,10 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         metadataMap.put(Constants.KEY.VALUE, getValue(client.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
         writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
         lookedUp = true;
-        renderSnackbarClearView();
+        renderSnackbarLookupConfirmationView();
     }
 
-    protected void renderSnackbarClearView() {
+    protected void renderSnackbarLookupConfirmationView() {
         snackbar = Snackbar.make(getMainView(), R.string.undo_lookup, Snackbar.LENGTH_INDEFINITE);
         snackbar.setDuration(BaseTransientBottomBar.LENGTH_LONG);
         snackbar.setAction(R.string.dismiss_lookup, v -> snackbar.dismiss());
@@ -534,7 +534,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                         }
                     } else if (view instanceof LinearLayout) {
                         ViewGroup checkboxViewGroup = (ViewGroup) view;
-                        setCheckboxStatus(checkboxViewGroup, true);
+                        setCheckboxEnabledStatus(checkboxViewGroup, true);
                     }
                 }
 
@@ -547,11 +547,11 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
     }
 
-    public void getLabelViewFromTag(String labeltext, String todisplay) {
-        updateRelevantTextView(getMainView(), todisplay, labeltext);
+    public void getLabelViewFromTag(String currentKey, String textToDisplay) {
+        updateRelevantTextView(getMainView(), textToDisplay, currentKey);
     }
 
-    private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
+    private void updateRelevantTextView(LinearLayout mMainView, String textString, String currentKey) {
         if (mMainView != null) {
             int childCount = mMainView.getChildCount();
             for (int i = 0; i < childCount; i++) {
@@ -560,7 +560,8 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                     TextView textView = (TextView) view;
                     String key = (String) textView.getTag(com.vijay.jsonwizard.R.id.key);
                     if (key.equals(currentKey)) {
-                        textView.setText(textstring);
+                        textView.setText(textString);
+                        break;
                     }
                 }
             }
