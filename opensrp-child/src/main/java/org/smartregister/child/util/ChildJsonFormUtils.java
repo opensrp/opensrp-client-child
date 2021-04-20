@@ -36,6 +36,7 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
+import org.smartregister.child.domain.Observation;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.clientandeventmodel.Address;
@@ -602,7 +603,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     public static void saveReportDeceased(Context context, String jsonString,
                                           String locationId, String entityId) {
         try {
-            String providerId = ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             EventClientRepository db = ChildLibrary.getInstance().eventClientRepository();
             JSONObject jsonForm = new JSONObject(jsonString);
 
@@ -626,12 +626,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
 
-            Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, Constants.KEY.CHILD);
+            Event event = getEventAndTag(entityId, encounterType, encounterDate, Constants.KEY.CHILD);
             addSaveReportDeceasedObservations(fields, event);
             updateMetadata(metadata, event);
 
             if (event != null) {
-                createDeathEventObject(context, providerId, locationId, entityId, db, encounterDate, encounterDateTimeString, event);
+                createDeathEventObject(context, entityId, db, encounterDate, encounterDateTimeString, event);
 
                 ContentValues values = new ContentValues();
                 values.put(Constants.KEY.DOD, encounterDateField);
@@ -708,16 +708,16 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
-    private static Event getEventAndTag(String providerId, String locationId, String entityId, String encounterType, Date encounterDate, String childType) {
+    private static Event getEventAndTag(String entityId, String encounterType, Date encounterDate, String childType) {
 
-        Event event = getEvent(providerId, locationId, entityId, encounterType, encounterDate, childType);
+        Event event = getEvent(null, null, entityId, encounterType, encounterDate, childType);
 
         ChildJsonFormUtils.tagSyncMetadata(event);
 
         return event;
     }
 
-    private static void createDeathEventObject(Context context, String providerId, String locationId,
+    private static void createDeathEventObject(Context context,
                                                String entityId, EventClientRepository db, Date encounterDate,
                                                String encounterDateTimeString, Event event) throws JSONException {
 
@@ -739,7 +739,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         db.addEvent(event.getBaseEntityId(), eventJson);
 
         //Update Child Entity to include death date
-        Event updateChildDetailsEvent = getEventAndTag(providerId, locationId, entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
+        Event updateChildDetailsEvent = getEventAndTag(entityId, ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, encounterDate, Constants.CHILD_TYPE);
 
         addMetaData(context, updateChildDetailsEvent, new Date());
 
@@ -818,6 +818,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     protected static Event tagSyncMetadata(@NonNull Event event) {
+
+
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
@@ -878,6 +880,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static String getProviderLocationId(AllSharedPreferences allSharedPreferences) {
+
         String providerId = allSharedPreferences.fetchRegisteredANM();
         String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
         if (StringUtils.isBlank(userLocationId)) {
@@ -917,6 +920,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             Client baseClient = ChildJsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
+            baseClient.setClientType(Constants.CHILD_TYPE);
 
             Event baseEvent = ChildJsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1590,7 +1594,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         Map<String, String> clientMap = getClientAttributes(fields, bindType, entityRelationId);
 
-        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox);
+        Client client = getClient(clientMap, birthDate, deathDate, birthDateApprox, deathDateApprox, bindType);
         client.withAddresses(addresses).withAttributes(extractAttributes(fields, clientMap.get(Constants.BIND_TYPE))).withIdentifiers(identifierMap);
 
         if (addresses.isEmpty()) {
@@ -1615,14 +1619,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @NotNull
-    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate,
-                                    boolean birthDateApprox, boolean deathDateApprox) {
-
-        return (Client) new Client(clientMap.get(Constants.ENTITY_ID))
-                .withFirstName(clientMap.get(Constants.FIRST_NAME)).withMiddleName(clientMap.get(Constants.MIDDLE_NAME)).withLastName(clientMap.get(Constants.LAST_NAME))
-                .withBirthdate(birthDate, birthDateApprox)
-                .withDeathdate(deathDate, deathDateApprox)
-                .withGender(clientMap.get(GENDER))
+    private static Client getClient(Map<String, String> clientMap, Date birthDate, Date deathDate, boolean birthDateApprox, boolean deathDateApprox, String bindType) {
+        return (Client) new Client(clientMap.get(Constants.ENTITY_ID), clientMap.get(Constants.FIRST_NAME), clientMap.get(Constants.MIDDLE_NAME), clientMap.get(Constants.LAST_NAME), birthDate, deathDate, birthDateApprox, deathDateApprox, clientMap.get(GENDER), bindType)
                 .withDateCreated(new Date());
     }
 
@@ -1705,8 +1703,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             addSaveReportDeceasedObservations(fields, event);
     }
 
-    private static Event getSubFormEvent(Event parent, String entityId, String encounterType,
-                                         String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
+    private static Event getSubFormEvent(Event parent, String entityId, String encounterType, String bindType, boolean alreadyExists, org.smartregister.domain.Event existingEvent) {
 
         Event event = (Event) new Event().withBaseEntityId(alreadyExists ? existingEvent.getBaseEntityId() : entityId)
                 .withEventDate(parent.getEventDate())
@@ -1882,7 +1879,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    private static void convertAndPersistEvent(Event event) {
+    public static void convertAndPersistEvent(Event event) {
         if (event != null) {
             JSONObject jsonEvent = ChildLibrary.getInstance().getEcSyncHelper().convertToJson(event);
             if (jsonEvent != null) {
@@ -1922,7 +1919,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             final String DATA_TYPE = "text";
 
-            Event event = getEventAndTag(referenceEvent.getProviderId(), fromLocationId, referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(referenceEvent.getBaseEntityId(), MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT, new Date(), Constants.CHILD_TYPE);
 
             String formSubmissionField = "From_ProviderId";
             List<Object> vall = new ArrayList<>();
@@ -2097,9 +2094,20 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * This method does ...
+     *
+     * @deprecated because provider and location id will be set by the getEventAndTag method use
+     * {@link #createBCGScarEvent(Context context, String baseEntityId)} instead.
+     */
+    @Deprecated
     public static void createBCGScarEvent(Context context, String baseEntityId, String providerId, String locationId) {
+        createBCGScarEvent(context, baseEntityId);
+    }
+
+    public static void createBCGScarEvent(Context context, String baseEntityId) {
         try {
-            Event event = getEventAndTag(providerId, locationId, baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEventAndTag(baseEntityId, BCG_SCAR_EVENT, new Date(), Constants.CHILD_TYPE);
 
             final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             final String YES_CONCEPT = "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -2122,7 +2130,19 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
+    /**
+     * This method does ...
+     *
+     * @deprecated because provider and location id will be set by the getEventAndTag method use
+     * {@link #updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue)} instead.
+     */
+    @Deprecated
     public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, LocationHelper locationHelper, String attributeName, Object attributeValue) throws Exception {
+
+        return updateClientAttribute(openSRPContext, childDetails, attributeName, attributeValue);
+    }
+
+    public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws Exception {
         Date date = new Date();
         EventClientRepository db = openSRPContext.getEventClientRepository();
 
@@ -2139,18 +2159,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         ChildDbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
 
-        AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
-        String locationName = allSharedPreferences.fetchCurrentLocality();
-        if (StringUtils.isBlank(locationName)) {
-            locationName = locationHelper.getDefaultLocation();
-        }
-
-        Event event = getEventAndTag(allSharedPreferences.fetchRegisteredANM(), locationHelper.getOpenMrsLocationId(locationName), childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+        Event event = getEventAndTag(childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
 
         ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
-        processClients(allSharedPreferences, ChildLibrary.getInstance().getEcSyncHelper());
+        processClients(openSRPContext.allSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
         //update details
         Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
@@ -2245,5 +2259,37 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
         return null;
 
+    }
+
+    /**
+     * Creates the Next Appointment event
+     *
+     * @param baseEntityId
+     * @param observations     A list of obs value to send as part of the event
+     * @param formSubmissionId A formSubmissionId to update an unsynced next appointment Event, can be null, if null a new one will be created in the db
+     */
+    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations, @androidx.annotation.Nullable String formSubmissionId) throws JSONException {
+        Event event = null;
+        if (observations != null) {
+
+            event = getEventAndTag(baseEntityId, Constants.EventType.NEXT_APPOINTMENT, new Date(), Constants.CHILD_TYPE).withFormSubmissionId(StringUtils.isNotBlank(formSubmissionId) ? formSubmissionId : generateRandomUUIDString());
+
+            for (Observation ob : observations) {
+
+                addObservation(ob.getKey(), ob.getValue(), ob.getType(), event);
+
+            }
+
+        }
+
+        return event;
+    }
+
+    protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(KEY, key);
+        jsonObject.put(VALUE, value);
+        jsonObject.put(OPENMRS_DATA_TYPE, type != null ? type : AllConstants.TEXT);
+        addObservation(event, jsonObject);
     }
 }

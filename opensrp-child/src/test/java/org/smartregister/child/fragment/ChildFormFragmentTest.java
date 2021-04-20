@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentActivity;
 
@@ -26,6 +28,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -166,7 +169,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         personObjectClient.setColumnmaps(details);
         formFragment = PowerMockito.spy(formFragment);
         ReflectionHelpers.setField(formFragment, "lookedUp", false);
-        Mockito.doNothing().when(formFragment).clearView();
+        Mockito.doNothing().when(formFragment).renderSnackbarLookupConfirmationView();
         Mockito.doNothing().when(formFragment).writeMetaDataValue(Mockito.anyString(), Mockito.any(Map.class));
         Mockito.doReturn(getLookUpMap()).when(formFragment).getLookUpMap();
         Activity activity = Robolectric.setupActivity(FragmentActivity.class);
@@ -331,6 +334,176 @@ public class ChildFormFragmentTest extends BaseUnitTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+    }
+
+    @Test
+    public void testGetLabelViewFromTagUpdatesTextViewCorrectly() throws Exception {
+        String viewKey = "First_Name";
+        String textViewDisplayValue = "Shirley";
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        TextView textView = Mockito.spy(new TextView(RuntimeEnvironment.application));
+        textView.setTag(com.vijay.jsonwizard.R.id.key, viewKey);
+        linearLayout.addView(textView);
+        Mockito.doReturn(linearLayout).when(formFragment).getMainView();
+        formFragment.getLabelViewFromTag(viewKey, textViewDisplayValue);
+
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(textView).setText(stringArgumentCaptor.capture());
+
+        String capturedTextString = stringArgumentCaptor.getValue();
+
+        Assert.assertEquals(textViewDisplayValue, capturedTextString);
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxValueToTrueForCorrectWidgetAndValue() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Birth_Unknown";
+        String fieldValue = "[\"birth_unknown\"]";
+
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
+        linearLayout.addView(checkBox);
+        viewGroup.addView(linearLayout);
+
+        Mockito.doReturn(linearLayout).when(formFragment).getMainView();
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+
+        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.verify(checkBox).setChecked(booleanArgumentCaptor.capture());
+
+        Boolean capturedValue = booleanArgumentCaptor.getValue();
+
+        Assert.assertEquals(true, capturedValue);
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxValueToFalseForCorrectWidgetAndOtherValue() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Is_Checked";
+        String fieldValue = "[\"not_checked\"]";
+
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
+        linearLayout.addView(checkBox);
+        viewGroup.addView(linearLayout);
+
+        Mockito.doReturn(linearLayout).when(formFragment).getMainView();
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+
+        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.verify(checkBox).setChecked(booleanArgumentCaptor.capture());
+
+        Boolean capturedValue = booleanArgumentCaptor.getValue();
+
+        Assert.assertEquals(false, capturedValue);
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxValueProceedsIfFieldNameAndValueIsNotNull() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Birth_Unknown";
+        String fieldValue = "[\"birth_unknown\"]";
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+        Mockito.verify(viewGroup, Mockito.times(2)).getChildCount();
+
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxValueReturnsEarlyIfFieldNameIsNull() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = null;
+        String fieldValue = "[\"birth_unknown\"]";
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+        Mockito.verify(viewGroup, Mockito.never()).getChildCount();
+
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxValueReturnsEarlyIfValueIsNull() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Birth_Unknown";
+        String fieldValue = null;
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+        Mockito.verify(viewGroup, Mockito.never()).getChildCount();
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxType2ValueToTrueForCorrectWidgetAndValue() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Is_Consented";
+        String fieldValue = "[\"is_consented\"]";
+
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
+        linearLayout.addView(checkBox);
+        viewGroup.addView(new View(RuntimeEnvironment.application));
+        viewGroup.addView(linearLayout);
+
+        Mockito.doReturn(linearLayout).when(formFragment).getMainView();
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+
+        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.verify(checkBox).setChecked(booleanArgumentCaptor.capture());
+
+        Boolean capturedValue = booleanArgumentCaptor.getValue();
+
+        Assert.assertEquals(true, capturedValue);
+    }
+
+    @Test
+    public void testSetValueOnViewSetsCheckboxType2ValueToFalseForNonCheckedValue() {
+
+        formFragment = Mockito.spy(ChildFormFragment.class);
+
+        String fieldName = "Is_Consented";
+        String fieldValue = "[]";
+
+        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
+        linearLayout.addView(checkBox);
+        viewGroup.addView(new View(RuntimeEnvironment.application));
+        viewGroup.addView(linearLayout);
+
+        Mockito.doReturn(linearLayout).when(formFragment).getMainView();
+
+        formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
+
+        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.verify(checkBox).setChecked(booleanArgumentCaptor.capture());
+
+        Boolean capturedValue = booleanArgumentCaptor.getValue();
+
+        Assert.assertEquals(false, capturedValue);
     }
 
 }

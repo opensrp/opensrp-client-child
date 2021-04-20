@@ -52,7 +52,7 @@ public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
             String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
             DateTime dateTime = Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
-                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                affectedVaccines = VaccineSchedule.updateOfflineAlertsAndReturnAffectedVaccineNames(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
                 vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
                 alertList = alertService.findByEntityId(childDetails.entityId());
             }

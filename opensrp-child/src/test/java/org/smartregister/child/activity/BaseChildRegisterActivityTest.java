@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -23,7 +24,6 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildMetadata;
@@ -40,7 +40,6 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -95,7 +94,7 @@ public class BaseChildRegisterActivityTest {
     public void testStartFormActivityInvokesChildFormActivityForJsonForm() throws JSONException {
         JSONObject jsonForm = new JSONObject(registerChildJsonForm);
 
-        doReturn(context).when(childLibrary).context();
+        Mockito.doReturn(context).when(childLibrary).context();
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);
         childMetadata.updateChildRegister(
@@ -152,7 +151,7 @@ public class BaseChildRegisterActivityTest {
         PowerMockito.whenNew(Intent.class).withArguments(String.class).thenReturn(intent);
         when(intent.getStringExtra(JSON)).thenReturn(registerChildJsonForm);
 
-        doReturn(context).when(childLibrary).context();
+        Mockito.doReturn(context).when(childLibrary).context();
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, null, true);

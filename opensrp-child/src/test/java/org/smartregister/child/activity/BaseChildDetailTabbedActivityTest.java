@@ -20,11 +20,10 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -40,6 +39,7 @@ import org.powermock.reflect.Whitebox;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -48,6 +48,7 @@ import org.smartregister.child.fragment.LostCardDialogFragment;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
+import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -62,6 +63,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.DateUtil;
+import org.smartregister.util.FormUtils;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -78,7 +80,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class, ChildLibrary.class, DateUtil.class})
+@PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class, ChildLibrary.class, DateUtil.class, FormUtils.class})
 public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @Rule
@@ -113,10 +115,25 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     private BaseChildDetailTabbedActivity baseChildDetailTabbedActivity;
 
+    @Mock
+    private CoreLibrary coreLibrary;
+
+    @Mock
+    private FormUtils formUtils;
+
     @Before
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
+        doReturn(appProperties).when(opensrpContext).getAppProperties();
+        doReturn(opensrpContext).when(coreLibrary).context();
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
         baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
+    }
+
+    @After
+    public void tearDown() {
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
     }
 
     @Test
@@ -484,20 +501,28 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("Fix issue with CoreLibrary initialization")
-    public void testLaunchDynamicVaccinesForm() throws JSONException {
-        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
-        HashMap<String, String> childDetails = new HashMap<>();
-        childDetails.put(Constants.KEY.ENTITY_ID, "some-base-entity-id");
+    public void testLaunchDynamicVaccinesForm() throws Exception {
 
+        PowerMockito.mockStatic(FormUtils.class);
+        PowerMockito.when(FormUtils.getInstance(ApplicationProvider.getApplicationContext())).thenReturn(formUtils);
+        doReturn(new JSONObject("{\"metadata\":{}}")).when(formUtils).getFormJson(Constants.JsonForm.DYNAMIC_VACCINES);
+
+        doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
+
+        String locationId = "some-location-id";
+        Whitebox.setInternalState(baseChildDetailTabbedActivity, "locationId", locationId);
         Whitebox.setInternalState(baseChildDetailTabbedActivity, "childDetails", getChildDetails());
         baseChildDetailTabbedActivity.launchDynamicVaccinesForm(Constants.JsonForm.DYNAMIC_VACCINES, Constants.KEY.PRIVATE_SECTOR_VACCINE);
-        ArgumentCaptor<JSONObject> formJson = ArgumentCaptor.forClass(JSONObject.class);
-        JSONObject jsonObject = formJson.capture();
+
+        ArgumentCaptor<String> formJsonString = ArgumentCaptor.forClass(String.class);
+        verify(baseChildDetailTabbedActivity).startFormActivity(formJsonString.capture());
+
+        JSONObject jsonObject = new JSONObject(formJsonString.getValue());
         Assert.assertTrue(jsonObject.has(Constants.KEY.DYNAMIC_FIELD));
         Assert.assertEquals(jsonObject.getString(Constants.KEY.DYNAMIC_FIELD), Constants.KEY.PRIVATE_SECTOR_VACCINE);
         Assert.assertTrue(jsonObject.has(Constants.KEY.ENTITY_ID));
-        Assert.assertEquals(jsonObject.getString(Constants.KEY.ENTITY_ID), childDetails.get(Constants.KEY.ENTITY_ID));
+        Assert.assertEquals(getChildDetails().entityId(), jsonObject.getString(Constants.KEY.ENTITY_ID));
         verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).startFormActivity(jsonObject.toString());
+        Assert.assertEquals(locationId, jsonObject.getJSONObject(ChildJsonFormUtils.METADATA).getString(ChildJsonFormUtils.ENCOUNTER_LOCATION));
     }
 }

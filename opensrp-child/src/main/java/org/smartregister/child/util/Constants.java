@@ -170,6 +170,7 @@ public final class Constants extends AllConstants {
 
     public static class ENTITY {
 
+        public static final String CHILD = "child";
         public static final String MOTHER = "mother";
     }
 
@@ -205,6 +206,7 @@ public final class Constants extends AllConstants {
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
         public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_service_recurring_service";
         public static final String BOOSTER_VACCINES = "booster_vaccines";
+        public static final String NEXT_APPOINTMENT = "next_appointment";
     }
 
     public static final class CHILD_STATUS {
@@ -282,6 +284,14 @@ public final class Constants extends AllConstants {
 
     public interface VACCINE_CODE {
         String TETANUS = "epnt";
+    }
+
+    public interface NEXT_APPOINTMENT_OBSERVATION_FIELD {
+        String TREATMENT_PROVIDED = "Treatment_Provided";
+        String NEXT_APPOINTMENT_DATE = "Next_Appointment_Date";
+        String NEXT_SERVICE_EXPECTED = "Next_Service_Expected";
+        String IS_OUT_OF_CATCHMENT = "Is_Out_Of_Catchment";
+
     }
 }
 
