@@ -61,6 +61,9 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         //Generate an event with the date of the next due vaccine
         public static final String NEXT_APPOINTMENT_EVENT_ENABLED = "next.appointment.event.enabled";
 
+        //Enable mode where syncing is by the default LocationId of facility and any outreach encounter tagging is via ChildLocationId
+        public static final String SYNC_BY_DEFAULT_FACILITY_ID_ENABLED = "sync.by.default.facility.id.enabled";
+
         //novel features
         public final static class NOVEL {
             public static final String OUT_OF_CATCHMENT = "novel.out.of.catchment";

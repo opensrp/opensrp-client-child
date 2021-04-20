@@ -1426,7 +1426,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
         vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
-        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
+        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(getOpenSRPContext().allSharedPreferences().fetchDefaultLocalityId(vaccine.getAnmId()), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {
