@@ -123,8 +123,6 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
         Mockito.doReturn(false).when(appProperties).isTrue(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES);
 
         OutOfAreaServiceUtils.createOutOfAreaRecurringServiceEvents(new JSONObject(), new HashMap<>());
-
-        Event event = Mockito.mock(Event.class);
         Mockito.verify(ecSyncHelper, Mockito.never()).addEvent(ArgumentMatchers.anyString(), ArgumentMatchers.any(JSONObject.class), ArgumentMatchers.anyString());
     }
 
@@ -133,8 +131,6 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
         Mockito.doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.SHOW_OUT_OF_CATCHMENT_RECURRING_SERVICES);
 
         OutOfAreaServiceUtils.createOutOfAreaRecurringServiceEvents(new JSONObject(), new HashMap<>());
-
-        Event event = Mockito.mock(Event.class);
         Mockito.verify(ecSyncHelper, Mockito.never()).addEvent(ArgumentMatchers.anyString(), ArgumentMatchers.any(JSONObject.class), ArgumentMatchers.anyString());
     }
 
