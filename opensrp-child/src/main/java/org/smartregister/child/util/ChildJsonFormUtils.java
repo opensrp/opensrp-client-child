@@ -360,7 +360,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 JSONObject service = services.getJSONObject(i);
                 if (service.has(Constants.TYPE)) {
                     String serviceType = service.getString(Constants.TYPE);
-                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase();
+                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase(Locale.ENGLISH);
                     JSONObject option = new JSONObject();
                     option.put(JsonFormConstants.KEY, serviceKey);
                     option.put(JsonFormConstants.TEXT, VaccinatorUtils.getTranslatedVaccineName(context, serviceType));
@@ -818,8 +818,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
+    /**
+     * Tag an event with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+     *
+     * @param event to tag
+     * @return Tagged event
+     */
     protected static Event tagSyncMetadata(@NonNull Event event) {
-
 
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
@@ -827,16 +832,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
         String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
-        event.setChildLocationId(childLocationId);
+        event.setChildLocationId(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(allSharedPreferences.fetchCurrentDataStrategy()) ? VaccinatorUtils.createIdentifier(childLocationId) : childLocationId);
 
-        List<String> advancedDataCaptureStrategies = LocationHelper.getInstance().getAdvancedDataCaptureStrategies();
-        if (StringUtils.isNotBlank(childLocationId) && advancedDataCaptureStrategies != null &&
-                advancedDataCaptureStrategies.contains(childLocationId)) {
-            event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
-        }
+        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
 
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+
+        try {
+            addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
+        } catch (JSONException jsonException) {
+            Timber.e(jsonException);
+        }
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
