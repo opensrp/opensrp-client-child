@@ -6,9 +6,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.domain.ChildMetadata;
-import org.smartregister.domain.jsonmapping.Location;
-import org.smartregister.domain.jsonmapping.util.TreeNode;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.LocationRepository;
 import org.smartregister.repository.Repository;
@@ -18,11 +15,6 @@ import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 import timber.log.Timber;
@@ -166,49 +158,6 @@ public class ChildLibrary {
 
     public LocationRepository getLocationRepository() {
         return CoreLibrary.getInstance().context().getLocationRepository();
-    }
-
-    public List<String> getAllowedLevelLocationIds(List<String> allowedLevels) {
-        List<String> locationIds = new ArrayList<>();
-        LocationHelper locationHelper = LocationHelper.getInstance();
-        if (locationHelper != null) {
-            locationIds = retrieveAllowedLocationsIds(locationHelper.map(), allowedLevels, locationIds);
-        }
-        return locationIds;
-    }
-
-    public List<String> retrieveAllowedLocationsIds(LinkedHashMap<String, TreeNode<String, Location>> map,
-                                                    List<String> allowedLevels, List<String> locationIds) {
-        if (map == null || map.isEmpty()) return locationIds;
-        for (Map.Entry<String, TreeNode<String, Location>> treeNodeEntry : map.entrySet()) {
-            TreeNode<String, Location> value = treeNodeEntry.getValue();
-
-            addLocationId(allowedLevels, locationIds, value);
-
-            if (value.getChildren() == null) {
-                continue;
-            }
-            for (Map.Entry<String, TreeNode<String, Location>> childEntry : value.getChildren().entrySet()) {
-                TreeNode<String, Location> childValue = childEntry.getValue();
-                addLocationId(allowedLevels, locationIds, childValue);
-                if (childValue.getChildren() == null) {
-                    continue;
-                }
-                retrieveAllowedLocationsIds(childValue.getChildren(), allowedLevels, locationIds);
-            }
-        }
-        return locationIds;
-    }
-
-    private void addLocationId(List<String> allowedLevels, List<String> locationIds, TreeNode<String, Location> value) {
-        Location location = value.getNode();
-        if (location.getTags() != null) {
-            for (String tag : location.getTags()) {
-                if (allowedLevels.contains(tag)) {
-                    locationIds.add(location.getLocationId());
-                }
-            }
-        }
     }
 
 }
