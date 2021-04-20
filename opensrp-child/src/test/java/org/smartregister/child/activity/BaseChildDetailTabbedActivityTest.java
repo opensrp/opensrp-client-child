@@ -124,8 +124,8 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(appProperties).when(opensrpContext).getAppProperties();
-        Mockito.doReturn(opensrpContext).when(coreLibrary).context();
+        doReturn(appProperties).when(opensrpContext).getAppProperties();
+        doReturn(opensrpContext).when(coreLibrary).context();
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
 
         baseChildDetailTabbedActivity = Mockito.mock(BaseChildDetailTabbedActivity.class, Mockito.CALLS_REAL_METHODS);
@@ -515,7 +515,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         baseChildDetailTabbedActivity.launchDynamicVaccinesForm(Constants.JsonForm.DYNAMIC_VACCINES, Constants.KEY.PRIVATE_SECTOR_VACCINE);
 
         ArgumentCaptor<String> formJsonString = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(baseChildDetailTabbedActivity).startFormActivity(formJsonString.capture());
+        verify(baseChildDetailTabbedActivity).startFormActivity(formJsonString.capture());
 
         JSONObject jsonObject = new JSONObject(formJsonString.getValue());
         Assert.assertTrue(jsonObject.has(Constants.KEY.DYNAMIC_FIELD));
