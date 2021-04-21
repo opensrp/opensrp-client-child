@@ -919,23 +919,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
     }
 
-    protected static String getProviderLocationId2(Context context, AllSharedPreferences allSharedPreferences) {
-        allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
-        try {
-            String currentLocality = allSharedPreferences.getPreference(AllConstants.CURRENT_LOCATION_ID);
-            String openMrsLocationId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-            if (StringUtils.isNotBlank(openMrsLocationId)) return currentLocality;
-        } catch (NullPointerException exception) {
-            LocationPickerView locationPickerView = ChildLibrary.getInstance().getLocationPickerView(context);
-            if (locationPickerView != null) {
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
-                if (StringUtils.isNotBlank(locationId)) return locationId;
-            }
-            Timber.e(exception);
-        }
-        return allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
-    }
-
     public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
         try {
             Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
