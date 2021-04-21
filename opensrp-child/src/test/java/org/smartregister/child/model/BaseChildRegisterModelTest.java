@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
@@ -33,6 +34,7 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.util.AppProperties;
 import org.smartregister.util.JsonFormUtils;
 
 import java.util.List;
@@ -56,9 +58,13 @@ public class BaseChildRegisterModelTest {
     @Mock
     private ChildLibrary childLibrary;
 
+    @Mock
+    private AppProperties appProperties;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
     }
 
     @Test

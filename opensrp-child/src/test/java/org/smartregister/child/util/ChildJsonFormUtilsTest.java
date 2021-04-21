@@ -204,6 +204,8 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         MockitoAnnotations.initMocks(this);
         jsonObject = new JSONObject();
 
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
