@@ -42,6 +42,7 @@ public final class Constants extends AllConstants {
     public static final String DISABLE_CHILD_HEIGHT_METRIC = "disable_child_height_metric";
     public static final String CLIENT_RELATIONSHIP = "client_relationship";
     public static final String ENCOUNTER = "encounter";
+    public static final String ADVANCED_DATA_CAPTURE_STRATEGY_PREFIX = "ADCS_";
 
     public enum RECORD_ACTION {GROWTH, VACCINATION, NONE}
 
