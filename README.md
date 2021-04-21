@@ -33,10 +33,11 @@ By placing a file named `app.properties` in your implementation assets folder (S
 | `recurring.services.enabled`          | Boolean | true    | Show recurring services                                                |
 | `hide.overdue.vaccine.status`         | Boolean | false   | Hide overdue and due vaccine states indication color                   |
 | `home.compliance.enabled`             | Boolean | false   | Hide compliance view                                                   |
-| `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out pf catchment form               |
+| `show.out.of.catchment.recurring.services`    | Boolean | false   | Show recurring services in out-of-catchment form               |
 | `home.split.fully.immunized.status`           | Boolean | false   | Show Fully Immunized U1 status if first year vaccines are completed and Fully Immunized U2 if all vaccines are completed    |
 | `home.zeir.id.column.enabled`         | Boolean | false   | Show ID column in main register when true                              |
 | `next.appointment.event.enabled`      | Boolean | false   | When set to true creates an event with the next due appointment e.g. next vaccine date |
+| `sync.by.default.facility.id.enabled` | Boolean | false   | When set to true tags all events with facility locationId. For outreach/zone events the location ids is tagged as childLocationId  |
 
 ## Multi-language Support for Immunization Group Names Shown on the Register for Upcoming Statuses
 

@@ -360,7 +360,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 JSONObject service = services.getJSONObject(i);
                 if (service.has(Constants.TYPE)) {
                     String serviceType = service.getString(Constants.TYPE);
-                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase();
+                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase(Locale.ENGLISH);
                     JSONObject option = new JSONObject();
                     option.put(JsonFormConstants.KEY, serviceKey);
                     option.put(JsonFormConstants.TEXT, VaccinatorUtils.getTranslatedVaccineName(context, serviceType));
@@ -818,25 +818,32 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
+    /**
+     * Tag an event with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+     *
+     * @param event to tag
+     * @return Tagged event
+     */
     protected static Event tagSyncMetadata(@NonNull Event event) {
-
 
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
         event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
-        String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
-        event.setChildLocationId(childLocationId);
+        String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
+        event.setChildLocationId(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(allSharedPreferences.fetchCurrentDataStrategy()) ? VaccinatorUtils.createIdentifier(childLocationId) : childLocationId);
 
-        List<String> advancedDataCaptureStrategies = LocationHelper.getInstance().getAdvancedDataCaptureStrategies();
-        if (StringUtils.isNotBlank(childLocationId) && advancedDataCaptureStrategies != null &&
-                advancedDataCaptureStrategies.contains(childLocationId)) {
-            event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
-        }
+        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
 
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+
+        try {
+            addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
+        } catch (JSONException jsonException) {
+            Timber.e(jsonException);
+        }
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
@@ -887,7 +894,16 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @return Location id used to sync events
      */
     public static String getProviderLocationId(Context context) {
+
         AllSharedPreferences allSharedPreferences = org.smartregister.util.Utils.getAllSharedPreferences();
+
+        String locationId = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.SYNC_BY_DEFAULT_FACILITY_ID_ENABLED) ?
+                allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM()) : getProviderCurrentSelectedLocationId(context, allSharedPreferences);
+
+        return locationId;
+    }
+
+    protected static String getProviderCurrentSelectedLocationId(Context context, AllSharedPreferences allSharedPreferences) {
         try {
             String currentLocality = allSharedPreferences.getPreference(AllConstants.CURRENT_LOCATION_ID);
             String openMrsLocationId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
@@ -1853,7 +1869,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         Identifiers localProviderIdentifiers = new Identifiers();
         localProviderIdentifiers.setProviderId(allSharedPreferences.fetchRegisteredANM());
         localProviderIdentifiers.setLocationId(locationId);
-        localProviderIdentifiers.setChildLocationId(ChildJsonFormUtils.getChildLocationId(locationId, allSharedPreferences));
+        localProviderIdentifiers.setChildLocationId(ChildJsonFormUtils.getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM()), allSharedPreferences));
         localProviderIdentifiers.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         localProviderIdentifiers.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
