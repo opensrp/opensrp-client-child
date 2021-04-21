@@ -43,8 +43,8 @@ public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<Arra
 
         for (ServiceWrapper tag : params) {
             String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-            String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences());
-            String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
+            String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().applicationContext());
+            String childLocationId = ChildJsonFormUtils.getChildLocationId(getOpenSRPContext().allSharedPreferences().fetchDefaultLocalityId(providerId), getOpenSRPContext().allSharedPreferences());
             String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
             String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
             RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId, team, teamId, childLocationId);

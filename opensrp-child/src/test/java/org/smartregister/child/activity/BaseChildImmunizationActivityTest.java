@@ -103,17 +103,12 @@ public class BaseChildImmunizationActivityTest {
     }
 
     @Test
-    public void createDummyVaccine() throws Exception {
+    public void createBcg2Vaccine() throws Exception {
         testInitHelper();
-        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("caseId", new HashMap<String, String>(), "name");
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("caseId", new HashMap<>(), "name");
         Whitebox.setInternalState(baseChildImmunizationActivity, commonPersonObjectClient);
-        org.smartregister.immunization.domain.Vaccine vaccine = Whitebox.invokeMethod(baseChildImmunizationActivity, "createDummyVaccine", "name",
-                new Date(), SyncStatus.SYNCED.value());
-
-        org.smartregister.immunization.domain.Vaccine vaccine2 = Whitebox.invokeMethod(baseChildImmunizationActivity, "createDummyVaccine", "name3",
-                new Date(), SyncStatus.SYNCED.value());
+        org.smartregister.immunization.domain.Vaccine vaccine = baseChildImmunizationActivity.createBcg2Vaccine(new Date(), SyncStatus.SYNCED.value());
         Assert.assertTrue((-1 == vaccine.getCalculation()));
-        Assert.assertTrue((3 == vaccine2.getCalculation()));
     }
 
     @Test

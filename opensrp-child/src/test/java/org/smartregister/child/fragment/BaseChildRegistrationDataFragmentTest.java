@@ -357,7 +357,7 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
 
     @Test
     public void testCleanValueRetrievesDatabaseValueForSpinnerSubtypeLocation() {
-        String rawValue = "";
+        String rawValue = "123";
 
         Location location = new Location();
         location.setId("123");
@@ -367,7 +367,7 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.when(childLibrary.getLocationRepository()).thenReturn(locationRepository);
-        Mockito.when(locationRepository.getLocationById("")).thenReturn(location);
+        Mockito.when(locationRepository.getLocationById(rawValue)).thenReturn(location);
 
         String value = baseChildRegistrationDataFragment.cleanValue(fields.get(5), rawValue);
         Mockito.verify(baseChildRegistrationDataFragment).formatRenderValue(ArgumentMatchers.any(Field.class), ArgumentMatchers.any(String.class));

@@ -4,6 +4,7 @@ import android.os.Build;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,12 +14,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.JsonFormAssetsUtils;
 import org.smartregister.child.domain.ChildEventClient;
@@ -67,7 +70,15 @@ public class ChildRegisterInteractorTest {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         interactor = new ChildRegisterInteractor(Mockito.mock(AppExecutors.class));
+    }
+
+    @After
+    public void tearDown(){
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
     }
 
     @Test
@@ -121,6 +132,10 @@ public class ChildRegisterInteractorTest {
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
+        CoreLibrary coreLibrary = Mockito.mock(CoreLibrary.class);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+        Mockito.doReturn(context).when(coreLibrary).context();
         Mockito.doReturn(context).when(childLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();

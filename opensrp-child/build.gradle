@@ -34,6 +34,7 @@ android {
         javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -42,7 +43,11 @@ android {
         debug {
             debuggable true
         }
+        preview {
+            debuggable true
+        }
     }
+
     dexOptions {
         javaMaxHeapSize "4g"
     }
@@ -102,7 +107,7 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
 
-    api('org.smartregister:opensrp-client-core:4.3.1-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:4.3.2-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -137,7 +142,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    api('org.smartregister:opensrp-client-immunization:3.0.9-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-immunization:3.0.10-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'

@@ -1,6 +1,6 @@
 package org.smartregister.child;
 
-import android.util.Log;
+import android.os.Handler;
 
 import org.greenrobot.eventbus.EventBus;
 import org.smartregister.Context;
@@ -17,29 +17,26 @@ import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import id.zelory.compressor.Compressor;
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
  */
 public class ChildLibrary {
-    private static ChildLibrary instance;
 
+    private static ChildLibrary instance;
     private final Context context;
     private final Repository repository;
     private final ChildMetadata metadata;
-
-    private int applicationVersion;
+    private final int applicationVersion;
+    private final int databaseVersion;
     private String applicationVersionName;
-    private int databaseVersion;
-
     private UniqueIdRepository uniqueIdRepository;
     private EventClientRepository eventClientRepository;
     private ECSyncHelper syncHelper;
-
     private ClientProcessorForJava clientProcessorForJava;
     private Compressor compressor;
     private LocationPickerView locationPickerView;
-
     private EventBus eventBus;
 
     private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
@@ -127,7 +124,8 @@ public class ChildLibrary {
     public LocationPickerView getLocationPickerView(android.content.Context context) {
         if (locationPickerView == null) {
             locationPickerView = new LocationPickerView(context);
-            locationPickerView.init();
+            new Handler(context.getMainLooper()).post(() -> locationPickerView.init());
+
         }
         return locationPickerView;
     }
@@ -139,7 +137,8 @@ public class ChildLibrary {
     public EventBus getEventBus() {
 
         if (eventBus == null) {
-            Log.e(ChildLibrary.class.getCanonicalName(), " Event Bus instance does not exist!!! Pass the Implementing Application's Eventbus by invoking the " + ChildLibrary.class.getCanonicalName() + ".setEventBus method from the onCreate method of " + "your Application class ");
+            Timber.e(" Event Bus instance does not exist!!! Pass the Implementing Application's Eventbus by invoking the " +
+                    ChildLibrary.class.getCanonicalName() + ".setEventBus method from the onCreate method of " + "your Application class ");
         }
 
         return eventBus;
@@ -160,4 +159,5 @@ public class ChildLibrary {
     public LocationRepository getLocationRepository() {
         return CoreLibrary.getInstance().context().getLocationRepository();
     }
+
 }

@@ -60,6 +60,10 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     private List<String> unformattedNumberFields;
     private List<KeyValueItem> detailsList;
 
+    public List<KeyValueItem> getDetailsList() {
+        return detailsList;
+    }
+
     public ChildRegistrationDataAdapter getmAdapter() {
         return mAdapter;
     }
@@ -184,13 +188,24 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 value = null;
             }
 
-            String label = getResourceLabel(key);
-
-            if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !skipField(field.getKey(), value)) {
-                detailsList.add(new KeyValueItem(label, cleanValue(field, value)));
-            }
+            addDetail(key, value, field);
         }
         setmAdapter(new ChildRegistrationDataAdapter(detailsList));
+    }
+
+    /**
+     * Add detail to list. You can override method to define how to add item to list.
+     *
+     * @param key
+     * @param value
+     * @param field
+     */
+    protected void addDetail(String key, String value, Field field) {
+        String label = getResourceLabel(key);
+
+        if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(label) && !skipField(field.getKey(), value)) {
+            getDetailsList().add(new KeyValueItem(label, cleanValue(field, value)));
+        }
     }
 
     /**
@@ -255,6 +270,12 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         String result = raw;
         String type = field.getType();
 
+        String openMrsLocationName = null;
+
+        if (LocationHelper.getInstance() != null) {
+            openMrsLocationName = LocationHelper.getInstance().getOpenMrsLocationName(raw);
+        }
+
         switch (type) {
             case JsonFormConstants.DATE_PICKER:
                 Date date = ChildJsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
@@ -277,13 +298,12 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 if (field.getKeys() != null && field.getKeys().size() > 0 && field.getKeys().contains(raw)) {
                     result = field.getValues().get(field.getKeys().indexOf(raw));
                 } else if (field.getSubType() != null && field.getSubType().equalsIgnoreCase(Constants.JSON_FORM_KEY.LOCATION_SUB_TYPE)) {
-                    Location loc = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw);
-                    result = loc != null ? loc.getProperties().getName() : "";
+                    Location location = ChildLibrary.getInstance().getLocationRepository().getLocationById(raw);
+                    result = location != null ? location.getProperties().getName() : openMrsLocationName != null ? openMrsLocationName : "";
                 }
                 break;
             case JsonFormConstants.TREE:
-                result = LocationHelper.getInstance()
-                        .getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(raw));
+                result = LocationHelper.getInstance().getOpenMrsReadableName(openMrsLocationName);
                 break;
             default:
                 break;

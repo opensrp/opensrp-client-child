@@ -3,7 +3,6 @@ package org.smartregister.child.fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -56,6 +55,7 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.view.activity.BaseRegisterActivity;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
@@ -672,6 +672,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     public void onResume() {
         super.onResume();
         assignedValuesBeforeBarcode();
+        //Do not show for sync status on advance search screen
+        SyncStatusBroadcastReceiver.getInstance().removeSyncStatusListener(this);
     }
 
     private class AdvancedSearchTextWatcher implements TextWatcher {

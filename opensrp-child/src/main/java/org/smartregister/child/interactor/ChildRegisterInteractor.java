@@ -289,8 +289,8 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
             vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
             vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().allSharedPreferences()));
-            vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccineObj.getLocationId(), ChildLibrary.getInstance().context().allSharedPreferences()));
+            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+            vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
             vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
             vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);

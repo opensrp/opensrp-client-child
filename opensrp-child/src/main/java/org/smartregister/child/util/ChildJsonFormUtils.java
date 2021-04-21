@@ -68,6 +68,7 @@ import org.smartregister.util.AssetHandler;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.util.JsonFormUtils;
+import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.File;
@@ -359,7 +360,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 JSONObject service = services.getJSONObject(i);
                 if (service.has(Constants.TYPE)) {
                     String serviceType = service.getString(Constants.TYPE);
-                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase();
+                    String serviceKey = serviceType.replaceAll(" ", "_").toLowerCase(Locale.ENGLISH);
                     JSONObject option = new JSONObject();
                     option.put(JsonFormConstants.KEY, serviceKey);
                     option.put(JsonFormConstants.TEXT, VaccinatorUtils.getTranslatedVaccineName(context, serviceType));
@@ -817,25 +818,32 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
+    /**
+     * Tag an event with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+     *
+     * @param event to tag
+     * @return Tagged event
+     */
     protected static Event tagSyncMetadata(@NonNull Event event) {
-
 
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
-        event.setLocationId(getProviderLocationId(allSharedPreferences));
+        event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
-        String childLocationId = getChildLocationId(event.getLocationId(), allSharedPreferences);
+        String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
         event.setChildLocationId(childLocationId);
 
-        List<String> advancedDataCaptureStrategies = LocationHelper.getInstance().getAdvancedDataCaptureStrategies();
-        if (StringUtils.isNotBlank(childLocationId) && advancedDataCaptureStrategies != null &&
-                advancedDataCaptureStrategies.contains(childLocationId)) {
-            event.addDetails(AllConstants.DATA_STRATEGY, childLocationId.substring(childLocationId.indexOf('_') + 1));
-        }
+        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
 
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+
+        try {
+            addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
+        } catch (JSONException jsonException) {
+            Timber.e(jsonException);
+        }
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
@@ -856,8 +864,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             if (StringUtils.isNotBlank(currentLocality)) {
                 String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
-                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equals(currentLocalityId)) {
-                    return currentLocalityId;
+                if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equalsIgnoreCase(currentLocalityId)) {
+                    return AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(allSharedPreferences.fetchCurrentDataStrategy()) ? Constants.ADVANCED_DATA_CAPTURE_STRATEGY_PREFIX + VaccinatorUtils.createIdentifier(currentLocalityId) : currentLocalityId;
                 }
             }
         } catch (Exception e) {
@@ -879,14 +887,36 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         new String[]{baseEntityId});
     }
 
-    public static String getProviderLocationId(AllSharedPreferences allSharedPreferences) {
+    /**
+     * Generic method for obtaining location for submitting event. Defaults to team location;
+     *
+     * @param context Android context required for location picker view
+     * @return Location id used to sync events
+     */
+    public static String getProviderLocationId(Context context) {
 
-        String providerId = allSharedPreferences.fetchRegisteredANM();
-        String userLocationId = allSharedPreferences.fetchUserLocalityId(providerId);
-        if (StringUtils.isBlank(userLocationId)) {
-            userLocationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+        AllSharedPreferences allSharedPreferences = org.smartregister.util.Utils.getAllSharedPreferences();
+
+        String locationId = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.SYNC_BY_DEFAULT_FACILITY_ID_ENABLED) ?
+                allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM()) : getProviderCurrentSelectedLocationId(context, allSharedPreferences);
+
+        return locationId;
+    }
+
+    protected static String getProviderCurrentSelectedLocationId(Context context, AllSharedPreferences allSharedPreferences) {
+        try {
+            String currentLocality = allSharedPreferences.getPreference(AllConstants.CURRENT_LOCATION_ID);
+            String openMrsLocationId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
+            if (StringUtils.isNotBlank(openMrsLocationId)) return currentLocality;
+        } catch (NullPointerException exception) {
+            LocationPickerView locationPickerView = ChildLibrary.getInstance().getLocationPickerView(context);
+            if (locationPickerView != null) {
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
+                if (StringUtils.isNotBlank(locationId)) return locationId;
+            }
+            Timber.e(exception);
         }
-        return userLocationId;
+        return allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
     }
 
     public static ChildEventClient processChildDetailsForm(String jsonString, FormTag formTag) {
@@ -1174,7 +1204,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 JSONObject metadata = form.getJSONObject(ChildJsonFormUtils.METADATA);
 
-                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION, ChildLibrary.getInstance().getLocationPickerView(context).getSelectedItem());
+                metadata.put(ChildJsonFormUtils.ENCOUNTER_LOCATION, ChildJsonFormUtils.getProviderLocationId(context));
 
                 prePopulateJsonFormFields(form, childDetails, nonEditableFields);
 
@@ -1208,16 +1238,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     private static void setFormFieldValues(Map<String, String> childDetails, List<String> nonEditableFields, JSONObject jsonObject)
             throws JSONException {
 
-        String prefix = "";
-
-        if (jsonObject.has(JsonFormUtils.ENTITY_ID)) {
-            String entityId = jsonObject.getString(JsonFormUtils.ENTITY_ID);
-            if (entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
-                prefix = "mother_";
-            } else if (entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
-                prefix = "father_";
-            }
-        }
+        String prefix = getEntityPrefix(jsonObject);
 
         String dobUnknownField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_DATE_BIRTH_UNKNOWN : Constants.JSON_FORM_KEY.DATE_BIRTH_UNKNOWN;
         String dobAgeField = prefix.startsWith(Constants.KEY.MOTHER) ? Constants.JSON_FORM_KEY.MOTHER_GUARDIAN_AGE : Constants.JSON_FORM_KEY.AGE;
@@ -1248,6 +1269,20 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
 
         jsonObject.put(ChildJsonFormUtils.READ_ONLY, nonEditableFields.contains(jsonObject.getString(ChildJsonFormUtils.KEY)));
+    }
+
+    @NotNull
+    public static String getEntityPrefix(JSONObject jsonObject) throws JSONException {
+        String prefix = "";
+        if (jsonObject.has(JsonFormUtils.ENTITY_ID)) {
+            String entityId = jsonObject.getString(JsonFormUtils.ENTITY_ID);
+            if (entityId.equalsIgnoreCase(Constants.KEY.MOTHER)) {
+                prefix = "mother_";
+            } else if (entityId.equalsIgnoreCase(Constants.KEY.FATHER)) {
+                prefix = "father_";
+            }
+        }
+        return prefix;
     }
 
     public static void setSubTypeFieldValue(Map<String, String> childDetails, JSONObject jsonObject) throws JSONException {
@@ -1828,13 +1863,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static void processMoveToCatchmentPermanent(Context context, AllSharedPreferences allSharedPreferences, List<Pair<Event, JSONObject>> eventList) {
         String providerId = allSharedPreferences.fetchRegisteredANM();
-        String locationId = allSharedPreferences.fetchDefaultLocalityId(providerId);
+        String locationId = getProviderLocationId(context);
 
         //The identifiers for provider we are transferring TO
         Identifiers localProviderIdentifiers = new Identifiers();
         localProviderIdentifiers.setProviderId(allSharedPreferences.fetchRegisteredANM());
         localProviderIdentifiers.setLocationId(locationId);
-        localProviderIdentifiers.setChildLocationId(ChildJsonFormUtils.getChildLocationId(locationId, allSharedPreferences));
+        localProviderIdentifiers.setChildLocationId(ChildJsonFormUtils.getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM()), allSharedPreferences));
         localProviderIdentifiers.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         localProviderIdentifiers.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
@@ -1985,6 +2020,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             addMetaData(context, event, new Date());
 
+            //This event type should be synced to the former location NOT the new one
+            //Reset required fields, client processor should then remove the moved events/clients from the database
+            event.setLocationId(fromLocationId);
+            event.setChildLocationId(referenceEvent.getChildLocationId());
+            event.setTeam(referenceEvent.getTeam());
+            event.setTeamId(referenceEvent.getTeamId());
+            event.setProviderId(referenceEvent.getProviderId());
+
             return event;
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentEvent");
@@ -2001,7 +2044,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             final String DATA_TYPE = "text";
 
-            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(opensrpContext.allSharedPreferences()), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
+            Event event = getEvent(opensrpContext.allSharedPreferences().fetchRegisteredANM(), getProviderLocationId(opensrpContext.applicationContext()), "", MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT, new Date(), Constants.CHILD_TYPE);
 
             List<Object> val = new ArrayList<>();
 

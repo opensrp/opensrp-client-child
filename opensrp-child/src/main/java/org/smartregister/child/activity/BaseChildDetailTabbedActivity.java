@@ -307,7 +307,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Nullable
-    private Bundle initLoadChildDetails() {
+    protected Bundle initLoadChildDetails() {
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
@@ -954,6 +954,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         vaccine.setDate(vaccineWrapper.getUpdatedVaccineDate().toDate());
         vaccine.setUpdatedAt(vaccineWrapper.getUpdatedVaccineDate().toDate().getTime());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+
         if (StringUtils.isNotBlank(locationId)) {
             vaccine.setLocationId(locationId);
         }

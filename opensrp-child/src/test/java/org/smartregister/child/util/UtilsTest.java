@@ -38,6 +38,7 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppProperties;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -72,10 +73,14 @@ public class UtilsTest {
     @Mock
     private LocationHelper locationHelper;
 
+    @Mock
+    private AppProperties appProperties;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         PowerMockito.when(context.getApplicationContext()).thenReturn(context);
+        PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
     }
 
     @Test
@@ -173,6 +178,7 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(childLibrary).context();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
@@ -193,6 +199,7 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
         ECSyncHelper ecSyncHelper = Mockito.mock(ECSyncHelper.class);
         Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+        Mockito.doReturn(opensrpContext).when(childLibrary).context();
         Mockito.doReturn(opensrpContext).when(coreLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();

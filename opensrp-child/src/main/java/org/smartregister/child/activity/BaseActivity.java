@@ -47,7 +47,6 @@ import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.interactor.ChildRegisterInteractor;
 import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.child.toolbar.BaseToolbar;
-import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -349,13 +348,10 @@ toggle.syncState();
 
     protected void startJsonForm(String formName, String entityId) {
         try {
-            if (toolbar instanceof LocationSwitcherToolbar) {
-                LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                String locationId =
-                        Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
 
-                startJsonForm(formName, entityId, locationId);
-            }
+            String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
+            startJsonForm(formName, entityId, locationId);
+
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -588,6 +584,7 @@ toggle.syncState();
     protected void onPause() {
         super.onPause();
         unregisterSyncStatusBroadcastReceiver();
+        if (progressDialog != null) progressDialog.dismiss();
     }
 
     private void unregisterSyncStatusBroadcastReceiver() {
@@ -651,25 +648,16 @@ toggle.syncState();
 
     public void showProgressDialog(String title, String message) {
         if (progressDialog != null) {
-            if (StringUtils.isNotBlank(title)) {
-                progressDialog.setTitle(title);
-            }
+            if (StringUtils.isNotBlank(title)) progressDialog.setTitle(title);
 
-            if (StringUtils.isNotBlank(message)) {
-                progressDialog.setMessage(message);
-            }
+            if (StringUtils.isNotBlank(message)) progressDialog.setMessage(message);
 
-            if (!(this).isFinishing()) {
-
-                progressDialog.show();
-            }
+            if (!isFinishing()) progressDialog.show();
         }
     }
 
     public void hideProgressDialog() {
-        if (progressDialog != null && !isFinishing()) {
-            progressDialog.dismiss();
-        }
+        if (progressDialog != null && !isFinishing()) progressDialog.dismiss();
     }
 
     ////////////////////////////////////////////////////////////////

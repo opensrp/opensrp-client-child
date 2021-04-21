@@ -100,6 +100,7 @@ import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
@@ -757,7 +758,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX)
                         .plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR));
+                final long DATE = Long.parseLong(childDetails.getColumnmaps().get(Constants.SHOW_BCG_SCAR));
 
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines =
                         VaccinatorUtils.getJsonVaccineGroup(VaccinatorUtils.special_vaccines_file);
@@ -766,8 +767,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
                             vaccine.name = BCG_SCAR_NAME;
                             birthVaccineGroup.vaccines.add(vaccine);
-                            vaccineList
-                                    .add(createDummyVaccine(BCG_SCAR_NAME, new Date(DATE), VaccineRepository.TYPE_Synced));
+                            vaccineList.add(createBcg2Vaccine(new Date(DATE), VaccineRepository.TYPE_Synced));
                             break;
                         }
                     }
@@ -823,14 +823,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return null;
     }
 
-    private Vaccine createDummyVaccine(String name, Date date, String syncStatus) {
+    protected Vaccine createBcg2Vaccine(Date date, String syncStatus) {
+        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
+        String provider = allSharedPreferences.fetchRegisteredANM();
         Vaccine vaccine = new Vaccine();
-        vaccine.setId(-1l);
+        vaccine.setId(-1L);
         vaccine.setBaseEntityId(childDetails.entityId());
-        vaccine.setName(name);
+        vaccine.setName(Constants.KEY.BCG_SCAR);
         vaccine.setDate(date);
-        vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(getOpenSRPContext().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID));
+        vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(provider));
+        vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(provider));
+        vaccine.setAnmId(provider);
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -841,8 +845,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         } else {
             vaccine.setCalculation(-1);
         }
-        String isOutOfCatchement = isDataOk() && childDetails.getColumnmaps() != null && childDetails.getColumnmaps().containsKey(Constants.Client.IS_OUT_OF_CATCHMENT) ? Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false) : "false";
-        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(isOutOfCatchement) ? 1 : 0);
+        String outOfCatchment = isDataOk() && childDetails.getColumnmaps() != null && childDetails.getColumnmaps().containsKey(Constants.Client.IS_OUT_OF_CATCHMENT) ? Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false) : "false";
+        vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(outOfCatchment) ? 1 : 0);
         return vaccine;
     }
 
@@ -1421,8 +1425,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences()));
-        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(vaccine.getLocationId(), getOpenSRPContext().allSharedPreferences()));
+        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
+        vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(getOpenSRPContext().allSharedPreferences().fetchDefaultLocalityId(vaccine.getAnmId()), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {
@@ -1444,7 +1448,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void updateVaccineGroupViews(View view, final List<VaccineWrapper> wrappers, final List<Vaccine> vaccineList, final boolean undo) {
-        if (view == null || !(view instanceof VaccineGroup)) {
+        if (!(view instanceof VaccineGroup)) {
             return;
         }
         final VaccineGroup vaccineGroup = (VaccineGroup) view;
@@ -1572,7 +1576,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().allSharedPreferences());
+        String locationId = ChildJsonFormUtils.getProviderLocationId(this);
         String childLocationId = ChildJsonFormUtils.getChildLocationId(locationId, getOpenSRPContext().allSharedPreferences());
         String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
         String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
