@@ -832,7 +832,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
         String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
-        event.setChildLocationId(AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(allSharedPreferences.fetchCurrentDataStrategy()) ? VaccinatorUtils.createIdentifier(childLocationId) : childLocationId);
+        event.setChildLocationId(childLocationId);
 
         event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
 
@@ -865,7 +865,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (StringUtils.isNotBlank(currentLocality)) {
                 String currentLocalityId = LocationHelper.getInstance().getOpenMrsLocationId(currentLocality);
                 if (StringUtils.isNotBlank(currentLocalityId) && !defaultLocationId.equalsIgnoreCase(currentLocalityId)) {
-                    return currentLocalityId;
+                    return AllConstants.DATA_CAPTURE_STRATEGY.ADVANCED.equals(allSharedPreferences.fetchCurrentDataStrategy()) ? Constants.ADVANCED_DATA_CAPTURE_STRATEGY_PREFIX + VaccinatorUtils.createIdentifier(currentLocalityId) : currentLocalityId;
                 }
             }
         } catch (Exception e) {
