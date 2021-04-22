@@ -1,10 +1,13 @@
 package org.smartregister.child.listener;
 
-import org.smartregister.child.task.SaveDynamicVaccinesTask;
+import org.smartregister.child.event.DynamicVaccineType;
 
 /**
  * CallBack listener called when dynamic vaccines have been saved
  */
 public interface OnSaveDynamicVaccinesListener {
-    void onSaveDynamicVaccine(SaveDynamicVaccinesTask.DynamicVaccineTypes dynamicVaccineTypes);
+
+    void onSaveDynamicVaccine(DynamicVaccineType dynamicVaccineType);
+
+    void onUpdateDynamicVaccine();
 }

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.listener.OnSaveDynamicVaccinesListener;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
@@ -31,18 +32,14 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
     private final OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
     private final String jsonString;
     private final String baseEntityId;
-    private final DynamicVaccineTypes dynamicVaccineTypes;
-
-    public enum DynamicVaccineTypes {
-        PRIVATE_SECTOR_VACCINE, BOOSTER_IMMUNIZATIONS
-    }
+    private final DynamicVaccineType dynamicVaccineType;
 
     public SaveDynamicVaccinesTask(OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener,
-                                   String jsonString, String entityId, DynamicVaccineTypes dynamicVaccineTypes) {
+                                   String jsonString, String entityId, DynamicVaccineType dynamicVaccineType) {
         this.onSaveDynamicVaccinesListener = onSaveDynamicVaccinesListener;
         this.jsonString = jsonString;
         this.baseEntityId = entityId;
-        this.dynamicVaccineTypes = dynamicVaccineTypes;
+        this.dynamicVaccineType = dynamicVaccineType;
     }
 
     @Override
@@ -82,6 +79,6 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        onSaveDynamicVaccinesListener.onSaveDynamicVaccine(dynamicVaccineTypes);
+        onSaveDynamicVaccinesListener.onSaveDynamicVaccine(dynamicVaccineType);
     }
 }

@@ -149,6 +149,8 @@ public final class Constants extends AllConstants {
         public static final String RECURRING_SERVICE_TYPES = "recurring_service_types";
         public static final String BOOSTER_VACCINE = "booster_vaccine";
         public static final String BCG_SCAR = "BCG: scar";
+        public static final String DETAILS = "details";
+        public static final String SERVICE_DATE = "service_date";
     }
 
     public static final class INTENT_KEY {
@@ -208,6 +210,8 @@ public final class Constants extends AllConstants {
         public static final String DYNAMIC_VACCINES = "dynamic_vaccines";
         public static final String OUT_OF_AREA_RECURRING_SERVICE = "out_of_area_service_recurring_service";
         public static final String BOOSTER_VACCINES = "booster_vaccines";
+        public static final String UPDATE_DYNAMIC_VACCINES = "update_dynamic_vaccines";
+        public static final String DELETE_DYNAMIC_VACCINES = "delete_dynamic_vaccines";
         public static final String NEXT_APPOINTMENT = "next_appointment";
     }
 

@@ -16,14 +16,19 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.apache.commons.lang3.tuple.Triple;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.joda.time.DateTime;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.contract.ChildUnderFiveFragmentContract;
 import org.smartregister.child.contract.IChildDetails;
+import org.smartregister.child.domain.ExtraVaccineUpdateEvent;
 import org.smartregister.child.domain.WrapperParam;
+import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.presenter.ChildUnderFiveFragmentPresenter;
-import org.smartregister.child.task.SaveDynamicVaccinesTask.DynamicVaccineTypes;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.WidgetFactory;
@@ -55,8 +60,8 @@ import org.smartregister.util.DateUtil;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,8 +90,8 @@ public class ChildUnderFiveFragment extends Fragment {
     private LinearLayout extraVaccinesLayout;
     private LinearLayout boosterImmunizationsLayout;
     private boolean showRecurringServices = true;
-    private List<Map.Entry<String, String>> extraVaccines;
-    private List<Map.Entry<String, String>> boosterImmunizations;
+    private List<Triple<String, String, String>> extraVaccines;
+    private List<Triple<String, String, String>> boosterImmunizations;
     private final ChildUnderFiveFragmentContract.Presenter presenter;
 
     public ChildUnderFiveFragment() {
@@ -111,6 +116,18 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         if (getActivity() instanceof IChildDetails) {
@@ -129,10 +146,7 @@ public class ChildUnderFiveFragment extends Fragment {
             heightWidgetLayout.setVisibility(View.VISIBLE);
         }
 
-        Utils.refreshDataCaptureStrategyBanner(this.getActivity(), ((BaseChildDetailTabbedActivity) this.getActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
-
-        updateExtraVaccinesView(DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE);
-        updateExtraVaccinesView(DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS);
+        Utils.refreshDataCaptureStrategyBanner(requireActivity(), ((BaseChildDetailTabbedActivity) requireActivity()).getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
 
         return underFiveFragment;
     }
@@ -168,9 +182,10 @@ public class ChildUnderFiveFragment extends Fragment {
 
         LinkedHashMap<Long, Pair<String, String>> weightMap = updateWeightMap(editMode, weightEditMode, listeners, weightList);
 
+        LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
 
         if (weightMap.size() > 0) {
-            widgetFactory.createWeightWidget(getActivity().getLayoutInflater(), fragmentContainer, weightMap, listeners, weightEditMode);
+            widgetFactory.createWeightWidget(layoutInflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
 
         if (monitorGrowth) {
@@ -184,7 +199,7 @@ public class ChildUnderFiveFragment extends Fragment {
             LinkedHashMap<Long, Pair<String, String>> heightMap =
                     updateHeightMap(editMode, heightEditMode, heightListeners, heightList);
             if (heightMap.size() > 0) {
-                widgetFactory.createHeightWidget(getActivity().getLayoutInflater(), fragmentContainer, heightMap, heightListeners, heightEditMode);
+                widgetFactory.createHeightWidget(layoutInflater, fragmentContainer, heightMap, heightListeners, heightEditMode);
             }
         }
 
@@ -276,11 +291,11 @@ public class ChildUnderFiveFragment extends Fragment {
                     addedBcg2Vaccine = VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
                 }
 
-                ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editVaccineMode);
+                ImmunizationRowGroup curGroup = new ImmunizationRowGroup(requireActivity(), editVaccineMode);
                 curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
-                curGroup.setOnVaccineUndoClickListener((vaccineGroup1, vaccine) -> addVaccinationDialogFragment(Arrays.asList(vaccine), vaccineGroup1));
+                curGroup.setOnVaccineUndoClickListener((vaccineGroup1, vaccine) -> addVaccinationDialogFragment(Collections.singletonList(vaccine), vaccineGroup1));
 
-                TextView groupNameTextView = createGroupNameTextView(getActivity(), vaccineGroup.name);
+                TextView groupNameTextView = createGroupNameTextView(requireActivity(), vaccineGroup.name);
                 vaccineGroupCanvasLL.addView(groupNameTextView);
                 vaccineGroupCanvasLL.addView(curGroup);
             }
@@ -345,38 +360,72 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    public void updateExtraVaccinesView(DynamicVaccineTypes dynamicVaccineTypes) {
-        if (dynamicVaccineTypes == DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE) {
-            createExtraVaccinesViews(getExtraVaccines(), extraVaccinesLayout, R.string.extra_vaccines);
+    public void updateExtraVaccinesView(DynamicVaccineType vaccineType, boolean editable) {
+        if (vaccineType == DynamicVaccineType.PRIVATE_SECTOR_VACCINE) {
+            createExtraVaccinesViews(getExtraVaccines(), extraVaccinesLayout, R.string.extra_vaccines, editable);
         }
-        if (dynamicVaccineTypes == DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS) {
-            createExtraVaccinesViews(getBoosterImmunizations(), boosterImmunizationsLayout, R.string.booster_immunizations);
+        if (vaccineType == DynamicVaccineType.BOOSTER_IMMUNIZATIONS) {
+            createExtraVaccinesViews(getBoosterImmunizations(), boosterImmunizationsLayout, R.string.booster_immunizations, editable);
         }
     }
 
-    private void createExtraVaccinesViews(List<Map.Entry<String, String>> vaccinesList, LinearLayout
-            vaccineLayout, @StringRes int titleResource) {
+    private void createExtraVaccinesViews(List<Triple<String, String, String>> vaccinesList,
+                                          LinearLayout vaccineLayout, @StringRes int titleResource,
+                                          boolean editable) {
 
-        if (vaccinesList != null && !vaccinesList.isEmpty()) {
+        if (vaccineLayout != null && vaccinesList != null && !vaccinesList.isEmpty()) {
             vaccineLayout.setVisibility(View.VISIBLE);
             vaccineLayout.removeAllViews();
             vaccineLayout.addView(getSectionTitle(R.color.black, titleResource));
-            for (Map.Entry<String, String> vaccine : vaccinesList) {
-                RelativeLayout immunizationRow = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.view_immunization_row_card, null);
-                TextView label = immunizationRow.findViewById(R.id.name_tv);
-                label.setMaxWidth(dpToPx(getActivity(), 240f));
-                label.setText(vaccine.getKey());
+            for (Triple<String, String, String> vaccine : vaccinesList) {
+                RelativeLayout immunizationRow = (RelativeLayout) requireActivity().getLayoutInflater().inflate(R.layout.view_immunization_row_card, null);
+                immunizationRow.setPadding(immunizationRow.getPaddingLeft(), immunizationRow.getPaddingTop(), immunizationRow.getPaddingRight(), immunizationRow.getPaddingBottom() + 10);
+
+                TextView vaccineTextView = immunizationRow.findViewById(R.id.name_tv);
+                vaccineTextView.setMaxWidth(dpToPx(requireActivity(), 240f));
+                String vaccineName = vaccine.getMiddle();
+                vaccineTextView.setText(vaccineName);
 
                 Button statusButton = immunizationRow.findViewById(R.id.status_iv);
                 statusButton.setBackgroundResource(org.smartregister.immunization.R.drawable.vaccine_card_background_green);
                 statusButton.setVisibility(View.VISIBLE);
 
                 TextView dateTextView = immunizationRow.findViewById(R.id.status_text_tv);
-                dateTextView.setText(convertDateFormat(vaccine.getValue(), true));
+                String serviceDate = convertDateFormat(vaccine.getRight(), true);
+                dateTextView.setText(serviceDate);
+
+                String baseEntityId = vaccine.getLeft();
+
+                if (editable) {
+                    TextView editButton = immunizationRow.findViewById(R.id.undo_b);
+                    editButton.setVisibility(View.VISIBLE);
+                    editButton.setTag(R.id.key, immunizationRow);
+                    editButton.setOnClickListener(view -> {
+
+                        EditExtraVaccineFragment extraVaccineFragment = EditExtraVaccineFragment.newInstance();
+                        Bundle arguments = new Bundle();
+                        updateChildDetails(Constants.KEY.SERVICE_DATE, serviceDate);
+                        updateChildDetails(Constants.KEY.VACCINE, vaccineName);
+                        updateChildDetails(Constants.KEY.BASE_ENTITY_ID, baseEntityId);
+
+                        arguments.putSerializable(Constants.KEY.DETAILS, childDetails);
+                        arguments.putString(Constants.KEY.BASE_ENTITY_ID, baseEntityId);
+
+                        extraVaccineFragment.setArguments(arguments);
+                        requireActivity().getSupportFragmentManager().beginTransaction()
+                                .add(extraVaccineFragment, EditExtraVaccineFragment.TAG)
+                                .commitNow();
+                    });
+                }
 
                 vaccineLayout.addView(immunizationRow);
             }
         }
+    }
+
+    private void updateChildDetails(String key, String value) {
+        childDetails.getColumnmaps().put(key, value);
+        childDetails.getDetails().put(key, value);
     }
 
     private CustomFontTextView getSectionTitle(int textColorResource, int textResource) {
@@ -447,19 +496,60 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    public void setExtraVaccines(List<Map.Entry<String, String>> extraVaccines) {
+    public void setExtraVaccines(List<Triple<String, String, String>> extraVaccines) {
         this.extraVaccines = extraVaccines;
     }
 
-    public List<Map.Entry<String, String>> getExtraVaccines() {
+    public List<Triple<String, String, String>> getExtraVaccines() {
         return extraVaccines;
     }
 
-    public List<Map.Entry<String, String>> getBoosterImmunizations() {
+    public List<Triple<String, String, String>> getBoosterImmunizations() {
         return boosterImmunizations;
     }
 
-    public void setBoosterImmunizations(List<Map.Entry<String, String>> boosterImmunizations) {
+    public void setBoosterImmunizations(List<Triple<String, String, String>> boosterImmunizations) {
         this.boosterImmunizations = boosterImmunizations;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onVaccineUpdated(ExtraVaccineUpdateEvent extraVaccineUpdateEvent) {
+        if (updateServiceDate(extraVaccineUpdateEvent)) {
+            updateExtraVaccinesView(DynamicVaccineType.PRIVATE_SECTOR_VACCINE, true);
+            updateExtraVaccinesView(DynamicVaccineType.BOOSTER_IMMUNIZATIONS, true);
+        }
+    }
+
+    private boolean updateServiceDate(ExtraVaccineUpdateEvent extraVaccineUpdateEvent) {
+
+        if (getExtraVaccines() != null && !getExtraVaccines().isEmpty()) {
+            return findVaccine(extraVaccineUpdateEvent, getExtraVaccines());
+        }
+
+        if (getBoosterImmunizations() != null && !getBoosterImmunizations().isEmpty()) {
+            return findVaccine(extraVaccineUpdateEvent, getBoosterImmunizations());
+        }
+        return false;
+    }
+
+    private boolean findVaccine(ExtraVaccineUpdateEvent extraVaccineUpdateEvent,
+                                List<Triple<String, String, String>> vaccineTriples) {
+        boolean foundVaccine = false;
+
+        for (int index = 0; index < vaccineTriples.size(); index++) {
+            Triple<String, String, String> vaccineTriple = vaccineTriples.get(index);
+            String vaccineName = vaccineTriple.getMiddle();
+            if (vaccineName.equalsIgnoreCase(extraVaccineUpdateEvent.getVaccine())) {
+                foundVaccine = true;
+                //Replace the vaccine entry
+                Triple<String, String, String> removedVaccine = vaccineTriples.remove(index);
+                if (!extraVaccineUpdateEvent.isRemoved()) {
+                    vaccineTriples.add(index, Triple.of(removedVaccine.getLeft(), removedVaccine.getMiddle(),
+                            extraVaccineUpdateEvent.getVaccineDate()));
+                }
+                break;
+            }
+        }
+        return foundVaccine;
     }
 }

@@ -38,6 +38,10 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +53,9 @@ import org.smartregister.child.adapter.ViewPagerAdapter;
 import org.smartregister.child.contract.ChildTabbedDetailsContract;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.dao.ChildDao;
+import org.smartregister.child.domain.ExtraVaccineUpdateEvent;
 import org.smartregister.child.enums.Status;
+import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.fragment.LostCardDialogFragment;
@@ -60,11 +66,11 @@ import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
 import org.smartregister.child.task.SaveDynamicVaccinesTask;
-import org.smartregister.child.task.SaveDynamicVaccinesTask.DynamicVaccineTypes;
 import org.smartregister.child.task.SaveRegistrationDetailsTask;
 import org.smartregister.child.task.SaveServiceTask;
 import org.smartregister.child.task.SaveVaccinesTask;
 import org.smartregister.child.task.UndoServiceTask;
+import org.smartregister.child.task.UpdateDynamicVaccinesTask;
 import org.smartregister.child.task.UpdateOfflineAlertsTask;
 import org.smartregister.child.toolbar.ChildDetailsToolbar;
 import org.smartregister.child.util.ChildAppProperties;
@@ -123,7 +129,6 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
-import static org.smartregister.growthmonitoring.util.AppProperties.Entry;
 import static org.smartregister.util.Utils.showToast;
 
 /**
@@ -157,7 +162,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     private final List<ServiceHolder> removeServicesList = new ArrayList<>();
     private final List<Long> dbKeysForDelete = new ArrayList<>();
     private VaccineRepository vaccineRepository;
-    private List<Map.Entry<String, String>> extraChildVaccines;
+    private List<Triple<String, String, String>> extraChildVaccines;
     private LostCardDialogFragment lostCardDialogFragment;
     private ChildTabbedDetailsContract.Presenter presenter;
     public final SimpleDateFormat ddMmYyyyDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
@@ -167,6 +172,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             .getProperty(ChildAppProperties.KEY.EXTRA_VACCINES_COUNT, "10"));
     public final boolean showBoosterImmunizations = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
             .getProperty(ChildAppProperties.KEY.SHOW_BOOSTER_IMMUNIZATIONS, "false"));
+
+    private final List<ExtraVaccineUpdateEvent> extraVaccineUpdateEvents = new ArrayList<>();
 
     public static void updateOptionsMenu(@NonNull List<Vaccine> vaccineList, @NonNull List<ServiceRecord> serviceRecordList,
                                          @NonNull List<Weight> weightList, @Nullable List<Alert> alertList) {
@@ -251,7 +258,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
             }
             if (showBoosterImmunizations) {
-                List<Map.Entry<String, String>> boosterImmunizations =
+                List<Triple<String, String, String>> boosterImmunizations =
                         ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, childDetails.entityId());
                 childUnderFiveFragment.setBoosterImmunizations(boosterImmunizations);
             }
@@ -355,6 +362,15 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         //clean up
         editImmunizationCacheMap.clear();
         dbKeysForDelete.clear();
+
+        createExtraVaccineUpdateEvents();
+
+    }
+
+    protected void createExtraVaccineUpdateEvents() {
+        if ((showExtraVaccines || showBoosterImmunizations) && !extraVaccineUpdateEvents.isEmpty()) {
+            Utils.startAsyncTask(new UpdateDynamicVaccinesTask(this, extraVaccineUpdateEvents), null);
+        }
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -605,6 +621,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         return super.onOptionsItemSelected(item);
     }
 
+
     /**
      * This method launches dynamic vaccines form. The form has a list of vaccines selected from the multiselect
      * widget plus the date the vaccine(s) were administered.
@@ -660,10 +677,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
                         break;
                     case Constants.EventType.DYNAMIC_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE), null);
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.PRIVATE_SECTOR_VACCINE), null);
                         break;
                     case Constants.EventType.BOOSTER_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS), null);
+                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.BOOSTER_IMMUNIZATIONS), null);
                         break;
                     default:
                         break;
@@ -697,6 +714,18 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Override
+    public void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Override
     public void setChildDetails(Map<String, String> detailsMap) {
         this.detailsMap = detailsMap;
         childDetails.setDetails(detailsMap);
@@ -709,20 +738,33 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     @Override
-    public void onSaveDynamicVaccine(DynamicVaccineTypes dynamicVaccineTypes) {
+    public void onSaveDynamicVaccine(DynamicVaccineType dynamicVaccineType) {
         showProgressDialog();
         viewPager.setCurrentItem(1, true);
-        if (showExtraVaccines && dynamicVaccineTypes == DynamicVaccineTypes.PRIVATE_SECTOR_VACCINE) {
+        if (showExtraVaccines && dynamicVaccineType == DynamicVaccineType.PRIVATE_SECTOR_VACCINE) {
             setExtraChildVaccines(ChildDao.getChildExtraVaccines(Constants.Tables.EC_DYNAMIC_VACCINES, childDetails.entityId()));
             childUnderFiveFragment.setExtraVaccines(getExtraChildVaccines());
         }
-        if (showBoosterImmunizations && dynamicVaccineTypes == DynamicVaccineTypes.BOOSTER_IMMUNIZATIONS) {
-            List<Entry<String, String>> boosterImmunization =
+        if (showBoosterImmunizations && dynamicVaccineType == DynamicVaccineType.BOOSTER_IMMUNIZATIONS) {
+            List<Triple<String, String, String>> boosterImmunization =
                     ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, childDetails.entityId());
             childUnderFiveFragment.setBoosterImmunizations(boosterImmunization);
         }
-        childUnderFiveFragment.updateExtraVaccinesView(dynamicVaccineTypes);
+        childUnderFiveFragment.updateExtraVaccinesView(dynamicVaccineType, false);
         hideProgressDialog();
+    }
+
+    @Override
+    synchronized public void onUpdateDynamicVaccine() {
+        extraVaccineUpdateEvents.clear();
+        for (DynamicVaccineType dynamicVaccineType : DynamicVaccineType.values()) {
+            onSaveDynamicVaccine(dynamicVaccineType);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void onVaccineUpdated(ExtraVaccineUpdateEvent extraVaccineUpdateEvent) {
+        extraVaccineUpdateEvents.add(extraVaccineUpdateEvent);
     }
 
     protected void confirmReportDeceased(final String json) {
@@ -1286,11 +1328,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         startActivityForResult(intent, REQUEST_CODE_GET_JSON);
     }
 
-    public List<Map.Entry<String, String>> getExtraChildVaccines() {
+    public List<Triple<String, String, String>> getExtraChildVaccines() {
         return extraChildVaccines;
     }
 
-    public void setExtraChildVaccines(List<Map.Entry<String, String>> extraChildVaccines) {
+    public void setExtraChildVaccines(List<Triple<String, String, String>> extraChildVaccines) {
         this.extraChildVaccines = extraChildVaccines;
     }
 

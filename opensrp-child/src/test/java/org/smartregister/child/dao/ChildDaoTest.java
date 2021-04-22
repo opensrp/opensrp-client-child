@@ -3,6 +3,7 @@ package org.smartregister.child.dao;
 import net.sqlcipher.MatrixCursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +37,14 @@ public class ChildDaoTest extends ChildDao {
     public void testGetChildExtraVaccines() {
         Mockito.doReturn(database).when(repository).getReadableDatabase();
 
-        MatrixCursor matrixCursor = new MatrixCursor(new String[]{"selected_vaccines", "vaccine_date"});
-        matrixCursor.addRow(new Object[]{"Vaccine 1 - FIRST VACCINE,Vaccine 2 - SECOND VACCINE ", "2019-03-09"});
-        matrixCursor.addRow(new Object[]{"Vaccine 3 - THIRD VACCINE ", "2020-04-10"});
+        MatrixCursor matrixCursor = new MatrixCursor(new String[]{"base_entity_id", "selected_vaccines", "vaccine_date"});
+        matrixCursor.addRow(new Object[]{"crazy-1290", "Vaccine 1 - FIRST VACCINE,Vaccine 2 - SECOND VACCINE ", "2019-03-09"});
+        matrixCursor.addRow(new Object[]{"crazy-1291", "Vaccine 3 - THIRD VACCINE ", "2020-04-10"});
         Mockito.doReturn(matrixCursor).when(database).rawQuery(
-                "SELECT selected_vaccines,vaccine_date FROM ec_booster_vaccines WHERE entity_id = '12345'",
+                "SELECT base_entity_id, selected_vaccines, vaccine_date FROM ec_booster_vaccines WHERE entity_id = '12345' AND is_closed IS 0",
                 new String[]{});
 
-        List<Map.Entry<String, String>> extraVaccines = ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, "12345");
+        List<Triple<String, String, String>> extraVaccines = ChildDao.getChildExtraVaccines(Constants.Tables.EC_BOOSTER_VACCINES, "12345");
 
         Assert.assertEquals(extraVaccines.size(), 3);
     }

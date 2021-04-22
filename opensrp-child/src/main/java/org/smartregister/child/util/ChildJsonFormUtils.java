@@ -824,7 +824,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @param event to tag
      * @return Tagged event
      */
-    protected static Event tagSyncMetadata(@NonNull Event event) {
+    public static Event tagSyncMetadata(@NonNull Event event) {
 
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();

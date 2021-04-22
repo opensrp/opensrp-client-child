@@ -12,6 +12,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
+import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
@@ -212,6 +213,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
             childUnderFiveFragment.hideOrShowRecurringServices();
+            childUnderFiveFragment.updateExtraVaccinesView(DynamicVaccineType.PRIVATE_SECTOR_VACCINE, editVaccineMode);
+            childUnderFiveFragment.updateExtraVaccinesView(DynamicVaccineType.BOOSTER_IMMUNIZATIONS, editVaccineMode);
 
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
