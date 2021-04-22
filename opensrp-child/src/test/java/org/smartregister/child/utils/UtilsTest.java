@@ -18,6 +18,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RuntimeEnvironment;
@@ -44,6 +45,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
+import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,6 +90,9 @@ public class UtilsTest extends BaseUnitTest {
 
     private String dobString = "2017-09-09";
 
+    @Spy
+    private AppProperties appProperties;
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -98,6 +103,9 @@ public class UtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
         Mockito.when(coreLibrary.context()).thenReturn(opensrpContext);
         Mockito.when(childLibrary.context()).thenReturn(opensrpContext);
         Mockito.when(opensrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
