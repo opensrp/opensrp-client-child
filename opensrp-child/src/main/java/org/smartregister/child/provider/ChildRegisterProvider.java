@@ -1,6 +1,5 @@
 package org.smartregister.child.provider;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
