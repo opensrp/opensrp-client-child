@@ -328,7 +328,7 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">\"B/o %1$s</string>
-    <string name="str_page_info">Página {0} de {1}</string>
+    <string name="str_page_info">Página %1$d de %2$d</string>
     <string name="dismiss_lookup">Confirmar</string>
     <string name="service_point">Ponto de serviço: %1$s</string>
     <string name="record_growth_details">Registre pelo menos um conjunto de detalhes de crescimento (altura, peso)</string>

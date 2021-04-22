@@ -856,51 +856,42 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, Constants.KEY.CHILD);
-        curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
-            @Override
-            public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
-                if (dialogOpen) {
-                    return;
-                }
+        curGroup.setOnRecordAllClickListener((vaccineGroup, dueVaccines) -> {
+            if (dialogOpen) {
+                return;
+            }
 
-                dialogOpen = true;
-                if (isChildActive) {
-                    addVaccinationDialogFragment(dueVaccines, vaccineGroup);
-                } else {
-                    showActivateChildStatusDialogBox();
-                }
+            dialogOpen = true;
+            if (isChildActive) {
+                addVaccinationDialogFragment(dueVaccines, vaccineGroup);
+            } else {
+                showActivateChildStatusDialogBox();
             }
         });
-        curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
-            @Override
-            public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
+        curGroup.setOnVaccineClickedListener((vaccineGroup, vaccine) -> {
+            if (dialogOpen) {
+                return;
+            }
 
-                dialogOpen = true;
-                if (isChildActive) {
-                    ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
-                    vaccineWrappers.add(vaccine);
-                    addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
-                } else {
-                    showActivateChildStatusDialogBox();
-                }
+            dialogOpen = true;
+            if (isChildActive) {
+                ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
+                vaccineWrappers.add(vaccine);
+                addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
+            } else {
+                showActivateChildStatusDialogBox();
             }
         });
-        curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
-            @Override
-            public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
+        curGroup.setOnVaccineUndoClickListener((vaccineGroup, vaccine) -> {
+            if (dialogOpen) {
+                return;
+            }
 
-                dialogOpen = true;
-                if (isChildActive) {
-                    addVaccineUndoDialogFragment(vaccineGroup, vaccine);
-                } else {
-                    showActivateChildStatusDialogBox();
-                }
+            dialogOpen = true;
+            if (isChildActive) {
+                addVaccineUndoDialogFragment(vaccineGroup, vaccine);
+            } else {
+                showActivateChildStatusDialogBox();
             }
         });
 
@@ -1490,7 +1481,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (affectedVaccines != null && vaccineList != null) {
+        if (affectedVaccines != null && vaccineList != null && vaccineGroups != null) {
             // Update all other affected vaccine groups
             HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups = new HashMap<>();
             for (String curAffectedVaccineName : affectedVaccines) {
@@ -1506,17 +1497,16 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                             // Check if any of the sister vaccines is currAffectedVaccineName
                             String[] allSisters = ImmunizationLibrary.COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
                             for (String allSister : allSisters) {
-                                if (allSister.replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
+                                if (VaccinatorUtils.cleanVaccineName(allSister).equalsIgnoreCase(VaccinatorUtils.cleanVaccineName(curAffectedVaccineName))) {
                                     curWrapperName = allSister;
                                     break;
                                 }
                             }
                         }
 
-                        if (curWrapperName.replace(" ", "").toLowerCase()
-                                .contains(curAffectedVaccineName.replace(" ", "").toLowerCase())) {
+                        if (VaccinatorUtils.cleanVaccineName(curWrapperName).contains(VaccinatorUtils.cleanVaccineName(curAffectedVaccineName))) {
                             if (!affectedGroups.containsKey(curGroup)) {
-                                affectedGroups.put(curGroup, new ArrayList<VaccineWrapper>());
+                                affectedGroups.put(curGroup, new ArrayList<>());
                             }
 
                             affectedGroups.get(curGroup).add(curWrapper);
@@ -1538,8 +1528,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         for (VaccineGroup curGroup : affectedGroups.keySet()) {
             try {
                 vaccineGroups.remove(curGroup);
-                addVaccineGroup(Integer.parseInt((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                        curGroup.getVaccineData(), vaccineList, alerts);
+                addVaccineGroup(Integer.parseInt((String) curGroup.getTag(R.id.vaccine_group_parent_id)), curGroup.getVaccineData(), vaccineList, alerts);
             } catch (Exception e) {
                 Timber.e(e);
             }

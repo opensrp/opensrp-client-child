@@ -336,7 +336,7 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">"B/o %1$s</string>
-    <string name="str_page_info">Page {0} of {1}</string>
+    <string name="str_page_info">Page %1$d of %2$d</string>
     <string name="dismiss_lookup">Confirm</string>
     <string name="service_point">Service Point: %1$s</string>
     <string name="record_growth_details"> Record at least one set of growth details (height, Weight)</string>
@@ -375,4 +375,9 @@
     <string name="maximum_extra_vaccines_reached">You can only record a maximum of 10 vaccines</string>
     <string name="booster_immunizations">Booster Immunizations</string>
     <string name="reason_for_defaulting">Record reason for defaulting</string>
+
+    <string name="next">Next</string>
+    <string name="loading_form_message">Please wait as we load your form...</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="record">سجل</string>
 </resources>

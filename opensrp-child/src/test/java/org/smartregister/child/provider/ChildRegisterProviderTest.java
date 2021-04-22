@@ -35,6 +35,7 @@ import org.smartregister.util.AppProperties;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 
 public class ChildRegisterProviderTest extends BaseUnitTest {
@@ -192,7 +193,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
 
         Assert.assertTrue(nextPageView.hasOnClickListeners());
 
-        Assert.assertEquals(MessageFormat.format(pageInfoView.getContext().getString(R.string.str_page_info), currentPageCount, totalPageCount), pageInfoView.getText());
+        Assert.assertEquals(String.format(Locale.ENGLISH, pageInfoView.getContext().getString(R.string.str_page_info), currentPageCount, totalPageCount), pageInfoView.getText());
     }
 
     @Test

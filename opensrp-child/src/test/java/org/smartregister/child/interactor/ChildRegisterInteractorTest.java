@@ -75,7 +75,7 @@ public class ChildRegisterInteractorTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
@@ -130,6 +130,9 @@ public class ChildRegisterInteractorTest {
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         Context context = Mockito.mock(Context.class);
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         CoreLibrary coreLibrary = Mockito.mock(CoreLibrary.class);
