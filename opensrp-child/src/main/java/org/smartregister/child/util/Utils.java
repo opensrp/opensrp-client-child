@@ -330,6 +330,9 @@ public class Utils extends org.smartregister.util.Utils {
         weight.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         weight.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
         weight.setAnmId(providerId);
+        weight.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        weight.setChildLocationId(ChildJsonFormUtils.getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(weight.getAnmId()), allSharedPreferences));
+
         weight.setSyncStatus(syncStatus);
 
         Gender gender = Gender.UNKNOWN;
@@ -370,6 +373,8 @@ public class Utils extends org.smartregister.util.Utils {
             height.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
             height.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
             height.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+            height.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+            height.setChildLocationId(ChildJsonFormUtils.getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(height.getAnmId()), allSharedPreferences));
             height.setSyncStatus(syncStatus);
 
             Gender gender = Gender.UNKNOWN;
