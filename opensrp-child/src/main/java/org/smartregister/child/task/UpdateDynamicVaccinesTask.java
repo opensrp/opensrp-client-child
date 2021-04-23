@@ -17,23 +17,19 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.sync.helper.ECSyncHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import timber.log.Timber;
 
-import static com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN;
 import static org.smartregister.util.Utils.getAllSharedPreferences;
 
 public class UpdateDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
     private final OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
     private final List<ExtraVaccineUpdateEvent> vaccineEvents;
-    private final SimpleDateFormat nativeFormDateFormat = new SimpleDateFormat(NATIIVE_FORM_DATE_FORMAT_PATTERN, Locale.ENGLISH);
 
     public UpdateDynamicVaccinesTask(OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener,
                                      List<ExtraVaccineUpdateEvent> vaccineEvents) {
