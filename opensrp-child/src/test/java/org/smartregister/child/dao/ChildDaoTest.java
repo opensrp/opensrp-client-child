@@ -16,7 +16,6 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.repository.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChildDaoTest extends ChildDao {

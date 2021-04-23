@@ -26,7 +26,6 @@ import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
-import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;

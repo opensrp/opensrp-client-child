@@ -46,17 +46,17 @@ import timber.log.Timber;
 
 import static org.smartregister.child.util.Utils.getValue;
 
-public class EditExtraVaccineFragment extends DialogFragment {
+public class ExtraVaccineEditDialogFragment extends DialogFragment {
 
-    public static final String TAG = EditExtraVaccineFragment.class.getSimpleName();
+    public static final String TAG = ExtraVaccineEditDialogFragment.class.getSimpleName();
 
-    private static EditExtraVaccineFragment editExtraVaccineFragment;
+    private static ExtraVaccineEditDialogFragment extraVaccineEditDialogFragment;
 
     private CommonPersonObjectClient details;
 
     private String baseEntityId;
 
-    private EditExtraVaccineFragment() {
+    private ExtraVaccineEditDialogFragment() {
     }
 
     @Override
@@ -94,10 +94,10 @@ public class EditExtraVaccineFragment extends DialogFragment {
         openSrpIdTextView.setText(childId);
 
         View vaccinationName = inflater.inflate(R.layout.vaccination_name_edit_dialog, null);
-        TextView vaccineView = vaccinationName.findViewById(org.smartregister.immunization.R.id.vaccine);
+        TextView vaccineView = vaccinationName.findViewById(R.id.vaccine);
         String vaccine = details.getDetails().get(Constants.KEY.VACCINE);
         vaccineView.setText(VaccinatorUtils.getTranslatedVaccineName(requireContext(), vaccine));
-        final LinearLayout vaccinationNameLayout = view.findViewById(org.smartregister.immunization.R.id.vaccination_name_layout);
+        final LinearLayout vaccinationNameLayout = view.findViewById(R.id.vaccination_name_layout);
         vaccinationNameLayout.addView(vaccinationName);
 
         TextView serviceDateTextView = view.findViewById(R.id.service_date);
@@ -164,7 +164,7 @@ public class EditExtraVaccineFragment extends DialogFragment {
         Calendar today = Calendar.getInstance();
         Calendar minDate = Calendar.getInstance();
         VaccineSchedule.standardiseCalendarDate(today);
-        String dobString = org.smartregister.child.util.Utils.getValue(details.getColumnmaps(), Constants.KEY.DOB, false);
+        String dobString = org.smartregister.child.util.Utils.getValue(details.getDetails(), Constants.KEY.DOB, false);
         Date dob = org.smartregister.child.util.Utils.dobStringToDate(dobString);
         if (dob != null) {
             minDate.setTime(dob);
@@ -188,10 +188,10 @@ public class EditExtraVaccineFragment extends DialogFragment {
         }
     }
 
-    public static EditExtraVaccineFragment newInstance() {
-        if (editExtraVaccineFragment == null) {
-            editExtraVaccineFragment = new EditExtraVaccineFragment();
+    public static ExtraVaccineEditDialogFragment newInstance() {
+        if (extraVaccineEditDialogFragment == null) {
+            extraVaccineEditDialogFragment = new ExtraVaccineEditDialogFragment();
         }
-        return editExtraVaccineFragment;
+        return extraVaccineEditDialogFragment;
     }
 }

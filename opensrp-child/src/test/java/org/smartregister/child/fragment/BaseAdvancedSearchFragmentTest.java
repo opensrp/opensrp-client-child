@@ -14,8 +14,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.vijay.jsonwizard.customviews.RadioButton;
 import com.vijay.jsonwizard.customviews.CheckBox;
+import com.vijay.jsonwizard.customviews.RadioButton;
 
 import org.junit.Assert;
 import org.junit.Before;

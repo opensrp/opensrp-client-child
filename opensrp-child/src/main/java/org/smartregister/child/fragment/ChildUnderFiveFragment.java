@@ -402,7 +402,8 @@ public class ChildUnderFiveFragment extends Fragment {
                     editButton.setTag(R.id.key, immunizationRow);
                     editButton.setOnClickListener(view -> {
 
-                        EditExtraVaccineFragment extraVaccineFragment = EditExtraVaccineFragment.newInstance();
+                        ExtraVaccineEditDialogFragment extraVaccineFragment = ExtraVaccineEditDialogFragment.newInstance();
+
                         Bundle arguments = new Bundle();
                         updateChildDetails(Constants.KEY.SERVICE_DATE, serviceDate);
                         updateChildDetails(Constants.KEY.VACCINE, vaccineName);
@@ -410,10 +411,11 @@ public class ChildUnderFiveFragment extends Fragment {
 
                         arguments.putSerializable(Constants.KEY.DETAILS, childDetails);
                         arguments.putString(Constants.KEY.BASE_ENTITY_ID, baseEntityId);
-
                         extraVaccineFragment.setArguments(arguments);
-                        requireActivity().getSupportFragmentManager().beginTransaction()
-                                .add(extraVaccineFragment, EditExtraVaccineFragment.TAG)
+
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .add(extraVaccineFragment, ExtraVaccineEditDialogFragment.TAG)
                                 .commitNow();
                     });
                 }
