@@ -15,6 +15,7 @@ import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BasePowerMockUnitTest;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.enums.Status;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
@@ -55,6 +56,10 @@ public class LoadAsyncTaskTest extends BasePowerMockUnitTest {
 
     @Mock
     private CoreLibrary coreLibrary;
+
+    @Mock
+    private ChildLibrary childLibrary;
+
     @Mock
     private Context openSRPContext;
 
@@ -62,14 +67,17 @@ public class LoadAsyncTaskTest extends BasePowerMockUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         Mockito.doReturn(openSRPContext).when(coreLibrary).context();
         Mockito.doReturn(appProperties).when(openSRPContext).getAppProperties();
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
         Mockito.doReturn(false).when(appProperties).getPropertyBoolean("monitor.height");
     }
 
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
     @Test
