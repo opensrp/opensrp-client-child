@@ -121,7 +121,7 @@ public class ExtraVaccineEditDialogFragment extends DialogFragment {
         try {
             Date parsedServiceDate = nativeFormFormat.parse(serviceDate);
             if (parsedServiceDate != null) {
-                setFormattedDates(vaccineDatePicker, parsedServiceDate);
+                setFormattedDates(vaccineDatePicker, DateUtil.yyyyMMdd.parse(serviceDate));
 
                 final Button setButton = dialogView.findViewById(R.id.set);
                 setButton.setOnClickListener(view -> {
