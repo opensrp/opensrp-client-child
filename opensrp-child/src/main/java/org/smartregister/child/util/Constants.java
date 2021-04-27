@@ -174,6 +174,7 @@ public final class Constants extends AllConstants {
 
         public static final String CHILD = "child";
         public static final String MOTHER = "mother";
+        public static final String FATHER = "father";
     }
 
     public static class BOOLEAN_INT {
