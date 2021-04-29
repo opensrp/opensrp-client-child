@@ -380,4 +380,6 @@
     <string name="loading_form_message">Please wait as we load your form...</string>
     <string name="save_changes">Save Changes</string>
     <string name="record">سجل</string>
+    <string name="end_date_required">End date is required</string>
+    <string name="start_date_required">Start date is required</string>
 </resources>

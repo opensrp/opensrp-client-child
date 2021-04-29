@@ -143,15 +143,19 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         }
 
         //Handle name param - use either firs/last name //TODO server does not support full name
-        String name = searchParameters.remove(Constants.KEY.FIRST_NAME);
-        if (StringUtils.isBlank(name)) {
-            name = searchParameters.remove(Constants.KEY.LAST_NAME);
+        String name = null;
+        String firstName = searchParameters.remove(Constants.KEY.FIRST_NAME);
+        String lastName = searchParameters.remove(Constants.KEY.LAST_NAME);
+
+        if (StringUtils.isNotBlank(firstName)) {
+            name = firstName;
+        } else if (StringUtils.isNotBlank(lastName)) {
+            name = lastName;
         }
 
         if (StringUtils.isNotBlank(name)) {
             queryParamStringBuilder.append("?name=").append(name);
         }
-
 
         //Handle birth dates param
         String birthDate = getChildBirthDateParameter(searchParameters, name);
