@@ -1584,7 +1584,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     }
 
-
     private JSONArray getEvents() throws JSONException {
         JSONArray events = new JSONArray();
 
@@ -1690,5 +1689,113 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         jsonArray.put(jsonObject);
 
         return jsonArray;
+    }
+
+    @Test
+    public void testCreateEventGeneratesValidEventWithoutObs() throws JSONException {
+
+        //Some set up
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+        //Test
+        String baseEntityId = "M_base-entity-id";
+        String eventName = "Mother Visit Event";
+
+        Event event = ChildJsonFormUtils.createEvent(eventName, Constants.ENTITY.MOTHER, baseEntityId, null, null);
+
+        Assert.assertNotNull(event);
+
+        Assert.assertEquals(baseEntityId, event.getBaseEntityId());
+        Assert.assertEquals(eventName, event.getEventType());
+        Assert.assertNotNull(event.getFormSubmissionId());
+        Assert.assertNull(event.getObs());
+
+    }
+
+    @Test
+    public void testCreateEventGeneratesValidEventWithObs() throws JSONException {
+
+        //Some set up
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+        //Test
+        String baseEntityId = "F_base-entity-id";
+        String treatment = "Covid Immunization";
+        String nextAppointment = "2022-09-08";
+        String eventName = "Covid Vaccine Event";
+
+        List<Observation> observationList = new ArrayList<>();
+
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.TREATMENT_PROVIDED, treatment, Observation.TYPE.TEXT));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_APPOINTMENT_DATE, nextAppointment, Observation.TYPE.DATE));
+
+        Event event = ChildJsonFormUtils.createEvent(eventName, Constants.ENTITY.FATHER, baseEntityId, observationList, null);
+
+        Assert.assertNotNull(event);
+
+        Assert.assertEquals(baseEntityId, event.getBaseEntityId());
+        Assert.assertNotNull(event.getFormSubmissionId());
+        Assert.assertTrue(event.getObs() != null && event.getObs().size() > 0);
+        Assert.assertEquals(treatment, event.getObs().get(0).getValue());
+        Assert.assertEquals(nextAppointment, event.getObs().get(1).getValue());
+
+    }
+
+
+    @Test
+    public void testCreateNextAppointmentEventGeneratesValidEventWithSubmissionId() throws JSONException {
+
+        //Some set up
+        Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
+        Mockito.when(openSrpContext.applicationContext()).thenReturn(context);
+        Mockito.when(openSrpContext.allSharedPreferences()).thenReturn(allSharedPreferences);
+        String providerId = "providerId";
+        String teamName = "teamA";
+        String teamId = "24234-234";
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn(providerId);
+        Mockito.when(allSharedPreferences.fetchDefaultTeam(providerId)).thenReturn(teamName);
+        Mockito.when(allSharedPreferences.fetchDefaultTeamId(providerId)).thenReturn(teamId);
+        Mockito.when(allSharedPreferences.fetchCurrentLocality()).thenReturn(null);
+
+        //Test
+        String baseEntityId = "base-entity-id-2";
+        String treatment = "Tetanus Vaccination";
+        String formSubmissionId = "form-submission-id";
+        String nextAppointment = "2021-11-11";
+        String eventName = "Outreach Vaccination";
+
+        List<Observation> observationList = new ArrayList<>();
+
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.TREATMENT_PROVIDED, treatment, Observation.TYPE.TEXT));
+        observationList.add(new Observation(Constants.NEXT_APPOINTMENT_OBSERVATION_FIELD.NEXT_APPOINTMENT_DATE, nextAppointment, Observation.TYPE.DATE));
+
+        Event event = ChildJsonFormUtils.createEvent(eventName, Constants.ENTITY.CHILD, baseEntityId, observationList, formSubmissionId);
+
+        Assert.assertNotNull(event);
+
+        Assert.assertEquals(baseEntityId, event.getBaseEntityId());
+        Assert.assertEquals(formSubmissionId, event.getFormSubmissionId());
+        Assert.assertTrue(event.getObs() != null && event.getObs().size() > 0);
+        Assert.assertEquals(treatment, event.getObs().get(0).getValue());
+        Assert.assertEquals(nextAppointment, event.getObs().get(1).getValue());
+
     }
 }

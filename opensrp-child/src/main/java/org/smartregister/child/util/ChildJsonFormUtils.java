@@ -10,6 +10,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.google.common.collect.ImmutableSet;
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -2309,12 +2309,23 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      * @param observations     A list of obs value to send as part of the event
      * @param formSubmissionId A formSubmissionId to update an unsynced next appointment Event, can be null, if null a new one will be created in the db
      */
-    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations, @androidx.annotation.Nullable String formSubmissionId) throws JSONException {
-        Event event = null;
+    public static Event createNextAppointmentEvent(String baseEntityId, List<Observation> observations, @Nullable String formSubmissionId) throws JSONException {
+
+        return createEvent(Constants.EventType.NEXT_APPOINTMENT, Constants.CHILD_TYPE, baseEntityId, observations, formSubmissionId);
+    }
+
+    /**
+     * @param eventType        The name of the event
+     * @param baseEntityId     the unique entity identifier
+     * @param entityType       the entity type e.g. child, mother, father
+     * @param observations     the list of observations to send as part of the event. Can be null if no observations
+     * @param formSubmissionId the value of the submission id, can be null. If null a new one will be created in the db
+     */
+    public static Event createEvent(@NonNull String eventType, @NonNull String entityType, @NonNull String baseEntityId, @Nullable List<Observation> observations, @Nullable String formSubmissionId) throws JSONException {
+
+        Event event = getEventAndTag(baseEntityId, eventType, new Date(), entityType).withFormSubmissionId(StringUtils.isNotBlank(formSubmissionId) ? formSubmissionId : generateRandomUUIDString());
+
         if (observations != null) {
-
-            event = getEventAndTag(baseEntityId, Constants.EventType.NEXT_APPOINTMENT, new Date(), Constants.CHILD_TYPE).withFormSubmissionId(StringUtils.isNotBlank(formSubmissionId) ? formSubmissionId : generateRandomUUIDString());
-
             for (Observation ob : observations) {
 
                 addObservation(ob.getKey(), ob.getValue(), ob.getType(), event);
@@ -2322,7 +2333,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             }
 
         }
-
         return event;
     }
 
