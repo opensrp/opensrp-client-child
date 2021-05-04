@@ -7,12 +7,10 @@ import android.view.MenuItem;
 import androidx.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
-import org.smartregister.child.dao.ChildDao;
 import org.smartregister.child.domain.NamedObject;
 import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;

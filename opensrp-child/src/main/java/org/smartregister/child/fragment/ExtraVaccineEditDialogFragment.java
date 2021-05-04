@@ -164,7 +164,7 @@ public class ExtraVaccineEditDialogFragment extends DialogFragment {
         Calendar today = Calendar.getInstance();
         Calendar minDate = Calendar.getInstance();
         VaccineSchedule.standardiseCalendarDate(today);
-        String dobString = org.smartregister.child.util.Utils.getValue(details.getDetails(), Constants.KEY.DOB, false);
+        String dobString = getValue(details.getDetails(), Constants.KEY.DOB, false);
         Date dob = org.smartregister.child.util.Utils.dobStringToDate(dobString);
         if (dob != null) {
             minDate.setTime(dob);
