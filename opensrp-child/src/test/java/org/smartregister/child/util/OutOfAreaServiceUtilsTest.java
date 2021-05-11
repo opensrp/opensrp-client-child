@@ -20,11 +20,11 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.JsonFormUtils;
@@ -135,7 +135,7 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
     }
 
     @Test
-    public void testCreateOutOfAreaRecurringServiceEvents() throws JSONException {
+    public void testCreateOutOfAreaRecurringServiceEventsAddsEventWhenRecurringServiceQuestionIsSet() throws JSONException {
         PowerMockito.mockStatic(VaccinatorUtils.class);
 
         JSONObject outOfAreaForm = new JSONObject(outOfAreaFormWithWeight);
@@ -175,8 +175,17 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
         }
 
         Map<String, String> metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(new JSONObject(outOfAreaFormWithWeight));
+        Assert.assertNotNull(metadata);
+        Assert.assertEquals("10-10-2019", metadata.get(Constants.KEY.OA_SERVICE_DATE));
+        Assert.assertEquals("3274343E", metadata.get(Constants.KEY.OPENSRP_ID));
+
+        Mockito.doAnswer((i) -> {
+            Assert.assertEquals("", i.getArgument(0));
+            Assert.assertNotNull(i.getArgument(1));
+            Assert.assertEquals(BaseRepository.TYPE_Unsynced, i.getArgument(2));
+            return null;
+        }).when(ecSyncHelper).addEvent(ArgumentMatchers.anyString(), ArgumentMatchers.any(JSONObject.class), ArgumentMatchers.anyString());
 
         OutOfAreaServiceUtils.createOutOfAreaRecurringServiceEvents(outOfAreaForm, metadata);
-        Mockito.verify(ecSyncHelper).addEvent(ArgumentMatchers.anyString(), ArgumentMatchers.any(JSONObject.class), ArgumentMatchers.anyString());
     }
 }
