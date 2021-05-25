@@ -59,8 +59,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
     }
 
     private Response<String> globalSearch(Map<String, String> searchParameters) {
-        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                .getProperty(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH, "false"))) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH)) {
             return retrieveRemoteClients(searchParameters);
         }
         String paramString = "";
@@ -143,15 +142,9 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         }
 
         //Handle name param - use either firs/last name //TODO server does not support full name
-        String name = null;
-        String firstName = searchParameters.remove(Constants.KEY.FIRST_NAME);
-        String lastName = searchParameters.remove(Constants.KEY.LAST_NAME);
-
-        if (StringUtils.isNotBlank(firstName)) {
-            name = firstName;
-        } else if (StringUtils.isNotBlank(lastName)) {
-            name = lastName;
-        }
+        String name = searchParameters.remove(Constants.KEY.FIRST_NAME);
+        String lastname = searchParameters.remove(Constants.KEY.LAST_NAME);
+        name = StringUtils.isNotBlank(name) ? name : lastname;
 
         if (StringUtils.isNotBlank(name)) {
             queryParamStringBuilder.append("?name=").append(name);
@@ -181,7 +174,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
         if (birthDates != null && birthDates.length == 2 && StringUtils.isNotBlank(name)) {
             birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
-        } else if (birthDates.length == 2 && StringUtils.isBlank(name)) {
+        } else if (birthDates != null && birthDates.length == 2 && StringUtils.isBlank(name)) {
             birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
         }
 
@@ -264,9 +257,8 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             String motherSearchParameters = "";
 
             String name = searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
-            if (StringUtils.isBlank(name)) {
-                name = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
-            }
+            String lastname = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
+            name = StringUtils.isNotBlank(name) ? name : lastname;
 
             if (StringUtils.isNotBlank(name)) {
                 motherSearchParameters = String.format("?name=%s", name);
@@ -274,7 +266,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
             String phoneNumber = searchParameters.remove(getMotherGuardianPhoneNumber());
             if (StringUtils.isNotBlank(motherSearchParameters) && StringUtils.isNotBlank(phoneNumber)) {
-                motherSearchParameters = String.format("&attribute=%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
+                motherSearchParameters = String.format("%s&attribute=%s:%s", motherSearchParameters, getMotherGuardianPhoneNumber(), phoneNumber);
             } else if (StringUtils.isBlank(motherSearchParameters) && StringUtils.isNotBlank(phoneNumber)) {
                 motherSearchParameters = String.format("?attribute=%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
             }
