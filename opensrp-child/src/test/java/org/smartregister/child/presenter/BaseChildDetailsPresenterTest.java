@@ -49,8 +49,6 @@ public class BaseChildDetailsPresenterTest {
     @Test
     public void testReportLostCard() throws JSONException {
         String baseEntityId = "f50b1b66-6d71-4f7d-8c7c-70bec269412e";
-        childDetailsPresenter.reportLostCard(baseEntityId);
-
         String sampleClientJson = "{\"type\":\"Client\",\"dateCreated\":\"2020-11-24T14:15:03.498+01:00\"," +
                 "\"serverVersion\":1600329284628,\"baseEntityId\":\"f50b1b66-6d71-4f7d-8c7c-70bec269412e\"," +
                 "\"identifiers\":{\"M_ZEIR_ID\":\"183317-7\"},\"addresses\":[{\"addressType\":\"\"," +
@@ -59,10 +57,13 @@ public class BaseChildDetailsPresenterTest {
                 "\"registration_location_id\":\"e2b4a441-21b5-4d03-816b-09d45b17cad7\",\"registration_location_name\":\"CSB Hopital Bouficha\"}," +
                 "\"firstName\":\"Liz\",\"lastName\":\"White\",\"birthdate\":\"1993-10-01T13:00:00.000+01:00\"," +
                 "\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"_id\":\"fb5c2429-29bc-4417-88f7-938dce30100f\",\"_rev\":\"v1\"}";
-
         JSONObject client = new JSONObject(sampleClientJson);
         Mockito.doReturn(client).when(eventClientRepository).getClientByBaseEntityId(baseEntityId);
         Mockito.doNothing().when(eventClientRepository).addorUpdateClient(baseEntityId, client);
+
+        childDetailsPresenter.reportLostCard(baseEntityId);
+
         Mockito.verify(view, Mockito.atMost(1)).notifyLostCardReported(Mockito.anyString());
+
     }
 }
