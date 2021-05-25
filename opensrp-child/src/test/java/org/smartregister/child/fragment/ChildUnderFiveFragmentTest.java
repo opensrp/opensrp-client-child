@@ -8,8 +8,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,16 +24,32 @@ import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.R;
 import org.smartregister.child.TestChildApp;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.ExtraVaccineUpdateEvent;
 import org.smartregister.child.shadows.CustomFontTextViewShadow;
+import org.smartregister.child.util.Constants;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.util.EasyMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by ndegwamartin on 12/01/2021.
@@ -66,30 +84,30 @@ public class ChildUnderFiveFragmentTest {
         bundle.putString(TEST_KEY, TEST_VAL);
         ChildUnderFiveFragment fragment = ChildUnderFiveFragment.newInstance(bundle);
 
-        Assert.assertNotNull(fragment);
-        Assert.assertNotNull(fragment.getArguments());
-        Assert.assertNotNull(fragment.getArguments().get(TEST_KEY));
-        Assert.assertEquals(TEST_VAL, fragment.getArguments().get(TEST_KEY));
+        assertNotNull(fragment);
+        assertNotNull(fragment.getArguments());
+        assertNotNull(fragment.getArguments().get(TEST_KEY));
+        assertEquals(TEST_VAL, fragment.getArguments().get(TEST_KEY));
     }
 
     @Test
     public void testSetDetailsMap() {
 
-        ChildUnderFiveFragment fragmentSpy = Mockito.spy(ChildUnderFiveFragment.newInstance(null));
-        Assert.assertNotNull(fragmentSpy);
+        ChildUnderFiveFragment fragmentSpy = spy(ChildUnderFiveFragment.newInstance(null));
+        assertNotNull(fragmentSpy);
 
-        BaseChildDetailTabbedActivity activity = Mockito.mock(BaseChildDetailTabbedActivity.class);
-        Mockito.doReturn(activity).when(fragmentSpy).getActivity();
+        BaseChildDetailTabbedActivity activity = mock(BaseChildDetailTabbedActivity.class);
+        doReturn(activity).when(fragmentSpy).getActivity();
 
         fragmentSpy.setDetailsMap(EasyMap.mapOf(TEST_KEY, TEST_VAL));
 
         ArgumentCaptor<Map<String, String>> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(activity).setChildDetails(mapArgumentCaptor.capture());
+        verify(activity).setChildDetails(mapArgumentCaptor.capture());
 
         Map<String, String> captured = mapArgumentCaptor.getValue();
-        Assert.assertNotNull(captured);
-        Assert.assertEquals(1, captured.size());
-        Assert.assertEquals(TEST_VAL, captured.get(TEST_KEY));
+        assertNotNull(captured);
+        assertEquals(1, captured.size());
+        assertEquals(TEST_VAL, captured.get(TEST_KEY));
 
 
     }
@@ -97,17 +115,72 @@ public class ChildUnderFiveFragmentTest {
     @Test
     public void testHideOrShowRecurringServices() {
 
-        ChildUnderFiveFragment fragment = Mockito.spy(ChildUnderFiveFragment.newInstance(null));
-        Assert.assertNotNull(fragment);
+        ChildUnderFiveFragment fragment = spy(ChildUnderFiveFragment.newInstance(null));
+        assertNotNull(fragment);
 
         Whitebox.setInternalState(fragment, "serviceGroupCanvasLL", serviceGroupCanvasLL);
 
         fragment.hideOrShowRecurringServices();
-        Mockito.verify(serviceGroupCanvasLL).setVisibility(View.VISIBLE);
+        verify(serviceGroupCanvasLL).setVisibility(View.VISIBLE);
 
         fragment.showRecurringServices(false);
         fragment.hideOrShowRecurringServices();
-        Mockito.verify(serviceGroupCanvasLL).setVisibility(View.GONE);
+        verify(serviceGroupCanvasLL).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void testLoadGrowthMonitoringViewShouldAddHeightAndWeightWidgetToView() {
+        FragmentActivity sampleActivity = spy(Robolectric.buildActivity(FragmentActivity.class).get());
+        sampleActivity.setContentView(R.layout.child_under_five_fragment);
+
+        ChildUnderFiveFragment spyFragment = spy(ChildUnderFiveFragment.newInstance(new Bundle()));
+        doReturn(sampleActivity).when(spyFragment).getActivity();
+
+        LinearLayout fragmentContainer = spy(sampleActivity.findViewById(R.id.container));
+        LinearLayout spyWeightValuesLayout = spy(fragmentContainer.findViewById(R.id.weightvalues));
+        LinearLayout spyHeightValuesLayout = spy(fragmentContainer.findViewById(R.id.heightvalues));
+
+        doReturn(spyWeightValuesLayout).when(fragmentContainer).findViewById(R.id.weightvalues);
+        doReturn(spyHeightValuesLayout).when(fragmentContainer).findViewById(R.id.heightvalues);
+
+        String baseEntityId = "3434";
+        String provider = "demo";
+        Map<String, String> detailsMap = new LinkedHashMap<>();
+        detailsMap.put(Constants.KEY.DOB, "1615895228000");
+        CommonPersonObjectClient childDetails = new CommonPersonObjectClient(baseEntityId, detailsMap, "John Doe");
+        childDetails.setColumnmaps(detailsMap);
+
+        ReflectionHelpers.setField(spyFragment, "fragmentContainer", fragmentContainer);
+        ReflectionHelpers.setField(spyFragment, "childDetails", childDetails);
+        ReflectionHelpers.setField(spyFragment, "detailsMap", detailsMap);
+        ReflectionHelpers.setField(spyFragment, "monitorGrowth", true);
+
+        Weight weight = new Weight();
+        weight.setId(1L);
+        weight.setAnmId(provider);
+        weight.setBaseEntityId(baseEntityId);
+        weight.setKg(23f);
+        weight.setDate(DateTime.now().minusYears(1).toDate());
+
+        Height height = new Height();
+        height.setId(1L);
+        height.setAnmId(provider);
+        height.setBaseEntityId(baseEntityId);
+        height.setCm(180f);
+        height.setDate(DateTime.now().minusYears(1).toDate());
+
+        spyFragment.loadGrowthMonitoringView(Collections.singletonList(weight),
+                Collections.singletonList(height), false);
+
+        //populate weight values on table layout
+        verify(spyWeightValuesLayout).removeAllViews();
+        verify(spyWeightValuesLayout, times(1)).addView(any(View.class));
+
+        //populate height values on table layout
+        verify(spyHeightValuesLayout).removeAllViews();
+        verify(spyHeightValuesLayout, times(1)).addView(any(View.class));
+
+        sampleActivity.finish();
     }
 
     @Test
