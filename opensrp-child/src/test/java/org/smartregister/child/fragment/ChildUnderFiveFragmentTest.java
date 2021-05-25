@@ -188,17 +188,17 @@ public class ChildUnderFiveFragmentTest {
         ChildUnderFiveFragment fragment = initFragment();
         fragment.onVaccineUpdated(new ExtraVaccineUpdateEvent(entityId, vaccine, vaccineDate));
 
-        Assert.assertEquals(boosterImmunizationsLayout.getChildCount(), 2);
+        assertEquals(boosterImmunizationsLayout.getChildCount(), 2);
         View immunizationRow = boosterImmunizationsLayout.getChildAt(1);
 
         TextView vaccineTextView = immunizationRow.findViewById(R.id.name_tv);
-        Assert.assertEquals(vaccineTextView.getText().toString(), vaccine);
+        assertEquals(vaccineTextView.getText().toString(), vaccine);
 
         Button statusButton = immunizationRow.findViewById(R.id.status_iv);
-        Assert.assertEquals(statusButton.getVisibility(), View.VISIBLE);
+        assertEquals(statusButton.getVisibility(), View.VISIBLE);
 
         TextView dateTextView = immunizationRow.findViewById(R.id.status_text_tv);
-        Assert.assertEquals(dateTextView.getText().toString(), "29-01-2020");
+        assertEquals(dateTextView.getText().toString(), "29-01-2020");
 
     }
 
@@ -207,15 +207,15 @@ public class ChildUnderFiveFragmentTest {
         //When vaccine is undone view should be cleared
         ChildUnderFiveFragment fragment = initFragment();
         fragment.onVaccineUpdated(new ExtraVaccineUpdateEvent(entityId, vaccine, vaccineDate, true));
-        Assert.assertEquals(((ViewGroup) boosterImmunizationsLayout).getChildCount(), 0);
+        assertEquals(((ViewGroup) boosterImmunizationsLayout).getChildCount(), 0);
 
     }
 
     private ChildUnderFiveFragment initFragment() {
-        ChildUnderFiveFragment fragment = Mockito.spy(ChildUnderFiveFragment.newInstance(null));
-        Assert.assertNotNull(fragment);
-        Mockito.doReturn(appCompatActivity).when(fragment).getActivity();
-        Mockito.doReturn(appCompatActivity).when(fragment).getContext();
+        ChildUnderFiveFragment fragment = spy(ChildUnderFiveFragment.newInstance(null));
+        assertNotNull(fragment);
+        doReturn(appCompatActivity).when(fragment).getActivity();
+        doReturn(appCompatActivity).when(fragment).getContext();
 
         List<Triple<String, String, String>> immunizations = new ArrayList<Triple<String, String, String>>() {{
             add(Triple.of(entityId, vaccine, vaccineDate));
