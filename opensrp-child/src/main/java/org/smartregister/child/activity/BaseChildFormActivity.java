@@ -319,10 +319,9 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         try {
             DateUtil.yyyyMMdd.parse(dobString);
             return true;
-        } catch (ParseException e) {
+        } catch (ParseException | NullPointerException e) {
             return false;
         }
-
     }
 }
 
