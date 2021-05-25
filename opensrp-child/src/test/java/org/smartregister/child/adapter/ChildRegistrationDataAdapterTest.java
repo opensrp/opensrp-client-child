@@ -12,7 +12,6 @@ import org.smartregister.child.domain.KeyValueItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -22,13 +21,12 @@ import static org.mockito.Mockito.verify;
 public class ChildRegistrationDataAdapterTest extends BaseUnitTest {
 
     private ChildRegistrationDataAdapter adapter;
+    private final List<KeyValueItem> keyValueItemList = new ArrayList<>();
 
     @Before
     public void setUp() {
 
         MockitoAnnotations.initMocks(this);
-
-        List<KeyValueItem> keyValueItemList = new ArrayList<>();
 
         KeyValueItem keyValueItem = new KeyValueItem("first_name", "Bit");
         KeyValueItem keyValueItem2 = new KeyValueItem("last_name", "Alchemist");
@@ -54,7 +52,7 @@ public class ChildRegistrationDataAdapterTest extends BaseUnitTest {
     }
 
     @Test
-    public void testOnBindViewHolder() {
+    public void testOnBindViewHolderUpdatesViewHolderTextViewsWithCorrectValues() {
         TextView mKeyText = mock(TextView.class);
         TextView mValueText = mock(TextView.class);
         ChildRegistrationDataAdapter.ViewHolder viewHolder = mock(ChildRegistrationDataAdapter.ViewHolder.class);
@@ -62,8 +60,9 @@ public class ChildRegistrationDataAdapterTest extends BaseUnitTest {
         viewHolder.valueText = mValueText;
 
         adapter.onBindViewHolder(viewHolder, 0);
-        verify(mKeyText).setText(anyString());
-        verify(mValueText).setText(anyString());
+
+        verify(mKeyText).setText(keyValueItemList.get(0).getKey());
+        verify(mValueText).setText(keyValueItemList.get(0).getValue());
     }
 
 }
