@@ -1,5 +1,7 @@
 package org.smartregister.child.adapter;
 
+import android.widget.TextView;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +11,10 @@ import org.smartregister.child.domain.KeyValueItem;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by ndegwamartin on 2019-06-19.
@@ -45,6 +51,19 @@ public class ChildRegistrationDataAdapterTest extends BaseUnitTest {
 
         Assert.assertEquals(2, adapter.getItemCount());
 
+    }
+
+    @Test
+    public void testOnBindViewHolder() {
+        TextView mKeyText = mock(TextView.class);
+        TextView mValueText = mock(TextView.class);
+        ChildRegistrationDataAdapter.ViewHolder viewHolder = mock(ChildRegistrationDataAdapter.ViewHolder.class);
+        viewHolder.keyText = mKeyText;
+        viewHolder.valueText = mValueText;
+
+        adapter.onBindViewHolder(viewHolder, 0);
+        verify(mKeyText).setText(anyString());
+        verify(mValueText).setText(anyString());
     }
 
 }
