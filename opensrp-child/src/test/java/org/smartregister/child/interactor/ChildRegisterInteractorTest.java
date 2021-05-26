@@ -2,6 +2,7 @@ package org.smartregister.child.interactor;
 
 import android.os.Build;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
@@ -24,6 +26,7 @@ import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.JsonFormAssetsUtils;
+import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
@@ -33,6 +36,7 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -45,6 +49,10 @@ import org.smartregister.util.AppProperties;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-11-21
@@ -62,6 +70,9 @@ public class ChildRegisterInteractorTest {
     @Mock
     private AppProperties appProperties;
 
+    @Mock
+    private AppExecutors appExecutors;
+
     @Captor
     private ArgumentCaptor syncHelperAddClientArgumentCaptor;
 
@@ -71,7 +82,7 @@ public class ChildRegisterInteractorTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        interactor = new ChildRegisterInteractor(Mockito.mock(AppExecutors.class));
+        interactor = new ChildRegisterInteractor(appExecutors);
     }
 
     @After
@@ -102,7 +113,7 @@ public class ChildRegisterInteractorTest {
         JSONObject clientJson = Mockito.spy(new JSONObject(womanRegistrationClient));
         interactor.processWeight(identifiers, jsonEnrollmentForm, updateRegisterParam, clientJson);
         Mockito.verify(clientJson, Mockito.times(0))
-                .getString(Mockito.eq(FormEntityConstants.Person.gender.name()));
+                .getString(eq(FormEntityConstants.Person.gender.name()));
     }
 
     @Test
@@ -146,7 +157,7 @@ public class ChildRegisterInteractorTest {
         JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
         interactor.processWeight(identifiers, jsonEnrollmentForm, updateRegisterParam, clientJson);
         Mockito.verify(clientJson, Mockito.times(1))
-                .getString(Mockito.eq(FormEntityConstants.Person.gender.name()));
+                .getString(eq(FormEntityConstants.Person.gender.name()));
     }
 
     @Test
@@ -208,5 +219,57 @@ public class ChildRegisterInteractorTest {
         Assert.assertNotNull(syncHelperAddEventArgumentCaptor.getAllValues().get(1));
         JSONObject resultEventJson = (JSONObject) syncHelperAddEventArgumentCaptor.getAllValues().get(1);
         Assert.assertEquals(event.getFormSubmissionId(), resultEventJson.optString("formSubmissionId"));
+    }
+
+    @Test
+    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenNoUniqueId(){
+        interactor = Mockito.spy(interactor);
+        Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
+        ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(appExecutors.diskIO()).thenReturn(executor);
+        Mockito.when(appExecutors.mainThread()).thenReturn(executor);
+        UniqueIdRepository uniqueIdRepository = Mockito.mock(UniqueIdRepository.class);
+        Mockito.when(uniqueIdRepository.getNextUniqueId())
+                .thenReturn(null);
+        Mockito.doReturn(uniqueIdRepository)
+                .when(interactor)
+                .getUniqueIdRepository();
+
+        interactor.getNextUniqueId(triple, callBack);
+        Mockito.verify(callBack).onNoUniqueId();
+    }
+
+    @Test
+    public void testGetNextUniqueIdShouldCallOnUniqueIdFetched(){
+        interactor = Mockito.spy(interactor);
+        Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
+        ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(appExecutors.diskIO()).thenReturn(executor);
+        Mockito.when(appExecutors.mainThread()).thenReturn(executor);
+        UniqueIdRepository uniqueIdRepository = Mockito.mock(UniqueIdRepository.class);
+        Mockito.doReturn(uniqueIdRepository)
+                .when(interactor)
+                .getUniqueIdRepository();
+
+        UniqueId uniqueId = Mockito.mock(UniqueId.class);
+        String entityId = "fake_entity_id";
+        Mockito.when(uniqueId.getOpenmrsId())
+                .thenReturn(entityId);
+        Mockito.when(uniqueIdRepository.getNextUniqueId())
+                .thenReturn(uniqueId);
+        interactor.getNextUniqueId(triple, callBack);
+        Mockito.verify(callBack).onUniqueIdFetched(eq(triple), eq(entityId));
     }
 }
