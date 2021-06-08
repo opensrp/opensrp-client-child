@@ -88,12 +88,12 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
     }
 
     @Test
-    public void testUpdateViewsShouldInvokeUpdateViewTask() {
+    public void testUpdateViewsShouldInvokeUpdateViewTask() throws InterruptedException {
         doNothing().when(immunizationActivity).updateScheduleDate();
         immunizationActivity.updateViews();
+        Thread.sleep(ASYNC_TIMEOUT);
         verify(immunizationActivity).startUpdateViewTask();
     }
-
     @Test
     public void testSetUpFloatingActionButtonShouldShowButtonIfNfcFeatureEnabled() throws Exception {
         LinearLayout floatingActionButton = spy(immunizationActivity.findViewById(R.id.fab));
@@ -185,10 +185,10 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         @Override
         protected CommonPersonObjectClient getChildDetails(String caseId) {
             Map<String, String> clientDetails = new LinkedHashMap<>();
-            clientDetails.put(Constants.KEY.DOB, Constants.GENDER.MALE);
             clientDetails.put(Constants.KEY.FIRST_NAME, "John");
             clientDetails.put(Constants.KEY.LAST_NAME, "Doe");
-            clientDetails.put(Constants.KEY.GENDER, "2021-01-09");
+            clientDetails.put(Constants.KEY.GENDER, Constants.GENDER.MALE);
+            clientDetails.put(Constants.KEY.DOB, "2021-01-09");
             CommonPersonObjectClient client = new CommonPersonObjectClient("23weq", clientDetails, "John Doe");
             client.setColumnmaps(clientDetails);
             return client;
