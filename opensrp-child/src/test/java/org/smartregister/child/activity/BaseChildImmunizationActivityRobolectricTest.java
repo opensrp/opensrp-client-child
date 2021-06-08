@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.After;
@@ -11,11 +12,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.Robolectric;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterClickables;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
@@ -29,6 +33,7 @@ import org.smartregister.util.AppProperties;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -89,6 +94,20 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         verify(immunizationActivity).startUpdateViewTask();
     }
 
+    @Test
+    public void testSetUpFloatingActionButtonShouldShowButtonIfNfcFeatureEnabled() throws Exception {
+        LinearLayout floatingActionButton = spy(immunizationActivity.findViewById(R.id.fab));
+
+        ReflectionHelpers.setField(immunizationActivity, "floatingActionButton", floatingActionButton);
+
+        doReturn(true).when(appProperties).getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED);
+
+        WhiteboxImpl.invokeMethod(immunizationActivity, "setUpFloatingActionButton");
+
+        verify(floatingActionButton).setOnClickListener(eq(immunizationActivity));
+
+        verify(floatingActionButton).setVisibility(eq(View.VISIBLE));
+    }
 
     @After
     public void tearDown() {
@@ -166,7 +185,10 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         @Override
         protected CommonPersonObjectClient getChildDetails(String caseId) {
             Map<String, String> clientDetails = new LinkedHashMap<>();
-            clientDetails.put(Constants.KEY.DOB, "2021-01-09");
+            clientDetails.put(Constants.KEY.DOB, Constants.GENDER.MALE);
+            clientDetails.put(Constants.KEY.FIRST_NAME, "John");
+            clientDetails.put(Constants.KEY.LAST_NAME, "Doe");
+            clientDetails.put(Constants.KEY.GENDER, "2021-01-09");
             CommonPersonObjectClient client = new CommonPersonObjectClient("23weq", clientDetails, "John Doe");
             client.setColumnmaps(clientDetails);
             return client;

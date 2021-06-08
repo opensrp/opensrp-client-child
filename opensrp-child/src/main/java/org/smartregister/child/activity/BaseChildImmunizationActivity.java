@@ -308,18 +308,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     protected int getGenderButtonColor(String gender) {
-        int imageResource;
-
-        switch (gender.toLowerCase()) {
-            case Constants.GENDER.MALE:
-                imageResource = R.drawable.pill_background_male_blue;
-                break;
-            case Constants.GENDER.FEMALE:
-                imageResource = R.drawable.pill_background_female_pink;
-                break;
-            default:
-                imageResource = R.drawable.pill_background_gender_neutral_green;
-                break;
+        int imageResource = R.drawable.pill_background_gender_neutral_green;
+        if(StringUtils.isNotBlank(gender)) {
+            switch (gender.toLowerCase()) {
+                case Constants.GENDER.MALE:
+                    imageResource = R.drawable.pill_background_male_blue;
+                    break;
+                case Constants.GENDER.FEMALE:
+                    imageResource = R.drawable.pill_background_female_pink;
+                    break;
+                default:
+                    imageResource = R.drawable.pill_background_gender_neutral_green;
+                    break;
+            }
         }
 
         return imageResource;
