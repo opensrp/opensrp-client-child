@@ -28,15 +28,13 @@ public class AsyncTaskUtils {
         }
         return new ArrayList<>();
     }
-
-
+    
     public static Map<String, List<ServiceType>> extractServiceTypes(Map<String, NamedObject<?>> map) {
         if (map.containsKey(ServiceType.class.getName())) {
             NamedObject<?> namedObject = map.get(ServiceType.class.getName());
             if (namedObject != null) {
                 return (Map<String, List<ServiceType>>) namedObject.object;
             }
-
         }
         return new HashMap<>();
     }
@@ -60,7 +58,6 @@ public class AsyncTaskUtils {
         }
         return new ArrayList<>();
     }
-
 
     public static Weight retrieveWeight(Map<String, NamedObject<?>> map) {
         if (map.containsKey(Weight.class.getName())) {
@@ -111,6 +108,4 @@ public class AsyncTaskUtils {
         }
         return new HashMap<>();
     }
-
-
 }
