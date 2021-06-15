@@ -1147,7 +1147,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return heightWrapper;
     }
 
-    private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
+    @VisibleForTesting
+    protected void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
 
         recordWeightText.setText(R.string.record_growth);
         recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
