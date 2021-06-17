@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +27,10 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.domain.Height;
+import org.smartregister.growthmonitoring.domain.HeightWrapper;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
@@ -33,7 +40,12 @@ import org.smartregister.util.AppProperties;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -94,6 +106,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         Thread.sleep(ASYNC_TIMEOUT);
         verify(immunizationActivity).startUpdateViewTask();
     }
+
     @Test
     public void testSetUpFloatingActionButtonShouldShowButtonIfNfcFeatureEnabled() throws Exception {
         LinearLayout floatingActionButton = spy(immunizationActivity.findViewById(R.id.fab));
@@ -107,6 +120,37 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         verify(floatingActionButton).setOnClickListener(eq(immunizationActivity));
 
         verify(floatingActionButton).setVisibility(eq(View.VISIBLE));
+    }
+
+    @Test
+    public void testUpdateGrowthViewsShouldUpdateHeightAndWeightViews() throws Exception {
+        Weight lastUnsyncedWeight = new Weight();
+        lastUnsyncedWeight.setId(2L);
+        lastUnsyncedWeight.setKg(5f);
+        lastUnsyncedWeight.setUpdatedAt(DateTime.now().minusDays(1).getMillis());
+
+        Height lastUnsyncedHeight = new Height();
+        lastUnsyncedHeight.setId(3L);
+        lastUnsyncedHeight.setCm(20f);
+        lastUnsyncedHeight.setUpdatedAt(DateTime.now().minusDays(1).getMillis());
+
+        View spyRecordGrowth = immunizationActivity.findViewById(R.id.record_growth);
+        TextView spyRecordWeightText = immunizationActivity.findViewById(R.id.record_growth_text);
+        ImageButton spyGrowthChartButton = immunizationActivity.findViewById(R.id.growth_chart_button);
+        ReflectionHelpers.setField(immunizationActivity, "recordGrowth", spyRecordGrowth);
+        ReflectionHelpers.setField(immunizationActivity, "recordWeightText", spyRecordWeightText);
+        ReflectionHelpers.setField(immunizationActivity, "growthChartButton", spyGrowthChartButton);
+
+        ReflectionHelpers.setField(immunizationActivity, "monitorGrowth", true);
+
+        WhiteboxImpl.invokeMethod(immunizationActivity, "updateGrowthViews", lastUnsyncedWeight, lastUnsyncedHeight, true);
+
+        verify(immunizationActivity).updateRecordGrowthMonitoringViews(any(WeightWrapper.class), nullable(HeightWrapper.class), eq(true));
+
+        assertTrue(spyGrowthChartButton.hasOnClickListeners());
+        assertEquals("5.0 kg, 20.0 cm", spyRecordWeightText.getText().toString());
+        assertNotNull(spyRecordGrowth.getTag(R.id.weight_wrapper));
+        assertNotNull(spyRecordGrowth.getTag(R.id.height_wrapper));
     }
 
     @After
@@ -187,6 +231,9 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
             Map<String, String> clientDetails = new LinkedHashMap<>();
             clientDetails.put(Constants.KEY.FIRST_NAME, "John");
             clientDetails.put(Constants.KEY.LAST_NAME, "Doe");
+            clientDetails.put(Constants.KEY.ZEIR_ID, "2045");
+            clientDetails.put(Constants.KEY.MOTHER_FIRST_NAME, "Jane");
+            clientDetails.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
             clientDetails.put(Constants.KEY.GENDER, Constants.GENDER.MALE);
             clientDetails.put(Constants.KEY.DOB, "2021-01-09");
             CommonPersonObjectClient client = new CommonPersonObjectClient("23weq", clientDetails, "John Doe");
