@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -33,7 +34,6 @@ import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.pcollections.TreePVector;
 import org.smartregister.AllConstants;
-import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildImmunizationContract;
@@ -174,7 +174,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        monitorGrowth = CoreLibrary.getInstance().context().getAppProperties().isTrue(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        monitorGrowth = ChildLibrary.getInstance().getProperties().isTrue(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
         presenter = new BaseChildImmunizationPresenter(this);
 
         setUpToolbar();
@@ -184,7 +184,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+            childDetails = getChildDetails(caseId);
         }
 
         Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
@@ -206,6 +206,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         setUpFloatingActionButton();
         Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
+    }
+
+    @VisibleForTesting
+    protected CommonPersonObjectClient getChildDetails(String caseId) {
+        return ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
     }
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
@@ -303,18 +308,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     protected int getGenderButtonColor(String gender) {
-        int imageResource;
-
-        switch (gender.toLowerCase()) {
-            case Constants.GENDER.MALE:
-                imageResource = R.drawable.pill_background_male_blue;
-                break;
-            case Constants.GENDER.FEMALE:
-                imageResource = R.drawable.pill_background_female_pink;
-                break;
-            default:
-                imageResource = R.drawable.pill_background_gender_neutral_green;
-                break;
+        int imageResource = R.drawable.pill_background_gender_neutral_green;
+        if(StringUtils.isNotBlank(gender)) {
+            switch (gender.toLowerCase()) {
+                case Constants.GENDER.MALE:
+                    imageResource = R.drawable.pill_background_male_blue;
+                    break;
+                case Constants.GENDER.FEMALE:
+                    imageResource = R.drawable.pill_background_female_pink;
+                    break;
+                default:
+                    imageResource = R.drawable.pill_background_gender_neutral_green;
+                    break;
+            }
         }
 
         return imageResource;
@@ -400,6 +406,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateChildIdViews();
         updateNextAppointmentDateView();
 
+        startUpdateViewTask();
+    }
+
+    @VisibleForTesting
+    protected void startUpdateViewTask() {
         AlertService alertService = getOpenSRPContext().alertService();
 
         UpdateViewTask updateViewTask = new UpdateViewTask();
@@ -1074,7 +1085,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             duration = DateUtil.getDuration(dateTime);
         }
 
-        Photo photo = ImageUtils.profilePhotoByClient(childDetails);
+        Photo photo = getProfilePhotoByClient(childDetails);
 
         WeightWrapper weightWrapper = getWeightWrapper(lastUnsyncedWeight, childName, gender, openSrpId, duration, photo);
         if (weightWrapper != null) {
@@ -1089,6 +1100,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
         growthChartButton.setOnClickListener(v -> Utils.startAsyncTask(new ShowGrowthChartTask(presenter, childDetails), null));
+    }
+
+    @VisibleForTesting
+    protected Photo getProfilePhotoByClient(CommonPersonObjectClient childDetails) {
+        return ImageUtils.profilePhotoByClient(childDetails);
     }
 
     @NotNull
@@ -1131,7 +1147,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         return heightWrapper;
     }
 
-    private void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
+    @VisibleForTesting
+    protected void updateRecordGrowthMonitoringViews(WeightWrapper weightWrapper, HeightWrapper heightWrapper, final boolean isActive) {
 
         recordWeightText.setText(R.string.record_growth);
         recordWeightText.setTextColor(!isActive ? getResources().getColor(R.color.inactive_text_color) : getResources().getColor(R.color.text_black));
@@ -1770,7 +1787,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retrieveWeight(map);
-            Height height = CoreLibrary.getInstance().context().getAppProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT) ? AsyncTaskUtils.retrieveHeight(map) : null;
+            Height height = ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.MONITOR_HEIGHT) ? AsyncTaskUtils.retrieveHeight(map) : null;
 
             updateGrowthViews(weight, height, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
