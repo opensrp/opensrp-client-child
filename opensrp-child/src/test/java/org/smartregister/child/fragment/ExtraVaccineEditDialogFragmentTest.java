@@ -28,7 +28,6 @@ import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestChildApp.class, sdk = 27)
-@Ignore("Fix error occurring while inflating the fragment")
 public class ExtraVaccineEditDialogFragmentTest {
 
     private AppCompatActivity activity;
@@ -52,6 +51,7 @@ public class ExtraVaccineEditDialogFragmentTest {
     }
 
     @Test
+    @Ignore("TODO: Resolve out of memory error")
     public void testThatViewsAreInitializedCorrectly() {
 
         initFragment();
@@ -69,6 +69,18 @@ public class ExtraVaccineEditDialogFragmentTest {
         TextView serviceDateTextView = view.findViewById(R.id.service_date);
         Assert.assertEquals(serviceDateTextView.getText().toString(), String.format("%s: %s", activity.getString(R.string.service_date), serviceDate));
 
+    }
+
+    @Test
+    @Ignore("TODO: Resolve out of memory error")
+    public void testButtonClicks() {
+        initFragment();
+
+        View view = extraVaccineFragment.getView();
+        Button cancelButton = view.findViewById(R.id.vaccinate_today);
+        cancelButton.performClick();
+        final Button setButton = view.findViewById(R.id.set);
+        Assert.assertEquals(setButton.getVisibility(), View.VISIBLE);
     }
 
     public void initFragment() {
@@ -97,16 +109,5 @@ public class ExtraVaccineEditDialogFragmentTest {
                 .beginTransaction()
                 .add(extraVaccineFragment, ExtraVaccineEditDialogFragment.TAG)
                 .commitNow();
-    }
-
-    @Test
-    public void testButtonClicks() {
-        initFragment();
-
-        View view = extraVaccineFragment.getView();
-        Button cancelButton = view.findViewById(R.id.vaccinate_today);
-        cancelButton.performClick();
-        final Button setButton = view.findViewById(R.id.set);
-        Assert.assertEquals(setButton.getVisibility(), View.VISIBLE);
     }
 }
