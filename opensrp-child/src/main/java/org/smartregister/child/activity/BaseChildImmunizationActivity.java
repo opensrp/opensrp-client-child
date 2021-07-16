@@ -309,7 +309,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     protected int getGenderButtonColor(String gender) {
         int imageResource = R.drawable.pill_background_gender_neutral_green;
-        if(StringUtils.isNotBlank(gender)) {
+        if (StringUtils.isNotBlank(gender)) {
             switch (gender.toLowerCase()) {
                 case Constants.GENDER.MALE:
                     imageResource = R.drawable.pill_background_male_blue;
@@ -974,13 +974,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (vaccine.getType().equalsIgnoreCase(Constants.VACCINE.BCG)) {
                 boolean allowedExpiredVaccineEntry = ChildLibrary.getInstance().getProperties().hasProperty(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW) &&
                         ChildLibrary.getInstance().getProperties().getPropertyBoolean(IMConstants.APP_PROPERTIES.VACCINE_EXPIRED_ENTRY_ALLOW);
-                if (Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
+                if (isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry)) {
                     showCheckBcgScarNotification();
                 }
 
                 break;
             }
         }
+    }
+
+    @VisibleForTesting
+    protected boolean isVaccineDue(@NonNull List<Vaccine> vaccineList, @NonNull Date dob, @NonNull org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, boolean allowedExpiredVaccineEntry) {
+        return Utils.isVaccineDue(vaccineList, dob, vaccine, allowedExpiredVaccineEntry);
     }
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
