@@ -266,6 +266,7 @@ public final class Constants extends AllConstants {
         String DATE_CREATED = "dateCreated";
         String FIRST_NAME = "firstName";
         String LAST_NAME = "lastName";
+        String SYSTEM_OF_REGISTRATION = "system_of_registration";
         String BIRTHDATE = "birthdate";
         String ID_LOWER_CASE = "_id";
         String IDENTIFIERS = "identifiers";

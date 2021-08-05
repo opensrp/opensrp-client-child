@@ -110,7 +110,17 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
+
         </LinearLayout>
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            android:id="@+id/system_of_registration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MVACC"
+            android:textColor="@color/dark_grey"
+            android:textSize="@dimen/activity_sub_title_size" />
 
     </LinearLayout>
 </LinearLayout>

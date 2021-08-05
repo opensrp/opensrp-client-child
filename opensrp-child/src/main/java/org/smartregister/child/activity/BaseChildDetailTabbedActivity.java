@@ -434,6 +434,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         TextView profilename = findViewById(R.id.name);
         TextView profileOpenSrpId = findViewById(R.id.idforclient);
         TextView profileage = findViewById(R.id.ageforclient);
+        TextView systemOfRegistration = findViewById(R.id.system_of_registration);
         String name = "";
         String childId = "";
         String dobString;
@@ -445,6 +446,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
+            String systemOfRegistrationText = Utils.getValue(childDetails,Constants.Client.SYSTEM_OF_REGISTRATION, false);
+            if(systemOfRegistrationText != null)
+                 systemOfRegistration.setText(systemOfRegistrationText);
+            else
+                systemOfRegistration.setVisibility(View.GONE);
             dobString = Utils.getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
