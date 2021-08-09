@@ -119,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="MVACC"
-            android:textColor="@color/dark_grey"
+            android:textColor="@color/black"
             android:textSize="@dimen/activity_sub_title_size" />
 
     </LinearLayout>

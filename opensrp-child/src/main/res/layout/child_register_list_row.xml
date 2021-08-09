@@ -65,7 +65,7 @@
                     android:textSize="14sp" />
 
                 <org.smartregister.view.customcontrols.CustomFontTextView
-                    style="@style/CustomFontTextViewStyle.ClientList.Light"
+                    style="@style/CustomFontTextViewStyle.ClientList.Medium"
                     android:id="@+id/system_of_registration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
