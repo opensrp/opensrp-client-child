@@ -313,12 +313,14 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         TextView profilename = Mockito.mock(TextView.class);
         TextView profileOpenSrpId = Mockito.mock(TextView.class);
         TextView profileage = Mockito.mock(TextView.class);
+        TextView systemOfRegistration = Mockito.mock(TextView.class);
         View view = Mockito.mock(View.class);
         ImageView imageView = Mockito.mock(ImageView.class);
         doReturn(profilename).when(baseChildDetailTabbedActivity).findViewById(R.id.name);
         doReturn(profileOpenSrpId).when(baseChildDetailTabbedActivity).findViewById(R.id.idforclient);
         doReturn(profileage).when(baseChildDetailTabbedActivity).findViewById(R.id.ageforclient);
         doReturn(view).when(baseChildDetailTabbedActivity).findViewById(R.id.outOfCatchment);
+        doReturn(systemOfRegistration).when(baseChildDetailTabbedActivity).findViewById(R.id.system_of_registration);
 
         CommonPersonObjectClient commonPersonObjectClient = getChildDetails();
         commonPersonObjectClient.setCaseId(null);
