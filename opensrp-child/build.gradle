@@ -107,7 +107,7 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
 
-    api('org.smartregister:opensrp-client-core:4.3.10-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:4.3.13-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -150,7 +150,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    api('org.smartregister:opensrp-client-growth-monitoring:2.0.5-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-growth-monitoring:2.0.6-SNAPSHOT@aar') {
         transitive = true
 
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
@@ -172,7 +172,7 @@ dependencies {
 
 
     implementation 'com.google.guava:guava:29.0-android'
-    implementation 'id.zelory:compressor:2.1.0'
+    implementation 'id.zelory:compressor:2.1.1'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation "androidx.constraintlayout:constraintlayout:2.0.0"
 
