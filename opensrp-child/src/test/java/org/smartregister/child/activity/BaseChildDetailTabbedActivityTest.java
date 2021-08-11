@@ -309,6 +309,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
 
         TextView profilename = Mockito.mock(TextView.class);
         TextView profileOpenSrpId = Mockito.mock(TextView.class);
@@ -338,6 +339,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
 
         verify(view).setVisibility(View.GONE);
+        verify(systemOfRegistration).setText("MVACC");
         verify(profileOpenSrpId).setText(" id1");
         verify(profilename).setText("John Doe");
         verify(profileage).setText(" 10y");
