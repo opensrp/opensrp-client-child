@@ -50,6 +50,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
@@ -343,6 +344,11 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(profileOpenSrpId).setText(" id1");
         verify(profilename).setText("John Doe");
         verify(profileage).setText(" 10y");
+
+        childDetails.remove(Constants.Client.SYSTEM_OF_REGISTRATION);
+        baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
+        verify(systemOfRegistration).setVisibility(View.GONE);
+
     }
 
     @Test

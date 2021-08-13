@@ -447,7 +447,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 childId = childId.replace("-", "");
             }
             String systemOfRegistrationText = Utils.getValue(childDetails,Constants.Client.SYSTEM_OF_REGISTRATION, false);
-            if(systemOfRegistrationText != null)
+            if(systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
                  systemOfRegistration.setText(systemOfRegistrationText);
             else
                 systemOfRegistration.setVisibility(View.GONE);
