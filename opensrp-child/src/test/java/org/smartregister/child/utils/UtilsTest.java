@@ -495,9 +495,9 @@ public class UtilsTest extends BaseUnitTest {
 
         Assert.assertNotNull(resultRow);
         Assert.assertEquals(2, resultRow.getVirtualChildCount());
-        Assert.assertEquals(android.widget.TextView.class, resultRow.getChildAt(0).getClass());
+        Assert.assertEquals(TextView.class, resultRow.getChildAt(0).getClass());
         Assert.assertEquals(label + ": ", ((TextView) resultRow.getChildAt(0)).getText());
-        Assert.assertEquals(android.widget.TextView.class, resultRow.getChildAt(1).getClass());
+        Assert.assertEquals(TextView.class, resultRow.getChildAt(1).getClass());
         Assert.assertEquals(value, ((TextView) resultRow.getChildAt(1)).getText());
     }
 
