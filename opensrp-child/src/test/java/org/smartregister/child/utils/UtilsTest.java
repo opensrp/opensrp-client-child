@@ -3,6 +3,7 @@ package org.smartregister.child.utils;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -69,6 +70,7 @@ public class UtilsTest extends BaseUnitTest {
 
     @Mock
     private Activity activity;
+
     @Mock
     private AllSharedPreferences allSharedPreferences;
 
@@ -105,6 +107,8 @@ public class UtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(opensrpContext).applicationContext();
 
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
 
@@ -486,8 +490,6 @@ public class UtilsTest extends BaseUnitTest {
 
     @Test
     public void testGetDataRowWithNullTableRowCreatesNewRowWithLabelAndValueTextViews() {
-        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(opensrpContext).applicationContext();
-
         String label = "aLabel";
         String value = "aValue";
 
@@ -499,6 +501,30 @@ public class UtilsTest extends BaseUnitTest {
         Assert.assertEquals(label + ": ", ((TextView) resultRow.getChildAt(0)).getText());
         Assert.assertEquals(TextView.class, resultRow.getChildAt(1).getClass());
         Assert.assertEquals(value, ((TextView) resultRow.getChildAt(1)).getText());
+    }
+
+    @Test
+    public void testGetDataRowWithNullTableRowCreatesNewRowWithLabelAndEditTextViews() {
+        String label = "aLabel";
+        String value = "aValue";
+        String field = "aField";
+
+        TableRow resultRow = Utils.getDataRow(opensrpContext.applicationContext(), label, value, field, null);
+
+        Assert.assertNotNull(resultRow);
+        Assert.assertEquals(2, resultRow.getVirtualChildCount());
+        Assert.assertEquals(TextView.class, resultRow.getChildAt(0).getClass());
+        Assert.assertEquals(label + ": ", ((TextView) resultRow.getChildAt(0)).getText());
+        Assert.assertEquals(EditText.class, resultRow.getChildAt(1).getClass());
+        Assert.assertEquals(value, ((EditText) resultRow.getChildAt(1)).getText().toString());
+    }
+
+    @Test
+    public void testGetDataRowWithContextOnlyCreatesNewEmptyRow() {
+        TableRow resultRow = Utils.getDataRow(opensrpContext.applicationContext());
+
+        Assert.assertNotNull(resultRow);
+        Assert.assertEquals(0, resultRow.getVirtualChildCount());
     }
 
     @Test
