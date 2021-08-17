@@ -3,7 +3,10 @@ package org.smartregister.child.utils;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.TableRow;
 import android.widget.TextView;
+
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -27,7 +30,6 @@ import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
-import org.smartregister.child.BuildConfig;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
@@ -452,10 +454,10 @@ public class UtilsTest extends BaseUnitTest {
 
     @Test
     public void testIsFirstYearVaccineDoneTrue() {
-        DateTime dob  = new DateTime(2019, 2, 8, 0,0);
+        DateTime dob = new DateTime(2019, 2, 8, 0, 0);
 
         HashMap<String, Object> sch1 = new HashMap<>();
-        sch1.put("date", new DateTime(2019, 2, 8, 0,0));
+        sch1.put("date", new DateTime(2019, 2, 8, 0, 0));
         sch1.put("vaccine", VaccineRepo.Vaccine.opv0);
         sch1.put("alert", null);
         sch1.put("status", "done");
@@ -468,10 +470,10 @@ public class UtilsTest extends BaseUnitTest {
 
     @Test
     public void testIsFirstYearVaccineDoneFalse() {
-        DateTime dob  = new DateTime(2019, 2, 8, 0,0);
+        DateTime dob = new DateTime(2019, 2, 8, 0, 0);
 
         HashMap<String, Object> sch1 = new HashMap<>();
-        sch1.put("date", new DateTime(2019, 2, 8, 0,0));
+        sch1.put("date", new DateTime(2019, 2, 8, 0, 0));
         sch1.put("vaccine", VaccineRepo.Vaccine.opv0);
         sch1.put("alert", null);
         sch1.put("status", "due");
@@ -482,4 +484,44 @@ public class UtilsTest extends BaseUnitTest {
         Assert.assertFalse(Utils.isAllVaccinesDoneWithIn(schedules, dob, 0, 365));
     }
 
+    @Test
+    public void testGetDataRowWithNullTableRowCreatesNewRowWithLabelAndValueTextViews() {
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(opensrpContext).applicationContext();
+
+        String label = "aLabel";
+        String value = "aValue";
+
+        TableRow resultRow = Utils.getDataRow(opensrpContext.applicationContext(), label, value, null);
+
+        Assert.assertNotNull(resultRow);
+        Assert.assertEquals(2, resultRow.getVirtualChildCount());
+        Assert.assertEquals(android.widget.TextView.class, resultRow.getChildAt(0).getClass());
+        Assert.assertEquals(label + ": ", ((TextView) resultRow.getChildAt(0)).getText());
+        Assert.assertEquals(android.widget.TextView.class, resultRow.getChildAt(1).getClass());
+        Assert.assertEquals(value, ((TextView) resultRow.getChildAt(1)).getText());
+    }
+
+    @Test
+    public void testGetWeeksDueWithNullDateReturnsZero() {
+        DateTime date = new DateTime();
+
+        int weeksDue = Utils.getWeeksDue(date);
+        Assert.assertEquals(0, weeksDue);
+    }
+
+    @Test
+    public void testGetWeeksDueWithPastDateReturnsCorrectCount() {
+        DateTime date = new DateTime(2021, 7, 31, 0, 0);
+
+        int weeksDue = Utils.getWeeksDue(date);
+        Assert.assertEquals(weeksDue, 2);
+    }
+
+    @Test
+    public void testGetWeeksDueWithFutureDateReturnsCorrectCount() {
+        DateTime date = new DateTime(2021, 9, 27, 0, 0);
+
+        int weeksDue = Utils.getWeeksDue(date);
+        Assert.assertEquals(weeksDue, 5);
+    }
 }
