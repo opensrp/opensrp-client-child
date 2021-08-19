@@ -316,6 +316,7 @@
     <string name="_1_year_after_tt_3"> 1 Year After TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 Year After TT 4 </string>
     <string name="move_to_catchment">Move to My\nCatchment</string>
+    <string name="enroll_caregiver">ENROLL CAREGIVER</string>
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
     <string name="system_id_colon">System ID :</string>
     <string name="zeir_id">System ID</string>
@@ -380,6 +381,7 @@
     <string name="loading_form_message">Please wait as we load your form...</string>
     <string name="save_changes">Save Changes</string>
     <string name="record">سجل</string>
+
     <string name="end_date_required">End date is required</string>
     <string name="start_date_required">Start date is required</string>
 </resources>

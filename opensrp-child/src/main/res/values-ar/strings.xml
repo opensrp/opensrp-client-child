@@ -180,11 +180,19 @@
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
     <string name="change_status">تغيير الوضعية</string>
+<<<<<<< HEAD
     <string name="write_passcode">اكتب رمز المرور</string>
     <string name="read_from_card">قراءة البطاقة</string>
     <string name="write_to_card">كتابة على البطاقة</string>
     <string name="verify_caregiver">تحقق من مقدم الرعاية الصحية</string>
     <string name="blacklist_card">بطاقة في القائمة السوداء</string>
+=======
+    <string name="write_passcode">كتابة رمز المرور</string>
+    <string name="read_from_card">قراءة البطاقة</string>
+    <string name="write_to_card">كتابة على البطاقة</string>
+    <string name="verify_caregiver">التحقق من الحاضن </string>
+    <string name="blacklist_card">إدراج البطاقة في القائمة السوداء</string>
+>>>>>>> Update translations
     <string name="title_activity_stock_control">نشاط مراقبة المخزون</string>
     <string name="device_timezone_changed">لقد تغير النطاق الزمني للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="device_time_changed">لقد تغير وقت للجهاز.الرجاء تسجيل الدخول.</string>
@@ -312,7 +320,12 @@
     <string name="_1_year_after_tt_3"> 1 سنة بعد TT 3</string>
     <string name="_1_year_after_tt_4"> 1 سنة بعد TT 4</string>
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
+<<<<<<< HEAD
     <string name="activate_new_card">تنشيط البطاقة</string>
+=======
+    <string name="enroll_caregiver">تسجيل الحاضن</string>
+    <string name="activate_new_card">تسجيل بطاقة جديدة</string>
+>>>>>>> Update translations
     <string name="system_id_colon">معرف النظام :</string>
     <string name="zeir_id">معرف النظام</string>
     <string name="age_colon">العمر :</string>
@@ -370,8 +383,11 @@
     <string name="booster_immunizations">التحصينات المنشطة</string>
     <string name="reason_for_defaulting">سجل سبب الخطأ</string>
 
-    <string name="next">التالي</string>
-    <string name="loading_form_message">يرجى الانتظار حتى نقوم بتحميل النموذج الخاص بك ...</string>
-    <string name="save_changes">حفظ التغييرات</string>
+    <string name="next">التالية</string>
+    <string name="loading_form_message">برجى الإنتظار لحين تحميل الإستمارة</string>
+    <string name="save_changes">حفظ</string>
     <string name="record">سجل</string>
+
+    <string name="end_date_required">تاريخ الانتهاء مطلوب</string>
+    <string name="start_date_required">تاريخ البدء مطلوب</string>
 </resources>
