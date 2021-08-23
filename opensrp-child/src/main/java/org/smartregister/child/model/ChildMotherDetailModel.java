@@ -207,7 +207,11 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
 
     @Override
     public int compareTo(ChildMotherDetailModel childMotherDetailModel) {
-        return this.getZeirId().compareTo(childMotherDetailModel.getZeirId());
+        if(this.getZeirId() != null &&  childMotherDetailModel.getZeirId() != null)
+            return this.getZeirId().compareTo(childMotherDetailModel.getZeirId());
+        else
+            return 0;
+
     }
 
     public void setMotherJson(JSONObject motherJson) {
