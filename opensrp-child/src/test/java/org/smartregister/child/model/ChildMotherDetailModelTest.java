@@ -90,6 +90,12 @@ public class ChildMotherDetailModelTest {
                 Assert.assertEquals(attributes.getString(Constants.Client.LOST_TO_FOLLOW_UP), model.getLostFollowUp());
                 Assert.assertEquals(motherJson.getString(Constants.Client.FIRST_NAME), model.getMotherFirstName());
                 Assert.assertEquals(motherJson.getString(Constants.Client.LAST_NAME), model.getMotherLastName());
+                if(i ==1)
+                {
+                    ChildMotherDetailModel model2 = new ChildMotherDetailModel(childJson, motherJson);
+                    model2.setZeirId(null);
+                    Assert.assertEquals(0,model.compareTo(model2));
+                }
             }
         }
     }
