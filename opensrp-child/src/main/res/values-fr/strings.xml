@@ -157,18 +157,18 @@
     <string name="card_id_hint">Numero Carte </string>
     <string name="first_name">Prénom</string>
     <string name="first_name_hint">Prénom</string>
-    <string name="last_name">Nom de famille</string>
-    <string name="last_name_hint">Nom de famille</string>
+    <string name="last_name">Nom</string>
+    <string name="last_name_hint">Nom</string>
     <string name="mother_guardian_name">Nom de la mère/gardienne</string>
     <string name="mother_guardian_name_hint">Nom de la mère/gardienne</string>
     <string name="mother_guardian_first_name_hint">Nom de la mère / du tuteur</string>
     <string name="mother_guardian_last_name_hint">Nom de famille de la mère / du tuteur</string>
     <string name="mother_guardian_nrc">Nom de la mère/gardienne</string>
     <string name="mother_guardian_nrc_hint">CNE de la mère/du tuteur</string>
-    <string name="mother_guardian_phone_number">Numéro du téléphone de la mère / du tuteur</string>
-    <string name="mother_guardian_phone_number_hint">Numéro du téléphone de la mère / du tuteur</string>
+    <string name="mother_guardian_phone_number">Numéro CNE de la mère/gardienne</string>
+    <string name="mother_guardian_phone_number_hint">Numéro CNE de la mère/gardienne</string>
     <string name="date_birth_range">Période de naissance</string>
-    <string name="start_date_hint">Date de début</string>
+    <string name="start_date_hint">Selectionnez la date de début</string>
     <string name="end_date_hint">Selectionnez la date de fin</string>
     <string name="update_search_params">Veuillez mettre à jour au moin un paramètre de recherche</string>
     <string name="no_vaccine_record_found">Aucun dossier d\'immunisation trouvé</string>
@@ -180,7 +180,11 @@
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
     <string name="change_status">Changer le statut</string>
+    <string name="write_passcode">Écrire le code d\'accès</string>
+    <string name="read_from_card">Lire la carte</string>
     <string name="write_to_card">Enregistrer sur la carte</string>
+    <string name="verify_caregiver">Vérifier l\'aide soignant</string>
+    <string name="blacklist_card">Ajouter la carte à la liste noire</string>
     <string name="title_activity_stock_control">ActivitéGestionStock</string>
     <string name="device_timezone_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
     <string name="device_time_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
@@ -206,7 +210,7 @@
     <string name="searching_dialog_message">Veuillez patienter</string>
     <string name="move_to_catchment_dialog_title">En marche...</string>
     <string name="move_to_catchment_dialog_message">Veuillez patienter</string>
-    <string name="send_report_warning">Envoyer le rapport du %1$s?\nDate: %2$s\nUtilisateur: %3$s</string>
+    <string name="send_report_warning">Envoyer le %1$s rapport?\nDate: %2$s\nUtilisateur: %3$s</string>
     <string name="send">Envoyer</string>
     <string name="n_a">N/A</string>
     <string name="confirm_button_label">Confirmer</string>
@@ -308,7 +312,7 @@
     <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 An Après TT 4 </string>
     <string name="move_to_catchment">Aller à ma zone\nde captage</string>
-    <string name="activate_new_card">ACTIVER NOUVELLE CARTE</string>
+    <string name="activate_new_card">ACTIVER LA CARTE</string>
     <string name="system_id_colon">ID Système :</string>
     <string name="zeir_id">ID Système</string>
     <string name="age_colon">Âge : </string>
@@ -328,7 +332,7 @@
 
     <string name="mother_name">M/G: %1$s</string>
     <string name="child_name">\"B/o %1$s</string>
-    <string name="str_page_info">Page %1$d de %2$d</string>
+    <string name="str_page_info">Page %1$d sur %2$d</string>
     <string name="dismiss_lookup">Confirmer</string>
     <string name="service_point">Point de service: %1$s</string>
     <string name="record_growth_details"> Enregistrez au moins la croissance ou la hauteur</string>
@@ -344,9 +348,30 @@
     <string name="permanently">Définitivement</string>
     <string name="temporarily">Temporairement</string>
     <string name="choose_how">Choisissez comment</string>
+    <string name="report_lost_card">Signaler une carte perdue ou endommagée</string>
+    <string name="report_lost_dialog_title">Signaler une carte perdue ou endommagée ?</string>
+    <string name="report_lost_card_dialog_message">Signalez la carte enfant comme perdue ou endommagée. Une nouvelle carte sera commandée pour l\'enfant</string>
+    <string name="card_reported_as_lost">Carte signalée comme perdue ou endommagée. Une nouvelle carte sera commandée</string>
+    <string name="new_card_ordered">Signaler carte perdue ou endommagée \n (nouvelle carte en commande)</string>
+    <string name="new_card_to_be_delivered">Une nouvelle carte est en commande et vous sera livrée après impression</string>
+    <string name="card_ordered_with_date">Carte commandée : 1%1$s</string>
+    <string name="compliance">Conformité</string>
+    <string name="number_missed">1%d manqué</string>
+    <string name="recurring_services_provided">Autres services fournis</string>
+    <string name="deworming">Déparasitage</string>
+    <string name="itn">ITNs</string>
+    <string name="vit_a">Dose de Vitamine A</string>
+    <string name="fully_immunized_label_u1">U1 entièrement immunisé</string>
+    <string name="fully_immunized_label_u2">U2 entièrement immunisé</string>
+    <string name="collect_biometrics">Biométrie</string>
 
-    <string name="next">Suivante</string>
-    <string name="loading_form_message">Veuillez patienter pendant que nous chargeons votre formulaire ...</string>
-    <string name="save_changes">Modifier</string>
+    <string name="record_booster_immunizations">Enregistrement de vaccinations de rappel</string>
+    <string name="maximum_extra_vaccines_reached">Vous ne pouvez enregistrer qu\'un maximum de 10 vaccins</string>
+    <string name="booster_immunizations">Immunisations de rappel</string>
+    <string name="reason_for_defaulting">Enregistrer la raison du défaut</string>
+
+    <string name="next">Suivant</string>
+    <string name="loading_form_message">Veuillez patienter pendant que nous chargeons votre formulaire...</string>
+    <string name="save_changes">Sauvegarder les modifications</string>
     <string name="record">Enregistrer</string>
 </resources>
