@@ -93,4 +93,33 @@ public class ChildMotherDetailModelTest {
             }
         }
     }
+
+    @Test
+    public void testChildModelComparision() throws JSONException
+    {
+        JSONArray searchResults = new JSONArray(searchResponse);
+
+            JSONObject childJson = searchResults.getJSONObject(0);
+            JSONObject identifiers = childJson.getJSONObject(Constants.Client.IDENTIFIERS);
+
+            if (identifiers.has(Constants.KEY.ZEIR_ID)) {
+                JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
+                JSONObject motherJson = ChildJsonFormUtils.getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
+
+
+                ChildMotherDetailModel motherDetailModel = new ChildMotherDetailModel(childJson,motherJson );
+                ChildMotherDetailModel motherDetailModelwithNull = new ChildMotherDetailModel(childJson, motherJson);
+                motherDetailModel.setZeirId("12345");
+                motherDetailModelwithNull.setZeirId(null);
+
+                Assert.assertEquals(0, motherDetailModel.compareTo(motherDetailModelwithNull));
+                ChildMotherDetailModel motherDetailModel2 = new ChildMotherDetailModel(childJson, motherJson);
+                motherDetailModel2.setZeirId("123456");
+
+                Assert.assertEquals(-1, motherDetailModel.compareTo(motherDetailModel2));
+
+            }
+
+
+    }
 }
