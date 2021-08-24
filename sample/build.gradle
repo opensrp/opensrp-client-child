@@ -117,6 +117,7 @@ android {
         exclude 'META-INF/LGPL2.1'
         exclude 'LICENSE.txt'
         exclude 'androidsupportmultidexversion.txt'
+        exclude 'META-INF/INDEX.LIST'
     }
 
     lintOptions {
