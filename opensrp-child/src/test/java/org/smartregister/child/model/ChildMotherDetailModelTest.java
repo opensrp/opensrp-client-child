@@ -103,7 +103,6 @@ public class ChildMotherDetailModelTest {
             JSONObject identifiers = childJson.getJSONObject(Constants.Client.IDENTIFIERS);
 
             if (identifiers.has(Constants.KEY.ZEIR_ID)) {
-                JSONObject attributes = childJson.getJSONObject(Constants.Client.ATTRIBUTES);
                 JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
                 JSONObject motherJson = ChildJsonFormUtils.getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
 
