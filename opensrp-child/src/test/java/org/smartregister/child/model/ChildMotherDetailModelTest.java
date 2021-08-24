@@ -90,13 +90,37 @@ public class ChildMotherDetailModelTest {
                 Assert.assertEquals(attributes.getString(Constants.Client.LOST_TO_FOLLOW_UP), model.getLostFollowUp());
                 Assert.assertEquals(motherJson.getString(Constants.Client.FIRST_NAME), model.getMotherFirstName());
                 Assert.assertEquals(motherJson.getString(Constants.Client.LAST_NAME), model.getMotherLastName());
-                if(i ==1)
-                {
-                    ChildMotherDetailModel model2 = new ChildMotherDetailModel(childJson, motherJson);
-                    model2.setZeirId(null);
-                    Assert.assertEquals(0,model.compareTo(model2));
-                }
             }
         }
+    }
+
+    @Test
+    public void testChildModelComparision() throws JSONException
+    {
+        JSONArray searchResults = new JSONArray(searchResponse);
+
+            JSONObject childJson = searchResults.getJSONObject(0);
+            JSONObject identifiers = childJson.getJSONObject(Constants.Client.IDENTIFIERS);
+
+            if (identifiers.has(Constants.KEY.ZEIR_ID)) {
+                JSONObject attributes = childJson.getJSONObject(Constants.Client.ATTRIBUTES);
+                JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
+                JSONObject motherJson = ChildJsonFormUtils.getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
+
+
+                ChildMotherDetailModel motherDetailModel = new ChildMotherDetailModel(childJson,motherJson );
+                ChildMotherDetailModel motherDetailModelwithNull = new ChildMotherDetailModel(childJson, motherJson);
+                motherDetailModel.setZeirId("12345");
+                motherDetailModelwithNull.setZeirId(null);
+
+                Assert.assertEquals(0, motherDetailModel.compareTo(motherDetailModelwithNull));
+                ChildMotherDetailModel motherDetailModel2 = new ChildMotherDetailModel(childJson, motherJson);
+                motherDetailModel2.setZeirId("123456");
+
+                Assert.assertEquals(-1, motherDetailModel.compareTo(motherDetailModel2));
+
+            }
+
+
     }
 }
