@@ -21,6 +21,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     private String motherFirstName;
     private String motherLastName;
     private String inActive;
+    private String systemOfRegistration;
     private String lostFollowUp;
     private JSONObject childJson;
     private JSONObject motherJson;
@@ -34,7 +35,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     public Object[] getColumnValuesFromJson() {
         return new Object[]{
                 getChildBaseEntityId(), getRelationalId(), getMotherBaseEntityId(), getFatherBaseEntityId(), getFirstName(), getLastName(), getGender(), getDateOfBirth(),
-                getZeirId(), getMotherFirstName(), getMotherLastName(), getInActive(), getLostFollowUp()
+                getZeirId(), getMotherFirstName(), getMotherLastName(), getInActive(), getLostFollowUp(), getSystemOfRegistration()   
         };
     }
 
@@ -48,6 +49,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
             setDateOfBirth(getStringValue(Constants.Client.BIRTHDATE, true));
             String motherRelationId = getRelationalId(Constants.KEY.MOTHER);
             setRelationalId(motherRelationId);
+            setSystemOfRegistration(getStringValue(Constants.Client.SYSTEM_OF_REGISTRATION,true));
             setMotherBaseEntityId(motherRelationId);
             setFatherBaseEntityId(getRelationalId(Constants.KEY.FATHER));
             setZeirId(getStringFromJson(Constants.Client.IDENTIFIERS, Constants.KEY.ZEIR_ID));
@@ -140,6 +142,10 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
         return dateOfBirth;
     }
 
+    public String getSystemOfRegistration()
+    {
+        return  systemOfRegistration;
+    }
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
@@ -167,7 +173,10 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
     public void setMotherLastName(String motherLastName) {
         this.motherLastName = motherLastName;
     }
-
+    public void setSystemOfRegistration(String systemOfRegistration)
+    {
+        this.systemOfRegistration = systemOfRegistration;
+    }
     public void setChildJson(JSONObject ClientJson) {
         this.childJson = ClientJson;
     }

@@ -309,16 +309,19 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
 
         TextView profilename = Mockito.mock(TextView.class);
         TextView profileOpenSrpId = Mockito.mock(TextView.class);
         TextView profileage = Mockito.mock(TextView.class);
+        TextView systemOfRegistration = Mockito.mock(TextView.class);
         View view = Mockito.mock(View.class);
         ImageView imageView = Mockito.mock(ImageView.class);
         doReturn(profilename).when(baseChildDetailTabbedActivity).findViewById(R.id.name);
         doReturn(profileOpenSrpId).when(baseChildDetailTabbedActivity).findViewById(R.id.idforclient);
         doReturn(profileage).when(baseChildDetailTabbedActivity).findViewById(R.id.ageforclient);
         doReturn(view).when(baseChildDetailTabbedActivity).findViewById(R.id.outOfCatchment);
+        doReturn(systemOfRegistration).when(baseChildDetailTabbedActivity).findViewById(R.id.system_of_registration);
 
         CommonPersonObjectClient commonPersonObjectClient = getChildDetails();
         commonPersonObjectClient.setCaseId(null);
@@ -336,9 +339,15 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
 
         verify(view).setVisibility(View.GONE);
+        verify(systemOfRegistration).setText("MVACC");
         verify(profileOpenSrpId).setText(" id1");
         verify(profilename).setText("John Doe");
         verify(profileage).setText(" 10y");
+
+        childDetails.remove(Constants.Client.SYSTEM_OF_REGISTRATION);
+        baseChildDetailTabbedActivity.renderProfileWidget(childDetails);
+        verify(systemOfRegistration).setVisibility(View.GONE);
+
     }
 
     @Test

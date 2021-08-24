@@ -192,6 +192,9 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
         }
 
+        String systemOfRegistration = Utils.getValue(pc.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION,false);
+        fillValue(viewHolder.systemOfRegistration,systemOfRegistration != null ? systemOfRegistration: "");
+
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
         if (StringUtils.isNotBlank(motherName)) {
@@ -329,6 +332,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         private View recordVaccination;
         private View showCompliance;
         private View registerColumns;
+        private TextView systemOfRegistration;
 
         RegisterViewHolder(View itemView) {
             super(itemView);
@@ -343,6 +347,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             recordVaccination = itemView.findViewById(R.id.record_vaccination);
             showCompliance = itemView.findViewById(R.id.ll_compliance);
             registerColumns = itemView.findViewById(R.id.register_columns);
+            systemOfRegistration = itemView.findViewById(R.id.system_of_registration);
 
         }
     }

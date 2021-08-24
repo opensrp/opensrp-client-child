@@ -161,6 +161,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private TextView ageTV;
     private TextView nameTV;
     private TextView childIdTV;
+    private TextView systemOfRegistrationTV;
     private LinearLayout vaccineGroupCanvasLL;
     private LinearLayout profileNamelayout;
     private LinearLayout serviceGroupCanvasLL;
@@ -249,6 +250,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         profileImageIV = findViewById(R.id.profile_image_iv);
         nameTV = findViewById(R.id.name_tv);
         childIdTV = findViewById(R.id.child_id_tv);
+        systemOfRegistrationTV = findViewById(R.id.system_of_registration);
         floatingActionButton = findViewById(R.id.fab);
         someLayout = findViewById(R.id.content_base_inner);
         nextAppointmentDateView = findViewById(R.id.next_appointment_date);
@@ -403,6 +405,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         ((TextView) toolbar.findViewById(R.id.title)).setText(getActivityTitle());//Called differently Fixes weird bug
 
         updateAgeViews();
+        updateSystemOfRegistration();
         updateChildIdViews();
         updateNextAppointmentDateView();
 
@@ -486,6 +489,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
+    }
+
+    private void updateSystemOfRegistration()
+    {
+        String systemOfRegistration = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION, false);
+        systemOfRegistrationTV.setText(systemOfRegistration!= null ? systemOfRegistration : "");
     }
 
     private void updateNextAppointmentDateView() {
