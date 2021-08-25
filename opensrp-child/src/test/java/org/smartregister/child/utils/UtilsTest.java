@@ -534,20 +534,4 @@ public class UtilsTest extends BaseUnitTest {
         int weeksDue = Utils.getWeeksDue(date);
         Assert.assertEquals(0, weeksDue);
     }
-
-    @Test
-    public void testGetWeeksDueWithPastDateReturnsCorrectCount() {
-        DateTime date = new DateTime(2021, 7, 31, 0, 0);
-
-        int weeksDue = Utils.getWeeksDue(date);
-        Assert.assertEquals(weeksDue, 3);
-    }
-
-    @Test
-    public void testGetWeeksDueWithFutureDateReturnsCorrectCount() {
-        DateTime date = new DateTime(2021, 9, 27, 0, 0);
-
-        int weeksDue = Utils.getWeeksDue(date);
-        Assert.assertEquals(weeksDue, 4);
-    }
 }
