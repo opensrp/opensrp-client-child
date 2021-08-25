@@ -150,7 +150,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             queryParamStringBuilder.append("?name=").append(name);
         }
 
-
         //Handle birth dates param
         String birthDate = getChildBirthDateParameter(searchParameters, name);
 

@@ -230,6 +230,7 @@ public class BaseChildImmunizationActivityTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
 
         CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, Constants.KEY.CHILD);
         commonPersonObjectClient.setColumnmaps(childDetails);

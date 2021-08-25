@@ -65,6 +65,17 @@
                     android:textSize="14sp" />
 
                 <org.smartregister.view.customcontrols.CustomFontTextView
+                    style="@style/CustomFontTextViewStyle.ClientList.Bold"
+                    android:id="@+id/system_of_registration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MVACC"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@+id/child_mothername"
+                    android:textColor="@color/gender_neutral_green"
+                    android:textSize="14sp" />
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/child_age"
                     style="@style/CustomFontTextViewStyle.ClientList.Light"
                     android:layout_width="wrap_content"

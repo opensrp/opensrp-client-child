@@ -32,7 +32,6 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.AppProperties;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -117,7 +116,9 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         linearLayout.addView(showCompliance);
         View registerColumns = new View(RuntimeEnvironment.application);
         registerColumns.setId(R.id.register_columns);
-        linearLayout.addView(registerColumns);
+        TextView systemOfRegistration = new TextView(RuntimeEnvironment.application);
+        systemOfRegistration.setId(R.id.system_of_registration);
+        linearLayout.addView(systemOfRegistration);
 
         Mockito.doReturn(opensrpContext).when(childLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
@@ -142,7 +143,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         details.put(Constants.KEY.LAST_NAME, "Doe");
         details.put(Constants.KEY.ZEIR_ID, "2120");
         details.put(Constants.KEY.DOB, "2020-09-09");
-
+        details.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
         details.put(Constants.KEY.MOTHER_FIRST_NAME, "Jane");
         details.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
 
@@ -158,6 +159,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Assert.assertEquals(details.get(Constants.KEY.ZEIR_ID), childOpensrpID.getText().toString());
         Assert.assertEquals(String.format(opensrpContext.applicationContext().getString(R.string.mother_name), details.get(Constants.KEY.MOTHER_FIRST_NAME) + " " + details.get(Constants.KEY.MOTHER_LAST_NAME)), childMotherName.getText().toString());
         Assert.assertEquals(details.get(Constants.KEY.FIRST_NAME) + " " + details.get(Constants.KEY.LAST_NAME), txtPatientName.getText().toString());
+        Assert.assertEquals(details.get(Constants.Client.SYSTEM_OF_REGISTRATION),systemOfRegistration.getText());
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
 

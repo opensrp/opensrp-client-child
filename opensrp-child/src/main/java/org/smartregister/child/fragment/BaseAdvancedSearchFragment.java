@@ -210,7 +210,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     protected void recordService(String openSrpId) {
         try {
             ChildJsonFormUtils.startForm(requireActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
-                    ChildLibrary.getInstance().getLocationPickerView(requireActivity()).getSelectedItem());
+                  ChildJsonFormUtils.getProviderLocationId(requireContext()));
         } catch (Exception e) {
             Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
             Timber.e(e, "Error recording Out of Catchment Service");
@@ -334,6 +334,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 } catch (ParseException e) {
                     Timber.e(e, "Error setting end date minimum to start date");
                 }
+                startDate.setError(null);
             }
         });
         startDateDatePicker = new AdvanceSearchDatePickerDialog(startDate);
@@ -599,6 +600,16 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
 
         Map<String, String> editMap = getSearchMap(!isLocal);
 
+        //Do not search when only one of the birth dates are provided
+        if (editMap.containsKey(START_DATE) && !editMap.containsKey(END_DATE)){
+            endDate.setError(getString(R.string.end_date_required));
+            return;
+        }
+        if (editMap.containsKey(END_DATE) && !editMap.containsKey(START_DATE)){
+            startDate.setError(getString(R.string.start_date_required));
+            return;
+        }
+
         ((ChildAdvancedSearchContract.Presenter) presenter).search(editMap, isLocal);
     }
 
@@ -736,7 +747,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 startDateDatePicker.setCurrentDate(currentDate);
                 startDateDatePicker.showDialog();
                 endDate.setEnabled(true);
+                startDate.setError(null);
             } else if (editText.getTag(R.id.type).equals(END_DATE)) {
+                endDate.setError(null);
                 endDateDatePicker.setCurrentDate(currentDate);
                 endDateDatePicker.showDialog();
             }

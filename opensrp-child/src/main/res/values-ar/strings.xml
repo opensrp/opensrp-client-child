@@ -49,6 +49,7 @@
     <string name="woman_last_vaccine">اللقاح الأخير</string>
     <string name="woman_next_vaacine">اللقاح المقبل المستحق</string>
     <string name="woman_alphabetical_sort">(الاسم) الأبجدي</string>
+    <string name="id_sort">معرف النظام</string>
     <string name="woman_details_title">مواصفات المرأة</string>
     <string name="day">اليوم\n</string>
     <string name="bcg">لقاح السل\n</string>
@@ -152,7 +153,7 @@
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
     <string name="opensrp_id">معرف النظام</string>
-    <string name="iz_id_hint">رقم الهوية</string>
+    <string name="iz_id_hint">System ID</string>
     <string name="card_id_hint">رقم بطاقة</string>
     <string name="first_name">الاسم</string>
     <string name="first_name_hint">الاسم</string>
@@ -160,12 +161,12 @@
     <string name="last_name_hint">الاسم العائلى</string>
     <string name="mother_guardian_name">اسم الأم/ الحاضن</string>
     <string name="mother_guardian_name_hint">اسم الأم أو الحاضن</string>
-    <string name="mother_guardian_first_name_hint">اسم الأم/ الحاضن</string>
-    <string name="mother_guardian_last_name_hint">الاسم  العائلي للأم/الحاضن</string>
+    <string name="mother_guardian_first_name_hint">الأم / الوصي الاسم الأول</string>
+    <string name="mother_guardian_last_name_hint">اسم الأم / ولي الأمر</string>
     <string name="mother_guardian_nrc">الرقم الوطنى للتعريف للأم\الحاضن</string>
     <string name="mother_guardian_nrc_hint">الرقم الوطنى للتعريف للأم أو الحاضن</string>
     <string name="mother_guardian_phone_number">رقم هاتف الأم /الحاضن</string>
-    <string name="mother_guardian_phone_number_hint">رقم هاتف الأم /الحاضن</string>
+    <string name="mother_guardian_phone_number_hint">رقم هاتف الأم أو الحاضن</string>
     <string name="date_birth_range">فئات تاريخ الميلاد</string>
     <string name="start_date_hint">اختر تاريخ البدء</string>
     <string name="end_date_hint">اختر تاريخ الانتهاء</string>
@@ -179,22 +180,26 @@
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
     <string name="change_status">تغيير الوضعية</string>
+    <string name="write_passcode">اكتب رمز المرور</string>
+    <string name="read_from_card">قراءة البطاقة</string>
     <string name="write_to_card">كتابة على البطاقة</string>
+    <string name="verify_caregiver">تحقق من مقدم الرعاية الصحية</string>
+    <string name="blacklist_card">بطاقة في القائمة السوداء</string>
     <string name="title_activity_stock_control">نشاط مراقبة المخزون</string>
     <string name="device_timezone_changed">لقد تغير النطاق الزمني للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="device_time_changed">لقد تغير وقت للجهاز.الرجاء تسجيل الدخول.</string>
     <string name="side_nav_hia2">Reports</string>
     <string name="hia2_daily_tallies">العد اليومي</string>
-    <string name="hia2_draft_monthly">مسودة التقرير الشهري</string>
-    <string name="hia2_draft_monthly_with_count">مسودة التقرير الشهري (%1$d)</string>
-    <string name="hia2_sent_monthly">التقارير الشهرية المرسلة</string>
+    <string name="hia2_draft_monthly">صياغ شهري</string>
+    <string name="hia2_draft_monthly_with_count">صياغ شهري (%1$d)</string>
+    <string name="hia2_sent_monthly">أرسل شهريا</string>
     <string name="start_new_report">بدء تقرير جديد</string>
     <string name="no_draft_reports">لا توجد مسودات تقرير</string>
     <string name="no_monthly_ready">لا يوجد تقرير شهري جاهز للإكمال</string>
     <string name="reports_available">تقارير متوفرة</string>
     <string name="sent_reports_">التقارير المرسلة>%1$s</string>
     <string name="submitted_by_">تم ارسال %1$s بواسطة %2$s</string>
-    <string name="sent_by">تم الإرسال بتاريخ %1$s بواسطة %2$s</string>
+    <string name="sent_by">أرسل %1$s بواسطة %2$s</string>
     <string name="daily_tally_">العد اليومي > %1$s</string>
     <string name="sync_failed_no_internet">فشل التزامن. تحقق من اتصالك بالإنترنت.</string>
     <string name="loading">جارى التحميل</string>
@@ -205,8 +210,8 @@
     <string name="searching_dialog_message">الرجاء الانتظار</string>
     <string name="move_to_catchment_dialog_title">جارى التحرك…</string>
     <string name="move_to_catchment_dialog_message">الرجاء الانتظار</string>
-    <string name="send_report_warning">إرسال تقرير %1$s؟\n التاريخ:%2$s\nالمستخدم:%3$s</string>
-    <string name="send">إرسال</string>
+    <string name="send_report_warning">إرسل%1$sالتقرير؟\n التاريخ:%2$s\nالمستخدم:%3$s</string>
+    <string name="send">أُرسل</string>
     <string name="n_a">لاينطبق</string>
     <string name="confirm_button_label">تأكيد</string>
     <string name="due_label">مستحق</string>
@@ -307,7 +312,7 @@
     <string name="_1_year_after_tt_3"> 1 سنة بعد TT 3</string>
     <string name="_1_year_after_tt_4"> 1 سنة بعد TT 4</string>
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
-    <string name="activate_new_card">تسجيل بطاقة جديدة</string>
+    <string name="activate_new_card">تنشيط البطاقة</string>
     <string name="system_id_colon">معرف النظام :</string>
     <string name="zeir_id">معرف النظام</string>
     <string name="age_colon">العمر :</string>
@@ -327,7 +332,7 @@
 
     <string name="mother_name">الأم/ الحاضن: %1$s</string>
     <string name="child_name">\"B/o %1$s</string>
-    <string name="str_page_info">\u200E%2$d \u200Eمن \u200E%1$d \u200Eصفحة</string>
+    <string name="str_page_info">الصفحة %1$d من %2$d</string>
     <string name="dismiss_lookup">حفظ</string>
     <string name="service_point">نقطة خدمة: %1$s</string>
     <string name="record_growth_details"> سجل على الأقل النمو أو الارتفاع</string>
@@ -343,9 +348,30 @@
     <string name="permanently">إطلاقا</string>
     <string name="temporarily">مؤقتا</string>
     <string name="choose_how">اختر كيف</string>
+    <string name="report_lost_card">الإبلاغ عن البطاقة المفقودة أو التالفة</string>
+    <string name="report_lost_dialog_title">الإبلاغ عن البطاقة المفقودة أو التالفة؟</string>
+    <string name="report_lost_card_dialog_message">الإبلاغ عن بطاقة الطفل مفقودة أو تالفة. سيتم طلب بطاقة جديدة للطفل</string>
+    <string name="card_reported_as_lost">تم الإبلاغ عن البطاقة على أنها ضائعة أو تالفة. سيتم طلب بطاقة جديدة</string>
+    <string name="new_card_ordered">الإبلاغ عن البطاقة المفقودة أو التالفة \ n (بطاقة جديدة عند الطلب)</string>
+    <string name="new_card_to_be_delivered">هناك بطاقة جديدة قيد الطلب وسيتم تسليمها بعد الطباعة.</string>
+    <string name="card_ordered_with_date">تم طلب البطاقة%1$s</string>
+    <string name="compliance">الالتزام</string>
+    <string name="number_missed">%d مفقودة</string>
+    <string name="recurring_services_provided">الخدمات الأخرى المقدمة</string>
+    <string name="deworming">التخلص من الديدان</string>
+    <string name="itn">ITNs</string>
+    <string name="vit_a">جرعة فيتامين أ</string>
+    <string name="fully_immunized_label_u1"> U1 محصن بالكامل</string>
+    <string name="fully_immunized_label_u2">U2 محصن بالكامل</string>
+    <string name="collect_biometrics">القياسات الحيوية</string>
 
-    <string name="next">التالية</string>
-    <string name="loading_form_message">برجى الإنتظار لحين تحميل الإستمارة</string>
-    <string name="save_changes">حفظ</string>
-    <string name="record">Enregistrer</string>
+    <string name="record_booster_immunizations">سجل التحصينات المعززة</string>
+    <string name="maximum_extra_vaccines_reached">يمكنك فقط تسجيل 10 لقاحات كحد أقصى</string>
+    <string name="booster_immunizations">التحصينات المنشطة</string>
+    <string name="reason_for_defaulting">سجل سبب الخطأ</string>
+
+    <string name="next">التالي</string>
+    <string name="loading_form_message">يرجى الانتظار حتى نقوم بتحميل النموذج الخاص بك ...</string>
+    <string name="save_changes">حفظ التغييرات</string>
+    <string name="record">سجل</string>
 </resources>

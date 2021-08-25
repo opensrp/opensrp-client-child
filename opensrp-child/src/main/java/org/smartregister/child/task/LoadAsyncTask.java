@@ -12,6 +12,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.domain.NamedObject;
+import org.smartregister.child.event.DynamicVaccineType;
 import org.smartregister.child.fragment.BaseChildRegistrationDataFragment;
 import org.smartregister.child.fragment.ChildUnderFiveFragment;
 import org.smartregister.child.util.AsyncTaskUtils;
@@ -54,6 +55,10 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     private BaseChildDetailTabbedActivity activity;
     private final BaseChildRegistrationDataFragment childDataFragment;
     private final ChildUnderFiveFragment childUnderFiveFragment;
+    public final boolean showExtraVaccines = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.SHOW_EXTRA_VACCINES, "false"));
+    public final boolean showBoosterImmunizations = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+            .getProperty(ChildAppProperties.KEY.SHOW_BOOSTER_IMMUNIZATIONS, "false"));
 
     public LoadAsyncTask(Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
         this.status = org.smartregister.child.enums.Status.NONE;
@@ -212,6 +217,14 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
             childUnderFiveFragment.hideOrShowRecurringServices();
+
+            if (showExtraVaccines) {
+                childUnderFiveFragment.updateExtraVaccinesView(DynamicVaccineType.PRIVATE_SECTOR_VACCINE, editVaccineMode);
+            }
+
+            if (showBoosterImmunizations) {
+                childUnderFiveFragment.updateExtraVaccinesView(DynamicVaccineType.BOOSTER_IMMUNIZATIONS, editVaccineMode);
+            }
 
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
