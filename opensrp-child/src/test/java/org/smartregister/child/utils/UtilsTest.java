@@ -540,7 +540,7 @@ public class UtilsTest extends BaseUnitTest {
         DateTime date = new DateTime(2021, 7, 31, 0, 0);
 
         int weeksDue = Utils.getWeeksDue(date);
-        Assert.assertEquals(weeksDue, 2);
+        Assert.assertEquals(weeksDue, 3);
     }
 
     @Test
@@ -548,6 +548,6 @@ public class UtilsTest extends BaseUnitTest {
         DateTime date = new DateTime(2021, 9, 27, 0, 0);
 
         int weeksDue = Utils.getWeeksDue(date);
-        Assert.assertEquals(weeksDue, 5);
+        Assert.assertEquals(weeksDue, 4);
     }
 }
