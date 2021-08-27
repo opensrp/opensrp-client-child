@@ -85,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/child_mothername"
                 android:text="MVACC"
+                android:visibility="gone"
                 android:textColor="@color/gender_neutral_green"
                 android:textSize="14sp" />
 

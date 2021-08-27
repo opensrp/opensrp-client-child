@@ -193,7 +193,14 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
         }
 
         String systemOfRegistration = Utils.getValue(pc.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION,false);
-        fillValue(viewHolder.systemOfRegistration,systemOfRegistration != null ? systemOfRegistration: "");
+
+        if(systemOfRegistration != null) {
+            viewHolder.systemOfRegistration.setVisibility(View.VISIBLE);
+            fillValue(viewHolder.systemOfRegistration, systemOfRegistration);
+        }
+        else
+            viewHolder.systemOfRegistration.setVisibility(View.GONE);
+
 
         String motherName = Utils.getValue(pc.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true) + " " +
                 Utils.getValue(pc, Constants.KEY.MOTHER_LAST_NAME, true);
