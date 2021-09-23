@@ -211,7 +211,7 @@ public class Utils extends org.smartregister.util.Utils {
             String providerId = allSharedPreferences.fetchRegisteredANM();
             vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
             vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
-
+            vaccine.setOutreach(vaccine.getLocationId().equals(allSharedPreferences.fetchDefaultLocalityId(providerId))? 0 : 1);
             vaccine.setName(vaccine.getName().trim());
             // Add the vaccine
             vaccineRepository.add(vaccine);
