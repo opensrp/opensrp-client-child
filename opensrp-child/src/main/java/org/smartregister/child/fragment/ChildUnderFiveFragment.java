@@ -73,6 +73,7 @@ import timber.log.Timber;
 import static org.smartregister.child.util.Utils.createGroupNameTextView;
 import static org.smartregister.immunization.util.VaccinatorUtils.dpToPx;
 import static org.smartregister.util.Utils.convertDateFormat;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -353,7 +354,7 @@ public class ChildUnderFiveFragment extends Fragment {
                     serviceGroupCanvasLL.addView(curGroup);
                 }
             } catch (Exception e) {
-                Timber.e(Log.getStackTraceString(e));
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             }
 
             curServiceMode = editServiceMode;

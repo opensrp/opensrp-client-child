@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 01/09/2020.
@@ -87,7 +88,7 @@ public class BaseChildImmunizationPresenter implements ChildImmunizationContract
                 allHeights.add(height);
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return allHeights;
@@ -110,7 +111,7 @@ public class BaseChildImmunizationPresenter implements ChildImmunizationContract
                 commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 
@@ -128,7 +129,7 @@ public class BaseChildImmunizationPresenter implements ChildImmunizationContract
                 allWeights.add(weight);
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return allWeights;

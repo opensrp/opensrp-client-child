@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFragmentModel
         implements ChildAdvancedSearchContract.Model {
@@ -188,7 +189,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
                 editMap.put(END_DATE, desiredDateFormat.format(parsedEndDate));
             }
         } catch (ParseException e) {
-            Timber.e(e, "Error converting dates to right format");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error converting dates to right format");
         }
     }
 

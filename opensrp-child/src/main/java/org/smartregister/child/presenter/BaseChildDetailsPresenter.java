@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class BaseChildDetailsPresenter implements ChildTabbedDetailsContract.Presenter {
 
@@ -49,7 +50,7 @@ public class BaseChildDetailsPresenter implements ChildTabbedDetailsContract.Pre
                     getView().notifyLostCardReported(cardStatusDate);
                 }
             } catch (JSONException e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
     }

@@ -13,6 +13,7 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.child.watchers.LookUpTextWatcher;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by keyman on 11/04/2017.
@@ -33,7 +34,7 @@ public class ChildDatePickerFactory extends DatePickerFactory {
                 editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
             }
         } catch (JSONException e) {
-            Timber.e(e, getClass().getName(), e.toString());
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, getClass().getName(), e.toString());
         }
     }
 }

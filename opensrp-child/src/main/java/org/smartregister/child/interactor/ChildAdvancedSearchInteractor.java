@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 11/04/2019.
@@ -111,7 +112,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
                     }
                     return new Response<>(ResponseStatus.success, childrenJsonArray.toString());
                 } catch (JSONException e) {
-                    Timber.e(e);
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 }
             }
             return childSearchResults;

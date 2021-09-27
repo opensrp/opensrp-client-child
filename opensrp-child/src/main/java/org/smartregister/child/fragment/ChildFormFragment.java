@@ -63,6 +63,7 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.util.Utils.getValue;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
@@ -414,7 +415,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                     try {
                         value = mlsLookupDateFormatter.format(motherDob);
                     } catch (Exception e) {
-                        Timber.e(e, e.toString());
+                        FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, e.toString());
                     }
                 }
             }
@@ -491,7 +492,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
                 spinner.setEnabled(false);
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 

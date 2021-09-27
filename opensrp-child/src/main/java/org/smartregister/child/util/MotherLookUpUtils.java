@@ -23,6 +23,7 @@ import timber.log.Timber;
 
 import static android.view.View.VISIBLE;
 import static org.smartregister.util.Utils.getValue;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by keyman on 26/01/2017.
@@ -107,7 +108,7 @@ public class MotherLookUpUtils {
 
 
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         } finally {
             if (cursor != null) {
                 cursor.close();

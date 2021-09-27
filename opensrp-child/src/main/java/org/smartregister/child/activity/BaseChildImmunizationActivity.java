@@ -125,6 +125,7 @@ import java.util.concurrent.TimeUnit;
 import timber.log.Timber;
 
 import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -587,7 +588,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     serviceGroup.setChildActive(isChildActive);
                     serviceGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Timber.e(e);
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 }
             }
         }
@@ -801,7 +802,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 try {
                     addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
                 } catch (Exception e) {
-                    Timber.e(e);
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 }
             }
         } else {
@@ -810,7 +811,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                     vaccineGroup.setChildActive(isChildActive);
                     vaccineGroup.updateChildsActiveStatus();
                 } catch (Exception e) {
-                    Timber.e(e);
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 }
             }
         }
@@ -1561,7 +1562,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 vaccineGroups.remove(curGroup);
                 addVaccineGroup(Integer.parseInt((String) curGroup.getTag(R.id.vaccine_group_parent_id)), curGroup.getVaccineData(), vaccineList, alerts);
             } catch (Exception e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
     }
@@ -2050,7 +2051,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             ChildJsonFormUtils.convertAndPersistEvent(nextVaccineDateEvent);
 
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 }

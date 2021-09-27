@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -116,7 +117,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 presenter().startForm(formName, entityId, metaData, locationId);
             }
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
@@ -129,7 +130,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
                 presenter().startForm(formName, entityId, metaData, locationId);
             }
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             displayToast(getString(R.string.error_unable_to_start_form));
         }
     }
@@ -193,7 +194,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
                 }
             } catch (Exception e) {
-                Timber.e(Log.getStackTraceString(e));
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             }
         }
     }
@@ -272,7 +273,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
             // mPager.setCurrentItem(ADVANCED_SEARCH_POSITION, false);
             setSelectedBottomBarMenuItem(org.smartregister.child.R.id.action_search);
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 

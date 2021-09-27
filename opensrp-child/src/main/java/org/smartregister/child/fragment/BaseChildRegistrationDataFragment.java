@@ -45,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -85,7 +86,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
         try {
             super.onCreate(savedInstanceState);
         } catch (IllegalStateException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         Form form = getForm();
         setFields(form.getStep1().getFields());
@@ -147,7 +148,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 return AssetHandler.jsonStringToJava(jsonString, Form.class);
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
     }

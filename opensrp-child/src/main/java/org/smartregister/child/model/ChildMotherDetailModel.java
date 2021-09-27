@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.smartregister.child.util.Constants;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel> {
 
@@ -59,7 +60,7 @@ public class ChildMotherDetailModel implements Comparable<ChildMotherDetailModel
             setMotherLastName(getStringValue(Constants.Client.LAST_NAME, false));
 
         } catch (JSONException e) {
-            Timber.e(e, "Error parsing Advanced Search Client JSON");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error parsing Advanced Search Client JSON");
         }
     }
 

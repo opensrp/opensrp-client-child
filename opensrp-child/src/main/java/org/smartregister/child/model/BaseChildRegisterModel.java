@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -124,7 +125,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             }
 
         } catch (JSONException e) {
-            Timber.e(e, "Error processing registration form");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error processing registration form");
         }
         return childEventClientList;
     }
@@ -155,7 +156,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())));
 
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_first_name", childHeadEventClient.getClient().getFirstName(), Calendar.getInstance().getTimeInMillis());
         ChildLibrary.getInstance().context().detailsRepository().add(childClient.getBaseEntityId(), "mother_last_name", childHeadEventClient.getClient().getLastName(), Calendar.getInstance().getTimeInMillis());
@@ -184,7 +185,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
         try {
             formUtils = new FormUtils(Utils.context().applicationContext());
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return formUtils;

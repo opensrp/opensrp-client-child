@@ -86,6 +86,7 @@ import java.util.concurrent.TimeUnit;
 import timber.log.Timber;
 
 import static org.smartregister.immunization.util.VaccinatorUtils.translate;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -226,7 +227,7 @@ public class Utils extends org.smartregister.util.Utils {
                 Utils.postEvent(new ClientDirtyFlagEvent(vaccine.getBaseEntityId(), VaccineIntentService.EVENT_TYPE));
 
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
     }
@@ -431,7 +432,7 @@ public class Utils extends org.smartregister.util.Utils {
                 }
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return clean;
@@ -524,7 +525,7 @@ public class Utils extends org.smartregister.util.Utils {
                     try {
                         date = DateUtil.parseDate(eventDateStr);
                     } catch (ParseException pee) {
-                        Timber.e(pee);
+                        FirebaseCrashlytics.getInstance().recordException(e); Timber.e(pee);
                     }
                 }
             }

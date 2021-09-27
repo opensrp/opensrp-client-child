@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -134,7 +135,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                                 try {
                                     ChildJsonFormUtils.mergeAndSaveClient(baseClient);
                                 } catch (Exception e) {
-                                    Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
+                                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildRegisterInteractor --> mergeAndSaveClient");
                                 }
                             }
                         } else {
@@ -153,7 +154,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
                 } catch (Exception e) {
 
-                    Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
             }
 
@@ -163,7 +164,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
             getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
         } catch (Exception e) {
-            Timber.e(e, "ChildRegisterInteractor --> saveRegistration");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildRegisterInteractor --> saveRegistration");
         }
     }
 

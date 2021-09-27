@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -93,7 +94,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 }
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return "";
 
@@ -105,7 +106,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return jsonObject.getJSONObject(field);
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
 
@@ -117,7 +118,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return jsonArray.getJSONObject(position);
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
 
@@ -130,7 +131,7 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
                 return new JSONArray(response.payload());
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
     }

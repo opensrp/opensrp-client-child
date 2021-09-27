@@ -4,6 +4,8 @@ import android.content.Intent;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.Event;
@@ -45,7 +47,7 @@ public abstract class ArchiveClientRecordIntentService extends BaseSyncIntentSer
             }
 
         } catch (Exception e) {
-            Timber.e(e, "Error Archiving %d Records", clientIdsToArchive.size());
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error Archiving %d Records", clientIdsToArchive.size());
         }
     }
 

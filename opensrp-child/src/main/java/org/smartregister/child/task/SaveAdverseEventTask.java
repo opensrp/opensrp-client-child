@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.Iterator;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -42,7 +43,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
         try {
             processAdverseEvent();
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
 
         return null;

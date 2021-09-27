@@ -92,6 +92,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 26/02/2019.
@@ -149,7 +150,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (StringUtils.isBlank(zeirId)) {
                 zeirId = Utils.getNextOpenMrsId();
                 if (StringUtils.isBlank(zeirId) || (ChildLibrary.getInstance().getUniqueIdRepository().countUnUsedIds() < 1L)) {
-                    Timber.e("ChildJsonFormUtils --> UniqueIds are empty or only one unused found");
+                    FirebaseCrashlytics.getInstance().recordException(new Exception("ChildJsonFormUtils --> UniqueIds are empty or only one unused found")); Timber.e("ChildJsonFormUtils --> UniqueIds are empty or only one unused found");
                     return null;
                 }
             }
@@ -214,7 +215,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return updateLocationTree(questions, defaultLocationString, defaultFacilityString, allLevels, healthFacilities);
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> addRegistrationFormLocationHierarchyQuestions");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> addRegistrationFormLocationHierarchyQuestions");
             return null;
         }
     }
@@ -315,7 +316,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     questionList.put(curQuestion);
                 }
             } catch (JSONException e) {
-                Timber.e(e, "ChildJsonFormUtils --> addAvailableVaccines");
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> addAvailableVaccines");
             }
         }
         addRecurringServices(context, form);
@@ -345,7 +346,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                     fields.put(recurringServiceQuestion);
                 }
             } catch (JSONException e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
     }
@@ -584,7 +585,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 widget.put(treeType, new JSONArray(updateString));
             }
         } catch (JSONException e) {
-            Timber.e(e, "ChildJsonFormUtils --> addLocationTree");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> addLocationTree");
         }
     }
 
@@ -646,7 +647,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             processClients(Utils.getAllSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> saveReportDeceased");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> saveReportDeceased");
         }
     }
 
@@ -805,9 +806,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
         } catch (SecurityException e) {
-            Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -842,7 +843,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
         } catch (JSONException jsonException) {
-            Timber.e(jsonException);
+            FirebaseCrashlytics.getInstance().recordException(jsonException); Timber.e(jsonException);
         }
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
@@ -869,7 +870,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return null;
@@ -912,7 +913,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
                 if (StringUtils.isNotBlank(locationId)) return locationId;
             }
-            Timber.e(exception);
+            FirebaseCrashlytics.getInstance().recordException(exception); Timber.e(exception);
         }
         return allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
     }
@@ -974,7 +975,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return new ChildEventClient(baseClient, baseEvent);
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> processChildDetailsForm");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> processChildDetailsForm");
             return null;
         }
     }
@@ -1012,7 +1013,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             genderObject.put(Constants.KEY.VALUE, genderValue);
         } catch (JSONException e) {
-            Timber.e(e, "ChildJsonFormUtils --> processGender");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> processGender");
         }
     }
 
@@ -1034,7 +1035,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         fields.getJSONObject(i).put(JsonFormConstants.VALUE, lastLocationId);
                     }
                 } catch (Exception e) {
-                    Timber.e(e, "JsonFormUitls --> processLocationFields");
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "JsonFormUitls --> processLocationFields");
                 }
             }
         }
@@ -1047,7 +1048,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             lastInteractedWith.put(Constants.KEY.VALUE, Calendar.getInstance().getTimeInMillis());
             fields.put(lastInteractedWith);
         } catch (JSONException e) {
-            Timber.e(e, "ChildJsonFormUtils --> lastInteractedWith");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> lastInteractedWith");
         }
     }
 
@@ -1096,7 +1097,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
         } catch (JSONException e) {
-            Timber.e(e, "ChildJsonFormUtils --> dobUnknownUpdateFromAge");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> dobUnknownUpdateFromAge");
         }
     }
 
@@ -1122,7 +1123,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             Bitmap compressedImageFile = ChildLibrary.getInstance().getCompressor().compressToBitmap(file);
             saveStaticImageToDisk(compressedImageFile, providerId, entityId);
         } catch (IOException e) {
-            Timber.e(e, JsonFormConstants.class.getCanonicalName());
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, JsonFormConstants.class.getCanonicalName());
         }
     }
 
@@ -1152,13 +1153,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 imageRepo.add(profileImage);
             }
         } catch (FileNotFoundException e) {
-            Timber.e(e, "ChildJsonFormUtils --> Failed to save static image to disk");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> Failed to save static image to disk");
         } finally {
             if (os != null) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    Timber.e(e, "ChildJsonFormUtils --> Failed to close static images output stream after attempting to write image");
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> Failed to close static images output stream after attempting to write image");
                 }
             }
         }
@@ -1209,7 +1210,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 return form.toString();
             }
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> getMetadataForEditForm");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> getMetadataForEditForm");
         }
 
         return "";
@@ -1379,7 +1380,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return step1.has(FIELDS) ? step1.getJSONArray(FIELDS) : null;
         } catch (JSONException e) {
-            Timber.e(e, "ChildJsonFormUtils --> fields");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> fields");
         }
         return null;
     }
@@ -1413,7 +1414,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
@@ -1422,7 +1423,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         try {
             return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
             return null;
         }
     }
@@ -1524,7 +1525,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                         }
                     }
                 } catch (JSONException e) {
-                    Timber.e(e);
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 }
             }
         }
@@ -1584,7 +1585,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 childClient.addRelationship(Constants.KEY.MOTHER, existingMotherRelationalId);
             }
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> addRelationship");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> addRelationship");
         }
     }
 
@@ -1697,7 +1698,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             try {
                 date = Integer.parseInt(approxDate);
             } catch (Exception e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
             dateApprox = date > 0;
         }
@@ -1793,7 +1794,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return true;
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> processMoveToCatchment");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> processMoveToCatchment");
         }
 
         return false;
@@ -2028,7 +2029,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return event;
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentEvent");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentEvent");
             return null;
         }
     }
@@ -2062,7 +2063,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             return event;
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentSyncEvent");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> createMoveToCatchmentSyncEvent");
             return null;
         }
     }
@@ -2167,7 +2168,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 ECSyncHelper.getInstance(context).addEvent(baseEntityId, eventJson);
             }
         } catch (Exception e) {
-            Timber.e(e, "ChildJsonFormUtils --> createBCGScarEvent");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "ChildJsonFormUtils --> createBCGScarEvent");
         }
     }
 
@@ -2254,7 +2255,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             }
 
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return childMotherDetailModels;
     }
@@ -2284,7 +2285,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 return jsonObject.getJSONObject(field);
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
 
@@ -2296,7 +2297,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 return jsonArray.getJSONObject(position);
             }
         } catch (JSONException e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
 

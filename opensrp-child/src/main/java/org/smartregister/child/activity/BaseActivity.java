@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Base activity class for all other PATH activity classes. Implements: - A uniform navigation bar that is launched by
@@ -617,7 +618,7 @@ toggle.syncState();
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
     }
 

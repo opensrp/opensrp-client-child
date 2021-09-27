@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 28/02/2019.
@@ -221,7 +222,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                     durationString = duration;
                 }
             } catch (Exception e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
         fillValue(viewHolder.childAge, durationString);
@@ -278,7 +279,7 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
                 initiateViewUpdateTasks(params);
 
             } catch (Exception e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
 
