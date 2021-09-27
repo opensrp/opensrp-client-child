@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
@@ -66,7 +67,7 @@ public class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
             if (progressDialogCallback != null) {
                 progressDialogCallback.dissmissProgressDialog();
             }
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
     }

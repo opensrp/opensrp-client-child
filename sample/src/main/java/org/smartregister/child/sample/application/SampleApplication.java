@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.evernote.android.job.JobManager;
+import com.google.firebase.FirebaseApp;
 
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -140,6 +141,7 @@ public class SampleApplication extends DrishtiApplication {
 
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
+        FirebaseApp.initializeApp(context.applicationContext());
         GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
         ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(context.applicationContext()), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context);

@@ -69,6 +69,7 @@ import java.util.Map;
 import java.util.Set;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragment
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View, View.OnClickListener {
@@ -213,7 +214,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                   ChildJsonFormUtils.getProviderLocationId(requireContext()));
         } catch (Exception e) {
             Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
-            Timber.e(e, "Error recording Out of Catchment Service");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error recording Out of Catchment Service");
         }
     }
 
@@ -332,7 +333,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                     if (StringUtils.isNoneBlank(editable))
                         endDateDatePicker.getDatePickerDialog().setMinDate(dateFormatter.parse(editable.toString()).getTime());
                 } catch (ParseException e) {
-                    Timber.e(e, "Error setting end date minimum to start date");
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error setting end date minimum to start date");
                 }
                 startDate.setError(null);
             }
@@ -642,7 +643,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             clientAdapter.setCurrentlimit(20);
             clientAdapter.setCurrentoffset(0);
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         updateMatchingResults(clientAdapter.getTotalcount());
@@ -668,7 +669,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             query = sqb.Endquery(
                     sqb.addlimitandOffset(query, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset()));
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return query;
@@ -739,7 +740,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 try {
                     currentDate.setTime(dateFormatter.parse(previousDateString));
                 } catch (ParseException e) {
-                    Timber.e(e, "Error parsing Advance Search Date: %s", e.getMessage());
+                    FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Error parsing Advance Search Date: %s", e.getMessage());
                 }
             }
 

@@ -44,6 +44,7 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
     private final Menu overflow;
@@ -230,7 +231,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
                 activity.updateStatus(true);
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         } finally {
             activity.runOnUiThread(() -> {
                 activity.renderProfileWidget(detailsMap);

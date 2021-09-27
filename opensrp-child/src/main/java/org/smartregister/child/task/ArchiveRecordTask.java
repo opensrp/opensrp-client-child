@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class ArchiveRecordTask extends AsyncTask<Void, Void, Void> {
 
@@ -48,7 +49,7 @@ public class ArchiveRecordTask extends AsyncTask<Void, Void, Void> {
             }
 
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
         return null;
     }

@@ -45,6 +45,7 @@ import java.util.Locale;
 import timber.log.Timber;
 
 import static org.smartregister.child.util.Utils.getValue;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class ExtraVaccineEditDialogFragment extends DialogFragment {
 
@@ -152,7 +153,7 @@ public class ExtraVaccineEditDialogFragment extends DialogFragment {
                 });
             }
         } catch (ParseException e) {
-            Timber.e(e, "Unable to Parse Service Date");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "Unable to Parse Service Date");
         }
     }
 

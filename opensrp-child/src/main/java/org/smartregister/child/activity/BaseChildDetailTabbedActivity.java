@@ -34,6 +34,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.domain.Form;
 
@@ -263,7 +264,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 childUnderFiveFragment.setBoosterImmunizations(boosterImmunizations);
             }
         } catch (SQLiteException exception) {
-            Timber.e(exception);
+            FirebaseCrashlytics.getInstance().recordException(exception); Timber.e(exception);
         }
 
         childDetailsToolbar = findViewById(R.id.child_detail_toolbar);
@@ -427,7 +428,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     photoFile = createImageFile();
                 } catch (IOException ex) {
                     // Error occurred while creating the File
-                    Timber.e(ex, "BaseChildDetailTabbedActivity --> dispatchTakePictureIntent");
+                    FirebaseCrashlytics.getInstance().recordException(new Exception("BaseChildDetailTabbedActivity --> dispatchTakePictureIntent")); Timber.e(ex, "BaseChildDetailTabbedActivity --> dispatchTakePictureIntent");
                 }
                 // Continue only if the File was successfully created
                 if (photoFile != null) {
@@ -647,7 +648,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             jsonObject.put(Constants.KEY.ENTITY_ID, childDetails.entityId());
             startFormActivity(jsonObject.toString());
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 
@@ -656,7 +657,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         try {
             startJsonForm(formName, entityId, locationId);
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 
@@ -692,7 +693,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         break;
                 }
             } catch (Exception e) {
-                Timber.e(Log.getStackTraceString(e));
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             }
 
         } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
@@ -892,7 +893,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         try {
             ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 
@@ -1144,7 +1145,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             return form == null ? null : form.toString();
 
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
         return "";
     }

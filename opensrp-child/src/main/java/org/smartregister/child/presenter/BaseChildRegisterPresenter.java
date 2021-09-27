@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -129,7 +130,7 @@ public class BaseChildRegisterPresenter
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
 
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -145,7 +146,7 @@ public class BaseChildRegisterPresenter
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
     }
 
@@ -154,7 +155,7 @@ public class BaseChildRegisterPresenter
         try {
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
             getView().displayToast(R.string.error_unable_to_start_form);
         }
     }

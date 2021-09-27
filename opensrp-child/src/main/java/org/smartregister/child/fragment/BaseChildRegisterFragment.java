@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -284,7 +285,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 
@@ -308,7 +309,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filterSection.setVisibility(View.INVISIBLE);
             }
         } else {
-            Timber.e("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
+            FirebaseCrashlytics.getInstance().recordException(new Exception("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?")); Timber.e("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
         }
     }
 
@@ -414,7 +415,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 return query;
             }
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
 
         return query;
@@ -439,7 +440,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
             Timber.i("Total Overdue Count %d", overDueCount);
         } catch (Exception e) {
-            Timber.e(e);
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
         }
     }
 

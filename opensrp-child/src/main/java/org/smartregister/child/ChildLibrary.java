@@ -18,6 +18,7 @@ import org.smartregister.view.activity.DrishtiApplication;
 
 import id.zelory.compressor.Compressor;
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
@@ -137,7 +138,7 @@ public class ChildLibrary {
     public EventBus getEventBus() {
 
         if (eventBus == null) {
-            Timber.e(" Event Bus instance does not exist!!! Pass the Implementing Application's Eventbus by invoking the " +
+            FirebaseCrashlytics.getInstance().recordException(new Exception("No Event Bus")); Timber.e(" Event Bus instance does not exist!!! Pass the Implementing Application's Eventbus by invoking the " +
                     ChildLibrary.class.getCanonicalName() + ".setEventBus method from the onCreate method of " + "your Application class ");
         }
 

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 2020-04-28.
@@ -42,7 +43,7 @@ public class WidgetUtils {
 
         } catch (JSONException exception) {
 
-            Timber.e(exception);
+            FirebaseCrashlytics.getInstance().recordException(exception); Timber.e(exception);
 
         }
     }

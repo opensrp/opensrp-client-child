@@ -25,6 +25,7 @@ import java.util.UUID;
 import timber.log.Timber;
 
 import static org.smartregister.util.Utils.getAllSharedPreferences;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class UpdateDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
@@ -75,7 +76,7 @@ public class UpdateDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
                 getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
             }
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
 
         return null;

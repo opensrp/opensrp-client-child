@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 01/03/2019.
@@ -60,7 +61,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
         try {
             form = new JSONObject(currentJsonState());
         } catch (JSONException e) {
-            Timber.e(e.toString());
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e.toString());
         }
 
         enableOnCloseDialog = getIntent().getBooleanExtra(Constants.FormActivity.EnableOnCloseDialog, true);
@@ -82,7 +83,7 @@ public class BaseChildFormActivity extends JsonFormActivity implements IMotherLo
 
 
         } catch (JSONException e) {
-            Timber.e(e.toString());
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e.toString());
         }
     }
 

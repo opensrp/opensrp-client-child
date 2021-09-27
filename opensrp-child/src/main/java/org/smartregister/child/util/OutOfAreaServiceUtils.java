@@ -31,6 +31,7 @@ import java.util.UUID;
 import timber.log.Timber;
 
 import static org.smartregister.util.Utils.getBooleanProperty;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by ndegwamartin on 10/10/2020.
@@ -206,7 +207,7 @@ public class OutOfAreaServiceUtils {
                             new JSONObject(ChildJsonFormUtils.gson.toJson(newEvent)), BaseRepository.TYPE_Unsynced);
                 }
             } catch (JSONException | ParseException e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
             }
         }
     }

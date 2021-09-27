@@ -11,6 +11,7 @@ import org.smartregister.child.R;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 12/06/2017.
@@ -48,7 +49,7 @@ public class SimpleToolbar extends BaseToolbar {
             CustomFontTextView titleTV = findViewById(R.id.title);
             titleTV.setText(title);
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
     }
 

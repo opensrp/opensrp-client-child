@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by keyman on 26/01/2017.
@@ -68,7 +69,7 @@ public class MoveToMyCatchmentUtils {
             try {
                 return new MoveToCatchmentEvent(new JSONObject(response.payload()), isPermanent, shouldCreateEvent);
             } catch (Exception e) {
-                Timber.e(e);
+                FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e);
                 return null;
             }
         }

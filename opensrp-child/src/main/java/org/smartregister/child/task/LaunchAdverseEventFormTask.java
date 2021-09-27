@@ -10,6 +10,7 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.util.FormUtils;
 
 import timber.log.Timber;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
     private BaseChildDetailTabbedActivity activity;
@@ -36,7 +37,7 @@ public class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
             }
 
         } catch (Exception e) {
-            Timber.e(e, "LaunchAdverseEventFormTask --> doInBackground");
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(e, "LaunchAdverseEventFormTask --> doInBackground");
         }
         return null;
     }

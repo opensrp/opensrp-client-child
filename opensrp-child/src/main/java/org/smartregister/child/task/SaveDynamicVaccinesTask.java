@@ -26,6 +26,7 @@ import timber.log.Timber;
 
 import static org.smartregister.util.JsonFormUtils.getJSONObject;
 import static org.smartregister.util.Utils.getAllSharedPreferences;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
 
@@ -71,7 +72,7 @@ public class SaveDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
             }
 
         } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
+            FirebaseCrashlytics.getInstance().recordException(e); Timber.e(Log.getStackTraceString(e));
         }
         return null;
     }
