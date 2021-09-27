@@ -301,9 +301,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 overdueCountTV.setText(String.valueOf(overDueCount));
                 overdueCountTV.setVisibility(View.VISIBLE);
                 overdueCountTV.setClickable(true);
+                filterSection.setVisibility(View.VISIBLE);
             } else {
                 overdueCountTV.setVisibility(View.GONE);
                 overdueCountTV.setClickable(false);
+                filterSection.setVisibility(View.INVISIBLE);
             }
         } else {
             Timber.e("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
