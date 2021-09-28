@@ -157,7 +157,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             }
 
             if (ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.HOME_ZEIR_ID_COL_ENABLED)
-                     && ChildLibrary.getInstance().getProperties()
+                    && ChildLibrary.getInstance().getProperties()
                     .getPropertyBoolean(ChildAppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED)) {
                 view.findViewById(R.id.child_zeir_id_wrapper).setVisibility(View.VISIBLE);
             } else
@@ -301,9 +301,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 overdueCountTV.setText(String.valueOf(overDueCount));
                 overdueCountTV.setVisibility(View.VISIBLE);
                 overdueCountTV.setClickable(true);
+                filterSection.setVisibility(View.VISIBLE);
             } else {
                 overdueCountTV.setVisibility(View.GONE);
                 overdueCountTV.setClickable(false);
+                filterSection.setVisibility(View.INVISIBLE);
             }
         } else {
             Timber.e("Over Due Count Text View (overdueCountTV) is NULL ...whyyy?");
