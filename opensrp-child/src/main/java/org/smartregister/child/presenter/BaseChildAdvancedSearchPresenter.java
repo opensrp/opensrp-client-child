@@ -126,4 +126,8 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     public void setInteractor(ChildAdvancedSearchContract.Interactor interactor) {
         this.interactor = interactor;
     }
+
+    public String getCurrentCondition() {
+        return currentCondition;
+    }
 }
