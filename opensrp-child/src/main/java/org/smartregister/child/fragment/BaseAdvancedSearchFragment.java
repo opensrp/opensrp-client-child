@@ -210,7 +210,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     protected void recordService(String openSrpId) {
         try {
             ChildJsonFormUtils.startForm(requireActivity(), ChildJsonFormUtils.REQUEST_CODE_GET_JSON, getOutOfCatchmentServiceFormName(), openSrpId,
-                  ChildJsonFormUtils.getProviderLocationId(requireContext()));
+                    ChildJsonFormUtils.getProviderLocationId(requireContext()));
         } catch (Exception e) {
             Utils.showShortToast(requireActivity(), getString(R.string.error_recording_out_of_catchment_service));
             Timber.e(e, "Error recording Out of Catchment Service");
@@ -589,7 +589,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected abstract String getMainCondition();
+    protected String getMainCondition() {
+        return ((BaseChildAdvancedSearchPresenter) presenter).getCurrentCondition();
+    }
 
     public void search() {
         if (myCatchment.isChecked()) {
@@ -601,11 +603,11 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         Map<String, String> editMap = getSearchMap(!isLocal);
 
         //Do not search when only one of the birth dates are provided
-        if (editMap.containsKey(START_DATE) && !editMap.containsKey(END_DATE)){
+        if (editMap.containsKey(START_DATE) && !editMap.containsKey(END_DATE)) {
             endDate.setError(getString(R.string.end_date_required));
             return;
         }
-        if (editMap.containsKey(END_DATE) && !editMap.containsKey(START_DATE)){
+        if (editMap.containsKey(END_DATE) && !editMap.containsKey(START_DATE)) {
             startDate.setError(getString(R.string.start_date_required));
             return;
         }

@@ -106,6 +106,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Mock
     private TextView overdueCountTextView;
+    @Mock
+    private TextView filterSectionView;
 
     @Mock
     private AdvancedMatrixCursor advancedMatrixCursor;
@@ -213,6 +215,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Assert.assertNotNull(baseChildRegisterFragment);
 
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSectionView);
         Whitebox.setInternalState(baseChildRegisterFragment, "overdueCountTV", overdueCountTextView);
         Whitebox.setInternalState(baseChildRegisterFragment, "overDueCount", 7);
         baseChildRegisterFragment.updateDueOverdueCountText();
@@ -233,6 +236,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Assert.assertNotNull(baseChildRegisterFragment);
 
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSectionView);
         Whitebox.setInternalState(baseChildRegisterFragment, "overdueCountTV", overdueCountTextView);
         Whitebox.setInternalState(baseChildRegisterFragment, "overDueCount", 0);
         baseChildRegisterFragment.updateDueOverdueCountText();
