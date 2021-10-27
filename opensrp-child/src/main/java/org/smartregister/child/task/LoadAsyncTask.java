@@ -1,5 +1,7 @@
 package org.smartregister.child.task;
 
+import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+
 import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,8 +44,6 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
     private final Menu overflow;
@@ -104,7 +104,10 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         updateBirthWeight();
         Map<String, NamedObject<?>> map = new HashMap<>();
-        detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+
+        if (detailsMap == null || detailsMap.size() <= 0) {
+            detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+        }
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);

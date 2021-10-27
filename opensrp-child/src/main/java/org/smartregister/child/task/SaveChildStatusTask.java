@@ -5,17 +5,17 @@ import android.os.AsyncTask;
 
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
-import org.smartregister.child.contract.ChildImmunizationContract;
+import org.smartregister.child.contract.IChildStatus;
 
 /**
  * Created by ndegwamartin on 01/09/2020.
  */
 public class SaveChildStatusTask extends AsyncTask<Void, Void, Void> {
 
-    private ChildImmunizationContract.Presenter presenter;
+    private IChildStatus presenter;
     private Context context;
 
-    public SaveChildStatusTask(Context context, ChildImmunizationContract.Presenter presenter) {
+    public SaveChildStatusTask(Context context, IChildStatus presenter) {
         this.presenter = presenter;
         this.context = context;
     }

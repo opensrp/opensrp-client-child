@@ -384,4 +384,6 @@
 
     <string name="end_date_required">End date is required</string>
     <string name="start_date_required">Start date is required</string>
+
+    <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
 </resources>

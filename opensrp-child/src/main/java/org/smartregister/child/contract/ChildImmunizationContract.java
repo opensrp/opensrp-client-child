@@ -1,6 +1,5 @@
 package org.smartregister.child.contract;
 
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Height;
@@ -16,19 +15,10 @@ import java.util.Map;
  * Created by ndegwamartin on 01/09/2020.
  */
 public interface ChildImmunizationContract {
-    interface View {
 
-        void updateViews();
-
-        void showProgressDialog();
-
-        void showProgressDialog(String title, String message);
-
-        void hideProgressDialog();
+    interface View extends IChildStatusView {
 
         void showGrowthDialogFragment(Map<String, List> growthMonitoring);
-
-        CommonPersonObjectClient getChildDetails();
 
         String getString(int stringResourceId);
 
@@ -41,15 +31,10 @@ public interface ChildImmunizationContract {
         void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alertList);
     }
 
-    interface Presenter {
+    interface Presenter extends IChildStatus {
 
         List<Weight> getAllWeights(CommonPersonObjectClient childDetails);
 
         List<Height> getAllHeights(CommonPersonObjectClient childDetails);
-
-        void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails);
-
-        ChildImmunizationContract.View getView();
     }
-
 }

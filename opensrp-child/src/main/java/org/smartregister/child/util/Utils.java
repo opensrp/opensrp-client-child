@@ -49,6 +49,7 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.domain.Height;
@@ -64,6 +65,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -746,5 +748,31 @@ public class Utils extends org.smartregister.util.Utils {
             providedWithin = true;
         }
         return providedWithin;
+    }
+
+    public static void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails) {
+        try {
+            Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
+            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, Constants.ENTITY.CHILD);
+            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
+                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.INACTIVE, true));
+            } else {
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
+            }
+
+            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
+                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, true));
+            } else {
+                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
+            }
+        } catch (Exception e) {
+            Timber.e(e);
+        }
     }
 }
