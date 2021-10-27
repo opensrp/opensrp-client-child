@@ -1,5 +1,9 @@
 package org.smartregister.child.activity;
 
+import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
+import static org.smartregister.growthmonitoring.util.AppProperties.Entry;
+import static org.smartregister.util.Utils.showToast;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +69,7 @@ import org.smartregister.child.presenter.BaseChildDetailsPresenter;
 import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
+import org.smartregister.child.task.SaveChildStatusTask;
 import org.smartregister.child.task.SaveDynamicVaccinesTask;
 import org.smartregister.child.task.SaveRegistrationDetailsTask;
 import org.smartregister.child.task.SaveServiceTask;
@@ -319,7 +324,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (extras != null) {
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+
+            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
+                childDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            } else {
+                childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+            }
 
             Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
             detailsMap = childDetails.getColumnmaps();
@@ -464,9 +474,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             }
             String systemOfRegistrationText = Utils.getValue(childDetails,Constants.Client.SYSTEM_OF_REGISTRATION, false);
             if(systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
-                 systemOfRegistration.setText(systemOfRegistrationText);
+                systemOfRegistration.setText(systemOfRegistrationText);
             else
-                systemOfRegistration.setVisibility(View.GONE);
+                if (systemOfRegistration != null)
+                    systemOfRegistration.setVisibility(View.GONE);
             dobString = Utils.getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {
@@ -891,6 +902,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
             ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new SaveChildStatusTask(BaseChildDetailTabbedActivity.this, presenter).execute();
+                }
+            });
         } catch (Exception e) {
             Timber.e(e);
         }
@@ -1018,7 +1036,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
         vaccineWrapper.setDbKey(vaccine.getId());
-
 
         if (vaccineWrapper.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             resetOptionsMenu();
@@ -1153,25 +1170,32 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList =
-                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+
+        JSONArray exclusionKeys = question.optJSONArray("exclusion_keys");
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
             ok = true;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getTranslatedVaccineName(this,
-                        curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
-                        Locale.ENGLISH).format(curVaccine.getDate()) + ")";
-                choices.put(name.toUpperCase(Locale.getDefault()));
 
-                Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
-                while (vaccineGroupNames.hasNext()) {
-                    String curGroupName = vaccineGroupNames.next();
-                    if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
-                        omrsChoices.put(name.toUpperCase(), omrsChoicesTemplate.getString(curGroupName));
-                        break;
+                boolean vaccineIsExcluded = (exclusionKeys != null && jsonArrayContainsValue(exclusionKeys, curVaccine.getName()));
+
+                if (!vaccineIsExcluded) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                    String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format), VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
+
+                    choices.put(name.toUpperCase(Locale.getDefault()));
+
+                    Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
+                    while (vaccineGroupNames.hasNext()) {
+                        String curGroupName = vaccineGroupNames.next();
+
+                        if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
+                            omrsChoices.put(name, omrsChoicesTemplate.getString(curGroupName));
+                            break;
+                        }
                     }
                 }
             }
@@ -1181,6 +1205,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         question.put("openmrs_choice_ids", omrsChoices);
 
         return ok;
+    }
+
+    private boolean jsonArrayContainsValue(JSONArray jsonArray, String value) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            if (jsonArray.getString(i).equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Recurring Service

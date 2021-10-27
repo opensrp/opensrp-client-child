@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -124,8 +126,6 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
-import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
-
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -184,8 +184,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-            childDetails = getChildDetails(caseId);
+            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
+                childDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            } else {
+                String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+                childDetails = getChildDetails(caseId);
+            }
         }
 
         Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
@@ -220,6 +224,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
                         registerClickables.getNextAppointmentDate() : "");
@@ -491,10 +496,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
 
-    private void updateSystemOfRegistration()
-    {
+    private void updateSystemOfRegistration() {
         String systemOfRegistration = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION, false);
-        systemOfRegistrationTV.setText(systemOfRegistration!= null ? systemOfRegistration : "");
+        systemOfRegistrationTV.setText(systemOfRegistration != null ? systemOfRegistration : "");
     }
 
     private void updateNextAppointmentDateView() {

@@ -35,6 +35,7 @@ public class MoveToMyCatchmentUtils {
     public static final String MOVE_TO_CATCHMENT_EVENT = "Move To Catchment";
     public static final String MOVE_TO_CATCHMENT_SYNC_EVENT = "MOVE_TO_CATCHMENT_SYNC";
     public static final String MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD = "Identifiers";
+    public static final String MOVE_TO_CATCHMENT_SYNC_URL = "/rest/event/sync-out-of-catchment";
 
     public static void moveToMyCatchment(final List<String> ids, final Listener<MoveToCatchmentEvent> listener, final ProgressDialog progressDialog, final boolean isPermanent) {
 
@@ -86,7 +87,7 @@ public class MoveToMyCatchmentUtils {
         String idString = StringUtils.join(baseEntityIds, ",");
 
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
-        String uri = baseUrl + SyncIntentService.SYNC_URL + paramString;
+        String uri = baseUrl + MOVE_TO_CATCHMENT_SYNC_URL + paramString;
 
         Timber.d(MoveToMyCatchmentUtils.class.getCanonicalName() + " " + uri);
 

@@ -281,23 +281,26 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         String tetanusProtection = ChildJsonFormUtils.getFieldValue(jsonEnrollmentFormString, ChildJsonFormUtils.STEP1, Constants.KEY.BIRTH_TETANUS_PROTECTION);
 
         if (StringUtils.isNotBlank(tetanusProtection) && !isClientMother(identifiers) && tetanusProtection.contains("Yes")) {
-
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
 
-            Vaccine vaccineObj = new Vaccine();
-            vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
-            vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
-            vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
-            vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
-            vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
-            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
-            vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
-            vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
-            vaccineObj.setCreatedAt(new Date());
+            // only insert vaccine if not already saved
+            Vaccine existingVaccine = vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(ClientProcessor.baseEntityIdJSONKey), Constants.VACCINE_CODE.TETANUS);
 
-            Utils.addVaccine(vaccineRepository, vaccineObj);
+            if (existingVaccine == null) {
+                Vaccine vaccineObj = new Vaccine();
+                vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+                vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
+                vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
+                vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+                vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+                vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
+                vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
+                vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
+                vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
+                vaccineObj.setCreatedAt(new Date());
 
+                Utils.addVaccine(vaccineRepository, vaccineObj);
+            }
         }
     }
 

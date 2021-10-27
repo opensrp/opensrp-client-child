@@ -62,7 +62,7 @@ public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        presenter.getView().showProgressDialog(presenter.getView().getString(R.string.updating_dialog_title), null);
+        presenter.getView().showProgressDialog(((ChildImmunizationContract.View) presenter.getView()).getString(R.string.updating_dialog_title), null);
     }
 
     @Override
@@ -74,13 +74,13 @@ public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
         tag.setUpdatedVaccineDate(null, false);
         tag.setDbKey(null);
 
-        View view = presenter.getView().getLastOpenedView();
+        View view = ((ChildImmunizationContract.View) presenter.getView()).getLastOpenedView();
 
         List<VaccineWrapper> wrappers = new ArrayList<>();
         wrappers.add(tag);
 
-        presenter.getView().updateVaccineGroupViews(view, wrappers, vaccineList, true);
-        presenter.getView().updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
-        presenter.getView().showVaccineNotifications(vaccineList, alertList);
+        ((ChildImmunizationContract.View) presenter.getView()).updateVaccineGroupViews(view, wrappers, vaccineList, true);
+        ((ChildImmunizationContract.View) presenter.getView()).updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
+        ((ChildImmunizationContract.View) presenter.getView()).showVaccineNotifications(vaccineList, alertList);
     }
 }
