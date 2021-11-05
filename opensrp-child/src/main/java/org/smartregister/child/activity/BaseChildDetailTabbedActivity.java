@@ -324,11 +324,24 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (extras != null) {
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
 
+            CommonPersonObjectClient cardChildDetails = null;
             if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
-                childDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+                cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            }
+
+            if (childDetails == null) {
+                childDetails = cardChildDetails;
             } else {
-                childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+                // card last update
+                long lastCardTxDateTime = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0"));
+                // device last update
+                long lastInteractedWith = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0"));
+
+                if (lastCardTxDateTime > lastInteractedWith) {
+                    childDetails = cardChildDetails;
+                }
             }
 
             Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
