@@ -833,16 +833,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
         event.setChildLocationId(childLocationId);
-
-        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
-
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
 
-        try {
-            addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
-        } catch (JSONException jsonException) {
-            Timber.e(jsonException);
+        Map<String, String> eventDetails = event.getDetails();
+        if (eventDetails != null && !eventDetails.containsKey(AllConstants.DATA_STRATEGY)) {
+            event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
+
+            try {
+                addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
+            } catch (JSONException jsonException) {
+                Timber.e(jsonException);
+            }
         }
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
@@ -1771,6 +1773,19 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             JSONArray events = getOutOFCatchmentJsonArray(jsonObject, Constants.EVENTS);
             JSONArray clients = getOutOFCatchmentJsonArray(jsonObject, Constants.CLIENTS);
+
+            // TODO: Mark clients as unsynced, update teamId & locationId
+            AllSharedPreferences allSharedPreferences = CoreLibrary.getInstance().context().allSharedPreferences();
+            String providerId = allSharedPreferences.fetchRegisteredANM();
+            String teamId = allSharedPreferences.fetchDefaultTeamId(providerId);
+            String locationId = allSharedPreferences.fetchUserLocalityId(providerId);
+
+            for (int i = 0; i < clients.length(); i++) {
+                JSONObject client = clients.getJSONObject(i);
+                client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+                client.put("teamId", teamId);
+                client.put("locationId", locationId);
+            }
 
             if (!moveToCatchmentEvent.isPermanent()) {
                 tagClients(clients);
