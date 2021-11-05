@@ -192,7 +192,7 @@
     <string name="hia2_daily_tallies">العد اليومي</string>
     <string name="hia2_draft_monthly">صياغ شهري</string>
     <string name="hia2_draft_monthly_with_count">صياغ شهري (%1$d)</string>
-    <string name="hia2_sent_monthly">أرسل شهريا</string>
+    <string name="hia2_sent_monthly">التقارير الشهرية المرسلة</string>
     <string name="start_new_report">بدء تقرير جديد</string>
     <string name="no_draft_reports">لا توجد مسودات تقرير</string>
     <string name="no_monthly_ready">لا يوجد تقرير شهري جاهز للإكمال</string>
@@ -210,7 +210,7 @@
     <string name="searching_dialog_message">الرجاء الانتظار</string>
     <string name="move_to_catchment_dialog_title">جارى التحرك…</string>
     <string name="move_to_catchment_dialog_message">الرجاء الانتظار</string>
-    <string name="send_report_warning">إرسل%1$sالتقرير؟\n التاريخ:%2$s\nالمستخدم:%3$s</string>
+    <string name="send_report_warning">إرسال تقرير %1$s؟\n التاريخ:%2$s\nالمستخدم:%3$s</string>
     <string name="send">أُرسل</string>
     <string name="n_a">لاينطبق</string>
     <string name="confirm_button_label">تأكيد</string>

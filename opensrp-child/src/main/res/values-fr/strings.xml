@@ -210,7 +210,7 @@
     <string name="searching_dialog_message">Veuillez patienter</string>
     <string name="move_to_catchment_dialog_title">En marche...</string>
     <string name="move_to_catchment_dialog_message">Veuillez patienter</string>
-    <string name="send_report_warning">Envoyer le %1$s rapport?\nDate: %2$s\nUtilisateur: %3$s</string>
+    <string name="send_report_warning">Envoyer le rapport du %1$s?\nDate: %2$s\nUtilisateur: %3$s</string>
     <string name="send">Envoyer</string>
     <string name="n_a">N/A</string>
     <string name="confirm_button_label">Confirmer</string>

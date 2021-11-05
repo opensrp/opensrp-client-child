@@ -184,11 +184,25 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
+            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            childDetails = getChildDetails(caseId);
+
+            CommonPersonObjectClient cardChildDetails = null;
             if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
-                childDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+                cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            }
+
+            if (childDetails == null) {
+                childDetails = cardChildDetails;
             } else {
-                String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
-                childDetails = getChildDetails(caseId);
+                // card last update
+                long lastCardTxDateTime = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0"));
+                // device last update
+                long lastInteractedWith = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0"));
+
+                if (lastCardTxDateTime > lastInteractedWith) {
+                    childDetails = cardChildDetails;
+                }
             }
         }
 
@@ -196,7 +210,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (serializable != null && serializable instanceof RegisterClickables) {
             registerClickables = (RegisterClickables) serializable;
         }
-
 
         bcgScarNotificationShown =
                 ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&

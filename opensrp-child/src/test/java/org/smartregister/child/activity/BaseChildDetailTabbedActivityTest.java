@@ -189,6 +189,11 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         public void onNoUniqueId() {
             Timber.e("onNoUniqueId");
         }
+
+        @Override
+        public void updateViews() {
+            // do nothing
+        }
     }
 
     @Test
