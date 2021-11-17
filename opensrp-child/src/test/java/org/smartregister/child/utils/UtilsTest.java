@@ -138,9 +138,11 @@ public class UtilsTest extends BaseUnitTest {
     public void addVaccineWithVaccineRepositoryOrVaccineNotNull() {
         Vaccine vaccine = new Vaccine();
         vaccine.setName("testvaccine");
+        vaccine.setLocationId("location1");
+        vaccine.setOutreach(1);
+        Assert.assertNotNull(vaccine);
         Utils.addVaccine(vaccineRepository, vaccine);
-        Mockito.verify(vaccineRepository, Mockito.times(1)).add(vaccineArgumentCaptor.capture());
-        Assert.assertEquals(vaccine, vaccineArgumentCaptor.getValue());
+        Mockito.verify(vaccineRepository, Mockito.times(1)).add(vaccine);
     }
 
     @Test
