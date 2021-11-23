@@ -195,13 +195,17 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (childDetails == null) {
                 childDetails = cardChildDetails;
             } else {
-                // card last update
-                long lastCardTxDateTime = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0"));
-                // device last update
-                long lastInteractedWith = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0"));
+                if (cardChildDetails != null) {
+                    // card last update
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault("nfc_last_processed_timestamp", "0");
+                    long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
+                    // device last update
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault("last_interacted_with", "0");
+                    long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
 
-                if (lastCardTxDateTime > lastInteractedWith) {
-                    childDetails = cardChildDetails;
+                    if (lastCardTxDateTime > lastInteractedWith) {
+                        childDetails = cardChildDetails;
+                    }
                 }
             }
         }
@@ -1475,6 +1479,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
+        if (isOutOfCatchmentVaccine && StringUtils.isEmpty(vaccine.getProgramClientId())) {
+            vaccine.setProgramClientId(tag.getPatientNumber());
+        }
 
         Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
