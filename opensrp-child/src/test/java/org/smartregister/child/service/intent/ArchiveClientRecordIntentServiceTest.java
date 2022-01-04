@@ -47,7 +47,7 @@ public class ArchiveClientRecordIntentServiceTest extends BasePowerMockUnitTest 
     public void testArchiveClientsInvokesCreateArchiveRecordEvents() throws Exception {
 
         List<String> clientIds = Arrays.asList(new String[]{"23232", "1192"});
-        ArchiveClientRecordIntentService service = Mockito.spy(ArchiveClientRecordIntentService.class);
+        ArchiveClientRecordIntentService service = Mockito.mock(ArchiveClientRecordIntentService.class, Mockito.CALLS_REAL_METHODS);
         Mockito.doReturn(clientIds).when(service).getClientIdsToArchive();
 
         service.archiveClients();
