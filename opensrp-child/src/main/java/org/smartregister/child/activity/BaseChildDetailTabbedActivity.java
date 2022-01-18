@@ -1170,7 +1170,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 while (vaccineGroupNames.hasNext()) {
                     String curGroupName = vaccineGroupNames.next();
                     if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
-                        omrsChoices.put(name, omrsChoicesTemplate.getString(curGroupName));
+                        omrsChoices.put(name.toUpperCase(), omrsChoicesTemplate.getString(curGroupName));
                         break;
                     }
                 }
