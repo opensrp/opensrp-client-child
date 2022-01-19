@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 public class ChildEditTextFactoryTest {
 
@@ -23,7 +22,7 @@ public class ChildEditTextFactoryTest {
     @Mock
     private JsonFormFragment formFragment;
 
-    @Spy
+    @Mock
     private JsonFormActivity formActivity;
 
     private MaterialEditText materialEditText;

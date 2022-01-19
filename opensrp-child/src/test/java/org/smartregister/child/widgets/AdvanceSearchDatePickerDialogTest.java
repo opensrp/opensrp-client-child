@@ -4,6 +4,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,14 +24,15 @@ import org.smartregister.util.AppProperties;
 public class AdvanceSearchDatePickerDialogTest {
 
     private AdvanceSearchDatePickerDialog datePickerDialog;
+    private AppCompatActivity startActivity;
 
     @Before
     public void setUp() {
-        AppCompatActivity startActivity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        startActivity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         Context context = Mockito.mock(Context.class);
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
-        AppProperties appProperties = Mockito.spy(AppProperties.class);
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
         Mockito.doReturn(context).when(childLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
@@ -43,5 +45,10 @@ public class AdvanceSearchDatePickerDialogTest {
     public void testGetDatePickerDialog() {
         datePickerDialog.showDialog();
         Assert.assertNotNull(datePickerDialog.getDatePickerDialog());
+    }
+
+    @After
+    public void tearDown() {
+        startActivity.finish();
     }
 }
