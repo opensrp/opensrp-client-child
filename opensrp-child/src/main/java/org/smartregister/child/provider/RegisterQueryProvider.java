@@ -14,31 +14,26 @@ public class RegisterQueryProvider {
         String strFilters = getFilter(filters);
 
         if (StringUtils.isNotBlank(strFilters) && StringUtils.isBlank(strMainCondition)) {
-            strFilters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
-        return "select " + getDemographicTable() + ".object_id " +
-                "from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
-                "left join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " +
-                "left join " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " on " + getDemographicTable() + ".object_id =  " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
-                "LEFT JOIN (" +
-                "   SELECT relational_id, date_removed " +
-                "   FROM " + getChildDetailsTable() + " " +
-                "   JOIN " + CommonFtsObject.searchTableName(getDemographicTable()) + " ON " + getChildDetailsTable() + ".id = " + CommonFtsObject.searchTableName(getDemographicTable()) + ".object_id " +
-                ") mother ON " + getDemographicTable() + ".object_id = mother.relational_id" +
+        return "SELECT " + getDemographicTable() + ".object_id " +
+                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
+                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
                 strMainCondition + strFilters;
     }
 
-    protected String getFilter(String filters) {
+    private String getFilter(String filters) {
         if (StringUtils.isNotBlank(filters)) {
             return String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
         return "";
     }
 
-    protected String getMainCondition(String mainCondition) {
+    private String getMainCondition(String mainCondition) {
         if (!StringUtils.isBlank(mainCondition)) {
-            return " where " + mainCondition;
+            return " WHERE " + mainCondition;
         }
         return "";
     }
@@ -52,35 +47,30 @@ public class RegisterQueryProvider {
             strFilters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
-        return "select count(" + getDemographicTable() + ".object_id) " +
-                "from " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
-                "left join " + getChildDetailsTable() + " on " + getDemographicTable() + ".object_id =  " + getChildDetailsTable() + ".id " +
-                "left join " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " on " + getDemographicTable() + ".object_id =  " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
-                "LEFT JOIN (" +
-                "   SELECT relational_id, date_removed " +
-                "   FROM " + getChildDetailsTable() + " " +
-                "   JOIN " + CommonFtsObject.searchTableName(getDemographicTable()) + " ON " + getChildDetailsTable() + ".id = " + CommonFtsObject.searchTableName(getDemographicTable()) + ".object_id " +
-                ") mother ON " + getDemographicTable() + ".object_id = mother.relational_id" +
+        return "SELECT count(" + getDemographicTable() + ".object_id) " +
+                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
+                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
                 strMainCondition + strFilters;
     }
 
     public String mainRegisterQuery() {
-        return "select " + StringUtils.join(mainColumns(), ",") + " " +
-                "from " + getChildDetailsTable() + " " +
-                "join " + getMotherDetailsTable() + " on " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
-                "join " + getDemographicTable() + " on " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
-                "join " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
+        return "SELECT " + StringUtils.join(mainColumns(), ",") + " " +
+                "FROM " + getChildDetailsTable() + " " +
+                "JOIN " + getMotherDetailsTable() + " ON " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "JOIN " + getDemographicTable() + " ON " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "JOIN " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
     }
 
     public String mainRegisterQuery(String select) {
         if (StringUtils.isBlank(select)) {
             select = StringUtils.join(mainColumns(), ",");
         }
-        return "select " + select + " " +
-                "from " + getChildDetailsTable() + " " +
-                "join " + getMotherDetailsTable() + " on " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
-                "join " + getDemographicTable() + " on " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
-                "join " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
+        return "SELECT " + select + " " +
+                "FROM " + getChildDetailsTable() + " " +
+                "JOIN " + getMotherDetailsTable() + " ON " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "JOIN " + getDemographicTable() + " ON " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
+                "JOIN " + getDemographicTable() + " mother ON mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
     }
 
     public String[] mainColumns() {
