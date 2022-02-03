@@ -1409,4 +1409,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             this.wrapper = wrapper;
         }
     }
+
+    public void updateActivityTitle() {
+        setActivityTitle();
+    }
 }

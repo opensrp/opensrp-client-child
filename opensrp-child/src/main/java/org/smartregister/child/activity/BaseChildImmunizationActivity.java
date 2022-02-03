@@ -56,6 +56,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.BCGNotificationDialog;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -188,7 +189,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             childDetails = getChildDetails(caseId);
 
             CommonPersonObjectClient cardChildDetails = null;
-            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
+            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS) && childDetails == null) {
                 cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
             }
 
@@ -241,7 +242,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+
+        // load the child details
+        Map<String,String> detailsMap = childDetails.getColumnmaps();
+        if (detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE)) {
+            bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        }
+
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
                         registerClickables.getNextAppointmentDate() : "");
@@ -416,6 +423,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @Override
     public void updateViews() {
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
+
+        Map<String,String> detailsMap = childDetails.getColumnmaps();
+        if (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE)) {
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
+        }
 
         isChildActive = isActiveStatus(childDetails);
 

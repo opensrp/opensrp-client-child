@@ -151,6 +151,8 @@ public final class Constants extends AllConstants {
         public static final String BCG_SCAR = "BCG: scar";
         public static final String DETAILS = "details";
         public static final String SERVICE_DATE = "service_date";
+
+        public static final String IS_CHILD_DATA_ON_DEVICE = "is_child_data_on_device";
     }
 
     public static final class INTENT_KEY {
