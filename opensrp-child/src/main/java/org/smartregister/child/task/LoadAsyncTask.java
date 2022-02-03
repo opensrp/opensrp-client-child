@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import androidx.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -105,7 +106,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         updateBirthWeight();
         Map<String, NamedObject<?>> map = new HashMap<>();
 
-        if (detailsMap == null || detailsMap.size() <= 0) {
+        if (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE)) {
             detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
         }
 
@@ -232,6 +233,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
             }
+
+            activity.updateActivityTitle();
         } catch (Exception e) {
             Timber.e(e);
         } finally {
