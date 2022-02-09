@@ -1,7 +1,6 @@
 package org.smartregister.child.activity;
 
 import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
-import static org.smartregister.growthmonitoring.util.AppProperties.Entry;
 import static org.smartregister.util.Utils.showToast;
 
 import android.Manifest;
@@ -132,9 +131,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
-import static org.smartregister.util.Utils.showToast;
 
 /**
  * Created by raihan on 1/03/2017.
@@ -485,12 +481,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            String systemOfRegistrationText = Utils.getValue(childDetails,Constants.Client.SYSTEM_OF_REGISTRATION, false);
-            if(systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
+            String systemOfRegistrationText = Utils.getValue(childDetails, Constants.Client.SYSTEM_OF_REGISTRATION, false);
+            if (systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
                 systemOfRegistration.setText(systemOfRegistrationText);
-            else
-                if (systemOfRegistration != null)
-                    systemOfRegistration.setVisibility(View.GONE);
+            else if (systemOfRegistration != null)
+                systemOfRegistration.setVisibility(View.GONE);
             dobString = Utils.getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
             if (dob != null) {

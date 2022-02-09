@@ -6,7 +6,6 @@ import org.smartregister.AllConstants;
 import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildTabbedDetailsContract;
-import org.smartregister.child.contract.IChildStatus;
 import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonPersonObjectClient;

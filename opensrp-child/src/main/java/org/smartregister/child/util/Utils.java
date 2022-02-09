@@ -1,5 +1,7 @@
 package org.smartregister.child.util;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.translate;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.res.Resources;
@@ -65,7 +67,6 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
-import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.UniqueIdRepository;
@@ -86,8 +87,6 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
-
-import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 
 /**
  * Created by ndegwamartin on 25/02/2019.
