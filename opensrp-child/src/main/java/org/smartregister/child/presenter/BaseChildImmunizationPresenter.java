@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.smartregister.Context;
 import org.smartregister.child.contract.ChildImmunizationContract;
-import org.smartregister.child.contract.IChildStatus;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
