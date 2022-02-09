@@ -19,7 +19,6 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.sync.helper.ECSyncHelper;
-import org.smartregister.sync.intent.SyncIntentService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

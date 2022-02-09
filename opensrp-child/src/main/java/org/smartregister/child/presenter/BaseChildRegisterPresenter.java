@@ -1,7 +1,5 @@
 package org.smartregister.child.presenter;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
