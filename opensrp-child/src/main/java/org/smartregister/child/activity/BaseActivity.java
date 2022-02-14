@@ -524,7 +524,7 @@ toggle.syncState();
     }
 
     protected boolean isActiveStatus(String humanFriendlyStatus) {
-        return getString(R.string.active).equals(humanFriendlyStatus);
+        return getString(R.string.active).equalsIgnoreCase(humanFriendlyStatus);
     }
 
     protected String getHumanFriendlyChildsStatus(Map<String, String> detailsColumnMap) {

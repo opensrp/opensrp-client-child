@@ -65,6 +65,7 @@ public final class Constants extends AllConstants {
         public static final String VALUE_FIELD = "value_field";
         public static final String RELATIONSHIPS = "relationships";
         public static final String SERVVICES = "services";
+        public static final String EXCLUSION_KEYS = "exclusion_keys";
     }
 
     public static class JSON_FORM_EXTRA {

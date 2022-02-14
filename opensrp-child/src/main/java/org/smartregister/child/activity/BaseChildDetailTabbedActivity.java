@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -331,9 +332,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 childDetails = cardChildDetails;
             } else {
                 // card last update
-                long lastCardTxDateTime = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0"));
+                long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0")) : 0l;
                 // device last update
-                long lastInteractedWith = Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0"));
+                long lastInteractedWith = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0")) : 0l;
 
                 if (lastCardTxDateTime > lastInteractedWith) {
                     childDetails = cardChildDetails;
@@ -911,12 +912,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         try {
             ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    new SaveChildStatusTask(BaseChildDetailTabbedActivity.this, presenter).execute();
-                }
-            });
+            runOnUiThread(() -> new SaveChildStatusTask(BaseChildDetailTabbedActivity.this, presenter).execute());
         } catch (Exception e) {
             Timber.e(e);
         }
@@ -1175,16 +1171,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public boolean insertVaccinesGivenAsOptions(JSONObject question) throws JSONException {
-        JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
+        JSONObject omrsChoicesTemplate = question.getJSONObject(JsonFormConstants.OPENMRS_CHOICE_IDS);
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
         List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
 
-        JSONArray exclusionKeys = question.optJSONArray("exclusion_keys");
+        JSONArray exclusionKeys = question.optJSONArray(Constants.JSON_FORM_KEY.EXCLUSION_KEYS);
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
             ok = true;
+            JSONObject vaccineOption;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
 
@@ -1192,27 +1189,43 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
                 if (!vaccineIsExcluded) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-                    String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format), VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
+                    String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format),
+                            VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
 
-                    choices.put(name.toUpperCase(Locale.getDefault()));
+                    Pair<String,String> vaccineGroupConceptPair = getVaccineGroupConceptID(omrsChoicesTemplate, curVaccine);
 
-                    Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
-                    while (vaccineGroupNames.hasNext()) {
-                        String curGroupName = vaccineGroupNames.next();
+                    vaccineOption = new JSONObject();
+                    vaccineOption.put(JsonFormConstants.KEY, vaccineGroupConceptPair.first);
+                    vaccineOption.put(JsonFormConstants.TEXT, name.toUpperCase(Locale.getDefault()));
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY, Constants.KEY.CONCEPT); ;
 
-                        if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
-                            omrsChoices.put(name, omrsChoicesTemplate.getString(curGroupName));
-                            break;
-                        }
-                    }
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY_ID,vaccineGroupConceptPair.second );
+                    omrsChoices.put(vaccineGroupConceptPair.first, vaccineGroupConceptPair.second );
+                    choices.put(vaccineOption);
+
                 }
             }
         }
 
-        question.put("values", choices);
-        question.put("openmrs_choice_ids", omrsChoices);
+        question.put(JsonFormConstants.OPTIONS_FIELD_NAME, choices);
+        question.put(JsonFormConstants.OPENMRS_CHOICE_IDS, omrsChoices);
 
         return ok;
+    }
+
+    private Pair<String, String> getVaccineGroupConceptID(JSONObject omrsChoicesTemplate, Vaccine curVaccine) throws JSONException {
+        Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
+        String result = null;
+        String curGroupName = null;
+        while (vaccineGroupNames.hasNext()) {
+            curGroupName = vaccineGroupNames.next();
+
+            if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
+                result = omrsChoicesTemplate.getString(curGroupName);
+                break;
+            }
+        }
+        return new Pair<>(curGroupName, result);
     }
 
     private boolean jsonArrayContainsValue(JSONArray jsonArray, String value) throws JSONException {
