@@ -11,8 +11,8 @@ import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChildDbUtils {
@@ -24,7 +24,7 @@ public class ChildDbUtils {
      * @return {@link HashMap}
      */
     public static HashMap<String, String> fetchChildDetails(@NonNull String baseEntityId) {
-        ArrayList<HashMap<String, String>> childDetails = ChildLibrary.getInstance()
+        List<HashMap<String, String>> childDetails = ChildLibrary.getInstance()
                 .eventClientRepository()
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +

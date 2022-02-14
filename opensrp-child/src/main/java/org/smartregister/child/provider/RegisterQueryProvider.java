@@ -44,11 +44,11 @@ public class RegisterQueryProvider {
         String strFilters = getFilter(filters);
 
         if (StringUtils.isNotBlank(strFilters) && StringUtils.isBlank(strMainCondition)) {
-            strFilters = String.format(" where " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
         return "SELECT count(" + getDemographicTable() + ".object_id) " +
-                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + "  " +
+                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
                 "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
                 "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
                 strMainCondition + strFilters;
@@ -59,7 +59,7 @@ public class RegisterQueryProvider {
                 "FROM " + getChildDetailsTable() + " " +
                 "JOIN " + getMotherDetailsTable() + " ON " + getChildDetailsTable() + "." + Constants.KEY.RELATIONAL_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
                 "JOIN " + getDemographicTable() + " ON " + getDemographicTable() + "." + Constants.KEY.BASE_ENTITY_ID + " = " + getChildDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID + " " +
-                "JOIN " + getDemographicTable() + " mother on mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
+                "JOIN " + getDemographicTable() + " mother ON mother." + Constants.KEY.BASE_ENTITY_ID + " = " + getMotherDetailsTable() + "." + Constants.KEY.BASE_ENTITY_ID;
     }
 
     public String mainRegisterQuery(String select) {

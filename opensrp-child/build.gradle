@@ -93,6 +93,7 @@ android {
 
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
 }
 
 allprojects {
@@ -106,7 +107,7 @@ allprojects {
 
 dependencies {
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     api('org.smartregister:opensrp-client-core:4.3.26-SNAPSHOT@aar') {
         transitive = true
@@ -190,8 +191,7 @@ dependencies {
     }
 
     // PowerMock
-    def powerMockVersion = '2.0.7'
-    testImplementation "org.mockito:mockito-core:2.1.0"
+    def powerMockVersion = '2.0.9'
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
     testImplementation "org.powermock:powermock-module-javaagent:$powerMockVersion"

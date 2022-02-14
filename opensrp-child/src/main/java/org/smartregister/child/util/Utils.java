@@ -749,27 +749,27 @@ public class Utils extends org.smartregister.util.Utils {
         return providedWithin;
     }
 
+    /**
+     * This method updates the Client document with the Child Status Attribute-Values e.g. Lost To Follow up with true or false values depending on state.
+     * It also updates the child details passed as param of type CommonPersonObjectClient with the new status attribute/values for rendering on the view
+     *
+     * @param openSRPcontext The OpenSRP context
+     * @param childDetails   The data object of type CommonPersonObjectClient holding the child details
+     */
     public static void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails) {
         try {
             Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
             CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, Constants.ENTITY.CHILD);
-            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
 
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.INACTIVE, true));
-            } else {
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.INACTIVE, false));
-            }
+            String isInactive = details.get(Constants.CHILD_STATUS.INACTIVE);
+            String isLostToFollowup = details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP);
 
-            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            Map<String, Object> childStatusAttributes = new HashMap<>();
+            childStatusAttributes.put(Constants.CHILD_STATUS.INACTIVE, isInactive != null && isInactive.equalsIgnoreCase(Boolean.TRUE.toString()));
+            childStatusAttributes.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, isLostToFollowup != null && isLostToFollowup.equalsIgnoreCase(Boolean.TRUE.toString()));
 
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, true));
-            } else {
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
-            }
+            commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, childStatusAttributes));
+
         } catch (Exception e) {
             Timber.e(e);
         }
