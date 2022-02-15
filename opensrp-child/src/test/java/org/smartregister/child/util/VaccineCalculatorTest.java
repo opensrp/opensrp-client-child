@@ -55,8 +55,7 @@ public class VaccineCalculatorTest extends BaseUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
-        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD)
-        ;
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
     }
 
     @Test
@@ -199,7 +198,6 @@ public class VaccineCalculatorTest extends BaseUnitTest {
         ImmunizationLibrary immunizationLibrary = Mockito.mock(ImmunizationLibrary.class);
 
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
-        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD)
-        ;
+        Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
     }
 }

@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -48,6 +49,15 @@ public class ExtraVaccineEditDialogFragmentTest {
     public void setUp() {
         activity = Robolectric.buildActivity(AppCompatActivity.class).create().resume().get();
         extraVaccineFragment = ExtraVaccineEditDialogFragment.newInstance();
+    }
+
+    @After
+    public void tearDown(){
+        try {
+            activity.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

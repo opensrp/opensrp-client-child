@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +75,15 @@ public class ChildUnderFiveFragmentTest {
         MockitoAnnotations.initMocks(this);
         appCompatActivity = Robolectric.buildActivity(AppCompatActivity.class).create().resume().get();
         boosterImmunizationsLayout = new LinearLayout(appCompatActivity);
+    }
+
+    @After
+    public void tearDown(){
+        try {
+            appCompatActivity.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -206,7 +216,6 @@ public class ChildUnderFiveFragmentTest {
         ChildUnderFiveFragment fragment = initFragment();
         fragment.onVaccineUpdated(new ExtraVaccineUpdateEvent(entityId, vaccine, vaccineDate, true));
         assertEquals(((ViewGroup) boosterImmunizationsLayout).getChildCount(), 0);
-
     }
 
     private ChildUnderFiveFragment initFragment() {

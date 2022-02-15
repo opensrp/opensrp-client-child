@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,6 +64,8 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
 
     private Context context;
 
+    private AppCompatActivity activity;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -70,8 +73,17 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
         fragment = new NoMatchDialogFragment(baseRegisterActivity, "123");
         context = RuntimeEnvironment.application;
 
-        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
+        activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
         activity.getSupportFragmentManager().beginTransaction().add(fragment, "Tasks").commit();
+    }
+
+    @After
+    public void tearDown(){
+        try {
+            activity.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
