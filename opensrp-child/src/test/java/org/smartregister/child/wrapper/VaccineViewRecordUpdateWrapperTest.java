@@ -3,9 +3,8 @@ package org.smartregister.child.wrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.util.Constants;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
@@ -15,8 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
-public class VaccineViewRecordUpdateWrapperTest {
+public class VaccineViewRecordUpdateWrapperTest extends BaseUnitTest {
 
     private VaccineViewRecordUpdateWrapper vaccineViewRecordUpdateWrapper;
 

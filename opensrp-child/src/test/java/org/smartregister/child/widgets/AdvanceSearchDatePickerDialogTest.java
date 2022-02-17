@@ -8,20 +8,16 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.AppProperties;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = 27)
-public class AdvanceSearchDatePickerDialogTest {
+public class AdvanceSearchDatePickerDialogTest extends BaseUnitTest {
 
     private AdvanceSearchDatePickerDialog datePickerDialog;
     private AppCompatActivity startActivity;
@@ -50,5 +46,7 @@ public class AdvanceSearchDatePickerDialogTest {
     @After
     public void tearDown() {
         startActivity.finish();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        datePickerDialog = null;
     }
 }

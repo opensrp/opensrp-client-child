@@ -3,15 +3,14 @@ package org.smartregister.child.presenter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
@@ -23,9 +22,8 @@ import org.smartregister.domain.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({ChildLibrary.class})
-public class BaseChildAdvancedSearchPresenterTest {
+public class BaseChildAdvancedSearchPresenterTest extends BasePowerMockUnitTest {
     @Mock
     private ChildLibrary childLibrary;
 
