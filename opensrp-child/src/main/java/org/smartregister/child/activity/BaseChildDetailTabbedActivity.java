@@ -322,27 +322,28 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
-
-            CommonPersonObjectClient cardChildDetails = null;
-            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
-                cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
-            }
-
-            if (childDetails == null) {
-                childDetails = cardChildDetails;
-            } else {
-                // card last update
-                long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("nfc_card_last_updated_timestamp", "0")) : 0l;
-                // device last update
-                long lastInteractedWith = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault("last_interacted_with", "0")) : 0l;
-
-                if (lastCardTxDateTime > lastInteractedWith) {
-                    childDetails = cardChildDetails;
+            if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+                CommonPersonObjectClient cardChildDetails = null;
+                if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
+                    cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
                 }
-            }
 
-            Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
-            detailsMap = childDetails.getColumnmaps();
+                if (childDetails == null) {
+                    childDetails = cardChildDetails;
+                } else {
+                    // card last update
+                    long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "0")) : 0l;
+                    // device last update
+                    long lastInteractedWith = childDetails != null ? Long.parseLong(childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0")) : 0l;
+
+                    if (lastCardTxDateTime > lastInteractedWith) {
+                        childDetails = cardChildDetails;
+                    }
+                }
+
+                Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+                detailsMap = childDetails.getColumnmaps();
+            }
         }
         return extras;
     }
@@ -1198,7 +1199,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     vaccineOption.put(JsonFormConstants.KEY, vaccineGroupConceptPair.first);
                     vaccineOption.put(JsonFormConstants.TEXT, name.toUpperCase(Locale.getDefault()));
                     vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY, Constants.KEY.CONCEPT);
-                    ;
 
                     vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY_ID, vaccineGroupConceptPair.second);
                     omrsChoices.put(vaccineGroupConceptPair.first, vaccineGroupConceptPair.second);
