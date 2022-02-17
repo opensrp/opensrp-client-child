@@ -244,8 +244,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
 
         // load the child details
-        Map<String,String> detailsMap = childDetails.getColumnmaps();
-        if (detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE)) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE))) {
             bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
         }
 
@@ -436,8 +435,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     public void updateViews() {
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
 
-        Map<String,String> detailsMap = childDetails.getColumnmaps();
-        if (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE)) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
             childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
         }
 

@@ -106,7 +106,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         updateBirthWeight();
         Map<String, NamedObject<?>> map = new HashMap<>();
 
-        if (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE)) {
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
             detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
         }
 
