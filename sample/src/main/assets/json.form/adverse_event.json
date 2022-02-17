@@ -47,7 +47,7 @@
     "encounter_location": ""
   },
   "step1": {
-    "title": "Report an adverse event",
+    "title": "Adverse Event Reporting",
     "fields": [
       {
         "key": "Reaction_Vaccine",
@@ -56,94 +56,59 @@
         "openmrs_entity_id": "6042AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "select one",
         "type": "spinner",
-        "hint": "Vaccine that caused the reaction ",
+        "hint": "Vaccine that caused the reaction",
         "values": [
           "BCG",
+          "HepB",
           "OPV",
+          "IPV",
           "Penta",
           "PCV",
           "Rota",
-          "Measles",
-          "MR"
+          "MR",
+          "Yellow Fever"
         ],
         "openmrs_choice_ids": {
           "BCG": "149310AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "HepB": "159666AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "OPV": "129578AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "Penta": "162265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "PCV": "162266AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "Rota": "162272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
           "Measles": "149286AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "MR": "149286AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          "MR": "149286AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "Yellow Fever": "149253AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
         "v_required": {
-          "value": true,
+          "value": "true",
           "err": "Please enter the vaccine that caused the reaction"
-        }
-      },
-      {
-        "key": "Date_Reaction",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "concept",
-        "openmrs_entity_id": "1730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "type": "date_picker",
-        "hint": "Date that the child started experiencing the reaction ",
-        "expanded": false,
-        "max_date": "today",
-        "v_required": {
-          "value": "true",
-          "err": "Please enter the date child started experiencing reaction"
-        }
-      },
-      {
-        "key": "Reaction_Description",
-        "openmrs_entity_parent": "111172AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "openmrs_entity": "concept",
-        "openmrs_entity_id": "160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "openmrs_data_type": "text",
-        "type": "edit_text",
-        "hint": "Describe the reaction ",
-        "v_required": {
-          "value": "true",
-          "err": "Please describe the reaction"
-        }
-      },
-      {
-        "key": "Reaction_Referred",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "concept",
-        "openmrs_entity_id": "1648AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "openmrs_data_type": "boolean",
-        "type": "spinner",
-        "hint": "Child referred? ",
-        "values": [
-          "Yes",
-          "No"
-        ],
-        "openmrs_choice_ids": {
-          "Yes": "true",
-          "No": "false"
         },
-        "v_required": {
-          "value": true,
-          "err": "Please specify if child was referred"
-        }
+        "exclusion_keys": [
+          "epnt"
+        ]
       },
       {
-        "key": "AEFI_Form_Completed",
+        "key": "Severity_Of_Adverse_Reaction",
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",
-        "openmrs_entity_id": "163340AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "openmrs_entity_id": "162760AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "openmrs_data_type": "select one",
-        "type": "spinner",
-        "hint": "AEFI form completed?",
-        "values": [
-          "Yes",
-          "No"
-        ],
-        "openmrs_choice_ids": {
-          "Yes": "1267AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "No": "163339AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        }
+        "type": "native_radio",
+        "label": "How severe was the reaction?",
+        "options": [
+          {
+            "key": "severe",
+            "text": "Severe",
+            "openmrs_entity": "concept",
+            "openmrs_entity_id": "1500AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          {
+            "key": "mild",
+            "text": "Minor",
+            "openmrs_entity": "concept",
+            "openmrs_entity_id": "1498AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        ]
       }
     ]
   }

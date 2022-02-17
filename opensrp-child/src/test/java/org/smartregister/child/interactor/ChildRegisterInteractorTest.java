@@ -1,6 +1,6 @@
 package org.smartregister.child.interactor;
 
-import android.os.Build;
+import static org.mockito.ArgumentMatchers.eq;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONException;
@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -19,11 +18,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.JsonFormAssetsUtils;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -52,14 +50,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static org.mockito.ArgumentMatchers.eq;
-
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-11-21
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.O_MR1)
-public class ChildRegisterInteractorTest {
+
+public class ChildRegisterInteractorTest extends BaseUnitTest {
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -222,7 +217,7 @@ public class ChildRegisterInteractorTest {
     }
 
     @Test
-    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenNoUniqueId(){
+    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenNoUniqueId() {
         interactor = Mockito.spy(interactor);
         Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
         ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);
@@ -246,7 +241,7 @@ public class ChildRegisterInteractorTest {
     }
 
     @Test
-    public void testGetNextUniqueIdShouldCallOnUniqueIdFetched(){
+    public void testGetNextUniqueIdShouldCallOnUniqueIdFetched() {
         interactor = Mockito.spy(interactor);
         Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
         ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);

@@ -1192,15 +1192,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format),
                             VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
 
-                    Pair<String,String> vaccineGroupConceptPair = getVaccineGroupConceptID(omrsChoicesTemplate, curVaccine);
+                    Pair<String, String> vaccineGroupConceptPair = getVaccineGroupConceptID(omrsChoicesTemplate, curVaccine);
 
                     vaccineOption = new JSONObject();
                     vaccineOption.put(JsonFormConstants.KEY, vaccineGroupConceptPair.first);
                     vaccineOption.put(JsonFormConstants.TEXT, name.toUpperCase(Locale.getDefault()));
-                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY, Constants.KEY.CONCEPT); ;
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY, Constants.KEY.CONCEPT);
+                    ;
 
-                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY_ID,vaccineGroupConceptPair.second );
-                    omrsChoices.put(vaccineGroupConceptPair.first, vaccineGroupConceptPair.second );
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY_ID, vaccineGroupConceptPair.second);
+                    omrsChoices.put(vaccineGroupConceptPair.first, vaccineGroupConceptPair.second);
                     choices.put(vaccineOption);
 
                 }

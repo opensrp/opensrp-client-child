@@ -420,6 +420,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         childDetails.setDetails(detailsMap);
     }
 
+    @VisibleForTesting
+    @Override
+    protected boolean isActiveStatus(CommonPersonObjectClient child) {
+        return super.isActiveStatus(child);
+    }
+
+    @VisibleForTesting
+    @Override
+    protected String getHumanFriendlyChildsStatus(CommonPersonObjectClient child) {
+        return super.getHumanFriendlyChildsStatus(child);
+    }
+
     @Override
     public void updateViews() {
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
@@ -1444,25 +1456,20 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private void performRecordAllClick(final int index) {
         if (vaccineGroups != null && vaccineGroups.size() > index) {
             final VaccineGroup vaccineGroup = vaccineGroups.get(index);
-            vaccineGroup.post(new Runnable() {
-                @Override
-                public void run() {
-                    vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
-                        ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
-                        if (!vaccineWrappers.isEmpty()) {
-                            final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
-                            recordAllTV.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    recordAllTV.performClick();
-                                }
-                            });
-                        } else {
-                            performRecordAllClick(index + 1);
+            vaccineGroup.post(() -> vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
+                ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
+                if (!vaccineWrappers.isEmpty()) {
+                    final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
+                    recordAllTV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            recordAllTV.performClick();
                         }
                     });
+                } else {
+                    performRecordAllClick(index + 1);
                 }
-            });
+            }));
         }
     }
 

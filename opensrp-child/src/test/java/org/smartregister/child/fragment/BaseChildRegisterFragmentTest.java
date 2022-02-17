@@ -354,7 +354,13 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Whitebox.setInternalState(baseChildRegisterFragment, "Sortqueries", "SORT BY ID DESC");
         Whitebox.setInternalState(baseChildRegisterFragment, "filters", searchText);
 
-        String expectedQuery = "select ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id,ec_client.first_name,ec_client.last_name,mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob,ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number,ec_client.client_reg_date,ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 from ec_child_details join ec_mother_details on ec_child_details.relational_id = ec_mother_details.base_entity_id join ec_client on ec_client.base_entity_id = ec_child_details.base_entity_id join ec_client mother on mother.base_entity_id = ec_mother_details.base_entity_id where _id IN ('6','9','12')";
+        String expectedQuery = "SELECT ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id," +
+                "ec_client.first_name,ec_client.last_name,mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob," +
+                "ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number,ec_client.client_reg_date,ec_child_details.pmtct_status," +
+                "ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 " +
+                "FROM ec_child_details JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id JOIN ec_client " +
+                "ON ec_client.base_entity_id = ec_child_details.base_entity_id JOIN ec_client mother ON mother.base_entity_id = ec_mother_details.base_entity_id WHERE _id IN ('6','9','12') " +
+                "OR ec_mother_details.base_entity_id in ('6','9','12')";
 
         String result = baseChildRegisterFragment.filterAndSortQuery();
 

@@ -5,14 +5,13 @@ import android.view.View;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BasePowerMockUnitTest;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.view.contract.SmartRegisterClient;
 
-@RunWith(MockitoJUnitRunner.class)
-public class BaseViewRecordUpdateWrapperTest {
+public class BaseViewRecordUpdateWrapperTest extends BasePowerMockUnitTest {
 
     @Mock
     private View view;

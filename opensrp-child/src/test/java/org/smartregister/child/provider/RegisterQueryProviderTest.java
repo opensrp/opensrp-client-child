@@ -14,14 +14,14 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     private RegisterQueryProvider queryProvider;
 
-    private String expectedQuery = "select ec_client.object_id from ec_client_search ec_client  " +
-            "join ec_child_details on ec_client.object_id =  ec_child_details.id " +
-            "left join ec_child_details_search on ec_client.object_id =  ec_child_details_search.object_id ";
+    private String expectedQuery = "SELECT ec_client.object_id FROM ec_client_search ec_client " +
+            "LEFT JOIN ec_child_details ON ec_client.object_id = ec_child_details.id " +
+            "LEFT JOIN ec_child_details_search ON ec_client.object_id = ec_child_details_search.object_id ";
 
-    private String registerQuery = "select %s from ec_child_details " +
-            "join ec_mother_details on ec_child_details.relational_id = ec_mother_details.base_entity_id " +
-            "join ec_client on ec_client.base_entity_id = ec_child_details.base_entity_id " +
-            "join ec_client mother on mother.base_entity_id = ec_mother_details.base_entity_id";
+    private String registerQuery = "SELECT %s FROM ec_child_details " +
+            "JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id " +
+            "JOIN ec_client ON ec_client.base_entity_id = ec_child_details.base_entity_id " +
+            "JOIN ec_client mother ON mother.base_entity_id = ec_mother_details.base_entity_id";
 
     private String registerQuerySelect = "ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id," +
             "ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id,ec_client.first_name," +
@@ -31,9 +31,9 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
             "ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive," +
             "ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1";
 
-    private String countQuery = "select count(ec_client.object_id) from ec_client_search ec_client  " +
-            "join ec_child_details on ec_client.object_id =  ec_child_details.id " +
-            "left join ec_child_details_search on ec_client.object_id =  ec_child_details_search.object_id ";
+    private String countQuery = "SELECT count(ec_client.object_id) FROM ec_client_search ec_client " +
+            "LEFT JOIN ec_child_details ON ec_client.object_id = ec_child_details.id " +
+            "LEFT JOIN ec_child_details_search ON ec_client.object_id = ec_child_details_search.object_id ";
 
     @Before
     public void setUp() {
@@ -83,7 +83,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
         RegisterQueryProvider provider = Mockito.spy(queryProvider);
 
         String condition = "condition = 'condition_filter'";
-        Assert.assertEquals(" where condition = 'condition_filter'", method.invoke(provider, condition));
+        Assert.assertEquals(" WHERE condition = 'condition_filter'", method.invoke(provider, condition));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetObjectIdsQueryWithNonEmptyConditionAndEmptyFilterReturnsQueryWithWhereClause() {
-        expectedQuery += " where condition = 'condition_value'";
+        expectedQuery += " WHERE condition = 'condition_value'";
 
         String query = queryProvider.getObjectIdsQuery("condition = 'condition_value'", "");
 
@@ -104,7 +104,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetObjectIdsQueryWithEmptyConditionAndNonEmptyFilterReturnsQueryWithWhereClause() {
-        expectedQuery += " where ec_client.phrase MATCH '*123*'";
+        expectedQuery += " WHERE ec_client.phrase MATCH '*123*'";
 
         String query = queryProvider.getObjectIdsQuery("", "123");
 
@@ -148,7 +148,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetCountExecuteQueryWithNonEmptyConditionAndEmptyFiltersReturnsCountQueryWithoutWhereClause() {
-        countQuery += " where condition = 'condition_value'";
+        countQuery += " WHERE condition = 'condition_value'";
 
         String query = queryProvider.getCountExecuteQuery("condition = 'condition_value'", "");
 
@@ -157,7 +157,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetCountExecuteQueryWithEmptyConditionAndNonEmptyFiltersReturnsCountQueryWithWhereClause() {
-        countQuery += " where ec_client.phrase MATCH '*4567*'";
+        countQuery += " WHERE ec_client.phrase MATCH '*4567*'";
 
         String query = queryProvider.getCountExecuteQuery("", "4567");
 
@@ -166,7 +166,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetCountExecuteQueryWithNonEmptyConditionAndFiltersReturnsCountQueryWithWhereClause() {
-        countQuery += " where condition = 'condition_value' AND ec_client.phrase MATCH '*98765*'";
+        countQuery += " WHERE condition = 'condition_value' AND ec_client.phrase MATCH '*98765*'";
 
         String query = queryProvider.getCountExecuteQuery("condition = 'condition_value'", "98765");
 

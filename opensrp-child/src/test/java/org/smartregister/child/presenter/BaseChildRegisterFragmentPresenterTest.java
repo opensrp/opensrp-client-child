@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.contract.ChildRegisterFragmentContract;
@@ -21,6 +20,7 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.configurableviews.model.Field;
 import org.smartregister.configurableviews.model.RegisterConfiguration;
 import org.smartregister.configurableviews.model.ViewConfiguration;
+import org.smartregister.util.AppProperties;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * Created by ndegwamartin on 14/07/2020.
  */
-@PrepareForTest({Utils.class})
+
 public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTest {
 
     @Mock
@@ -68,16 +68,16 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     private static String SEARCH_BAR_TEXT = "search text";
     private static String DEMOGRAPHICS_TABLE_NAME = "ec_client";
     private static String SQL_QUERY_FILTER = "id > 1";
-    private static final String EXPECTED_MAIN_COUNT_QUERY = "select count(1) from ec_child_details join ec_mother_details " +
-            "on ec_child_details.relational_id = ec_mother_details.base_entity_id join ec_client on ec_client.base_entity_id = ec_child_details.base_entity_id " +
-            "join ec_client mother on mother.base_entity_id = ec_mother_details.base_entity_id where id > 1";
+    private static final String EXPECTED_MAIN_COUNT_QUERY = "SELECT count(1) FROM ec_child_details JOIN ec_mother_details " +
+            "ON ec_child_details.relational_id = ec_mother_details.base_entity_id JOIN ec_client ON ec_client.base_entity_id = ec_child_details.base_entity_id " +
+            "JOIN ec_client mother ON mother.base_entity_id = ec_mother_details.base_entity_id WHERE id > 1";
 
-    private static final String EXPECTED_MAIN_SELECT_QUERY = "select ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender," +
+    private static final String EXPECTED_MAIN_SELECT_QUERY = "SELECT ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender," +
             "ec_client.base_entity_id,ec_client.first_name,ec_client.last_name,mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob," +
             "ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number,ec_client.client_reg_date,ec_child_details.pmtct_status," +
             "ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 " +
-            "from ec_child_details join ec_mother_details on ec_child_details.relational_id = ec_mother_details.base_entity_id join ec_client on ec_client.base_entity_id = ec_child_details.base_entity_id " +
-            "join ec_client mother on mother.base_entity_id = ec_mother_details.base_entity_id where id > 1";
+            "FROM ec_child_details JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id JOIN ec_client ON ec_client.base_entity_id = ec_child_details.base_entity_id " +
+            "JOIN ec_client mother ON mother.base_entity_id = ec_mother_details.base_entity_id WHERE id > 1";
 
     private static final String EXPECTED_FILTER_TEXT = "<font color=#727272>id > 1</font> <font color=#f0ab41>(0)</font>";
     private static final String EXPECTED_SORT_TEXT = "Sort by id";
@@ -147,6 +147,7 @@ public class BaseChildRegisterFragmentPresenterTest extends BasePowerMockUnitTes
     @Test
     public void testInitializeQueriesWithCorrectValues() {
 
+        PowerMockito.mockStatic(AppProperties.class);
         PowerMockito.mockStatic(Utils.class);
         PowerMockito.when(Utils.metadata()).thenReturn(metadata);
 

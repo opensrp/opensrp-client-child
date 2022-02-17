@@ -191,6 +191,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
                 }
             }
         }
+        activity.finish();
     }
 
 
@@ -223,6 +224,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Whitebox.invokeMethod(formFragment, "showFinalActionSnackBar", snackbar);
         Mockito.verify(formFragment, Mockito.times(1)).showSnackBar(ArgumentMatchers.any(Snackbar.class));
         Mockito.verify(formFragment, Mockito.times(1)).dismissSnackBar(ArgumentMatchers.any(Snackbar.class));
+
+        activity.finish();
 
     }
 
@@ -308,6 +311,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Mockito.verify(actionViewSpy, Mockito.times(2)).performClick();
         Mockito.verify(snackbar, Mockito.times(1)).show();
         Mockito.verify(snackbar, Mockito.times(1)).dismiss();
+
+        activity.finish();
     }
 
     @Test
@@ -329,6 +334,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(listView.getAdapter());
         AlertDialog alertDialog = ReflectionHelpers.getField(formFragment, "alertDialog");
         Assert.assertTrue(alertDialog.isShowing());
+        activity.finish();
     }
 
     @After

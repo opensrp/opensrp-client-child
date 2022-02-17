@@ -6,14 +6,12 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 
-@RunWith(PowerMockRunner.class)
-public class ChildMotherDetailModelTest {
+public class ChildMotherDetailModelTest extends BasePowerMockUnitTest {
 
     private String searchResponse = "[{\"type\":\"Client\",\"dateCreated\":\"2020-10-13T07:57:11.105+01:00\",\"system_of_registration\":\"MVACC\",\"serverVersion\":1600329284434,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":11,\"baseEntityId\":\"20770b0a-f8e9-4ed5-bf25-bb10c4a2cfbc\",\"identifiers\":{\"zeir_id\":\"1000017\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Small villa\",\"address2\":\"Illinois\"}}],\"attributes\":{\"age\":\"0.18\",\"child_reg\":\"19012990192\",\"ga_at_birth\":\"39\",\"sms_recipient\":\"mother\",\"place_of_birth\":\"hospital\",\"birth_registration_number\":\"2020/0809\",\"inactive\":\"inactive\",\"lost_to_follow_up\":\"yes\"},\"firstName\":\"Benjamin\",\"lastName\":\"Franklin\",\"birthdate\":\"2020-08-09T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Male\",\"relationships\":{\"father\":[\"ef052dab-564e-47c6-8550-dbedc50ae06f\"],\"mother\":[\"29a28f93-779d-4936-aee2-1fdb02eee9b9\"]},\"teamId\":\"8c1112a5-7d17-41b3-b8fa-e1dafa87e9e4\",\"_id\":\"c0e7fd14-308a-4475-bc1b-1b651f5bf105\",\"_rev\":\"v1\"},{\"type\":\"Client\",\"dateCreated\":\"2020-10-13T07:57:11.144+01:00\",\"serverVersion\":1600329284435,\"baseEntityId\":\"29a28f93-779d-4936-aee2-1fdb02eee9b9\",\"identifiers\":{\"M_ZEIR_ID\":\"100003-3\"},\"addresses\":[{\"addressType\":\"\",\"addressFields\":{\"address1\":\"Small villa\",\"address2\":\"Illinois\"}}],\"attributes\":{\"first_birth\":\"yes\",\"mother_rubella\":\"yes\",\"mother_tdv_doses\":\"2_plus_tdv_doses\",\"rubella_serology\":\"yes\",\"serology_results\":\"negative\",\"mother_nationality\":\"other\",\"second_phone_number\":\"23233232\",\"mother_guardian_number\":\"07456566\",\"mother_nationality_other\":\"American\"},\"firstName\":\"Gates\",\"lastName\":\"Belinda\",\"birthdate\":\"1973-01-01T13:00:00.000+01:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"female\",\"_id\":\"95c4951a-aadb-4b41-8e50-8f7566fea40b\",\"_rev\":\"v1\"}]";
 
@@ -90,36 +88,35 @@ public class ChildMotherDetailModelTest {
                 Assert.assertEquals(attributes.getString(Constants.Client.LOST_TO_FOLLOW_UP), model.getLostFollowUp());
                 Assert.assertEquals(motherJson.getString(Constants.Client.FIRST_NAME), model.getMotherFirstName());
                 Assert.assertEquals(motherJson.getString(Constants.Client.LAST_NAME), model.getMotherLastName());
-                Assert.assertEquals(childJson.getString(Constants.Client.SYSTEM_OF_REGISTRATION),model.getSystemOfRegistration());
+                Assert.assertEquals(childJson.getString(Constants.Client.SYSTEM_OF_REGISTRATION), model.getSystemOfRegistration());
             }
         }
     }
 
     @Test
-    public void testChildModelComparision() throws JSONException
-    {
+    public void testChildModelComparision() throws JSONException {
         JSONArray searchResults = new JSONArray(searchResponse);
 
-            JSONObject childJson = searchResults.getJSONObject(0);
-            JSONObject identifiers = childJson.getJSONObject(Constants.Client.IDENTIFIERS);
+        JSONObject childJson = searchResults.getJSONObject(0);
+        JSONObject identifiers = childJson.getJSONObject(Constants.Client.IDENTIFIERS);
 
-            if (identifiers.has(Constants.KEY.ZEIR_ID)) {
-                JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
-                JSONObject motherJson = ChildJsonFormUtils.getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
+        if (identifiers.has(Constants.KEY.ZEIR_ID)) {
+            JSONObject relationships = childJson.getJSONObject(Constants.Client.RELATIONSHIPS);
+            JSONObject motherJson = ChildJsonFormUtils.getRelationshipJson(searchResults, relationships.getJSONArray(Constants.KEY.MOTHER).getString(0));
 
 
-                ChildMotherDetailModel motherDetailModel = new ChildMotherDetailModel(childJson,motherJson );
-                ChildMotherDetailModel motherDetailModelwithNull = new ChildMotherDetailModel(childJson, motherJson);
-                motherDetailModel.setZeirId("12345");
-                motherDetailModelwithNull.setZeirId(null);
+            ChildMotherDetailModel motherDetailModel = new ChildMotherDetailModel(childJson, motherJson);
+            ChildMotherDetailModel motherDetailModelwithNull = new ChildMotherDetailModel(childJson, motherJson);
+            motherDetailModel.setZeirId("12345");
+            motherDetailModelwithNull.setZeirId(null);
 
-                Assert.assertEquals(0, motherDetailModel.compareTo(motherDetailModelwithNull));
-                ChildMotherDetailModel motherDetailModel2 = new ChildMotherDetailModel(childJson, motherJson);
-                motherDetailModel2.setZeirId("123456");
+            Assert.assertEquals(0, motherDetailModel.compareTo(motherDetailModelwithNull));
+            ChildMotherDetailModel motherDetailModel2 = new ChildMotherDetailModel(childJson, motherJson);
+            motherDetailModel2.setZeirId("123456");
 
-                Assert.assertEquals(-1, motherDetailModel.compareTo(motherDetailModel2));
+            Assert.assertEquals(-1, motherDetailModel.compareTo(motherDetailModel2));
 
-            }
+        }
 
 
     }

@@ -1,5 +1,7 @@
 package org.smartregister.child.fragment;
 
+import static org.mockito.Mockito.verify;
+
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,19 +19,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vijay.jsonwizard.customviews.CheckBox;
 import com.vijay.jsonwizard.customviews.RadioButton;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -41,11 +43,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.verify;
-
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({ChildLibrary.class, Utils.class})
-public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
+public class BaseAdvancedSearchFragmentTest extends BaseUnitTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule();
@@ -92,6 +91,11 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         baseAdvancedSearchFragment = Mockito.mock(BaseAdvancedSearchFragment.class, Mockito.CALLS_REAL_METHODS);
+    }
+
+    @After
+    public void tearDown() {
+        baseAdvancedSearchFragment = null;
     }
 
     @Test
@@ -236,7 +240,7 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
     }
 
     @Test
-    public void testSetUserVisibleHint(){
+    public void testSetUserVisibleHint() {
         PowerMockito.mockStatic(Utils.class);
         Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
         Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
@@ -257,7 +261,7 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
     }
 
     @Test
-    public void testSetUserVisibleHintWhenSearchCriteriaIsNotNullAndMatchingResultsIsNotNull(){
+    public void testSetUserVisibleHintWhenSearchCriteriaIsNotNullAndMatchingResultsIsNotNull() {
         PowerMockito.mockStatic(Utils.class);
         Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
         Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
@@ -282,7 +286,7 @@ public class BaseAdvancedSearchFragmentTest  extends BaseUnitTest {
     }
 
     @Test
-    public void testSetUserVisibleHintWhenIsConnectedToNetworkIsTrue(){
+    public void testSetUserVisibleHintWhenIsConnectedToNetworkIsTrue() {
         PowerMockito.mockStatic(Utils.class);
         Mockito.doNothing().when(baseAdvancedSearchFragment).switchViews(false);
         Mockito.doReturn(fragmentActivity).when(baseAdvancedSearchFragment).requireActivity();
