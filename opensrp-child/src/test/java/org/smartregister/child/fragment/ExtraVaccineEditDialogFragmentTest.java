@@ -61,7 +61,6 @@ public class ExtraVaccineEditDialogFragmentTest {
     }
 
     @Test
-    @Ignore("TODO: Resolve out of memory error")
     public void testThatViewsAreInitializedCorrectly() {
 
         initFragment();
@@ -82,7 +81,6 @@ public class ExtraVaccineEditDialogFragmentTest {
     }
 
     @Test
-    @Ignore("TODO: Resolve out of memory error")
     public void testButtonClicks() {
         initFragment();
 

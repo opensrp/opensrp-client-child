@@ -135,6 +135,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        baseChildDetailTabbedActivity = null;
     }
 
     @Test
@@ -285,6 +286,28 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
+    }
+
+    @Test
+    public void testInitLoadChildDetails() throws Exception {
+        PowerMockito.mockStatic(ChildDbUtils.class);
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(childLibrary.getProperties()).thenReturn(appProperties);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
+        initLoadChildDetails.setAccessible(true);
+
+        Intent intent = new Intent();
+        intent.putExtra(Constants.INTENT_KEY.LOCATION_ID, "loc-1");
+        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, "id-1");
+
+        doReturn(intent).when(baseChildDetailTabbedActivity).getIntent();
+        when(ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId("id-1")).thenReturn(getChildDetails());
+
+        Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
+        Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
+        Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
     }
 
     @Test
@@ -556,24 +579,5 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Assert.assertEquals(getChildDetails().entityId(), jsonObject.getString(Constants.KEY.ENTITY_ID));
         verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).startFormActivity(jsonObject.toString());
         Assert.assertEquals(locationId, jsonObject.getJSONObject(ChildJsonFormUtils.METADATA).getString(ChildJsonFormUtils.ENCOUNTER_LOCATION));
-    }
-
-    @Test
-    public void testInitLoadChildDetails() throws Exception {
-        PowerMockito.mockStatic(ChildDbUtils.class);
-
-        Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
-        initLoadChildDetails.setAccessible(true);
-
-        Intent intent = new Intent();
-        intent.putExtra(Constants.INTENT_KEY.LOCATION_ID, "loc-1");
-        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, "id-1");
-
-        doReturn(intent).when(baseChildDetailTabbedActivity).getIntent();
-        when(ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId("id-1")).thenReturn(getChildDetails());
-
-        Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
-        Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
-        Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
     }
 }

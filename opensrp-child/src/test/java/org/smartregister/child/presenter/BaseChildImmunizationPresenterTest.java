@@ -2,6 +2,7 @@ package org.smartregister.child.presenter;
 
 import static org.mockito.Mockito.doReturn;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,7 +111,7 @@ public class BaseChildImmunizationPresenterTest {
 
     }
 
-    @Test
+    @After
     public void tearDown() {
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
@@ -129,7 +130,7 @@ public class BaseChildImmunizationPresenterTest {
 
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
         PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
+        doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
 
         Height height = new Height();
         height.setCm(39f);
@@ -139,7 +140,7 @@ public class BaseChildImmunizationPresenterTest {
         height3.setCm(51f);
         List<Height> heights = new ArrayList<>(Arrays.asList(new Height[]{height, height2, height3}));
 
-        Mockito.doReturn(heights).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        doReturn(heights).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
 
         List<Height> heightList = presenter.getAllHeights(childDetails);
         Assert.assertNotNull(heightList);
@@ -156,7 +157,7 @@ public class BaseChildImmunizationPresenterTest {
 
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
         PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
+        doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
 
         Weight weight = new Weight();
         weight.setKg(2.8f);
@@ -164,7 +165,7 @@ public class BaseChildImmunizationPresenterTest {
         weight2.setKg(4.4f);
         List<Weight> weights = new ArrayList<>(Arrays.asList(new Weight[]{weight, weight2,}));
 
-        Mockito.doReturn(weights).when(weightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        doReturn(weights).when(weightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
 
         List<Weight> weightList = presenter.getAllWeights(childDetails);
         Assert.assertNotNull(weightList);
