@@ -35,11 +35,8 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -48,6 +45,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -154,7 +152,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         doReturn(opensrpContext).when(coreLibrary).context();
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
 
-        SQLiteDatabase sqLiteDatabase = Mockito.mock(SQLiteDatabase.class);
+        SQLiteDatabase sqLiteDatabase = mock(SQLiteDatabase.class);
         PowerMockito.when(eventClientRepository.getReadableDatabase()).thenReturn(sqLiteDatabase);
 
         PowerMockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
@@ -169,7 +167,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
                 "test",
                 "test", "test");
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        Mockito.doReturn(metadata).when(childLibrary).metadata();
+        doReturn(metadata).when(childLibrary).metadata();
 
         ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
         HashMap<String, String> childDetails = new HashMap<>();
@@ -190,16 +188,12 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         immunizationActivity = spy(Robolectric.buildActivity(TestBaseChildImmunizationActivity.class, intent).create().get());
     }
 
-    @Ignore("TO DO Fix, Method mocking anomaly")
     @Test
     public void testUpdateViewsShouldInvokeUpdateViewTask() throws InterruptedException {
-        PowerMockito.mockStatic(ReportRepository.class);
         doNothing().when(immunizationActivity).updateScheduleDate();
 
-        doReturn(true).when(immunizationActivity).isActiveStatus(ArgumentMatchers.any(CommonPersonObjectClient.class));
-        doReturn("ACTIVE").when(immunizationActivity).getHumanFriendlyChildsStatus(ArgumentMatchers.any(CommonPersonObjectClient.class));
-
         immunizationActivity.updateViews();
+
         Thread.sleep(ASYNC_TIMEOUT);
         verify(immunizationActivity).startUpdateViewTask();
     }
@@ -427,7 +421,9 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
             clientDetails.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
             clientDetails.put(Constants.KEY.GENDER, Constants.GENDER.MALE);
             clientDetails.put(Constants.KEY.DOB, "2021-01-09");
-            CommonPersonObjectClient client = new CommonPersonObjectClient("23weq", clientDetails, "John Doe");
+            clientDetails.put(Constants.CHILD_STATUS.INACTIVE, "true");
+            clientDetails.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP,"false");
+            CommonPersonObjectClient client = new CommonPersonObjectClient("a3cd-acdb-2babc-df13c", clientDetails, "John Doe");
             client.setColumnmaps(clientDetails);
             return client;
         }

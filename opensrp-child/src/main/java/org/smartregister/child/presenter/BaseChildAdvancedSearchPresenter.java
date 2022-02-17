@@ -85,7 +85,6 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
                 editMap.put(BIRTH_DATE, birthDate);
             }
         }
-
         return editMap;
     }
 

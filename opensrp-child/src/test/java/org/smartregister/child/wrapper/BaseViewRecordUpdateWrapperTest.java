@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.powermock.reflect.Whitebox;
 import org.smartregister.child.BasePowerMockUnitTest;
-import org.smartregister.child.BaseUnitTest;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 public class BaseViewRecordUpdateWrapperTest extends BasePowerMockUnitTest {

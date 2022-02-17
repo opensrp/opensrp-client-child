@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.smartregister.child.BasePowerMockUnitTest;
-import org.smartregister.child.BaseUnitTest;
 
 public class ChildCheckboxTextFactoryTest extends BasePowerMockUnitTest {
 
@@ -36,7 +35,7 @@ public class ChildCheckboxTextFactoryTest extends BasePowerMockUnitTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         formFragment = null;
         checkboxTextFactory = null;
     }
