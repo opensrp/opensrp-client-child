@@ -1,5 +1,10 @@
 package org.smartregister.child.activity;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -63,6 +68,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.DateUtil;
+import org.smartregister.util.EasyMap;
 import org.smartregister.util.FormUtils;
 
 import java.lang.reflect.Method;
@@ -74,11 +80,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @PrepareForTest({GrowthMonitoringLibrary.class, ChildDbUtils.class, ChildLibrary.class, DateUtil.class, FormUtils.class})
 public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
@@ -278,16 +279,22 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
+        childDetails.put(Constants.KEY.LAST_INTERACTED_WITH, "3000");
 
-        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, Constants.KEY.CHILD);
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, "John");
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
     }
 
     @Test
-    public void testInitLoadChildDetails() throws Exception {
+    public void testInitLoadChildDetailsUpdatesDeviceWithCardData() throws Exception {
         PowerMockito.mockStatic(ChildDbUtils.class);
+        PowerMockito.mockStatic(ChildLibrary.class);
+        PowerMockito.when(childLibrary.getProperties()).thenReturn(appProperties);
+        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
+
+        doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED);
 
         Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
         initLoadChildDetails.setAccessible(true);
@@ -295,13 +302,24 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Intent intent = new Intent();
         intent.putExtra(Constants.INTENT_KEY.LOCATION_ID, "loc-1");
         intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, "id-1");
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", EasyMap.mapOf(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "5000"), "John Doe");
+        commonPersonObjectClient.setColumnmaps(EasyMap.mapOf(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "5000"));
+        intent.putExtra(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, commonPersonObjectClient);
 
         doReturn(intent).when(baseChildDetailTabbedActivity).getIntent();
+        Map<String, String> testDetailsMap = Whitebox.getInternalState(baseChildDetailTabbedActivity, "detailsMap");
         when(ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId("id-1")).thenReturn(getChildDetails());
 
+        Assert.assertNull(testDetailsMap);
+
         Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
+
         Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
         Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
+
+        testDetailsMap = Whitebox.getInternalState(baseChildDetailTabbedActivity, "detailsMap");
+        Assert.assertNotNull(testDetailsMap);
+        Assert.assertTrue(testDetailsMap.containsKey(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP));
     }
 
     @Test
@@ -314,7 +332,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
-        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
+        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION, "MVACC");
 
         TextView profilename = Mockito.mock(TextView.class);
         TextView profileOpenSrpId = Mockito.mock(TextView.class);
@@ -538,5 +556,24 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Assert.assertEquals(getChildDetails().entityId(), jsonObject.getString(Constants.KEY.ENTITY_ID));
         verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).startFormActivity(jsonObject.toString());
         Assert.assertEquals(locationId, jsonObject.getJSONObject(ChildJsonFormUtils.METADATA).getString(ChildJsonFormUtils.ENCOUNTER_LOCATION));
+    }
+
+    @Test
+    public void testInitLoadChildDetails() throws Exception {
+        PowerMockito.mockStatic(ChildDbUtils.class);
+
+        Method initLoadChildDetails = BaseChildDetailTabbedActivity.class.getDeclaredMethod("initLoadChildDetails");
+        initLoadChildDetails.setAccessible(true);
+
+        Intent intent = new Intent();
+        intent.putExtra(Constants.INTENT_KEY.LOCATION_ID, "loc-1");
+        intent.putExtra(Constants.INTENT_KEY.BASE_ENTITY_ID, "id-1");
+
+        doReturn(intent).when(baseChildDetailTabbedActivity).getIntent();
+        when(ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId("id-1")).thenReturn(getChildDetails());
+
+        Bundle res = (Bundle) initLoadChildDetails.invoke(baseChildDetailTabbedActivity);
+        Assert.assertEquals("loc-1", res.getString(Constants.INTENT_KEY.LOCATION_ID));
+        Assert.assertEquals("id-1", res.getString(Constants.INTENT_KEY.BASE_ENTITY_ID));
     }
 }
