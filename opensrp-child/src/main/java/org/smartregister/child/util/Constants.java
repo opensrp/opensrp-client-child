@@ -154,6 +154,7 @@ public final class Constants extends AllConstants {
         public static final String SERVICE_DATE = "service_date";
 
         public static final String IS_CHILD_DATA_ON_DEVICE = "is_child_data_on_device";
+        public static final String NFC_CARD_LAST_UPDATED_TIMESTAMP = "nfc_card_last_updated_timestamp";
     }
 
     public static final class INTENT_KEY {
