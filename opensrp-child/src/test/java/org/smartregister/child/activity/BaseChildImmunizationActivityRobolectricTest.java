@@ -45,7 +45,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.util.ReflectionHelpers;
-import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
