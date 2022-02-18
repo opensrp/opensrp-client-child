@@ -422,7 +422,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
             clientDetails.put(Constants.KEY.GENDER, Constants.GENDER.MALE);
             clientDetails.put(Constants.KEY.DOB, "2021-01-09");
             clientDetails.put(Constants.CHILD_STATUS.INACTIVE, "true");
-            clientDetails.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP,"false");
+            clientDetails.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "false");
             CommonPersonObjectClient client = new CommonPersonObjectClient("a3cd-acdb-2babc-df13c", clientDetails, "John Doe");
             client.setColumnmaps(clientDetails);
             return client;
