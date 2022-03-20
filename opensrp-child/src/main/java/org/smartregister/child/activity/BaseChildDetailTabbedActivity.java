@@ -342,8 +342,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 }
 
                 Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
-                detailsMap = childDetails.getColumnmaps();
             }
+            detailsMap = childDetails.getColumnmaps();
         }
         return extras;
     }
