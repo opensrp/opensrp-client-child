@@ -1333,6 +1333,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        overflow = null;
     }
 
     @Override
