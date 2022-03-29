@@ -442,25 +442,38 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void countExecute() {
-        try {
-            String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-            Timber.i(sql);
-            int totalCount = commonRepository().countSearchIds(sql);
-            clientAdapter.setTotalcount(totalCount);
-            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-            clientAdapter.setCurrentlimit(20);
-            clientAdapter.setCurrentoffset(0);
+        AppExecutors executors = new AppExecutors();
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
+                    Timber.i(sql);
+                    int totalCount = commonRepository().countSearchIds(sql);
 
-            // For overdue count
-            // FIXME: Count generated on first sync is not correct
-            String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                    .getCountExecuteQuery(filterSelectionCondition(true),"");
-            Timber.i(sqlOverdueCount);
-            overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-            Timber.i("Total Overdue Count %d", overDueCount);
-        } catch (Exception e) {
-            Timber.e(e);
-        }
+                    // For overdue count
+                    // FIXME: Count generated on first sync is not correct
+                    String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+                            .getCountExecuteQuery(filterSelectionCondition(true),"");
+                    Timber.i(sqlOverdueCount);
+                    overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+                    Timber.i("Total Overdue Count %d ", overDueCount);
+                    executors.mainThread().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientAdapter.setTotalcount(totalCount);
+                            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                            clientAdapter.setCurrentlimit(20);
+                            clientAdapter.setCurrentoffset(0);
+
+                        }
+                    });
+                } catch (Exception e) {
+                    Timber.e(e);
+                }
+            }
+        });
+
     }
 
     @Override
