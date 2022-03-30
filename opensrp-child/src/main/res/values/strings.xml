@@ -183,6 +183,7 @@
     <string name="mother_lookup_results">Matching Records</string>
     <string name="dismiss">Dismiss</string>
     <string name="change_status">Change Status</string>
+    <string name="register_biometrics">Register Biometrics</string>
     <string name="write_passcode">Write Passcode</string>
     <string name="read_from_card">Read Card</string>
     <string name="write_to_card">Write to Card</string>
