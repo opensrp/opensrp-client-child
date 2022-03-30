@@ -180,6 +180,7 @@
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
     <string name="change_status">تغيير الوضعية</string>
+    <string name="register_biometrics">سجل البيومترية</string>
     <string name="write_passcode">كتابة رمز المرور</string>
     <string name="read_from_card">قراءة البطاقة</string>
     <string name="write_to_card">كتابة على البطاقة</string>

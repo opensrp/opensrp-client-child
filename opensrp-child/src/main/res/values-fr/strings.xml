@@ -180,6 +180,7 @@
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
     <string name="change_status">Changer le statut</string>
+    <string name="register_biometrics">Enregistrer la biométrie</string>
     <string name="write_passcode">Écrire le code d’accès</string>
     <string name="read_from_card">Lire la carte</string>
     <string name="write_to_card">Enregistrer sur la carte</string>

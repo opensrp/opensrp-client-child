@@ -615,6 +615,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         overflow.findItem(R.id.weight_data).setEnabled(false);
 
         if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+            overflow.findItem(R.id.register_biometrics).setVisible(true);
             overflow.findItem(R.id.register_card).setVisible(true);
             overflow.findItem(R.id.verify_caregiver).setVisible(true);
             overflow.findItem(R.id.write_passcode).setVisible(true);
