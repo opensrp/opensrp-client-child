@@ -412,4 +412,28 @@ public class UtilsTest {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Assert.assertEquals(dobString, dateFormat.format(date));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateGrowthValueThrowsIllegalArgumentExceptionWhenStringValueIsNotANumber() {
+        Utils.updateGrowthValue("ABC123.45");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateGrowthValueThrowsIllegalArgumentExceptionWhenStringValueIsANegativeNumber() {
+        Utils.updateGrowthValue("-123.45");
+    }
+
+    @Test
+    public void testUpdateGrowthValueReturnsSameValueWhenStringValueIsAPositiveNumber() {
+        String number = "123.45";
+        String value = Utils.updateGrowthValue(number);
+        Assert.assertEquals(number, value);
+    }
+
+    @Test
+    public void testUpdateGrowthValueAppendsDecimalPointWhenStringValueIsAPositiveInteger() {
+        String number = "123";
+        String value = Utils.updateGrowthValue(number);
+        Assert.assertEquals(number + ".0", value);
+    }
 }
