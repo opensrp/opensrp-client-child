@@ -41,6 +41,7 @@ import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -386,5 +387,29 @@ public class UtilsTest {
         details.put("gender", "male");
         Gender gender = Utils.getGenderEnum(details);
         Assert.assertEquals(Gender.MALE, gender);
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsNull() {
+        Assert.assertNull(Utils.dobStringToDate(null));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsEmpty() {
+        Assert.assertNull(Utils.dobStringToDate(""));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsInvalidDateFormat() {
+        Assert.assertNull(Utils.dobStringToDate("20211-12-12"));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsCorrectDateWhenDobStringIsAValidDateFormat() {
+        String dobString = "2021-12-12";
+        Date date = Utils.dobStringToDate(dobString);
+        Assert.assertNotNull(date);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Assert.assertEquals(dobString, dateFormat.format(date));
     }
 }
