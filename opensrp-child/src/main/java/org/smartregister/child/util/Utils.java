@@ -418,7 +418,7 @@ public class Utils extends org.smartregister.util.Utils {
             return growthValue;
         }
 
-        throw new IllegalArgumentException(value + "is not a positive number");
+        throw new IllegalArgumentException(value + " is not a positive number");
     }
 
     public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
