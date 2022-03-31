@@ -40,6 +40,7 @@ import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -377,5 +378,29 @@ public class UtilsTest {
         long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
         long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
         Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsNull() {
+        Assert.assertNull(Utils.dobStringToDate(null));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsEmpty() {
+        Assert.assertNull(Utils.dobStringToDate(""));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsNullWhenDobStringIsInvalidDateFormat() {
+        Assert.assertNull(Utils.dobStringToDate("20211-12-12"));
+    }
+
+    @Test
+    public void testDobStringToDateReturnsCorrectDateWhenDobStringIsAValidDateFormat() {
+        String dobString = "2021-12-12";
+        Date date = Utils.dobStringToDate(dobString);
+        Assert.assertNotNull(date);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Assert.assertEquals(dobString, dateFormat.format(date));
     }
 }
