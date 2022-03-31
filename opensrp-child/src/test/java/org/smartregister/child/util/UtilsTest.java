@@ -401,7 +401,7 @@ public class UtilsTest {
 
     @Test
     public void testDobStringToDateReturnsNullWhenDobStringIsInvalidDateFormat() {
-        Assert.assertNull(Utils.dobStringToDate("20211-12-12"));
+        Assert.assertNull(Utils.dobStringToDate("20211-31-02"));
     }
 
     @Test
