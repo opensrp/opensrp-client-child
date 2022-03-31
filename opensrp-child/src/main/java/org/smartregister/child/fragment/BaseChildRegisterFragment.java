@@ -440,7 +440,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void countExecute() {
-<<<<<<< HEAD
         executors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -472,27 +471,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 }
             }
         });
-=======
-        try {
-            String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-            Timber.i(sql);
-            int totalCount = commonRepository().countSearchIds(sql);
-            clientAdapter.setTotalcount(totalCount);
-            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-            clientAdapter.setCurrentlimit(20);
-            clientAdapter.setCurrentoffset(0);
-
-            // For overdue count
-            // FIXME: Count generated on first sync is not correct
-            String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                    .getCountExecuteQuery(filterSelectionCondition(true), "");
-            Timber.i(sqlOverdueCount);
-            overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-            Timber.i("Total Overdue Count %d", overDueCount);
-        } catch (Exception e) {
-            Timber.e(e);
-        }
->>>>>>> Fix main register select condition
     }
 
     @Override
