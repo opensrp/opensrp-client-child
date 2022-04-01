@@ -436,4 +436,28 @@ public class UtilsTest {
         String value = Utils.updateGrowthValue(number);
         Assert.assertEquals(number + ".0", value);
     }
+
+    @Test
+    public void testGetGenderEnumReturnsMaleWhenChildGenderIsMale() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("gender", "male");
+        Gender gender = Utils.getGenderEnum(childDetails);
+        Assert.assertEquals("MALE", gender.toString());
+    }
+
+    @Test
+    public void testGetGenderEnumReturnsFemaleWhenChildGenderIsFemale() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("gender", "female");
+        Gender gender = Utils.getGenderEnum(childDetails);
+        Assert.assertEquals("FEMALE", gender.toString());
+    }
+
+    @Test
+    public void testGetGenderEnumReturnsUnknownWhenChildGenderIsNeitherMaleOrFemale() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("gender", "other");
+        Gender gender = Utils.getGenderEnum(childDetails);
+        Assert.assertEquals("UNKNOWN", gender.toString());
+    }
 }
