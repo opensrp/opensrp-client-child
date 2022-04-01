@@ -481,4 +481,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
+    public void setOverDueCount(int overDueCount) {
+        this.overDueCount = overDueCount;
+    }
 }
