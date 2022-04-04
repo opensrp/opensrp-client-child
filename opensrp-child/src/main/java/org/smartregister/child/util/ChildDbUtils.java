@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -14,6 +16,8 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 public class ChildDbUtils {
 
@@ -29,7 +33,21 @@ public class ChildDbUtils {
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                 " WHERE " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1");
-        return childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null;
+
+        HashMap<String, String> detailsMap = (childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null);
+
+        if ((!detailsMap.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) || detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) == null)
+                && (detailsMap.containsKey(Constants.KEY.NFC_CARDS_ARCHIVE) && detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE) != null)) {
+
+            try {
+                JSONArray cardArchive = new JSONArray(detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE));
+                detailsMap.put(Constants.KEY.NFC_CARD_IDENTIFIER, (cardArchive.length() > 0 ? cardArchive.getString(cardArchive.length() - 1) : ""));
+            } catch (JSONException e) {
+                Timber.e("NFC Card ID not found");
+            }
+        }
+
+        return detailsMap;
     }
 
     /**
@@ -39,16 +57,13 @@ public class ChildDbUtils {
      * @return {@link CommonPersonObjectClient}
      */
     public static CommonPersonObjectClient fetchCommonPersonObjectClientByBaseEntityId(String baseEntityId) {
-
         CommonPersonObjectClient commonPersonObjectClient = null;
         Map<String, String> childDetails = fetchChildDetails(baseEntityId);
 
         if (childDetails != null) {
-
             commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, Constants.KEY.CHILD);
             commonPersonObjectClient.setColumnmaps(childDetails);
             commonPersonObjectClient.setCaseId(baseEntityId);
-
         }
 
         return commonPersonObjectClient;

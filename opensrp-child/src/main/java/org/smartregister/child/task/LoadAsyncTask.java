@@ -9,8 +9,6 @@ import android.view.MenuItem;
 import androidx.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
@@ -110,17 +108,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
             detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
-        }
-
-        if ((!detailsMap.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) || detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) == null)
-                && (detailsMap.containsKey(Constants.KEY.NFC_CARDS_ARCHIVE) && detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE) != null)) {
-
-            try {
-                JSONArray cardArchive = new JSONArray(detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE));
-                detailsMap.put(Constants.KEY.NFC_CARD_IDENTIFIER, (cardArchive.length() > 0 ? cardArchive.getString(cardArchive.length() - 1) : ""));
-            } catch (JSONException e) {
-                Timber.e("NFC Card ID not found");
-            }
         }
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
