@@ -307,6 +307,5 @@ public final class Constants extends AllConstants {
         String NEXT_APPOINTMENT_DATE = "Next_Appointment_Date";
         String NEXT_SERVICE_EXPECTED = "Next_Service_Expected";
         String IS_OUT_OF_CATCHMENT = "Is_Out_Of_Catchment";
-
     }
 }
