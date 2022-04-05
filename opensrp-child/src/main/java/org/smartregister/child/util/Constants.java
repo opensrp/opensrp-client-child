@@ -183,7 +183,6 @@ public final class Constants extends AllConstants {
     }
 
     public static class ENTITY {
-
         public static final String CHILD = "child";
         public static final String MOTHER = "mother";
         public static final String FATHER = "father";
@@ -202,7 +201,6 @@ public final class Constants extends AllConstants {
     }
 
     public static final class GENDER {
-
         public static final String MALE = "male";
         public static final String FEMALE = "female";
     }
