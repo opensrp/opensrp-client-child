@@ -36,7 +36,7 @@ public class ChildDbUtils {
 
         HashMap<String, String> detailsMap = (childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null);
 
-        if ((!detailsMap.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) || detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) == null)
+        if (detailsMap != null && (!detailsMap.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) || detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) == null)
                 && (detailsMap.containsKey(Constants.KEY.NFC_CARDS_ARCHIVE) && detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE) != null)) {
 
             try {
