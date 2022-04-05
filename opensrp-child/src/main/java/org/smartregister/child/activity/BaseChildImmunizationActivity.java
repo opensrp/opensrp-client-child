@@ -221,10 +221,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         !ChildLibrary.getInstance().getProperties()
                                 .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
         weightNotificationShown = false;
-        //                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-//                        ChildLibrary.getInstance().getProperties()
-//                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-//
+//        ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                : false;
+
         setLastModified(false);
 
         setUpFloatingActionButton();
