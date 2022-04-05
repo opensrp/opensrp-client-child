@@ -62,7 +62,6 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.EasyMap;
@@ -730,7 +729,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         ///jsonEvents.add(eventJson);
 
         //Update client to deceased
-        JSONObject client = db.getClientByBaseEntityId(eventJson.getString(ClientProcessor.baseEntityIdJSONKey));
+        JSONObject client = db.getClientByBaseEntityId(eventJson.getString(Constants.Client.BASE_ENTITY_ID));
         client.put(FormEntityConstants.Person.deathdate.name(), encounterDateTimeString);
         client.put(FormEntityConstants.Person.deathdate_estimated.name(), false);
         client.put(Constants.JSON_FORM_KEY.DEATH_DATE_APPROX, false);
@@ -1857,11 +1856,11 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         for (int i = 0; i < clients.length(); i++) {
             if (!clients.getJSONObject(i).getJSONObject(IDENTIFIERS).has(M_ZEIR_ID)) {
 
-                clientBaseEntityIds.add(clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
+                clientBaseEntityIds.add(clients.getJSONObject(i).getString(Constants.Client.BASE_ENTITY_ID));
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
-                updateChildFTSTables(contentValues, clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
+                updateChildFTSTables(contentValues, clients.getJSONObject(i).getString(Constants.Client.BASE_ENTITY_ID));
             }
         }
 
@@ -2063,9 +2062,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             for (int i = 0; i < clientList.length(); i++) {
 
-                val.add(clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey));
+                val.add(clientList.getJSONObject(i).optString(Constants.Client.BASE_ENTITY_ID));
 
-                clientBaseEntityId = clientList.getJSONObject(i).getJSONObject(ChildJsonFormUtils.IDENTIFIERS).has(Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey) : clientBaseEntityId;
+                clientBaseEntityId = clientList.getJSONObject(i).getJSONObject(ChildJsonFormUtils.IDENTIFIERS).has(Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? clientList.getJSONObject(i).optString(Constants.Client.BASE_ENTITY_ID) : clientBaseEntityId;
             }
 
             event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD, "", val, new ArrayList<>(), null, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD));
