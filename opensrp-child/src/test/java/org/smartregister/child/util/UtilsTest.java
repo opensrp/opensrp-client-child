@@ -29,6 +29,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -459,5 +460,33 @@ public class UtilsTest {
         childDetails.put("gender", "other");
         Gender gender = Utils.getGenderEnum(childDetails);
         Assert.assertEquals("UNKNOWN", gender.toString());
+    }
+
+    @Test
+    public void testProcessExtraVaccinesEventObsAddsSelectedVaccinesAndSelectedVaccinesCounterObservations() throws JSONException {
+        String vaccineField = "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+        Event event = new Event();
+        event.setBaseEntityId("baseEntityId");
+        event.setEventType("testEventType");
+        event.setFormSubmissionId("342290-342290");
+        event.setEntityType(Constants.CHILD_TYPE);
+
+        Obs obs = new Obs();
+        obs.setFieldCode(vaccineField);
+        obs.setFieldType("concept");
+        obs.setFieldDataType("start");
+
+        List<Object> humanReadableValues = new ArrayList<>();
+        humanReadableValues.add("dawa");
+        obs.setHumanReadableValues(humanReadableValues);
+
+        event.addObs(obs);
+
+        int obsCount = event.getObs().size();
+
+        Utils.processExtraVaccinesEventObs(event, vaccineField);
+        Assert.assertEquals((obsCount + 1), event.getObs().size());
+        Assert.assertEquals(Constants.KEY.SELECTED_VACCINES, event.getObs().get(obsCount - 1).getFieldCode());
     }
 }
