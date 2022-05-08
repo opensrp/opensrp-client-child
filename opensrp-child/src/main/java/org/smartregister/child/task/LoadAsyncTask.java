@@ -189,6 +189,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         try {
 
+            activateMenuItemByValue(overflow, R.id.register_biometrics, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
             activateMenuItemByValue(overflow, R.id.register_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
             activateMenuItemByValue(overflow, R.id.verify_caregiver, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
             activateMenuItemByValue(overflow, R.id.write_passcode, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));

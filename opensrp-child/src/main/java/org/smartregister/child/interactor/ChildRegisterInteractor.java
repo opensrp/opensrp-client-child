@@ -34,7 +34,6 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
@@ -250,7 +249,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             weightWrapper.setUpdatedWeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));//This is the weight of birth so reference date should be the DOB
-            weightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            weightWrapper.setId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
             weightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, params.getStatus());
@@ -269,7 +268,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.parseFloat(height) : 0);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             heightWrapper.setUpdatedHeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));
-            heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            heightWrapper.setId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
             heightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, params.getStatus());
@@ -284,11 +283,11 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
 
             // only insert vaccine if not already saved
-            Vaccine existingVaccine = vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(ClientProcessor.baseEntityIdJSONKey), Constants.VACCINE_CODE.TETANUS);
+            Vaccine existingVaccine = vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(Constants.Client.BASE_ENTITY_ID), Constants.VACCINE_CODE.TETANUS);
 
             if (existingVaccine == null) {
                 Vaccine vaccineObj = new Vaccine();
-                vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+                vaccineObj.setBaseEntityId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
                 vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
                 vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
                 vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());

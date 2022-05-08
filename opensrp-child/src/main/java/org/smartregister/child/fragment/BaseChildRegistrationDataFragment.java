@@ -28,7 +28,6 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
-import org.smartregister.cloudant.models.Client;
 import org.smartregister.domain.Location;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.util.AssetHandler;
@@ -255,7 +254,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     }
 
     public String cleanOpenMRSEntityId(String rawEntityId) {
-        return Client.birth_date_key.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
+        return Constants.Client.BIRTHDATE.equals(rawEntityId) ? Constants.KEY.DOB : rawEntityId;
     }
 
     public String getResourceLabel(String raw) {

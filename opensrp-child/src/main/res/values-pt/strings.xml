@@ -180,7 +180,12 @@
     <string name="mother_lookup_results">Registros Correspondentes</string>
     <string name="dismiss">Dispensar</string>
     <string name="change_status">Alterar estado</string>
+    <string name="register_biometrics">Registrar biometria</string>
+    <string name="write_passcode">Escrever senha</string>
+    <string name="read_from_card">Ler cartão</string>
     <string name="write_to_card">Escreva para o cartão</string>
+    <string name="verify_caregiver">Verificar cuidador</string>
+    <string name="blacklist_card">Cartão de lista negra</string>
     <string name="title_activity_stock_control">Atividadecontroleestoque</string>
     <string name="device_timezone_changed">O fuso horário do dispositivo mudou. Por favor, faça login novamente.</string>
     <string name="device_time_changed">A hora do dispositivo mudou. Por favor, faça login novamente.</string>
