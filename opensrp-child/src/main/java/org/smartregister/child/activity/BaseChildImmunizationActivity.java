@@ -738,6 +738,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
+                ChildDbUtils.updateChildDetailsValue(Constants.CHILD_STATUS.INACTIVE, String.valueOf(false), childDetails.entityId());
+                getChildDetails().getDetails().put(Constants.CHILD_STATUS.INACTIVE, String.valueOf(false));
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
