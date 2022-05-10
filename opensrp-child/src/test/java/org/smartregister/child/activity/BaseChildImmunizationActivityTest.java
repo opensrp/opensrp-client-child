@@ -3,6 +3,7 @@ package org.smartregister.child.activity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
@@ -236,5 +237,39 @@ public class BaseChildImmunizationActivityTest {
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
+    }
+
+    @Test
+    public void testGenderButtonColor() {
+        int maleColor = baseChildImmunizationActivity.getGenderButtonColor("male");
+        Assert.assertEquals(2131231159, maleColor);
+
+        int femaleColor = baseChildImmunizationActivity.getGenderButtonColor("female");
+        Assert.assertEquals(2131231157, femaleColor);
+
+        int defaulteColor = baseChildImmunizationActivity.getGenderButtonColor("default");
+        Assert.assertEquals(2131231158, defaulteColor);
+
+    }
+
+    @Test
+    public void testViewIds() {
+        int contentView = baseChildImmunizationActivity.getContentView();
+        Assert.assertEquals(2131558431, contentView);
+        int toolbarId = baseChildImmunizationActivity.getToolbarId();
+        Assert.assertEquals(2131362627, toolbarId);
+    }
+
+    @Test
+    public void configueFAB() {
+        LinearLayout fab = Mockito.mock(LinearLayout.class);
+        Mockito.doReturn(0).when(fab).getPaddingBottom();
+        Mockito.doReturn(0).when(fab).getPaddingLeft();
+        Mockito.doReturn(0).when(fab).getPaddingRight();
+        Mockito.doReturn(0).when(fab).getPaddingTop();
+        baseChildImmunizationActivity.floatingActionButton = fab;
+        baseChildImmunizationActivity.configureFloatingActionBackground(0, null);
+
+        Mockito.verify(fab).setVisibility(View.VISIBLE);
     }
 }
