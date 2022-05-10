@@ -819,18 +819,25 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
-    /**
-     * Tag an event with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
-     *
-     * @param event to tag
-     * @return Tagged event
-     */
     public static Event tagSyncMetadata(@NonNull Event event) {
+        return tagSyncMetadata(event, null);
+    }
 
+        /**
+         * Tag an event with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+         *
+         * @param event to tag
+         * @param locationId for event
+         * @return Tagged event
+         */
+    public static Event tagSyncMetadata(@NonNull Event event, String locationId) {
         AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
         String providerId = allSharedPreferences.fetchRegisteredANM();
         event.setProviderId(providerId);
-        event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        if (locationId != null) {
+            event.setLocationId(locationId);
+        } else
+            event.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
 
         String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
         event.setChildLocationId(childLocationId);
@@ -965,7 +972,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
             }
 
-            ChildJsonFormUtils.tagSyncMetadata(baseEvent);// tag docs
+            ChildJsonFormUtils.tagSyncMetadata(baseEvent, getFieldValue(fields, Constants.HOME_FACILITY));// tag docs
 
             //Add previous relational ids if they existed.
             addRelationships(baseClient, jsonString);
