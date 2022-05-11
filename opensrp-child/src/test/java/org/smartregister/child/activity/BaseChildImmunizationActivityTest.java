@@ -24,6 +24,7 @@ import org.powermock.reflect.Whitebox;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
@@ -271,5 +272,22 @@ public class BaseChildImmunizationActivityTest {
         baseChildImmunizationActivity.configureFloatingActionBackground(0, null);
 
         Mockito.verify(fab).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void testGetChildsThirdPersonPronoun() {
+        HashMap<String, String> details = new HashMap<>();
+        details.put("gender", "male");
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("him")
+                .when(activity).getString(R.string.him);
+        Mockito.doReturn("her")
+                .when(activity).getString(R.string.her);
+        Assert.assertEquals("him", activity.getChildsThirdPersonPronoun(client));
+
+        details.put("gender", "female");
+        CommonPersonObjectClient client2 = new CommonPersonObjectClient("caseId", details,"name" );
+        Assert.assertEquals("her", activity.getChildsThirdPersonPronoun(client2));
     }
 }

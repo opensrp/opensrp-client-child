@@ -763,7 +763,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         undoServiceDialogFragment.setOnDismissListener(dialog -> dialogOpen = false);
     }
 
-    private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
+    protected String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
         String genderString = Utils.getValue(childDetails, AllConstants.ChildRegistrationFields.GENDER, false);
         if (Constants.GENDER.FEMALE.equalsIgnoreCase(genderString)) {
             return getString(R.string.her);
