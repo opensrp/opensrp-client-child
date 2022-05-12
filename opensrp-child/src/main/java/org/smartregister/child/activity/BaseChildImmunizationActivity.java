@@ -198,10 +198,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             } else {
                 if (cardChildDetails != null) {
                     // card last update
-                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault("nfc_last_processed_timestamp", "0");
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_LAST_PROCESSED_TIMESTAMP, "0");
                     long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
                     // device last update
-                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault("last_interacted_with", "0");
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0");
                     long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
 
                     if (lastCardTxDateTime > lastInteractedWith) {
