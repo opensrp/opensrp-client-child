@@ -37,7 +37,6 @@ import org.smartregister.child.domain.Form;
 import org.smartregister.child.domain.Step;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
-import org.smartregister.cloudant.models.Client;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Location;
 import org.smartregister.domain.LocationProperty;
@@ -259,7 +258,7 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
     @Test
     public void testCleanOpenMRSEntityIdReturnsCorrectDOBValue() {
 
-        String cleanId = baseChildRegistrationDataFragment.cleanOpenMRSEntityId(Client.birth_date_key);
+        String cleanId = baseChildRegistrationDataFragment.cleanOpenMRSEntityId(Constants.Client.BIRTHDATE);
         Assert.assertEquals("dob", cleanId);
     }
 
