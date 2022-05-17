@@ -381,7 +381,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testGetGenderEnum() {
+    public void testGetGenderEnumReturnsMaleEnumForGenderMaleValue() {
         HashMap<String, String> details = new HashMap<>();
         details.put("gender", "male");
         Gender gender = Utils.getGenderEnum(details);

@@ -241,28 +241,37 @@ public class BaseChildImmunizationActivityTest {
     }
 
     @Test
-    public void testGenderButtonColor() {
+    public void testGetGenderButtonColorReturnsBlueColorForMaleValue() {
         int maleColor = baseChildImmunizationActivity.getGenderButtonColor("male");
-        Assert.assertEquals(2131231159, maleColor);
+        Assert.assertEquals(R.drawable.pill_background_male_blue, maleColor);
+    }
 
+    @Test
+    public void testGetGenderButtonColorReturnsPinkColorWhenFemaleValue() {
         int femaleColor = baseChildImmunizationActivity.getGenderButtonColor("female");
-        Assert.assertEquals(2131231157, femaleColor);
+        Assert.assertEquals(R.drawable.pill_background_female_pink, femaleColor);
+    }
 
+    @Test
+    public void testGetGenderButtonColorReturnsGreenColorForDefaultValue() {
         int defaulteColor = baseChildImmunizationActivity.getGenderButtonColor("default");
-        Assert.assertEquals(2131231158, defaulteColor);
-
+        Assert.assertEquals(R.drawable.pill_background_gender_neutral_green, defaulteColor);
     }
 
     @Test
-    public void testViewIds() {
+    public void testGetContentViewReturnsReturnsChildImmunizationActivityId() {
         int contentView = baseChildImmunizationActivity.getContentView();
-        Assert.assertEquals(2131558431, contentView);
-        int toolbarId = baseChildImmunizationActivity.getToolbarId();
-        Assert.assertEquals(2131362627, toolbarId);
+        Assert.assertEquals(R.layout.activity_child_immunization, contentView);
     }
 
     @Test
-    public void configueFAB() {
+    public void testGetToolbarIdReturnsReturnsLocationSwitcherToolbarId() {
+        int toolbarId = baseChildImmunizationActivity.getToolbarId();
+        Assert.assertEquals(LocationSwitcherToolbar.TOOLBAR_ID, toolbarId);
+    }
+
+    @Test
+    public void testConfigureFloatingActionBackgroundSetsItsVisibilityToVisible() {
         LinearLayout fab = Mockito.mock(LinearLayout.class);
         Mockito.doReturn(0).when(fab).getPaddingBottom();
         Mockito.doReturn(0).when(fab).getPaddingLeft();
@@ -275,19 +284,23 @@ public class BaseChildImmunizationActivityTest {
     }
 
     @Test
-    public void testGetChildsThirdPersonPronoun() {
+    public void testGetChildsThirdPersonPronounReturnsHimForMaleGender() {
         HashMap<String, String> details = new HashMap<>();
         details.put("gender", "male");
         CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
         TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
-        Mockito.doReturn("him")
-                .when(activity).getString(R.string.him);
+        Mockito.doReturn("him").when(activity).getString(R.string.him);
+        Assert.assertEquals("him", activity.getChildsThirdPersonPronoun(client));
+    }
+
+    @Test
+    public void testGetChildsThirdPersonPronounReturnsHerForFemaleGender() {
+        HashMap<String, String> details = new HashMap<>();
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
         Mockito.doReturn("her")
                 .when(activity).getString(R.string.her);
-        Assert.assertEquals("him", activity.getChildsThirdPersonPronoun(client));
-
         details.put("gender", "female");
-        CommonPersonObjectClient client2 = new CommonPersonObjectClient("caseId", details,"name" );
-        Assert.assertEquals("her", activity.getChildsThirdPersonPronoun(client2));
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        Assert.assertEquals("her", activity.getChildsThirdPersonPronoun(client));
     }
 }
