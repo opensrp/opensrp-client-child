@@ -55,7 +55,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     public static final String TAG = ChildRegisterInteractor.class.getName();
     private AppExecutors appExecutors;
 
-
     public ChildRegisterInteractor() {
         this(new AppExecutors());
     }
@@ -72,7 +71,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
-
         Runnable runnable = () -> {
             UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
             final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
@@ -114,13 +112,11 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
-
         try {
             List<String> currentFormSubmissionIds = new ArrayList<>();
 
             for (int i = 0; i < childEventClientList.size(); i++) {
                 try {
-
                     ChildEventClient childEventClient = childEventClientList.get(i);
                     Client baseClient = childEventClient.getClient();
                     Event baseEvent = childEventClient.getEvent();
@@ -151,9 +147,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     if (Constants.CHILD_TYPE.equals(baseEvent.getEntityType())) {
                         Utils.postEvent(new ClientDirtyFlagEvent(baseClient.getBaseEntityId(), baseEvent.getEventType()));
                     }
-
                 } catch (Exception e) {
-
                     Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
             }
@@ -186,8 +180,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             if (i == 0) {
                 imageLocation = ChildJsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
             } else if (i == 1) {
-                imageLocation =
-                        ChildJsonFormUtils.getFieldValue(jsonString, ChildJsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                imageLocation = ChildJsonFormUtils.getFieldValue(jsonString, ChildJsonFormUtils.STEP2, Constants.KEY.PHOTO);
             }
 
             if (StringUtils.isNotBlank(imageLocation)) {
@@ -211,7 +204,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     Timber.d(e, "ChildRegisterInteractor --> unassign opensrp id");
                 }
             }
-
         } else {
             if (baseClient != null) {
                 //mark OPENSRP ID as used
@@ -307,7 +299,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Unsynced);
         else
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
-        
+
         vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
         vaccineObj.setCreatedAt(new Date());
