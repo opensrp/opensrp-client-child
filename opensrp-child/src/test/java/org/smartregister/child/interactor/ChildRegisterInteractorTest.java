@@ -1,6 +1,8 @@
 package org.smartregister.child.interactor;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.smartregister.child.util.ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONException;
@@ -38,6 +40,10 @@ import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessorForJava;
@@ -85,6 +91,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
     }
 
     @Test
@@ -267,4 +274,78 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         interactor.getNextUniqueId(triple, callBack);
         Mockito.verify(callBack).onUniqueIdFetched(eq(triple), eq(entityId));
     }
+
+    @Test
+    public void testProcessTetanusVaccineSavesVaccineObjectInDb() throws Exception {
+        String jsonForm = "{\"count\":\"1\",\"encounter_type\":\"Birth Registration\",\"mother\":{\"encounter_type\":\"New Woman Registration\"},\"entity_id\":\"\",\"relational_id\":\"\",\"step1\":{\"title\":\"Child Registration\",\"fields\":[{\"key\":\"Birth_Tetanus_Protection\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_entity_id\":\"164826AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"type\":\"spinner\",\"hint\":\"Neonatal Tetanus Protection\",\"values\":[\"Yes\",\"No\",\"Don't Know\"],\"keys\":[\"Yes\",\"No\",\"DoNotKnow\"],\"openmrs_choice_ids\":{\"Yes\":\"1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"No\":\"1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"DoNotKnow\":\"1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"},\"v_required\":{\"value\":\"true\",\"err\":\"Please enter whether the child was protected at birth against tetanus\"},\"value\":\"Yes\"}]}}";
+
+        HashMap<String, String> identifiers = new HashMap<>();
+
+        UpdateRegisterParams updateRegisterParam = new UpdateRegisterParams();
+        updateRegisterParam.setEditMode(false);
+
+        FormTag formTag = new FormTag();
+        formTag.providerId = "provider-id";
+        formTag.appVersion = 21;
+        formTag.databaseVersion = 3;
+
+        updateRegisterParam.setFormTag(formTag);
+
+        LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
+        VaccineRepository vaccineRepositorySpy = Mockito.spy(ImmunizationLibrary.getInstance().vaccineRepository());
+        Mockito.when(vaccineRepositorySpy.findByBaseEntityIdAndVaccineName(anyString(), anyString())).thenReturn(null);
+        ReflectionHelpers.setField(ImmunizationLibrary.getInstance(), "vaccineRepository", vaccineRepositorySpy);
+
+        interactor.processTetanus(identifiers, jsonForm, updateRegisterParam, clientJson);
+        Mockito.verify(vaccineRepositorySpy, Mockito.times(1)).add(Mockito.any());
+
+    }
+
+    @Test
+    public void getTetanusVaccineObjectHasSyncStatusUnSyncedWhenAppPropertyIsTrue() throws JSONException {
+        ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+
+        Context context = Mockito.mock(Context.class);
+        Mockito.when(childLibrary.getProperties()).thenReturn(appProperties);
+        Mockito.when(childLibrary.context()).thenReturn(context);
+        Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
+        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(true);
+
+        LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
+        Vaccine vaccine = interactor.getTetanusVaccineObject(clientJson);
+        Assert.assertEquals(VaccineRepository.TYPE_Unsynced, vaccine.getSyncStatus());
+    }
+
+    @Test
+    public void getTetanusVaccineObjectHasSyncStatusSyncedWhenAppPropertyIsFalse() throws JSONException {
+        ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+
+        Context context = Mockito.mock(Context.class);
+        Mockito.when(childLibrary.getProperties()).thenReturn(appProperties);
+        Mockito.when(childLibrary.context()).thenReturn(context);
+        Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
+        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(false);
+
+        LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
+        Vaccine vaccine = interactor.getTetanusVaccineObject(clientJson);
+        Assert.assertEquals(VaccineRepository.TYPE_Synced, vaccine.getSyncStatus());
+    }
+
 }
