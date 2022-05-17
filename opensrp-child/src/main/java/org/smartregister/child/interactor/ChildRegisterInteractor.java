@@ -18,6 +18,7 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
@@ -287,21 +288,28 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             Vaccine existingVaccine = vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(ClientProcessor.baseEntityIdJSONKey), Constants.VACCINE_CODE.TETANUS);
 
             if (existingVaccine == null) {
-                Vaccine vaccineObj = new Vaccine();
-                vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
-                vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
-                vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
-                vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-                vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
-                vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
-                vaccineObj.setSyncStatus(VaccineRepository.TYPE_Unsynced);
-                vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
-                vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
-                vaccineObj.setCreatedAt(new Date());
-
+                Vaccine vaccineObj = getTetanusVaccineObject(clientJson);
                 Utils.addVaccine(vaccineRepository, vaccineObj);
             }
         }
+    }
+
+    protected Vaccine getTetanusVaccineObject(JSONObject clientJson) throws JSONException {
+        Vaccine vaccineObj = new Vaccine();
+        vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+        vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
+        vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
+        vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+        vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.TETANUS_VACCINE_SYNC_STATUS_UN_SYNCED))
+            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Unsynced);
+        else
+            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
+        vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
+        vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
+        vaccineObj.setCreatedAt(new Date());
+        return vaccineObj;
     }
 
     @Override
