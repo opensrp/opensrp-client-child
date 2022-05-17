@@ -18,6 +18,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opensrp.api.constants.Gender;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -377,5 +378,13 @@ public class UtilsTest {
         long timeA = new DateTime(simpleDateFormat.parse("2020-09-09 04:18:02").getTime()).toDate().getTime();
         long timeB = new DateTime(simpleDateFormat.parse("2020-09-09 14:18:02").getTime()).toDate().getTime();
         Assert.assertTrue(Utils.isSameDay(timeA, timeB, null));
+    }
+
+    @Test
+    public void testGetGenderEnumReturnsMaleEnumForGenderMaleValue() {
+        HashMap<String, String> details = new HashMap<>();
+        details.put("gender", "male");
+        Gender gender = Utils.getGenderEnum(details);
+        Assert.assertEquals(Gender.MALE, gender);
     }
 }

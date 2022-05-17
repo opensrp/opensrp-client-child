@@ -3,6 +3,7 @@ package org.smartregister.child.activity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
@@ -20,9 +21,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
+import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
@@ -236,5 +239,73 @@ public class BaseChildImmunizationActivityTest {
         commonPersonObjectClient.setColumnmaps(childDetails);
 
         return commonPersonObjectClient;
+    }
+
+    @Test
+    public void testGetGenderButtonColorReturnsBlueColorForMaleValue() {
+        int maleColor = baseChildImmunizationActivity.getGenderButtonColor("male");
+        Assert.assertEquals(R.drawable.pill_background_male_blue, maleColor);
+    }
+
+    @Test
+    public void testGetGenderButtonColorReturnsPinkColorWhenFemaleValue() {
+        int femaleColor = baseChildImmunizationActivity.getGenderButtonColor("female");
+        Assert.assertEquals(R.drawable.pill_background_female_pink, femaleColor);
+    }
+
+    @Test
+    public void testGetGenderButtonColorReturnsGreenColorForDefaultValue() {
+        int defaulteColor = baseChildImmunizationActivity.getGenderButtonColor("default");
+        Assert.assertEquals(R.drawable.pill_background_gender_neutral_green, defaulteColor);
+    }
+
+    @Test
+    public void testGetContentViewReturnsReturnsChildImmunizationActivityId() {
+        int contentView = baseChildImmunizationActivity.getContentView();
+        Assert.assertEquals(R.layout.activity_child_immunization, contentView);
+    }
+
+    @Test
+    public void testGetToolbarIdReturnsReturnsLocationSwitcherToolbarId() {
+        int toolbarId = baseChildImmunizationActivity.getToolbarId();
+        Assert.assertEquals(LocationSwitcherToolbar.TOOLBAR_ID, toolbarId);
+    }
+
+    @Test
+    public void testConfigureFloatingActionBackgroundSetsItsVisibilityToVisible() {
+        LinearLayout fab = Mockito.mock(LinearLayout.class);
+        Mockito.doReturn(0).when(fab).getPaddingBottom();
+        Mockito.doReturn(0).when(fab).getPaddingLeft();
+        Mockito.doReturn(0).when(fab).getPaddingRight();
+        Mockito.doReturn(0).when(fab).getPaddingTop();
+        baseChildImmunizationActivity.floatingActionButton = fab;
+        baseChildImmunizationActivity.configureFloatingActionBackground(0, null);
+
+        Mockito.verify(fab).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void testGetChildsThirdPersonPronounReturnsHimForMaleGender() {
+        HashMap<String, String> details = new HashMap<>();
+        details.put("gender", "male");
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("him").when(activity).getString(R.string.him);
+        String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
+                ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
+        Assert.assertEquals("him", pronoun);
+    }
+
+    @Test
+    public void testGetChildsThirdPersonPronounReturnsHerForFemaleGender() {
+        HashMap<String, String> details = new HashMap<>();
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("her")
+                .when(activity).getString(R.string.her);
+        details.put("gender", "female");
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
+                ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
+        Assert.assertEquals("her", pronoun);
     }
 }
