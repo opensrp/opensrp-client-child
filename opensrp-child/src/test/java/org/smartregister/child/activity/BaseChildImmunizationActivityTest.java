@@ -21,6 +21,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
@@ -290,7 +291,9 @@ public class BaseChildImmunizationActivityTest {
         CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
         TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
         Mockito.doReturn("him").when(activity).getString(R.string.him);
-        Assert.assertEquals("him", activity.getChildsThirdPersonPronoun(client));
+        String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
+                ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
+        Assert.assertEquals("him", pronoun);
     }
 
     @Test
@@ -301,6 +304,8 @@ public class BaseChildImmunizationActivityTest {
                 .when(activity).getString(R.string.her);
         details.put("gender", "female");
         CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
-        Assert.assertEquals("her", activity.getChildsThirdPersonPronoun(client));
+        String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
+                ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
+        Assert.assertEquals("her", pronoun);
     }
 }
