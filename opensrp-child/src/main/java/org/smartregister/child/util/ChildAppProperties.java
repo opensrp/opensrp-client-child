@@ -65,7 +65,7 @@ public final class ChildAppProperties extends org.smartregister.util.AppProperti
         public static final String SYNC_BY_DEFAULT_FACILITY_ID_ENABLED = "sync.by.default.facility.id.enabled";
 
         //Set Tetanus vaccine default sync status to un-synced to create separate vaccine sync event
-        public static final String TETANUS_VACCINE_SYNC_STATUS_UN_SYNCED = "tetanus.vaccine.sync.status.unsynced";
+        public static final String TETANUS_VACCINE_AT_BIRTH_EVENT = "tetanus.vaccine.at.birth.event";
 
         //novel features
         public final static class NOVEL {

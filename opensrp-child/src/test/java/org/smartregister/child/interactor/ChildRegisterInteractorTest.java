@@ -2,7 +2,7 @@ package org.smartregister.child.interactor;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.smartregister.child.util.ChildAppProperties.KEY.TETANUS_VACCINE_SYNC_STATUS_UN_SYNCED;
+import static org.smartregister.child.util.ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONException;
@@ -316,7 +316,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         Mockito.when(childLibrary.context()).thenReturn(context);
         Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
-        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_SYNC_STATUS_UN_SYNCED))).thenReturn(true);
+        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(true);
 
         LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
@@ -338,7 +338,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         Mockito.when(childLibrary.context()).thenReturn(context);
         Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
-        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_SYNC_STATUS_UN_SYNCED))).thenReturn(false);
+        Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(false);
 
         LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
