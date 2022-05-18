@@ -1677,7 +1677,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
         if (prev != null) {
-            // fragmentTransaction.remove(prev);
             return;
         }
         fragmentTransaction.addToBackStack(null);
