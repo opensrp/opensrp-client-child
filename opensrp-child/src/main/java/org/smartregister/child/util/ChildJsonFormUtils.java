@@ -2400,10 +2400,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
         //In case it is an unsynced Event and we are updating, we need to remove the previous Observation with the same form field tag
         //Form fields should always be unique per submission
-
         List<Obs> obsList = event.getObs();
         if (obsList != null && obsList.size() > 0) {
-            obsList.removeIf(obs -> obs.getFormSubmissionField().equals(key));
+            obsList.removeIf(obs -> key.equals(obs.getFormSubmissionField()));
         }
 
         // Process new observation

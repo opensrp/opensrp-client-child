@@ -1684,9 +1684,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         List<Weight> weights = new ArrayList<>();
         List<Height> heights = new ArrayList<>();
@@ -1694,7 +1696,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (growthMonitoring == null || growthMonitoring.isEmpty()) {
             Utils.showToast(this, getString(R.string.record_growth_details));
         } else {
-
             if (growthMonitoring.containsKey(Constants.WEIGHT)) {
                 weights = growthMonitoring.get(Constants.WEIGHT);
             }
@@ -1702,18 +1703,17 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (growthMonitoring.containsKey(Constants.HEIGHT)) {
                 heights = growthMonitoring.get(Constants.HEIGHT);
             }
-
-
         }
 
         GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
         growthDialogFragment.show(fragmentTransaction, BaseChildImmunizationActivity.DIALOG_TAG);
+
+        hideProgressDialog();
     }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
-
 
     public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
