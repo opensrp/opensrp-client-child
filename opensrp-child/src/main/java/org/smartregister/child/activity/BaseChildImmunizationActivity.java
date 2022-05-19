@@ -529,7 +529,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
-            childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            childIdTV.setText(Utils.formatIdentifiers(childId));
         }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
