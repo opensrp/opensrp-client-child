@@ -83,31 +83,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <LinearLayout
+                        <org.smartregister.view.customcontrols.CustomFontTextView
+                            android:id="@+id/child_id_tv"
+                            style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:visibility="visible">
-
-                            <org.smartregister.view.customcontrols.CustomFontTextView
-                                android:id="@+id/child_id_label"
-                                style="@style/CustomFontTextViewStyle.ClientList.Light"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/system_id_colon"
-                                android:textColor="@color/dark_grey"
-                                android:textSize="@dimen/activity_sub_title_size" />
-
-                            <org.smartregister.view.customcontrols.CustomFontTextView
-                                android:id="@+id/child_id_tv"
-                                style="@style/CustomFontTextViewStyle.ClientList.Light"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text=""
-                                android:textColor="@color/dark_grey"
-                                android:textSize="@dimen/activity_sub_title_size" />
-
-                        </LinearLayout>
+                            android:text="EIR"
+                            android:textColor="@color/dark_grey"
+                            android:textSize="@dimen/activity_sub_title_size" />
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/age_tv"

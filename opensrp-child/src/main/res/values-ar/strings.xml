@@ -380,4 +380,6 @@
     <string name="start_date_required">تاريخ البدء مطلوب</string>
 
     <string name="adverse_effect_reporting_vaccine_format">\u200E(%2$s) \u200E%1$s</string>
+
+    <string name="formatted_label">%2$s \u200E:%1$s</string>
 </resources>
