@@ -50,7 +50,6 @@ import org.smartregister.view.fragment.BaseRegisterFragment;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 import timber.log.Timber;
 
@@ -417,8 +416,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
                 List<String> ids = commonRepository().findSearchIds(sql);
-                query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
-                        " WHERE _id IN (%s) OR ec_mother_details.base_entity_id in (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+                String whereClause = " WHERE _id IN (%s) OR ec_mother_details.base_entity_id in (%s) AND " + this.mainCondition;
+                query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + whereClause + (StringUtils.isBlank(this.getDefaultSortQuery()) ? "" : " order by " + this.getDefaultSortQuery());
 
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
@@ -446,16 +445,15 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             public void run() {
                 try {
                     String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-                    Timber.i(sql);
+                    Timber.d(sql);
                     int totalCount = commonRepository().countSearchIds(sql);
 
                     // For overdue count
                     // FIXME: Count generated on first sync is not correct
                     String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
                             .getCountExecuteQuery(filterSelectionCondition(true), "");
-                    Timber.i(sqlOverdueCount);
+
                     overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-                    Timber.i("Total Overdue Count %d ", overDueCount);
                     executors.mainThread().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -463,7 +461,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
                             clientAdapter.setCurrentlimit(20);
                             clientAdapter.setCurrentoffset(0);
-
                         }
                     });
                 } catch (Exception e) {
@@ -471,7 +468,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 }
             }
         });
-
     }
 
     @Override
