@@ -2127,4 +2127,3 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 }
-
