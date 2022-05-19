@@ -114,6 +114,7 @@ public final class Constants extends AllConstants {
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String NFC_CARDS_ARCHIVE = "nfc_cards_archive";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
@@ -155,6 +156,7 @@ public final class Constants extends AllConstants {
 
         public static final String IS_CHILD_DATA_ON_DEVICE = "is_child_data_on_device";
         public static final String NFC_CARD_LAST_UPDATED_TIMESTAMP = "nfc_card_last_updated_timestamp";
+        public static final String NFC_LAST_PROCESSED_TIMESTAMP = "nfc_last_processed_timestamp";
     }
 
     public static final class INTENT_KEY {

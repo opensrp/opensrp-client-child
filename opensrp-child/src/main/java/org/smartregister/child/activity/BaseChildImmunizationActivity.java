@@ -198,10 +198,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             } else {
                 if (cardChildDetails != null) {
                     // card last update
-                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault("nfc_last_processed_timestamp", "0");
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_LAST_PROCESSED_TIMESTAMP, "0");
                     long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
                     // device last update
-                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault("last_interacted_with", "0");
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0");
                     long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
 
                     if (lastCardTxDateTime > lastInteractedWith) {
@@ -221,10 +221,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         !ChildLibrary.getInstance().getProperties()
                                 .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
         weightNotificationShown = false;
-        //                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-//                        ChildLibrary.getInstance().getProperties()
-//                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-//
+//        ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                : false;
+
         setLastModified(false);
 
         setUpFloatingActionButton();
@@ -1354,8 +1354,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
-
-
     }
 
     @Override
@@ -1679,9 +1677,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         List<Weight> weights = new ArrayList<>();
         List<Height> heights = new ArrayList<>();
@@ -1689,7 +1689,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (growthMonitoring == null || growthMonitoring.isEmpty()) {
             Utils.showToast(this, getString(R.string.record_growth_details));
         } else {
-
             if (growthMonitoring.containsKey(Constants.WEIGHT)) {
                 weights = growthMonitoring.get(Constants.WEIGHT);
             }
@@ -1697,18 +1696,17 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (growthMonitoring.containsKey(Constants.HEIGHT)) {
                 heights = growthMonitoring.get(Constants.HEIGHT);
             }
-
-
         }
 
         GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
         growthDialogFragment.show(fragmentTransaction, BaseChildImmunizationActivity.DIALOG_TAG);
+
+        hideProgressDialog();
     }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
-
 
     public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
