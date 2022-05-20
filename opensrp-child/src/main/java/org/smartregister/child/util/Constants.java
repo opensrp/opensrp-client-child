@@ -30,6 +30,7 @@ public final class Constants extends AllConstants {
     public static final String EVENTS = "events";
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
+    public static final String CHILD_REGISTER_CARD_NUMBER = "Child_Register_Card_Number";
     public static final String FALSE = "false";
     public static final String RESIDENTIAL_AREA = "Residential_Area";
     public static final String RESIDENTIAL_AREA_OTHER = "Residential_Area_Other";
@@ -96,6 +97,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER = "mother";
         public static final String FATHER = "father";
         public static final String FIRST_NAME = "first_name";
+        public static final String MIDDLE_NAME = "middle_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
         public static final String RELATIONAL_ID = "relational_id";
@@ -277,6 +279,7 @@ public final class Constants extends AllConstants {
         String LAST_NAME = "lastName";
         String SYSTEM_OF_REGISTRATION = "system_of_registration";
         String BIRTHDATE = "birthdate";
+        String DEATHDATE = "deathdate";
         String ID_LOWER_CASE = "_id";
         String IDENTIFIERS = "identifiers";
         String GENDER = "gender";
