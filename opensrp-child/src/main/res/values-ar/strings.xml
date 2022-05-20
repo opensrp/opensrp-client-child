@@ -382,5 +382,6 @@
 
     <string name="adverse_effect_reporting_vaccine_format">\u200E(%2$s) \u200E%1$s</string>
 
-    <string name="formatted_label">%2$s \u200E:%1$s</string>
+    <string name="format_label_colon_text">%2$s \u200E:%1$s</string>
+    <string name="format_label_space_text">%2$s %1$s</string>
 </resources>
