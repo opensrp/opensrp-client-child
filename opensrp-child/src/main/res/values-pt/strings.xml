@@ -359,4 +359,7 @@
     <string name="card_ordered_with_date">Cartão Requisitado: %1$s</string>
 
     <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
+
+    <string name="format_label_colon_text">%1$s: %2$s</string>
+    <string name="format_label_space_text">%1$s %2$s</string>
 </resources>
