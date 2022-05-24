@@ -738,8 +738,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                ChildDbUtils.updateChildDetailsValue(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE, childDetails.entityId());
-                getChildDetails().getDetails().put(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE);
+                String columnName = Constants.CHILD_STATUS.INACTIVE;
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.INACTIVE;
+                } else if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
+                }
+
+                ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
+                getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
@@ -1330,9 +1337,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
