@@ -1385,8 +1385,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
         setLastModified(true);
+        startUpdateViewTask();
     }
 
     @Override
