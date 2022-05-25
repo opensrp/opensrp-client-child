@@ -454,7 +454,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                     // For overdue count
                     // FIXME: Count generated on first sync is not correct
                     String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                            .getCountExecuteQuery(filterSelectionCondition(true),"");
+                            .getCountExecuteQuery(filterSelectionCondition(true), "");
                     Timber.i(sqlOverdueCount);
                     overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
                     Timber.i("Total Overdue Count %d ", overDueCount);
