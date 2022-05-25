@@ -71,7 +71,6 @@ import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.sync.ClientProcessorForJava;
-import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.CredentialsHelper;
@@ -192,9 +191,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Spy
     private AppProperties appProperties;
-
-    @Mock
-    private CloudantDataHandler cloudantDataHandler;
 
     private static final String TEST_BASE_URL = "https://abc.def";
 
@@ -795,7 +791,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", null);
     }
 
     @Test
@@ -1134,7 +1129,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", cloudantDataHandler);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         Mockito.when(context.getApplicationContext()).thenReturn(RuntimeEnvironment.application.getApplicationContext());
