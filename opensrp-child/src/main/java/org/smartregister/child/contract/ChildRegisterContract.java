@@ -20,6 +20,8 @@ public interface ChildRegisterContract {
 
     interface View extends BaseRegisterContract.View {
         ChildRegisterContract.Presenter presenter();
+
+        void setActiveMenuItem(int menuItemId);
     }
 
     interface Presenter extends BaseRegisterContract.Presenter {
