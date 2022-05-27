@@ -81,6 +81,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 clientAdapter.notifyDataSetChanged();
                 ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
                 ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
+
+                Utils.showToast(requireActivity(), requireActivity().getString(R.string.move_to_catchment_success_message));
             } else {
                 Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
             }

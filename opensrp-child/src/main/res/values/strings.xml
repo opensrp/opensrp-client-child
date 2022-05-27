@@ -180,6 +180,7 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirm Move</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirm Move (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Are you sure you want to move this record to your catchment area?</string>
+    <string name="move_to_catchment_success_message">The record has been moved to your catchment area</string>
     <string name="mother_lookup_results">Matching Records</string>
     <string name="dismiss">Dismiss</string>
     <string name="change_status">Change Status</string>
