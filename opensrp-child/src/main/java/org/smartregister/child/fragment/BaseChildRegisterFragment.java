@@ -399,7 +399,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
                 List<String> ids = commonRepository().findSearchIds(sql);
-                String whereClause = " WHERE _id IN (%s) OR ec_mother_details.base_entity_id in (%s) AND " + this.mainCondition;
+                String whereClause = " WHERE _id IN (%s) OR ec_mother_details.base_entity_id in (%s) AND " + getMainCondition();
                 query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + whereClause + (StringUtils.isBlank(this.getDefaultSortQuery()) ? "" : " order by " + this.getDefaultSortQuery());
 
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
