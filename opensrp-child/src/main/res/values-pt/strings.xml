@@ -177,6 +177,7 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirmar a Mudança</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirmar a Mudança (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Tem certeza de que deseja mover este registro para sua área de captação?</string>
+    <string name="move_to_catchment_success_message">O registro foi movido para sua área de influência</string>
     <string name="mother_lookup_results">Registros Correspondentes</string>
     <string name="dismiss">Dispensar</string>
     <string name="change_status">Alterar estado</string>
