@@ -188,9 +188,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         updateBirthWeight();
 
         try {
-            boolean isEnabled = StringUtils.isNotEmpty(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER))
-                    && !Constants.TRUE.equalsIgnoreCase(detailsMap.getOrDefault(Constants.KEY.NFC_CARD_BLACKLISTED, Constants.FALSE));
-            
+            boolean isEnabled = Utils.isChildHasNFCCard(detailsMap);
+
             activateMenuItemByValue(overflow, R.id.register_biometrics, isEnabled);
             activateMenuItemByValue(overflow, R.id.register_card, isEnabled);
             activateMenuItemByValue(overflow, R.id.verify_caregiver, isEnabled);
