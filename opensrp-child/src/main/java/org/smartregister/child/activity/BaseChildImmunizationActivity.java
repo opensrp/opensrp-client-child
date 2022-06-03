@@ -701,10 +701,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         serviceGroup.setModalOpen(true);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
@@ -731,15 +731,22 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
         ft.addToBackStack(null);
 
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                ChildDbUtils.updateChildDetailsValue(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE, childDetails.entityId());
-                getChildDetails().getDetails().put(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE);
+                String columnName = Constants.CHILD_STATUS.INACTIVE;
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.INACTIVE;
+                } else if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
+                }
+
+                ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
+                getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
@@ -752,10 +759,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         serviceGroup.setModalOpen(true);
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
@@ -1043,14 +1050,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
-
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         vaccineGroup.setModalOpen(true);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1075,10 +1081,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
-
         fragmentTransaction.addToBackStack(null);
+
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
@@ -1092,11 +1098,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
             new BCGNotificationDialog(this, (dialog, which) -> {
-
                 onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
                 Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }, (dialog, which) -> {
-
                 onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
                 Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }).show();
@@ -1104,7 +1108,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     public void onBcgReminderOptionSelected(String option) {
-
         final long DATE = new Date().getTime();
         switch (option) {
             case Constants.SHOW_BCG2_REMINDER:
@@ -1128,7 +1131,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGrowthViews(Weight lastUnsyncedWeight, Height lastUnsyncedHeight, final boolean isActive) {
-
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
         String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
@@ -1330,9 +1332,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1354,6 +1358,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
+
+        hideProgressDialog();
     }
 
     @Override
@@ -1378,8 +1384,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
         setLastModified(true);
+        startUpdateViewTask();
     }
 
     @Override
