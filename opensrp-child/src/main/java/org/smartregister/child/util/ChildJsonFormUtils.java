@@ -1780,7 +1780,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             for (int i = 0; i < clients.length(); i++) {
                 JSONObject client = clients.getJSONObject(i);
-                client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+
+                if (moveToCatchmentEvent.isPermanent()) {
+                    client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+                } else {
+                    client.put("syncStatus", BaseRepository.TYPE_Synced);
+                }
+
                 client.put("teamId", teamId);
                 client.put("locationId", locationId);
             }
@@ -1794,14 +1800,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
 
             if (moveToCatchmentEvent.isPermanent()) {
-
                 processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
                 processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
-
             } else {
-
                 processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent());
-
             }
 
             return true;
@@ -1813,9 +1815,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     private static void tagClients(JSONArray clientList) throws JSONException {
-
         for (int i = 0; i < clientList.length(); i++) {
-
             clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, true);
         }
     }
@@ -1829,13 +1829,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent) throws Exception {
-
         if (createEvent) {
-
             Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients);
 
             convertAndPersistEvent(moveToCatchmentSyncEvent);
-
         }
 
         List<String> formSubmissionIds = new ArrayList<>();
