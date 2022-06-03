@@ -189,6 +189,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
 
         try {
             boolean isEnabled = Utils.isChildHasNFCCard(detailsMap);
+
             activateMenuItemByValue(overflow, R.id.register_biometrics, isEnabled);
             activateMenuItemByValue(overflow, R.id.register_card, isEnabled);
             activateMenuItemByValue(overflow, R.id.verify_caregiver, isEnabled);
