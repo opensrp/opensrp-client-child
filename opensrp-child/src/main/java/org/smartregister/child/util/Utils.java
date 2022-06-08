@@ -774,4 +774,9 @@ public class Utils extends org.smartregister.util.Utils {
             Timber.e(e);
         }
     }
+
+    public static boolean isChildHasNFCCard(Map<String, String> detailsMap) {
+        return StringUtils.isNotEmpty(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER))
+                && !Constants.TRUE.equalsIgnoreCase(detailsMap.getOrDefault(Constants.KEY.NFC_CARD_BLACKLISTED, Constants.FALSE));
+    }
 }
