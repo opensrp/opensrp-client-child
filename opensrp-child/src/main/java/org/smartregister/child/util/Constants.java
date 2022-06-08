@@ -117,6 +117,8 @@ public final class Constants extends AllConstants {
         public static final String DATE_REMOVED = "date_removed";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
         public static final String NFC_CARDS_ARCHIVE = "nfc_cards_archive";
+        public static final String NFC_CARD_BLACKLISTED = "nfc_card_blacklisted";
+        public static final String NFC_CARD_BLACKLISTED_DATE = "nfc_card_blacklisted_date";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
