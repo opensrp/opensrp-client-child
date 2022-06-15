@@ -1131,10 +1131,10 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
-        Mockito.when(context.getApplicationContext()).thenReturn(RuntimeEnvironment.application.getApplicationContext());
+        Mockito.when(context.getApplicationContext()).thenReturn(ApplicationProvider.getApplicationContext().getApplicationContext());
         Mockito.when(coreLibrary.context()).thenReturn(openSrpContext);
         Mockito.when(childLibrary.context()).thenReturn(openSrpContext);
-        Mockito.when(context.getResources()).thenReturn(RuntimeEnvironment.application.getResources());
+        Mockito.when(context.getResources()).thenReturn(ApplicationProvider.getApplicationContext().getResources());
         Mockito.doReturn(allSharedPreferences).when(openSrpContext).allSharedPreferences();
         Mockito.doReturn("Karura Health Centre").when(allSharedPreferences).fetchDefaultLocalityId(Mockito.anyString());
 

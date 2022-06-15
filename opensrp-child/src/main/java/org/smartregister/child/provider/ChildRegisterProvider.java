@@ -298,15 +298,15 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download
             // and save locally
             profilePic.setTag(R.id.entity_id, entityId);
-            updateImageViewWithPicture(entityId, profilePic);
+            updateImageViewWithPicture(entityId, profilePic, defaultImageResId);
         }
 
     }
 
     @VisibleForTesting
-    protected void updateImageViewWithPicture(String entityId, ImageView profilePic) {
+    protected void updateImageViewWithPicture(String entityId, ImageView profilePic, int defaultDrawableResourceId) {
         DrishtiApplication.getCachedImageLoaderInstance()
-                .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
+                .getImageByClientId(entityId, OpenSRPImageLoader.getStaticImageListener(profilePic, defaultDrawableResourceId, defaultDrawableResourceId));
     }
 
     private void attachGoToImmunizationPage(View view, SmartRegisterClient client) {

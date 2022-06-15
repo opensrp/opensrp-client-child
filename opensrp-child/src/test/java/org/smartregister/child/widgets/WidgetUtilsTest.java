@@ -2,6 +2,8 @@ package org.smartregister.child.widgets;
 
 import android.view.View;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONException;
@@ -48,14 +50,14 @@ public class WidgetUtilsTest extends BaseUnitTest {
 
     @Test
     public void testHookupLookupDoesNotUpdateLookupMapWhenEntityIdIsNotSet() throws JSONException {
-        MaterialEditText edtLastName = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtLastName = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.lastName);
 
         String formField = "{\"key\":\"Last_Name\",\"type\":\"edit_text\",\"look_up\":\"true\"}";
         JSONObject jsonObject = new JSONObject(formField);
 
         Map<String, List<View>> lookupMap = new HashMap<>();
-        lookupMap.put(Constants.KEY.MOTHER, new ArrayList<View>());
+        lookupMap.put(Constants.KEY.MOTHER, new ArrayList<>());
         Mockito.doReturn(lookupMap).when(formFragment).getLookUpMap();
 
         WidgetUtils.hookupLookup(edtLastName, jsonObject, formFragment);
@@ -64,7 +66,7 @@ public class WidgetUtilsTest extends BaseUnitTest {
 
     @Test
     public void testHookupLookupInsertsViewIntoLookupMapWhenEntityIdIsSet() throws JSONException {
-        MaterialEditText edtLastName = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtLastName = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.lastName);
 
         String formField = "{\"key\":\"Last_Name\",\"type\":\"edit_text\",\"entity_id\":\"mother\",\"look_up\":\"true\"}";

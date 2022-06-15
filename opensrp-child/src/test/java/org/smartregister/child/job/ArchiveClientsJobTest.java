@@ -3,6 +3,8 @@ package org.smartregister.child.job;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.evernote.android.job.Job;
 
 import org.junit.Assert;
@@ -26,7 +28,7 @@ public class ArchiveClientsJobTest extends BaseUnitTest {
     public void onRunDailyJobShouldReturnSuccessAndCallStartService() {
         ArchiveClientsJob archiveClientsJob = new ArchiveClientsJob(ArchiveClientRecordIntentService.class);
 
-        Context context = Mockito.spy(RuntimeEnvironment.application);
+        Context context = Mockito.spy(ApplicationProvider.getApplicationContext());
         ReflectionHelpers.setField(archiveClientsJob, "mContextReference", new WeakReference<Context>(context));
         ReflectionHelpers.setField(archiveClientsJob, "mApplicationContext", context);
 

@@ -58,6 +58,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.test.core.app.ApplicationProvider;
+
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-09-06
  */
@@ -164,7 +166,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
                 , commonRepository
                 , vaccineRepository
                 , alertService
-                , RuntimeEnvironment.application);
+                , ApplicationProvider.getApplicationContext());
     }
 
     @After
@@ -176,7 +178,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application,"6 WEEKS");
+        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(),"6 WEEKS");
 
         assertEquals("6 Weeks", localizedStateKey);
 
@@ -359,7 +361,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -534,7 +536,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -565,7 +567,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
         verify(textView).setText("Upcoming\n");
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -598,7 +600,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
 
         ArgumentCaptor<Integer> argument = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Object> argument2 = ArgumentCaptor.forClass(Object.class);
@@ -676,8 +678,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
-        verify(view).setBackgroundColor(RuntimeEnvironment.application.getResources().getColor(R.color.white));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
+        verify(view).setBackgroundColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.white));
 
         alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
         nv.clear();
@@ -686,7 +688,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView, times(2)).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView, times(2)).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -717,7 +719,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.status_bar_text_almost_white));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.status_bar_text_almost_white));
 
         alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
         nv.clear();

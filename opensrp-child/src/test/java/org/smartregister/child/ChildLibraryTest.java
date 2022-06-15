@@ -2,6 +2,8 @@ package org.smartregister.child;
 
 import android.os.Build;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,7 +82,7 @@ public class ChildLibraryTest {
     @Test
     public void testGetCompressorCreatesAndReturnsNonNullIninstance() {
 
-        Mockito.doReturn(RuntimeEnvironment.application).when(context).applicationContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
         ChildLibrary.init(context, repository, metadata, 4, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
@@ -92,7 +94,7 @@ public class ChildLibraryTest {
 
     @Test
     public void testGetEventClientRepositoryNotNull() {
-        Mockito.doReturn(RuntimeEnvironment.application).when(context).applicationContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
         ChildLibrary.init(context, repository, metadata, 4, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();

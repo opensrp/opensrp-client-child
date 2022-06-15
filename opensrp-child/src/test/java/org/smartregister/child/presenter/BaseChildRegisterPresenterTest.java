@@ -1,5 +1,7 @@
 package org.smartregister.child.presenter;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -193,7 +195,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
     public void testCloseChildRecordShouldCallRemoveChildFromRegisterMethod() {
         String jsonString = new JSONObject().toString();
         ChildRegisterContract.View view = Mockito.spy(new TestBaseChildRegisterActivity());
-        Mockito.doReturn(RuntimeEnvironment.application).when(view).getContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(view).getContext();
         Mockito.doReturn(view).when(viewReference).get();
         ReflectionHelpers.setField(baseChildRegisterPresenter, "viewReference", viewReference);
 

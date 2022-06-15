@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -71,7 +72,7 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
         MockitoAnnotations.initMocks(this);
 
         fragment = new NoMatchDialogFragment(baseRegisterActivity, "123");
-        context = RuntimeEnvironment.application;
+        context = ApplicationProvider.getApplicationContext();
 
         activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
         activity.getSupportFragmentManager().beginTransaction().add(fragment, "Tasks").commit();

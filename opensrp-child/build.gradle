@@ -17,7 +17,7 @@ plugins {
 description = 'OpenSRP child client library'
 
 jacoco {
-    toolVersion = "0.8.5"
+    toolVersion = "0.8.8"
 }
 
 android {
@@ -124,7 +124,8 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:30.0.2')
     implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-perf' // Add the dependency for the Performance Monitoring library
+    implementation 'com.google.firebase:firebase-perf'
+    // Add the dependency for the Performance Monitoring library
 
     api('org.smartregister:opensrp-client-native-form:2.1.16-SNAPSHOT@aar') {
         transitive = true
@@ -137,7 +138,7 @@ dependencies {
         exclude group: 'com.google.code.gson', module: 'gson'
     }
 
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.9.0'
 
     api('org.smartregister:opensrp-client-configurable-views:1.1.5-SNAPSHOT@aar') {
         transitive = true

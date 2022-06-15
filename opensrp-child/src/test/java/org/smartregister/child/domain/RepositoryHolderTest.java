@@ -1,6 +1,10 @@
 package org.smartregister.child.domain;
 
+import static org.mockito.Mockito.mock;
+
+import org.junit.Assert;
 import org.junit.Test;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
@@ -9,54 +13,50 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
 public class RepositoryHolderTest extends BaseUnitTest {
 
     private final RepositoryHolder repositoryHolder = new RepositoryHolder();
 
     @Test
-    public void testGetRecurringServiceRecordRepositoryReturnsCorrectValue(){
+    public void testGetRecurringServiceRecordRepositoryReturnsCorrectValue() {
         RecurringServiceRecordRepository recurringServiceRecordRepository = mock(RecurringServiceRecordRepository.class);
         repositoryHolder.setRecurringServiceRecordRepository(recurringServiceRecordRepository);
-        assertThat(repositoryHolder.getRecurringServiceRecordRepository(), is(equalTo(recurringServiceRecordRepository)));
+        Assert.assertEquals(repositoryHolder.getRecurringServiceRecordRepository(), recurringServiceRecordRepository);
     }
 
     @Test
-    public void testGetRecurringServiceTypeRepositoryReturnsCorrectValue(){
+    public void testGetRecurringServiceTypeRepositoryReturnsCorrectValue() {
         RecurringServiceTypeRepository recurringServiceTypeRepository = mock(RecurringServiceTypeRepository.class);
         repositoryHolder.setRecurringServiceTypeRepository(recurringServiceTypeRepository);
-        assertThat(repositoryHolder.getRecurringServiceTypeRepository(), is(equalTo(recurringServiceTypeRepository)));
+        Assert.assertEquals(repositoryHolder.getRecurringServiceTypeRepository(), recurringServiceTypeRepository);
     }
 
     @Test
-    public void testGetCommonRepositoryReturnsCorrectValue(){
+    public void testGetCommonRepositoryReturnsCorrectValue() {
         CommonRepository commonRepository = mock(CommonRepository.class);
         repositoryHolder.setCommonRepository(commonRepository);
-        assertThat(repositoryHolder.getCommonRepository(), is(equalTo(commonRepository)));
+        Assert.assertEquals(repositoryHolder.getCommonRepository(), commonRepository);
     }
 
     @Test
-    public void testGetVaccineRepositoryReturnsCorrectValue(){
+    public void testGetVaccineRepositoryReturnsCorrectValue() {
         VaccineRepository vaccineRepository = mock(VaccineRepository.class);
         repositoryHolder.setVaccineRepository(vaccineRepository);
-        assertThat(repositoryHolder.getVaccineRepository(), is(equalTo(vaccineRepository)));
+        Assert.assertEquals(repositoryHolder.getVaccineRepository(), vaccineRepository);
     }
 
     @Test
-    public void testGetWeightRepositoryReturnsCorrectValue(){
+    public void testGetWeightRepositoryReturnsCorrectValue() {
         WeightRepository weightRepository = mock(WeightRepository.class);
         repositoryHolder.setWeightRepository(weightRepository);
-        assertThat(repositoryHolder.getWeightRepository(), is(equalTo(weightRepository)));
+        Assert.assertEquals(repositoryHolder.getWeightRepository(), weightRepository);
     }
 
     @Test
-    public void testGetHeightRepositoryReturnsCorrectValue(){
+    public void testGetHeightRepositoryReturnsCorrectValue() {
         HeightRepository heightRepository = mock(HeightRepository.class);
         repositoryHolder.setHeightRepository(heightRepository);
-        assertThat(repositoryHolder.getHeightRepository(), is(equalTo(heightRepository)));
+        Assert.assertEquals(repositoryHolder.getHeightRepository(), heightRepository);
     }
 }

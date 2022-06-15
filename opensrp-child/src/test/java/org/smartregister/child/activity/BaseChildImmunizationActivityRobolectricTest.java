@@ -27,6 +27,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.google.gson.reflect.TypeToken;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -140,7 +142,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         doReturn(null).when(opensrpContext).alertService();
 
-        Application application = spy(RuntimeEnvironment.application);
+        Application application = spy(ApplicationProvider.getApplicationContext());
         Configuration configuration = new Configuration();
         configuration.setLocale(Locale.ENGLISH);
         Resources resources = spy(application.getResources());

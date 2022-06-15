@@ -157,7 +157,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         weightList.add(weight);
         weightList.add(weight2);
 
-        Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
         menu.add(0, R.id.immunization_data, 1, "title1");
         menu.add(0, R.id.recurring_services_data, 1, "title2");
         menu.add(0, R.id.weight_data, 1, "title3");

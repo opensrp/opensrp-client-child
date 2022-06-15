@@ -364,7 +364,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
+        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(), "6 WEEKS");
 
         Assert.assertEquals("6 Weeks", localizedStateKey);
 
@@ -373,7 +373,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testCreateGroupNameTextViewCreatesTextViewCorrectly() {
 
-        TextView textView = Utils.createGroupNameTextView(RuntimeEnvironment.application, "14 weeks");
+        TextView textView = Utils.createGroupNameTextView(ApplicationProvider.getApplicationContext(), "14 weeks");
 
         Assert.assertNotNull(textView);
         Assert.assertEquals(Typeface.DEFAULT_BOLD, textView.getTypeface());

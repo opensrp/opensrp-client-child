@@ -5,6 +5,8 @@ import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 
 import org.json.JSONException;
@@ -81,7 +83,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @Test
     public void testAfterTextChangedShouldFillLookUpMapCorrectlyBeforeLookup() {
-        EditText edtFirstName = new EditText(RuntimeEnvironment.application);
+        EditText edtFirstName = new EditText(ApplicationProvider.getApplicationContext());
         edtFirstName.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
         edtFirstName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
 
@@ -91,7 +93,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         edtFirstName.addTextChangedListener(lookUpTextWatcherSpy);
         edtFirstName.setText("john");
 
-        EditText edtLastName = new EditText(RuntimeEnvironment.application);
+        EditText edtLastName = new EditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, "last_name");
         edtLastName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
         ReflectionHelpers.setField(lookUpTextWatcherSpy, "mView", edtLastName);
@@ -117,7 +119,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @Test
     public void testAfterTextChangedShouldNotLookUpAfterIfAfterLookUpIsTrue() {
-        View view = new View(RuntimeEnvironment.application);
+        View view = new View(ApplicationProvider.getApplicationContext());
         view.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
         view.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
         LookUpTextWatcher lookUpTextWatcher = new LookUpTextWatcher(formFragment, view, "mother");
