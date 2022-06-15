@@ -176,7 +176,7 @@
     <string name="check_child_bcg_scar">Vérifiez pour la cicatrice BCG de l\'enfant</string>
     <string name="move_to_catchment_confirm_dialog_title">Confirmez la destination du déplacement</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirmez la destination du déplacement (%1$s)</string>
-    <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacé cette dossier à votre zone sanitaire?</string>
+    <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacer ce dossier vers votre zone sanitaire?</string>
     <string name="move_to_catchment_success_message">L\'enregistrement a été déplacé vers votre zone de chalandise</string>
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
