@@ -133,10 +133,9 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 
-    implementation platform('com.google.firebase:firebase-bom:30.0.2')
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-perf'
-    // Add the dependency for the Performance Monitoring library
+    compileOnly platform('com.google.firebase:firebase-bom:30.0.2')
+    compileOnly 'com.google.firebase:firebase-crashlytics'
+    compileOnly 'com.google.firebase:firebase-perf'
 
     api('org.smartregister:opensrp-client-native-form:2.1.16-SNAPSHOT@aar') {
         transitive = true
@@ -187,7 +186,6 @@ dependencies {
     implementation 'org.pcollections:pcollections:3.1.4'
 
     implementation 'com.google.guava:guava:31.1-android'
-    implementation 'id.zelory:compressor:2.1.1'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 
@@ -219,6 +217,11 @@ dependencies {
     testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
     testImplementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
     testImplementation 'androidx.test:core:1.4.0-rc01'
+
+    //Firebase
+    testRuntimeOnly platform('com.google.firebase:firebase-bom:30.0.2')
+    testRuntimeOnly 'com.google.firebase:firebase-crashlytics'
+    testRuntimeOnly 'com.google.firebase:firebase-perf'
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
