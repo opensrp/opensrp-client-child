@@ -132,7 +132,6 @@ public class SampleApplication extends DrishtiApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());

@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.smartregister.child.sample">
+    package="org.smartregister.child.sample"
+    tools:ignore="MissingLeanbackLauncher">
+
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
     <application
         android:name=".application.SampleApplication"
@@ -12,12 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/ChildTheme"
         tools:replace="android:theme">
+
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+
         <activity
             android:name=".activity.ChildRegisterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/ChildTheme.NoActionBar">
+            android:theme="@style/ChildTheme.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

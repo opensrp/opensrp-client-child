@@ -45,8 +45,8 @@ android {
         buildConfigField "String[]", "ALLOWED_LEVELS", '{"Health Facility"}'
         buildConfigField "String", "DEFAULT_LEVEL", '"Health Facility"'
         buildConfigField "String[]", "DATA_CAPTURE_LEVELS", '{"Mobile Clinic"}'
-        buildConfigField "String","OAUTH_CLIENT_ID",'"opensrp-trusted-client"'
-        buildConfigField "String","OAUTH_CLIENT_SECRET",'"O@aTHS#cr3t"'
+        buildConfigField "String", "OAUTH_CLIENT_ID", '"opensrp-trusted-client"'
+        buildConfigField "String", "OAUTH_CLIENT_SECRET", '"O@aTHS#cr3t"'
 
         if (project.rootProject.file("local.properties").exists()) {
 
@@ -143,12 +143,12 @@ dependencies {
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
-    implementation 'androidx.media:media:1.0.0'
+    implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.1'
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
