@@ -738,8 +738,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                ChildDbUtils.updateChildDetailsValue(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE, childDetails.entityId());
-                getChildDetails().getDetails().put(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE);
+                String columnName = Constants.CHILD_STATUS.INACTIVE;
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.INACTIVE;
+                } else if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
+                }
+
+                ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
+                getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
@@ -1354,8 +1361,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
-
-
     }
 
     @Override
@@ -1380,8 +1385,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
         setLastModified(true);
+        startUpdateViewTask();
     }
 
     @Override
