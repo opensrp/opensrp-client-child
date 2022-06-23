@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.service.intent.ArchiveClientRecordIntentService;
@@ -29,7 +28,7 @@ public class ArchiveClientsJobTest extends BaseUnitTest {
         ArchiveClientsJob archiveClientsJob = new ArchiveClientsJob(ArchiveClientRecordIntentService.class);
 
         Context context = Mockito.spy(ApplicationProvider.getApplicationContext());
-        ReflectionHelpers.setField(archiveClientsJob, "mContextReference", new WeakReference<Context>(context));
+        ReflectionHelpers.setField(archiveClientsJob, "mContextReference", new WeakReference<>(context));
         ReflectionHelpers.setField(archiveClientsJob, "mApplicationContext", context);
 
         Job.Result result = archiveClientsJob.onRunJob(null);

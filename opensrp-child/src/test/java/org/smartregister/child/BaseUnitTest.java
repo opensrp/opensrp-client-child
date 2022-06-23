@@ -1,7 +1,5 @@
 package org.smartregister.child;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
 import org.junit.runner.RunWith;
@@ -23,7 +21,7 @@ import org.smartregister.service.AlertService;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
-@Config(application = TestChildApp.class, shadows = {CustomFontTextViewShadow.class}, sdk = Build.VERSION_CODES.S)
+@Config(application = TestChildApp.class, shadows = {CustomFontTextViewShadow.class})
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
 public abstract class BaseUnitTest {
     protected final int ASYNC_TIMEOUT = 2000;

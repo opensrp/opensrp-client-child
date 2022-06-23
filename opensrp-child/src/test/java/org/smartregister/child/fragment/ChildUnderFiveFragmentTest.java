@@ -1,5 +1,14 @@
 package org.smartregister.child.fragment;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,21 +50,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 /**
  * Created by ndegwamartin on 12/01/2021.
  */
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, application = TestChildApp.class, shadows = CustomFontTextViewShadow.class)
+@Config(application = TestChildApp.class, shadows = CustomFontTextViewShadow.class)
 public class ChildUnderFiveFragmentTest {
     private static final String TEST_KEY = "test_key";
     private static final String TEST_VAL = "test_val";
@@ -78,7 +78,7 @@ public class ChildUnderFiveFragmentTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         try {
             appCompatActivity.finish();
         } catch (Exception e) {
@@ -211,7 +211,7 @@ public class ChildUnderFiveFragmentTest {
     }
 
     @Test
-    public void testThatLayoutIsNotChangedAfterUndoingVaccine(){
+    public void testThatLayoutIsNotChangedAfterUndoingVaccine() {
         //When vaccine is undone view should be cleared
         ChildUnderFiveFragment fragment = initFragment();
         fragment.onVaccineUpdated(new ExtraVaccineUpdateEvent(entityId, vaccine, vaccineDate, true));

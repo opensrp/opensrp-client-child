@@ -27,11 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(application = TestChildApp.class, sdk = 27)
+@Config(application = TestChildApp.class)
 public class ExtraVaccineEditDialogFragmentTest {
 
-    private AppCompatActivity activity;
-    private ExtraVaccineEditDialogFragment extraVaccineFragment;
     private final String baseEntityId = "e67fecfd-20f6-46d3-834e-fc09e575676c";
     private final String serviceDate = "2020-02-02";
     private final String vaccineName = "BCG Booster";
@@ -40,9 +38,10 @@ public class ExtraVaccineEditDialogFragmentTest {
     private final String fullName = "Johnson Jambo";
     private final String zeirId = "12345678";
     private final String dob = "2021-03-24T08:00:00.000-04:00";
-
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+    private AppCompatActivity activity;
+    private ExtraVaccineEditDialogFragment extraVaccineFragment;
 
     @Before
     public void setUp() {
@@ -51,7 +50,7 @@ public class ExtraVaccineEditDialogFragmentTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         try {
             activity.finish();
         } catch (Exception e) {
