@@ -27,6 +27,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -68,7 +69,7 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
     private ArgumentCaptor argumentCaptor;
 
     @Mock
-    private org.smartregister.Context opensrpContext;
+    private Context opensrpContext;
 
     @Mock
     private AllSharedPreferences allSharedPreferences;
@@ -81,6 +82,9 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
 
     @Mock
     private Repository repository;
+
+    @Mock
+    private ChildLibrary childLibrary;
 
     @Before
     public void setUp() {
@@ -210,12 +214,19 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
     public void tearDown() {
         if (baseChildImmunizationActivity == null)
             baseChildImmunizationActivity.finish();
+
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 
     @Test
     public void testLaunchActivityInvokesStartActivity() {
 
         appProperties.put(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED, true);
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+        Mockito.doReturn(opensrpContext).when(childLibrary).context();
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         BaseChildImmunizationActivity baseChildImmunizationActivitySpy = Mockito.spy(baseChildImmunizationActivity);
 

@@ -10,12 +10,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -50,7 +48,6 @@ public class WidgetUtilsTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX TROUBLESHOOT")
     public void testHookupLookupDoesNotUpdateLookupMapWhenEntityIdIsNotSet() throws JSONException {
         MaterialEditText edtLastName = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.lastName);

@@ -3,10 +3,6 @@ package org.smartregister.child.activity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.smartregister.child.util.ChildJsonFormUtils.REQUEST_CODE_GET_JSON;
 import static org.smartregister.child.util.Constants.INTENT_KEY.JSON;
 
@@ -134,15 +130,15 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
                 "test",
                 "test");
 
-        ChildLibrary.init(context, mock(Repository.class), childMetadata, 1, 1);
-        when(Utils.metadata()).thenReturn(childMetadata);
-        when(form.getNextLabel()).thenReturn("");
-        when(form.isWizard()).thenReturn(true);
-        when(form.isHideSaveLabel()).thenReturn(false);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1, 1);
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
+        Mockito.when(form.getNextLabel()).thenReturn("");
+        Mockito.when(form.isWizard()).thenReturn(true);
+        Mockito.when(form.isHideSaveLabel()).thenReturn(false);
 
-        baseChildRegisterActivity = spy(baseChildRegisterActivity);
+        baseChildRegisterActivity = Mockito.spy(baseChildRegisterActivity);
         baseChildRegisterActivity.startFormActivity(jsonForm);
-        verify(baseChildRegisterActivity).startFormActivity(jsonForm);
+        Mockito.verify(baseChildRegisterActivity).startFormActivity(jsonForm);
 
         assertEquals("", form.getNextLabel());
         assertTrue(form.isWizard());
@@ -158,11 +154,11 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
         Whitebox.setInternalState(baseChildRegisterActivity, "advancedSearchFormData", advancedSearchFormData);
 
         barcode.displayValue = "";
-        when(intent.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY)).thenReturn(barcode);
+        Mockito.when(intent.getParcelableExtra(AllConstants.BARCODE.BARCODE_KEY)).thenReturn(barcode);
 
-        baseChildRegisterActivity = spy(baseChildRegisterActivity);
+        baseChildRegisterActivity = Mockito.spy(baseChildRegisterActivity);
         baseChildRegisterActivity.onActivityResult(AllConstants.BARCODE.BARCODE_REQUEST_CODE, Activity.RESULT_OK, intent);
-        verify(baseChildRegisterActivity).onActivityResult(AllConstants.BARCODE.BARCODE_REQUEST_CODE, Activity.RESULT_OK, intent);
+        Mockito.verify(baseChildRegisterActivity).onActivityResult(AllConstants.BARCODE.BARCODE_REQUEST_CODE, Activity.RESULT_OK, intent);
 
         assertTrue(advancedSearchFormData.containsKey(Constants.KEY.ZEIR_ID));
         assertEquals("", advancedSearchFormData.get(Constants.KEY.ZEIR_ID));
@@ -170,12 +166,12 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
 
     @Test
     public void testOnActivityResultExtendedShouldSaveForm() throws Exception {
-        baseChildRegisterActivity = spy(baseChildRegisterActivity);
+        baseChildRegisterActivity = Mockito.spy(baseChildRegisterActivity);
 
-        when(baseChildRegisterActivity.presenter()).thenReturn(presenter);
+        Mockito.when(baseChildRegisterActivity.presenter()).thenReturn(presenter);
 
         PowerMockito.whenNew(Intent.class).withArguments(String.class).thenReturn(intent);
-        when(intent.getStringExtra(JSON)).thenReturn(registerChildJsonForm);
+        Mockito.when(intent.getStringExtra(JSON)).thenReturn(registerChildJsonForm);
 
         Mockito.doReturn(context).when(childLibrary).context();
 
@@ -191,15 +187,15 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
                 "test",
                 "test",
                 "test");
-        ChildLibrary.init(context, mock(Repository.class), childMetadata, 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1, 1);
 
-        when(Utils.context().allSharedPreferences()).thenReturn(allSharedPreferences);
-        when(Utils.metadata()).thenReturn(childMetadata);
+        Mockito.when(Utils.context().allSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(Utils.metadata()).thenReturn(childMetadata);
 
         baseChildRegisterActivity.onActivityResultExtended(REQUEST_CODE_GET_JSON, Activity.RESULT_OK, intent);
-        verify(baseChildRegisterActivity).onActivityResultExtended(REQUEST_CODE_GET_JSON, Activity.RESULT_OK, intent);
+        Mockito.verify(baseChildRegisterActivity).onActivityResultExtended(REQUEST_CODE_GET_JSON, Activity.RESULT_OK, intent);
 
         presenter.saveForm(registerChildJsonForm, updateRegisterParam);
-        verify(presenter).saveForm(registerChildJsonForm, updateRegisterParam);
+        Mockito.verify(presenter).saveForm(registerChildJsonForm, updateRegisterParam);
     }
 }

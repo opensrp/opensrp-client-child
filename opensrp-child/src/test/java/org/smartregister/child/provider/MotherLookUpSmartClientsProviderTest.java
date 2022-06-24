@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RuntimeEnvironment;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;

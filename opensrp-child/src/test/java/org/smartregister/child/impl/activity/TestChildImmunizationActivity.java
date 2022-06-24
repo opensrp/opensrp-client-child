@@ -67,14 +67,17 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
 
     @Override
     public void onCreate(Bundle state) {
+        //Do nothing
 
     }
+
     @Override
     public void startActivity(Intent intent) {
-
+        ///Do nothing
     }
+
     @Override
     public void startActivity(Intent intent, Bundle o) {
-
+        // Do nothing
     }
 }

@@ -29,7 +29,7 @@ import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestChildApp.class)
-@Ignore("TO DO FIX TROUBLESHOOT")
+@Ignore
 public class ExtraVaccineEditDialogFragmentTest {
 
     private final String baseEntityId = "e67fecfd-20f6-46d3-834e-fc09e575676c";
@@ -69,8 +69,8 @@ public class ExtraVaccineEditDialogFragmentTest {
         TextView nameView = view.findViewById(R.id.name);
         Assert.assertEquals(nameView.getText().toString(), fullName);
 
-        TextView zierIdView = view.findViewById(R.id.number);
-        Assert.assertEquals(zierIdView.getText().toString(), zeirId);
+        TextView zeirIdView = view.findViewById(R.id.number);
+        Assert.assertEquals(zeirIdView.getText().toString(), zeirId);
 
         TextView vaccineView = view.findViewById(R.id.vaccine);
         Assert.assertEquals(vaccineView.getText().toString(), vaccineName);

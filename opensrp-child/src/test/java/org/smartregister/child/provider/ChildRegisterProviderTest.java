@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -145,7 +144,7 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         details.put(Constants.KEY.LAST_NAME, "Doe");
         details.put(Constants.KEY.ZEIR_ID, "2120");
         details.put(Constants.KEY.DOB, "2020-09-09");
-        details.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
+        details.put(Constants.Client.SYSTEM_OF_REGISTRATION, "MVACC");
         details.put(Constants.KEY.MOTHER_FIRST_NAME, "Jane");
         details.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
 
@@ -161,8 +160,8 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Assert.assertEquals(details.get(Constants.KEY.ZEIR_ID), childOpensrpID.getText().toString());
         Assert.assertEquals(String.format(opensrpContext.applicationContext().getString(R.string.mother_name), details.get(Constants.KEY.MOTHER_FIRST_NAME) + " " + details.get(Constants.KEY.MOTHER_LAST_NAME)), childMotherName.getText().toString());
         Assert.assertEquals(details.get(Constants.KEY.FIRST_NAME) + " " + details.get(Constants.KEY.LAST_NAME), txtPatientName.getText().toString());
-        Assert.assertEquals(View.VISIBLE,systemOfRegistration.getVisibility());
-        Assert.assertEquals(details.get(Constants.Client.SYSTEM_OF_REGISTRATION),systemOfRegistration.getText());
+        Assert.assertEquals(View.VISIBLE, systemOfRegistration.getVisibility());
+        Assert.assertEquals(details.get(Constants.Client.SYSTEM_OF_REGISTRATION), systemOfRegistration.getText());
 
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
 

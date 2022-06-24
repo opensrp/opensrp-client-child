@@ -2,6 +2,7 @@ package org.smartregister.child;
 
 import androidx.annotation.NonNull;
 
+import org.junit.After;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -10,6 +11,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.shadows.CustomFontTextViewShadow;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -33,5 +35,11 @@ public abstract class BaseUnitTest {
         PowerMockito.when(ImmunizationLibrary.getInstance().vaccineRepository()).thenReturn(vaccineRepository);
         PowerMockito.when(ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(org.mockito.ArgumentMatchers.anyString())).thenReturn(null);
         PowerMockito.when(ImmunizationLibrary.getInstance().context().alertService()).thenReturn(alertService);
+    }
+
+    @After
+    public void tearDown(){
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 }

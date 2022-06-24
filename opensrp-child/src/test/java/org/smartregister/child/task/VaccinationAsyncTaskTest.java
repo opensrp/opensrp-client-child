@@ -1,9 +1,16 @@
 package org.smartregister.child.task;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.test.core.app.ApplicationProvider;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -16,7 +23,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -52,13 +58,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import androidx.test.core.app.ApplicationProvider;
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-09-06
@@ -178,7 +177,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(),"6 WEEKS");
+        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(), "6 WEEKS");
 
         assertEquals("6 Weeks", localizedStateKey);
 
@@ -606,7 +605,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         ArgumentCaptor<Object> argument2 = ArgumentCaptor.forClass(Object.class);
         verify(view).setTag(argument.capture(), argument2.capture());
 
-        assertEquals(R.id.next_appointment_date, (long)argument.getValue());
+        assertEquals(R.id.next_appointment_date, (long) argument.getValue());
     }
 
     @Test

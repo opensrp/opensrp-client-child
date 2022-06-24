@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -67,7 +66,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         formFragment = Mockito.spy(ChildFormFragment.class);
-        childFormActivityShadow =  Robolectric.buildActivity(ChildFormActivityShadow.class).get();
+        childFormActivityShadow = Robolectric.buildActivity(ChildFormActivityShadow.class).get();
         String formJson = "{\"count\":\"1\",\"encounter_type\":\"Birth Registration\",\"step1\":{\"title\":\"{{child_enrollment.step1.title}}\"," +
                 "\"fields\":[{\"key\":\"first_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"person\",\"openmrs_entity_id\":\"first_name\"," +
                 "\"entity_id\":\"mother\",\"look_up\":\"true\",\"type\":\"edit_text\",\"hint\":\"First name\",\"edit_type\":\"name\"}," +

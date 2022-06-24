@@ -125,6 +125,9 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
         appProperties = new ChildAppProperties();
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
+        appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
     }
 
     @Test
@@ -326,8 +329,6 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
     @Test
     public void testCleanValueRetrievesValueForSpinnerUsingNewMLSApproach() {
-        appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         String rawValue = "Fr";
 
