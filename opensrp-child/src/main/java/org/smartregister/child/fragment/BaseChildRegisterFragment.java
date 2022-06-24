@@ -51,7 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import timber.log.Timber;
 
@@ -434,7 +433,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     }
 
     @VisibleForTesting
-    protected AppExecutors getAppExecutors(){
+    protected AppExecutors getAppExecutors() {
         return new AppExecutors();
     }
 

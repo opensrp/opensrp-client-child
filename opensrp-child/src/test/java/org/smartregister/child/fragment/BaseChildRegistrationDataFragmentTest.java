@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.common.collect.ImmutableMap;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,8 +106,6 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
     private List<Field> fields;
 
-    private ChildAppProperties appProperties;
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -123,14 +122,14 @@ public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "unformattedNumberFields", unformattedNumberFields);
         Mockito.doReturn(fields).when(step).getFields();
 
-        appProperties = new ChildAppProperties();
+        ChildAppProperties appProperties = new ChildAppProperties();
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
 
         appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
     }
 
-    @Test
+    @After
     public void tearDown() {
         CoreLibrary.destroyInstance();
         ChildLibrary.destroyInstance();

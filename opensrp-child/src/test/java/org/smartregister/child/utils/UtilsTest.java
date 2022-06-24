@@ -25,7 +25,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.AllConstants;
 import org.smartregister.Context;
@@ -59,46 +58,33 @@ import java.util.Map;
 @PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
 public class UtilsTest extends BaseUnitTest {
 
-    @Mock
-    private VaccineRepository vaccineRepository;
-
-    @Mock
-    private WeightRepository weightRepository;
-
-    @Mock
-    private HeightRepository heightRepository;
-
-    @Mock
-    private Activity activity;
-
-    @Mock
-    private AllSharedPreferences allSharedPreferences;
-
-    @Mock
-    private Context opensrpContext;
-
-    @Mock
-    private ChildLibrary childLibrary;
-
-    @Mock
-    private CoreLibrary coreLibrary;
-
-    @Captor
-    private ArgumentCaptor<Vaccine> vaccineArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor weightArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor heightArgumentCaptor;
-
-    private String dobString = "2017-09-09";
-
-    @Spy
-    private AppProperties appProperties;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private VaccineRepository vaccineRepository;
+    @Mock
+    private WeightRepository weightRepository;
+    @Mock
+    private HeightRepository heightRepository;
+    @Mock
+    private Activity activity;
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
+    @Mock
+    private Context opensrpContext;
+    @Mock
+    private ChildLibrary childLibrary;
+    @Mock
+    private CoreLibrary coreLibrary;
+    @Captor
+    private ArgumentCaptor<Vaccine> vaccineArgumentCaptor;
+    @Captor
+    private ArgumentCaptor weightArgumentCaptor;
+    @Captor
+    private ArgumentCaptor heightArgumentCaptor;
+    private String dobString = "2017-09-09";
+    @Spy
+    private AppProperties appProperties;
 
     @Before
     public void setUp() {
