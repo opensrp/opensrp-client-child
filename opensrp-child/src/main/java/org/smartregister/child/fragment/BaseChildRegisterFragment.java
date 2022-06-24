@@ -64,6 +64,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected LocationPickerView clinicSelection;
     private TextView overdueCountTV;
     private int overDueCount = 0;
+    private AppExecutors executors = new AppExecutors();
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -281,15 +283,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected void updateLocationText() {
         try {
             if (clinicSelection != null) {
-                AppExecutors executors = new AppExecutors();
-                Executor diskIOExecutor = executors.diskIO();
-                diskIOExecutor.execute(new Runnable() {
+                executors.diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
                         String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
                         getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
-                        Executor mainThreadExecutor = executors.mainThread();
-                        mainThreadExecutor.execute(new Runnable() {
+                        executors.mainThread().execute(new Runnable() {
                             @Override
                             public void run() {
                                 clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
@@ -442,7 +441,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void countExecute() {
-        AppExecutors executors = new AppExecutors();
         executors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
