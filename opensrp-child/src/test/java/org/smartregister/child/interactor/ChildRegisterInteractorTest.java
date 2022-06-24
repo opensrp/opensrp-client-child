@@ -1,6 +1,5 @@
 package org.smartregister.child.interactor;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.smartregister.child.util.ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT;
 
@@ -10,15 +9,12 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
@@ -28,6 +24,7 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.JsonFormAssetsUtils;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
+import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
@@ -45,7 +42,9 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
+import org.smartregister.service.UserService;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
@@ -62,11 +61,18 @@ import java.util.concurrent.Executor;
 
 public class ChildRegisterInteractorTest extends BaseUnitTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private ChildRegisterInteractor interactor;
     private String jsonEnrollmentForm = JsonFormAssetsUtils.childEnrollmentJsonForm;
     private String childRegistrationClient = "{\"firstName\":\"Doe\",\"middleName\":\"Jane\",\"lastName\":\"Jane\",\"birthdate\":\"2019-07-02T02:00:00.000+02:00\",\"birthdateApprox\":false,\"deathdateApprox\":false,\"gender\":\"Female\",\"relationships\":{\"mother\":[\"bdf50ebc-c352-421c-985d-9e9880d9ec58\",\"bdf50ebc-c352-421c-985d-9e9880d9ec58\"]},\"baseEntityId\":\"c4badbf0-89d4-40b9-8c37-68b0371797ed\",\"identifiers\":{\"zeir_id\":\"14750004\"},\"addresses\":[{\"addressType\":\"usual_residence\",\"addressFields\":{\"address5\":\"Not sure\"}}],\"attributes\":{\"age\":\"0.0\",\"Birth_Certificate\":\"ADG\\/23652432\\/1234\",\"second_phone_number\":\"0972343243\"},\"dateCreated\":\"2019-07-02T15:42:57.838+02:00\",\"serverVersion\":1562074977828,\"clientApplicationVersion\":1,\"clientDatabaseVersion\":1,\"type\":\"Client\",\"id\":\"b8798571-dee6-43b5-a289-fc75ab703792\",\"revision\":\"v1\"}";
+
+    @Mock
+    private Context context;
+
+    @Mock
+    private ImmunizationLibrary immunizationLibrary;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private AppProperties appProperties;
@@ -74,16 +80,37 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
     @Mock
     private AppExecutors appExecutors;
 
+    @Mock
+    private VaccineRepository vaccineRepository;
+
+    @Mock
+    private Repository repository;
+
     @Captor
     private ArgumentCaptor syncHelperAddClientArgumentCaptor;
 
     @Captor
     private ArgumentCaptor syncHelperAddEventArgumentCaptor;
 
+    @Mock
+    private Vaccine vaccine;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        interactor = new ChildRegisterInteractor(appExecutors);
+        interactor = Mockito.spy(new ChildRegisterInteractor(appExecutors));
+
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
+        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
+
+        Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
+        Mockito.doReturn(userService).when(context).userService();
+        Mockito.doNothing().when(userService).initKeyStore();
+        Mockito.doReturn(allSharedPreferences).when(userService).getAllSharedPreferences();
+        Mockito.doReturn(appProperties).when(context).getAppProperties();
+        Mockito.when(userService.getAllSharedPreferences()).thenReturn(allSharedPreferences);
+        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
+
     }
 
     @After
@@ -92,6 +119,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
     }
 
     @Test
@@ -291,60 +319,70 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
 
         updateRegisterParam.setFormTag(formTag);
 
+        CoreLibrary.init(context);
+
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+
         LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
-        VaccineRepository vaccineRepositorySpy = Mockito.spy(ImmunizationLibrary.getInstance().vaccineRepository());
-        Mockito.when(vaccineRepositorySpy.findByBaseEntityIdAndVaccineName(anyString(), anyString())).thenReturn(null);
-        ReflectionHelpers.setField(ImmunizationLibrary.getInstance(), "vaccineRepository", vaccineRepositorySpy);
+
+        Mockito.doReturn(vaccineRepository).when(immunizationLibrary).vaccineRepository();
+
+        ReflectionHelpers.setField(ImmunizationLibrary.getInstance(), "vaccineRepository", vaccineRepository);
+
+        Mockito.when(vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(Constants.Client.BASE_ENTITY_ID), Constants.VACCINE_CODE.TETANUS)).thenReturn(vaccine);
 
         interactor.processTetanus(identifiers, jsonForm, updateRegisterParam, clientJson);
-        Mockito.verify(vaccineRepositorySpy, Mockito.times(1)).add(Mockito.any());
+
+        Mockito.verify(vaccineRepository, Mockito.atMostOnce()).add(Mockito.any());
 
     }
 
     @Test
     public void getTetanusVaccineObjectHasSyncStatusUnSyncedWhenAppPropertyIsTrue() throws JSONException {
-        ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        AppProperties appProperties = Mockito.mock(AppProperties.class);
-        AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
 
-        Context context = Mockito.mock(Context.class);
-        Mockito.when(childLibrary.getProperties()).thenReturn(appProperties);
-        Mockito.when(childLibrary.context()).thenReturn(context);
-        Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
-        Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
+        CoreLibrary.init(context);
+        ChildLibrary.init(context, repository, Mockito.mock(ChildMetadata.class), 1, 1);
+
+        Mockito.doReturn(appProperties).when(interactor).getAppProperties();
         Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(true);
 
         LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
+
         Vaccine vaccine = interactor.getTetanusVaccineObject(clientJson);
+
         Assert.assertEquals(VaccineRepository.TYPE_Unsynced, vaccine.getSyncStatus());
     }
 
     @Test
     public void getTetanusVaccineObjectHasSyncStatusSyncedWhenAppPropertyIsFalse() throws JSONException {
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        AppProperties appProperties = Mockito.mock(AppProperties.class);
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
 
-        Context context = Mockito.mock(Context.class);
         Mockito.when(childLibrary.getProperties()).thenReturn(appProperties);
         Mockito.when(childLibrary.context()).thenReturn(context);
         Mockito.when(context.allSharedPreferences()).thenReturn(allSharedPreferences);
         Mockito.when(allSharedPreferences.fetchRegisteredANM()).thenReturn("");
         Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(false);
 
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
         LocationHelper locationHelper = Mockito.mock(LocationHelper.class);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         JSONObject clientJson = Mockito.spy(new JSONObject(childRegistrationClient));
+
+        CoreLibrary.init(context);
+
+        ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", immunizationLibrary);
+
         Vaccine vaccine = interactor.getTetanusVaccineObject(clientJson);
+
         Assert.assertEquals(VaccineRepository.TYPE_Synced, vaccine.getSyncStatus());
     }
 

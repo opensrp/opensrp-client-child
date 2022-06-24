@@ -2,6 +2,8 @@ package org.smartregister.child.impl.activity;
 
 import androidx.fragment.app.Fragment;
 
+import org.mockito.Mockito;
+import org.smartregister.Context;
 import org.smartregister.child.activity.BaseChildRegisterActivity;
 import org.smartregister.child.impl.fragment.TestChildRegisterFragment;
 import org.smartregister.child.model.BaseChildRegisterModel;
@@ -29,5 +31,12 @@ public class TestBaseChildRegisterActivity extends BaseChildRegisterActivity {
     @Override
     protected BaseRegisterFragment getRegisterFragment() {
         return new TestChildRegisterFragment();
+    }
+
+    @Override
+    public Context context() {
+        Context context = Mockito.mock(Context.class);
+
+        return context;
     }
 }

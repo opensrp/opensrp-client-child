@@ -294,7 +294,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
         vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
 
-        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT))
+        if (getAppProperties().isTrue(ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT))
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Unsynced);
         else
             vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);

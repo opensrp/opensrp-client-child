@@ -1691,7 +1691,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static boolean isDateApprox(String approxDate) {
         boolean dateApprox = false;
-        if (!StringUtils.isEmpty(approxDate) && NumberUtils.isNumber(approxDate)) {
+        if (!StringUtils.isEmpty(approxDate) && NumberUtils.isCreatable(approxDate)) {
             int date = 0;
             try {
                 date = Integer.parseInt(approxDate);

@@ -84,7 +84,6 @@ public class ChildLibraryTest {
 
         Compressor compressor = childLibrary.getCompressor();
         Assert.assertNotNull(compressor);
-
     }
 
     @Test
