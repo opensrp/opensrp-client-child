@@ -176,7 +176,7 @@
     <string name="check_child_bcg_scar">Vérifiez pour la cicatrice BCG de l\'enfant</string>
     <string name="move_to_catchment_confirm_dialog_title">Confirmez la destination du déplacement</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirmez la destination du déplacement (%1$s)</string>
-    <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacé cette dossier à votre zone sanitaire?</string>
+    <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacer ce dossier vers votre zone sanitaire?</string>
     <string name="move_to_catchment_success_message">L\'enregistrement a été déplacé vers votre zone de chalandise</string>
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
@@ -313,7 +313,7 @@
     <string name="_26_weeks_after_tt_2">26 Semaines Après le TT 2</string>
     <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 An Après TT 4 </string>
-    <string name="move_to_catchment">Aller à ma zone\nde captage</string>
+    <string name="move_to_catchment">Déplacer vers mon\nzone sanitaire</string>
     <string name="enroll_caregiver">INSCRIRE LE TUTEUR</string>
     <string name="activate_new_card">ACTIVER NOUVELLE CARTE</string>
     <string name="system_id_colon">ID Système :</string>
