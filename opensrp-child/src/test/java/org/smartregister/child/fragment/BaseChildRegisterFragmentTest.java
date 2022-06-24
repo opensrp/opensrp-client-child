@@ -12,10 +12,11 @@ import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +38,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonRepository;
@@ -60,79 +62,57 @@ import java.util.Arrays;
 @PrepareForTest({ImmunizationLibrary.class, Utils.class})
 public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
+    private final String TEST_ID = "unique-identifier";
+    private final String TEST_LOCATION_ID = "some-test-location";
+    private final String TEST_LOCATION = "Some Test Location";
     @Rule
     public PowerMockRule rule = new PowerMockRule();
-
+    @Mock
+    protected View filterSection;
     @Mock
     private ImmunizationLibrary immunizationLibrary;
-
     @Mock
     private CommonRepository commonRepository;
-
     @Mock
     private VaccineRepository vaccineRepository;
-
     @Mock
     private Context context;
-
     @Mock
     private AlertService alertService;
-
     @Mock
     private ViewGroup container;
-
     @Mock
     private Bundle savedInstanceState;
-
     @Mock
     private FragmentActivity activity;
-
     @Mock
     private Window window;
-
     @Mock
     private View view;
-
     @Mock
     private EditText editText;
-
     @Mock
     private RecyclerViewPaginatedAdapter clientAdapter;
-
     @Mock
     private ChildMetadata childMetadata;
-
     @Mock
     private RegisterQueryProvider registerQueryProvider;
-
     @Mock
     private TextView overdueCountTextView;
     @Mock
     private TextView filterSectionView;
-
     @Mock
     private AdvancedMatrixCursor advancedMatrixCursor;
-
     @Mock
     private LocationHelper locationHelper;
     @Mock
     private LocationPickerView clinicSelection;
-
     @Mock
     private AllSharedPreferences allSharedPreferences;
-
     @Mock
     private CoreLibrary coreLibrary;
-
     @Mock
     private ChildLibrary childLibrary;
-
-    @Mock
-    protected View filterSection;
-
-    private final String TEST_ID = "unique-identifier";
-    private final String TEST_LOCATION_ID = "some-test-location";
-    private final String TEST_LOCATION = "Some Test Location";
     private BaseChildRegisterFragment baseChildRegisterFragment;
 
     @Before
@@ -188,7 +168,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX TROUBLESHOOT")
     public void testUpdateLocationText() {
 
         Assert.assertNotNull(baseChildRegisterFragment);
@@ -202,6 +181,11 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(ArgumentMatchers.anyString());
         Mockito.doReturn(context).when(baseChildRegisterFragment).getOpenSRPContext();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
+
+        AppExecutors appExecutors = Mockito.mock(AppExecutors.class);
+        Mockito.doReturn(appExecutors).when(baseChildRegisterFragment).getAppExecutors();
+        Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).diskIO();
+        Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).mainThread();
 
         baseChildRegisterFragment.updateLocationText();
 
@@ -278,7 +262,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX")
     public void testCountExecute() {
 
         Assert.assertNotNull(baseChildRegisterFragment);
@@ -296,12 +279,17 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
 
         Mockito.doReturn(5).when(commonRepository).countSearchIds(TEST_SQL);
+        AppExecutors appExecutors = Mockito.mock(AppExecutors.class);
+        Mockito.doReturn(appExecutors).when(baseChildRegisterFragment).getAppExecutors();
+        Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).diskIO();
+        Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).mainThread();
 
         baseChildRegisterFragment.countExecute();
 
         Mockito.verify(clientAdapter).setTotalcount(5);
         Mockito.verify(clientAdapter).setCurrentlimit(20);
         Mockito.verify(clientAdapter).setCurrentoffset(0);
+
 
     }
 
@@ -482,7 +470,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertEquals("is_closed IS NOT 1", filterSelect);
         Assert.assertFalse(qrCodeCaptorValue);
     }
-    
+
     @Test
     public void testQRCodeButtonView() throws Exception {
         LayoutInflater inflater = Mockito.spy(LayoutInflater.class);

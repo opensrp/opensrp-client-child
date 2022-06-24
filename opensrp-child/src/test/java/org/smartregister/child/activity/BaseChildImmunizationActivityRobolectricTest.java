@@ -37,7 +37,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -45,7 +44,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
@@ -191,9 +189,9 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX")
     public void testUpdateViewsShouldInvokeUpdateViewTask() throws InterruptedException {
         doNothing().when(immunizationActivity).updateScheduleDate();
+        doNothing().when(immunizationActivity).updateGenderViews();
 
         immunizationActivity.updateViews();
 

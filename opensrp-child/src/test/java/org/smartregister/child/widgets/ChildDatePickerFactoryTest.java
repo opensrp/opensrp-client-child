@@ -12,7 +12,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -67,7 +66,6 @@ public class ChildDatePickerFactoryTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX TROUBLESHOOT")
     public void testAttachLayout() throws JSONException {
         JSONObject jsonObject = new JSONObject("{\"look_up\": \"true\", \"entity_id\": \"some_entity_id\"}");
         childDatePickerFactory.attachLayout("step1", context, formFragment, jsonObject, materialEditText, durationTextView);

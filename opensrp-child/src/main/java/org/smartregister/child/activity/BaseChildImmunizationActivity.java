@@ -172,7 +172,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private ChildImmunizationContract.Presenter presenter;
 
     public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
-        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
+        launchActivity(fromContext, childDetails, registerClickables, Utils.metadata().childImmunizationActivity);
+    }
+
+    /**
+     * Helper method to launch the Base Child Immunization Activity from anywhere
+     *
+     * @param fromContext               - current context , 1st parameter to Intent
+     * @param childDetails              - the map with the client details
+     * @param registerClickables        - serializable class with the click handler parameters
+     * @param activityClassToNavigateTo - the activity to navigate to (2nd Parameter to Intent object)
+     */
+    protected static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables, Class<?> activityClassToNavigateTo) {
+        Intent intent = new Intent(fromContext, activityClassToNavigateTo);
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
@@ -480,7 +492,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         showChildsStatus(status);
     }
 
-    private void updateGenderViews() {
+    @VisibleForTesting
+    protected void updateGenderViews() {
         Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
         int[] colors = updateGenderViews(gender);

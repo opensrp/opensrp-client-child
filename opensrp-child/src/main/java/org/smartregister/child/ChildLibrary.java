@@ -159,5 +159,7 @@ public class ChildLibrary {
     public LocationRepository getLocationRepository() {
         return CoreLibrary.getInstance().context().getLocationRepository();
     }
-
+    public static void destroyInstance() {
+        instance = null;
+    }
 }

@@ -2,6 +2,7 @@ package org.smartregister.child.activity;
 
 import static org.mockito.Mockito.times;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,7 +15,6 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -27,12 +27,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.util.ReflectionHelpers;
-import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.impl.activity.TestChildImmunizationActivity;
 import org.smartregister.child.toolbar.LocationSwitcherToolbar;
 import org.smartregister.child.util.ChildAppProperties;
@@ -64,9 +64,6 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
     @Mock
     private TextView textView;
 
-    @Mock
-    private Context context;
-
     @Captor
     private ArgumentCaptor argumentCaptor;
 
@@ -90,7 +87,6 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
         MockitoAnnotations.initMocks(this);
 
         Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(opensrpContext).applicationContext();
-        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
         Mockito.doReturn(appProperties).when(opensrpContext).getAppProperties();
         Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         Mockito.doReturn(userService).when(opensrpContext).userService();
@@ -104,7 +100,7 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
                 "test", "test");
 
         CoreLibrary.init(opensrpContext);
-        ChildLibrary.init(context, repository, metadata, 1, 1);
+        ChildLibrary.init(opensrpContext, repository, metadata, 1, 1);
 
         baseChildImmunizationActivity = Robolectric.buildActivity(TestChildImmunizationActivity.class).create().get();
     }
@@ -217,16 +213,31 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
     }
 
     @Test
-    @Ignore("TO DO FIX")
-    public void testLaunchActivity() {
-        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, baseChildImmunizationActivity.getClass(),
-                null, true);
-        ChildMetadata metadataObj = Mockito.spy(metadata);
-        Mockito.when(context.applicationContext()).thenReturn(Mockito.mock(android.content.Context.class));
+    public void testLaunchActivityInvokesStartActivity() {
 
-        BaseChildImmunizationActivity.launchActivity(baseChildImmunizationActivity, getChildDetails(), null);
+        appProperties.put(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED, true);
 
-        Mockito.verify(baseChildImmunizationActivity, times(1)).startActivity(Mockito.any());
+        BaseChildImmunizationActivity baseChildImmunizationActivitySpy = Mockito.spy(baseChildImmunizationActivity);
+
+        Mockito.when(opensrpContext.applicationContext()).thenReturn(Mockito.mock(android.content.Context.class));
+
+        String nextAppointmentDate = "2022-01-01";
+        RegisterClickables registerClickables = new RegisterClickables();
+        registerClickables.setNextAppointmentDate(nextAppointmentDate);
+
+        BaseChildImmunizationActivity.launchActivity(baseChildImmunizationActivitySpy, getChildDetails(), registerClickables, baseChildImmunizationActivitySpy.getClass());
+
+        ArgumentCaptor<Intent> argumentCaptorForIntent = ArgumentCaptor.forClass(Intent.class);
+        Mockito.verify(baseChildImmunizationActivitySpy, times(1)).startActivity(argumentCaptorForIntent.capture());
+
+        Intent value = argumentCaptorForIntent.getValue();
+        Assert.assertNotNull(value);
+        Assert.assertNotNull(value.getExtras());
+        Assert.assertEquals(3, value.getExtras().size());
+        Assert.assertEquals("id-1", value.getStringExtra(Constants.INTENT_KEY.BASE_ENTITY_ID));
+        Assert.assertNotNull(value.getExtras().get(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES));
+        Assert.assertTrue(value.getExtras().get(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES) instanceof RegisterClickables);
+        Assert.assertEquals(nextAppointmentDate, value.getStringExtra(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE));
     }
 
     private CommonPersonObjectClient getChildDetails() {
@@ -238,6 +249,7 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
         childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION, "MVACC");
+        childDetails.put(Constants.KEY.IS_CHILD_DATA_ON_DEVICE, Constants.FALSE);
 
         CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, Constants.KEY.CHILD);
         commonPersonObjectClient.setColumnmaps(childDetails);

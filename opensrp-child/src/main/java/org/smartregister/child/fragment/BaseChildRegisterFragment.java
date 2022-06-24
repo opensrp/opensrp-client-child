@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import timber.log.Timber;
 
@@ -60,8 +61,8 @@ import timber.log.Timber;
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener, LocationPickerView.OnLocationChangeListener {
 
-    private View filterSection;
     protected LocationPickerView clinicSelection;
+    private View filterSection;
     private TextView overdueCountTV;
     private int overDueCount = 0;
 
@@ -281,22 +282,14 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected void updateLocationText() {
         try {
             if (clinicSelection != null) {
-                AppExecutors executors = new AppExecutors();
+                AppExecutors executors = getAppExecutors();
                 Executor diskIOExecutor = executors.diskIO();
-                diskIOExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-                        getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
-                        Executor mainThreadExecutor = executors.mainThread();
-                        mainThreadExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
-                            }
-                        });
+                diskIOExecutor.execute(() -> {
+                    String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
+                    getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+                    Executor mainThreadExecutor = executors.mainThread();
+                    mainThreadExecutor.execute(() -> clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem())));
 
-                    }
                 });
 
 
@@ -440,37 +433,35 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         return query;
     }
 
+    @VisibleForTesting
+    protected AppExecutors getAppExecutors(){
+        return new AppExecutors();
+    }
+
     @Override
     public void countExecute() {
-        AppExecutors executors = new AppExecutors();
-        executors.diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-                    Timber.i(sql);
-                    int totalCount = commonRepository().countSearchIds(sql);
+        AppExecutors executors = getAppExecutors();
+        executors.diskIO().execute(() -> {
+            try {
+                String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
+                Timber.i(sql);
+                int totalCount = commonRepository().countSearchIds(sql);
 
-                    // For overdue count
-                    // FIXME: Count generated on first sync is not correct
-                    String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                            .getCountExecuteQuery(filterSelectionCondition(true), "");
-                    Timber.i(sqlOverdueCount);
-                    overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-                    Timber.i("Total Overdue Count %d ", overDueCount);
-                    executors.mainThread().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            clientAdapter.setTotalcount(totalCount);
-                            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-                            clientAdapter.setCurrentlimit(20);
-                            clientAdapter.setCurrentoffset(0);
+                // For overdue count
+                // FIXME: Count generated on first sync is not correct
+                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(filterSelectionCondition(true), "");
+                Timber.i(sqlOverdueCount);
+                overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+                Timber.i("Total Overdue Count %d ", overDueCount);
+                executors.mainThread().execute(() -> {
+                    clientAdapter.setTotalcount(totalCount);
+                    Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                    clientAdapter.setCurrentlimit(20);
+                    clientAdapter.setCurrentoffset(0);
 
-                        }
-                    });
-                } catch (Exception e) {
-                    Timber.e(e);
-                }
+                });
+            } catch (Exception e) {
+                Timber.e(e);
             }
         });
 
@@ -481,11 +472,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
-    public void setOverDueCount(int overDueCount) {
-        this.overDueCount = overDueCount;
-    }
-
     public int getOverDueCount() {
         return overDueCount;
+    }
+
+    public void setOverDueCount(int overDueCount) {
+        this.overDueCount = overDueCount;
     }
 }
