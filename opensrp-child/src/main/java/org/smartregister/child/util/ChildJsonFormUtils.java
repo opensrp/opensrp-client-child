@@ -846,6 +846,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
+        event.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
         return event;
     }
 
@@ -2330,31 +2331,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-
-    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
-        try {
-            if (jsonObject != null && jsonObject.has(field)) {
-                return jsonObject.getJSONObject(field);
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-        return null;
-
-    }
-
-    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
-        try {
-            if (jsonArray != null && jsonArray.length() > 0) {
-                return jsonArray.getJSONObject(position);
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-        return null;
-
-    }
-
     /**
      * Creates the Next Appointment event
      *
@@ -2412,5 +2388,29 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         jsonObject.put(VALUE, value);
         jsonObject.put(OPENMRS_DATA_TYPE, type != null ? type : AllConstants.TEXT);
         addObservation(event, jsonObject);
+    }
+
+    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
+        try {
+            if (jsonObject != null && jsonObject.has(field)) {
+                return jsonObject.getJSONObject(field);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
+    }
+
+    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
+        try {
+            if (jsonArray != null && jsonArray.length() > 0) {
+                return jsonArray.getJSONObject(position);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
     }
 }
