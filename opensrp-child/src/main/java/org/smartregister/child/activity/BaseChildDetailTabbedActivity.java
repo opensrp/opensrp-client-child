@@ -667,7 +667,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             try {
                 String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
                 Timber.d(jsonString);
-                // TODO add comment on why this is happening
+                // reset the 'json' intent value to null so that we do not call BaseActivity#saveForm
+                // once more when we call super.onActivityResult
                 data.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, (String) null);
                 JSONObject form = new JSONObject(jsonString);
                 String encounterType = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
