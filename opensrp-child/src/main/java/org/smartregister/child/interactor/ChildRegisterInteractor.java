@@ -189,9 +189,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void updateOpenSRPId(String jsonString, UpdateRegisterParams params, Client baseClient) {
-        if (params.isEditMode()) {
-            // Unassign current OPENSRP ID
-            if (baseClient != null) {
+        if (baseClient != null) {
+            if (params.isEditMode()) {
+                // Unassign current OPENSRP ID
                 try {
                     String newOpenSRPId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID).replace("-", "");
                     String currentOpenSRPId = ChildJsonFormUtils.getString(jsonString, ChildJsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
@@ -202,9 +202,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 } catch (Exception e) {//might crash if M_ZEIR
                     Timber.d(e, "ChildRegisterInteractor --> unassign opensrp id");
                 }
-            }
-        } else {
-            if (baseClient != null) {
+            } else {
                 //mark OPENSRP ID as used
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID));
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID));
