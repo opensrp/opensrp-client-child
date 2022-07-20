@@ -65,6 +65,7 @@ import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
+import org.smartregister.util.EasyMap;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.ImageUtils;
 import org.smartregister.util.JsonFormUtils;
@@ -833,11 +834,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         String childLocationId = getChildLocationId(allSharedPreferences.fetchDefaultLocalityId(providerId), allSharedPreferences);
         event.setChildLocationId(childLocationId);
-
-        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
-
         event.setTeam(allSharedPreferences.fetchDefaultTeam(providerId));
         event.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+
+        event.addDetails(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy());
 
         try {
             addObservation(AllConstants.DATA_STRATEGY, allSharedPreferences.fetchCurrentDataStrategy(), Observation.TYPE.TEXT, event);
@@ -1773,6 +1773,19 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             JSONArray events = getOutOFCatchmentJsonArray(jsonObject, Constants.EVENTS);
             JSONArray clients = getOutOFCatchmentJsonArray(jsonObject, Constants.CLIENTS);
 
+            // TODO: Mark clients as unsynced, update teamId & locationId
+            AllSharedPreferences allSharedPreferences = CoreLibrary.getInstance().context().allSharedPreferences();
+            String providerId = allSharedPreferences.fetchRegisteredANM();
+            String teamId = allSharedPreferences.fetchDefaultTeamId(providerId);
+            String locationId = allSharedPreferences.fetchUserLocalityId(providerId);
+
+            for (int i = 0; i < clients.length(); i++) {
+                JSONObject client = clients.getJSONObject(i);
+                client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+                client.put("teamId", teamId);
+                client.put("locationId", locationId);
+            }
+
             if (!moveToCatchmentEvent.isPermanent()) {
                 tagClients(clients);
             }
@@ -2184,36 +2197,77 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return updateClientAttribute(openSRPContext, childDetails, attributeName, attributeValue);
     }
 
+    /**
+     * This method updates the Client document attributes to add the attribute name and attribute value parameters passed
+     *
+     * @param openSRPContext The OpenSRP context
+     * @param childDetails   The data object holding the child client details
+     * @param attributeName  The key of the attribute to add
+     * @param attributeValue The value of the attribute
+     * @return the updated child client details map
+     */
     public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws Exception {
+        return updateClientAttribute(openSRPContext, childDetails, EasyMap.mapOf(attributeName, attributeValue));
+    }
+
+    /**
+     * This method updates the Client document attributes to add the attribute name and attribute value parameters passed.
+     * It creates and updates the Update Birth Registration Event to include the child statuses as Obs
+     *
+     * @param openSRPContext The OpenSRP context
+     * @param childDetails   The data object holding the child client details
+     * @param attributesMap  The map holding key - value entries of the attribute to add
+     * @return the updated child client details map
+     */
+    public static Map<String, String> updateClientAttribute(org.smartregister.Context openSRPContext, CommonPersonObjectClient childDetails, Map<String, Object> attributesMap) throws Exception {
         Date date = new Date();
         EventClientRepository db = openSRPContext.getEventClientRepository();
-
         JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
         JSONObject attributes = client.getJSONObject(ChildJsonFormUtils.attributes);
-        attributes.put(attributeName, attributeValue);
-        client.remove(ChildJsonFormUtils.attributes);
-        client.put(ChildJsonFormUtils.attributes, attributes);
-        db.addorUpdateClient(childDetails.entityId(), client);
-
         ContentValues contentValues = new ContentValues();
-        //Add the base_entity_id
-        contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-
-        ChildDbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
 
         Event event = getEventAndTag(childDetails.entityId(), ChildJsonFormUtils.updateBirthRegistrationDetailsEncounter, new Date(), Constants.CHILD_TYPE);
+
+        //update details
+        Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+
+        Iterator<Map.Entry<String, Object>> attributeValueIterator = attributesMap.entrySet().iterator();
+        String attributeName;
+        Object attributeValue;
+
+        while (attributeValueIterator.hasNext()) {
+
+            Map.Entry<String, Object> attributeValuePair = attributeValueIterator.next();
+
+            attributeName = attributeValuePair.getKey();
+            attributeValue = attributeValuePair.getValue();
+
+            attributes.put(attributeName, attributeValue);
+
+            //Add the base_entity_id
+            contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
+
+            ChildDbUtils.updateChildDetailsValue(attributeName.toLowerCase(), String.valueOf(attributeValue), childDetails.entityId());
+
+            ChildJsonFormUtils.addObservation(attributeName, String.valueOf(attributeValue), Observation.TYPE.TEXT, event);
+
+
+            if (detailsMap != null && childDetails.getColumnmaps().containsKey(attributeName)) {
+                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+            }
+        }
+
+        client.remove(ChildJsonFormUtils.attributes);
+        client.put(ChildJsonFormUtils.attributes, attributes);
+
+        db.addorUpdateClient(childDetails.entityId(), client);
 
         ChildJsonFormUtils.addMetaData(openSRPContext.applicationContext(), event, date);
         JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
         db.addEvent(childDetails.entityId(), eventJson);
         processClients(openSRPContext.allSharedPreferences(), ChildLibrary.getInstance().getEcSyncHelper());
 
-        //update details
-        Map<String, String> detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
         if (detailsMap != null) {
-            if (childDetails.getColumnmaps().containsKey(attributeName)) {
-                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
-            }
             Utils.putAll(detailsMap, childDetails.getColumnmaps());
         }
 
@@ -2337,7 +2391,24 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return event;
     }
 
+    /**
+     * This helper method creates and adds an Observation to the supplied parameter of type Event
+     *
+     * @param key   The form field key
+     * @param value The form field value
+     * @param type  The Enum type of the Observation {@link Observation#TYPE}
+     * @param event The Event to add the Observation to
+     */
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
+        //In case it is an unsynced Event and we are updating, we need to remove the previous Observation with the same form field tag
+        //Form fields should always be unique per submission
+
+        List<Obs> obsList = event.getObs();
+        if (obsList != null && obsList.size() > 0) {
+            obsList.removeIf(obs -> obs.getFormSubmissionField().equals(key));
+        }
+
+        // Process new observation
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(KEY, key);
         jsonObject.put(VALUE, value);

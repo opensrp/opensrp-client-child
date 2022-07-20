@@ -180,11 +180,11 @@
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
     <string name="change_status">Changer le statut</string>
-    <string name="write_passcode">Écrire le code d\'accès</string>
+    <string name="write_passcode">Écrire le code d’accès</string>
     <string name="read_from_card">Lire la carte</string>
     <string name="write_to_card">Enregistrer sur la carte</string>
-    <string name="verify_caregiver">Vérifier l\'aide soignant</string>
-    <string name="blacklist_card">Ajouter la carte à la liste noire</string>
+    <string name="verify_caregiver">Vérifier le tuteur</string>
+    <string name="blacklist_card">Mettre la carte sur la liste noire</string>
     <string name="title_activity_stock_control">ActivitéGestionStock</string>
     <string name="device_timezone_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
     <string name="device_time_changed">Le fuzeau horaire de l\'apareil à changé. Veuillez se connecter à nouveau.</string>
@@ -210,7 +210,7 @@
     <string name="searching_dialog_message">Veuillez patienter</string>
     <string name="move_to_catchment_dialog_title">En marche...</string>
     <string name="move_to_catchment_dialog_message">Veuillez patienter</string>
-    <string name="send_report_warning">Envoyer le %1$s rapport?\nDate: %2$s\nUtilisateur: %3$s</string>
+    <string name="send_report_warning">Envoyer le rapport du %1$s?\nDate: %2$s\nUtilisateur: %3$s</string>
     <string name="send">Envoyer</string>
     <string name="n_a">N/A</string>
     <string name="confirm_button_label">Confirmer</string>
@@ -312,7 +312,8 @@
     <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 An Après TT 4 </string>
     <string name="move_to_catchment">Aller à ma zone\nde captage</string>
-    <string name="activate_new_card">ACTIVER LA CARTE</string>
+    <string name="enroll_caregiver">INSCRIRE LE TUTEUR</string>
+    <string name="activate_new_card">ACTIVER NOUVELLE CARTE</string>
     <string name="system_id_colon">ID Système :</string>
     <string name="zeir_id">ID Système</string>
     <string name="age_colon">Âge : </string>
@@ -374,4 +375,9 @@
     <string name="loading_form_message">Veuillez patienter pendant que nous chargeons votre formulaire...</string>
     <string name="save_changes">Sauvegarder les modifications</string>
     <string name="record">Enregistrer</string>
+
+    <string name="end_date_required">La date de fin est requise</string>
+    <string name="start_date_required">La date de début est requise</string>
+
+    <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
 </resources>

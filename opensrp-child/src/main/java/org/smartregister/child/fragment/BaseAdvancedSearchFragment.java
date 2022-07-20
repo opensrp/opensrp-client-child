@@ -42,6 +42,7 @@ import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
+import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
@@ -583,8 +584,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     }
 
     @Override
-    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider
-            () {
+    protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
         return null;
     }
 
@@ -636,13 +636,26 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void countExecute() {
         try {
-            String sql = ((BaseChildAdvancedSearchPresenter) presenter).getCountQuery();
-            Timber.i(sql);
-            int totalCount = commonRepository().countSearchIds(sql);
-            clientAdapter.setTotalcount(totalCount);
-            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-            clientAdapter.setCurrentlimit(20);
-            clientAdapter.setCurrentoffset(0);
+            AppExecutors appExecutors = new AppExecutors();
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    String sql = ((BaseChildAdvancedSearchPresenter) presenter).getCountQuery();
+                    Timber.i(sql);
+                    int totalCount = commonRepository().countSearchIds(sql);
+                    appExecutors.mainThread().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientAdapter.setTotalcount(totalCount);
+                            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                            clientAdapter.setCurrentlimit(20);
+                            clientAdapter.setCurrentoffset(0);
+                        }
+                    });
+                }
+            });
+
+
         } catch (Exception e) {
             Timber.e(e);
         }

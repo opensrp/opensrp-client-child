@@ -1,5 +1,8 @@
 package org.smartregister.child.task;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
@@ -9,12 +12,11 @@ import android.widget.TextView;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
@@ -34,17 +36,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(PowerMockRunner.class)
-public class GrowthMonitoringAsyncTaskTest {
+public class GrowthMonitoringAsyncTaskTest extends BasePowerMockUnitTest {
 
     @Mock
     private RegisterActionParams registerActionParams;
 
     @Mock
-    private CommonRepository  commonRepository;
+    private CommonRepository commonRepository;
 
     @Mock
     private WeightRepository weightRepository;

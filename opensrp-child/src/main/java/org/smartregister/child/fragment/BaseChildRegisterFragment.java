@@ -29,6 +29,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildRegisterFragmentPresenter;
 import org.smartregister.child.provider.ChildRegisterProvider;
+import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
@@ -49,6 +50,7 @@ import org.smartregister.view.fragment.BaseRegisterFragment;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import timber.log.Timber;
 
@@ -279,13 +281,30 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected void updateLocationText() {
         try {
             if (clinicSelection != null) {
-                clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
-                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
-                getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+                AppExecutors executors = new AppExecutors();
+                Executor diskIOExecutor = executors.diskIO();
+                diskIOExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
+                        getOpenSRPContext().allSharedPreferences().savePreference(Constants.CURRENT_LOCATION_ID, locationId);
+                        Executor mainThreadExecutor = executors.mainThread();
+                        mainThreadExecutor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
+                            }
+                        });
+
+                    }
+                });
+
+
             }
         } catch (Exception e) {
             Timber.e(e);
         }
+
     }
 
     @VisibleForTesting
@@ -399,7 +418,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
                 List<String> ids = commonRepository().findSearchIds(sql);
-                query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " where _id IN (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+                query = Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
+                        " WHERE _id IN (%s) OR ec_mother_details.base_entity_id in (%s)" + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
 
                 String joinedIds = "'" + StringUtils.join(ids, "','") + "'";
                 return query.replace("%s", joinedIds);
@@ -422,25 +442,38 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void countExecute() {
-        try {
-            String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-            Timber.i(sql);
-            int totalCount = commonRepository().countSearchIds(sql);
-            clientAdapter.setTotalcount(totalCount);
-            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-            clientAdapter.setCurrentlimit(20);
-            clientAdapter.setCurrentoffset(0);
+        AppExecutors executors = new AppExecutors();
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
+                    Timber.i(sql);
+                    int totalCount = commonRepository().countSearchIds(sql);
 
-            // For overdue count
-            // FIXME: Count generated on first sync is not correct
-            String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                    .getCountExecuteQuery(filterSelectionCondition(true),"");
-            Timber.i(sqlOverdueCount);
-            overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-            Timber.i("Total Overdue Count %d", overDueCount);
-        } catch (Exception e) {
-            Timber.e(e);
-        }
+                    // For overdue count
+                    // FIXME: Count generated on first sync is not correct
+                    String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+                            .getCountExecuteQuery(filterSelectionCondition(true), "");
+                    Timber.i(sqlOverdueCount);
+                    overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+                    Timber.i("Total Overdue Count %d ", overDueCount);
+                    executors.mainThread().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientAdapter.setTotalcount(totalCount);
+                            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                            clientAdapter.setCurrentlimit(20);
+                            clientAdapter.setCurrentoffset(0);
+
+                        }
+                    });
+                } catch (Exception e) {
+                    Timber.e(e);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -448,4 +481,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
+    public void setOverDueCount(int overDueCount) {
+        this.overDueCount = overDueCount;
+    }
+
+    public int getOverDueCount() {
+        return overDueCount;
+    }
 }

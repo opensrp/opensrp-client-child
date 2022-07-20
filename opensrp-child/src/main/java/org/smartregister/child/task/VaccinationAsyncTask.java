@@ -509,7 +509,11 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 List<String> ids = new ArrayList<>();
                 if (StringUtils.isNoneBlank(motherBaseEntityId) && StringUtils.isNoneBlank(entityId)) {
                     ids.add(motherBaseEntityId);
-                    ids.add(entityId);
+
+                    // NOTE:
+                    // The event & clients get endpoint returns events and clients
+                    // for all children given the mother's baseEntityId
+                    // ids.add(entityId);
                 }
                 //Also include Father base entity Id to pull Father events
                 if (ChildLibrary.getInstance().metadata().childRegister.getFatherRelationKey() != null && StringUtils.isNoneBlank(fatherBaseEntityId)) {

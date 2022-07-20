@@ -65,6 +65,7 @@ public final class Constants extends AllConstants {
         public static final String VALUE_FIELD = "value_field";
         public static final String RELATIONSHIPS = "relationships";
         public static final String SERVVICES = "services";
+        public static final String EXCLUSION_KEYS = "exclusion_keys";
     }
 
     public static class JSON_FORM_EXTRA {
@@ -151,6 +152,9 @@ public final class Constants extends AllConstants {
         public static final String BCG_SCAR = "BCG: scar";
         public static final String DETAILS = "details";
         public static final String SERVICE_DATE = "service_date";
+
+        public static final String IS_CHILD_DATA_ON_DEVICE = "is_child_data_on_device";
+        public static final String NFC_CARD_LAST_UPDATED_TIMESTAMP = "nfc_card_last_updated_timestamp";
     }
 
     public static final class INTENT_KEY {
@@ -227,8 +231,7 @@ public final class Constants extends AllConstants {
         public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
         public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
 
-        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";
-        public static final String FEATURE_NFC_CARD_ENABLED = "feature.nfc.card.enabled";
+        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";;
 
         public static final String HOME_NEXT_VISIT_DATE_ENABLED = "home.next.visit.date.enabled";
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";

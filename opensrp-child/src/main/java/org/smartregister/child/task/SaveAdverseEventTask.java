@@ -77,6 +77,7 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
                 .withChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchCurrentLocality())
                 .withFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString()).withDateCreated(new Date());
 
+        ChildJsonFormUtils.tagSyncMetadata(event);
 
         //add metadata
         addMetadata(fields, event, metadata);

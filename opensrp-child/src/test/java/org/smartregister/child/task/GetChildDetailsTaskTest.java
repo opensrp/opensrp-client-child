@@ -1,5 +1,8 @@
 package org.smartregister.child.task;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -24,11 +28,9 @@ import org.smartregister.view.activity.DrishtiApplication;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DrishtiApplication.class})
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "javax.management.*", "org.xmlpull.v1.*"})
 public class GetChildDetailsTaskTest {
     @Mock
     private View view;
@@ -43,7 +45,7 @@ public class GetChildDetailsTaskTest {
     private OpenSRPImageLoader openSRPImageLoader;
 
     @Mock
-    private BaseActivity  baseActivity;
+    private BaseActivity baseActivity;
 
     private GetChildDetailsTask getChildDetailsTask;
 

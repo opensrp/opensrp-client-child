@@ -1,5 +1,7 @@
 package org.smartregister.child.task;
 
+import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+
 import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -7,6 +9,7 @@ import android.view.MenuItem;
 import androidx.annotation.VisibleForTesting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.AllConstants;
 import org.smartregister.CoreLibrary;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
@@ -42,8 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
 public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
     private final Menu overflow;
@@ -104,7 +105,10 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     protected Map<String, NamedObject<?>> doInBackground(Void... params) {
         updateBirthWeight();
         Map<String, NamedObject<?>> map = new HashMap<>();
-        detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
+            detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+        }
 
         NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
         map.put(detailsNamedObject.name, detailsNamedObject);
@@ -229,6 +233,8 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             if (!fromUpdateStatus) {
                 activity.updateStatus(true);
             }
+
+            activity.updateActivityTitle();
         } catch (Exception e) {
             Timber.e(e);
         } finally {

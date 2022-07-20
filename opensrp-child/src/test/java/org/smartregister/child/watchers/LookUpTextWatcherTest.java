@@ -38,6 +38,8 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     private JsonFormFragment formFragment;
 
+    private ChildFormActivityShadow childFormActivityShadow;
+
     @Mock
     private ChildLibrary childLibrary;
 
@@ -63,7 +65,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         formFragment = Mockito.spy(ChildFormFragment.class);
-        ChildFormActivityShadow childFormActivityShadow =  Robolectric.buildActivity(ChildFormActivityShadow.class).get();
+        childFormActivityShadow =  Robolectric.buildActivity(ChildFormActivityShadow.class).get();
         String formJson = "{\"count\":\"1\",\"encounter_type\":\"Birth Registration\",\"step1\":{\"title\":\"{{child_enrollment.step1.title}}\"," +
                 "\"fields\":[{\"key\":\"first_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"person\",\"openmrs_entity_id\":\"first_name\"," +
                 "\"entity_id\":\"mother\",\"look_up\":\"true\",\"type\":\"edit_text\",\"hint\":\"First name\",\"edit_type\":\"name\"}," +
@@ -135,6 +137,11 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        try {
+            childFormActivityShadow.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

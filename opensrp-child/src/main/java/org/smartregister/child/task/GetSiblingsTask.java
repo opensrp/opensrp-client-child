@@ -40,7 +40,7 @@ public class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
                     .eventClientRepository()
                     .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                             Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
-                                    + " where " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
+                                    + " WHERE " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
 
 
             List<CommonPersonObject> children = new ArrayList<>();

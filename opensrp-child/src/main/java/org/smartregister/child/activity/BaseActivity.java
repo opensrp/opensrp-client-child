@@ -29,6 +29,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -523,7 +524,7 @@ toggle.syncState();
     }
 
     protected boolean isActiveStatus(String humanFriendlyStatus) {
-        return getString(R.string.active).equals(humanFriendlyStatus);
+        return getString(R.string.active).equalsIgnoreCase(humanFriendlyStatus);
     }
 
     protected String getHumanFriendlyChildsStatus(Map<String, String> detailsColumnMap) {
@@ -558,9 +559,8 @@ toggle.syncState();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            String jsonString = data.getStringExtra("json");
-            if (jsonString != null) {
+  if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+            String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
                 UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
                 updateRegisterParams.setEditMode(false);
                 saveForm(jsonString, updateRegisterParams);

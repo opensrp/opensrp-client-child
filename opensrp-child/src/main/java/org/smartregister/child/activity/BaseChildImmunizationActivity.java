@@ -1,5 +1,7 @@
 package org.smartregister.child.activity;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -54,6 +56,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.BCGNotificationDialog;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -124,8 +127,6 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
-import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
-
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
@@ -186,13 +187,34 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (extras != null) {
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = getChildDetails(caseId);
+
+            CommonPersonObjectClient cardChildDetails = null;
+            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS) && childDetails == null) {
+                cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            }
+
+            if (childDetails == null) {
+                childDetails = cardChildDetails;
+            } else {
+                if (cardChildDetails != null) {
+                    // card last update
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault("nfc_last_processed_timestamp", "0");
+                    long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
+                    // device last update
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault("last_interacted_with", "0");
+                    long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
+
+                    if (lastCardTxDateTime > lastInteractedWith) {
+                        childDetails = cardChildDetails;
+                    }
+                }
+            }
         }
 
         Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
         if (serializable != null && serializable instanceof RegisterClickables) {
             registerClickables = (RegisterClickables) serializable;
         }
-
 
         bcgScarNotificationShown =
                 ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
@@ -220,6 +242,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+
+        // load the child details
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE))) {
+            bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        }
+
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
                         registerClickables.getNextAppointmentDate() : "");
@@ -391,9 +419,25 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         childDetails.setDetails(detailsMap);
     }
 
+    @VisibleForTesting
+    @Override
+    protected boolean isActiveStatus(CommonPersonObjectClient child) {
+        return super.isActiveStatus(child);
+    }
+
+    @VisibleForTesting
+    @Override
+    protected String getHumanFriendlyChildsStatus(CommonPersonObjectClient child) {
+        return super.getHumanFriendlyChildsStatus(child);
+    }
+
     @Override
     public void updateViews() {
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
+
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
+        }
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -485,16 +529,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
-            childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            childIdTV.setText(getString(R.string.formatted_label, getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
         }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
 
-    private void updateSystemOfRegistration()
-    {
+    private void updateSystemOfRegistration() {
         String systemOfRegistration = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION, false);
-        systemOfRegistrationTV.setText(systemOfRegistration!= null ? systemOfRegistration : "");
+        systemOfRegistrationTV.setText(systemOfRegistration != null ? systemOfRegistration : "");
     }
 
     private void updateNextAppointmentDateView() {
@@ -695,6 +738,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
+                String columnName = Constants.CHILD_STATUS.INACTIVE;
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.INACTIVE;
+                } else if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
+                }
+
+                ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
+                getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
@@ -1309,8 +1361,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
-
-
     }
 
     @Override
@@ -1335,8 +1385,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
         setLastModified(true);
+        startUpdateViewTask();
     }
 
     @Override
@@ -1411,25 +1461,20 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private void performRecordAllClick(final int index) {
         if (vaccineGroups != null && vaccineGroups.size() > index) {
             final VaccineGroup vaccineGroup = vaccineGroups.get(index);
-            vaccineGroup.post(new Runnable() {
-                @Override
-                public void run() {
-                    vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
-                        ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
-                        if (!vaccineWrappers.isEmpty()) {
-                            final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
-                            recordAllTV.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    recordAllTV.performClick();
-                                }
-                            });
-                        } else {
-                            performRecordAllClick(index + 1);
+            vaccineGroup.post(() -> vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
+                ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
+                if (!vaccineWrappers.isEmpty()) {
+                    final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
+                    recordAllTV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            recordAllTV.performClick();
                         }
                     });
+                } else {
+                    performRecordAllClick(index + 1);
                 }
-            });
+            }));
         }
     }
 
@@ -1458,6 +1503,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
+        if (isOutOfCatchmentVaccine && StringUtils.isEmpty(vaccine.getProgramClientId())) {
+            vaccine.setProgramClientId(tag.getPatientNumber());
+        }
 
         Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());

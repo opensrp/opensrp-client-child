@@ -316,6 +316,7 @@
     <string name="_1_year_after_tt_3"> 1 Year After TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 Year After TT 4 </string>
     <string name="move_to_catchment">Move to My\nCatchment</string>
+    <string name="enroll_caregiver">ENROLL CAREGIVER</string>
     <string name="activate_new_card">ACTIVATE NEW CARD</string>
     <string name="system_id_colon">System ID :</string>
     <string name="zeir_id">System ID</string>
@@ -347,8 +348,8 @@
     <string name="child_archive_record_text">Archive Record</string>
     <string name="child_archive_record_description">The record will be archived and will not be available in the register</string>
     <string name="child_archive_dialog_title">Are you sure you want archive record?</string>
-    <string name="child_archive_record_task_dialog_message">Please wait ... Archiving record.</string>
-    <string name="error_recording_out_of_catchment_service">An error occured when recording out of catchment service. Try again later.</string>
+    <string name="child_archive_record_task_dialog_message">Please wait... Archiving record.</string>
+    <string name="error_recording_out_of_catchment_service">An error occurred when recording out of catchment service. Try again later.</string>
     <string name="record_dynamic_vaccines">Record Private Sector Vaccines</string>
     <string name="extra_vaccines">Extra vaccines in private sector</string>
     <string name="permanently">Permanently</string>
@@ -380,6 +381,11 @@
     <string name="loading_form_message">Please wait as we load your form...</string>
     <string name="save_changes">Save Changes</string>
     <string name="record">سجل</string>
+
     <string name="end_date_required">End date is required</string>
     <string name="start_date_required">Start date is required</string>
+
+    <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
+
+    <string name="formatted_label">%1$s: %2$s</string>
 </resources>

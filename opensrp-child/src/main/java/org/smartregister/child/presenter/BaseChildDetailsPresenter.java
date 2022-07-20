@@ -3,9 +3,12 @@ package org.smartregister.child.presenter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
+import org.smartregister.Context;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildTabbedDetailsContract;
+import org.smartregister.child.util.Utils;
 import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.repository.EventClientRepository;
 
 import java.lang.ref.WeakReference;
@@ -32,6 +35,11 @@ public class BaseChildDetailsPresenter implements ChildTabbedDetailsContract.Pre
     @Override
     public ChildTabbedDetailsContract.View getView() {
         return view.get();
+    }
+
+    @Override
+    public void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails) {
+        Utils.activateChildStatus(openSRPcontext, childDetails);
     }
 
     @Override

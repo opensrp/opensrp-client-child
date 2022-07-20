@@ -1,5 +1,8 @@
 package org.smartregister.child.activity;
 
+import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
+import static org.smartregister.util.Utils.showToast;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +18,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,6 +69,7 @@ import org.smartregister.child.presenter.BaseChildDetailsPresenter;
 import org.smartregister.child.task.LaunchAdverseEventFormTask;
 import org.smartregister.child.task.LoadAsyncTask;
 import org.smartregister.child.task.SaveAdverseEventTask;
+import org.smartregister.child.task.SaveChildStatusTask;
 import org.smartregister.child.task.SaveDynamicVaccinesTask;
 import org.smartregister.child.task.SaveRegistrationDetailsTask;
 import org.smartregister.child.task.SaveServiceTask;
@@ -127,9 +132,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import timber.log.Timber;
-
-import static org.smartregister.clientandeventmodel.DateUtil.getDateFromString;
-import static org.smartregister.util.Utils.showToast;
 
 /**
  * Created by raihan on 1/03/2017.
@@ -320,8 +322,27 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             locationId = extras.getString(Constants.INTENT_KEY.LOCATION_ID);
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+            if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+                CommonPersonObjectClient cardChildDetails = null;
+                if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS)) {
+                    cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+                }
 
-            Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+                if (childDetails == null) {
+                    childDetails = cardChildDetails;
+                } else {
+                    // card last update
+                    long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "0")) : 0l;
+                    // device last update
+                    long lastInteractedWith = childDetails != null ? Long.parseLong(childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0")) : 0l;
+
+                    if (lastCardTxDateTime > lastInteractedWith) {
+                        childDetails = cardChildDetails;
+                    }
+                }
+
+                Utils.putAll(childDetails.getColumnmaps(), ChildDbUtils.fetchChildFirstGrowthAndMonitoring(caseId));
+            }
             detailsMap = childDetails.getColumnmaps();
         }
         return extras;
@@ -462,10 +483,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            String systemOfRegistrationText = Utils.getValue(childDetails,Constants.Client.SYSTEM_OF_REGISTRATION, false);
-            if(systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
-                 systemOfRegistration.setText(systemOfRegistrationText);
-            else
+            String systemOfRegistrationText = Utils.getValue(childDetails, Constants.Client.SYSTEM_OF_REGISTRATION, false);
+            if (systemOfRegistrationText != null && !systemOfRegistrationText.equals(""))
+                systemOfRegistration.setText(systemOfRegistrationText);
+            else if (systemOfRegistration != null)
                 systemOfRegistration.setVisibility(View.GONE);
             dobString = Utils.getValue(childDetails, Constants.KEY.DOB, false);
             Date dob = Utils.dobStringToDate(dobString);
@@ -894,6 +915,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
             ChildDbUtils.updateChildDetailsValue(attributeName, String.valueOf(attributeValue), childDetails.entityId());
+
+            runOnUiThread(() -> new SaveChildStatusTask(BaseChildDetailTabbedActivity.this, presenter).execute());
         } catch (Exception e) {
             Timber.e(e);
         }
@@ -1021,7 +1044,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
         Utils.addVaccine(ImmunizationLibrary.getInstance().vaccineRepository(), vaccine);
         vaccineWrapper.setDbKey(vaccine.getId());
-
 
         if (vaccineWrapper.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             resetOptionsMenu();
@@ -1153,37 +1175,71 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     public boolean insertVaccinesGivenAsOptions(JSONObject question) throws JSONException {
-        JSONObject omrsChoicesTemplate = question.getJSONObject("openmrs_choice_ids");
+        JSONObject omrsChoicesTemplate = question.getJSONObject(JsonFormConstants.OPENMRS_CHOICE_IDS);
         JSONObject omrsChoices = new JSONObject();
         JSONArray choices = new JSONArray();
-        List<Vaccine> vaccineList =
-                ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+        List<Vaccine> vaccineList = ImmunizationLibrary.getInstance().vaccineRepository().findByEntityId(childDetails.entityId());
+
+        JSONArray exclusionKeys = question.optJSONArray(Constants.JSON_FORM_KEY.EXCLUSION_KEYS);
 
         boolean ok = false;
         if (vaccineList != null && vaccineList.size() > 0) {
             ok = true;
+            JSONObject vaccineOption;
             for (int i = vaccineList.size() - 1; i >= 0; i--) {
                 Vaccine curVaccine = vaccineList.get(i);
-                String name = VaccinatorUtils.getTranslatedVaccineName(this,
-                        curVaccine.getName()) + " (" + new SimpleDateFormat("dd-MM-yyyy",
-                        Locale.ENGLISH).format(curVaccine.getDate()) + ")";
-                choices.put(name.toUpperCase(Locale.getDefault()));
 
-                Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
-                while (vaccineGroupNames.hasNext()) {
-                    String curGroupName = vaccineGroupNames.next();
-                    if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
-                        omrsChoices.put(name.toUpperCase(), omrsChoicesTemplate.getString(curGroupName));
-                        break;
-                    }
+                boolean vaccineIsExcluded = (exclusionKeys != null && jsonArrayContainsValue(exclusionKeys, curVaccine.getName()));
+
+                if (!vaccineIsExcluded) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                    String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format),
+                            VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
+
+                    Pair<String, String> vaccineGroupConceptPair = getVaccineGroupConceptID(omrsChoicesTemplate, curVaccine);
+
+                    vaccineOption = new JSONObject();
+                    vaccineOption.put(JsonFormConstants.KEY, vaccineGroupConceptPair.first);
+                    vaccineOption.put(JsonFormConstants.TEXT, name.toUpperCase(Locale.getDefault()));
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY, Constants.KEY.CONCEPT);
+
+                    vaccineOption.put(JsonFormConstants.OPENMRS_ENTITY_ID, vaccineGroupConceptPair.second);
+                    omrsChoices.put(vaccineGroupConceptPair.first, vaccineGroupConceptPair.second);
+                    choices.put(vaccineOption);
+
                 }
             }
         }
 
-        question.put("values", choices);
-        question.put("openmrs_choice_ids", omrsChoices);
+        question.put(JsonFormConstants.OPTIONS_FIELD_NAME, choices);
+        question.put(JsonFormConstants.OPENMRS_CHOICE_IDS, omrsChoices);
 
         return ok;
+    }
+
+    private Pair<String, String> getVaccineGroupConceptID(JSONObject omrsChoicesTemplate, Vaccine curVaccine) throws JSONException {
+        Iterator<String> vaccineGroupNames = omrsChoicesTemplate.keys();
+        String result = null;
+        String curGroupName = null;
+        while (vaccineGroupNames.hasNext()) {
+            curGroupName = vaccineGroupNames.next();
+
+            if (curVaccine.getName().toLowerCase().contains(curGroupName.toLowerCase())) {
+                result = omrsChoicesTemplate.getString(curGroupName);
+                break;
+            }
+        }
+        return new Pair<>(curGroupName, result);
+    }
+
+    private boolean jsonArrayContainsValue(JSONArray jsonArray, String value) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            if (jsonArray.getString(i).equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Recurring Service
@@ -1280,6 +1336,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        overflow = null;
     }
 
     @Override
@@ -1364,5 +1421,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             this.view = view;
             this.wrapper = wrapper;
         }
+    }
+
+    public void updateActivityTitle() {
+        setActivityTitle();
     }
 }

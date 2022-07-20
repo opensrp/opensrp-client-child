@@ -585,4 +585,5 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         }
         return relevantText;
     }
+
 }

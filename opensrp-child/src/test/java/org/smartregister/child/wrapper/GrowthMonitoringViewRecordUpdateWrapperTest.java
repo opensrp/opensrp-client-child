@@ -3,14 +3,12 @@ package org.smartregister.child.wrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GrowthMonitoringViewRecordUpdateWrapperTest {
+public class GrowthMonitoringViewRecordUpdateWrapperTest extends BaseUnitTest {
 
     private GrowthMonitoringViewRecordUpdateWrapper growthMonitoringViewRecordUpdateWrapper;
 
