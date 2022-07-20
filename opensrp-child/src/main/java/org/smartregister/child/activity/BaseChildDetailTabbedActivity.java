@@ -688,10 +688,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
+
                 Timber.d(jsonString);
+
                 // reset the 'json' intent value to null so that we do not call BaseActivity#saveForm
                 // once more when we call super.onActivityResult
                 data.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, (String) null);
+
                 JSONObject form = new JSONObject(jsonString);
                 String encounterType = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
                 switch (encounterType) {

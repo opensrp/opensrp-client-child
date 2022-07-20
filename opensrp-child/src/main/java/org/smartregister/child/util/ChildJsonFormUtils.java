@@ -805,9 +805,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
         } catch (SecurityException e) {
-            Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
+            Timber.w(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
-            Timber.e(e);
+            Timber.w(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -1427,8 +1427,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, 
-                                                           ChildEventClient childEventClient, String bindType, boolean isEditMode)
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType, boolean isEditMode)
             throws JSONException {
 
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -1612,7 +1611,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = !isEditMode? getSubFormIdentifierMap(bindType): new HashMap<>();
+        Map<String, String> identifierMap = !isEditMode ? getSubFormIdentifierMap(bindType) : new HashMap<>();
         Date birthDate = formatDate(stringBirthDate, true);
         birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
