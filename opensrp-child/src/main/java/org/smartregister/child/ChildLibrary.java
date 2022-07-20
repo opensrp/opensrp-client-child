@@ -39,19 +39,28 @@ public class ChildLibrary {
     private LocationPickerView locationPickerView;
     private EventBus eventBus;
 
-    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
+    private ChildLibrary(Context contextArg, Repository repositoryArg, ChildMetadata metadataArg, int applicationVersion, String applicationVersionName, int databaseVersion) {
         this.context = contextArg;
         this.repository = repositoryArg;
         this.metadata = metadataArg;
         this.applicationVersion = applicationVersion;
+        this.applicationVersionName = applicationVersionName;
         this.databaseVersion = databaseVersion;
     }
 
-    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion,
-                            int databaseVersion) {
+    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, String applicationVersionName, int databaseVersion) {
         if (instance == null) {
-            instance = new ChildLibrary(context, repository, metadataArg, applicationVersion, databaseVersion);
+            instance = new ChildLibrary(context, repository, metadataArg, applicationVersion, applicationVersionName, databaseVersion);
         }
+    }
+
+    /**
+     * This init method is deprecated, use {@link #init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, String applicationVersionName, int databaseVersion)} instead which adds application version name.
+     */
+    @Deprecated
+    public static void init(Context context, Repository repository, ChildMetadata metadataArg, int applicationVersion, int databaseVersion) {
+        init(context, repository, metadataArg, applicationVersion, null, databaseVersion);
+
     }
 
     public static ChildLibrary getInstance() {
@@ -60,6 +69,10 @@ public class ChildLibrary {
                     ".init method in the onCreate method of " + "your Application class ");
         }
         return instance;
+    }
+
+    public static void destroyInstance() {
+        instance = null;
     }
 
     public ChildMetadata metadata() {
@@ -158,8 +171,5 @@ public class ChildLibrary {
 
     public LocationRepository getLocationRepository() {
         return CoreLibrary.getInstance().context().getLocationRepository();
-    }
-    public static void destroyInstance() {
-        instance = null;
     }
 }

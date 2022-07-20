@@ -118,9 +118,9 @@ allprojects {
 
 dependencies {
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
 
-    api('org.smartregister:opensrp-client-core:6.0.0-ALPHA-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:6.0.0-BETA2-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -133,7 +133,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 
-    api('org.smartregister:opensrp-client-native-form:3.0.0-ALPHA-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-native-form:3.0.0-BETA-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'appcompat-v7'
@@ -154,7 +154,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    api('org.smartregister:opensrp-client-immunization:5.0.0-ALPHA-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-immunization:5.0.0-BETA2-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -162,7 +162,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    api('org.smartregister:opensrp-client-growth-monitoring:3.0.0-ALPHA-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-growth-monitoring:3.0.0-BETA-SNAPSHOT@aar') {
         transitive = true
 
         exclude group: 'org.smartregister', module: 'opensrp-client-core'

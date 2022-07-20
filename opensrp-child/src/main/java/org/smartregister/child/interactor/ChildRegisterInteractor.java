@@ -214,8 +214,12 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void markUniqueIdAsUsed(String openSrpId) {
-        if (StringUtils.isNotBlank(openSrpId))
-            getUniqueIdRepository().close(openSrpId);
+        try {
+            if (StringUtils.isNotBlank(openSrpId))
+                getUniqueIdRepository().close(openSrpId);
+        } catch (Exception e) {
+            Timber.e(e);
+        }
     }
 
     private void addEvent(UpdateRegisterParams params, List<String> currentFormSubmissionIds, Event baseEvent) throws JSONException {

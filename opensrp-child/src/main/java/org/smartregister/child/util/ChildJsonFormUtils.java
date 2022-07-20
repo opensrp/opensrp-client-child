@@ -36,7 +36,6 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
-import org.smartregister.child.domain.Observation;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.clientandeventmodel.Address;
@@ -46,6 +45,7 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Observation;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.Response;
@@ -851,6 +851,24 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     /**
+     * Tag an client with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+     *
+     * @param client to tag
+     * @return Tagged client
+     */
+    public static Client tagSyncMetadata(@NonNull Client client) {
+
+        AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
+        String providerId = allSharedPreferences.fetchRegisteredANM();
+        client.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        client.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+        client.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
+        client.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
+        client.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
+        return client;
+    }
+
+    /**
      * Get child's location Id
      *
      * @param defaultLocationId    Default location Id
@@ -949,6 +967,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             Client baseClient = ChildJsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
             baseClient.setClientType(Constants.CHILD_TYPE);
+            tagSyncMetadata(baseClient);
 
             Event baseEvent = ChildJsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1634,6 +1653,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             client.withAddresses(parent.getAddresses());
         }
 
+        tagSyncMetadata(client);
         return client;
     }
 
@@ -2370,7 +2390,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      *
      * @param key   The form field key
      * @param value The form field value
-     * @param type  The Enum type of the Observation {@link Observation#TYPE}
+     * @param type  The Enum type of the Observation {@link Observation.TYPE}
      * @param event The Event to add the Observation to
      */
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
