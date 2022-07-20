@@ -76,7 +76,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
      * @return a list of ChildEvents
      */
     @Override
-    public List<ChildEventClient> processRegistration(@NonNull String jsonString, FormTag formTag) {
+    public List<ChildEventClient> processRegistration(@NonNull String jsonString, FormTag formTag, boolean isEditMode) {
         JSONObject form;
         List<ChildEventClient> childEventClientList = new ArrayList<>();
         try {
@@ -94,7 +94,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
             String motherRelationalId = ChildJsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.MOTHER);
             ChildEventClient childMotherEventClient = ChildJsonFormUtils.processMotherRegistrationForm(
-                    jsonString, motherRelationalId, childEventClient);
+                    jsonString, motherRelationalId, childEventClient, isEditMode);
 
             if (childMotherEventClient != null) {
                 if (motherRelationalId == null) {
@@ -113,7 +113,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
             if (Utils.metadata().childRegister.getFatherRelationKey() != null) {
                 String fatherRelationalId = ChildJsonFormUtils.getRelationalIdByType(childClient.getBaseEntityId(), Constants.KEY.FATHER);
                 ChildEventClient fatherRegistrationEvent = ChildJsonFormUtils.processFatherRegistrationForm(
-                        jsonString, fatherRelationalId, childEventClient);
+                        jsonString, fatherRelationalId, childEventClient, isEditMode);
 
                 if (fatherRegistrationEvent != null) {
                     if (fatherRelationalId == null) {

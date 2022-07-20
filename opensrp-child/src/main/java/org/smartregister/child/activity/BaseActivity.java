@@ -562,11 +562,14 @@ toggle.syncState();
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
 
-            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
-            updateRegisterParams.setEditMode(false);
+            if (jsonString != null) {
+                UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+                updateRegisterParams.setEditMode(false);
 
-            saveForm(jsonString, updateRegisterParams);
+                saveForm(jsonString, updateRegisterParams);
+            }
         }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -610,7 +613,7 @@ toggle.syncState();
             }
 
             List<ChildEventClient> childEventClientList =
-                    model.processRegistration(jsonString, updateRegisterParams.getFormTag());
+                    model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }

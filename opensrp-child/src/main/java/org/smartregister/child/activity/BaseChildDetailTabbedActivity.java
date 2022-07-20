@@ -684,12 +684,16 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
+
                 Timber.d(jsonString);
+
+                // reset the 'json' intent value to null so that we do not call BaseActivity#saveForm
+                // once more when we call super.onActivityResult
+                data.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, (String) null);
 
                 JSONObject form = new JSONObject(jsonString);
                 String encounterType = form.getString(ChildJsonFormUtils.ENCOUNTER_TYPE);
@@ -711,6 +715,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.BOOSTER_IMMUNIZATIONS), null);
                         break;
                     default:
+                        data.putExtra(JsonFormConstants.JSON_FORM_KEY.JSON, jsonString);
                         break;
                 }
             } catch (Exception e) {
@@ -723,6 +728,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             ChildJsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     protected void updateRegistration(String jsonString) {
