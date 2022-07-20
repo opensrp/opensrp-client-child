@@ -609,17 +609,12 @@ toggle.syncState();
                 updateRegisterParams.setFormTag(ChildJsonFormUtils.formTag(Utils.getAllSharedPreferences()));
             }
 
-<<<<<<<HEAD
             List<ChildEventClient> childEventClientList = model.processRegistration(
                     jsonString,
                     updateRegisterParams.getFormTag(),
                     updateRegisterParams.isEditMode()
             );
 
-=======
-            List<ChildEventClient> childEventClientList =
-                    model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
->>>>>>>Fix duplicate M_ZEIR_ID bug on child edit
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
