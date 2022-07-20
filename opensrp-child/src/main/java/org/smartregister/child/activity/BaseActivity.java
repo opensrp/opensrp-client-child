@@ -564,6 +564,7 @@ toggle.syncState();
             if (jsonString != null) {
                 UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
                 updateRegisterParams.setEditMode(false);
+
                 saveForm(jsonString, updateRegisterParams);
             }
         }
@@ -608,12 +609,17 @@ toggle.syncState();
                 updateRegisterParams.setFormTag(ChildJsonFormUtils.formTag(Utils.getAllSharedPreferences()));
             }
 
+<<<<<<<HEAD
             List<ChildEventClient> childEventClientList = model.processRegistration(
                     jsonString,
                     updateRegisterParams.getFormTag(),
                     updateRegisterParams.isEditMode()
             );
 
+=======
+            List<ChildEventClient> childEventClientList =
+                    model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
+>>>>>>>Fix duplicate M_ZEIR_ID bug on child edit
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -727,4 +733,3 @@ toggle.syncState();
         }
     }
 }
-
