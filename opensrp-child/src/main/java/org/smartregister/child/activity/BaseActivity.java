@@ -559,13 +559,15 @@ toggle.syncState();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-  if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
-            String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
-                UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
-                updateRegisterParams.setEditMode(false);
-                saveForm(jsonString, updateRegisterParams);
-            }
-        }
+          if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+              String jsonString = data.getStringExtra(JsonFormConstants.JSON_FORM_KEY.JSON);
+              if (jsonString != null) {
+                  UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+                  updateRegisterParams.setEditMode(false);
+                  saveForm(jsonString, updateRegisterParams);
+              }
+          }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
