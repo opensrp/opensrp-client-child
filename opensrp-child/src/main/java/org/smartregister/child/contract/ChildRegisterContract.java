@@ -48,7 +48,7 @@ public interface ChildRegisterContract {
 
         String getLocationId(String locationName);
 
-        List<ChildEventClient> processRegistration(String jsonString, FormTag formTag);
+        List<ChildEventClient> processRegistration(String jsonString, FormTag formTag, boolean isEditMode);
 
         JSONObject getFormAsJson(String formName, String entityId, String currentLocationId, Map<String, String> metadata) throws Exception;
 

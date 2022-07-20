@@ -560,12 +560,11 @@ toggle.syncState();
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             String jsonString = data.getStringExtra("json");
-
-
-            UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
-            updateRegisterParams.setEditMode(false);
-
-            saveForm(jsonString, updateRegisterParams);
+            if (jsonString != null) {
+                UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
+                updateRegisterParams.setEditMode(false);
+                saveForm(jsonString, updateRegisterParams);
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -610,7 +609,7 @@ toggle.syncState();
             }
 
             List<ChildEventClient> childEventClientList =
-                    model.processRegistration(jsonString, updateRegisterParams.getFormTag());
+                    model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }

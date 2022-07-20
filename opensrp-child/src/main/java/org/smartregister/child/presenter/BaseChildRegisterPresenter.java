@@ -121,7 +121,7 @@ public class BaseChildRegisterPresenter
 
         try {
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
