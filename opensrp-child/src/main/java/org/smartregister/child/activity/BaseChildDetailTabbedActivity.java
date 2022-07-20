@@ -728,6 +728,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             ChildJsonFormUtils.saveImage(allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
             updateProfilePicture(gender);
         }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
