@@ -624,7 +624,7 @@ toggle.syncState();
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
-            
+
             interactor.saveRegistration(childEventClientList, jsonString, updateRegisterParams, this);
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
