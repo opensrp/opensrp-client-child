@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -319,19 +321,30 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
-
+        TextView fabText = ((TextView) floatingActionButton.findViewById(R.id.fab_text));
+        ImageView fabImage = ((ImageView) floatingActionButton.findViewById(R.id.fab_image));
         if (drawableResourceId != null) {
             int paddingLeft = floatingActionButton.getPaddingLeft();
             int paddingRight = floatingActionButton.getPaddingRight();
             int paddingTop = floatingActionButton.getPaddingTop();
             int paddingBottom = floatingActionButton.getPaddingBottom();
 
-            floatingActionButton.setBackgroundResource(drawableResourceId);
+            if (isActiveStatus(childDetails)) {
+                floatingActionButton.setClickable(true);
+                floatingActionButton.setBackgroundResource(drawableResourceId);
+                fabText.setTextColor(Color.WHITE);
+                fabImage.setColorFilter(Color.WHITE);
+            } else {
+                floatingActionButton.setClickable(false);
+                floatingActionButton.setBackgroundResource(R.drawable.light_grey_background);
+                fabText.setTextColor(R.color.silver);
+                fabImage.setColorFilter(ActivityCompat.getColor(this, R.color.silver));
+            }
             floatingActionButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
 
         if (title != null) {
-            ((TextView) floatingActionButton.findViewById(R.id.fab_text)).setText(title);
+            fabText.setText(title);
         }
 
         floatingActionButton.setVisibility(View.VISIBLE);
