@@ -465,7 +465,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
                             clientAdapter.setCurrentlimit(20);
                             clientAdapter.setCurrentoffset(0);
-
+                            // Update filter count after updating overDueCount variable
+                            updateDueOverdueCountText();
                         }
                     });
                 } catch (Exception e) {
