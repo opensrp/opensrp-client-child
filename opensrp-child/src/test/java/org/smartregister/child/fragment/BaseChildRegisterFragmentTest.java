@@ -22,6 +22,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
@@ -36,6 +37,7 @@ import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonRepository;
@@ -51,6 +53,7 @@ import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 /**
  * Created by ndegwamartin on 03/11/2020.
@@ -128,7 +131,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
     @Mock
     protected View filterSection;
-
+    @Mock
+    private AppExecutors executors;
     private final String TEST_ID = "unique-identifier";
     private final String TEST_LOCATION_ID = "some-test-location";
     private final String TEST_LOCATION = "Some Test Location";
@@ -141,6 +145,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
         Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
         Whitebox.setInternalState(baseChildRegisterFragment, "mainCondition", "is_closed IS NOT 1");
+        Whitebox.setInternalState(baseChildRegisterFragment, "executors", executors);
     }
 
     @After
@@ -200,6 +205,15 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(ArgumentMatchers.anyString());
         Mockito.doReturn(context).when(baseChildRegisterFragment).getOpenSRPContext();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
+
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
 
         baseChildRegisterFragment.updateLocationText();
 
@@ -293,6 +307,15 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
 
         Mockito.doReturn(5).when(commonRepository).countSearchIds(TEST_SQL);
+
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
 
         baseChildRegisterFragment.countExecute();
 
