@@ -388,9 +388,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!Utils.isConnectedToNetwork(requireActivity())) {
-                myCatchment.setChecked(true);
+            // Trigger for myCatchment only, when there is no internet connectivity
+            if (!Utils.isConnectedToNetwork(requireActivity()) && myCatchment.getId() == R.id.my_catchment) {
                 outsideInside.setChecked(false);
+                myCatchment.setChecked(true);
             } else {
                 outsideInside.setChecked(!isChecked);
             }
@@ -512,8 +513,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
         } else {
-            myCatchment.setChecked(true);
             outsideInside.setChecked(false);
+            myCatchment.setChecked(true);
         }
 
         if (connectionChangeReciever == null) {
@@ -521,8 +522,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (!Utils.isConnectedToNetwork(requireActivity())) {
-                        myCatchment.setChecked(true);
                         outsideInside.setChecked(false);
+                        myCatchment.setChecked(true);
                     }
                 }
             };
