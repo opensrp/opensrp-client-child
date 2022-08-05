@@ -750,13 +750,17 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     public void onStart() {
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         super.onStart();
     }
 
     @Override
     public void onPause() {
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onPause();
     }
 
