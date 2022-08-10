@@ -1409,18 +1409,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return getFieldValue(fields, key);
     }
 
-    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
 
-    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
             return null;
@@ -1428,7 +1428,8 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType)
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, 
+                                                           ChildEventClient childEventClient, String bindType, boolean isEditMode)
             throws JSONException {
 
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -1466,7 +1467,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 Event subFormEvent = null;
 
-                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
+                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId, isEditMode);
 
                 //only set default gender if not explicitly set in the registration form
                 if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
@@ -1607,12 +1608,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId) {
+    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId, boolean isEditMode) {
         if (StringUtils.isBlank(bindType)) {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getSubFormIdentifierMap(bindType);
+        Map<String, String> identifierMap = !isEditMode? getSubFormIdentifierMap(bindType): new HashMap<>();
         Date birthDate = formatDate(stringBirthDate, true);
         birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
