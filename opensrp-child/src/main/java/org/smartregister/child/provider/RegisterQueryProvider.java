@@ -126,7 +126,5 @@ public class RegisterQueryProvider {
                 " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL)" +
                 " AND " + getChildDetailsTable() + "." + Constants.KEY.IS_CLOSED + " IS NOT '1') " +
                 "order by " + getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC ";
-
     }
-
 }
