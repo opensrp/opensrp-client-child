@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -64,6 +65,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     protected LocationPickerView clinicSelection;
     private TextView overdueCountTV;
     private int overDueCount = 0;
+    private boolean registerQueryFinished = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -478,12 +481,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                     int totalCount = commonRepository().countSearchIds(sql);
 
                     // For overdue count
-                    // FIXME: Count generated on first sync is not correct
+                    /*// FIXME: Count generated on first sync is not correct
                     String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
                             .getCountExecuteQuery(filterSelectionCondition(true), "");
                     Timber.i(sqlOverdueCount);
                     overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-                    Timber.i("Total Overdue Count %d ", overDueCount);
+                    Timber.i("Total Overdue Count %d ", overDueCount);*/
                     executors.mainThread().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -500,6 +503,54 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             }
         });
 
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        super.onLoadFinished(loader, cursor);
+
+        if (!registerQueryFinished && getOverDueCount() == 0) {
+            // Get notified when all the recycler views have been rendered and the previous cursor is done accessing the DB
+            clientsView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    clientsView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    registerQueryFinished = true;
+
+                    runVaccineOverdueQuery();
+                }
+            });
+        }
+    }
+
+    /**
+     * Runs the query to count the clients with overdue/urgent vaccines.
+     * <p>
+     * This query is expensive and should be avoided as it almost blocks any access from the DB. The query takes 20-50 seconds
+     */
+    private void runVaccineOverdueQuery() {
+        AppExecutors executors = new AppExecutors();
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                Timber.i("Started running the overdue count query");
+
+                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+                        .getCountExecuteQuery(filterSelectionCondition(true), "");
+                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+                setOverDueCount(overDueCount);
+
+                Timber.i("Gotten the overdue count: " + overDueCount);
+
+                executors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateDueOverdueCountText();
+                        registerQueryFinished = false;
+                    }
+                });
+            }
+        });
     }
 
     @Override
