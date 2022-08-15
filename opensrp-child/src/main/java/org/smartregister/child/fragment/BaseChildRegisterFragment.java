@@ -536,10 +536,9 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             public void run() {
                 Timber.i("Started running the overdue count query");
 
-//                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-//                        .getCountExecuteQuery(filterSelectionCondition(true), "");
-//                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-                int overDueCount = VaccineOverdueCountRepositoryHelper.getOverdueCount();
+                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+                        .getCountExecuteQuery(filterSelectionCondition(true), "");
+                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
                 setOverDueCount(overDueCount);
 
                 Timber.i("Gotten the overdue count: " + overDueCount);
