@@ -115,7 +115,7 @@ public class RegisterQueryProvider {
     public String getActiveChildrenQuery() {
         return "SELECT count(id) FROM " + getChildDetailsTable() + " WHERE " +
                 "(" + Constants.KEY.DATE_REMOVED + " IS NULL " +
-                "AND " + getChildDetailsTable() + ".inactive is NOT true " +
+                "AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL) " +
                 "AND " + Constants.KEY.IS_CLOSED + " IS NOT '1')";
     }
 
