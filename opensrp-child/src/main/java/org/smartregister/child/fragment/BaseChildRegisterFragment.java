@@ -476,13 +476,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
                     int totalCount = commonRepository().countSearchIds(sql);
 
-                    // For overdue count
-                    /*// FIXME: Count generated on first sync is not correct
-                    String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                            .getCountExecuteQuery(filterSelectionCondition(true), "");
-
-                    overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
-                    Timber.i("Total Overdue Count %d ", overDueCount);*/
                     executors.mainThread().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -530,9 +523,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             public void run() {
                 Timber.i("Started running the overdue count query");
 
-//                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-//                        .getCountExecuteQuery(filterSelectionCondition(true), "");
-//                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
                 int overDueCount = VaccineOverdueCountRepositoryHelper.getOverdueCount();
                 setOverDueCount(overDueCount);
 
