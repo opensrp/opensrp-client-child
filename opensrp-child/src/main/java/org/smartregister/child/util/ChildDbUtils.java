@@ -33,7 +33,21 @@ public class ChildDbUtils {
                 .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
                         Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() +
                                 " WHERE " + Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1");
-        return childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null;
+
+        HashMap<String, String> detailsMap = (childDetails != null && childDetails.size() > 0 ? childDetails.get(0) : null);
+
+        if (detailsMap != null && (!detailsMap.containsKey(Constants.KEY.NFC_CARD_IDENTIFIER) || detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER) == null)
+                && (detailsMap.containsKey(Constants.KEY.NFC_CARDS_ARCHIVE) && detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE) != null)) {
+
+            try {
+                JSONArray cardArchive = new JSONArray(detailsMap.get(Constants.KEY.NFC_CARDS_ARCHIVE));
+                detailsMap.put(Constants.KEY.NFC_CARD_IDENTIFIER, (cardArchive.length() > 0 ? cardArchive.getString(cardArchive.length() - 1) : ""));
+            } catch (JSONException e) {
+                Timber.e("NFC Card ID not found");
+            }
+        }
+
+        return detailsMap;
     }
 
     /**

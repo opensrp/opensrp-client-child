@@ -123,7 +123,7 @@ public class RegisterQueryProvider {
         return "SELECT " + getChildDetailsTable() + "." + Constants.KEY.ID +
                 " FROM " + getChildDetailsTable() + " INNER JOIN " + getDemographicTable() + " ON " + getChildDetailsTable() + "." + Constants.KEY.ID + " = " + getDemographicTable() + "." + Constants.KEY.ID +
                 " WHERE (" + getChildDetailsTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL" +
-                " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL)" +
+                " AND " + getChildDetailsTable() + ".inactive is NOT true" +
                 " AND " + getChildDetailsTable() + "." + Constants.KEY.IS_CLOSED + " IS NOT '1') " +
                 "order by " + getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC ";
 
