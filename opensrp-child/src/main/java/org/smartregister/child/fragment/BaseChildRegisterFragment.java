@@ -275,7 +275,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     protected void toggleFilterSelection() {
         if (filterSection != null) {
-            // reset offset bfore changing filter mode
+            // reset offset before changing filter mode
             clientAdapter.setCurrentoffset(0);
 
             String tagString = "PRESSED";
@@ -289,6 +289,15 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 filter("", "", getMainCondition(), false);
             }
         }
+    }
+
+    @Override
+    public void filter(String filterString, String joinTableString, String mainConditionString, boolean qrCode) {
+        if (isRegisterSearch()) {
+            // reset offset before running search query search
+            clientAdapter.setCurrentoffset(0);
+        }
+        super.filter(filterString, joinTableString, mainConditionString, qrCode);
     }
 
     @Override
@@ -436,7 +445,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         try {
             if (isValidFilterForFts(commonRepository())) {
                 String sql;
-                if (filterMode()) {
+                if (filterMode() || isRegisterSearch()) {
                     sql = Utils.metadata().getRegisterQueryProvider().getObjectIdsQuery(this.mainCondition, this.filters) + (StringUtils.isBlank(this.getDefaultSortQuery()) ? "" : " order by " + this.getDefaultSortQuery());
                 } else {
                     sql = Utils.metadata().getRegisterQueryProvider().getActiveChildrenIds();
@@ -474,7 +483,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             public void run() {
                 try {
                     String sql;
-                    if (filterMode()) {
+                    if (filterMode() || isRegisterSearch()) {
                         sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
                     } else {
                         sql = Utils.metadata().getRegisterQueryProvider().getActiveChildrenQuery();
@@ -497,6 +506,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 }
             }
         });
+    }
+
+    private boolean isRegisterSearch() {
+        return filters != null && !filters.isEmpty();
     }
 
     @Override
