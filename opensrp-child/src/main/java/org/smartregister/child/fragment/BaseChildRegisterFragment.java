@@ -34,6 +34,7 @@ import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.VaccineOverdueCountRepositoryHelper;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -535,9 +536,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             public void run() {
                 Timber.i("Started running the overdue count query");
 
-                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                        .getCountExecuteQuery(filterSelectionCondition(true), "");
-                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+//                String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
+//                        .getCountExecuteQuery(filterSelectionCondition(true), "");
+//                int overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
+                int overDueCount = VaccineOverdueCountRepositoryHelper.getOverdueCount();
                 setOverDueCount(overDueCount);
 
                 Timber.i("Gotten the overdue count: " + overDueCount);
