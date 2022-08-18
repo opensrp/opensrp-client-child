@@ -449,7 +449,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
 
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
-            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
+            CommonPersonObjectClient objectClient = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
+            if (objectClient != null) {
+                childDetails = objectClient;
+            } else {
+                Timber.e("fetchCommonPersonObjectClientByBaseEntityId is null, child record is not n the database.");
+            }
+
         }
 
         isChildActive = isActiveStatus(childDetails);

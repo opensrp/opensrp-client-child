@@ -564,6 +564,7 @@ toggle.syncState();
             if (jsonString != null) {
                 UpdateRegisterParams updateRegisterParams = new UpdateRegisterParams();
                 updateRegisterParams.setEditMode(false);
+
                 saveForm(jsonString, updateRegisterParams);
             }
         }
@@ -726,5 +727,4 @@ toggle.syncState();
             return false;
         }
     }
-
 }
