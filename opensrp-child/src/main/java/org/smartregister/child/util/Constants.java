@@ -237,7 +237,7 @@ public final class Constants extends AllConstants {
         public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
         public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
 
-        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";;
+        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";
 
         public static final String HOME_NEXT_VISIT_DATE_ENABLED = "home.next.visit.date.enabled";
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
@@ -312,4 +312,3 @@ public final class Constants extends AllConstants {
 
     }
 }
-

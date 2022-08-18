@@ -153,7 +153,9 @@ public class BaseChildRegisterPresenter
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
-            getView().displayToast(R.string.error_unable_to_start_form);
+            if (getView() != null) {
+                getView().displayToast(R.string.error_unable_to_start_form);
+            }
         }
     }
 
