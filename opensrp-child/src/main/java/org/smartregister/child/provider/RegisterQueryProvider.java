@@ -113,10 +113,10 @@ public class RegisterQueryProvider {
     }
 
     public String getActiveChildrenQuery() {
-        return "SELECT count(id) FROM " + getChildDetailsTable() + " WHERE " +
-                "(" + Constants.KEY.DATE_REMOVED + " IS NULL " +
-                "AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL) " +
-                "AND " + Constants.KEY.IS_CLOSED + " IS NOT '1')";
+        return "SELECT count(id) FROM " + getChildDetailsTable() +
+                " WHERE (" + Constants.KEY.DATE_REMOVED + " IS NULL " +
+                " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL) " +
+                " AND " + Constants.KEY.IS_CLOSED + " IS NOT '1')";
     }
 
     public String getActiveChildrenIds() {
@@ -125,8 +125,6 @@ public class RegisterQueryProvider {
                 " WHERE (" + getChildDetailsTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL" +
                 " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL)" +
                 " AND " + getChildDetailsTable() + "." + Constants.KEY.IS_CLOSED + " IS NOT '1') " +
-                "order by " + getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC ";
-
+                "ORDER BY " + getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC ";
     }
-
 }
