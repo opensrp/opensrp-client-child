@@ -727,3 +727,4 @@ toggle.syncState();
         }
     }
 }
+
