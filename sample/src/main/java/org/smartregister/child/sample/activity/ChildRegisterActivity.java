@@ -1,5 +1,6 @@
 package org.smartregister.child.sample.activity;
 
+import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.fragment.app.Fragment;
@@ -10,10 +11,11 @@ import org.smartregister.child.presenter.BaseChildRegisterPresenter;
 import org.smartregister.child.sample.fragment.AdvancedSearchFragment;
 import org.smartregister.child.sample.fragment.ChildRegisterFragment;
 import org.smartregister.child.sample.util.SampleConstants;
+import org.smartregister.child.task.ArchiveTask;
+import org.smartregister.child.task.TaskRunner;
 import org.smartregister.view.fragment.BaseRegisterFragment;
 
 public class ChildRegisterActivity extends BaseChildRegisterActivity {
-
 
     @Override
     protected void initializePresenter() {
@@ -49,5 +51,12 @@ public class ChildRegisterActivity extends BaseChildRegisterActivity {
     @Override
     public String getRegistrationForm() {
         return SampleConstants.JSON_FORM.CHILD_ENROLLMENT;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        new TaskRunner().executeAsync(new ArchiveTask(this));
     }
 }

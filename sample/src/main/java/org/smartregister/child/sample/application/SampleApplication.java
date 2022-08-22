@@ -3,6 +3,8 @@ package org.smartregister.child.sample.application;
 import android.content.Intent;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.evernote.android.job.JobManager;
 
 import org.smartregister.Context;
@@ -48,6 +50,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+
+import io.fabric.sdk.android.Fabric;
+import timber.log.Timber;
 
 public class SampleApplication extends DrishtiApplication {
     private static final String TAG = SampleApplication.class.getCanonicalName();
@@ -132,6 +137,11 @@ public class SampleApplication extends DrishtiApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Timber.plant(new Timber.DebugTree());
+
+        CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+        Fabric.with(this, new Crashlytics.Builder().core(core).build());
 
         mInstance = this;
         context = Context.getInstance();
