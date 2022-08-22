@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -33,6 +34,7 @@ import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.VaccineOverdueCountRepositoryHelper;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -64,7 +66,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     private TextView overdueCountTV;
     private int overDueCount = 0;
     private AppExecutors executors = new AppExecutors();
-
+    private boolean registerQueryFinished = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -198,6 +200,10 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     @Override
     protected abstract String getDefaultSortQuery();
 
+    protected int getPageLimit() {
+        return 20;
+    }
+
     @Override
     protected void startRegistration() {
         ((BaseChildRegisterActivity) getActivity()).startRegistration();
@@ -217,6 +223,8 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
 
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
+        if (filterMode())
+            clearFilter();
         super.onSyncComplete(fetchStatus);
         updateDueOverdueCountText();
     }
@@ -260,23 +268,42 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         }
     }
 
-    private boolean filterMode() {
+    @Override
+    public boolean filterMode() {
         return filterSection != null && filterSection.getTag() != null;
     }
 
     protected void toggleFilterSelection() {
         if (filterSection != null) {
+            // reset offset before changing filter mode
+            clientAdapter.setCurrentoffset(0);
+
             String tagString = "PRESSED";
             if (filterSection.getTag() == null) {
-                filter("", "", filterSelectionCondition(false), false);
                 filterSection.setTag(tagString);
                 filterSection.setBackgroundResource(R.drawable.transparent_clicked_background);
+                filter("", "", filterSelectionCondition(false), false);
             } else if (filterSection.getTag().toString().equals(tagString)) {
-                filter("", "", getMainCondition(), false);
                 filterSection.setTag(null);
                 filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
+                filter("", "", getMainCondition(), false);
             }
         }
+    }
+
+    @Override
+    public void filter(String filterString, String joinTableString, String mainConditionString, boolean qrCode) {
+        if (isRegisterSearch()) {
+            // reset offset before running search query search
+            clientAdapter.setCurrentoffset(0);
+        }
+        super.filter(filterString, joinTableString, mainConditionString, qrCode);
+    }
+
+    @Override
+    public void clearFilter() {
+        filterSection.setTag(null);
+        filterSection.setBackgroundResource(R.drawable.transparent_gray_background);
     }
 
     protected void updateLocationText() {
@@ -347,10 +374,16 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             repositoryHolder.setHeightRepository(GrowthMonitoringLibrary.getInstance().heightRepository());
         }
 
-        ChildRegisterProvider childRegisterProvider =
-                new ChildRegisterProvider(getActivity(), repositoryHolder, visibleColumns, registerActionHandler, paginationViewHandler, context().alertService());
+        ChildRegisterProvider childRegisterProvider = new ChildRegisterProvider(
+                getActivity(),
+                repositoryHolder,
+                visibleColumns,
+                registerActionHandler,
+                paginationViewHandler,
+                context().alertService()
+        );
         clientAdapter = new RecyclerViewPaginatedAdapter(null, childRegisterProvider, context().commonrepository(this.tablename));
-        clientAdapter.setCurrentlimit(20);
+        clientAdapter.setCurrentlimit(getPageLimit());
         clientsView.setAdapter(clientAdapter);
     }
 
@@ -358,7 +391,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     public void recalculatePagination(AdvancedMatrixCursor matrixCursor) {
         clientAdapter.setTotalcount(matrixCursor.getCount());
         Timber.v("Total count here%s", clientAdapter.getTotalcount());
-        clientAdapter.setCurrentlimit(20);
+        clientAdapter.setCurrentlimit(getPageLimit());
         if (clientAdapter.getTotalcount() > 0) {
             clientAdapter.setCurrentlimit(clientAdapter.getTotalcount());
         }
@@ -411,7 +444,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         String query = "";
         try {
             if (isValidFilterForFts(commonRepository())) {
-                String sql = Utils.metadata().getRegisterQueryProvider().getObjectIdsQuery(mainCondition, filters) + (StringUtils.isBlank(getDefaultSortQuery()) ? "" : " order by " + getDefaultSortQuery());
+                String sql;
+                if (filterMode() || isRegisterSearch()) {
+                    sql = Utils.metadata().getRegisterQueryProvider().getObjectIdsQuery(this.mainCondition, this.filters) + (StringUtils.isBlank(this.getDefaultSortQuery()) ? "" : " order by " + this.getDefaultSortQuery());
+                } else {
+                    sql = Utils.metadata().getRegisterQueryProvider().getActiveChildrenIds();
+                }
 
                 sql = sqb.addlimitandOffset(sql, clientAdapter.getCurrentlimit(), clientAdapter.getCurrentoffset());
 
@@ -444,23 +482,21 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
             @Override
             public void run() {
                 try {
-                    String sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
-                    Timber.d(sql);
+                    String sql;
+                    if (filterMode() || isRegisterSearch()) {
+                        sql = Utils.metadata().getRegisterQueryProvider().getCountExecuteQuery(mainCondition, filters);
+                    } else {
+                        sql = Utils.metadata().getRegisterQueryProvider().getActiveChildrenQuery();
+                    }
+
                     int totalCount = commonRepository().countSearchIds(sql);
 
-                    // For overdue count
-                    // FIXME: Count generated on first sync is not correct
-                    String sqlOverdueCount = Utils.metadata().getRegisterQueryProvider()
-                            .getCountExecuteQuery(filterSelectionCondition(true), "");
-
-                    overDueCount = commonRepository().countSearchIds(sqlOverdueCount);
                     executors.mainThread().execute(new Runnable() {
                         @Override
                         public void run() {
                             clientAdapter.setTotalcount(totalCount);
                             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-                            clientAdapter.setCurrentlimit(20);
-                            clientAdapter.setCurrentoffset(0);
+                            clientAdapter.setCurrentlimit(getPageLimit());
                             // Update filter visibility and count once overDueCount is calculated
                             updateDueOverdueCountText();
                         }
@@ -468,6 +504,56 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                 } catch (Exception e) {
                     Timber.e(e);
                 }
+            }
+        });
+    }
+
+    private boolean isRegisterSearch() {
+        return filters != null && !filters.isEmpty();
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        super.onLoadFinished(loader, cursor);
+
+        if (!registerQueryFinished && getOverDueCount() == 0) {
+            // Get notified when all the recycler views have been rendered and the previous cursor is done accessing the DB
+            clientsView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    clientsView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    registerQueryFinished = true;
+
+                    runVaccineOverdueQuery();
+                }
+            });
+        }
+    }
+
+    /**
+     * Runs the query to count the clients with overdue/urgent vaccines.
+     * <p>
+     * This query is expensive and should be avoided as it almost blocks any access from the DB. The query takes 20-50 seconds
+     */
+    private void runVaccineOverdueQuery() {
+        AppExecutors executors = new AppExecutors();
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                Timber.i("Started running the overdue count query");
+
+                int overDueCount = VaccineOverdueCountRepositoryHelper.getOverdueCount();
+                setOverDueCount(overDueCount);
+
+                Timber.i("Gotten the overdue count: " + overDueCount);
+
+                executors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateDueOverdueCountText();
+                        registerQueryFinished = false;
+                    }
+                });
             }
         });
     }
