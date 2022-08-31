@@ -70,14 +70,19 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
+        if (getUniqueIdRepository().countUnUsedIds() < 2) {
+            callBack.onNoUniqueId();
+            Timber.d( "ChildRegisterInteractor --> getNextUniqueId: Unique ids are less than 2 required to register mother and child");
+            return;
+        }
         Runnable runnable = () -> {
             UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
-            final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
+            final String openmrsId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
             appExecutors.mainThread().execute(() -> {
-                if (StringUtils.isBlank(entityId)) {
+                if (StringUtils.isBlank(openmrsId)) {
                     callBack.onNoUniqueId();
                 } else {
-                    callBack.onUniqueIdFetched(triple, entityId);
+                    callBack.onUniqueIdFetched(triple, openmrsId);
                 }
             });
         };
