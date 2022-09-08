@@ -516,7 +516,7 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         super.onLoadFinished(loader, cursor);
 
-        if (!registerQueryFinished && getOverDueCount() == 0) {
+        if (!registerQueryFinished) {
             // Get notified when all the recycler views have been rendered and the previous cursor is done accessing the DB
             clientsView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
