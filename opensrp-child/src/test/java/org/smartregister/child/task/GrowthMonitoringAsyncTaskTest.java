@@ -194,6 +194,7 @@ public class GrowthMonitoringAsyncTaskTest extends BasePowerMockUnitTest {
         when(view.findViewById(R.id.child_profile_info_layout)).thenReturn(view);
         when(view.findViewById(R.id.record_growth_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_growth)).thenReturn(textView);
+        when(view.findViewById(R.id.move_to_catchment_text)).thenReturn(textView);
         when(context.getResources()).thenReturn(resources);
 
         Map<String, String> map = new HashMap<>();
