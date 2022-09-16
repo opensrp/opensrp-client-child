@@ -35,6 +35,16 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
             "LEFT JOIN ec_child_details ON ec_client.object_id = ec_child_details.id " +
             "LEFT JOIN ec_child_details_search ON ec_client.object_id = ec_child_details_search.object_id ";
 
+    private final String activeChildrenIdsQuery = "SELECT ec_child_details.id FROM ec_child_details " +
+            "INNER JOIN ec_client ON ec_child_details.id = ec_client.id " +
+            "WHERE (ec_child_details.date_removed IS NULL AND (ec_child_details.inactive is NOT true " +
+            "OR ec_child_details.inactive is NULL) AND ec_child_details.is_closed IS NOT '1') " +
+            "ORDER BY ec_client.last_interacted_with DESC ";
+
+    private final String countActiveChildrenIdsQuery = "SELECT count(id) FROM ec_child_details " +
+            "WHERE (date_removed IS NULL  AND (ec_child_details.inactive is NOT true " +
+            "OR ec_child_details.inactive is NULL)  AND is_closed IS NOT '1')";
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -171,6 +181,18 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
         String query = queryProvider.getCountExecuteQuery("condition = 'condition_value'", "98765");
 
         Assert.assertEquals(countQuery, query);
+    }
+
+    @Test
+    public void testGetActiveChildrenIdsShouldReturnQueryToCountActiveChildrenIds() {
+        String query = queryProvider.getActiveChildrenIds();
+        Assert.assertEquals(activeChildrenIdsQuery, query);
+    }
+
+    @Test
+    public void testGetActiveChildrenQueryCountsActiveChildrenIds() {
+        String query = queryProvider.getActiveChildrenQuery();
+        Assert.assertEquals(countActiveChildrenIdsQuery, query);
     }
 
 }
