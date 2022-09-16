@@ -153,19 +153,18 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
             CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
 
             View recordVaccination = catchmentView.findViewById(R.id.record_vaccination);
-            recordVaccination.setVisibility(View.VISIBLE);
-
             View moveToCatchment = catchmentView.findViewById(R.id.move_to_catchment);
-            moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-
                 catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Utils.showShortToast(context.get(), context.get().getString(R.string.show_vaccine_card_disabled));
                     }
                 });
+
+                TextView moveToCatchmentText = catchmentView.findViewById(R.id.move_to_catchment_text);
+                moveToCatchmentText.setText(context.get().getString(R.string.move_to_catchment));
 
                 TextView recordWeightText = catchmentView.findViewById(R.id.record_growth_text);
                 recordWeightText.setText(R.string.record_service);
@@ -179,6 +178,12 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
                 recordWeight.setEnabled(true);
                 recordWeight.setOnClickListener(onClickListener);
 
+                moveToCatchment.setVisibility(View.VISIBLE);
+                recordVaccination.setVisibility(View.GONE);
+
+            } else {
+                moveToCatchment.setVisibility(View.GONE);
+                recordVaccination.setVisibility(View.VISIBLE);
             }
 
         }
