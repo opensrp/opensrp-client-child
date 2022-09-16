@@ -426,6 +426,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
         Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
@@ -466,6 +467,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("is_closed IS NOT 1").when(baseChildRegisterFragment).getMainCondition();
         Mockito.doReturn("PRESSED").when(filterSection).getTag();
