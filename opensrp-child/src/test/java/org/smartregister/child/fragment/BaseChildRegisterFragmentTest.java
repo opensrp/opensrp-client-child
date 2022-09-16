@@ -305,6 +305,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         String TEST_SQL = "Select count(*) from Table where id = 3";
         Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getActiveChildrenQuery();
 
         Mockito.doReturn(5).when(commonRepository).countSearchIds(TEST_SQL);
 
@@ -321,7 +322,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Mockito.verify(clientAdapter).setTotalcount(5);
         Mockito.verify(clientAdapter).setCurrentlimit(20);
-        Mockito.verify(clientAdapter).setCurrentoffset(0);
 
     }
 
@@ -426,6 +426,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
         Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
@@ -466,6 +467,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("is_closed IS NOT 1").when(baseChildRegisterFragment).getMainCondition();
         Mockito.doReturn("PRESSED").when(filterSection).getTag();
