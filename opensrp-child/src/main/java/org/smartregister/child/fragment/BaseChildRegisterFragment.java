@@ -536,7 +536,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
      * This query is expensive and should be avoided as it almost blocks any access from the DB. The query takes 20-50 seconds
      */
     private void runVaccineOverdueQuery() {
-        AppExecutors executors = new AppExecutors();
         executors.diskIO().execute(new Runnable() {
             @Override
             public void run() {

@@ -1,5 +1,8 @@
 package org.smartregister.child.fragment;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.smartregister.child.util.VaccineOverdueCountRepositoryHelper.COUNT_QUERY_SQL;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +47,7 @@ import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.VaccineOverdueCountRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.location.helper.LocationHelper;
@@ -201,8 +205,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
-        Mockito.doReturn(TEST_LOCATION).when(locationHelper).getOpenMrsReadableName(ArgumentMatchers.anyString());
-        Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(ArgumentMatchers.anyString());
+        Mockito.doReturn(TEST_LOCATION).when(locationHelper).getOpenMrsReadableName(anyString());
+        Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(anyString());
         Mockito.doReturn(context).when(baseChildRegisterFragment).getOpenSRPContext();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
 
@@ -304,7 +308,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(registerQueryProvider).when(childMetadata).getRegisterQueryProvider();
 
         String TEST_SQL = "Select count(*) from Table where id = 3";
-        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(anyString(), anyString());
+        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getActiveChildrenQuery();
 
         Mockito.doReturn(5).when(commonRepository).countSearchIds(TEST_SQL);
 
@@ -321,7 +326,6 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Mockito.verify(clientAdapter).setTotalcount(5);
         Mockito.verify(clientAdapter).setCurrentlimit(20);
-        Mockito.verify(clientAdapter).setCurrentoffset(0);
 
     }
 
@@ -357,7 +361,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         // Mockito.doReturn(20).when(clientAdapter).getTotalcount();
         Mockito.doReturn(20).when(clientAdapter).getCurrentlimit();
         Mockito.doReturn(0).when(clientAdapter).getCurrentoffset();
-        Mockito.doReturn(Arrays.asList("6", "9", "12")).when(commonRepository).findSearchIds(ArgumentMatchers.anyString());
+        Mockito.doReturn(Arrays.asList("6", "9", "12")).when(commonRepository).findSearchIds(anyString());
 
         String searchText = "some random search text";
 
@@ -426,9 +430,10 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
-        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(anyString(), anyString(), anyString(), ArgumentMatchers.anyBoolean());
 
         ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -466,10 +471,11 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("is_closed IS NOT 1").when(baseChildRegisterFragment).getMainCondition();
         Mockito.doReturn("PRESSED").when(filterSection).getTag();
-        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(anyString(), anyString(), anyString(), ArgumentMatchers.anyBoolean());
 
         ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -532,5 +538,39 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Mockito.verify(frameLayout).setOnClickListener(baseChildRegisterFragment);
 
+    }
+
+    @Test
+    public void testSetOverdueCountSetCorrectValue() {
+        baseChildRegisterFragment.setOverDueCount(20);
+        Assert.assertEquals(20, baseChildRegisterFragment.getOverDueCount());
+    }
+
+    @Test
+    public void testRunVaccineOverdueQuerySetsCountCorrectly() throws Exception {
+        VaccineOverdueCountRepository vaccineOverdueCountRepository = Mockito.mock(VaccineOverdueCountRepository.class);
+        Mockito.doReturn(30).when(vaccineOverdueCountRepository).getOverdueCount(COUNT_QUERY_SQL);
+
+        PowerMockito.when(ImmunizationLibrary.getInstance().getVaccineOverdueCountRepository()).thenReturn(vaccineOverdueCountRepository);
+
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
+
+        Whitebox.invokeMethod(baseChildRegisterFragment, "runVaccineOverdueQuery");
+        Mockito.verify(baseChildRegisterFragment).setOverDueCount(30);
+    }
+
+    @Test
+    public void testClearFilterViewProperties() {
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSectionView);
+        baseChildRegisterFragment.clearFilter();
+        Mockito.verify(filterSectionView).setTag(null);
+        Mockito.verify(filterSectionView).setBackgroundResource(R.drawable.transparent_gray_background);
     }
 }
