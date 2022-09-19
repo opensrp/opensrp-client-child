@@ -139,6 +139,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
         String currentLocationId = "09453-ert35";
         Map<String, String> metadataMap = new HashMap<>();
         ChildRegisterContract.Interactor interactorSpy = Mockito.spy(new ChildRegisterInteractor());
+        Mockito.doNothing().when(interactorSpy).getNextUniqueId(Triple.of(formName, metadataMap, currentLocationId), baseChildRegisterPresenter);
         ReflectionHelpers.setField(baseChildRegisterPresenter, "interactor", interactorSpy);
         baseChildRegisterPresenter.startForm(formName, entityId, metadata, currentLocationId);
         Mockito.verify(interactorSpy, Mockito.times(1)).getNextUniqueId(Triple.of(formName, metadataMap, currentLocationId), baseChildRegisterPresenter);

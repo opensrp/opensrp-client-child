@@ -264,6 +264,9 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         Mockito.doReturn(uniqueIdRepository)
                 .when(interactor)
                 .getUniqueIdRepository();
+        Mockito.doReturn(2L)
+                .when(uniqueIdRepository)
+                .countUnUsedIds();
 
         UniqueId uniqueId = Mockito.mock(UniqueId.class);
         String entityId = "fake_entity_id";
@@ -274,6 +277,8 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         interactor.getNextUniqueId(triple, callBack);
         Mockito.verify(callBack).onUniqueIdFetched(eq(triple), eq(entityId));
     }
+
+
 
     @Test
     public void testProcessTetanusVaccineSavesVaccineObjectInDb() throws Exception {
