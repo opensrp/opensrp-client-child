@@ -62,7 +62,6 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.EasyMap;
@@ -730,7 +729,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         ///jsonEvents.add(eventJson);
 
         //Update client to deceased
-        JSONObject client = db.getClientByBaseEntityId(eventJson.getString(ClientProcessor.baseEntityIdJSONKey));
+        JSONObject client = db.getClientByBaseEntityId(eventJson.getString(Constants.Client.BASE_ENTITY_ID));
         client.put(FormEntityConstants.Person.deathdate.name(), encounterDateTimeString);
         client.put(FormEntityConstants.Person.deathdate_estimated.name(), false);
         client.put(Constants.JSON_FORM_KEY.DEATH_DATE_APPROX, false);
@@ -806,9 +805,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
         } catch (SecurityException e) {
-            Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
+            Timber.w(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
-            Timber.e(e);
+            Timber.w(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -1409,18 +1408,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return getFieldValue(fields, key);
     }
 
-    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
 
-    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
             return null;
@@ -1428,7 +1427,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType)
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType, boolean isEditMode)
             throws JSONException {
 
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -1466,7 +1465,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 Event subFormEvent = null;
 
-                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
+                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId, isEditMode);
 
                 //only set default gender if not explicitly set in the registration form
                 if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
@@ -1607,12 +1606,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId) {
+    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId, boolean isEditMode) {
         if (StringUtils.isBlank(bindType)) {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getSubFormIdentifierMap(bindType);
+        Map<String, String> identifierMap = !isEditMode ? getSubFormIdentifierMap(bindType) : new HashMap<>();
         Date birthDate = formatDate(stringBirthDate, true);
         birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
@@ -1780,7 +1779,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             for (int i = 0; i < clients.length(); i++) {
                 JSONObject client = clients.getJSONObject(i);
-                client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+
+                if (moveToCatchmentEvent.isPermanent()) {
+                    client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+                } else {
+                    client.put("syncStatus", BaseRepository.TYPE_Synced);
+                }
+
                 client.put("teamId", teamId);
                 client.put("locationId", locationId);
             }
@@ -1794,14 +1799,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
 
             if (moveToCatchmentEvent.isPermanent()) {
-
                 processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
                 processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
-
             } else {
-
                 processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent());
-
             }
 
             return true;
@@ -1813,9 +1814,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     private static void tagClients(JSONArray clientList) throws JSONException {
-
         for (int i = 0; i < clientList.length(); i++) {
-
             clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, true);
         }
     }
@@ -1829,13 +1828,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent) throws Exception {
-
         if (createEvent) {
-
             Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients);
 
             convertAndPersistEvent(moveToCatchmentSyncEvent);
-
         }
 
         List<String> formSubmissionIds = new ArrayList<>();
@@ -1857,11 +1853,11 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         for (int i = 0; i < clients.length(); i++) {
             if (!clients.getJSONObject(i).getJSONObject(IDENTIFIERS).has(M_ZEIR_ID)) {
 
-                clientBaseEntityIds.add(clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
+                clientBaseEntityIds.add(clients.getJSONObject(i).getString(Constants.Client.BASE_ENTITY_ID));
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Constants.KEY.LAST_INTERACTED_WITH, Calendar.getInstance().getTimeInMillis());
-                updateChildFTSTables(contentValues, clients.getJSONObject(i).getString(ClientProcessor.baseEntityIdJSONKey));
+                updateChildFTSTables(contentValues, clients.getJSONObject(i).getString(Constants.Client.BASE_ENTITY_ID));
             }
         }
 
@@ -2063,9 +2059,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             for (int i = 0; i < clientList.length(); i++) {
 
-                val.add(clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey));
+                val.add(clientList.getJSONObject(i).optString(Constants.Client.BASE_ENTITY_ID));
 
-                clientBaseEntityId = clientList.getJSONObject(i).getJSONObject(ChildJsonFormUtils.IDENTIFIERS).has(Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? clientList.getJSONObject(i).optString(ClientProcessor.baseEntityIdJSONKey) : clientBaseEntityId;
+                clientBaseEntityId = clientList.getJSONObject(i).getJSONObject(ChildJsonFormUtils.IDENTIFIERS).has(Constants.KEY.ZEIR_ID.toUpperCase(Locale.ENGLISH)) ? clientList.getJSONObject(i).optString(Constants.Client.BASE_ENTITY_ID) : clientBaseEntityId;
             }
 
             event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD, "", val, new ArrayList<>(), null, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD));
@@ -2401,10 +2397,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
         //In case it is an unsynced Event and we are updating, we need to remove the previous Observation with the same form field tag
         //Form fields should always be unique per submission
-
         List<Obs> obsList = event.getObs();
         if (obsList != null && obsList.size() > 0) {
-            obsList.removeIf(obs -> obs.getFormSubmissionField().equals(key));
+            obsList.removeIf(obs -> key.equals(obs.getFormSubmissionField()));
         }
 
         // Process new observation

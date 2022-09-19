@@ -181,7 +181,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
         childEventClientList.add(new ChildEventClient(new Client("si"), new Event()));
 
         Mockito.doReturn(childEventClientList).when(modelSpy)
-                .processRegistration(jsonString, updateRegisterParams.getFormTag());
+                .processRegistration(jsonString, updateRegisterParams.getFormTag(), false);
 
         baseChildRegisterPresenter.saveForm(jsonString, updateRegisterParams);
 

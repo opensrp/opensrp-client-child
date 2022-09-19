@@ -42,6 +42,7 @@ import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.domain.RepositoryHolder;
 import org.smartregister.child.presenter.BaseChildAdvancedSearchPresenter;
 import org.smartregister.child.provider.AdvancedSearchClientsProvider;
+import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
@@ -80,6 +81,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 clientAdapter.notifyDataSetChanged();
                 ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
                 ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
+
+                Utils.showToast(requireActivity(), requireActivity().getString(R.string.move_to_catchment_success_message));
             } else {
                 Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
             }
@@ -385,9 +388,10 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!Utils.isConnectedToNetwork(requireActivity())) {
-                myCatchment.setChecked(true);
+            // Trigger for myCatchment only, when there is no internet connectivity
+            if (!Utils.isConnectedToNetwork(requireActivity()) && myCatchment.getId() == R.id.my_catchment) {
                 outsideInside.setChecked(false);
+                myCatchment.setChecked(true);
             } else {
                 outsideInside.setChecked(!isChecked);
             }
@@ -509,8 +513,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
         } else {
-            myCatchment.setChecked(true);
             outsideInside.setChecked(false);
+            myCatchment.setChecked(true);
         }
 
         if (connectionChangeReciever == null) {
@@ -518,8 +522,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (!Utils.isConnectedToNetwork(requireActivity())) {
-                        myCatchment.setChecked(true);
                         outsideInside.setChecked(false);
+                        myCatchment.setChecked(true);
                     }
                 }
             };
@@ -635,13 +639,26 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     @Override
     public void countExecute() {
         try {
-            String sql = ((BaseChildAdvancedSearchPresenter) presenter).getCountQuery();
-            Timber.i(sql);
-            int totalCount = commonRepository().countSearchIds(sql);
-            clientAdapter.setTotalcount(totalCount);
-            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-            clientAdapter.setCurrentlimit(20);
-            clientAdapter.setCurrentoffset(0);
+            AppExecutors appExecutors = new AppExecutors();
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    String sql = ((BaseChildAdvancedSearchPresenter) presenter).getCountQuery();
+                    Timber.i(sql);
+                    int totalCount = commonRepository().countSearchIds(sql);
+                    appExecutors.mainThread().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientAdapter.setTotalcount(totalCount);
+                            Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                            clientAdapter.setCurrentlimit(getPageLimit());
+                            clientAdapter.setCurrentoffset(0);
+                        }
+                    });
+                }
+            });
+
+
         } catch (Exception e) {
             Timber.e(e);
         }

@@ -18,6 +18,7 @@ import org.smartregister.child.cursor.AdvancedMatrixCursor;
 import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.domain.Response;
+import org.smartregister.child.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +102,7 @@ public class BaseChildAdvancedSearchPresenterTest extends BasePowerMockUnitTest 
         map.put("start_date", "2020-01-01");
 
         PowerMockito.when(model.createEditMap(ArgumentMatchers.<String, String>anyMap())).thenReturn(map);
+        PowerMockito.when(view.getString(Mockito.eq(R.string.format_label_space_text))).thenReturn("%s %s");
 
         baseChildAdvancedSearchPresenter.search(map, true);
         Mockito.verify(view).updateSearchCriteria("null<b>null</b> null");

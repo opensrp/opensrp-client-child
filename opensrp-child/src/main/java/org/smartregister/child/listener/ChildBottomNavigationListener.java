@@ -20,6 +20,7 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // item.setEnabled(false);//Disable menu item
 
         if (item.getItemId() == R.id.action_home) {
             getBaseRegisterActivityReference().switchToBaseFragment();
@@ -27,9 +28,13 @@ public class ChildBottomNavigationListener extends BottomNavigationListener {
             getBaseRegisterActivityReference().startQrCodeScanner();
         } else if (item.getItemId() == R.id.action_search) {
             getBaseRegisterActivityReference().switchToFragment(1);
+            item.setEnabled(true);//Fragment switch - reset immediately
         } else if (item.getItemId() == R.id.action_register) {
             getBaseRegisterActivityReference().startRegistration();
         }
+
+        if (this.baseRegisterActivity.get() != null)
+            this.baseRegisterActivity.get().setActiveMenuItem(item.getItemId());
 
         return true;
     }

@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
-import com.vijay.jsonwizard.domain.Form;
 
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
@@ -27,6 +26,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.client.utils.domain.Form;
 import org.smartregister.helper.BottomNavigationHelper;
 import org.smartregister.view.activity.BaseRegisterActivity;
 
@@ -46,6 +46,7 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
 
     protected boolean isAdvancedSearch = false;
     protected HashMap<String, String> advancedSearchFormData = new HashMap<>();
+    private int disabledMenuId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,6 +206,9 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     }
 
     protected void onChildRegisterResumption() {
+
+        reEnableMenuItem();
+
         if (isAdvancedSearch) {
             refreshAdvancedSearchFormValues();
             switchToAdvancedSearchFromRegister();
@@ -212,6 +216,11 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
         } else {
             setSelectedBottomBarMenuItem(R.id.action_home);
         }
+    }
+
+    private void reEnableMenuItem() {
+        if (disabledMenuId != 0)
+            bottomNavigationView.getMenu().findItem(disabledMenuId).setEnabled(true);
     }
 
     protected void refreshAdvancedSearchFormValues() {
@@ -288,5 +297,10 @@ public abstract class BaseChildRegisterActivity extends BaseRegisterActivity imp
     @Override
     public void dissmissProgressDialog() {
         hideProgressDialog();
+    }
+
+    @Override
+    public void setActiveMenuItem(int menuItemId) {
+        disabledMenuId = menuItemId;
     }
 }

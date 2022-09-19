@@ -16,10 +16,13 @@ import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.BaseProfileActivity;
 import org.smartregister.view.activity.DrishtiApplication;
 
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.crashlytics.android.Crashlytics;
 
 public class TestChildApp extends DrishtiApplication {
 
@@ -29,6 +32,7 @@ public class TestChildApp extends DrishtiApplication {
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
+        Fabric.with(this, new Crashlytics());
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
         ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
@@ -50,6 +54,11 @@ public class TestChildApp extends DrishtiApplication {
         when(repository.getReadableDatabase()).thenReturn(sqLiteDatabase);
 
         return repository;
+    }
+
+    @Override
+    public String getUsername() {
+        return "defaultANM";
     }
 
     @Override
