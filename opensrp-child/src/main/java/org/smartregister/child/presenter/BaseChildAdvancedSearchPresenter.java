@@ -1,5 +1,8 @@
 package org.smartregister.child.presenter;
 
+import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.END_DATE;
+import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.START_DATE;
+
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildAdvancedSearchContract;
@@ -12,9 +15,6 @@ import org.smartregister.domain.Response;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
-
-import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.END_DATE;
-import static org.smartregister.child.fragment.BaseAdvancedSearchFragment.START_DATE;
 
 /**
  * Created by ndegwamartin on 11/04/2019.
@@ -37,8 +37,11 @@ public abstract class BaseChildAdvancedSearchPresenter extends BaseChildRegister
     }
 
     public void search(Map<String, String> searchMap, boolean isLocal) {
-
-        String searchCriteria = String.format("%s %s", getView().getString(R.string.search_criteria_includes) + Utils.bold(getView().getString(isLocal ? R.string.my_catchment_area : R.string.out_and_inside)), model.createSearchString(searchMap));
+        String searchCriteria = String.format(
+                getView().getString(R.string.format_label_space_text),
+                getView().getString(R.string.search_criteria_includes) + Utils.bold(getView().getString(isLocal ? R.string.my_catchment_area : R.string.out_and_inside)),
+                model.createSearchString(searchMap)
+        );
 
         if (StringUtils.isBlank(searchCriteria)) {
             return;
