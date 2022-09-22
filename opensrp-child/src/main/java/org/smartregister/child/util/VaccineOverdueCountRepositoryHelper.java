@@ -19,7 +19,7 @@ public class VaccineOverdueCountRepositoryHelper {
 
     public static final String COUNT_QUERY_SQL = "SELECT COUNT(1) FROM " + VaccineOverdueCountRepository.TABLE_NAME + " ci INNER JOIN ec_client ON ec_client.id = ci.base_entity_id " +
             "INNER JOIN ec_child_details ON ec_client.id = ec_child_details.id " +
-            "WHERE (ec_client.dod IS NULL AND ec_client.date_removed is null AND ec_client.is_closed IS NOT '1' AND ec_client.is_closed IS NOT '1') " +
+            "WHERE (ec_client.dod IS NULL AND ec_client.date_removed is null AND ec_client.is_closed IS NOT '1' AND ec_child_details.is_closed IS NOT '1') " +
             "AND  ( ec_child_details.inactive IS NULL OR ec_child_details.inactive != 'true');";
 
     public static int getOverdueCount() {

@@ -251,7 +251,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
     }
 
     @Test
-    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenNoUniqueIdWhenIdsRemainingAreLessThan2() {
+    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenIdsRemainingAreLessThan2() {
         interactor = Mockito.spy(interactor);
         Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
         ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);
