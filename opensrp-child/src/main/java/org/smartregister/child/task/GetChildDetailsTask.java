@@ -1,6 +1,5 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,24 +16,30 @@ import org.smartregister.child.util.Utils;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.immunization.util.ImageUtils;
+import org.smartregister.util.AppExecutorService;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
+
+import java.util.Locale;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
  */
-public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjectClient> {
+public class GetChildDetailsTask implements OnTaskExecutedActions<CommonPersonObjectClient> {
     private final String baseEntityId;
     private final BaseActivity baseActivity;
     private final View itemView;
-
     private ImageView profilePhoto;
     private TextView initials;
+    private AppExecutorService appExecutors;
 
     public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId, View itemView) {
         this.baseActivity = baseActivity;
         this.baseEntityId = baseEntityId;
         this.itemView = itemView;
+
         init();
     }
 
@@ -44,27 +49,34 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
     }
 
     @Override
-    protected CommonPersonObjectClient doInBackground(Void... params) {
-
-        CommonPersonObjectClient childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
-
-        // Check if child has a profile pic
-        ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
-        if (profileImage == null) {
-
-            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
-
-        } else {
-
-            childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
-        }
-
-        return childDetails;
+    public void onTaskStarted() {
+        // do nothing
     }
 
     @Override
-    protected void onPostExecute(CommonPersonObjectClient childDetails) {
-        super.onPostExecute(childDetails);
+    public void execute() {
+        CommonPersonObjectClient childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
+
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            try {
+                // Check if child has a profile pic
+                ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
+                if (profileImage == null) {
+                    childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
+                } else {
+                    childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
+                }
+            } catch (Exception e) {
+                Timber.e(e);
+            }
+
+            appExecutors.mainThread().execute(() -> onTaskResult(childDetails));
+        });
+    }
+
+    @Override
+    public void onTaskResult(CommonPersonObjectClient childDetails) {
         if (childDetails != null) {
             updatePicture(baseActivity, baseEntityId, childDetails);
         }
@@ -87,14 +99,19 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             genderLightColor = isDeceased ? R.color.lighter_grey : R.color.male_light_blue;
         }
 
-        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), "has_profile_image", false).equals(Constants.TRUE)) {
+        if (org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.HAS_PROFILE_IMAGE, false).equals(Constants.TRUE)) {
             profilePhoto.setVisibility(View.VISIBLE);
             initials.setBackgroundColor(baseActivity.getResources().getColor(android.R.color.transparent));
             initials.setTextColor(baseActivity.getResources().getColor(android.R.color.black));
             profilePhoto.setTag(org.smartregister.R.id.entity_id, baseEntityId);
-            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(baseEntityId, OpenSRPImageLoader
-                    .getStaticImageListener(profilePhoto, ImageUtils.profileImageResourceByGender(gender),
-                            ImageUtils.profileImageResourceByGender(gender)));
+            DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(
+                    baseEntityId,
+                    OpenSRPImageLoader.getStaticImageListener(
+                            profilePhoto,
+                            ImageUtils.profileImageResourceByGender(gender),
+                            ImageUtils.profileImageResourceByGender(gender)
+                    )
+            );
         } else {
             profilePhoto.setVisibility(View.GONE);
             initials.setBackgroundColor(baseActivity.getResources().getColor(genderLightColor));
@@ -116,7 +133,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             }
 
             if (!TextUtils.isEmpty(lastName)) {
-                initialsString = initialsString + lastName.substring(0, 1);
+                initialsString = initialsString + lastName.charAt(0);
             }
 
             initials.setText(initialsString.toUpperCase());
@@ -127,7 +144,7 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
         itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Utils.showToast(baseActivity, firstName + " " + lastName);
+                Utils.showToast(baseActivity, String.format(Locale.getDefault(), baseActivity.getString(R.string.formatted_space_separated), firstName, lastName));
                 return true;
             }
         });
@@ -136,17 +153,12 @@ public class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjec
             @Override
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(childDetails.getColumnmaps().get(Constants.KEY.DOD))) {
-
-                    Utils.showToast(baseActivity, baseActivity.getResources().getString(R.string.marked_as_deceased, firstName + " " + lastName));
+                    Utils.showToast(baseActivity, baseActivity.getResources().getString(R.string.marked_as_deceased, String.format(baseActivity.getResources().getString(R.string.formatted_space_separated), firstName, lastName)));
                 } else {
-
                     BaseChildImmunizationActivity.launchActivity(baseActivity, childDetails, null);
                     baseActivity.finish();
                 }
-
             }
         });
     }
-
 }
-

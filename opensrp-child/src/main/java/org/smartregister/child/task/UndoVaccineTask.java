@@ -1,6 +1,5 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
 import android.view.View;
 
 import org.joda.time.DateTime;
@@ -16,6 +15,7 @@ import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppExecutorService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by ndegwamartin on 08/09/2020.
  */
-public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
+public class UndoVaccineTask implements OnTaskExecutedActions<TaskResult> {
 
     private final VaccineWrapper tag;
     private final VaccineRepository vaccineRepository;
@@ -33,6 +33,7 @@ public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
     private List<String> affectedVaccines;
     private CommonPersonObjectClient childDetails;
     private ChildImmunizationContract.Presenter presenter;
+    private AppExecutorService appExecutors;
 
     public UndoVaccineTask(ChildImmunizationContract.Presenter presenter, VaccineWrapper tag, CommonPersonObjectClient childDetails, AlertService alertService) {
         this.tag = tag;
@@ -43,32 +44,34 @@ public class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        if (tag != null && tag.getDbKey() != null) {
-            Long dbKey = tag.getDbKey();
-            vaccineRepository.deleteVaccine(dbKey);
-
-
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
-            DateTime dateTime = Utils.dobStringToDateTime(dobString);
-            if (dateTime != null) {
-                affectedVaccines = VaccineSchedule.updateOfflineAlertsAndReturnAffectedVaccineNames(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
-                vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-                alertList = alertService.findByEntityId(childDetails.entityId());
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPreExecute() {
+    public void onTaskStarted() {
         presenter.getView().showProgressDialog(((ChildImmunizationContract.View) presenter.getView()).getString(R.string.updating_dialog_title), null);
     }
 
     @Override
-    protected void onPostExecute(Void params) {
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            if (tag != null && tag.getDbKey() != null) {
+                Long dbKey = tag.getDbKey();
+                vaccineRepository.deleteVaccine(dbKey);
+
+                String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
+                DateTime dateTime = Utils.dobStringToDateTime(dobString);
+                if (dateTime != null) {
+                    affectedVaccines = VaccineSchedule.updateOfflineAlertsAndReturnAffectedVaccineNames(childDetails.entityId(), dateTime, Constants.KEY.CHILD);
+                    vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+                    alertList = alertService.findByEntityId(childDetails.entityId());
+                }
+            }
+
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
+    }
+
+    @Override
+    public void onTaskResult(TaskResult result) {
         presenter.getView().hideProgressDialog();
-        super.onPostExecute(params);
 
         // Refresh the vaccine group with the updated vaccine
         tag.setUpdatedVaccineDate(null, false);

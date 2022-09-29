@@ -1,6 +1,5 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +11,7 @@ import org.smartregister.child.util.Constants;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.util.AppExecutorService;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -21,12 +21,13 @@ import timber.log.Timber;
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
-public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
+public class SaveAdverseEventTask implements OnTaskExecutedActions<TaskResult> {
     private final String jsonString;
     private final String locationId;
     private final String baseEntityId;
     private final String providerId;
     private final EventClientRepository eventClientRepository;
+    private AppExecutorService appExecutors;
 
     public SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId, String providerId,
                                 EventClientRepository eventClientRepository) {
@@ -38,14 +39,26 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    public void onTaskStarted() {
+        // notify on UI
+    }
+
+    @Override
+    public void execute() {
         try {
-            processAdverseEvent();
+            appExecutors = new AppExecutorService();
+            appExecutors.executorService().execute(() -> {
+                try {
+                    processAdverseEvent();
+                } catch (Exception e) {
+                    Timber.e(e);
+                }
+
+                appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+            });
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
         }
-
-        return null;
     }
 
     private void processAdverseEvent() throws Exception {
@@ -123,5 +136,10 @@ public class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
             JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(event));
             eventClientRepository.addEvent(event.getBaseEntityId(), eventJson);
         }
+    }
+
+    @Override
+    public void onTaskResult(TaskResult result) {
+        // notify on UI
     }
 }

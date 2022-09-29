@@ -1,8 +1,12 @@
 package org.smartregister.child.task;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+import static org.smartregister.util.Utils.getValue;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,6 +36,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppExecutorService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
@@ -44,15 +49,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
-import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
-import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
-import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
-public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
+public class VaccinationAsyncTask implements OnTaskExecutedActions<TaskResult> {
+
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
     private final View convertView;
     private final String entityId;
@@ -80,6 +81,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     private Date lastVaccineDate = null;
     private boolean isFirstYearVaccinesDone = false;
     private boolean isSecondYearVaccinesDone = false;
+    private AppExecutorService appExecutors;
 
     public VaccinationAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                 VaccineRepository vaccineRepository, AlertService alertService, Context context) {
@@ -106,10 +108,18 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    public void onTaskStarted() {
+        // notify on UI
+    }
 
-        executeInBackground();
-        return null;
+    @Override
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            executeInBackground();
+
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
     }
 
     private void executeInBackground() {
@@ -120,13 +130,12 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
         DateTime dateTime = Utils.dobStringToDateTime(dobString);
         List<Map<String, Object>> sch = VaccinatorUtils.generateScheduleList(Constants.KEY.CHILD, dateTime, receivedVaccines, alerts);
-        isFirstYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 0 , 365);
+        isFirstYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 0, 365);
         isSecondYearVaccinesDone = org.smartregister.child.util.Utils.isAllVaccinesDoneWithIn(sch, dateTime, 365, 730);
         List<String> receivedVaccinesList = new ArrayList<>();
         String key;
 
         for (Map.Entry<String, Date> entry : receivedVaccines.entrySet()) {
-
             key = entry.getKey();
             key = key.contains("/") ? key.substring(0, key.indexOf("/")) : key;
             key = key.trim().replaceAll(" ", "").toLowerCase();
@@ -165,7 +174,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             if (nv != null && nv.containsKey(Constants.KEY.VACCINE)) {
                 nv.put(IS_GROUP_PARTIAL, getIsGroupPartial(nv.get(Constants.KEY.VACCINE).toString().toLowerCase()));
             }
-
         }
     }
 
@@ -175,8 +183,7 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void onPostExecute(Void param) {
-
+    public void onTaskResult(TaskResult result) {
         VaccineViewRecordUpdateWrapper wrapper = new VaccineViewRecordUpdateWrapper();
         wrapper.setVaccines(vaccines);
         wrapper.setLostToFollowUp(lostToFollowUp);
@@ -186,7 +193,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         wrapper.setNv(nv);
         wrapper.setTotalAlerts(overDueCount);
         updateRecordVaccination(wrapper);
-
     }
 
     @SuppressLint("SetTextI18n")
@@ -228,7 +234,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         } else {
             complianceCheck.setImageResource(R.drawable.ic_red_flag);
         }
-
 
         if (nv != null) {
             Object dueDateRawObject = nv.get(Constants.KEY.DATE);
@@ -304,19 +309,17 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 } else {
                     recordVaccinationText.setText(R.string.fully_immunized_label);
                 }
-                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
-
             } else {
                 recordVaccinationText.setText(R.string.fully_immunized_label);
-                recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
             }
+
+            recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             if (isLegacyAlerts) {
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
             } else {
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationCheck.setImageResource(R.drawable.ic_harvey_100);
-
             }
             recordVaccinationCheck.setVisibility(View.VISIBLE);
 
@@ -332,8 +335,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
-
-
         } else if (state.equals(State.LOST_TO_FOLLOW_UP)) {
             recordVaccinationText.setText(R.string.lost_to_follow_up_with_nl);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
@@ -343,7 +344,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
-
         } else if (state.equals(State.WAITING)) {
             recordVaccinationText.setText(R.string.waiting_label);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
@@ -381,7 +381,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
             if (nv != null && nv.get(IS_GROUP_PARTIAL) != null && (Boolean) nv.get(IS_GROUP_PARTIAL) && !isLegacyAlerts && (lastVaccineDate != null && Math.abs(lastVaccineDate.getTime() - Calendar.getInstance().getTimeInMillis()) < MILLIS_PER_DAY)) {
-
                 ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                 recordVaccinationHarveyBall.setImageResource(R.drawable.ic_harvey_75);
                 recordVaccinationHarveyBall.setVisibility(View.VISIBLE);
@@ -393,7 +392,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             }
         } else if (state.equals(State.OVERDUE)) {
-
             recordVaccinationText.setText(getAlertMessage(state, groupName));
             recordVaccinationText.setAllCaps(!isLegacyAlerts ? true : false);
 
@@ -423,7 +421,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                     ((LinearLayout) recordVaccinationCheck.getParent()).setOrientation(LinearLayout.VERTICAL);
                     recordVaccinationCheck.setImageResource(R.drawable.ic_harvey_100);
                     recordVaccinationCheck.setVisibility(View.VISIBLE);
-
                 }
             } else {
                 recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + org.smartregister.child.util.Utils.localizeStateKey(context, groupName));
@@ -452,7 +449,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @NonNull
     private VaccinationAsyncTask.State getUpcomingState(DateTime dueDate) {
-
         State state;
         try {
             Calendar today = Calendar.getInstance();
@@ -460,7 +456,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             today.set(Calendar.MINUTE, 0);
             today.set(Calendar.SECOND, 0);
             today.set(Calendar.MILLISECOND, 0);
-
 
             if (dueDate != null &&
                     dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) &&
@@ -476,7 +471,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
-
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
         if (commonRepository != null) {
@@ -489,7 +483,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-
                 catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -525,16 +518,14 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
                 moveToCatchment.setClickable(true);
                 moveToCatchment.setEnabled(true);
                 moveToCatchment.setOnClickListener(onClickListener);
-
                 moveToCatchment.setVisibility(View.VISIBLE);
+
                 recordVaccination.setVisibility(View.GONE);
             }
-
         }
     }
 
     protected String getAlertMessage(State state, String stateKey) {
-
         String message;
         switch (state) {
             case DUE:
@@ -554,7 +545,6 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
             default:
                 message = context.getString(R.string.done);
                 break;
-
         }
 
         return message;
@@ -565,5 +555,4 @@ public class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
         DUE, OVERDUE, UPCOMING_NEXT_7_DAYS, UPCOMING, INACTIVE, LOST_TO_FOLLOW_UP, EXPIRED, WAITING, NO_ALERT,
         FULLY_IMMUNIZED
     }
-
 }

@@ -332,9 +332,9 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                     childDetails = cardChildDetails;
                 } else {
                     // card last update
-                    long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "0")) : 0l;
+                    long lastCardTxDateTime = cardChildDetails != null ? Long.parseLong(cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_CARD_LAST_UPDATED_TIMESTAMP, "0")) : 0L;
                     // device last update
-                    long lastInteractedWith = childDetails != null ? Long.parseLong(childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0")) : 0l;
+                    long lastInteractedWith = childDetails != null ? Long.parseLong(childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0")) : 0L;
 
                     if (lastCardTxDateTime > lastInteractedWith) {
                         childDetails = cardChildDetails;
@@ -358,7 +358,6 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     protected void processEditedServices() {
-
         //Services
         for (ServiceHolder serviceHolder : editServicesList) {
             saveService(serviceHolder.wrapper, serviceHolder.view);
@@ -385,12 +384,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         dbKeysForDelete.clear();
 
         createExtraVaccineUpdateEvents();
-
     }
 
     protected void createExtraVaccineUpdateEvents() {
         if ((showExtraVaccines || showBoosterImmunizations) && !extraVaccineUpdateEvents.isEmpty()) {
-            Utils.startAsyncTask(new UpdateDynamicVaccinesTask(this, extraVaccineUpdateEvents), null);
+            new UpdateDynamicVaccinesTask(this, extraVaccineUpdateEvents).execute();
         }
     }
 
@@ -538,7 +536,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             try {
                 Timber.i(e, "BaseChildDetailTabbedActivity --> No field mTabStrip in class Landroid/support/design/widget/TabLayout");
             } catch (Exception ex) {
-
+                Timber.e(ex);
             }
         }
     }
@@ -623,7 +621,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             overflow.findItem(R.id.blacklist_card).setVisible(true);
         }
 
-        Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);//Loading data here because we affect state of the menu item
+        new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow).execute();//Loading data here because we affect state of the menu item
 
         return true;
     }
@@ -701,13 +699,13 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                         updateRegistration(jsonString);
                         break;
                     case Constants.EventType.AEFI:
-                        Utils.startAsyncTask(new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()), null);
+                        new SaveAdverseEventTask(jsonString, locationId, childDetails.entityId(), allSharedPreferences.fetchRegisteredANM(), CoreLibrary.getInstance().context().getEventClientRepository()).execute();
                         break;
                     case Constants.EventType.DYNAMIC_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.PRIVATE_SECTOR_VACCINE), null);
+                        new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.PRIVATE_SECTOR_VACCINE).execute();
                         break;
                     case Constants.EventType.BOOSTER_VACCINES:
-                        Utils.startAsyncTask(new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.BOOSTER_IMMUNIZATIONS), null);
+                        new SaveDynamicVaccinesTask(this, jsonString, childDetails.entityId(), DynamicVaccineType.BOOSTER_IMMUNIZATIONS).execute();
                         break;
                     default:
                         break;
@@ -727,7 +725,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     protected void updateRegistration(String jsonString) {
         SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask(this);
         saveRegistrationDetailsTask.setJsonString(jsonString);
-        Utils.startAsyncTask(saveRegistrationDetailsTask, null);
+        saveRegistrationDetailsTask.execute();
     }
 
     @Override
@@ -882,7 +880,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             if (!fromAsyncTask) {
                 LoadAsyncTask loadAsyncTask = new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow);
                 loadAsyncTask.setFromUpdateStatus(true);
-                Utils.startAsyncTask(loadAsyncTask, null);
+                loadAsyncTask.execute();
             }
         } else {
             updateOptionsMenu(false, false, false);
@@ -921,6 +919,8 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         Timber.d("Permission callback called-------");
 
         if (grantResults.length == 0) {
@@ -937,7 +937,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void onVaccinateToday(ArrayList<VaccineWrapper> tags, View view) {
         if (tags != null && !tags.isEmpty()) {
             saveVaccine(tags, view);
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
+            new UpdateOfflineAlertsTask(childDetails).execute();
         }
     }
 
@@ -945,7 +945,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     public void onVaccinateEarlier(ArrayList<VaccineWrapper> tags, View view) {
         if (tags != null && !tags.isEmpty()) {
             saveVaccine(tags, view);
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
+            new UpdateOfflineAlertsTask(childDetails).execute();
         }
     }
 
@@ -964,7 +964,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             wrappers.add(vaccineWrapper);
             updateVaccineGroupViews(view, wrappers, vaccineList, true);
 
-            Utils.startAsyncTask(new UpdateOfflineAlertsTask(childDetails), null);
+            new UpdateOfflineAlertsTask(childDetails).execute();
         }
     }
 
@@ -1005,9 +1005,10 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
                 updateVaccineGroupViews(view);
             } else {
                 VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
-                SaveVaccinesTask backgroundTask = new SaveVaccinesTask(this);
+                SaveVaccinesTask backgroundTask = new SaveVaccinesTask(this, arrayTags);
                 backgroundTask.setView(view);
-                backgroundTask.execute(arrayTags);
+//                backgroundTask.execute(arrayTags);
+                backgroundTask.execute();
             }
         }
     }
@@ -1069,7 +1070,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
             updateHeightWrapper(heightWrapper);
         }
 
-        Utils.startAsyncTask(new LoadAsyncTask(Status.EDIT_GROWTH, detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);
+        new LoadAsyncTask(Status.EDIT_GROWTH, detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow).execute();
     }
 
     private void updateWeightWrapper(WeightWrapper weightWrapper) {
@@ -1308,9 +1309,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     }
 
     private void undoService(ServiceWrapper serviceWrapper, View view) {
-
-        Utils.startAsyncTask(new UndoServiceTask(serviceWrapper, view, this, childDetails), null);
-
+        new UndoServiceTask(serviceWrapper, view, this, childDetails).execute();
     }
 
     private void saveService(ServiceWrapper serviceWrapper, final View view) {
@@ -1319,10 +1318,11 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
         }
 
         ServiceWrapper[] arrayTags = {serviceWrapper};
-        SaveServiceTask backgroundTask = new SaveServiceTask(this, childDetails);
+        SaveServiceTask backgroundTask = new SaveServiceTask(this, childDetails, arrayTags);
 
         backgroundTask.setView(view);
-        Utils.startAsyncTask(backgroundTask, arrayTags);
+//        Utils.startAsyncTask(backgroundTask, arrayTags);
+        backgroundTask.execute();
     }
 
     @Override
@@ -1349,7 +1349,7 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
     @Override
     public void onRegistrationSaved(boolean isEdit) {
         if (isEdit) {//On edit mode refresh view
-            Utils.startAsyncTask(new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow), null);//Loading data here because we affect state of the menu item
+            new LoadAsyncTask(detailsMap, childDetails, this, childDataFragment, childUnderFiveFragment, overflow).execute();//Loading data here because we affect state of the menu item
 
             //To Do optimize with
             // childDataFragment.refreshRecyclerViewData(detailsMap);

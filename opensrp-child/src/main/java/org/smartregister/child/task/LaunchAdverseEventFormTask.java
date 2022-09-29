@@ -1,14 +1,14 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
-
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.child.util.Utils;
+import org.smartregister.util.AppExecutorService;
 import org.smartregister.util.FormUtils;
 
 import timber.log.Timber;
@@ -30,39 +30,53 @@ import timber.log.Timber;
  * "OPV": "129578AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
  * }
  */
-public class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
+public class LaunchAdverseEventFormTask implements OnTaskExecutedActions<String> {
+
     private BaseChildDetailTabbedActivity activity;
+    private AppExecutorService appExecutors;
 
     public LaunchAdverseEventFormTask(BaseChildDetailTabbedActivity activity) {
         this.activity = activity;
     }
 
     @Override
-    protected String doInBackground(Void... params) {
-        try {
-            JSONObject form = new FormUtils(activity.getContext()).getFormJson("adverse_event");
-            if (form != null) {
-                JSONArray fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
-                for (int i = 0; i < fields.length(); i++) {
-                    if (fields.getJSONObject(i).getString(JsonFormConstants.KEY).equals("Reaction_Vaccine")) {
-                        boolean result = activity.insertVaccinesGivenAsOptions(fields.getJSONObject(i));
-                        if (!result) {
-                            return null;
-                        }
-                    }
-                }
-                return form.toString();
-            }
-
-        } catch (Exception e) {
-            Timber.e(e, "LaunchAdverseEventFormTask --> doInBackground");
-        }
-        return null;
+    public void onTaskStarted() {
+        // notify on UI
     }
 
     @Override
-    protected void onPostExecute(String metaData) {
-        super.onPostExecute(metaData);
+    public void execute() {
+        try {
+            JSONObject form = new FormUtils(activity.getContext()).getFormJson("adverse_event");
+
+            appExecutors = new AppExecutorService();
+            appExecutors.executorService().execute(() -> {
+                if (form != null) {
+                    JSONArray fields = null;
+                    try {
+                        fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
+                        for (int i = 0; i < fields.length(); i++) {
+                            if (fields.getJSONObject(i).getString(JsonFormConstants.KEY).equals("Reaction_Vaccine")) {
+                                boolean result = activity.insertVaccinesGivenAsOptions(fields.getJSONObject(i));
+                                if (!result) {
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                appExecutors.mainThread().execute(() -> onTaskResult(form.toString()));
+            });
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+    }
+
+    @Override
+    public void onTaskResult(String metaData) {
         if (metaData != null) {
             activity.startFormActivity(metaData);
         } else {
