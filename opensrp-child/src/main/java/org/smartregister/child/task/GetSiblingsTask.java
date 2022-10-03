@@ -38,41 +38,11 @@ public class GetSiblingsTask implements OnTaskExecutedActions<ArrayList<String>>
 
     @Override
     public void execute() {
-        ArrayList<String> baseEntityIds = new ArrayList<>();
-
         appExecutors = new AppExecutorService();
         appExecutors.executorService().execute(() -> {
-            try {
-                String baseEntityId = childDetails.entityId();
-                String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
-                if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
-                    List<HashMap<String, String>> childList = ChildLibrary.getInstance().eventClientRepository()
-                            .rawQuery(
-                                    ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                                    Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
-                                            + " WHERE " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')"
-                            );
+            ArrayList<String> siblings = getSiblings(childDetails.entityId());
 
-                    List<CommonPersonObject> children = new ArrayList<>();
-                    for (HashMap<String, String> hashMap : childList) {
-                        CommonPersonObject commonPersonObject = new CommonPersonObject(hashMap.get(Constants.KEY.BASE_ENTITY_ID), hashMap.get(Constants.KEY.RELATIONALID), hashMap, Constants.ENTITY.CHILD);
-                        commonPersonObject.setColumnmaps(hashMap);
-                        children.add(commonPersonObject);
-                    }
-
-                    if (children != null && children.size() > 0) {
-                        for (CommonPersonObject curChild : children) {
-                            if (!baseEntityId.equals(curChild.getCaseId()) && curChild.getColumnmaps().get(Constants.KEY.DOD) == null) {
-                                baseEntityIds.add(curChild.getCaseId());
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Timber.e(e);
-            }
-
-            appExecutors.mainThread().execute(() -> onTaskResult(baseEntityIds));
+            appExecutors.mainThread().execute(() -> onTaskResult(siblings));
         });
     }
 
@@ -87,5 +57,44 @@ public class GetSiblingsTask implements OnTaskExecutedActions<ArrayList<String>>
 
         getSiblingsInterface.onSiblingsFetched(ids);
     }
-}
 
+    private ArrayList<String> getSiblings(String childBaseEntityId) {
+        ArrayList<String> siblingBaseEntityIds = new ArrayList<>();
+
+        try {
+            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
+            if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(childBaseEntityId)) {
+                List<HashMap<String, String>> childList = ChildLibrary.getInstance().eventClientRepository()
+                        .rawQuery(
+                                ChildLibrary.getInstance().getRepository().getReadableDatabase(),
+                                Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
+                                        + " WHERE " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')"
+                        );
+
+                List<CommonPersonObject> siblings = new ArrayList<>();
+                for (HashMap<String, String> hashMap : childList) {
+                    CommonPersonObject commonPersonObject = new CommonPersonObject(
+                            hashMap.get(Constants.KEY.BASE_ENTITY_ID),
+                            hashMap.get(Constants.KEY.RELATIONALID),
+                            hashMap,
+                            Constants.ENTITY.CHILD
+                    );
+                    commonPersonObject.setColumnmaps(hashMap);
+                    siblings.add(commonPersonObject);
+                }
+
+                if (siblings.size() > 0) {
+                    for (CommonPersonObject sibling : siblings) {
+                        if (!childBaseEntityId.equals(sibling.getCaseId()) && sibling.getColumnmaps().get(Constants.KEY.DOD) == null) {
+                            siblingBaseEntityIds.add(sibling.getCaseId());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+
+        return siblingBaseEntityIds;
+    }
+}

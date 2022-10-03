@@ -55,21 +55,9 @@ public class GetChildDetailsTask implements OnTaskExecutedActions<CommonPersonOb
 
     @Override
     public void execute() {
-        CommonPersonObjectClient childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
-
         appExecutors = new AppExecutorService();
         appExecutors.executorService().execute(() -> {
-            try {
-                // Check if child has a profile pic
-                ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
-                if (profileImage == null) {
-                    childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
-                } else {
-                    childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
-                }
-            } catch (Exception e) {
-                Timber.e(e);
-            }
+            CommonPersonObjectClient childDetails = getChildDetails();
 
             appExecutors.mainThread().execute(() -> onTaskResult(childDetails));
         });
@@ -80,6 +68,24 @@ public class GetChildDetailsTask implements OnTaskExecutedActions<CommonPersonOb
         if (childDetails != null) {
             updatePicture(baseActivity, baseEntityId, childDetails);
         }
+    }
+
+    private CommonPersonObjectClient getChildDetails() {
+        CommonPersonObjectClient childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(baseEntityId);
+
+        try {
+            // Check if child has a profile pic
+            ProfileImage profileImage = CoreLibrary.getInstance().context().imageRepository().findByEntityId(baseEntityId);
+            if (profileImage == null) {
+                childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.FALSE);
+            } else {
+                childDetails.getColumnmaps().put(Constants.KEY.HAS_PROFILE_IMAGE, Constants.TRUE);
+            }
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+
+        return childDetails;
     }
 
     private void updatePicture(final BaseActivity baseActivity, String baseEntityId, final CommonPersonObjectClient childDetails) {

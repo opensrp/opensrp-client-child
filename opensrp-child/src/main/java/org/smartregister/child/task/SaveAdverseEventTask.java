@@ -1,7 +1,5 @@
 package org.smartregister.child.task;
 
-import android.util.Log;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +20,7 @@ import timber.log.Timber;
  * Created by ndegwamartin on 05/03/2019.
  */
 public class SaveAdverseEventTask implements OnTaskExecutedActions<TaskResult> {
+
     private final String jsonString;
     private final String locationId;
     private final String baseEntityId;
@@ -45,20 +44,16 @@ public class SaveAdverseEventTask implements OnTaskExecutedActions<TaskResult> {
 
     @Override
     public void execute() {
-        try {
-            appExecutors = new AppExecutorService();
-            appExecutors.executorService().execute(() -> {
-                try {
-                    processAdverseEvent();
-                } catch (Exception e) {
-                    Timber.e(e);
-                }
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            try {
+                processAdverseEvent();
+            } catch (Exception e) {
+                Timber.e(e);
+            }
 
-                appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
-            });
-        } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
-        }
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
     }
 
     private void processAdverseEvent() throws Exception {
@@ -118,7 +113,7 @@ public class SaveAdverseEventTask implements OnTaskExecutedActions<TaskResult> {
                         if (entityValue.equals(ChildJsonFormUtils.CONCEPT)) {
                             ChildJsonFormUtils.addToJSONObject(jsonObject, Constants.KEY.KEY, key);
                             ChildJsonFormUtils.addObservation(event, jsonObject);
-                        } else if ("encounter".equals(entityValue)) {
+                        } else if (Constants.ENCOUNTER.equals(entityValue)) {
                             String entityIdValue = ChildJsonFormUtils.getString(jsonObject, ChildJsonFormUtils.OPENMRS_ENTITY_ID);
                             if (entityIdValue.equals(FormEntityConstants.Encounter.encounter_date.name())) {
                                 Date eventDate = ChildJsonFormUtils.formatDate(value, false);

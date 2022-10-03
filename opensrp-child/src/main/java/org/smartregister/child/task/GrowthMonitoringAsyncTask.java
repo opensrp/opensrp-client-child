@@ -76,29 +76,9 @@ public class GrowthMonitoringAsyncTask implements OnTaskExecutedActions<GrowthMo
 
     @Override
     public void execute() {
-        GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
-
         appExecutors = new AppExecutorService();
         appExecutors.executorService().execute(() -> {
-            try {
-                Weight weight = weightRepository.findUnSyncedByEntityId(entityId);
-
-                if (hasProperty && monitorGrowth) {
-                    height = heightRepository.findUnSyncedByEntityId(entityId);
-                }
-
-                wrapper.setWeight(weight);
-
-                if (hasProperty && monitorGrowth) {
-                    wrapper.setHeight(height);
-                }
-                wrapper.setLostToFollowUp(lostToFollowUp);
-                wrapper.setInactive(inactive);
-                wrapper.setClient(client);
-                wrapper.setConvertView(convertView.get());
-            } catch (Exception e) {
-                Timber.e(e);
-            }
+            GrowthMonitoringViewRecordUpdateWrapper wrapper = getGrowthMonitoringViewRecordUpdateWrapper();
 
             appExecutors.mainThread().execute(() -> onTaskResult(wrapper));
         });
@@ -107,6 +87,29 @@ public class GrowthMonitoringAsyncTask implements OnTaskExecutedActions<GrowthMo
     @Override
     public void onTaskResult(GrowthMonitoringViewRecordUpdateWrapper wrapper) {
         updateRecordWeight(wrapper, updateOutOfCatchment);
+    }
+
+    private GrowthMonitoringViewRecordUpdateWrapper getGrowthMonitoringViewRecordUpdateWrapper() {
+        GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
+
+        try {
+            Weight weight = weightRepository.findUnSyncedByEntityId(entityId);
+            wrapper.setWeight(weight);
+
+            if (hasProperty && monitorGrowth) {
+                height = heightRepository.findUnSyncedByEntityId(entityId);
+                wrapper.setHeight(height);
+            }
+
+            wrapper.setLostToFollowUp(lostToFollowUp);
+            wrapper.setInactive(inactive);
+            wrapper.setClient(client);
+            wrapper.setConvertView(convertView.get());
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+
+        return wrapper;
     }
 
     private void updateRecordWeight(GrowthMonitoringViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {

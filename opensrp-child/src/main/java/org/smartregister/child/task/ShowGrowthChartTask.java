@@ -34,27 +34,33 @@ public class ShowGrowthChartTask implements OnTaskExecutedActions<Map<String, Li
 
     @Override
     public void execute() {
-        Map<String, List> growthMonitoring = new HashMap<>();
-
         appExecutors = new AppExecutorService();
         appExecutors.executorService().execute(() -> {
-            try {
-                List<Weight> allWeights = presenter.getAllWeights(childDetails);
-                List<Height> allHeights = presenter.getAllHeights(childDetails);
-                growthMonitoring.put(Constants.HEIGHT, allHeights);
-                growthMonitoring.put(Constants.WEIGHT, allWeights);
-            } catch (Exception e) {
-                Timber.e(e);
-            }
+            Map<String, List> growthMonitoringData = getGrowthMonitoringData();
 
-            appExecutors.mainThread().execute(() -> onTaskResult(growthMonitoring));
+            appExecutors.mainThread().execute(() -> onTaskResult(growthMonitoringData));
         });
     }
 
     @Override
-    public void onTaskResult(Map<String, List> growthMonitoring) {
+    public void onTaskResult(Map<String, List> growthMonitoringData) {
         presenter.getView().hideProgressDialog();
 
-        ((ChildImmunizationContract.View) presenter.getView()).showGrowthDialogFragment(growthMonitoring);
+        ((ChildImmunizationContract.View) presenter.getView()).showGrowthDialogFragment(growthMonitoringData);
+    }
+
+    private Map<String, List> getGrowthMonitoringData() {
+        Map<String, List> growthMonitoringData = new HashMap<>();
+
+        try {
+            List<Weight> allWeights = presenter.getAllWeights(childDetails);
+            List<Height> allHeights = presenter.getAllHeights(childDetails);
+            growthMonitoringData.put(Constants.HEIGHT, allHeights);
+            growthMonitoringData.put(Constants.WEIGHT, allWeights);
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+
+        return growthMonitoringData;
     }
 }

@@ -53,7 +53,7 @@ public class ArchiveRecordTask implements OnTaskExecutedActions<TaskResult> {
                 Timber.e(e);
             }
 
-            appExecutors.mainThread().execute(() -> onTaskResult(null));
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
         });
     }
 

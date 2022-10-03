@@ -15,6 +15,7 @@ import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceSchedule;
 import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.util.RecurringServiceUtils;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.AppExecutorService;
 
@@ -48,38 +49,11 @@ public class SaveServiceTask implements OnTaskExecutedActions<Triple<ArrayList<S
 
     @Override
     public void execute() {
-        ArrayList<ServiceWrapper> list = new ArrayList<>();
-        final List<ServiceRecord>[] serviceRecords = new List[]{null};
-        final List<Alert>[] alerts = new List[]{null};
-
         appExecutors = new AppExecutorService();
         appExecutors.executorService().execute(() -> {
-            try {
-                for (ServiceWrapper tag : this.serviceWrapper) {
-                    String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                    String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().applicationContext());
-                    String childLocationId = ChildJsonFormUtils.getChildLocationId(getOpenSRPContext().allSharedPreferences().fetchDefaultLocalityId(providerId), getOpenSRPContext().allSharedPreferences());
-                    String team = getOpenSRPContext().allSharedPreferences().fetchDefaultTeam(providerId);
-                    String teamId = getOpenSRPContext().allSharedPreferences().fetchDefaultTeamId(providerId);
-                    RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId, team, teamId, childLocationId);
-                    list.add(tag);
+            Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple = processServiceWrapper();
 
-                    ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
-                }
-
-                List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                        .findByEntityId(childDetails.entityId());
-
-                AlertService alertService = getOpenSRPContext().alertService();
-                List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
-
-                serviceRecords[0] = serviceRecordList;
-                alerts[0] = alertList;
-            } catch (Exception e) {
-                Timber.e(e);
-            }
-
-            appExecutors.mainThread().execute(() -> onTaskResult(Triple.of(list, serviceRecords[0], alerts[0])));
+            appExecutors.mainThread().execute(() -> onTaskResult(triple));
         });
     }
 
@@ -87,5 +61,39 @@ public class SaveServiceTask implements OnTaskExecutedActions<Triple<ArrayList<S
     public void onTaskResult(Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> triple) {
         activity.hideProgressDialog();
         RecurringServiceUtils.updateServiceGroupViews(view, triple.getLeft(), triple.getMiddle(), triple.getRight());
+    }
+
+    private Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>> processServiceWrapper() {
+        try {
+            ArrayList<ServiceWrapper> list = new ArrayList<>();
+
+            for (ServiceWrapper tag : serviceWrapper) {
+                AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
+
+                String providerId = allSharedPreferences.fetchRegisteredANM();
+                String locationId = ChildJsonFormUtils.getProviderLocationId(getOpenSRPContext().applicationContext());
+                String childLocationId = ChildJsonFormUtils.getChildLocationId(
+                        allSharedPreferences.fetchDefaultLocalityId(providerId),
+                        allSharedPreferences
+                );
+                String team = allSharedPreferences.fetchDefaultTeam(providerId);
+                String teamId = allSharedPreferences.fetchDefaultTeamId(providerId);
+                RecurringServiceUtils.saveService(tag, childDetails.entityId(), providerId, locationId, team, teamId, childLocationId);
+                list.add(tag);
+
+                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+            }
+
+            List<ServiceRecord> serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                    .findByEntityId(childDetails.entityId());
+
+            AlertService alertService = getOpenSRPContext().alertService();
+            List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
+
+            return Triple.of(list, serviceRecordList, alertList);
+        } catch (Exception e) {
+            Timber.e(e);
+            return Triple.of(null, null, null);
+        }
     }
 }

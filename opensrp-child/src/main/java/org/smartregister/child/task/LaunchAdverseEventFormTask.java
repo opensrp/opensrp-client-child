@@ -46,33 +46,12 @@ public class LaunchAdverseEventFormTask implements OnTaskExecutedActions<String>
 
     @Override
     public void execute() {
-        try {
-            JSONObject form = new FormUtils(activity.getContext()).getFormJson("adverse_event");
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            JSONObject form = getJsonForm();
 
-            appExecutors = new AppExecutorService();
-            appExecutors.executorService().execute(() -> {
-                if (form != null) {
-                    JSONArray fields = null;
-                    try {
-                        fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
-                        for (int i = 0; i < fields.length(); i++) {
-                            if (fields.getJSONObject(i).getString(JsonFormConstants.KEY).equals("Reaction_Vaccine")) {
-                                boolean result = activity.insertVaccinesGivenAsOptions(fields.getJSONObject(i));
-                                if (!result) {
-                                    return;
-                                }
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                appExecutors.mainThread().execute(() -> onTaskResult(form.toString()));
-            });
-        } catch (Exception e) {
-            Timber.e(e);
-        }
+            appExecutors.mainThread().execute(() -> onTaskResult(form.toString()));
+        });
     }
 
     @Override
@@ -81,6 +60,34 @@ public class LaunchAdverseEventFormTask implements OnTaskExecutedActions<String>
             activity.startFormActivity(metaData);
         } else {
             Utils.showToast(activity.getContext(), activity.getContext().getString(R.string.no_vaccine_record_found));
+        }
+    }
+
+    private JSONObject getJsonForm() {
+        try {
+            JSONObject form = new FormUtils(activity.getContext()).getFormJson("adverse_event");
+
+            if (form != null) {
+                JSONArray fields = null;
+                try {
+                    fields = form.getJSONObject(JsonFormConstants.STEP1).getJSONArray(JsonFormConstants.FIELDS);
+                    for (int i = 0; i < fields.length(); i++) {
+                        if (fields.getJSONObject(i).getString(JsonFormConstants.KEY).equals("Reaction_Vaccine")) {
+                            boolean result = activity.insertVaccinesGivenAsOptions(fields.getJSONObject(i));
+                            if (!result) {
+                                break;
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return form;
+        } catch (Exception e) {
+            Timber.e(e);
+            return null;
         }
     }
 }
