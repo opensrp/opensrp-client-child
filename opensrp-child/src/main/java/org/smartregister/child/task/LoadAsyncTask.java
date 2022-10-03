@@ -2,7 +2,6 @@ package org.smartregister.child.task;
 
 import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
 
-import android.os.AsyncTask;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -37,6 +36,7 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppExecutorService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +46,8 @@ import java.util.Map;
 
 import timber.log.Timber;
 
-public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
+public class LoadAsyncTask implements OnTaskExecutedActions<Map<String, NamedObject<?>>> {
+
     private final Menu overflow;
     private final org.smartregister.child.enums.Status status;
     private boolean fromUpdateStatus = false;
@@ -60,6 +61,7 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
             .getProperty(ChildAppProperties.KEY.SHOW_EXTRA_VACCINES, "false"));
     public final boolean showBoosterImmunizations = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
             .getProperty(ChildAppProperties.KEY.SHOW_BOOSTER_IMMUNIZATIONS, "false"));
+    private AppExecutorService appExecutors;
 
     public LoadAsyncTask(Map<String, String> detailsMap, CommonPersonObjectClient childDetails, BaseChildDetailTabbedActivity activity, BaseChildRegistrationDataFragment childDataFragment, ChildUnderFiveFragment childUnderFiveFragment, Menu overflow) {
         this.status = org.smartregister.child.enums.Status.NONE;
@@ -102,93 +104,114 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
     }
 
     @Override
-    protected Map<String, NamedObject<?>> doInBackground(Void... params) {
-        updateBirthWeight();
-        Map<String, NamedObject<?>> map = new HashMap<>();
-
-        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
-            detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
-        }
-
-        NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
-        map.put(detailsNamedObject.name, detailsNamedObject);
-
-        List<Weight> weightList =
-                GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
-
-        NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
-        map.put(weightNamedObject.name, weightNamedObject);
-
-        if (monitorGrowth) {
-            List<Height> heightList =
-                    GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
-
-            NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
-            map.put(heightNamedObject.name, heightNamedObject);
-        }
-
-        VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
-        List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-
-        NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
-        map.put(vaccineNamedObject.name, vaccineNamedObject);
-
-        RecurringServiceTypeRepository recurringServiceTypeRepository =
-                ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
-        RecurringServiceRecordRepository recurringServiceRecordRepository =
-                ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
-
-        if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
-                && recurringServiceRecordRepository != null) {
-            List<ServiceRecord> serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
-            NamedObject<List<ServiceRecord>> serviceNamedObject =
-                    new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-            map.put(serviceNamedObject.name, serviceNamedObject);
-
-            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-            if (recurringServiceTypeRepository != null) {
-                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                for (ServiceType serviceType : serviceTypes) {
-                    String type = serviceType.getType();
-                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
-                    if (serviceTypeList == null) {
-                        serviceTypeList = new ArrayList<>();
-                    }
-                    serviceTypeList.add(serviceType);
-                    serviceTypeMap.put(type, serviceTypeList);
-                }
-            }
-
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
-                    new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
-        }
-
-        List<Alert> alertList = new ArrayList<>();
-        AlertService alertService = getOpenSRPContext().alertService();
-        if (alertService != null) {
-            alertList = alertService.findByEntityId(childDetails.entityId());
-        }
-
-        NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
-        map.put(alertNamedObject.name, alertNamedObject);
-
-        return map;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
+    public void onTaskStarted() {
         activity.runOnUiThread(() -> activity.showProgressDialog(activity.getString(R.string.refreshing), null));
     }
 
     @Override
-    protected void onPostExecute(Map<String, NamedObject<?>> map) {
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            Map<String, NamedObject<?>> map = getChildDetails();
+
+            appExecutors.mainThread().execute(() -> onTaskResult(map));
+        });
+    }
+
+    @Override
+    public void onTaskResult(Map<String, NamedObject<?>> map) {
+        updateActivity(map);
+    }
+
+    private Map<String, NamedObject<?>> getChildDetails() {
+        try {
+            Map<String, NamedObject<?>> map = new HashMap<>();
+
+            updateBirthWeight();
+
+            if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)
+                    && (!detailsMap.containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE)
+                    || AllConstants.TRUE.equalsIgnoreCase(detailsMap.get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE)))) {
+
+                detailsMap = ChildDbUtils.fetchChildDetails(childDetails.entityId());
+            }
+
+            NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
+            map.put(detailsNamedObject.name, detailsNamedObject);
+
+            List<Weight> weightList =
+                    GrowthMonitoringLibrary.getInstance().weightRepository().findLast5(childDetails.entityId());
+
+            NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
+            map.put(weightNamedObject.name, weightNamedObject);
+
+            if (monitorGrowth) {
+                List<Height> heightList =
+                        GrowthMonitoringLibrary.getInstance().heightRepository().findLast5(childDetails.entityId());
+
+                NamedObject<List<Height>> heightNamedObject = new NamedObject<>(Height.class.getName(), heightList);
+                map.put(heightNamedObject.name, heightNamedObject);
+            }
+
+            VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
+            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+
+            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+            map.put(vaccineNamedObject.name, vaccineNamedObject);
+
+            RecurringServiceTypeRepository recurringServiceTypeRepository =
+                    ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository =
+                    ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
+
+            if (Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
+                    .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"))
+                    && recurringServiceRecordRepository != null) {
+
+                List<ServiceRecord> serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+                NamedObject<List<ServiceRecord>> serviceNamedObject =
+                        new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+                map.put(serviceNamedObject.name, serviceNamedObject);
+
+                Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
+                if (recurringServiceTypeRepository != null) {
+                    List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                    for (ServiceType serviceType : serviceTypes) {
+                        String type = serviceType.getType();
+                        List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                        if (serviceTypeList == null) {
+                            serviceTypeList = new ArrayList<>();
+                        }
+                        serviceTypeList.add(serviceType);
+                        serviceTypeMap.put(type, serviceTypeList);
+                    }
+                }
+
+                NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject =
+                        new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+                map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+            }
+
+            List<Alert> alertList = new ArrayList<>();
+            AlertService alertService = getOpenSRPContext().alertService();
+            if (alertService != null) {
+                alertList = alertService.findByEntityId(childDetails.entityId());
+            }
+
+            NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+            map.put(alertNamedObject.name, alertNamedObject);
+
+            return map;
+        } catch (Exception e) {
+            Timber.e(e);
+            return null;
+        }
+    }
+
+    private void updateActivity(Map<String, NamedObject<?>> map) {
         updateBirthWeight();
 
         try {
-
             activateMenuItemByValue(overflow, R.id.register_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
             activateMenuItemByValue(overflow, R.id.verify_caregiver, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
             activateMenuItemByValue(overflow, R.id.write_passcode, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));

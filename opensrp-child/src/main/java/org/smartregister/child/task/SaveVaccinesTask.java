@@ -1,17 +1,23 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
 import android.view.View;
 
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
 import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.util.AppExecutorService;
 
-public class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Void> {
+import timber.log.Timber;
+
+public class SaveVaccinesTask implements OnTaskExecutedActions<TaskResult> {
+
     private View view;
     private BaseChildDetailTabbedActivity activity;
+    private AppExecutorService appExecutors;
+    private VaccineWrapper[] vaccineWrappers;
 
-    public SaveVaccinesTask(BaseChildDetailTabbedActivity activity) {
+    public SaveVaccinesTask(BaseChildDetailTabbedActivity activity, VaccineWrapper... vaccineWrappers) {
         this.activity = activity;
+        this.vaccineWrappers = vaccineWrappers;
     }
 
     public void setView(View view) {
@@ -19,20 +25,28 @@ public class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(VaccineWrapper... vaccineWrappers) {
-        for (VaccineWrapper tag : vaccineWrappers) {
-            activity.saveVaccine(tag);
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPreExecute() {
+    public void onTaskStarted() {
         activity.showProgressDialog();
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            try {
+                for (VaccineWrapper tag : this.vaccineWrappers) {
+                    activity.saveVaccine(tag);
+                }
+            } catch (Exception e) {
+                Timber.e(e);
+            }
+
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
+    }
+
+    @Override
+    public void onTaskResult(TaskResult result) {
         activity.hideProgressDialog();
         activity.updateVaccineGroupViews(view);
     }

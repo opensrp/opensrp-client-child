@@ -60,7 +60,6 @@ android {
     }
 
     compileOptions {
-
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -120,7 +119,7 @@ dependencies {
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
 
-    api('org.smartregister:opensrp-client-core:6.0.0-BETA2-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:6.0.0-BETA2-DEV-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'

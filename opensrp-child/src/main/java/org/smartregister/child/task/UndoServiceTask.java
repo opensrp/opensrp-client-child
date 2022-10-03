@@ -1,6 +1,7 @@
 package org.smartregister.child.task;
 
-import android.os.AsyncTask;
+import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+
 import android.view.View;
 
 import org.smartregister.child.R;
@@ -14,13 +15,13 @@ import org.smartregister.immunization.domain.ServiceSchedule;
 import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AppExecutorService;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.smartregister.login.task.RemoteLoginTask.getOpenSRPContext;
+public class UndoServiceTask implements OnTaskExecutedActions<TaskResult> {
 
-public class UndoServiceTask extends AsyncTask<Void, Void, Void> {
     private final View view;
     private final ServiceWrapper serviceWrapper;
     private List<ServiceRecord> serviceRecordList;
@@ -28,6 +29,7 @@ public class UndoServiceTask extends AsyncTask<Void, Void, Void> {
     private List<Alert> alertList;
     private BaseChildDetailTabbedActivity activity;
     private CommonPersonObjectClient childDetails;
+    private AppExecutorService appExecutors;
 
     public UndoServiceTask(ServiceWrapper serviceWrapper, View view, BaseChildDetailTabbedActivity activity, CommonPersonObjectClient childDetails) {
         this.serviceWrapper = serviceWrapper;
@@ -37,33 +39,36 @@ public class UndoServiceTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        if (serviceWrapper != null && serviceWrapper.getDbKey() != null) {
-            Long dbKey = serviceWrapper.getDbKey();
-            ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
-
-            serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
-                    .findByEntityId(childDetails.entityId());
-
-            wrappers = new ArrayList<>();
-            wrappers.add(serviceWrapper);
-
-            ServiceSchedule.updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
-
-            AlertService alertService = getOpenSRPContext().alertService();
-            alertList = alertService.findByEntityId(childDetails.entityId());
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPreExecute() {
+    public void onTaskStarted() {
         activity.showProgressDialog(activity.getString(R.string.updating_dialog_title), null);
     }
 
     @Override
-    protected void onPostExecute(Void params) {
-        super.onPostExecute(params);
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            if (serviceWrapper != null && serviceWrapper.getDbKey() != null) {
+                Long dbKey = serviceWrapper.getDbKey();
+                ImmunizationLibrary.getInstance().recurringServiceRecordRepository().deleteServiceRecord(dbKey);
+
+                serviceRecordList = ImmunizationLibrary.getInstance().recurringServiceRecordRepository()
+                        .findByEntityId(childDetails.entityId());
+
+                wrappers = new ArrayList<>();
+                wrappers.add(serviceWrapper);
+
+                ServiceSchedule.updateOfflineAlerts(serviceWrapper.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+
+                AlertService alertService = getOpenSRPContext().alertService();
+                alertList = alertService.findByEntityId(childDetails.entityId());
+            }
+
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
+    }
+
+    @Override
+    public void onTaskResult(TaskResult result) {
         activity.hideProgressDialog();
         serviceWrapper.setUpdatedVaccineDate(null, false);
         serviceWrapper.setDbKey(null);

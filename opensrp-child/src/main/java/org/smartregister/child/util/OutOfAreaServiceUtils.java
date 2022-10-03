@@ -1,5 +1,7 @@
 package org.smartregister.child.util;
 
+import static org.smartregister.util.Utils.getBooleanProperty;
+
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +31,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import timber.log.Timber;
-
-import static org.smartregister.util.Utils.getBooleanProperty;
 
 /**
  * Created by ndegwamartin on 10/10/2020.
@@ -123,7 +123,7 @@ public class OutOfAreaServiceUtils {
 
     public static void processOutOfAreaService(String outOfAreaJsonFormString, ChildRegisterContract.ProgressDialogCallback progressDialogCallback) {
         SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(outOfAreaJsonFormString, progressDialogCallback);
-        Utils.startAsyncTask(saveOutOfAreaServiceTask, null);
+        saveOutOfAreaServiceTask.execute();
     }
 
     public static Map<String, String> getOutOfAreaMetadata(JSONObject outOfAreaForm) throws JSONException {
@@ -188,7 +188,7 @@ public class OutOfAreaServiceUtils {
                         .withFormSubmissionId(UUID.randomUUID().toString())
                         .withDateCreated(new Date());
 
-                if(recurringServiceTypes != null) {
+                if (recurringServiceTypes != null) {
                     JSONArray value = recurringServiceTypes.getJSONArray(JsonFormConstants.VALUE);
                     List<String> list = new ArrayList<>();
                     for (int index = 0; index < value.length(); index++) {

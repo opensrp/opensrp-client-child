@@ -192,13 +192,12 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
             fillValue(viewHolder.patientName, StringUtils.capitalize(childName));
         }
 
-        String systemOfRegistration = Utils.getValue(pc.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION,false);
+        String systemOfRegistration = Utils.getValue(pc.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION, false);
 
-        if(systemOfRegistration != null) {
+        if (systemOfRegistration != null) {
             viewHolder.systemOfRegistration.setVisibility(View.VISIBLE);
             fillValue(viewHolder.systemOfRegistration, systemOfRegistration);
-        }
-        else
+        } else
             viewHolder.systemOfRegistration.setVisibility(View.GONE);
 
 
@@ -286,8 +285,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @VisibleForTesting
     protected void initiateViewUpdateTasks(@NonNull RegisterActionParams params) {
-        Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
-        Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
+        new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context).execute();
+        new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context).execute();
     }
 
     private void renderProfileImage(String entityId, String gender, ImageView profilePic) {

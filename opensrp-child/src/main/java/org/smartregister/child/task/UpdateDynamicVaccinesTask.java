@@ -16,6 +16,7 @@ import org.smartregister.domain.tag.FormTag;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.sync.helper.ECSyncHelper;
+import org.smartregister.util.AppExecutorService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,10 +27,11 @@ import timber.log.Timber;
 
 import static org.smartregister.util.Utils.getAllSharedPreferences;
 
-public class UpdateDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
+public class UpdateDynamicVaccinesTask implements OnTaskExecutedActions<TaskResult> {
 
     private final OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener;
     private final List<ExtraVaccineUpdateEvent> vaccineEvents;
+    private AppExecutorService appExecutors;
 
     public UpdateDynamicVaccinesTask(OnSaveDynamicVaccinesListener onSaveDynamicVaccinesListener,
                                      List<ExtraVaccineUpdateEvent> vaccineEvents) {
@@ -38,52 +40,59 @@ public class UpdateDynamicVaccinesTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        try {
-            ECSyncHelper syncHelper = ChildLibrary.getInstance().getEcSyncHelper();
-            List<String> submissionIds = new ArrayList<>();
-
-            for (ExtraVaccineUpdateEvent vaccineEvent : vaccineEvents) {
-                FormTag formTag = ChildJsonFormUtils.formTag(getAllSharedPreferences());
-                String eventType;
-
-                if (vaccineEvent.isRemoved()) {
-                    eventType = Constants.EventType.DELETE_DYNAMIC_VACCINES;
-                } else {
-                    eventType = Constants.EventType.UPDATE_DYNAMIC_VACCINES;
-                }
-
-                if (StringUtils.isNotBlank(eventType)) {
-
-                    Event baseEvent = ChildJsonFormUtils.createEvent(new JSONArray(), new JSONObject(),
-                            formTag, vaccineEvent.getEntityId(), eventType, eventType);
-
-                    baseEvent.setFormSubmissionId(UUID.randomUUID().toString());
-                    baseEvent.addDetails(Constants.KEY.VACCINE_DATE, vaccineEvent.getVaccineDate());
-                    baseEvent.addDetails(Constants.KEY.VACCINE, vaccineEvent.getVaccine());
-                    baseEvent.addDetails(Constants.KEY.BASE_ENTITY_ID, vaccineEvent.getEntityId());
-
-                    ChildJsonFormUtils.tagSyncMetadata(baseEvent);
-                    JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(baseEvent));
-                    submissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
-                    ChildLibrary.getInstance().getEcSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson);
-                    syncHelper.addEvent(baseEvent.getBaseEntityId(), eventJson, BaseRepository.TYPE_Unsynced);
-                }
-
-                Date lastSyncDate = new Date(getAllSharedPreferences().fetchLastUpdatedAtDate(0));
-                ChildLibrary.getInstance().getClientProcessorForJava().processClient(syncHelper.getEvents(submissionIds));
-                getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
-            }
-        } catch (Exception e) {
-            Timber.e(Log.getStackTraceString(e));
-        }
-
-        return null;
+    public void onTaskStarted() {
+        // notify on UI
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            try {
+                ECSyncHelper syncHelper = ChildLibrary.getInstance().getEcSyncHelper();
+                List<String> submissionIds = new ArrayList<>();
+
+                for (ExtraVaccineUpdateEvent vaccineEvent : vaccineEvents) {
+                    FormTag formTag = ChildJsonFormUtils.formTag(getAllSharedPreferences());
+                    String eventType;
+
+                    if (vaccineEvent.isRemoved()) {
+                        eventType = Constants.EventType.DELETE_DYNAMIC_VACCINES;
+                    } else {
+                        eventType = Constants.EventType.UPDATE_DYNAMIC_VACCINES;
+                    }
+
+                    if (StringUtils.isNotBlank(eventType)) {
+
+                        Event baseEvent = ChildJsonFormUtils.createEvent(new JSONArray(), new JSONObject(),
+                                formTag, vaccineEvent.getEntityId(), eventType, eventType);
+
+                        baseEvent.setFormSubmissionId(UUID.randomUUID().toString());
+                        baseEvent.addDetails(Constants.KEY.VACCINE_DATE, vaccineEvent.getVaccineDate());
+                        baseEvent.addDetails(Constants.KEY.VACCINE, vaccineEvent.getVaccine());
+                        baseEvent.addDetails(Constants.KEY.BASE_ENTITY_ID, vaccineEvent.getEntityId());
+
+                        ChildJsonFormUtils.tagSyncMetadata(baseEvent);
+                        JSONObject eventJson = new JSONObject(ChildJsonFormUtils.gson.toJson(baseEvent));
+                        submissionIds.add(eventJson.getString(EventClientRepository.event_column.formSubmissionId.toString()));
+                        ChildLibrary.getInstance().getEcSyncHelper().addEvent(baseEvent.getBaseEntityId(), eventJson);
+                        syncHelper.addEvent(baseEvent.getBaseEntityId(), eventJson, BaseRepository.TYPE_Unsynced);
+                    }
+
+                    Date lastSyncDate = new Date(getAllSharedPreferences().fetchLastUpdatedAtDate(0));
+                    ChildLibrary.getInstance().getClientProcessorForJava().processClient(syncHelper.getEvents(submissionIds));
+                    getAllSharedPreferences().saveLastUpdatedAtDate(lastSyncDate.getTime());
+                }
+            } catch (Exception e) {
+                Timber.e(Log.getStackTraceString(e));
+            }
+
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
+    }
+
+    @Override
+    public void onTaskResult(TaskResult result) {
         onSaveDynamicVaccinesListener.onUpdateDynamicVaccine();
     }
 }

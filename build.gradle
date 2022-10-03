@@ -75,7 +75,6 @@ buildDashboard {
 test.reports.html.enabled = false
 test.reports.junitXml.enabled = false
 
-
 def isReleaseBuild() {
     return version.contains("SNAPSHOT") == false
 }

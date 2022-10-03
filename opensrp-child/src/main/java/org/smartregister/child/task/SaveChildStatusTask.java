@@ -1,19 +1,22 @@
 package org.smartregister.child.task;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.IChildStatus;
+import org.smartregister.util.AppExecutorService;
+
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 01/09/2020.
  */
-public class SaveChildStatusTask extends AsyncTask<Void, Void, Void> {
+public class SaveChildStatusTask implements OnTaskExecutedActions<TaskResult> {
 
     private IChildStatus presenter;
     private Context context;
+    private AppExecutorService appExecutors;
 
     public SaveChildStatusTask(Context context, IChildStatus presenter) {
         this.presenter = presenter;
@@ -21,21 +24,27 @@ public class SaveChildStatusTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void onPreExecute() {
+    public void onTaskStarted() {
         presenter.getView().showProgressDialog(context.getResources().getString(R.string.updating_dialog_title), "");
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        presenter.activateChildStatus(ChildLibrary.getInstance().context(), presenter.getView().getChildDetails());
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            try {
+                presenter.activateChildStatus(ChildLibrary.getInstance().context(), presenter.getView().getChildDetails());
+            } catch (Exception e) {
+                Timber.e(e);
+            }
 
-        return null;
+            appExecutors.mainThread().execute(() -> onTaskResult(TaskResult.SUCCESS));
+        });
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    public void onTaskResult(TaskResult result) {
         presenter.getView().hideProgressDialog();
-        super.onPostExecute(aVoid);
         presenter.getView().updateViews();
     }
 }

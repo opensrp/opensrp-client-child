@@ -539,7 +539,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             childIdTV.setText(getString(R.string.formatted_label, getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
         }
 
-        Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
+        new GetSiblingsTask(childDetails, this).execute();
     }
 
     private void updateSystemOfRegistration() {
@@ -755,7 +755,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                 ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
                 getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
-                Utils.startAsyncTask(saveChildStatusTask, null);
+                saveChildStatusTask.execute();
             }
         });
         activateChildStatusFragmentDialog.setOnDismissListener(dialog -> dialogOpen = false);
@@ -1177,7 +1177,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
         updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActive);
 
-        growthChartButton.setOnClickListener(v -> Utils.startAsyncTask(new ShowGrowthChartTask(presenter, childDetails), null));
+        growthChartButton.setOnClickListener(v -> new ShowGrowthChartTask(presenter, childDetails).execute());
     }
 
     @VisibleForTesting
@@ -1419,8 +1419,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
     @Override
     public void onUndoVaccination(VaccineWrapper tag, View view) {
-
-        Utils.startAsyncTask(new UndoVaccineTask(presenter, tag, childDetails, getOpenSRPContext().alertService()), null);
+        new UndoVaccineTask(presenter, tag, childDetails, getOpenSRPContext().alertService()).execute();
     }
 
     @Override
@@ -1448,7 +1447,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         backgroundTask.setVaccineRepository(ImmunizationLibrary.getInstance().vaccineRepository());
         backgroundTask.setView(view);
         Utils.startAsyncTask(backgroundTask, arrayTags);
-
     }
 
     private void performRegisterActions() {

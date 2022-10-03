@@ -1,8 +1,9 @@
 package org.smartregister.child.task;
 
+import static org.smartregister.util.Utils.getValue;
+
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,17 +21,18 @@ import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.util.AppExecutorService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.lang.ref.WeakReference;
 
-import static org.smartregister.util.Utils.getValue;
+import timber.log.Timber;
 
 /**
  * Created by ndegwamartin on 05/03/2019.
  */
-public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonitoringViewRecordUpdateWrapper> {
+public class GrowthMonitoringAsyncTask implements OnTaskExecutedActions<GrowthMonitoringViewRecordUpdateWrapper> {
     private final WeakReference<View> convertView;
     private final String entityId;
     private final String lostToFollowUp;
@@ -45,6 +47,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
     private View.OnClickListener onClickListener;
     private boolean hasProperty;
     private boolean monitorGrowth = false;
+    private AppExecutorService appExecutors;
 
     public GrowthMonitoringAsyncTask(RegisterActionParams recordActionParams, CommonRepository commonRepository,
                                      WeightRepository weightRepository, HeightRepository heightRepository, Context context) {
@@ -67,36 +70,49 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
     }
 
     @Override
-    protected GrowthMonitoringViewRecordUpdateWrapper doInBackground(Void... params) {
+    public void onTaskStarted() {
+        // notify on UI
+    }
 
-        Weight weight = weightRepository.findUnSyncedByEntityId(entityId);
+    @Override
+    public void execute() {
+        appExecutors = new AppExecutorService();
+        appExecutors.executorService().execute(() -> {
+            GrowthMonitoringViewRecordUpdateWrapper wrapper = getGrowthMonitoringViewRecordUpdateWrapper();
 
-        if (hasProperty && monitorGrowth) {
-            height = heightRepository.findUnSyncedByEntityId(entityId);
-        }
+            appExecutors.mainThread().execute(() -> onTaskResult(wrapper));
+        });
+    }
 
+    @Override
+    public void onTaskResult(GrowthMonitoringViewRecordUpdateWrapper wrapper) {
+        updateRecordWeight(wrapper, updateOutOfCatchment);
+    }
+
+    private GrowthMonitoringViewRecordUpdateWrapper getGrowthMonitoringViewRecordUpdateWrapper() {
         GrowthMonitoringViewRecordUpdateWrapper wrapper = new GrowthMonitoringViewRecordUpdateWrapper();
-        wrapper.setWeight(weight);
-        if (hasProperty && monitorGrowth) {
-            wrapper.setHeight(height);
+
+        try {
+            Weight weight = weightRepository.findUnSyncedByEntityId(entityId);
+            wrapper.setWeight(weight);
+
+            if (hasProperty && monitorGrowth) {
+                height = heightRepository.findUnSyncedByEntityId(entityId);
+                wrapper.setHeight(height);
+            }
+
+            wrapper.setLostToFollowUp(lostToFollowUp);
+            wrapper.setInactive(inactive);
+            wrapper.setClient(client);
+            wrapper.setConvertView(convertView.get());
+        } catch (Exception e) {
+            Timber.e(e);
         }
-        wrapper.setLostToFollowUp(lostToFollowUp);
-        wrapper.setInactive(inactive);
-        wrapper.setClient(client);
-        wrapper.setConvertView(convertView.get());
 
         return wrapper;
     }
 
-    @Override
-    protected void onPostExecute(GrowthMonitoringViewRecordUpdateWrapper wrapper) {
-
-        updateRecordWeight(wrapper, updateOutOfCatchment);
-
-    }
-
     private void updateRecordWeight(GrowthMonitoringViewRecordUpdateWrapper updateWrapper, Boolean updateOutOfCatchment) {
-
         View recordGrowth = updateWrapper.getConvertView().findViewById(R.id.record_growth);
         TextView recordGrowthText = updateWrapper.getConvertView().findViewById(R.id.record_growth_text);
         ImageView recordGrowthCheck = updateWrapper.getConvertView().findViewById(R.id.record_growth_check);
@@ -110,16 +126,13 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
             String growthString;
             String heightString;
             if (hasProperty && monitorGrowth && updateWrapper.getHeight() != null) {
-
                 heightString = Utils.cmStringSuffix(updateWrapper.getHeight().getCm());
-
                 growthString = getGrowthMonitoringValues(heightString, weightString);
             } else {
                 growthString = weightString;
             }
 
             recordGrowthText.setText(growthString);
-
             recordGrowthCheck.setVisibility(View.VISIBLE);
             recordGrowth.setClickable(false);
             recordGrowth.setBackground(new ColorDrawable(context.get().getResources().getColor(android.R.color.transparent)));
@@ -142,8 +155,8 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
     }
 
     private String getGrowthMonitoringValues(String height, String weight) {
-        String seperator = !TextUtils.isEmpty(height) && !TextUtils.isEmpty(weight) ? ", " : "";
-        return weight + seperator + height;
+        String separator = !TextUtils.isEmpty(height) && !TextUtils.isEmpty(weight) ? ", " : "";
+        return weight + separator + height;
     }
 
     protected void updateViews(View catchmentView, SmartRegisterClient client) {
@@ -159,7 +172,6 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
             moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-
                 catchmentView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -178,11 +190,7 @@ public class GrowthMonitoringAsyncTask extends AsyncTask<Void, Void, GrowthMonit
                 recordWeight.setClickable(true);
                 recordWeight.setEnabled(true);
                 recordWeight.setOnClickListener(onClickListener);
-
             }
-
         }
     }
-
 }
-
