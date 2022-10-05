@@ -1,5 +1,8 @@
 package org.smartregister.child.activity;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -46,9 +49,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 @PrepareForTest({Utils.class, LocationHelper.class, CoreLibrary.class, TextUtils.class, ChildLibrary.class})
 @RunWith(PowerMockRunner.class)
@@ -233,7 +233,7 @@ public class BaseChildImmunizationActivityTest {
         childDetails.put(Constants.KEY.DOB, "1990-05-09");
         childDetails.put(Constants.KEY.BIRTH_HEIGHT, "48");
         childDetails.put(Constants.KEY.BIRTH_WEIGHT, "3.6");
-        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION,"MVACC");
+        childDetails.put(Constants.Client.SYSTEM_OF_REGISTRATION, "MVACC");
 
         CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("id-1", childDetails, Constants.KEY.CHILD);
         commonPersonObjectClient.setColumnmaps(childDetails);
@@ -273,13 +273,23 @@ public class BaseChildImmunizationActivityTest {
 
     @Test
     public void testConfigureFloatingActionBackgroundSetsItsVisibilityToVisible() {
+        ReflectionHelpers.setField(baseChildImmunizationActivity, "childDetails", getChildDetails());
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("Active").when(activity).getString(R.string.active);
+
         LinearLayout fab = Mockito.mock(LinearLayout.class);
         Mockito.doReturn(0).when(fab).getPaddingBottom();
         Mockito.doReturn(0).when(fab).getPaddingLeft();
         Mockito.doReturn(0).when(fab).getPaddingRight();
         Mockito.doReturn(0).when(fab).getPaddingTop();
-        baseChildImmunizationActivity.floatingActionButton = fab;
-        baseChildImmunizationActivity.configureFloatingActionBackground(0, null);
+
+        TextView fabText = Mockito.mock(TextView.class);
+        ImageView fabImage = Mockito.mock(ImageView.class);
+        Mockito.doReturn(fabText).when(fab).findViewById(R.id.fab_text);
+        Mockito.doReturn(fabImage).when(fab).findViewById(R.id.fab_image);
+
+        activity.floatingActionButton = fab;
+        activity.configureFloatingActionBackground(0, null);
 
         Mockito.verify(fab).setVisibility(View.VISIBLE);
     }
@@ -288,7 +298,7 @@ public class BaseChildImmunizationActivityTest {
     public void testGetChildsThirdPersonPronounReturnsHimForMaleGender() {
         HashMap<String, String> details = new HashMap<>();
         details.put("gender", "male");
-        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details, "name");
         TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
         Mockito.doReturn("him").when(activity).getString(R.string.him);
         String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
@@ -303,7 +313,7 @@ public class BaseChildImmunizationActivityTest {
         Mockito.doReturn("her")
                 .when(activity).getString(R.string.her);
         details.put("gender", "female");
-        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details,"name" );
+        CommonPersonObjectClient client = new CommonPersonObjectClient("caseId", details, "name");
         String pronoun = ReflectionHelpers.callInstanceMethod(activity, "getChildsThirdPersonPronoun",
                 ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
         Assert.assertEquals("her", pronoun);
