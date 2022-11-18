@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.CoreLibrary;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.child.ChildLibrary;
@@ -63,7 +64,8 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH)) {
             return retrieveRemoteClients(searchParameters);
         }
-        String paramString = "";
+
+        JSONObject jsonObject = new JSONObject();
         if (!searchParameters.isEmpty()) {
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
                 String key = entry.getKey();
@@ -74,19 +76,17 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
                 }
 
                 if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-                    value = urlEncode(value);
-                    String param = key.trim() + "=" + value.trim();
-                    if (StringUtils.isBlank(paramString)) {
-                        paramString = "?" + param;
-                    } else {
-                        paramString += "&" + param;
+                    try {
+                        jsonObject.put(key, value);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
 
             }
-            String uri = getDristhiConfiguration().dristhiBaseURL() + SEARCH_URL + paramString;
+            String uri = getDristhiConfiguration().dristhiBaseURL() + SEARCH_URL;
             Timber.i("Advance Search URI: %s ", uri);
-            return getHttpAgent().fetch(uri);
+            return getHttpAgent().post(uri, jsonObject.toString());
         }
         return new Response<>(ResponseStatus.failure, "[]");
     }
