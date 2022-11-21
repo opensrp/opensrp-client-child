@@ -168,7 +168,7 @@ public class ChildAdvancedSearchInteractorTest {
     @Test
     public void testGlobalSearchWhenUseNewAdvanceSearchApproachIsTrueAndOnlyChildParamsProvided() throws Exception {
 
-        String expectedChildClientSearchUri = "https://www.test-opensrp.smartregister.org/rest/client/search?name=Sylvia&birthdate=2015-02-10:2021-02-25&attribute=lost_to_follow_up:true&relationships=mother";
+        String expectedChildClientSearchBody = "{\"relationships\":\"mother\",\"birthdate\":\"2015-02-10:2021-02-25\",\"name\":\"Sylvia\",\"attribute\":\"lost_to_follow_up:true\"}";
 
         Method globalSearchMethod = ChildAdvancedSearchInteractor.class.getDeclaredMethod("globalSearch", Map.class);
         globalSearchMethod.setAccessible(true);
@@ -185,6 +185,7 @@ public class ChildAdvancedSearchInteractorTest {
 
         Response<String> childResponse = new Response<>(ResponseStatus.success, "[{\"zeir_id\":\"F2103003KL\",\"last_name\":\"Mwanza\",\"first_name\":\"Sylvia\"}]");
         PowerMockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(childResponse);
+        PowerMockito.when(httpAgent.post(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(childResponse);
 
         Mockito.doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH);
 
@@ -200,12 +201,12 @@ public class ChildAdvancedSearchInteractorTest {
 
         //Verify crucial method invocations
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(httpAgent, Mockito.atMostOnce()).fetch(stringArgumentCaptor.capture());
+        Mockito.verify(httpAgent, Mockito.atMostOnce()).post(ArgumentMatchers.anyString(), stringArgumentCaptor.capture());
 
         List<String> capturedParamValue = stringArgumentCaptor.getAllValues();
         Assert.assertNotNull(capturedParamValue);
         Assert.assertEquals(1, capturedParamValue.size());
-        Assert.assertEquals(expectedChildClientSearchUri, capturedParamValue.get(0));
+        Assert.assertEquals(expectedChildClientSearchBody, capturedParamValue.get(0));
 
         //Assert payload
         Assert.assertNotNull(response);
@@ -223,8 +224,7 @@ public class ChildAdvancedSearchInteractorTest {
     @Test
     public void testGlobalSearchWhenUseNewAdvanceSearchApproachIsTrueAndOnlyMotherParamsProvided() throws Exception {
 
-        String expectedMotherClientSearchUri = "https://www.test-opensrp.smartregister.org/rest/client/search?name=Madea&attribute=mother_guardian_number:+2546718880001&searchRelationship=mother";
-
+        String expectedMotherClientSearch = "{\"searchRelationship\":\"mother\",\"name\":\"Madea\",\"attribute\":\"mother_guardian_number:+2546718880001\"}";
         Method globalSearchMethod = ChildAdvancedSearchInteractor.class.getDeclaredMethod("globalSearch", Map.class);
         globalSearchMethod.setAccessible(true);
 
@@ -239,7 +239,7 @@ public class ChildAdvancedSearchInteractorTest {
         PowerMockito.when(interactor.getHttpAgent()).thenReturn(httpAgent);
 
         Response<String> motherResponse = new Response<>(ResponseStatus.success, "[{\"zeir_id\":\"M_F2103003KL\",\"last_name\":\"Madea\",\"first_name\":\"Momma\"}]");
-        PowerMockito.when(httpAgent.fetch(ArgumentMatchers.anyString())).thenReturn(motherResponse);
+        PowerMockito.when(httpAgent.post(Mockito.anyString(), Mockito.anyString())).thenReturn(motherResponse);
 
         Mockito.doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH);
 
@@ -252,12 +252,12 @@ public class ChildAdvancedSearchInteractorTest {
 
         //Verify crucial method invocations
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(httpAgent, Mockito.atMostOnce()).fetch(stringArgumentCaptor.capture());
+        Mockito.verify(httpAgent, Mockito.atMostOnce()).post(Mockito.anyString(),stringArgumentCaptor.capture());
 
         List<String> capturedParamValue = stringArgumentCaptor.getAllValues();
         Assert.assertNotNull(capturedParamValue);
         Assert.assertEquals(1, capturedParamValue.size());
-        Assert.assertEquals(expectedMotherClientSearchUri, capturedParamValue.get(0));
+        Assert.assertEquals(expectedMotherClientSearch, capturedParamValue.get(0));
 
         //Assert payload
         Assert.assertNotNull(response);
