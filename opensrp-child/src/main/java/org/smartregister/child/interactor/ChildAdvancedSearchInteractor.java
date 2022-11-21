@@ -94,34 +94,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return new Response<>(ResponseStatus.failure, "[]");
     }
 
-    // TODO delete this extracted GET request approach which is being used for reference
-    private Response<String> searchUsingOldApproachWithGetRequest(Map<String, String> searchParameters){
-        if (!searchParameters.isEmpty()) {
-            String paramString = "";
-            for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-
-                if (DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER.equals(key)) {
-                    key = DBConstants.KEY.MOTHER_CONTACT_PHONE_NUMBER;
-                }
-                if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-                    value = urlEncode(value);
-                    String param = key.trim() + "=" + value.trim();
-                    if (StringUtils.isBlank(paramString)) {
-                        paramString = "?" + param;
-                    } else {
-                        paramString += "&" + param;
-                    }
-                }
-
-            }
-            String uri = getDristhiConfiguration().dristhiBaseURL() + SEARCH_URL + paramString;
-            Timber.i("Advance Search URI: %s ", uri);
-            return getHttpAgent().fetch(uri);
-        }
-        return new Response<>(ResponseStatus.failure, "[]");
-    }
     /**
      * This method performs search using the endpoint rest/client/search. The query will search mother
      * and child separately and combine
