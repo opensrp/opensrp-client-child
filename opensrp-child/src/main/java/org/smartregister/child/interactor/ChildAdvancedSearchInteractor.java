@@ -64,9 +64,12 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH)) {
             return retrieveRemoteClients(searchParameters);
         }
+        return searchUsingOldApproachWithPostRequest(searchParameters);
+    }
 
-        JSONObject jsonObject = new JSONObject();
+    private Response<String> searchUsingOldApproachWithPostRequest(Map<String, String> searchParameters){
         if (!searchParameters.isEmpty()) {
+            JSONObject jsonObject = new JSONObject();
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -91,6 +94,34 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return new Response<>(ResponseStatus.failure, "[]");
     }
 
+    // TODO delete this extracted GET request approach which is being used for reference
+    private Response<String> searchUsingOldApproachWithGetRequest(Map<String, String> searchParameters){
+        if (!searchParameters.isEmpty()) {
+            String paramString = "";
+            for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                if (DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER.equals(key)) {
+                    key = DBConstants.KEY.MOTHER_CONTACT_PHONE_NUMBER;
+                }
+                if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+                    value = urlEncode(value);
+                    String param = key.trim() + "=" + value.trim();
+                    if (StringUtils.isBlank(paramString)) {
+                        paramString = "?" + param;
+                    } else {
+                        paramString += "&" + param;
+                    }
+                }
+
+            }
+            String uri = getDristhiConfiguration().dristhiBaseURL() + SEARCH_URL + paramString;
+            Timber.i("Advance Search URI: %s ", uri);
+            return getHttpAgent().fetch(uri);
+        }
+        return new Response<>(ResponseStatus.failure, "[]");
+    }
     /**
      * This method performs search using the endpoint rest/client/search. The query will search mother
      * and child separately and combine
@@ -99,14 +130,26 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
      * @return Payload string of the response of search
      */
     private Response<String> retrieveRemoteClients(Map<String, String> searchParameters) {
-        SearchMother searchMother = new SearchMother(searchParameters).invoke();
+        SearchMother searchMother = null;
+        try {
+            searchMother = new SearchMother(searchParameters).invoke();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        assert searchMother != null;
         Response<String> motherSearchResult = searchMother.getMotherSearchResult();
 
-        String childSearchParameters = generateChildSearchParameters(searchParameters);
-        if (StringUtils.isNotBlank(childSearchParameters)) {
+        JSONObject childSearchJSONObject = null;
+        try {
+            childSearchJSONObject = generateChildSearchParameters(searchParameters);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        assert childSearchJSONObject != null;
+        if (childSearchJSONObject.length()>0) {
             String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
-            Timber.i("Child Search URI: %s%s", searchEndpoint, childSearchParameters);
-            Response<String> childSearchResults = getHttpAgent().fetch(searchEndpoint + childSearchParameters);
+            Timber.i("Child Search URI: %s%s", searchEndpoint, childSearchJSONObject.toString());
+            Response<String> childSearchResults = getHttpAgent().post(searchEndpoint, childSearchJSONObject.toString());
             if (childSearchResults.status() == ResponseStatus.success && motherSearchResult != null && motherSearchResult.status() == ResponseStatus.success) {
                 try {
                     JSONArray mothersJsonArray = new JSONArray(motherSearchResult.payload());
@@ -132,18 +175,16 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         return motherGuardianNumber;
     }
 
-    private String generateChildSearchParameters(Map<String, String> searchParameters) {
+    private JSONObject generateChildSearchParameters(Map<String, String> searchParameters) throws JSONException {
         removeMotherSearchParameters(searchParameters);
 
-        StringBuilder queryParamStringBuilder = new StringBuilder();
-
         String identifier = searchParameters.remove(Constants.KEY.ZEIR_ID);
-
         //Search by ZEIR id and include mother relationship when identifier is provided
+        JSONObject jsonObject = new JSONObject();
         if (StringUtils.isNotBlank(identifier)) {
-            queryParamStringBuilder.append("?identifier=").append(identifier);
-            queryParamStringBuilder.append("&relationships=mother");
-            return queryParamStringBuilder.toString();
+            jsonObject.put("identifier", identifier);
+            jsonObject.put("relationships", "mother");
+            return jsonObject;
         }
 
         //Handle name param - use either firs/last name //TODO server does not support full name
@@ -152,46 +193,45 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         name = StringUtils.isNotBlank(name) ? name : lastname;
 
         if (StringUtils.isNotBlank(name)) {
-            queryParamStringBuilder.append("?name=").append(name);
+            jsonObject.put("name", name);
         }
 
         //Handle birth dates param
-        String birthDate = getChildBirthDateParameter(searchParameters, name);
+        String birthDate = getChildBirthDateParameter(searchParameters);
 
         if (StringUtils.isNotBlank(birthDate)) {
-            queryParamStringBuilder.append(birthDate);
+            jsonObject.put("birthdate", birthDate);
         }
 
         //Handle other client attributes
-        String formattedAttributes = getChildClientAttributes(searchParameters, queryParamStringBuilder,
-                StringUtils.isNotBlank(name) || StringUtils.isNotBlank(birthDate));
-        if (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(birthDate) || StringUtils.isNotBlank(formattedAttributes)) {
-            queryParamStringBuilder.append("&relationships=mother");
+        String formattedAttributes = getChildClientAttributes(searchParameters);
+        if (StringUtils.isNotBlank(formattedAttributes)) {
+            jsonObject.put("attribute", formattedAttributes);
         }
-        return queryParamStringBuilder.toString();
+        if (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(birthDate) || StringUtils.isNotBlank(formattedAttributes)) {
+            jsonObject.put("relationships", "mother");
+        }
+        return jsonObject;
     }
 
     @NotNull
-    private String getChildBirthDateParameter(Map<String, String> searchParameters, String name) {
+    private String getChildBirthDateParameter(Map<String, String> searchParameters) {
         String birthDate = "";
         String birthDatesString = searchParameters.remove(Constants.KEY.BIRTH_DATE);
 
         String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
-        if (birthDates != null && birthDates.length == 2 && StringUtils.isNotBlank(name)) {
-            birthDate = String.format("&birthdate=%s:%s", birthDates[0], birthDates[1]);
-        } else if (birthDates != null && birthDates.length == 2 && StringUtils.isBlank(name)) {
+        if (birthDates != null && birthDates.length == 2 ) {
             birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
         }
-
         return birthDate;
     }
 
     @Nullable
-    private String getChildClientAttributes(Map<String, String> searchParameters, StringBuilder queryParamStringBuilder, boolean nameBirthDateAttributesPresent) {
+    private String getChildClientAttributes(Map<String, String> searchParameters) {
         StringBuilder clientAttributes = new StringBuilder();
         for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
             String key = entry.getKey();
-            String value = urlEncode(entry.getValue());
+            String value = entry.getValue();
             if (key.equalsIgnoreCase(Constants.CHILD_STATUS.ACTIVE) && value.equalsIgnoreCase("true") ||
                     key.equalsIgnoreCase(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) && value.equalsIgnoreCase("false") ||
                     key.equalsIgnoreCase(Constants.CHILD_STATUS.INACTIVE) && value.equalsIgnoreCase("false")) {
@@ -204,11 +244,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (StringUtils.isNotBlank(clientAttributes)) {
             formattedAttributes = clientAttributes.toString().replaceAll(",$", "").trim();
         }
-        if (StringUtils.isNotBlank(formattedAttributes) && nameBirthDateAttributesPresent) {
-            queryParamStringBuilder.append("&attribute=").append(formattedAttributes);
-        } else if (StringUtils.isNotBlank(formattedAttributes) && !nameBirthDateAttributesPresent) {
-            queryParamStringBuilder.append("?attribute=").append(formattedAttributes);
-        }
+
         return formattedAttributes;
     }
 
@@ -257,30 +293,29 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             return motherSearchResult;
         }
 
-        public SearchMother invoke() {
+        public SearchMother invoke() throws JSONException {
+            JSONObject jsonObject = new JSONObject();
             String searchEndpoint = getDristhiConfiguration().dristhiBaseURL() + NEW_ADVANCE_SEARCH_URL;
-            String motherSearchParameters = "";
 
             String name = searchParameters.remove(Constants.KEY.MOTHER_FIRST_NAME);
             String lastname = searchParameters.remove(Constants.KEY.MOTHER_LAST_NAME);
             name = StringUtils.isNotBlank(name) ? name : lastname;
 
             if (StringUtils.isNotBlank(name)) {
-                motherSearchParameters = String.format("?name=%s", name);
+                jsonObject.put("name", name);
             }
 
             String phoneNumber = searchParameters.remove(getMotherGuardianPhoneNumber());
-            if (StringUtils.isNotBlank(motherSearchParameters) && StringUtils.isNotBlank(phoneNumber)) {
-                motherSearchParameters = String.format("%s&attribute=%s:%s", motherSearchParameters, getMotherGuardianPhoneNumber(), phoneNumber);
-            } else if (StringUtils.isBlank(motherSearchParameters) && StringUtils.isNotBlank(phoneNumber)) {
-                motherSearchParameters = String.format("?attribute=%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
+            if(StringUtils.isNotBlank(phoneNumber)){
+                String attribute = String.format("%s:%s", getMotherGuardianPhoneNumber(), phoneNumber);
+                jsonObject.put("attribute", attribute);
+            }
+            if(jsonObject.length() > 0){
+                jsonObject.put("searchRelationship", Constants.KEY.MOTHER);
+                motherSearchResult = getHttpAgent().post(searchEndpoint, jsonObject.toString());
+                Timber.i("Mother Search URI: %s%s", searchEndpoint, jsonObject.toString());
             }
 
-            if (StringUtils.isNotBlank(motherSearchParameters)) {
-                motherSearchParameters = String.format("%s&searchRelationship=%s", motherSearchParameters, Constants.KEY.MOTHER);
-                motherSearchResult = getHttpAgent().fetch(searchEndpoint + motherSearchParameters);
-                Timber.i("Mother Search URI: %s%s", searchEndpoint, motherSearchParameters);
-            }
             return this;
         }
     }
