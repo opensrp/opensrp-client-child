@@ -112,11 +112,15 @@ public class ChildAdvancedSearchInteractorTest {
         ChildAdvancedSearchInteractor interactor = Mockito.spy(ChildAdvancedSearchInteractor.class);
         PowerMockito.when(interactor.getHttpAgent()).thenReturn(httpAgent);
 
+
+        String expectedMotherClientSearchBody = "{\"searchRelationship\":\"mother\",\"name\":\"Momma\",\"attribute\":\"mother_guardian_number:+2546718880001\"}";
+        String expectedChildClientSearchBody = "{\"identifier\":\"F2103003K\",\"relationships\":\"mother\"}";
+
         Response<String> motherResponse = new Response<>(ResponseStatus.success, "[{\"zeir_id\":\"M_F2103003KL\",\"last_name\":\"Madea\",\"first_name\":\"Momma\"}]");
-        PowerMockito.when(httpAgent.post(Mockito.anyString(), Mockito.anyString())).thenReturn(motherResponse);
+        PowerMockito.when(httpAgent.post(Mockito.eq(searchUri), Mockito.eq(expectedMotherClientSearchBody))).thenReturn(motherResponse);
 
         Response<String> childResponse = new Response<>(ResponseStatus.success, "[{\"zeir_id\":\"F2103003KL\",\"last_name\":\"Mwanza\",\"first_name\":\"Sylvia\"},{\"zeir_id\":\"F2103003K\",\"last_name\":\"Banda\",\"first_name\":\"Sylvia\"}]");
-        PowerMockito.when(httpAgent.post(Mockito.anyString(), Mockito.anyString())).thenReturn(childResponse);
+        PowerMockito.when(httpAgent.post(Mockito.eq(searchUri), Mockito.eq(expectedChildClientSearchBody))).thenReturn(childResponse);
 
         Mockito.doReturn(true).when(appProperties).isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH);
 
@@ -138,9 +142,7 @@ public class ChildAdvancedSearchInteractorTest {
         List<String> capturedParamValue = stringArgumentCaptor.getAllValues();
         Assert.assertNotNull(capturedParamValue);
         Assert.assertEquals(2, capturedParamValue.size());
-        String expectedMotherClientSearchBody = "{\"searchRelationship\":\"mother\",\"name\":\"Momma\",\"attribute\":\"mother_guardian_number:+2546718880001\"}";
         Assert.assertEquals(expectedMotherClientSearchBody, capturedParamValue.get(0));
-        String expectedChildClientSearchBody = "{\"identifier\":\"F2103003K\",\"relationships\":\"mother\"}";
         Assert.assertEquals(expectedChildClientSearchBody, capturedParamValue.get(1));
 
         //Assert payload

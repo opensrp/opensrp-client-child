@@ -221,7 +221,7 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
 
         String[] birthDates = birthDatesString != null ? birthDatesString.split(":") : new String[]{};
         if (birthDates != null && birthDates.length == 2 ) {
-            birthDate = String.format("?birthdate=%s:%s", birthDates[0], birthDates[1]);
+            birthDate = String.format("%s:%s", birthDates[0], birthDates[1]);
         }
         return birthDate;
     }
