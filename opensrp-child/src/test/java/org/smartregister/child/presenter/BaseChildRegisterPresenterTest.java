@@ -203,7 +203,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
 
         baseChildRegisterPresenter.closeChildRecord(jsonString);
 
-        Mockito.verify(interactorSpy, Mockito.times(1)).removeChildFromRegister(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(interactorSpy, Mockito.times(1)).removeChildFromRegister(Mockito.any(), Mockito.any());
     }
 
     @Test
