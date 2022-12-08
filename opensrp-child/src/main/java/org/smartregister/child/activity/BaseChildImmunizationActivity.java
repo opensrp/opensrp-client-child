@@ -114,6 +114,7 @@ import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -124,7 +125,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
@@ -989,7 +989,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         LinearLayout parent;
         int groupParentId = canvasId;
         if (groupParentId == -1) {
-            Random r = new Random();
+            SecureRandom r = new SecureRandom();
             groupParentId = r.nextInt(RANDOM_MAX_RANGE - RANDOM_MIN_RANGE) + RANDOM_MIN_RANGE;
             parent = new LinearLayout(this);
             parent.setId(groupParentId);
