@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -120,58 +119,37 @@ public class StatusEditDialogFragment extends DialogFragment {
             lostToFollowUpImageView.setVisibility(View.INVISIBLE);
         }
 
-        activeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateView updateView = new UpdateView(STATUS.ACTIVE, listener, details);
-                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
+        activeLayout.setOnClickListener(v -> {
+            UpdateView updateView = new UpdateView(STATUS.ACTIVE, listener, details);
+            updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                Utils.startAsyncTask(updateView, null);
+            Utils.startAsyncTask(updateView, null);
 
-            }
         });
 
-        inactiveLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateView updateView = new UpdateView(STATUS.IN_ACTIVE, listener, details);
-                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
+        inactiveLayout.setOnClickListener(v -> {
+            UpdateView updateView = new UpdateView(STATUS.IN_ACTIVE, listener, details);
+            updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                Utils.startAsyncTask(updateView, null);
-            }
+            Utils.startAsyncTask(updateView, null);
         });
 
-        lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateView updateView = new UpdateView(STATUS.LOST_TO_FOLLOW_UP, listener, details);
-                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
+        lostToFollowUpLayout.setOnClickListener(v -> {
+            UpdateView updateView = new UpdateView(STATUS.LOST_TO_FOLLOW_UP, listener, details);
+            updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                Utils.startAsyncTask(updateView, null);
-            }
+            Utils.startAsyncTask(updateView, null);
         });
 
-        childArchiveRecordLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AppThemeAlertDialog)
-                        .setTitle(R.string.child_archive_record_text)
-                        .setCancelable(true)
-                        .setMessage(R.string.child_archive_dialog_title)
-                        .setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                archiveChildRecord(details);
-                            }
-                        }).setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).create();
+        childArchiveRecordLayout.setOnClickListener(v -> {
+            AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AppThemeAlertDialog)
+                    .setTitle(R.string.child_archive_record_text)
+                    .setCancelable(true)
+                    .setMessage(R.string.child_archive_dialog_title)
+                    .setNegativeButton(R.string.yes, (dialog1, which) -> archiveChildRecord(details))
+                    .setPositiveButton(R.string.no, (dialog12, which) -> dialog12.dismiss()).create();
 
-                dialog.show();
-            }
+            dialog.show();
         });
 
 

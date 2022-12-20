@@ -4,33 +4,31 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.AppProperties;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = 27)
-public class AdvanceSearchDatePickerDialogTest {
+public class AdvanceSearchDatePickerDialogTest extends BaseUnitTest {
 
     private AdvanceSearchDatePickerDialog datePickerDialog;
+    private AppCompatActivity startActivity;
 
     @Before
     public void setUp() {
-        AppCompatActivity startActivity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        startActivity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
         ChildLibrary childLibrary = Mockito.mock(ChildLibrary.class);
         Context context = Mockito.mock(Context.class);
         AllSharedPreferences allSharedPreferences = Mockito.mock(AllSharedPreferences.class);
-        AppProperties appProperties = Mockito.spy(AppProperties.class);
+        AppProperties appProperties = Mockito.mock(AppProperties.class);
         Mockito.doReturn(context).when(childLibrary).context();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
@@ -43,5 +41,12 @@ public class AdvanceSearchDatePickerDialogTest {
     public void testGetDatePickerDialog() {
         datePickerDialog.showDialog();
         Assert.assertNotNull(datePickerDialog.getDatePickerDialog());
+    }
+
+    @After
+    public void tearDown() {
+        startActivity.finish();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        datePickerDialog = null;
     }
 }

@@ -64,6 +64,13 @@ public class BaseChildFormActivityTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+
+        try {
+            childFormActivity.finish();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Test

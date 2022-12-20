@@ -7,9 +7,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +50,16 @@ public class ExtraVaccineEditDialogFragmentTest {
         extraVaccineFragment = ExtraVaccineEditDialogFragment.newInstance();
     }
 
+    @After
+    public void tearDown(){
+        try {
+            activity.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
-    @Ignore("TODO: Resolve out of memory error")
     public void testThatViewsAreInitializedCorrectly() {
 
         initFragment();
@@ -72,7 +80,6 @@ public class ExtraVaccineEditDialogFragmentTest {
     }
 
     @Test
-    @Ignore("TODO: Resolve out of memory error")
     public void testButtonClicks() {
         initFragment();
 

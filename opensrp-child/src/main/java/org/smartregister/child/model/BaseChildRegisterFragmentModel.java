@@ -44,12 +44,12 @@ public abstract class BaseChildRegisterFragmentModel implements ChildRegisterFra
 
     @Override
     public String countSelect(String mainCondition) {
-        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery("count(1)") + " where " + mainCondition;
+        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery("count(1)") + " WHERE " + mainCondition;
     }
 
     @Override
     public String mainSelect(String mainCondition) {
-        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " where " + mainCondition;
+        return Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + " WHERE " + mainCondition;
     }
 
     @Override

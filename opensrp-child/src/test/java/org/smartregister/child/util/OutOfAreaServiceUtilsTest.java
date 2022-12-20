@@ -116,7 +116,7 @@ public class OutOfAreaServiceUtilsTest extends BasePowerMockUnitTest {
         metadata = OutOfAreaServiceUtils.getOutOfAreaMetadata(new JSONObject(outOfAreaForm));
         Assert.assertNotNull(metadata);
         Assert.assertEquals("10-10-2017", metadata.get(Constants.KEY.OA_SERVICE_DATE));
-        Assert.assertEquals("c_08626625555522222", metadata.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+        Assert.assertEquals("c_8626625555522222", metadata.get(Constants.KEY.NFC_CARD_IDENTIFIER));
     }
 
     @Test

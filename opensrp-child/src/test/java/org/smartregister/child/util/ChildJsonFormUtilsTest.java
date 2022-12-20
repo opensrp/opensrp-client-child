@@ -1,5 +1,9 @@
 package org.smartregister.child.util;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.smartregister.util.JsonFormUtils.FIELDS;
+import static org.smartregister.util.JsonFormUtils.STEP1;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -67,10 +71,10 @@ import org.smartregister.repository.Repository;
 import org.smartregister.repository.UniqueIdRepository;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.sync.ClientProcessorForJava;
-import org.smartregister.sync.CloudantDataHandler;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 import org.smartregister.util.CredentialsHelper;
+import org.smartregister.util.EasyMap;
 import org.smartregister.util.JsonFormUtils;
 import org.smartregister.view.LocationPickerView;
 import org.smartregister.view.activity.BaseProfileActivity;
@@ -91,10 +95,6 @@ import java.util.Map;
 import java.util.Set;
 
 import id.zelory.compressor.Compressor;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.smartregister.util.JsonFormUtils.FIELDS;
-import static org.smartregister.util.JsonFormUtils.STEP1;
 
 @PrepareForTest({CredentialsHelper.class})
 public class ChildJsonFormUtilsTest extends BaseUnitTest {
@@ -191,9 +191,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
     @Spy
     private AppProperties appProperties;
-
-    @Mock
-    private CloudantDataHandler cloudantDataHandler;
 
     private static final String TEST_BASE_URL = "https://abc.def";
 
@@ -794,7 +791,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", null);
     }
 
     @Test
@@ -1048,7 +1044,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ChildEventClient base = new ChildEventClient(new Client(entityId), new Event());
 
-        ChildEventClient childEventClient = ChildJsonFormUtils.processMotherRegistrationForm(jsonForm, relationalId, base);
+        ChildEventClient childEventClient = ChildJsonFormUtils.processMotherRegistrationForm(jsonForm, relationalId, base, false);
 
         Assert.assertNotNull(childEventClient);
         Assert.assertNotNull(childEventClient.getClient());
@@ -1084,7 +1080,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ChildEventClient base = new ChildEventClient(new Client(entityId), new Event());
 
-        ChildEventClient childEventClient = ChildJsonFormUtils.processFatherRegistrationForm(jsonForm, relationalId, base);
+        ChildEventClient childEventClient = ChildJsonFormUtils.processFatherRegistrationForm(jsonForm, relationalId, base, false);
         Assert.assertNull(childEventClient);
     }
 
@@ -1133,7 +1129,6 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        ReflectionHelpers.setStaticField(CloudantDataHandler.class, "instance", cloudantDataHandler);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
         Mockito.when(context.getApplicationContext()).thenReturn(RuntimeEnvironment.application.getApplicationContext());
@@ -1797,5 +1792,115 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
         Assert.assertEquals(treatment, event.getObs().get(0).getValue());
         Assert.assertEquals(nextAppointment, event.getObs().get(1).getValue());
 
+    }
+
+    @Test
+    public void testUpdateClientAttributeGeneratesUpdateBirthRegistrationEventCorrectly() throws Exception {
+        Mockito.doReturn(sqLiteDatabase).when(repository).getWritableDatabase();
+        Mockito.doReturn(sqLiteDatabase).when(repository).getReadableDatabase();
+        Mockito.doReturn(repository).when(childLibrary).getRepository();
+        Mockito.doReturn(openSrpContext).when(coreLibrary).context();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+        ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
+
+        Mockito.doReturn(clientProcessorForJava).when(childLibrary).getClientProcessorForJava();
+        Mockito.doReturn(ecSyncHelper).when(childLibrary).getEcSyncHelper();
+
+        String attributeName = "Child_Status";
+        String attributeValue = "Inactive";
+        String oldAttributValue = "Lost to follow up";
+        String baseEntityId = "b8798571-dee6-43b5-a289-fc75ab703792";
+        ChildMetadata metadata = new ChildMetadata(BaseChildFormActivity.class, null, null, null, true, new RegisterQueryProvider());
+        Mockito.when(childLibrary.metadata()).thenReturn(metadata);
+
+        JSONObject client = new JSONObject();
+        client.put("baseEntityId", baseEntityId);
+        JSONObject clientAttributes = new JSONObject();
+        clientAttributes.put(attributeName, oldAttributValue);
+        client.put(ChildJsonFormUtils.attributes, clientAttributes);
+
+        Mockito.doReturn("demo").when(allSharedPreferences).fetchRegisteredANM();
+        Mockito.doReturn(allSharedPreferences).when(openSrpContext).allSharedPreferences();
+        Mockito.doReturn(client).when(eventClientRepository).getClientByBaseEntityId(baseEntityId);
+        Mockito.doReturn(eventClientRepository).when(openSrpContext).getEventClientRepository();
+        Mockito.doReturn(eventClientRepository).when(childLibrary).eventClientRepository();
+        Mockito.doNothing().when(eventClientRepository).addorUpdateClient(ArgumentMatchers.endsWith(baseEntityId), ArgumentMatchers.any(JSONObject.class));
+
+        Mockito.doReturn("My Location").when(allSharedPreferences).fetchCurrentLocality();
+
+
+        //Verify client details updated correctly on device
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put("baseEntityId", baseEntityId);
+        childDetails.put("first_name", "Alaine");
+        childDetails.put("last_name", "Nasenyana");
+        childDetails.put(attributeName, oldAttributValue);
+
+        ArrayList<HashMap<String, String>> dbRecords = new ArrayList<>();
+        dbRecords.add(childDetails);
+
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient(baseEntityId, childDetails, "child");
+        commonPersonObjectClient.setColumnmaps(childDetails);
+
+        Mockito.doReturn(dbRecords).when(eventClientRepository).rawQuery(ArgumentMatchers.any(SQLiteDatabase.class), anyString());
+
+        ChildJsonFormUtils.updateClientAttribute(openSrpContext, commonPersonObjectClient, EasyMap.mapOf(attributeName, attributeValue));
+
+        ArgumentCaptor<String> tableArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        ArgumentCaptor<ContentValues> queryParamsArgumentCaptor = ArgumentCaptor.forClass(ContentValues.class);
+
+        ArgumentCaptor<String> filterArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        ArgumentCaptor<String[]> filterArgumentsCaptor = ArgumentCaptor.forClass(String[].class);
+
+        Mockito.verify(sqLiteDatabase, Mockito.times(1)).update(tableArgumentCaptor.capture(), queryParamsArgumentCaptor.capture(), filterArgumentCaptor.capture(), filterArgumentsCaptor.capture());
+
+        String table = tableArgumentCaptor.getValue();
+
+        Assert.assertNotNull(table);
+        Assert.assertEquals("ec_child_details", table);
+
+        String filterArgumentCaptorValue = filterArgumentCaptor.getValue();
+
+        Assert.assertNotNull(filterArgumentCaptorValue);
+        Assert.assertEquals("base_entity_id= ?", filterArgumentCaptorValue);
+
+        String[] filterArgumentsCaptorValue = filterArgumentsCaptor.getValue();
+
+        Assert.assertNotNull(filterArgumentsCaptorValue);
+        Assert.assertEquals(1, filterArgumentsCaptorValue.length);
+        Assert.assertEquals(baseEntityId, filterArgumentsCaptorValue[0]);
+
+        ContentValues contentValues = queryParamsArgumentCaptor.getValue();
+
+        Assert.assertNotNull(contentValues);
+        Assert.assertEquals("child_status=Inactive", contentValues.toString());
+
+
+        //Verify Client document is generated correctly
+        ArgumentCaptor<JSONObject> updatedClientArgCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        ArgumentCaptor<String> baseEntityIdArgCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(eventClientRepository).addorUpdateClient(baseEntityIdArgCaptor.capture(), updatedClientArgCaptor.capture());
+
+        JSONObject updatedClient = updatedClientArgCaptor.getValue();
+        Assert.assertNotNull(updatedClient);
+        Assert.assertEquals(baseEntityId, client.getString("baseEntityId"));
+        Assert.assertTrue(updatedClient.has(ChildJsonFormUtils.attributes));
+        Assert.assertEquals("{\"Child_Status\":\"Inactive\"}", updatedClient.getString(ChildJsonFormUtils.attributes));
+
+
+        //Verify update Event document is generated correctly
+        ArgumentCaptor<JSONObject> updatedEventArgCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        ArgumentCaptor<String> baseEntityIdArgCaptor2 = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(eventClientRepository).addEvent(baseEntityIdArgCaptor2.capture(), updatedEventArgCaptor.capture());
+
+        JSONObject updatedEvent = updatedEventArgCaptor.getValue();
+        Assert.assertNotNull(updatedEvent);
+        Assert.assertEquals(baseEntityId, updatedEvent.getString("baseEntityId"));
+        Assert.assertEquals("Event", updatedEvent.getString("type"));
+        Assert.assertEquals("Update Birth Registration", updatedEvent.getString("eventType"));
+        Assert.assertEquals("demo", updatedEvent.getString("providerId"));
     }
 }

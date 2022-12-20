@@ -90,6 +90,17 @@ public class ChildLibraryTest {
 
     }
 
+    @Test
+    public void testGetEventClientRepositoryNotNull() {
+        Mockito.doReturn(RuntimeEnvironment.application).when(context).applicationContext();
+
+        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary childLibrary = ChildLibrary.getInstance();
+
+        Assert.assertNotNull(childLibrary);
+        Assert.assertNotNull(childLibrary.eventClientRepository());
+    }
+
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);

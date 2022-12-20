@@ -2,6 +2,7 @@ package org.smartregister.child.fragment;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,9 +33,26 @@ public class StatusEditDialogFragmentTest extends BaseUnitTest {
 
     private StatusEditDialogFragment fragment;
 
+    private AppCompatActivity appCompatActivity;
+
+    private TestAppCompactActivity testAppCompactActivity;
+
+
     @Before
     public void setUp() {
+        appCompatActivity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
+        testAppCompactActivity = Robolectric.buildActivity(TestAppCompactActivity.class).create().start().get();
         MockitoAnnotations.initMocks(this);
+    }
+
+    @After
+    public void tearDown(){
+        try {
+            appCompatActivity.finish();
+            testAppCompactActivity.finish();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -60,8 +78,7 @@ public class StatusEditDialogFragmentTest extends BaseUnitTest {
 
         assertNull(Whitebox.getInternalState(fragment, "listener"));
 
-        TestAppCompactActivity activity = Robolectric.buildActivity(TestAppCompactActivity.class).create().start().get();
-        fragment.show(activity.getFragmentManager(), "DIALOG_TAG");
+        fragment.show(testAppCompactActivity.getFragmentManager(), "DIALOG_TAG");
 
         assertNotNull(Whitebox.getInternalState(fragment, "listener"));
     }
@@ -77,8 +94,7 @@ public class StatusEditDialogFragmentTest extends BaseUnitTest {
 
         assertNull(Whitebox.getInternalState(fragment, "listener"));
 
-        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
-        fragment.show(activity.getFragmentManager(), "DIALOG_TAG");
+        fragment.show(appCompatActivity.getFragmentManager(), "DIALOG_TAG");
     }
 
     @Test
@@ -92,8 +108,7 @@ public class StatusEditDialogFragmentTest extends BaseUnitTest {
 
         fragment = StatusEditDialogFragment.newInstance(detailsMock);
 
-        TestAppCompactActivity activity = Robolectric.buildActivity(TestAppCompactActivity.class).create().start().get();
-        fragment.show(activity.getFragmentManager(), "DIALOG_TAG");
+        fragment.show(testAppCompactActivity.getFragmentManager(), "DIALOG_TAG");
 
         Mockito.verify(detailsMock).containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP);
         Mockito.verify(detailsMock, Mockito.atLeastOnce()).get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP);
@@ -110,10 +125,10 @@ public class StatusEditDialogFragmentTest extends BaseUnitTest {
 
         fragment = StatusEditDialogFragment.newInstance(detailsMock);
 
-        TestAppCompactActivity activity = Robolectric.buildActivity(TestAppCompactActivity.class).create().start().get();
-        fragment.show(activity.getFragmentManager(), "DIALOG_TAG");
+        fragment.show(testAppCompactActivity.getFragmentManager(), "DIALOG_TAG");
 
         Mockito.verify(detailsMock, Mockito.never()).get(Constants.CHILD_STATUS.INACTIVE);
         Mockito.verify(detailsMock, Mockito.never()).get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP);
     }
+
 }

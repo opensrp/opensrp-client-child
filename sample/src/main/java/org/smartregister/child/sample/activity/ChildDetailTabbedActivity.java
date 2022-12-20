@@ -127,4 +127,8 @@ public class ChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
         finish();
     }
 
+    @Override
+    public void updateViews() {
+        // TODO: implementation
+    }
 }

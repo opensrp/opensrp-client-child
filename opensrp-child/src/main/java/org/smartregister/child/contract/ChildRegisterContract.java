@@ -20,6 +20,8 @@ public interface ChildRegisterContract {
 
     interface View extends BaseRegisterContract.View {
         ChildRegisterContract.Presenter presenter();
+
+        void setActiveMenuItem(int menuItemId);
     }
 
     interface Presenter extends BaseRegisterContract.Presenter {
@@ -48,7 +50,7 @@ public interface ChildRegisterContract {
 
         String getLocationId(String locationName);
 
-        List<ChildEventClient> processRegistration(String jsonString, FormTag formTag);
+        List<ChildEventClient> processRegistration(String jsonString, FormTag formTag, boolean isEditMode);
 
         JSONObject getFormAsJson(String formName, String entityId, String currentLocationId, Map<String, String> metadata) throws Exception;
 

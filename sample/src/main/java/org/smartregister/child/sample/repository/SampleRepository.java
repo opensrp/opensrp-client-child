@@ -42,6 +42,8 @@ public class SampleRepository extends Repository {
     protected SQLiteDatabase writableDatabase;
     private final Context context;
 
+    private final String UPDATE_CHILD_DETAILS_TABLE_OUT_OF_CATCHMENT = "ALTER TABLE ec_child_details ADD COLUMN is_out_of_catchment VARCHAR;";
+
     public SampleRepository(Context context, org.smartregister.Context openSRPContext) {
         super(context, AllConstants.DATABASE_NAME, BuildConfig.DATABASE_VERSION, openSRPContext.session(),
                 SampleApplication.createCommonFtsObject(context.getApplicationContext()), openSRPContext.sharedRepositoriesArray());
@@ -148,6 +150,8 @@ public class SampleRepository extends Repository {
         upgradeToVersion14(database);
         upgradeToVersion15RemoveUnnecessaryTables(database);
         upgradeToVersion16(database);
+        upgradeToVersion12OutOfCatchment(database);
+        upgradeToVersion19(database);
     }
 
     /**
@@ -364,6 +368,32 @@ public class SampleRepository extends Repository {
 
         } catch (Exception e) {
             Timber.e("upgradeToVersion9 %s", e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion12OutOfCatchment(SQLiteDatabase database) {
+        try {
+
+            database.execSQL(UPDATE_CHILD_DETAILS_TABLE_OUT_OF_CATCHMENT);
+
+        } catch (Exception e) {
+            Timber.e("upgradeToVersion12OutOfCatchment - child_details Table " + Log.getStackTraceString(e));
+        }
+        try {
+            database.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL);
+
+        } catch (Exception e) {
+            Timber.e("upgradeToVersion12OutOfCatchment - recurring_service_record table " + Log.getStackTraceString(e));
+        }
+    }
+    private void upgradeToVersion19(SQLiteDatabase db)
+    {
+        try {
+            db.execSQL("ALTER TABLE vaccines ADD COLUMN outreach INTEGER DEFAULT 0");
+        }
+        catch (Exception e)
+        {
+            Timber.e(e);
         }
     }
 

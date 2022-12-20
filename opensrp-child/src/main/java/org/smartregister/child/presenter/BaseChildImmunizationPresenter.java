@@ -5,21 +5,17 @@ import android.text.TextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.smartregister.Context;
 import org.smartregister.child.contract.ChildImmunizationContract;
-import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
-import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
-import org.smartregister.location.helper.LocationHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -95,23 +91,7 @@ public class BaseChildImmunizationPresenter implements ChildImmunizationContract
 
     @Override
     public void activateChildStatus(Context openSRPcontext, CommonPersonObjectClient childDetails) {
-        try {
-            Map<String, String> details = Utils.getEcChildDetails(childDetails.entityId()).getColumnmaps();
-            CommonPersonObject commonPersonObject = new CommonPersonObject(details.get(Constants.KEY.BASE_ENTITY_ID), details.get(Constants.KEY.RELATIONALID), details, Constants.ENTITY.CHILD);
-            if (details.containsKey(Constants.CHILD_STATUS.INACTIVE) &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE) != null &&
-                    details.get(Constants.CHILD_STATUS.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.INACTIVE, false));
-            }
-
-            if (details.containsKey(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP) != null &&
-                    details.get(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                commonPersonObject.setColumnmaps(ChildJsonFormUtils.updateClientAttribute(openSRPcontext, childDetails, LocationHelper.getInstance(), Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, false));
-            }
-        } catch (Exception e) {
-            Timber.e(e);
-        }
+        Utils.activateChildStatus(openSRPcontext, childDetails);
     }
 
     public List<Weight> getAllWeights(CommonPersonObjectClient childDetails) {

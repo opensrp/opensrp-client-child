@@ -1,9 +1,12 @@
 package org.smartregister.child.activity;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -54,6 +58,7 @@ import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildDbUtils;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.child.util.Utils;
 import org.smartregister.child.view.BCGNotificationDialog;
 import org.smartregister.child.view.SiblingPicturesGroup;
@@ -109,6 +114,7 @@ import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -119,12 +125,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
-
-import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 
 /**
  * Created by ndegwamartin on 06/03/2019.
@@ -186,6 +189,28 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (extras != null) {
             String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = getChildDetails(caseId);
+
+            CommonPersonObjectClient cardChildDetails = null;
+            if (extras.containsKey(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS) && childDetails == null) {
+                cardChildDetails = (CommonPersonObjectClient) extras.get(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS);
+            }
+
+            if (childDetails == null) {
+                childDetails = cardChildDetails;
+            } else {
+                if (cardChildDetails != null) {
+                    // card last update
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_LAST_PROCESSED_TIMESTAMP, "0");
+                    long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
+                    // device last update
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0");
+                    long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
+
+                    if (lastCardTxDateTime > lastInteractedWith) {
+                        childDetails = cardChildDetails;
+                    }
+                }
+            }
         }
 
         Serializable serializable = extras.getSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES);
@@ -193,16 +218,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             registerClickables = (RegisterClickables) serializable;
         }
 
-
         bcgScarNotificationShown =
                 ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED) &&
                         !ChildLibrary.getInstance().getProperties()
                                 .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
         weightNotificationShown = false;
-        //                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
-//                        ChildLibrary.getInstance().getProperties()
-//                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
-//
+//        ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
+//                : false;
+
         setLastModified(false);
 
         setUpFloatingActionButton();
@@ -220,6 +244,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
         bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+
+        // load the child details
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE))) {
+            bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        }
+
         bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
                 registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
                         registerClickables.getNextAppointmentDate() : "");
@@ -291,19 +321,30 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
-
+        TextView fabText = ((TextView) floatingActionButton.findViewById(R.id.fab_text));
+        ImageView fabImage = ((ImageView) floatingActionButton.findViewById(R.id.fab_image));
         if (drawableResourceId != null) {
             int paddingLeft = floatingActionButton.getPaddingLeft();
             int paddingRight = floatingActionButton.getPaddingRight();
             int paddingTop = floatingActionButton.getPaddingTop();
             int paddingBottom = floatingActionButton.getPaddingBottom();
 
-            floatingActionButton.setBackgroundResource(drawableResourceId);
+            if (isActiveStatus(childDetails)) {
+                floatingActionButton.setClickable(true);
+                floatingActionButton.setBackgroundResource(drawableResourceId);
+                fabText.setTextColor(Color.WHITE);
+                fabImage.setColorFilter(Color.WHITE);
+            } else {
+                floatingActionButton.setClickable(false);
+                floatingActionButton.setBackgroundResource(R.drawable.light_grey_background);
+                fabText.setTextColor(R.color.silver);
+                fabImage.setColorFilter(ActivityCompat.getColor(this, R.color.silver));
+            }
             floatingActionButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
 
         if (title != null) {
-            ((TextView) floatingActionButton.findViewById(R.id.fab_text)).setText(title);
+            fabText.setText(title);
         }
 
         floatingActionButton.setVisibility(View.VISIBLE);
@@ -391,9 +432,31 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         childDetails.setDetails(detailsMap);
     }
 
+    @VisibleForTesting
+    @Override
+    protected boolean isActiveStatus(CommonPersonObjectClient child) {
+        return super.isActiveStatus(child);
+    }
+
+    @VisibleForTesting
+    @Override
+    protected String getHumanFriendlyChildsStatus(CommonPersonObjectClient child) {
+        return super.getHumanFriendlyChildsStatus(child);
+    }
+
     @Override
     public void updateViews() {
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
+
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
+            CommonPersonObjectClient objectClient = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
+            if (objectClient != null) {
+                childDetails = objectClient;
+            } else {
+                Timber.e("fetchCommonPersonObjectClientByBaseEntityId is null, child record is not n the database.");
+            }
+
+        }
 
         isChildActive = isActiveStatus(childDetails);
 
@@ -485,16 +548,15 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
-            childIdTV.setText(String.format("%s: %s", getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            childIdTV.setText(getString(R.string.format_label_colon_text, getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
         }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
     }
 
-    private void updateSystemOfRegistration()
-    {
+    private void updateSystemOfRegistration() {
         String systemOfRegistration = org.smartregister.util.Utils.getValue(childDetails.getColumnmaps(), Constants.Client.SYSTEM_OF_REGISTRATION, false);
-        systemOfRegistrationTV.setText(systemOfRegistration!= null ? systemOfRegistration : "");
+        systemOfRegistrationTV.setText(systemOfRegistration != null ? systemOfRegistration : "");
     }
 
     private void updateNextAppointmentDateView() {
@@ -658,10 +720,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         serviceGroup.setModalOpen(true);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
@@ -688,13 +750,22 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
         ft.addToBackStack(null);
 
         final ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childCurrentStatus, R.style.PathAlertDialog);
         activateChildStatusFragmentDialog.setOnClickListener((dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
+                String columnName = Constants.CHILD_STATUS.INACTIVE;
+                if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.INACTIVE, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.INACTIVE;
+                } else if (Constants.BOOLEAN_STRING.TRUE.equals(getChildDetails().getDetails().getOrDefault(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, Constants.FALSE))) {
+                    columnName = Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP;
+                }
+
+                ChildDbUtils.updateChildDetailsValue(columnName, Constants.FALSE, childDetails.entityId());
+                getChildDetails().getDetails().put(columnName, Constants.FALSE);
                 SaveChildStatusTask saveChildStatusTask = new SaveChildStatusTask(getActivity(), presenter);
                 Utils.startAsyncTask(saveChildStatusTask, null);
             }
@@ -707,10 +778,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         serviceGroup.setModalOpen(true);
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
@@ -918,7 +989,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         LinearLayout parent;
         int groupParentId = canvasId;
         if (groupParentId == -1) {
-            Random r = new Random();
+            SecureRandom r = new SecureRandom();
             groupParentId = r.nextInt(RANDOM_MAX_RANGE - RANDOM_MIN_RANGE) + RANDOM_MIN_RANGE;
             parent = new LinearLayout(this);
             parent.setId(groupParentId);
@@ -998,14 +1069,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
-
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
-
         ft.addToBackStack(null);
+
         vaccineGroup.setModalOpen(true);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1030,10 +1100,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
-
         fragmentTransaction.addToBackStack(null);
+
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
@@ -1047,11 +1117,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
             new BCGNotificationDialog(this, (dialog, which) -> {
-
                 onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
                 Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }, (dialog, which) -> {
-
                 onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
                 Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }).show();
@@ -1059,7 +1127,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     public void onBcgReminderOptionSelected(String option) {
-
         final long DATE = new Date().getTime();
         switch (option) {
             case Constants.SHOW_BCG2_REMINDER:
@@ -1083,7 +1150,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGrowthViews(Weight lastUnsyncedWeight, Height lastUnsyncedHeight, final boolean isActive) {
-
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
         String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
@@ -1285,9 +1351,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1310,7 +1378,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
 
-
+        hideProgressDialog();
     }
 
     @Override
@@ -1335,8 +1403,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, BaseRepository.TYPE_Unsynced);
         }
 
-        updateRecordGrowthMonitoringViews(weightWrapper, heightWrapper, isActiveStatus(childDetails));
         setLastModified(true);
+        startUpdateViewTask();
     }
 
     @Override
@@ -1411,25 +1479,20 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private void performRecordAllClick(final int index) {
         if (vaccineGroups != null && vaccineGroups.size() > index) {
             final VaccineGroup vaccineGroup = vaccineGroups.get(index);
-            vaccineGroup.post(new Runnable() {
-                @Override
-                public void run() {
-                    vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
-                        ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
-                        if (!vaccineWrappers.isEmpty()) {
-                            final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
-                            recordAllTV.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    recordAllTV.performClick();
-                                }
-                            });
-                        } else {
-                            performRecordAllClick(index + 1);
+            vaccineGroup.post(() -> vaccineGroup.setVaccineCardAdapterLoadingListener(() -> {
+                ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
+                if (!vaccineWrappers.isEmpty()) {
+                    final TextView recordAllTV = vaccineGroup.findViewById(R.id.record_all_tv);
+                    recordAllTV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            recordAllTV.performClick();
                         }
                     });
+                } else {
+                    performRecordAllClick(index + 1);
                 }
-            });
+            }));
         }
     }
 
@@ -1443,7 +1506,13 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (tag.getDbKey() != null) {
             vaccine = vaccineRepository.find(tag.getDbKey());
         }
-        vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
+
+        if (StringUtils.isNotEmpty(childDetails.entityId())) {
+            vaccine.setBaseEntityId(childDetails.entityId());
+        } else {
+            vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
+        }
+
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
@@ -1458,6 +1527,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
 
         vaccine.setOutOfCatchment(isOutOfCatchmentVaccine ? 1 : 0);
+
+        if (isOutOfCatchmentVaccine && StringUtils.isEmpty(vaccine.getProgramClientId())) {
+            vaccine.setProgramClientId(tag.getPatientNumber());
+        }
 
         Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
@@ -1635,9 +1708,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
         if (prev != null) {
-            fragmentTransaction.remove(prev);
+            return;
         }
         fragmentTransaction.addToBackStack(null);
+
+        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         List<Weight> weights = new ArrayList<>();
         List<Height> heights = new ArrayList<>();
@@ -1645,7 +1720,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (growthMonitoring == null || growthMonitoring.isEmpty()) {
             Utils.showToast(this, getString(R.string.record_growth_details));
         } else {
-
             if (growthMonitoring.containsKey(Constants.WEIGHT)) {
                 weights = growthMonitoring.get(Constants.WEIGHT);
             }
@@ -1653,18 +1727,17 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (growthMonitoring.containsKey(Constants.HEIGHT)) {
                 heights = growthMonitoring.get(Constants.HEIGHT);
             }
-
-
         }
 
         GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
         growthDialogFragment.show(fragmentTransaction, BaseChildImmunizationActivity.DIALOG_TAG);
+
+        hideProgressDialog();
     }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
-
 
     public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);

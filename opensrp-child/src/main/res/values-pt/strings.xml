@@ -177,10 +177,16 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirmar a Mudança</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirmar a Mudança (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Tem certeza de que deseja mover este registro para sua área de captação?</string>
+    <string name="move_to_catchment_success_message">O registro foi movido para sua área de influência</string>
     <string name="mother_lookup_results">Registros Correspondentes</string>
     <string name="dismiss">Dispensar</string>
     <string name="change_status">Alterar estado</string>
+    <string name="register_biometrics">Registrar biometria</string>
+    <string name="write_passcode">Escrever senha</string>
+    <string name="read_from_card">Ler cartão</string>
     <string name="write_to_card">Escreva para o cartão</string>
+    <string name="verify_caregiver">Verificar cuidador</string>
+    <string name="blacklist_card">Cartão de lista negra</string>
     <string name="title_activity_stock_control">Atividadecontroleestoque</string>
     <string name="device_timezone_changed">O fuso horário do dispositivo mudou. Por favor, faça login novamente.</string>
     <string name="device_time_changed">A hora do dispositivo mudou. Por favor, faça login novamente.</string>
@@ -308,6 +314,7 @@
     <string name="_1_year_after_tt_3">1 Ano após TT 3</string>
     <string name="_1_year_after_tt_4">1 Ano após TT 4</string>
     <string name="move_to_catchment">Mover para Minha\nCaptura</string>
+    <string name="enroll_caregiver">REGISTRAR CUIDADOR</string>
     <string name="activate_new_card">ATIVAR NOVO CARTÃO </string>
     <string name="system_id_colon">DI do Sistema :</string>
     <string name="zeir_id">DI do Sistema</string>
@@ -351,4 +358,9 @@
     <string name="new_card_ordered">Comunicar se o cartão foi perdido ou danificado \n (novo cartão foi requisitado)</string>
     <string name="new_card_to_be_delivered">Um novo cartão foi requisitado e será entregue após a impressão.</string>
     <string name="card_ordered_with_date">Cartão Requisitado: %1$s</string>
-    </resources>
+
+    <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
+
+    <string name="format_label_colon_text">%1$s: %2$s</string>
+    <string name="format_label_space_text">%1$s %2$s</string>
+</resources>

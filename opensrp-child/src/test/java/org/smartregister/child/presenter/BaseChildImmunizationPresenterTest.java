@@ -1,5 +1,8 @@
 package org.smartregister.child.presenter;
 
+import static org.mockito.Mockito.doReturn;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,19 +13,26 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
+import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.contract.ChildImmunizationContract;
+import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.provider.RegisterQueryProvider;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
-import org.smartregister.child.util.Utils;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.HeightRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.location.helper.LocationHelper;
+import org.smartregister.util.AppProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +43,7 @@ import java.util.List;
  * Created by ndegwamartin on 08/09/2020.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GrowthMonitoringLibrary.class, Utils.class, LocationHelper.class, ChildJsonFormUtils.class})
+@PrepareForTest({GrowthMonitoringLibrary.class, LocationHelper.class, ChildJsonFormUtils.class})
 public class BaseChildImmunizationPresenterTest {
 
     private String TEST_BASE_ENTITY_ID = "some-test-base-entity-id";
@@ -65,6 +75,24 @@ public class BaseChildImmunizationPresenterTest {
 
     private BaseChildImmunizationPresenter presenter;
 
+    @Mock
+    private CoreLibrary coreLibrary;
+
+    @Mock
+    private ChildLibrary childLibrary;
+
+    @Mock
+    private AppProperties appProperties;
+
+    @Mock
+    private ChildMetadata metadata;
+
+    @Mock
+    private RegisterQueryProvider registerQueryProvider;
+
+    @Mock
+    private CommonRepository commonRepository;
+
     @Before
     public void setUp() {
 
@@ -72,6 +100,22 @@ public class BaseChildImmunizationPresenterTest {
         presenter = new BaseChildImmunizationPresenter(view);
         childDetails = getChildDetails();
 
+        doReturn(appProperties).when(context).getAppProperties();
+        doReturn(context).when(coreLibrary).context();
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", coreLibrary);
+
+        Mockito.when(registerQueryProvider.getChildDetailsTable()).thenCallRealMethod();
+        doReturn(registerQueryProvider).when(metadata).getRegisterQueryProvider();
+        doReturn(metadata).when(childLibrary).metadata();
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+
+    }
+
+    @After
+    public void tearDown() {
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
     }
 
     @Test
@@ -86,7 +130,7 @@ public class BaseChildImmunizationPresenterTest {
 
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
         PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
+        doReturn(heightRepository).when(growthMonitoringLibrary).heightRepository();
 
         Height height = new Height();
         height.setCm(39f);
@@ -96,7 +140,7 @@ public class BaseChildImmunizationPresenterTest {
         height3.setCm(51f);
         List<Height> heights = new ArrayList<>(Arrays.asList(new Height[]{height, height2, height3}));
 
-        Mockito.doReturn(heights).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        doReturn(heights).when(heightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
 
         List<Height> heightList = presenter.getAllHeights(childDetails);
         Assert.assertNotNull(heightList);
@@ -113,7 +157,7 @@ public class BaseChildImmunizationPresenterTest {
 
         PowerMockito.mockStatic(GrowthMonitoringLibrary.class);
         PowerMockito.when(GrowthMonitoringLibrary.getInstance()).thenReturn(growthMonitoringLibrary);
-        Mockito.doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
+        doReturn(weightRepository).when(growthMonitoringLibrary).weightRepository();
 
         Weight weight = new Weight();
         weight.setKg(2.8f);
@@ -121,7 +165,7 @@ public class BaseChildImmunizationPresenterTest {
         weight2.setKg(4.4f);
         List<Weight> weights = new ArrayList<>(Arrays.asList(new Weight[]{weight, weight2,}));
 
-        Mockito.doReturn(weights).when(weightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
+        doReturn(weights).when(weightRepository).findByEntityId(TEST_BASE_ENTITY_ID);
 
         List<Weight> weightList = presenter.getAllWeights(childDetails);
         Assert.assertNotNull(weightList);
@@ -134,13 +178,13 @@ public class BaseChildImmunizationPresenterTest {
 
     @Test
     public void testActivateChildStatus() throws Exception {
-        PowerMockito.mockStatic(Utils.class);
         PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.mockStatic(ChildJsonFormUtils.class);
 
+        doReturn(commonPersonObject).when(commonRepository).findByBaseEntityId(TEST_BASE_ENTITY_ID);
+        doReturn(commonRepository).when(context).commonrepository(DBConstants.RegisterTable.CHILD_DETAILS);
         PowerMockito.when(commonPersonObjectClient.entityId()).thenReturn(TEST_BASE_ENTITY_ID);
         PowerMockito.when(commonPersonObject.getColumnmaps()).thenReturn(getChildDetailsMap());
-        PowerMockito.when(Utils.getEcChildDetails(TEST_BASE_ENTITY_ID)).thenReturn(commonPersonObject);
         PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
         PowerMockito.when(ChildJsonFormUtils.updateClientAttribute(context, getChildDetails(), locationHelper, Constants.CHILD_STATUS.INACTIVE, false)).thenReturn(getChildDetailsMap());
 
@@ -168,7 +212,7 @@ public class BaseChildImmunizationPresenterTest {
         HashMap<String, String> childDetails = new HashMap<>();
         childDetails.put(Constants.KEY.FIRST_NAME, "John");
         childDetails.put(Constants.KEY.LAST_NAME, "Doe");
-        childDetails.put(Constants.CHILD_STATUS.INACTIVE, "true");
+        childDetails.put(Constants.CHILD_STATUS.INACTIVE, "false");
         childDetails.put(Constants.CHILD_STATUS.LOST_TO_FOLLOW_UP, "true");
 
         return childDetails;

@@ -48,7 +48,7 @@ public class ShowGrowthChartTask extends AsyncTask<Void, Void, Map<String, List>
         super.onPostExecute(growthMonitoring);
 
         presenter.getView().hideProgressDialog();
-        presenter.getView().showGrowthDialogFragment(growthMonitoring);
-    }
 
+        ((ChildImmunizationContract.View) presenter.getView()).showGrowthDialogFragment(growthMonitoring);
+    }
 }

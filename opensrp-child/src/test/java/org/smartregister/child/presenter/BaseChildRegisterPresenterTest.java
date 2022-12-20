@@ -139,6 +139,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
         String currentLocationId = "09453-ert35";
         Map<String, String> metadataMap = new HashMap<>();
         ChildRegisterContract.Interactor interactorSpy = Mockito.spy(new ChildRegisterInteractor());
+        Mockito.doNothing().when(interactorSpy).getNextUniqueId(Triple.of(formName, metadataMap, currentLocationId), baseChildRegisterPresenter);
         ReflectionHelpers.setField(baseChildRegisterPresenter, "interactor", interactorSpy);
         baseChildRegisterPresenter.startForm(formName, entityId, metadata, currentLocationId);
         Mockito.verify(interactorSpy, Mockito.times(1)).getNextUniqueId(Triple.of(formName, metadataMap, currentLocationId), baseChildRegisterPresenter);
@@ -181,7 +182,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
         childEventClientList.add(new ChildEventClient(new Client("si"), new Event()));
 
         Mockito.doReturn(childEventClientList).when(modelSpy)
-                .processRegistration(jsonString, updateRegisterParams.getFormTag());
+                .processRegistration(jsonString, updateRegisterParams.getFormTag(), false);
 
         baseChildRegisterPresenter.saveForm(jsonString, updateRegisterParams);
 
@@ -202,7 +203,7 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
 
         baseChildRegisterPresenter.closeChildRecord(jsonString);
 
-        Mockito.verify(interactorSpy, Mockito.times(1)).removeChildFromRegister(Mockito.eq(jsonString), Mockito.anyString());
+        Mockito.verify(interactorSpy, Mockito.times(1)).removeChildFromRegister(Mockito.eq(jsonString), Mockito.nullable(String.class));
     }
 
     @Test

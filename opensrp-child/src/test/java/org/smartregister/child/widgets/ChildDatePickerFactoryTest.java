@@ -8,14 +8,16 @@ import com.vijay.jsonwizard.fragments.JsonFormFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.smartregister.child.BaseUnitTest;
 
-public class ChildDatePickerFactoryTest {
+public class ChildDatePickerFactoryTest extends BaseUnitTest {
 
     private ChildDatePickerFactory childDatePickerFactory;
 
@@ -27,6 +29,7 @@ public class ChildDatePickerFactoryTest {
 
     private MaterialEditText materialEditText;
 
+    @Mock
     private TextView durationTextView;
 
     @Before
@@ -34,7 +37,6 @@ public class ChildDatePickerFactoryTest {
         MockitoAnnotations.initMocks(this);
         childDatePickerFactory = Mockito.spy(ChildDatePickerFactory.class);
         materialEditText = Mockito.mock(MaterialEditText.class);
-        durationTextView = Mockito.spy(new TextView(context));
     }
 
     @Test
@@ -42,5 +44,11 @@ public class ChildDatePickerFactoryTest {
         JSONObject jsonObject = new JSONObject("{\"look_up\": \"true\", \"entity_id\": \"some_entity_id\"}");
         childDatePickerFactory.attachLayout("step1", context, formFragment, jsonObject, materialEditText, durationTextView);
         Mockito.verify(formFragment, Mockito.atLeastOnce()).getLookUpMap();
+    }
+
+    @After
+    public void tearDown() {
+        childDatePickerFactory = null;
+        materialEditText = null;
     }
 }

@@ -1,5 +1,9 @@
 package org.smartregister.child.task;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
@@ -9,16 +13,16 @@ import android.widget.TextView;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.RegisterActionParams;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.wrapper.GrowthMonitoringViewRecordUpdateWrapper;
+import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -34,17 +38,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(PowerMockRunner.class)
-public class GrowthMonitoringAsyncTaskTest {
+public class GrowthMonitoringAsyncTaskTest extends BasePowerMockUnitTest {
 
     @Mock
     private RegisterActionParams registerActionParams;
 
     @Mock
-    private CommonRepository  commonRepository;
+    private CommonRepository commonRepository;
 
     @Mock
     private WeightRepository weightRepository;
@@ -196,6 +196,7 @@ public class GrowthMonitoringAsyncTaskTest {
         when(view.findViewById(R.id.child_profile_info_layout)).thenReturn(view);
         when(view.findViewById(R.id.record_growth_text)).thenReturn(textView);
         when(view.findViewById(R.id.record_growth)).thenReturn(textView);
+        when(view.findViewById(R.id.move_to_catchment_text)).thenReturn(textView);
         when(context.getResources()).thenReturn(resources);
 
         Map<String, String> map = new HashMap<>();
@@ -209,6 +210,30 @@ public class GrowthMonitoringAsyncTaskTest {
         verify(textView).setClickable(true);
         verify(textView).setTag("24127");
         verify(textView).setEnabled(true);
+    }
+
+    @Test
+    public void testUpdateViewsHideViewsProperly() throws Exception {
+        Method updateViews = GrowthMonitoringAsyncTask.class.getDeclaredMethod("updateViews", View.class, SmartRegisterClient.class);
+        updateViews.setAccessible(true);
+
+        View recordVaccination = Mockito.mock(View.class);
+        View moveToCatchment = Mockito.mock(View.class);
+
+        when(view.findViewById(R.id.record_vaccination)).thenReturn(recordVaccination);
+        when(view.findViewById(R.id.move_to_catchment)).thenReturn(moveToCatchment);
+        when(context.getResources()).thenReturn(resources);
+
+        Map<String, String> map = new HashMap<>();
+        map.put(Constants.KEY.ZEIR_ID, "24127");
+        CommonPersonObjectClient commonPersonObjectClient = new CommonPersonObjectClient("00ts-ime-hcla-0tib-0eht-ma0i", new HashMap<String, String>(), "Roja");
+        commonPersonObjectClient.setColumnmaps(map);
+        when(commonRepository.findByBaseEntityId(anyString())).thenReturn(Mockito.mock(CommonPersonObject.class));
+
+        updateViews.invoke(growthMonitoringAsyncTask, view, commonPersonObjectClient);
+
+        verify(recordVaccination).setVisibility(View.VISIBLE);
+        verify(moveToCatchment).setVisibility(View.GONE);
     }
 }
 

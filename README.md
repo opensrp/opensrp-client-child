@@ -1,6 +1,5 @@
 ![Build status](https://github.com/OpenSRP/opensrp-client-reveal/workflows/Android%20CI%20with%20Gradle/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/OpenSRP/opensrp-client-child/badge.svg?branch=master)](https://coveralls.io/github/OpenSRP/opensrp-client-child?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b8b5e3c6e9284bffb993d07b235a8691)](https://www.codacy.com/app/OpenSRP/opensrp-client-child?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OpenSRP/opensrp-client-child&amp;utm_campaign=Badge_Grade)
-
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9676b69b02be4d37ad73bcab80f6c5fc)](https://www.codacy.com/gh/opensrp/opensrp-client-child/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OpenSRP/opensrp-client-child&amp;utm_campaign=Badge_Grade)
 # opensrp-client-child
 OpenSRP client child health module library
 

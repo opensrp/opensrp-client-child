@@ -9,7 +9,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -17,10 +16,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
+import org.smartregister.child.BasePowerMockUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.activity.BaseChildFormActivity;
 import org.smartregister.child.domain.ChildEventClient;
@@ -38,9 +37,8 @@ import org.smartregister.util.JsonFormUtils;
 
 import java.util.List;
 
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({CoreLibrary.class, LocationHelper.class, TextUtils.class, JsonFormUtils.class, Log.class})
-public class BaseChildRegisterModelTest {
+public class BaseChildRegisterModelTest extends BasePowerMockUnitTest {
 
     @Mock
     private CoreLibrary coreLibrary;
@@ -124,7 +122,7 @@ public class BaseChildRegisterModelTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         BaseChildRegisterModel baseChildRegisterModel = new BaseChildRegisterModel();
-        List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class));
+        List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class),false);
         //Expect child and Mother registration event
         Assert.assertEquals(2, actualEvent.size());
         Assert.assertEquals("Birth Registration", actualEvent.get(0).getEvent().getEventType());

@@ -1,7 +1,5 @@
 package org.smartregister.child.presenter;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -10,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
 import org.smartregister.child.domain.ChildEventClient;
@@ -121,7 +120,7 @@ public class BaseChildRegisterPresenter
 
         try {
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -141,8 +140,7 @@ public class BaseChildRegisterPresenter
     @Override
     public void closeChildRecord(String jsonString) {
         try {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+            AllSharedPreferences allSharedPreferences = CoreLibrary.getInstance().context().allSharedPreferences();
             interactor.removeChildFromRegister(jsonString, allSharedPreferences.fetchRegisteredANM());
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
@@ -155,7 +153,9 @@ public class BaseChildRegisterPresenter
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
-            getView().displayToast(R.string.error_unable_to_start_form);
+            if (getView() != null) {
+                getView().displayToast(R.string.error_unable_to_start_form);
+            }
         }
     }
 
@@ -166,7 +166,9 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void onRegistrationSaved(boolean isEdit) {
-        getView().refreshList(FetchStatus.fetched);
-        getView().hideProgressDialog();
+        if (getView() != null) {
+            getView().refreshList(FetchStatus.fetched);
+            getView().hideProgressDialog();
+        }
     }
 }

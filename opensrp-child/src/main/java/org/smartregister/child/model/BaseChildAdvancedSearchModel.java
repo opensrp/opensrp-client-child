@@ -181,7 +181,7 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         try {
             if(editMap.containsKey(START_DATE) && editMap.containsKey(END_DATE)) {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-                SimpleDateFormat desiredDateFormat = new SimpleDateFormat("YYY-MM-dd", Locale.getDefault());
+                SimpleDateFormat desiredDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 Date parsedStartDate = simpleDateFormat.parse(editMap.get(START_DATE));
                 Date parsedEndDate = simpleDateFormat.parse(editMap.get(END_DATE));
                 editMap.put(START_DATE, desiredDateFormat.format(parsedStartDate));

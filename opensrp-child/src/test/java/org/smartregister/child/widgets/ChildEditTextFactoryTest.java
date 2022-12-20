@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
+import com.vijay.jsonwizard.utils.AppExecutors;
 
 import org.json.JSONObject;
 import org.junit.Before;
@@ -14,7 +15,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+
+import java.util.concurrent.Executor;
 
 public class ChildEditTextFactoryTest {
 
@@ -23,7 +25,7 @@ public class ChildEditTextFactoryTest {
     @Mock
     private JsonFormFragment formFragment;
 
-    @Spy
+    @Mock
     private JsonFormActivity formActivity;
 
     private MaterialEditText materialEditText;
@@ -45,6 +47,11 @@ public class ChildEditTextFactoryTest {
         Editable editable = new SpannableStringBuilder("text");
         Mockito.doReturn(editable).when(materialEditText).getText();
         Mockito.doReturn(formActivity).when(formFragment).getJsonApi();
+        AppExecutors mockAppExecutors = Mockito.mock(AppExecutors.class);
+        Executor mockExecutor = Mockito.mock(Executor.class);
+        Mockito.doNothing().when(mockExecutor).execute(Mockito.any(Runnable.class));
+        Mockito.doReturn(mockExecutor).when(mockAppExecutors).mainThread();
+        Mockito.doReturn(mockAppExecutors).when(formActivity).getAppExecutors();
         Mockito.doNothing().when(formActivity).addSkipLogicView(materialEditText);
         Mockito.doNothing().when(formActivity).addCalculationLogicView(materialEditText);
         Mockito.doNothing().when(formActivity).addConstrainedView(materialEditText);

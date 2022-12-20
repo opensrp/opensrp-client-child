@@ -149,7 +149,7 @@ public class OutOfAreaServiceUtils {
 
             } else if (curField.getString(JsonFormConstants.KEY).equals(Constants.KEY.NFC_CARD_IDENTIFIER)) {
 
-                metadata.put(Constants.KEY.NFC_CARD_IDENTIFIER, "c_0" + curField.getString(JsonFormConstants.VALUE));
+                metadata.put(Constants.KEY.NFC_CARD_IDENTIFIER, "c_" + curField.getString(JsonFormConstants.VALUE));
                 foundFields++;
             }
 

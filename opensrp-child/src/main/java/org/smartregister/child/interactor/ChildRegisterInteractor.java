@@ -18,6 +18,7 @@ import org.smartregister.child.domain.ChildEventClient;
 import org.smartregister.child.domain.UpdateRegisterParams;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.util.AppExecutors;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.ChildJsonFormUtils;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
@@ -34,7 +35,6 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
-import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
@@ -54,7 +54,6 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     public static final String TAG = ChildRegisterInteractor.class.getName();
     private AppExecutors appExecutors;
 
-
     public ChildRegisterInteractor() {
         this(new AppExecutors());
     }
@@ -71,15 +70,19 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
-
+        if (getUniqueIdRepository().countUnUsedIds() < 2) {
+            callBack.onNoUniqueId();
+            Timber.d( "ChildRegisterInteractor --> getNextUniqueId: Unique ids are less than 2 required to register mother and child");
+            return;
+        }
         Runnable runnable = () -> {
             UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
-            final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
+            final String openmrsId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
             appExecutors.mainThread().execute(() -> {
-                if (StringUtils.isBlank(entityId)) {
+                if (StringUtils.isBlank(openmrsId)) {
                     callBack.onNoUniqueId();
                 } else {
-                    callBack.onUniqueIdFetched(triple, entityId);
+                    callBack.onUniqueIdFetched(triple, openmrsId);
                 }
             });
         };
@@ -113,13 +116,11 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     public void saveRegistration(List<ChildEventClient> childEventClientList, String jsonString, UpdateRegisterParams params) {
-
         try {
             List<String> currentFormSubmissionIds = new ArrayList<>();
 
             for (int i = 0; i < childEventClientList.size(); i++) {
                 try {
-
                     ChildEventClient childEventClient = childEventClientList.get(i);
                     Client baseClient = childEventClient.getClient();
                     Event baseEvent = childEventClient.getEvent();
@@ -150,9 +151,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                     if (Constants.CHILD_TYPE.equals(baseEvent.getEntityType())) {
                         Utils.postEvent(new ClientDirtyFlagEvent(baseClient.getBaseEntityId(), baseEvent.getEventType()));
                     }
-
                 } catch (Exception e) {
-
                     Timber.e(e, "ChildRegisterInteractor --> saveRegistration loop");
                 }
             }
@@ -185,8 +184,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             if (i == 0) {
                 imageLocation = ChildJsonFormUtils.getFieldValue(jsonString, Constants.KEY.PHOTO);
             } else if (i == 1) {
-                imageLocation =
-                        ChildJsonFormUtils.getFieldValue(jsonString, ChildJsonFormUtils.STEP2, Constants.KEY.PHOTO);
+                imageLocation = ChildJsonFormUtils.getFieldValue(jsonString, ChildJsonFormUtils.STEP2, Constants.KEY.PHOTO);
             }
 
             if (StringUtils.isNotBlank(imageLocation)) {
@@ -196,9 +194,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void updateOpenSRPId(String jsonString, UpdateRegisterParams params, Client baseClient) {
-        if (params.isEditMode()) {
-            // Unassign current OPENSRP ID
-            if (baseClient != null) {
+        if (baseClient != null) {
+            if (params.isEditMode()) {
+                // Unassign current OPENSRP ID
                 try {
                     String newOpenSRPId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID).replace("-", "");
                     String currentOpenSRPId = ChildJsonFormUtils.getString(jsonString, ChildJsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
@@ -209,10 +207,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 } catch (Exception e) {//might crash if M_ZEIR
                     Timber.d(e, "ChildRegisterInteractor --> unassign opensrp id");
                 }
-            }
-
-        } else {
-            if (baseClient != null) {
+            } else {
                 //mark OPENSRP ID as used
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID));
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID));
@@ -250,7 +245,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             weightWrapper.setWeight(!TextUtils.isEmpty(weight) ? Float.valueOf(weight) : null);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             weightWrapper.setUpdatedWeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));//This is the weight of birth so reference date should be the DOB
-            weightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            weightWrapper.setId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
             weightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
             Utils.recordWeight(GrowthMonitoringLibrary.getInstance().weightRepository(), weightWrapper, params.getStatus());
@@ -269,7 +264,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
             heightWrapper.setHeight(!TextUtils.isEmpty(height) ? Float.parseFloat(height) : 0);
             LocalDate localDate = new LocalDate(Utils.getChildBirthDate(clientJson));
             heightWrapper.setUpdatedHeightDate(localDate.toDateTime(LocalTime.MIDNIGHT), (new LocalDate()).isEqual(localDate));
-            heightWrapper.setId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
+            heightWrapper.setId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
             heightWrapper.setDob(Utils.getChildBirthDate(clientJson));
 
             Utils.recordHeight(GrowthMonitoringLibrary.getInstance().heightRepository(), heightWrapper, params.getStatus());
@@ -281,24 +276,36 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
         String tetanusProtection = ChildJsonFormUtils.getFieldValue(jsonEnrollmentFormString, ChildJsonFormUtils.STEP1, Constants.KEY.BIRTH_TETANUS_PROTECTION);
 
         if (StringUtils.isNotBlank(tetanusProtection) && !isClientMother(identifiers) && tetanusProtection.contains("Yes")) {
-
             VaccineRepository vaccineRepository = ImmunizationLibrary.getInstance().vaccineRepository();
 
-            Vaccine vaccineObj = new Vaccine();
-            vaccineObj.setBaseEntityId(clientJson.getString(ClientProcessor.baseEntityIdJSONKey));
-            vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
-            vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
-            vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-            vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
-            vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
-            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
-            vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
-            vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
-            vaccineObj.setCreatedAt(new Date());
+            // only insert vaccine if not already saved
+            Vaccine existingVaccine = vaccineRepository.findByBaseEntityIdAndVaccineName(clientJson.getString(Constants.Client.BASE_ENTITY_ID), Constants.VACCINE_CODE.TETANUS);
 
-            Utils.addVaccine(vaccineRepository, vaccineObj);
-
+            if (existingVaccine == null) {
+                Vaccine vaccineObj = getTetanusVaccineObject(clientJson);
+                Utils.addVaccine(vaccineRepository, vaccineObj);
+            }
         }
+    }
+
+    protected Vaccine getTetanusVaccineObject(JSONObject clientJson) throws JSONException {
+        Vaccine vaccineObj = new Vaccine();
+        vaccineObj.setBaseEntityId(clientJson.getString(Constants.Client.BASE_ENTITY_ID));
+        vaccineObj.setName(Constants.VACCINE_CODE.TETANUS);
+        vaccineObj.setDate((new LocalDate(Utils.getChildBirthDate(clientJson))).toDate());
+        vaccineObj.setAnmId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM());
+        vaccineObj.setLocationId(ChildJsonFormUtils.getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        vaccineObj.setChildLocationId(ChildJsonFormUtils.getChildLocationId(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(vaccineObj.getAnmId()), ChildLibrary.getInstance().context().allSharedPreferences()));
+
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.TETANUS_VACCINE_AT_BIRTH_EVENT))
+            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Unsynced);
+        else
+            vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
+
+        vaccineObj.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
+        vaccineObj.setOutOfCatchment(vaccineObj.getLocationId() != null && !vaccineObj.getLocationId().equals(ChildLibrary.getInstance().context().allSharedPreferences().fetchDefaultLocalityId(ChildLibrary.getInstance().context().allSharedPreferences().fetchRegisteredANM())) ? 1 : 0);
+        vaccineObj.setCreatedAt(new Date());
+        return vaccineObj;
     }
 
     @Override
