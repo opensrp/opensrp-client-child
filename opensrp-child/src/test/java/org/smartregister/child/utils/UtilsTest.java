@@ -50,6 +50,10 @@ import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
 import org.smartregister.util.AppProperties;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -528,10 +532,32 @@ public class UtilsTest extends BaseUnitTest {
     }
 
     @Test
-    public void testGetWeeksDueWithNullDateReturnsZero() {
-        DateTime date = new DateTime();
+    public void testGetWeeksDueWithNullDateReturnsNull() {
+        Assert.assertNull(Utils.getWeeksDue(null));
+    }
 
-        int weeksDue = Utils.getWeeksDue(date);
+    @Test
+    public void testGetWeeksDueWithCurrentDateReturnsZero() {
+        int weeksDue = Utils.getWeeksDue(getDateWithOffset(0));
         Assert.assertEquals(0, weeksDue);
+    }
+
+    @Test
+    public void testGetWeeksDueWithPastDateReturnsCorrectCount() {
+        int weeksDue = Utils.getWeeksDue(getDateWithOffset(-20));
+        Assert.assertEquals(weeksDue, 2);
+    }
+
+    @Test
+    public void testGetWeeksDueWithFutureDateReturnsCorrectCount() {
+        int weeksDue = Utils.getWeeksDue(getDateWithOffset(40));
+        Assert.assertEquals(weeksDue, 5);
+    }
+
+    private DateTime getDateWithOffset(long offset) {
+        Clock constantClock = Clock.fixed(Instant.ofEpochMilli(1631001317000L), ZoneId.systemDefault());
+        Clock clock = Clock.offset(constantClock, Duration.ofDays(offset));
+
+        return new DateTime(clock.instant().toEpochMilli());
     }
 }
