@@ -270,6 +270,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         setLastModified(false);
 
+        if (getChildDetails() == null) {
+            Utils.showToast(this, getString(R.string.error_child_details));
+            getActivity().finish();
+            return;
+        }
         setUpFloatingActionButton();
         Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
