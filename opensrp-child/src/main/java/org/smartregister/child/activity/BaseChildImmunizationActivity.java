@@ -227,8 +227,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
+        String caseId = "";
         if (extras != null) {
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = getChildDetails(caseId);
 
             CommonPersonObjectClient cardChildDetails = null;
@@ -271,6 +272,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         setLastModified(false);
 
         if (getChildDetails() == null) {
+            Timber.e("Unable to fetch child details with case id: %s", caseId);
             Utils.showToast(this, getString(R.string.error_child_details));
             getActivity().finish();
             return;
