@@ -345,4 +345,10 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
                 ReflectionHelpers.ClassParameter.from(CommonPersonObjectClient.class, client));
         Assert.assertEquals("her", pronoun);
     }
+
+    @Test
+    public void onBackActivityShouldReturnThisClass() {
+        Class backActivity = baseChildImmunizationActivity.onBackActivity();
+        Assert.assertEquals(BaseChildRegisterActivity.class, backActivity);
+    }
 }
