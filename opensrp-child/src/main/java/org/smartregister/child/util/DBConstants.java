@@ -24,6 +24,7 @@ public class DBConstants {
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";
         public static final String MOTHER_LAST_NAME = "mother_last_name";
+        public static final String MOTHER_COMPASS_RELATIONSHIP_ID = "mother_compass_relationship_id";
     }
 
     public interface RegisterTable {
