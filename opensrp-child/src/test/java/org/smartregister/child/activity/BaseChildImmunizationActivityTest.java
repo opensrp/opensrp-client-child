@@ -1,8 +1,11 @@
 package org.smartregister.child.activity;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import android.content.res.Resources;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -74,6 +77,9 @@ public class BaseChildImmunizationActivityTest {
     @Mock
     private LocationSwitcherToolbar toolbar;
 
+    @Mock
+    private AppProperties appProperties;
+
     @Captor
     private ArgumentCaptor argumentCaptor;
 
@@ -82,7 +88,6 @@ public class BaseChildImmunizationActivityTest {
         MockitoAnnotations.initMocks(this);
         PowerMockito.mockStatic(ChildLibrary.class);
         PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
-        AppProperties appProperties = Mockito.mock(AppProperties.class);
         Mockito.doReturn(appProperties).when(childLibrary).getProperties();
         baseChildImmunizationActivity = new TestChildImmunizationActivity();
     }
@@ -323,5 +328,48 @@ public class BaseChildImmunizationActivityTest {
     public void onBackActivityShouldReturnThisClass() {
         Class backActivity = baseChildImmunizationActivity.onBackActivity();
         Assert.assertEquals(BaseChildRegisterActivity.class, backActivity);
+    }
+
+    @Test
+    public void testUpdateFloatingActionButtonBasedOnChildStatusShouldUpdateCorrectValue(){
+        CommonPersonObjectClient childDetails = getChildDetails();
+
+        ReflectionHelpers.setField(baseChildImmunizationActivity, "childDetails", childDetails);
+
+        Mockito.doReturn(true).when(appProperties).getPropertyBoolean(eq("feature.nfc.card.enabled"));
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("Active").when(activity).getString(R.string.active);
+
+        LinearLayout fab = Mockito.mock(LinearLayout.class);
+        Mockito.doReturn(0).when(fab).getPaddingBottom();
+        Mockito.doReturn(0).when(fab).getPaddingLeft();
+        Mockito.doReturn(0).when(fab).getPaddingRight();
+        Mockito.doReturn(0).when(fab).getPaddingTop();
+
+        TextView fabText = Mockito.mock(TextView.class);
+        ImageView fabImage = Mockito.mock(ImageView.class);
+        Mockito.doReturn(fabText).when(fab).findViewById(R.id.fab_text);
+        Mockito.doReturn(fabImage).when(fab).findViewById(R.id.fab_image);
+
+        Resources resources = Mockito.mock(Resources.class);
+        Mockito.doReturn(resources).when(activity).getResources();
+        Mockito.doReturn("enroll_caregiver").when(resources).getString(R.string.enroll_caregiver);
+        Mockito.doReturn("activate_new_card").when(resources).getString(R.string.activate_new_card);
+        Mockito.doReturn("write_to_card").when(resources).getString(R.string.write_to_card);
+
+        activity.floatingActionButton = fab;
+        Mockito.doReturn(true).when(activity).isActiveStatus(anyString());
+        activity.updateFloatingActionButtonBasedOnChildStatus();
+
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231154, "enroll_caregiver");
+
+        childDetails.getColumnmaps().put("mother_compass_relationship_id", "123");
+        activity.updateFloatingActionButtonBasedOnChildStatus();
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231154, "activate_new_card");
+
+        childDetails.getColumnmaps().put("nfc_card_blacklisted", "false");
+        childDetails.getColumnmaps().put("nfc_card_identifier", "0099887711112222");
+        activity.updateFloatingActionButtonBasedOnChildStatus();
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231152, "write_to_card");
     }
 }
