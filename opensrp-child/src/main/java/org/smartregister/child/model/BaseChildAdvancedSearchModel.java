@@ -57,7 +57,9 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
         final String childDetailsTable = Utils.metadata().getRegisterQueryProvider().getChildDetailsTable();
 
         final String motherFirstNameKey = Constants.KEY.MOTHER_FIRST_NAME;
+        final String motherFirstNameSelect = Constants.KEY.MOTHER + "." + Constants.KEY.FIRST_NAME;
         final String motherLastNameKey = Constants.KEY.MOTHER_LAST_NAME;
+        final String motherLastNameSelect = Constants.KEY.MOTHER + "." + Constants.KEY.LAST_NAME;
 
         final String startDateKey = START_DATE;
         final String endDateKey = END_DATE;
@@ -105,28 +107,28 @@ public abstract class BaseChildAdvancedSearchModel extends BaseChildRegisterFrag
 
         if (editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
             if (StringUtils.isBlank(mainConditionString)) {
-                mainConditionString += motherFirstNameKey + " Like '%" + editMap
-                        .get(motherFirstNameKey) + "%' AND " + motherLastNameKey + " Like '%" + editMap
+                mainConditionString += motherFirstNameSelect + " Like '%" + editMap
+                        .get(motherFirstNameKey) + "%' AND " + motherLastNameSelect + " Like '%" + editMap
                         .get(motherLastNameKey) + "%'";
             } else {
-                mainConditionString += " AND  (" + motherFirstNameKey + " Like '%" + editMap
-                        .get(motherFirstNameKey) + "%' AND " + motherLastNameKey + " Like '%" + editMap
+                mainConditionString += " AND  (" + motherFirstNameSelect + " Like '%" + editMap
+                        .get(motherFirstNameKey) + "%' AND " + motherLastNameSelect + " Like '%" + editMap
                         .get(motherLastNameKey) + "%' ) ";
             }
         } else if (editMap.containsKey(motherFirstNameKey) && !editMap.containsKey(motherLastNameKey)) {
             if (StringUtils.isBlank(mainConditionString)) {
-                mainConditionString += " " + motherFirstNameKey + " Like '%" + editMap
+                mainConditionString += " " + motherFirstNameSelect + " Like '%" + editMap
                         .get(motherFirstNameKey) + "%'";
             } else {
-                mainConditionString += " AND  (" + motherFirstNameKey + " Like '%" + editMap
+                mainConditionString += " AND  (" + motherFirstNameSelect + " Like '%" + editMap
                         .get(motherFirstNameKey) + "%') ";
             }
         } else if (!editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
             if (StringUtils.isBlank(mainConditionString)) {
-                mainConditionString += " " + motherLastNameKey + " Like '%" + editMap
+                mainConditionString += " " + motherLastNameSelect + " Like '%" + editMap
                         .get(motherLastNameKey) + "%'";
             } else {
-                mainConditionString += " AND  (" + motherLastNameKey + " Like '%" + editMap
+                mainConditionString += " AND  (" + motherLastNameSelect + " Like '%" + editMap
                         .get(motherLastNameKey) + "%' ) ";
             }
         }
