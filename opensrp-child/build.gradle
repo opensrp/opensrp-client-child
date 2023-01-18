@@ -189,6 +189,11 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.2'
 
+    def work_version = "2.5.0"
+    // Force WorkManager 2.6.0 for transitive dependency
+    implementation "androidx.work:work-runtime:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
     def robolectricVersion = '4.1'
     testImplementation("org.robolectric:robolectric:$robolectricVersion") {
         exclude group: 'com.google.auto.service', module: 'auto-service'
