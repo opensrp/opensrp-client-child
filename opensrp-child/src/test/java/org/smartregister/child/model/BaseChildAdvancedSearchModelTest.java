@@ -158,37 +158,37 @@ public class BaseChildAdvancedSearchModelTest extends BasePowerMockUnitTest {
         editMap.put("start_date", "26-05-2020");
         editMap.put("end_date", "26-05-2020");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother_first_name Like '%Mary%' AND mother_last_name Like '%Doe%' )  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother.first_name Like '%Mary%' AND mother.last_name Like '%Doe%' )  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
         editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("mother_first_name Like '%Mary%' AND mother_last_name Like '%Doe%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("mother.first_name Like '%Mary%' AND mother.last_name Like '%Doe%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
         editMap.put("start_date", "26-05-2020");
         editMap.put("end_date", "26-05-2020");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother_first_name Like '%Mary%')  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother.first_name Like '%Mary%')  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put(Constants.KEY.MOTHER_FIRST_NAME, "Mary");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("mother_first_name Like '%Mary%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("mother.first_name Like '%Mary%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
         editMap.put("start_date", "26-05-2020");
         editMap.put("end_date", "26-05-2020");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother_last_name Like '%Doe%' )  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("ec_client.dob BETWEEN '2020-05-26' AND '2020-05-26' AND  (mother.last_name Like '%Doe%' )  AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
 
         editMap  = new HashMap<>();
         editMap.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
         mainConditionString =  baseChildAdvancedSearchModel.getMainConditionString(editMap);
-        Assert.assertEquals("mother_last_name Like '%Doe%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
+        Assert.assertEquals("mother.last_name Like '%Doe%' AND (ec_client.date_removed is null AND ec_client.is_closed == '0')", mainConditionString.trim());
     }
 
     @Test
