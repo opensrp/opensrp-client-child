@@ -14,6 +14,7 @@ import org.smartregister.child.contract.ChildAdvancedSearchContract;
 import org.smartregister.child.util.AppExecutors;
 import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
+import org.smartregister.child.util.DBConstants;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.service.HTTPAgent;
@@ -67,6 +68,10 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
+
+                if (DBConstants.KEY.MOTHER_GUARDIAN_PHONE_NUMBER.equals(key)) {
+                    key = DBConstants.KEY.MOTHER_CONTACT_PHONE_NUMBER;
+                }
 
                 if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
                     value = urlEncode(value);

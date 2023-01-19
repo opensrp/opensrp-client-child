@@ -30,6 +30,7 @@ public final class Constants extends AllConstants {
     public static final String EVENTS = "events";
     public static final String CLIENTS = "clients";
     public static final String HOME_FACILITY = "Home_Facility";
+    public static final String CHILD_REGISTER_CARD_NUMBER = "Child_Register_Card_Number";
     public static final String FALSE = "false";
     public static final String RESIDENTIAL_AREA = "Residential_Area";
     public static final String RESIDENTIAL_AREA_OTHER = "Residential_Area_Other";
@@ -96,6 +97,7 @@ public final class Constants extends AllConstants {
         public static final String MOTHER = "mother";
         public static final String FATHER = "father";
         public static final String FIRST_NAME = "first_name";
+        public static final String MIDDLE_NAME = "middle_name";
         public static final String LAST_NAME = "last_name";
         public static final String BASE_ENTITY_ID = "base_entity_id";
         public static final String RELATIONAL_ID = "relational_id";
@@ -114,6 +116,9 @@ public final class Constants extends AllConstants {
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String DATE_REMOVED = "date_removed";
         public static final String NFC_CARD_IDENTIFIER = "nfc_card_identifier";
+        public static final String NFC_CARDS_ARCHIVE = "nfc_cards_archive";
+        public static final String NFC_CARD_BLACKLISTED = "nfc_card_blacklisted";
+        public static final String NFC_CARD_BLACKLISTED_DATE = "nfc_card_blacklisted_date";
         public static final String ID_LOWER_CASE = "_id";
         public static final String RELATIONALID = "relationalid";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
@@ -155,6 +160,7 @@ public final class Constants extends AllConstants {
 
         public static final String IS_CHILD_DATA_ON_DEVICE = "is_child_data_on_device";
         public static final String NFC_CARD_LAST_UPDATED_TIMESTAMP = "nfc_card_last_updated_timestamp";
+        public static final String NFC_LAST_PROCESSED_TIMESTAMP = "nfc_last_processed_timestamp";
     }
 
     public static final class INTENT_KEY {
@@ -177,7 +183,6 @@ public final class Constants extends AllConstants {
     }
 
     public static class ENTITY {
-
         public static final String CHILD = "child";
         public static final String MOTHER = "mother";
         public static final String FATHER = "father";
@@ -196,7 +201,6 @@ public final class Constants extends AllConstants {
     }
 
     public static final class GENDER {
-
         public static final String MALE = "male";
         public static final String FEMALE = "female";
     }
@@ -231,7 +235,7 @@ public final class Constants extends AllConstants {
         public static final String NOTIFICATIONS_BCG_ENABLED = "notifications.bcg.enabled";
         public static final String POPUP_WEIGHT_ENABLED = "popup.weight.enabled";
 
-        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";;
+        public static final String FEATURE_IMAGES_ENABLED = "feature.images.enabled";
 
         public static final String HOME_NEXT_VISIT_DATE_ENABLED = "home.next.visit.date.enabled";
         public static final String HOME_RECORD_WEIGHT_ENABLED = "home.record.weight.enabled";
@@ -275,6 +279,7 @@ public final class Constants extends AllConstants {
         String LAST_NAME = "lastName";
         String SYSTEM_OF_REGISTRATION = "system_of_registration";
         String BIRTHDATE = "birthdate";
+        String DEATHDATE = "deathdate";
         String ID_LOWER_CASE = "_id";
         String IDENTIFIERS = "identifiers";
         String GENDER = "gender";
@@ -302,7 +307,5 @@ public final class Constants extends AllConstants {
         String NEXT_APPOINTMENT_DATE = "Next_Appointment_Date";
         String NEXT_SERVICE_EXPECTED = "Next_Service_Expected";
         String IS_OUT_OF_CATCHMENT = "Is_Out_Of_Catchment";
-
     }
 }
-

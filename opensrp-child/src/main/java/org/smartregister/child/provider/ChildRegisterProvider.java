@@ -286,7 +286,8 @@ public class ChildRegisterProvider implements RecyclerViewProvider<ChildRegister
 
     @VisibleForTesting
     protected void initiateViewUpdateTasks(@NonNull RegisterActionParams params) {
-        Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.HOME_RECORD_WEIGHT_ENABLED))
+            Utils.startAsyncTask(new GrowthMonitoringAsyncTask(params, commonRepository, weightRepository, heightRepository, context), null);
         Utils.startAsyncTask(new VaccinationAsyncTask(params, commonRepository, vaccineRepository, alertService, context), null);
     }
 

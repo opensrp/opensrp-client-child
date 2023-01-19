@@ -300,13 +300,23 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
 
     @Test
     public void testConfigureFloatingActionBackgroundSetsItsVisibilityToVisible() {
+        ReflectionHelpers.setField(baseChildImmunizationActivity, "childDetails", getChildDetails());
+        TestChildImmunizationActivity activity = Mockito.spy(baseChildImmunizationActivity);
+        Mockito.doReturn("Active").when(activity).getString(R.string.active);
+
         LinearLayout fab = Mockito.mock(LinearLayout.class);
         Mockito.doReturn(0).when(fab).getPaddingBottom();
         Mockito.doReturn(0).when(fab).getPaddingLeft();
         Mockito.doReturn(0).when(fab).getPaddingRight();
         Mockito.doReturn(0).when(fab).getPaddingTop();
-        baseChildImmunizationActivity.floatingActionButton = fab;
-        baseChildImmunizationActivity.configureFloatingActionBackground(0, null);
+
+        TextView fabText = Mockito.mock(TextView.class);
+        ImageView fabImage = Mockito.mock(ImageView.class);
+        Mockito.doReturn(fabText).when(fab).findViewById(R.id.fab_text);
+        Mockito.doReturn(fabImage).when(fab).findViewById(R.id.fab_image);
+
+        activity.floatingActionButton = fab;
+        activity.configureFloatingActionBackground(0, null);
 
         Mockito.verify(fab).setVisibility(View.VISIBLE);
     }

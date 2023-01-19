@@ -805,9 +805,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = mTelephonyManager.getSimSerialNumber(); //Already handled by native form
         } catch (SecurityException e) {
-            Timber.e(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
+            Timber.w(e, "ChildJsonFormUtils --> MissingPermission --> getSimSerialNumber");
         } catch (NullPointerException e) {
-            Timber.e(e);
+            Timber.w(e);
         }
         obs = new Obs();
         obs.setFieldCode("163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -1428,18 +1428,18 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return getFieldValue(fields, key);
     }
 
-    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processMotherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.MOTHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processMotherRegistrationForm");
             return null;
         }
     }
 
-    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base) {
+    public static ChildEventClient processFatherRegistrationForm(String jsonString, String relationalId, ChildEventClient base, boolean isEditMode) {
         try {
-            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER);
+            return processParentEventForm(jsonString, relationalId, base, Constants.KEY.FATHER, isEditMode);
         } catch (Exception e) {
             Timber.e(e, "ChildJsonFormUtils --> processFatherRegistrationForm");
             return null;
@@ -1447,7 +1447,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     @Nullable
-    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType)
+    private static ChildEventClient processParentEventForm(String jsonString, String relationalId, ChildEventClient childEventClient, String bindType, boolean isEditMode)
             throws JSONException {
 
         Triple<Boolean, JSONObject, JSONArray> registrationFormParams = validateParameters(jsonString);
@@ -1485,7 +1485,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
                 Event subFormEvent = null;
 
-                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId);
+                Client subformClient = createSubFormClient(fields, baseClient, bindType, relationalId, isEditMode);
 
                 //only set default gender if not explicitly set in the registration form
                 if (StringUtils.isBlank(subformClient.getGender()) && bindType.equalsIgnoreCase(Constants.KEY.MOTHER)) {
@@ -1626,12 +1626,12 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId) {
+    private static Client createSubFormClient(JSONArray fields, Client parent, String bindType, String entityRelationId, boolean isEditMode) {
         if (StringUtils.isBlank(bindType)) {
             return null;
         }
         String stringBirthDate = getSubFormFieldValue(fields, FormEntityConstants.Person.birthdate, bindType);
-        Map<String, String> identifierMap = getSubFormIdentifierMap(bindType);
+        Map<String, String> identifierMap = !isEditMode ? getSubFormIdentifierMap(bindType) : new HashMap<>();
         Date birthDate = formatDate(stringBirthDate, true);
         birthDate = cleanBirthDateForSave(birthDate);//Fix weird bug day decrements on save
         String stringDeathDate = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate, bindType);
@@ -1800,7 +1800,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
             for (int i = 0; i < clients.length(); i++) {
                 JSONObject client = clients.getJSONObject(i);
-                client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+
+                if (moveToCatchmentEvent.isPermanent()) {
+                    client.put("syncStatus", BaseRepository.TYPE_Unsynced);
+                } else {
+                    client.put("syncStatus", BaseRepository.TYPE_Synced);
+                }
+
                 client.put("teamId", teamId);
                 client.put("locationId", locationId);
             }
@@ -1814,14 +1820,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             List<Pair<Event, JSONObject>> eventPairList = MoveToMyCatchmentUtils.createEventList(ChildLibrary.getInstance().getEcSyncHelper(), events);
 
             if (moveToCatchmentEvent.isPermanent()) {
-
                 processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
                 processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
-
             } else {
-
                 processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent());
-
             }
 
             return true;
@@ -1833,9 +1835,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     private static void tagClients(JSONArray clientList) throws JSONException {
-
         for (int i = 0; i < clientList.length(); i++) {
-
             clientList.getJSONObject(i).getJSONObject(Constants.Client.ATTRIBUTES).put(Constants.Client.IS_OUT_OF_CATCHMENT, true);
         }
     }
@@ -1849,13 +1849,10 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent) throws Exception {
-
         if (createEvent) {
-
             Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients);
 
             convertAndPersistEvent(moveToCatchmentSyncEvent);
-
         }
 
         List<String> formSubmissionIds = new ArrayList<>();
@@ -2118,6 +2115,11 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         if (form != null) {
             form.getJSONObject(METADATA).put(ENCOUNTER_LOCATION, currentLocationId);
             if (Utils.metadata().childRegister.formName.equals(formName)) {
+                if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() < 2) {
+                    Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
+                    Timber.d( "ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
+                    return;
+                }
                 if (StringUtils.isBlank(entityId)) {
                     UniqueIdRepository uniqueIdRepo = CoreLibrary.getInstance().context().getUniqueIdRepository();
                     entityId = uniqueIdRepo.getNextUniqueId() != null ? uniqueIdRepo.getNextUniqueId().getOpenmrsId() : "";
@@ -2396,10 +2398,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
         //In case it is an unsynced Event and we are updating, we need to remove the previous Observation with the same form field tag
         //Form fields should always be unique per submission
-
         List<Obs> obsList = event.getObs();
         if (obsList != null && obsList.size() > 0) {
-            obsList.removeIf(obs -> obs.getFormSubmissionField().equals(key));
+            obsList.removeIf(obs -> key.equals(obs.getFormSubmissionField()));
         }
 
         // Process new observation

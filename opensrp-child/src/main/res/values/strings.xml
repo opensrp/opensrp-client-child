@@ -180,9 +180,11 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirm Move</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirm Move (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Are you sure you want to move this record to your catchment area?</string>
+    <string name="move_to_catchment_success_message">The record has been moved to your catchment area</string>
     <string name="mother_lookup_results">Matching Records</string>
     <string name="dismiss">Dismiss</string>
     <string name="change_status">Change Status</string>
+    <string name="register_biometrics">Register Biometrics</string>
     <string name="write_passcode">Write Passcode</string>
     <string name="read_from_card">Read Card</string>
     <string name="write_to_card">Write to Card</string>
@@ -387,5 +389,6 @@
 
     <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
 
-    <string name="formatted_label">%1$s: %2$s</string>
+    <string name="format_label_colon_text">%1$s: %2$s</string>
+    <string name="format_label_space_text">%1$s %2$s</string>
 </resources>

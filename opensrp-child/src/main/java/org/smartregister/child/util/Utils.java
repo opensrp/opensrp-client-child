@@ -418,7 +418,7 @@ public class Utils extends org.smartregister.util.Utils {
             return growthValue;
         }
 
-        throw new IllegalArgumentException(value + "is not a positive number");
+        throw new IllegalArgumentException(value + " is not a positive number");
     }
 
     public static Map<String, String> getCleanMap(Map<String, String> rawDetails) {
@@ -773,5 +773,10 @@ public class Utils extends org.smartregister.util.Utils {
         } catch (Exception e) {
             Timber.e(e);
         }
+    }
+
+    public static boolean isChildHasNFCCard(Map<String, String> detailsMap) {
+        return StringUtils.isNotEmpty(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER))
+                && !Constants.TRUE.equalsIgnoreCase(detailsMap.getOrDefault(Constants.KEY.NFC_CARD_BLACKLISTED, Constants.FALSE));
     }
 }
