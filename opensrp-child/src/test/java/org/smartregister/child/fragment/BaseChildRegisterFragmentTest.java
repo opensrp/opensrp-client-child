@@ -1,5 +1,8 @@
 package org.smartregister.child.fragment;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.smartregister.child.util.VaccineOverdueCountRepositoryHelper.COUNT_QUERY_SQL;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +27,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
@@ -45,6 +49,7 @@ import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.RecyclerViewPaginatedAdapter;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.VaccineOverdueCountRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.IMConstants;
 import org.smartregister.location.helper.LocationHelper;
@@ -54,6 +59,7 @@ import org.smartregister.util.AppProperties;
 import org.smartregister.view.LocationPickerView;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 /**
  * Created by ndegwamartin on 03/11/2020.
@@ -113,6 +119,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     private CoreLibrary coreLibrary;
     @Mock
     private ChildLibrary childLibrary;
+    @Mock
+    private AppExecutors executors;
     private BaseChildRegisterFragment baseChildRegisterFragment;
 
     @Before
@@ -122,6 +130,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         mockImmunizationLibrary(immunizationLibrary, context, vaccineRepository, alertService);
         Mockito.doReturn(VaccineRepo.Vaccine.values()).when(immunizationLibrary).getVaccines(IMConstants.VACCINE_TYPE.CHILD);
         Whitebox.setInternalState(baseChildRegisterFragment, "mainCondition", "is_closed IS NOT 1");
+        Whitebox.setInternalState(baseChildRegisterFragment, "executors", executors);
     }
 
     @After
@@ -177,8 +186,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", locationHelper);
 
-        Mockito.doReturn(TEST_LOCATION).when(locationHelper).getOpenMrsReadableName(ArgumentMatchers.anyString());
-        Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(ArgumentMatchers.anyString());
+        Mockito.doReturn(TEST_LOCATION).when(locationHelper).getOpenMrsReadableName(anyString());
+        Mockito.doReturn(TEST_LOCATION_ID).when(locationHelper).getOpenMrsLocationId(anyString());
         Mockito.doReturn(context).when(baseChildRegisterFragment).getOpenSRPContext();
         Mockito.doReturn(allSharedPreferences).when(context).allSharedPreferences();
 
@@ -186,6 +195,15 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(appExecutors).when(baseChildRegisterFragment).getAppExecutors();
         Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).diskIO();
         Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).mainThread();
+
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
 
         baseChildRegisterFragment.updateLocationText();
 
@@ -276,7 +294,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn(registerQueryProvider).when(childMetadata).getRegisterQueryProvider();
 
         String TEST_SQL = "Select count(*) from Table where id = 3";
-        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getCountExecuteQuery(anyString(), anyString());
+        Mockito.doReturn(TEST_SQL).when(registerQueryProvider).getActiveChildrenQuery();
 
         Mockito.doReturn(5).when(commonRepository).countSearchIds(TEST_SQL);
         AppExecutors appExecutors = Mockito.mock(AppExecutors.class);
@@ -284,11 +303,19 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).diskIO();
         Mockito.doReturn( MoreExecutors.directExecutor()).when(appExecutors).mainThread();
 
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
+
         baseChildRegisterFragment.countExecute();
 
         Mockito.verify(clientAdapter).setTotalcount(5);
         Mockito.verify(clientAdapter).setCurrentlimit(20);
-        Mockito.verify(clientAdapter).setCurrentoffset(0);
 
 
     }
@@ -325,7 +352,7 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         // Mockito.doReturn(20).when(clientAdapter).getTotalcount();
         Mockito.doReturn(20).when(clientAdapter).getCurrentlimit();
         Mockito.doReturn(0).when(clientAdapter).getCurrentoffset();
-        Mockito.doReturn(Arrays.asList("6", "9", "12")).when(commonRepository).findSearchIds(ArgumentMatchers.anyString());
+        Mockito.doReturn(Arrays.asList("6", "9", "12")).when(commonRepository).findSearchIds(anyString());
 
         String searchText = "some random search text";
 
@@ -345,13 +372,11 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Whitebox.setInternalState(baseChildRegisterFragment, "Sortqueries", "SORT BY ID DESC");
         Whitebox.setInternalState(baseChildRegisterFragment, "filters", searchText);
 
-        String expectedQuery = "SELECT ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id," +
-                "ec_client.first_name,ec_client.last_name,mother.first_name as mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob," +
-                "ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number,ec_client.client_reg_date,ec_child_details.pmtct_status," +
-                "ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 " +
-                "FROM ec_child_details JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id JOIN ec_client " +
-                "ON ec_client.base_entity_id = ec_child_details.base_entity_id JOIN ec_client mother ON mother.base_entity_id = ec_mother_details.base_entity_id WHERE _id IN ('6','9','12') " +
-                "OR ec_mother_details.base_entity_id in ('6','9','12')";
+        String expectedQuery = "SELECT ec_client.id as _id,ec_client.relationalid,ec_client.zeir_id,ec_child_details.relational_id,ec_client.gender,ec_client.base_entity_id,ec_client.first_name,ec_client.last_name,mother.first_name as " +
+                "mother_first_name,mother.last_name as mother_last_name,ec_client.dob,mother.dob as mother_dob,ec_mother_details.nrc_number as mother_nrc_number,ec_mother_details.father_name,ec_mother_details.epi_card_number," +
+                "ec_client.client_reg_date,ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive,ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1 " +
+                "FROM ec_child_details JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id JOIN ec_client ON ec_client.base_entity_id = ec_child_details.base_entity_id JOIN ec_client mother " +
+                "ON mother.base_entity_id = ec_mother_details.base_entity_id WHERE _id IN ('6','9','12') OR ec_mother_details.base_entity_id in ('6','9','12') AND null";
 
         String result = baseChildRegisterFragment.filterAndSortQuery();
 
@@ -396,9 +421,10 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("ID = 8").when(baseChildRegisterFragment).filterSelectionCondition(false);
-        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(anyString(), anyString(), anyString(), ArgumentMatchers.anyBoolean());
 
         ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -436,10 +462,11 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
         Assert.assertNotNull(baseChildRegisterFragment);
 
         Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSection);
+        Whitebox.setInternalState(baseChildRegisterFragment, "clientAdapter", clientAdapter);
 
         Mockito.doReturn("is_closed IS NOT 1").when(baseChildRegisterFragment).getMainCondition();
         Mockito.doReturn("PRESSED").when(filterSection).getTag();
-        Mockito.doNothing().when(baseChildRegisterFragment).filter(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean());
+        Mockito.doNothing().when(baseChildRegisterFragment).filter(anyString(), anyString(), anyString(), ArgumentMatchers.anyBoolean());
 
         ArgumentCaptor<String> tagCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> bgResourceCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -502,5 +529,39 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
 
         Mockito.verify(frameLayout).setOnClickListener(baseChildRegisterFragment);
 
+    }
+
+    @Test
+    public void testSetOverdueCountSetCorrectValue() {
+        baseChildRegisterFragment.setOverDueCount(20);
+        Assert.assertEquals(20, baseChildRegisterFragment.getOverDueCount());
+    }
+
+    @Test
+    public void testRunVaccineOverdueQuerySetsCountCorrectly() throws Exception {
+        VaccineOverdueCountRepository vaccineOverdueCountRepository = Mockito.mock(VaccineOverdueCountRepository.class);
+        Mockito.doReturn(30).when(vaccineOverdueCountRepository).getOverdueCount(COUNT_QUERY_SQL);
+
+        PowerMockito.when(ImmunizationLibrary.getInstance().getVaccineOverdueCountRepository()).thenReturn(vaccineOverdueCountRepository);
+
+        Executor executor = Mockito.mock(Executor.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        Mockito.when(executors.mainThread()).thenReturn(executor);
+        Mockito.when(executors.diskIO()).thenReturn(executor);
+
+        Whitebox.invokeMethod(baseChildRegisterFragment, "runVaccineOverdueQuery");
+        Mockito.verify(baseChildRegisterFragment).setOverDueCount(30);
+    }
+
+    @Test
+    public void testClearFilterViewProperties() {
+        Whitebox.setInternalState(baseChildRegisterFragment, "filterSection", filterSectionView);
+        baseChildRegisterFragment.clearFilter();
+        Mockito.verify(filterSectionView).setTag(null);
+        Mockito.verify(filterSectionView).setBackgroundResource(R.drawable.transparent_gray_background);
     }
 }

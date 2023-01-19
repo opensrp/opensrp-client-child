@@ -111,4 +111,20 @@ public class RegisterQueryProvider {
     public String getDemographicTable() {
         return DBConstants.RegisterTable.CLIENT;
     }
+
+    public String getActiveChildrenQuery() {
+        return "SELECT count(id) FROM " + getChildDetailsTable() +
+                " WHERE (" + Constants.KEY.DATE_REMOVED + " IS NULL " +
+                " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL) " +
+                " AND " + Constants.KEY.IS_CLOSED + " IS NOT '1')";
+    }
+
+    public String getActiveChildrenIds() {
+        return "SELECT " + getChildDetailsTable() + "." + Constants.KEY.ID +
+                " FROM " + getChildDetailsTable() + " INNER JOIN " + getDemographicTable() + " ON " + getChildDetailsTable() + "." + Constants.KEY.ID + " = " + getDemographicTable() + "." + Constants.KEY.ID +
+                " WHERE (" + getChildDetailsTable() + "." + Constants.KEY.DATE_REMOVED + " IS NULL" +
+                " AND (" + getChildDetailsTable() + ".inactive is NOT true OR " + getChildDetailsTable() + ".inactive is NULL)" +
+                " AND " + getChildDetailsTable() + "." + Constants.KEY.IS_CLOSED + " IS NOT '1') " +
+                "ORDER BY " + getDemographicTable() + "." + Constants.KEY.LAST_INTERACTED_WITH + " DESC ";
+    }
 }

@@ -70,14 +70,19 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
+        if (getUniqueIdRepository().countUnUsedIds() < 2) {
+            callBack.onNoUniqueId();
+            Timber.d( "ChildRegisterInteractor --> getNextUniqueId: Unique ids are less than 2 required to register mother and child");
+            return;
+        }
         Runnable runnable = () -> {
             UniqueId uniqueId = getUniqueIdRepository().getNextUniqueId();
-            final String entityId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
+            final String openmrsId = uniqueId != null ? uniqueId.getOpenmrsId() : "";
             appExecutors.mainThread().execute(() -> {
-                if (StringUtils.isBlank(entityId)) {
+                if (StringUtils.isBlank(openmrsId)) {
                     callBack.onNoUniqueId();
                 } else {
-                    callBack.onUniqueIdFetched(triple, entityId);
+                    callBack.onUniqueIdFetched(triple, openmrsId);
                 }
             });
         };
@@ -189,9 +194,9 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
     }
 
     private void updateOpenSRPId(String jsonString, UpdateRegisterParams params, Client baseClient) {
-        if (params.isEditMode()) {
-            // Unassign current OPENSRP ID
-            if (baseClient != null) {
+        if (baseClient != null) {
+            if (params.isEditMode()) {
+                // Unassign current OPENSRP ID
                 try {
                     String newOpenSRPId = baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID).replace("-", "");
                     String currentOpenSRPId = ChildJsonFormUtils.getString(jsonString, ChildJsonFormUtils.CURRENT_ZEIR_ID).replace("-", "");
@@ -202,9 +207,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
                 } catch (Exception e) {//might crash if M_ZEIR
                     Timber.d(e, "ChildRegisterInteractor --> unassign opensrp id");
                 }
-            }
-        } else {
-            if (baseClient != null) {
+            } else {
                 //mark OPENSRP ID as used
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.ZEIR_ID));
                 markUniqueIdAsUsed(baseClient.getIdentifier(ChildJsonFormUtils.M_ZEIR_ID));
