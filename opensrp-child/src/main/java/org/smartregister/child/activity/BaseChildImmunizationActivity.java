@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -114,7 +112,6 @@ import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.io.Serializable;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,6 +122,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
@@ -241,10 +239,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             } else {
                 if (cardChildDetails != null) {
                     // card last update
-                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault(Constants.KEY.NFC_LAST_PROCESSED_TIMESTAMP, "0");
+                    String cardTxDateTime = cardChildDetails.getColumnmaps().getOrDefault("nfc_last_processed_timestamp", "0");
                     long lastCardTxDateTime = Long.parseLong(cardTxDateTime != null ? cardTxDateTime : "0");
                     // device last update
-                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault(Constants.KEY.LAST_INTERACTED_WITH, "0");
+                    String lastDeviceInteraction = childDetails.getColumnmaps().getOrDefault("last_interacted_with", "0");
                     long lastInteractedWith = Long.parseLong(lastDeviceInteraction != null ? lastDeviceInteraction : "0");
 
                     if (lastCardTxDateTime > lastInteractedWith) {
@@ -264,10 +262,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
                         !ChildLibrary.getInstance().getProperties()
                                 .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_BCG_ENABLED);
         weightNotificationShown = false;
-//        ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
-//                ? ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED)
-//                : false;
-
+        //                ChildLibrary.getInstance().getProperties().hasProperty(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) ?
+//                        ChildLibrary.getInstance().getProperties()
+//                                .getPropertyBoolean(ChildAppProperties.KEY.NOTIFICATIONS_WEIGHT_ENABLED) : false;
+//
         setLastModified(false);
 
         setUpFloatingActionButton();
@@ -333,30 +331,19 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     protected abstract void goToRegisterPage();
 
     protected void configureFloatingActionBackground(Integer drawableResourceId, String title) {
-        TextView fabText = ((TextView) floatingActionButton.findViewById(R.id.fab_text));
-        ImageView fabImage = ((ImageView) floatingActionButton.findViewById(R.id.fab_image));
+
         if (drawableResourceId != null) {
             int paddingLeft = floatingActionButton.getPaddingLeft();
             int paddingRight = floatingActionButton.getPaddingRight();
             int paddingTop = floatingActionButton.getPaddingTop();
             int paddingBottom = floatingActionButton.getPaddingBottom();
 
-            if (isActiveStatus(childDetails)) {
-                floatingActionButton.setClickable(true);
-                floatingActionButton.setBackgroundResource(drawableResourceId);
-                fabText.setTextColor(Color.WHITE);
-                fabImage.setColorFilter(Color.WHITE);
-            } else {
-                floatingActionButton.setClickable(false);
-                floatingActionButton.setBackgroundResource(R.drawable.light_grey_background);
-                fabText.setTextColor(R.color.silver);
-                fabImage.setColorFilter(ActivityCompat.getColor(this, R.color.silver));
-            }
+            floatingActionButton.setBackgroundResource(drawableResourceId);
             floatingActionButton.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
 
         if (title != null) {
-            fabText.setText(title);
+            ((TextView) floatingActionButton.findViewById(R.id.fab_text)).setText(title);
         }
 
         floatingActionButton.setVisibility(View.VISIBLE);
@@ -455,13 +442,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         profileNamelayout.setOnClickListener(v -> launchDetailActivity(getActivity(), childDetails, null));
 
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (!childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) || childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(AllConstants.TRUE))) {
-            CommonPersonObjectClient objectClient = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
-            if (objectClient != null) {
-                childDetails = objectClient;
-            } else {
-                Timber.e("fetchCommonPersonObjectClientByBaseEntityId is null, child record is not n the database.");
-            }
-
+            childDetails = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(childDetails.getColumnmaps().get(DBConstants.KEY.BASE_ENTITY_ID));
         }
 
         isChildActive = isActiveStatus(childDetails);
@@ -555,7 +536,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             findViewById(R.id.outOfCatchment).setVisibility(showOutOfCatchmentText ? View.VISIBLE : View.GONE);
 
             nameTV.setText(name);
-            childIdTV.setText(getString(R.string.format_label_colon_text, getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
+            childIdTV.setText(getString(R.string.formatted_label, getString(R.string.label_zeir), Utils.formatIdentifiers(childId)));
         }
 
         Utils.startAsyncTask(new GetSiblingsTask(childDetails, this), null);
@@ -727,10 +708,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            ft.remove(prev);
         }
-        ft.addToBackStack(null);
 
+        ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
@@ -757,7 +738,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            ft.remove(prev);
         }
         ft.addToBackStack(null);
 
@@ -785,10 +766,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            ft.remove(prev);
         }
-        ft.addToBackStack(null);
 
+        ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
@@ -1001,7 +982,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         LinearLayout parent;
         int groupParentId = canvasId;
         if (groupParentId == -1) {
-            SecureRandom r = new SecureRandom();
+            Random r = new Random();
             groupParentId = r.nextInt(RANDOM_MAX_RANGE - RANDOM_MIN_RANGE) + RANDOM_MIN_RANGE;
             parent = new LinearLayout(this);
             parent.setId(groupParentId);
@@ -1081,13 +1062,14 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
+
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            ft.remove(prev);
         }
-        ft.addToBackStack(null);
 
+        ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1112,10 +1094,10 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            fragmentTransaction.remove(prev);
         }
-        fragmentTransaction.addToBackStack(null);
 
+        fragmentTransaction.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
@@ -1129,9 +1111,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             final ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
             new BCGNotificationDialog(this, (dialog, which) -> {
+
                 onBcgReminderOptionSelected(Constants.SHOW_BCG_SCAR);
                 Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }, (dialog, which) -> {
+
                 onBcgReminderOptionSelected(Constants.SHOW_BCG2_REMINDER);
                 Snackbar.make(rootView, R.string.create_reminder_notification_message, Snackbar.LENGTH_LONG).show();
             }).show();
@@ -1139,6 +1123,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     public void onBcgReminderOptionSelected(String option) {
+
         final long DATE = new Date().getTime();
         switch (option) {
             case Constants.SHOW_BCG2_REMINDER:
@@ -1162,6 +1147,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     private void updateGrowthViews(Weight lastUnsyncedWeight, Height lastUnsyncedHeight, final boolean isActive) {
+
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), AllConstants.ChildRegistrationFields.GENDER, true);
         String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.MOTHER_FIRST_NAME, true);
@@ -1363,11 +1349,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
         Fragment prev = this.getSupportFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            return;
+            fragmentTransaction.remove(prev);
         }
         fragmentTransaction.addToBackStack(null);
-
-        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);
         Date dob = Utils.dobStringToDate(dobString);
@@ -1389,8 +1373,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             RecordGrowthDialogFragment recordWeightDialogFragment = RecordGrowthDialogFragment.newInstance(dob, weightWrapper, heightWrapper);
             recordWeightDialogFragment.show(fragmentTransaction, DIALOG_TAG);
         }
-
-        hideProgressDialog();
     }
 
     @Override
@@ -1518,13 +1500,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (tag.getDbKey() != null) {
             vaccine = vaccineRepository.find(tag.getDbKey());
         }
-
-        if (StringUtils.isNotEmpty(childDetails.entityId())) {
-            vaccine.setBaseEntityId(childDetails.entityId());
-        } else {
-            vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
-        }
-
+        vaccine.setBaseEntityId(isOutOfCatchmentVaccine && !BaseRepository.TYPE_Synced.equals(vaccine.getSyncStatus()) ? "" : childDetails.entityId());
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
@@ -1726,11 +1702,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
         if (prev != null) {
-            return;
+            fragmentTransaction.remove(prev);
         }
         fragmentTransaction.addToBackStack(null);
-
-        showProgressDialog(getString(R.string.loading), getString(R.string.loading_form_message));
 
         List<Weight> weights = new ArrayList<>();
         List<Height> heights = new ArrayList<>();
@@ -1738,6 +1712,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         if (growthMonitoring == null || growthMonitoring.isEmpty()) {
             Utils.showToast(this, getString(R.string.record_growth_details));
         } else {
+
             if (growthMonitoring.containsKey(Constants.WEIGHT)) {
                 weights = growthMonitoring.get(Constants.WEIGHT);
             }
@@ -1745,17 +1720,18 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             if (growthMonitoring.containsKey(Constants.HEIGHT)) {
                 heights = growthMonitoring.get(Constants.HEIGHT);
             }
+
+
         }
 
         GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, weights, heights);
         growthDialogFragment.show(fragmentTransaction, BaseChildImmunizationActivity.DIALOG_TAG);
-
-        hideProgressDialog();
     }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
+
 
     public void updateScheduleDate() {
         String dobString = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.DOB, false);

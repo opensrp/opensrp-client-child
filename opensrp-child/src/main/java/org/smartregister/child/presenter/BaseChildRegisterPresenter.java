@@ -120,7 +120,7 @@ public class BaseChildRegisterPresenter
 
         try {
 
-            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag(), updateRegisterParams.isEditMode());
+            List<ChildEventClient> childEventClientList = model.processRegistration(jsonString, updateRegisterParams.getFormTag());
             if (childEventClientList == null || childEventClientList.isEmpty()) {
                 return;
             }
@@ -153,9 +153,7 @@ public class BaseChildRegisterPresenter
             startForm(triple.getLeft(), entityId, triple.getMiddle(), triple.getRight());
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
-            if (getView() != null) {
-                getView().displayToast(R.string.error_unable_to_start_form);
-            }
+            getView().displayToast(R.string.error_unable_to_start_form);
         }
     }
 
@@ -166,9 +164,7 @@ public class BaseChildRegisterPresenter
 
     @Override
     public void onRegistrationSaved(boolean isEdit) {
-        if (getView() != null) {
-            getView().refreshList(FetchStatus.fetched);
-            getView().hideProgressDialog();
-        }
+        getView().refreshList(FetchStatus.fetched);
+        getView().hideProgressDialog();
     }
 }

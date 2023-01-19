@@ -168,30 +168,6 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         Assert.assertEquals("100003U", personObjectClient.getDetails().get(DBConstants.KEY.ZEIR_ID));
     }
 
-    @Test
-    public void testFetchChildDetailsShouldAddCardIdentifierKey() {
-        String baseEntityId = "234-2323";
-        Mockito.when(repository.getReadableDatabase()).thenReturn(sqLiteDatabase);
-        Mockito.when(childLibrary.getRepository()).thenReturn(repository);
-        EventClientRepository eventClientRepository = Mockito.mock(EventClientRepository.class);
-        ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
-        HashMap<String, String> map = new HashMap<>();
-        map.put("first_name", "John");
-        map.put("nfc_cards_archive", "[\"5420097667890000\"]");
-
-        hashMaps.add(map);
-        ChildMetadata childMetadata = new ChildMetadata(BaseChildFormActivity.class, BaseProfileActivity.class, BaseChildImmunizationActivity.class, BaseChildRegisterActivity.class, true, new RegisterQueryProvider());
-        Mockito.when(eventClientRepository.rawQuery(sqLiteDatabase, childMetadata.getRegisterQueryProvider().mainRegisterQuery()
-                + " WHERE " + childMetadata.getRegisterQueryProvider().getDemographicTable() + ".id = '" + baseEntityId + "' LIMIT 1")).thenReturn(hashMaps);
-        Mockito.when(childLibrary.eventClientRepository()).thenReturn(eventClientRepository);
-        Mockito.when(childLibrary.metadata()).thenReturn(childMetadata);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
-        HashMap<String, String> childDetails = ChildDbUtils.fetchChildDetails(baseEntityId);
-
-        Assert.assertTrue(childDetails.containsKey("nfc_card_identifier"));
-        Assert.assertEquals("5420097667890000", childDetails.get("nfc_card_identifier"));
-    }
-
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);

@@ -142,7 +142,6 @@ dependencies {
         exclude group: 'io.ona.rdt-capture', module: 'lib'
         exclude group: 'com.google.android.gms', module: 'play-services-vision'
         exclude group: 'com.google.code.gson', module: 'gson'
-        exclude group: 'com.github.raihan-mpower', module:'FancyAlertDialog-Android'
     }
 
     implementation 'com.google.code.gson:gson:2.9.0'
@@ -165,6 +164,7 @@ dependencies {
 
     api('org.smartregister:opensrp-client-growth-monitoring:3.0.0-SNAPSHOT@aar') {
         transitive = true
+
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
         exclude group: 'com.android.support', module: 'design'

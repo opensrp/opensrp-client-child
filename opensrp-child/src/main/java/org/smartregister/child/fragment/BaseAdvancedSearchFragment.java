@@ -81,8 +81,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 clientAdapter.notifyDataSetChanged();
                 ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
                 ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
-
-                Utils.showToast(requireActivity(), requireActivity().getString(R.string.move_to_catchment_success_message));
             } else {
                 Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
             }
@@ -388,10 +386,9 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private void setUpMyCatchmentControls(View view, final RadioButton myCatchment,
                                           final RadioButton outsideInside, int p) {
         myCatchment.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Trigger for myCatchment only, when there is no internet connectivity
-            if (!Utils.isConnectedToNetwork(requireActivity()) && myCatchment.getId() == R.id.my_catchment) {
-                outsideInside.setChecked(false);
+            if (!Utils.isConnectedToNetwork(requireActivity())) {
                 myCatchment.setChecked(true);
+                outsideInside.setChecked(false);
             } else {
                 outsideInside.setChecked(!isChecked);
             }
@@ -513,8 +510,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
         } else {
-            outsideInside.setChecked(false);
             myCatchment.setChecked(true);
+            outsideInside.setChecked(false);
         }
 
         if (connectionChangeReciever == null) {
@@ -522,8 +519,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (!Utils.isConnectedToNetwork(requireActivity())) {
-                        outsideInside.setChecked(false);
                         myCatchment.setChecked(true);
+                        outsideInside.setChecked(false);
                     }
                 }
             };
@@ -651,7 +648,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                         public void run() {
                             clientAdapter.setTotalcount(totalCount);
                             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
-                            clientAdapter.setCurrentlimit(getPageLimit());
+                            clientAdapter.setCurrentlimit(20);
                             clientAdapter.setCurrentoffset(0);
                         }
                     });

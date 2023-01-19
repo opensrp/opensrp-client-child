@@ -117,17 +117,13 @@ public class ChildUnderFiveFragment extends Fragment {
 
     @Override
     public void onStart() {
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
+        EventBus.getDefault().register(this);
         super.onStart();
     }
 
     @Override
     public void onPause() {
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
+        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 

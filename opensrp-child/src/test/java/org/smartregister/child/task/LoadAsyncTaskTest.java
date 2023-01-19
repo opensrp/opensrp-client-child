@@ -116,38 +116,4 @@ public class LoadAsyncTaskTest extends BasePowerMockUnitTest {
         Assert.assertNotNull(capturedVal);
         Assert.assertFalse(capturedVal);
     }
-
-    @Test
-    public void testActivateMenuItemByValueActivatesWhenVIsEnabledTrue() {
-        int menuItemIdA = 1;
-        Mockito.doReturn(menuItem).when(menu).findItem(menuItemIdA);
-
-        LoadAsyncTask loadAsyncTask = new LoadAsyncTask(Status.EDIT_VACCINE, detailsMap, childDetails, activity, childDataFragment, childUnderFiveFragment, menu);
-        loadAsyncTask.activateMenuItemByValue(menu, menuItemIdA, true);
-
-        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
-
-        Mockito.verify(menuItem).setEnabled(booleanArgumentCaptor.capture());
-
-        Boolean capturedVal = booleanArgumentCaptor.getValue();
-        Assert.assertNotNull(capturedVal);
-        Assert.assertTrue(capturedVal);
-    }
-
-    @Test
-    public void testActivateMenuItemByValueNOTENABLEDWhenVIsEnabledFalse() {
-        int menuItemIdA = 1;
-        Mockito.doReturn(menuItem).when(menu).findItem(menuItemIdA);
-
-        LoadAsyncTask loadAsyncTask = new LoadAsyncTask(Status.EDIT_VACCINE, detailsMap, childDetails, activity, childDataFragment, childUnderFiveFragment, menu);
-        loadAsyncTask.activateMenuItemByValue(menu, menuItemIdA, false);
-
-        ArgumentCaptor<Boolean> booleanArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
-
-        Mockito.verify(menuItem).setEnabled(booleanArgumentCaptor.capture());
-
-        Boolean capturedVal = booleanArgumentCaptor.getValue();
-        Assert.assertNotNull(capturedVal);
-        Assert.assertFalse(capturedVal);
-    }
 }

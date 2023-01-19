@@ -270,28 +270,6 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         Mockito.doReturn(uniqueIdRepository)
                 .when(interactor)
                 .getUniqueIdRepository();
-        Mockito.doReturn(2L)
-                .when(uniqueIdRepository)
-                .countUnUsedIds();
-
-        interactor.getNextUniqueId(triple, callBack);
-        Mockito.verify(callBack).onNoUniqueId();
-    }
-
-    @Test
-    public void testGetNextUniqueIdShouldCallOnNoUniqueIdWhenIdsRemainingAreLessThan2() {
-        interactor = Mockito.spy(interactor);
-        Triple<String, Map<String, String>, String> triple = Triple.of("", new HashMap<>(), "");
-        ChildRegisterContract.InteractorCallBack callBack = Mockito.mock(ChildRegisterContract.InteractorCallBack.class);
-        UniqueIdRepository uniqueIdRepository = Mockito.mock(UniqueIdRepository.class);
-        Mockito.when(uniqueIdRepository.getNextUniqueId())
-                .thenReturn(null);
-        Mockito.doReturn(uniqueIdRepository)
-                .when(interactor)
-                .getUniqueIdRepository();
-        Mockito.doReturn(1L)
-                .when(uniqueIdRepository)
-                .countUnUsedIds();
 
         interactor.getNextUniqueId(triple, callBack);
         Mockito.verify(callBack).onNoUniqueId();
@@ -314,9 +292,6 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         Mockito.doReturn(uniqueIdRepository)
                 .when(interactor)
                 .getUniqueIdRepository();
-        Mockito.doReturn(2L)
-                .when(uniqueIdRepository)
-                .countUnUsedIds();
 
         UniqueId uniqueId = Mockito.mock(UniqueId.class);
         String entityId = "fake_entity_id";
@@ -327,8 +302,6 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
         interactor.getNextUniqueId(triple, callBack);
         Mockito.verify(callBack).onUniqueIdFetched(eq(triple), eq(entityId));
     }
-
-
 
     @Test
     public void testProcessTetanusVaccineSavesVaccineObjectInDb() throws Exception {

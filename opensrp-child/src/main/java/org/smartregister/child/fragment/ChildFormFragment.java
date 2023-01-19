@@ -189,18 +189,16 @@ public class ChildFormFragment extends JsonWizardFormFragment {
     }
 
     private void tapToView(final Map<CommonPersonObject, List<CommonPersonObject>> map) {
-        if (getMainView() != null && getActivity() != null) {
-            snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, String.valueOf(map.size())),
-                    Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    updateResults(map);
-                    //updateResultTree(map);
-                }
-            });
-            show(snackbar);
-        }
+        snackbar = Snackbar.make(getMainView(), getActivity().getString(R.string.mother_guardian_matches, String.valueOf(map.size())),
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.tap_to_view, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateResults(map);
+                //updateResultTree(map);
+            }
+        });
+        show(snackbar);
 
     }
 

@@ -1010,7 +1010,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ChildEventClient base = new ChildEventClient(new Client(entityId), new Event());
 
-        ChildEventClient childEventClient = ChildJsonFormUtils.processMotherRegistrationForm(jsonForm, relationalId, base, false);
+        ChildEventClient childEventClient = ChildJsonFormUtils.processMotherRegistrationForm(jsonForm, relationalId, base);
 
         Assert.assertNotNull(childEventClient);
         Assert.assertNotNull(childEventClient.getClient());
@@ -1046,7 +1046,7 @@ public class ChildJsonFormUtilsTest extends BaseUnitTest {
 
         ChildEventClient base = new ChildEventClient(new Client(entityId), new Event());
 
-        ChildEventClient childEventClient = ChildJsonFormUtils.processFatherRegistrationForm(jsonForm, relationalId, base, false);
+        ChildEventClient childEventClient = ChildJsonFormUtils.processFatherRegistrationForm(jsonForm, relationalId, base);
         Assert.assertNull(childEventClient);
     }
 

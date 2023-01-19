@@ -29,7 +29,6 @@ import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
-import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.domain.UniqueId;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.immunization.ImmunizationLibrary;
@@ -42,7 +41,6 @@ import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -388,105 +386,5 @@ public class UtilsTest {
         details.put("gender", "male");
         Gender gender = Utils.getGenderEnum(details);
         Assert.assertEquals(Gender.MALE, gender);
-    }
-
-    @Test
-    public void testDobStringToDateReturnsNullWhenDobStringIsNull() {
-        Assert.assertNull(Utils.dobStringToDate(null));
-    }
-
-    @Test
-    public void testDobStringToDateReturnsNullWhenDobStringIsEmpty() {
-        Assert.assertNull(Utils.dobStringToDate(""));
-    }
-
-    @Test
-    public void testDobStringToDateReturnsNullWhenDobStringIsInvalidDateFormat() {
-        Assert.assertNull(Utils.dobStringToDate("20211-31-02"));
-    }
-
-    @Test
-    public void testDobStringToDateReturnsCorrectDateWhenDobStringIsAValidDateFormat() {
-        String dobString = "2021-12-12";
-        Date date = Utils.dobStringToDate(dobString);
-        Assert.assertNotNull(date);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Assert.assertEquals(dobString, dateFormat.format(date));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateGrowthValueThrowsIllegalArgumentExceptionWhenStringValueIsNotANumber() {
-        Utils.updateGrowthValue("ABC123.45");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateGrowthValueThrowsIllegalArgumentExceptionWhenStringValueIsANegativeNumber() {
-        Utils.updateGrowthValue("-123.45");
-    }
-
-    @Test
-    public void testUpdateGrowthValueReturnsSameValueWhenStringValueIsAPositiveNumber() {
-        String number = "123.45";
-        String value = Utils.updateGrowthValue(number);
-        Assert.assertEquals(number, value);
-    }
-
-    @Test
-    public void testUpdateGrowthValueAppendsDecimalPointWhenStringValueIsAPositiveInteger() {
-        String number = "123";
-        String value = Utils.updateGrowthValue(number);
-        Assert.assertEquals(number + ".0", value);
-    }
-
-    @Test
-    public void testGetGenderEnumReturnsMaleWhenChildGenderIsMale() {
-        Map<String, String> childDetails = new HashMap<>();
-        childDetails.put("gender", "male");
-        Gender gender = Utils.getGenderEnum(childDetails);
-        Assert.assertEquals("MALE", gender.toString());
-    }
-
-    @Test
-    public void testGetGenderEnumReturnsFemaleWhenChildGenderIsFemale() {
-        Map<String, String> childDetails = new HashMap<>();
-        childDetails.put("gender", "female");
-        Gender gender = Utils.getGenderEnum(childDetails);
-        Assert.assertEquals("FEMALE", gender.toString());
-    }
-
-    @Test
-    public void testGetGenderEnumReturnsUnknownWhenChildGenderIsNeitherMaleOrFemale() {
-        Map<String, String> childDetails = new HashMap<>();
-        childDetails.put("gender", "other");
-        Gender gender = Utils.getGenderEnum(childDetails);
-        Assert.assertEquals("UNKNOWN", gender.toString());
-    }
-
-    @Test
-    public void testProcessExtraVaccinesEventObsAddsSelectedVaccinesAndSelectedVaccinesCounterObservations() throws JSONException {
-        String vaccineField = "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-
-        Event event = new Event();
-        event.setBaseEntityId("baseEntityId");
-        event.setEventType("testEventType");
-        event.setFormSubmissionId("342290-342290");
-        event.setEntityType(Constants.CHILD_TYPE);
-
-        Obs obs = new Obs();
-        obs.setFieldCode(vaccineField);
-        obs.setFieldType("concept");
-        obs.setFieldDataType("start");
-
-        List<Object> humanReadableValues = new ArrayList<>();
-        humanReadableValues.add("dawa");
-        obs.setHumanReadableValues(humanReadableValues);
-
-        event.addObs(obs);
-
-        int obsCount = event.getObs().size();
-
-        Utils.processExtraVaccinesEventObs(event, vaccineField);
-        Assert.assertEquals((obsCount + 1), event.getObs().size());
-        Assert.assertEquals(Constants.KEY.SELECTED_VACCINES, event.getObs().get(obsCount - 1).getFieldCode());
     }
 }

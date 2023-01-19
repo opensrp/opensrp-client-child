@@ -122,7 +122,7 @@ public class BaseChildRegisterModelTest extends BasePowerMockUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         BaseChildRegisterModel baseChildRegisterModel = new BaseChildRegisterModel();
-        List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class),false);
+        List<ChildEventClient> actualEvent = baseChildRegisterModel.processRegistration(jsonString, Mockito.mock(FormTag.class));
         //Expect child and Mother registration event
         Assert.assertEquals(2, actualEvent.size());
         Assert.assertEquals("Birth Registration", actualEvent.get(0).getEvent().getEventType());

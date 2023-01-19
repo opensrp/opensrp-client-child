@@ -19,7 +19,6 @@ public class DBConstants {
         public static final String RELATIONALID = "relationalid";
         public static final String EPI_CARD_NUMBER = "epi_card_number";
         public static final String MOTHER_GUARDIAN_PHONE_NUMBER = "mother_guardian_phone_number";
-        public static final String MOTHER_CONTACT_PHONE_NUMBER = "mother_contact_phone_number";
         public static final String INACTIVE = "inactive";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
         public static final String MOTHER_FIRST_NAME = "mother_first_name";

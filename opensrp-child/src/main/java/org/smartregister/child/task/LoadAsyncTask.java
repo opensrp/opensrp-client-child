@@ -188,14 +188,13 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         updateBirthWeight();
 
         try {
-            boolean isEnabled = Utils.isChildHasNFCCard(detailsMap);
-            activateMenuItemByValue(overflow, R.id.register_biometrics, isEnabled);
-            activateMenuItemByValue(overflow, R.id.register_card, isEnabled);
-            activateMenuItemByValue(overflow, R.id.verify_caregiver, isEnabled);
-            activateMenuItemByValue(overflow, R.id.write_passcode, isEnabled);
-            activateMenuItemByValue(overflow, R.id.write_to_card, isEnabled);
-            activateMenuItemByValue(overflow, R.id.read_from_card, isEnabled);
-            activateMenuItemByValue(overflow, R.id.blacklist_card, isEnabled);
+
+            activateMenuItemByValue(overflow, R.id.register_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.verify_caregiver, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.write_passcode, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.write_to_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.read_from_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
+            activateMenuItemByValue(overflow, R.id.blacklist_card, detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER));
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Height> heightList = null;
@@ -251,14 +250,6 @@ public class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject
         MenuItem menuItem = overflow.findItem(menuItemResourceId);
         if (menuItem != null) {
             menuItem.setEnabled(StringUtils.isNotBlank(value));
-        }
-    }
-
-    @VisibleForTesting
-    protected void activateMenuItemByValue(Menu overflow, int menuItemResourceId, boolean isEnabled) {
-        MenuItem menuItem = overflow.findItem(menuItemResourceId);
-        if (menuItem != null) {
-            menuItem.setEnabled(isEnabled);
         }
     }
 }

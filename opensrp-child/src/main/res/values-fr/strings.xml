@@ -177,11 +177,9 @@
     <string name="move_to_catchment_confirm_dialog_title">Confirmez la destination du déplacement</string>
     <string name="move_to_catchment_confirm_dialog_title_">Confirmez la destination du déplacement (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">Êtes-vous sûr de vouloir déplacé cette dossier à votre zone sanitaire?</string>
-    <string name="move_to_catchment_success_message">L\'enregistrement a été déplacé vers votre zone de chalandise</string>
     <string name="mother_lookup_results">Dossiers corréspondants</string>
     <string name="dismiss">Annuler</string>
     <string name="change_status">Changer le statut</string>
-    <string name="register_biometrics">Enregistrer la biométrie</string>
     <string name="write_passcode">Écrire le code d’accès</string>
     <string name="read_from_card">Lire la carte</string>
     <string name="write_to_card">Enregistrer sur la carte</string>
@@ -313,7 +311,7 @@
     <string name="_26_weeks_after_tt_2">26 Semaines Après le TT 2</string>
     <string name="_1_year_after_tt_3"> 1 An Après TT 3 </string>
     <string name="_1_year_after_tt_4"> 1 An Après TT 4 </string>
-    <string name="move_to_catchment">Déplacer vers mon\nzone sanitaire</string>
+    <string name="move_to_catchment">Aller à ma zone\nde captage</string>
     <string name="enroll_caregiver">INSCRIRE LE TUTEUR</string>
     <string name="activate_new_card">ACTIVER NOUVELLE CARTE</string>
     <string name="system_id_colon">ID Système :</string>
@@ -382,7 +380,4 @@
     <string name="start_date_required">La date de début est requise</string>
 
     <string name="adverse_effect_reporting_vaccine_format">%1$s (%2$s)</string>
-
-    <string name="format_label_colon_text">%1$s: %2$s</string>
-    <string name="format_label_space_text">%1$s %2$s</string>
 </resources>

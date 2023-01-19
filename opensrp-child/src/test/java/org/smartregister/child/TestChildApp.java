@@ -53,11 +53,6 @@ public class TestChildApp extends DrishtiApplication {
     }
 
     @Override
-    public String getUsername() {
-        return "defaultANM";
-    }
-
-    @Override
     public void logoutCurrentUser() {
         Timber.v("Logout");
     }

@@ -49,7 +49,7 @@
     <string name="woman_last_vaccine">اللقاح الأخير</string>
     <string name="woman_next_vaacine">اللقاح المقبل المستحق</string>
     <string name="woman_alphabetical_sort">(الاسم) الأبجدي</string>
-    <string name="id_sort">رقم الهوية</string>
+    <string name="id_sort">معرف النظام</string>
     <string name="woman_details_title">مواصفات المرأة</string>
     <string name="day">اليوم\n</string>
     <string name="bcg">لقاح السل\n</string>
@@ -152,8 +152,8 @@
     <string name="lost_to_follow_up">انقطاع المتابعة</string>
     <string name="lost_to_follow_up_with_nl">انقطاع\nالمتابعة</string>
     <string name="status">الحالة</string>
-    <string name="opensrp_id">رقم الهوية</string>
-    <string name="iz_id_hint">رقم الهوية</string>
+    <string name="opensrp_id">معرف النظام</string>
+    <string name="iz_id_hint">System ID</string>
     <string name="card_id_hint">رقم بطاقة</string>
     <string name="first_name">الاسم</string>
     <string name="first_name_hint">الاسم</string>
@@ -177,11 +177,9 @@
     <string name="move_to_catchment_confirm_dialog_title">تأكيد الخطوة</string>
     <string name="move_to_catchment_confirm_dialog_title_">تأكيد الخطوة (%1$s)</string>
     <string name="move_to_catchment_confirm_dialog_message">هل أنت متأكد من أنك تريد نقل هذا السجل إلى منطقة التغطية لديك؟</string>
-    <string name="move_to_catchment_success_message">تم نقل السجل إلى منطقة تجميع المياه الخاصة بك</string>
     <string name="mother_lookup_results">مطابقة السجلات</string>
     <string name="dismiss">إلغاء</string>
     <string name="change_status">تغيير الوضعية</string>
-    <string name="register_biometrics">سجل البيومترية</string>
     <string name="write_passcode">كتابة رمز المرور</string>
     <string name="read_from_card">قراءة البطاقة</string>
     <string name="write_to_card">كتابة على البطاقة</string>
@@ -316,8 +314,8 @@
     <string name="move_to_catchment">نقل الشخص إلى منطقتي</string>
     <string name="enroll_caregiver">تسجيل الحاضن</string>
     <string name="activate_new_card">تسجيل بطاقة جديدة</string>
-    <string name="system_id_colon">رقم الهوية :</string>
-    <string name="zeir_id">رقم الهوية</string>
+    <string name="system_id_colon">معرف النظام :</string>
+    <string name="zeir_id">معرف النظام</string>
     <string name="age_colon">العمر :</string>
     <string name="unable_to_move_to_my_catchment">غير قادر على الحركة إلى منطقتي</string>
     <string name="search_criteria_includes">تتضمن معايير البحث</string>
@@ -348,7 +346,7 @@
     <string name="error_recording_out_of_catchment_service">حدث خطأ عند تسجيل الخروج من الخدمة . حاول مرة أخرى في وقت لاحق.</string>
     <string name="record_dynamic_vaccines">سجل لقاحات القطاع الخاص</string>
     <string name="extra_vaccines">لقاحات اضافية في القطاع الخاص</string>
-    <string name="permanently">بشكل دائم</string>
+    <string name="permanently">إطلاقا</string>
     <string name="temporarily">مؤقتا</string>
     <string name="choose_how">اختر كيف</string>
     <string name="report_lost_card">الإبلاغ عن البطاقة المفقودة أو التالفة</string>
@@ -383,6 +381,5 @@
 
     <string name="adverse_effect_reporting_vaccine_format">\u200E(%2$s) \u200E%1$s</string>
 
-    <string name="format_label_colon_text">%2$s \u200E:%1$s</string>
-    <string name="format_label_space_text">%2$s %1$s</string>
+    <string name="formatted_label">%2$s \u200E:%1$s</string>
 </resources>

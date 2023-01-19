@@ -19,15 +19,12 @@ public interface ChildRegisterFragmentContract {
 
     interface View extends BaseRegisterFragmentContract.View {
 
-        boolean filterMode();
-
         void initializeAdapter(Set<org.smartregister.configurableviews.model.View> visibleColumns);
 
         void recalculatePagination(AdvancedMatrixCursor matrixCursor);
 
         ChildRegisterFragmentContract.Presenter presenter();
 
-        void clearFilter();
     }
 
     interface Presenter extends BaseRegisterFragmentContract.Presenter {
