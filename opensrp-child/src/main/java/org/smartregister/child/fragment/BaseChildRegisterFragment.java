@@ -569,4 +569,6 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
     public int getOverDueCount() {
         return overDueCount;
     }
+
+
 }

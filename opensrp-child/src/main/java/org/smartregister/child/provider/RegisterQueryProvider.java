@@ -17,10 +17,10 @@ public class RegisterQueryProvider {
             strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
-        return "SELECT " + getDemographicTable() + ".object_id " +
-                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
-                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
-                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
+        return "SELECT " + getDemographicTable() + ".base_entity_id " +
+                "FROM " + getDemographicTable() + " " + getDemographicTable() + " " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".base_entity_id = " + getChildDetailsTable() + ".id " +
+//                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".base_entity_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
                 strMainCondition + strFilters;
     }
 
@@ -47,10 +47,10 @@ public class RegisterQueryProvider {
             strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
         }
 
-        return "SELECT count(" + getDemographicTable() + ".object_id) " +
-                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
-                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
-                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
+        return "SELECT count(" + getDemographicTable() + ".base_entity_id) " +
+                "FROM " + getDemographicTable() + " " + getDemographicTable() + " " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".base_entity_id = " + getChildDetailsTable() + ".id " +
+//                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
                 strMainCondition + strFilters;
     }
 
