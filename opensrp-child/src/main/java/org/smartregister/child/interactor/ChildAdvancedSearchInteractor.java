@@ -64,10 +64,6 @@ public class ChildAdvancedSearchInteractor implements ChildAdvancedSearchContrac
         if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.USE_NEW_ADVANCE_SEARCH_APPROACH)) {
             return retrieveRemoteClients(searchParameters);
         }
-        return searchUsingOldApproachWithPostRequest(searchParameters);
-    }
-
-    private Response<String> searchUsingOldApproachWithPostRequest(Map<String, String> searchParameters){
         if (!searchParameters.isEmpty()) {
             JSONObject jsonObject = new JSONObject();
             for (Map.Entry<String, String> entry : searchParameters.entrySet()) {
