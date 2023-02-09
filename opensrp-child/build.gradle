@@ -109,7 +109,7 @@ dependencies {
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
-    api('org.smartregister:opensrp-client-core:5.0.9-SNAPSHOT@aar') {
+    api('org.smartregister:opensrp-client-core:5.1.1-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -132,7 +132,7 @@ dependencies {
         exclude group: 'io.ona.rdt-capture', module: 'lib'
         exclude group: 'com.google.android.gms', module: 'play-services-vision'
         exclude group: 'com.google.code.gson', module: 'gson'
-        exclude group: 'com.github.raihan-mpower', module:'FancyAlertDialog-Android'
+        exclude group: 'com.github.raihan-mpower', module: 'FancyAlertDialog-Android'
     }
 
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -179,8 +179,8 @@ dependencies {
 
     def work_version = "2.5.0"
     // Force WorkManager 2.6.0 for transitive dependency
-    implementation"androidx.work:work-runtime:$work_version"
-    implementation"androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.work:work-runtime:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
 
     testImplementation 'junit:junit:4.13'
     def robolectricVersion = '4.1'
