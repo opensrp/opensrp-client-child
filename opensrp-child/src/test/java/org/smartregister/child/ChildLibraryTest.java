@@ -45,6 +45,8 @@ public class ChildLibraryTest {
     @Mock
     private ChildMetadata metadata;
 
+    private final String versionName = "1.0.0";
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -62,8 +64,7 @@ public class ChildLibraryTest {
 
     @Test
     public void testChildLibraryInitsCorrectly() {
-
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4, versionName, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Assert.assertNotNull(childLibrary);
@@ -79,7 +80,7 @@ public class ChildLibraryTest {
 
         Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4, versionName, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Compressor compressor = childLibrary.getCompressor();
@@ -90,7 +91,7 @@ public class ChildLibraryTest {
     public void testGetEventClientRepositoryNotNull() {
         Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4,  versionName,1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Assert.assertNotNull(childLibrary);

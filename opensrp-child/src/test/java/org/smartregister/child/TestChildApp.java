@@ -31,7 +31,7 @@ public class TestChildApp extends DrishtiApplication {
         context.updateApplicationContext(getApplicationContext());
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
-        ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
+        ChildLibrary.init(context, getRepository(), getMetadata(), 1,  "1.0.0",1);
         GrowthMonitoringLibrary.init(context, repository, 1, 1);
         CommonFtsObject commonFtsObject = mock(CommonFtsObject.class);
         ImmunizationLibrary.init(context, repository, commonFtsObject, 1, 1);

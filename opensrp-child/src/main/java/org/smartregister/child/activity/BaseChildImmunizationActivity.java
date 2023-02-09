@@ -1147,9 +1147,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             case Constants.SHOW_BCG_SCAR:
                 ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
-                String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
-                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
+                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId());
                 break;
 
             default:

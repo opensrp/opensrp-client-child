@@ -372,7 +372,7 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
     public void getTetanusVaccineObjectHasSyncStatusUnSyncedWhenAppPropertyIsTrue() throws JSONException {
 
         CoreLibrary.init(context);
-        ChildLibrary.init(context, repository, Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, repository, Mockito.mock(ChildMetadata.class), 1,  "1.0.0", 1);
 
         Mockito.doReturn(appProperties).when(interactor).getAppProperties();
         Mockito.when(appProperties.isTrue(eq(TETANUS_VACCINE_AT_BIRTH_EVENT))).thenReturn(true);

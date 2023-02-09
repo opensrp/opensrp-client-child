@@ -130,7 +130,7 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
                 "test",
                 "test");
 
-        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1,  "1.0.0", 1);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);
         Mockito.when(form.getNextLabel()).thenReturn("");
         Mockito.when(form.isWizard()).thenReturn(true);
@@ -187,7 +187,7 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
                 "test",
                 "test",
                 "test");
-        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), childMetadata, 1,  "1.0.0", 1);
 
         Mockito.when(Utils.context().allSharedPreferences()).thenReturn(allSharedPreferences);
         Mockito.when(Utils.metadata()).thenReturn(childMetadata);

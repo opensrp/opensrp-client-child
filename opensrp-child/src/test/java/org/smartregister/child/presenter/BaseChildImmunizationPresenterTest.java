@@ -177,15 +177,13 @@ public class BaseChildImmunizationPresenterTest {
 
     @Test
     public void testActivateChildStatus() throws Exception {
-        PowerMockito.mockStatic(LocationHelper.class);
         PowerMockito.mockStatic(ChildJsonFormUtils.class);
 
         doReturn(commonPersonObject).when(commonRepository).findByBaseEntityId(TEST_BASE_ENTITY_ID);
         doReturn(commonRepository).when(context).commonrepository(DBConstants.RegisterTable.CHILD_DETAILS);
         PowerMockito.when(commonPersonObjectClient.entityId()).thenReturn(TEST_BASE_ENTITY_ID);
         PowerMockito.when(commonPersonObject.getColumnmaps()).thenReturn(getChildDetailsMap());
-        PowerMockito.when(LocationHelper.getInstance()).thenReturn(locationHelper);
-        PowerMockito.when(ChildJsonFormUtils.updateClientAttribute(context, getChildDetails(), locationHelper, Constants.CHILD_STATUS.INACTIVE, false)).thenReturn(getChildDetailsMap());
+        PowerMockito.when(ChildJsonFormUtils.updateClientAttribute(context, getChildDetails(), Constants.CHILD_STATUS.INACTIVE, false)).thenReturn(getChildDetailsMap());
 
         presenter.activateChildStatus(context, commonPersonObjectClient);
 

@@ -104,7 +104,7 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
                 "test", "test");
 
         CoreLibrary.init(opensrpContext);
-        ChildLibrary.init(opensrpContext, repository, metadata, 1, 1);
+        ChildLibrary.init(opensrpContext, repository, metadata, 1,  "1.0.0", 1);
 
         baseChildImmunizationActivity = Robolectric.buildActivity(TestChildImmunizationActivity.class).create().get();
     }
