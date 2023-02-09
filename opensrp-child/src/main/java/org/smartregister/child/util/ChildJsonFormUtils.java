@@ -851,17 +851,13 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     /**
-     * Tag an client with metadata fields LocationId, ChildLocationId, Data strategy in use, Team, TeamId, Database Version and Client App Version
+     * Tag an client with metadata fields LocationId, Database Version and Client App Version
      *
      * @param client to tag
      * @return Tagged client
      */
     public static Client tagSyncMetadata(@NonNull Client client) {
-
-        AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
-        String providerId = allSharedPreferences.fetchRegisteredANM();
         client.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
-        client.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
         client.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         client.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
         client.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
