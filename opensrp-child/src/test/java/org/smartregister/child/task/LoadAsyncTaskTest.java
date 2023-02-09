@@ -76,8 +76,8 @@ public class LoadAsyncTaskTest extends BasePowerMockUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 
     @Test

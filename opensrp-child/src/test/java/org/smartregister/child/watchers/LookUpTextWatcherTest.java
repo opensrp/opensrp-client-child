@@ -137,12 +137,11 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
         try {
             childFormActivityShadow.finish();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

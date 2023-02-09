@@ -133,7 +133,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
         baseChildDetailTabbedActivity = null;
     }
 

@@ -104,7 +104,7 @@ public class BaseChildRegisterActivityTest extends BaseUnitTest {
         if (baseChildRegisterActivity != null)
             baseChildRegisterActivity = Robolectric.buildActivity(TestBaseChildRegisterActivity.class).create().get();
 
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
     }
 
     @Test

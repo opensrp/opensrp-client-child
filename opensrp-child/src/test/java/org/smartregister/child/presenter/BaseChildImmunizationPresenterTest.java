@@ -113,9 +113,8 @@ public class BaseChildImmunizationPresenterTest {
 
     @After
     public void tearDown() {
-
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 
     @Test

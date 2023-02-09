@@ -336,21 +336,19 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         assertNotNull(ShadowAlertDialog.getLatestDialog());
     }
 
-
     @After
     public void tearDown() {
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
+
         ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
 
         immunizationActivity.finish();
     }
 
-
     public static class TestBaseChildImmunizationActivity extends BaseChildImmunizationActivity {
-
 
         @Override
         protected void goToRegisterPage() {

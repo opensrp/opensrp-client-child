@@ -170,7 +170,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
+
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
     }
 

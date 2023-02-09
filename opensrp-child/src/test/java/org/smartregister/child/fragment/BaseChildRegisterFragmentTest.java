@@ -136,8 +136,8 @@ public class BaseChildRegisterFragmentTest extends BaseUnitTest {
     @After
     public void tearDown() {
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 
     @Test

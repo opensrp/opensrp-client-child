@@ -115,8 +115,9 @@ public class ChildRegisterInteractorTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
+
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);

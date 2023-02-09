@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -148,7 +149,6 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         details.put(Constants.KEY.MOTHER_FIRST_NAME, "Jane");
         details.put(Constants.KEY.MOTHER_LAST_NAME, "Doe");
 
-
         CommonPersonObjectClient client = new CommonPersonObjectClient(baseEntityId, details, "John Doe");
         client.setColumnmaps(details);
         registerProviderSpy.getView(cursor, client, registerViewHolder);
@@ -162,10 +162,6 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Assert.assertEquals(details.get(Constants.KEY.FIRST_NAME) + " " + details.get(Constants.KEY.LAST_NAME), txtPatientName.getText().toString());
         Assert.assertEquals(View.VISIBLE, systemOfRegistration.getVisibility());
         Assert.assertEquals(details.get(Constants.Client.SYSTEM_OF_REGISTRATION), systemOfRegistration.getText());
-
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
-
-        ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
     }
 
     @Test
@@ -268,4 +264,9 @@ public class ChildRegisterProviderTest extends BaseUnitTest {
         Assert.assertEquals(View.VISIBLE, viewHolder.itemView.findViewById(R.id.zeir_id_wrapper).getVisibility());
     }
 
+    @After
+    public void tearDown() {
+        ChildLibrary.destroyInstance();
+        ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
+    }
 }
