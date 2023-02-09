@@ -27,6 +27,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.google.gson.reflect.TypeToken;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -42,7 +44,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.CoreLibrary;
@@ -140,7 +141,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
         doReturn(null).when(opensrpContext).alertService();
 
-        Application application = spy(RuntimeEnvironment.application);
+        Application application = spy(ApplicationProvider.getApplicationContext());
         Configuration configuration = new Configuration();
         configuration.setLocale(Locale.ENGLISH);
         Resources resources = spy(application.getResources());
@@ -190,6 +191,7 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
     @Test
     public void testUpdateViewsShouldInvokeUpdateViewTask() throws InterruptedException {
         doNothing().when(immunizationActivity).updateScheduleDate();
+        doNothing().when(immunizationActivity).updateGenderViews();
 
         immunizationActivity.updateViews();
 
@@ -334,21 +336,19 @@ public class BaseChildImmunizationActivityRobolectricTest extends BaseUnitTest {
         assertNotNull(ShadowAlertDialog.getLatestDialog());
     }
 
-
     @After
     public void tearDown() {
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
+
         ReflectionHelpers.setStaticField(SyncStatusBroadcastReceiver.class, "singleton", null);
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
         ReflectionHelpers.setStaticField(GrowthMonitoringLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
 
         immunizationActivity.finish();
     }
 
-
     public static class TestBaseChildImmunizationActivity extends BaseChildImmunizationActivity {
-
 
         @Override
         protected void goToRegisterPage() {

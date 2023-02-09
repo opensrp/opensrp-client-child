@@ -25,7 +25,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.opensrp.api.constants.Gender;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.AllConstants;
 import org.smartregister.Context;
@@ -59,46 +58,35 @@ import java.util.Map;
 @PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
 public class UtilsTest extends BaseUnitTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private VaccineRepository vaccineRepository;
-
     @Mock
     private WeightRepository weightRepository;
-
     @Mock
     private HeightRepository heightRepository;
-
     @Mock
     private Activity activity;
-
     @Mock
     private AllSharedPreferences allSharedPreferences;
-
     @Mock
     private Context opensrpContext;
-
     @Mock
     private ChildLibrary childLibrary;
-
     @Mock
     private CoreLibrary coreLibrary;
-
     @Captor
     private ArgumentCaptor<Vaccine> vaccineArgumentCaptor;
-
     @Captor
     private ArgumentCaptor weightArgumentCaptor;
-
     @Captor
     private ArgumentCaptor heightArgumentCaptor;
-
     private String dobString = "2017-09-09";
-
     @Spy
     private AppProperties appProperties;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    private final String versionName = "1.0.0";
 
     @Before
     public void setUp() {
@@ -196,7 +184,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithFemaleValidGenderAndNullDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -212,7 +200,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithValidFemaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -232,7 +220,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordWeightWithValidMaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Weight weight = new Weight();
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setUpdatedWeightDate(new DateTime(), true);
@@ -252,7 +240,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithFemaleValidGenderAndNullDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setUpdatedHeightDate(new DateTime(), true);
@@ -269,7 +257,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithValidFemaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setUpdatedHeightDate(new DateTime(), true);
@@ -290,7 +278,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testRecordHeightWithValidMaleGenderAndValidDobString() {
         Context context = Mockito.mock(Context.class);
-        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1, 1);
+        ChildLibrary.init(context, Mockito.mock(Repository.class), Mockito.mock(ChildMetadata.class), 1,  versionName, 1);
         Height height = new Height();
         HeightWrapper heightWrapper = new HeightWrapper();
         heightWrapper.setHeight(20.0f);
@@ -364,7 +352,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application, "6 WEEKS");
+        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(), "6 WEEKS");
 
         Assert.assertEquals("6 Weeks", localizedStateKey);
 
@@ -373,7 +361,7 @@ public class UtilsTest extends BaseUnitTest {
     @Test
     public void testCreateGroupNameTextViewCreatesTextViewCorrectly() {
 
-        TextView textView = Utils.createGroupNameTextView(RuntimeEnvironment.application, "14 weeks");
+        TextView textView = Utils.createGroupNameTextView(ApplicationProvider.getApplicationContext(), "14 weeks");
 
         Assert.assertNotNull(textView);
         Assert.assertEquals(Typeface.DEFAULT_BOLD, textView.getTypeface());

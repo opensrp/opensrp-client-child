@@ -240,8 +240,8 @@ public class UtilsTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
     }
 
@@ -371,7 +371,6 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         String result = Utils.getTranslatedIdentifier("testKey");
         Assert.assertEquals(result, "testValue");
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
     @Test

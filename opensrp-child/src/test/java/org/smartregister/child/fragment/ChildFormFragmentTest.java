@@ -15,6 +15,7 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentActivity;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -36,7 +37,6 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -77,19 +77,19 @@ public class ChildFormFragmentTest extends BaseUnitTest {
     private Map<String, List<View>> getLookUpMap() {
         Map<String, List<View>> lookupMap = new HashMap<>();
 
-        MaterialEditText edtFirstName = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtFirstName = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtFirstName.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.firstName);
         edtFirstName.setText("Jane");
 
-        MaterialEditText edtLastName = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtLastName = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.lastName);
         edtLastName.setText("Doe");
 
-        MaterialEditText edtNationalId = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtNationalId = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtNationalId.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.MOTHER_GUARDIAN_NRC);
         edtNationalId.setText("23322-23");
 
-        MaterialEditText edtDob = new MaterialEditText(RuntimeEnvironment.application);
+        MaterialEditText edtDob = new MaterialEditText(ApplicationProvider.getApplicationContext());
         edtDob.setTag(com.vijay.jsonwizard.R.id.key, MotherLookUpUtils.birthDate);
         edtDob.setText("2018-01-15");
 
@@ -124,8 +124,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
     @Test
     public void testGetRelevantTextViewStringShouldReturnTextViewValue() {
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        TextView textView = new TextView(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        TextView textView = new TextView(ApplicationProvider.getApplicationContext());
         textView.setTag(com.vijay.jsonwizard.R.id.key, "test_key");
         textView.setText("text");
         linearLayout.addView(textView);
@@ -135,8 +135,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
     @Test
     public void testGetRelevantTextViewStringShouldReturnEmptyOnKeyMismatch() {
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        TextView textView = new TextView(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        TextView textView = new TextView(ApplicationProvider.getApplicationContext());
         textView.setTag(com.vijay.jsonwizard.R.id.key, "test_key2");
         textView.setText("text");
         linearLayout.addView(textView);
@@ -146,8 +146,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
     @Test
     public void testUpdateRelevantTextViewStringShouldReturnTextPassed() throws Exception {
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        TextView textView = new TextView(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        TextView textView = new TextView(ApplicationProvider.getApplicationContext());
         textView.setTag(com.vijay.jsonwizard.R.id.key, "test_key");
         linearLayout.addView(textView);
         Mockito.doReturn(linearLayout).when(formFragment).getMainView();
@@ -239,7 +239,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Form form = new Form();
         Mockito.doReturn(form).when(activity).getForm();
         Collection<View> viewCollection = new ArrayList<>();
-        View view = new View(RuntimeEnvironment.application);
+        View view = new View(ApplicationProvider.getApplicationContext());
         viewCollection.add(view);
         JsonApi jsonApi = Mockito.mock(JsonApi.class);
         Mockito.doReturn(jsonApi).when(formFragment).getJsonApi();
@@ -249,7 +249,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         ValidationStatus validationStatus = new ValidationStatus(true, null, null, null);
         Mockito.doReturn(validationStatus).when(formFragment).validateView(view);
         Mockito.doReturn(false).when(childFormFragmentPresenter).intermediatePage();
-        Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
         menu.add(0, com.vijay.jsonwizard.R.id.action_save, 0, "title1");
         Mockito.doReturn(menu).when(formFragment).getMenu();
         formFragment.validateActivateNext();
@@ -266,7 +266,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Form form = new Form();
         Mockito.doReturn(form).when(activity).getForm();
         Collection<View> viewCollection = new ArrayList<>();
-        View view = new View(RuntimeEnvironment.application);
+        View view = new View(ApplicationProvider.getApplicationContext());
         viewCollection.add(view);
         JsonApi jsonApi = Mockito.mock(JsonApi.class);
         Mockito.doReturn(jsonApi).when(formFragment).getJsonApi();
@@ -276,7 +276,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         ValidationStatus validationStatus = new ValidationStatus(false, null, null, null);
         Mockito.doReturn(validationStatus).when(formFragment).validateView(view);
         Mockito.doReturn(false).when(childFormFragmentPresenter).intermediatePage();
-        Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
         menu.add(0, com.vijay.jsonwizard.R.id.action_save, 0, "title1");
         Mockito.doReturn(menu).when(formFragment).getMenu();
         formFragment.validateActivateNext();
@@ -287,11 +287,11 @@ public class ChildFormFragmentTest extends BaseUnitTest {
     public void testShowShouldShowSnackbar() throws Exception {
         formFragment = PowerMockito.spy(formFragment);
         Activity activity = Robolectric.setupActivity(FragmentActivity.class);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        Button actionView = new Button(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        Button actionView = new Button(ApplicationProvider.getApplicationContext());
         Button actionViewSpy = Mockito.spy(actionView);
         actionViewSpy.setId(com.google.android.material.R.id.snackbar_action);
-        TextView textView = new TextView(RuntimeEnvironment.application);
+        TextView textView = new TextView(ApplicationProvider.getApplicationContext());
         textView.setId(com.google.android.material.R.id.snackbar_text);
         linearLayout.addView(actionViewSpy);
         linearLayout.addView(textView);
@@ -323,8 +323,8 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         Mockito.doReturn(activitySpy).when(formFragment).getActivity();
         Mockito.doReturn(activitySpy.getResources()).when(formFragment).getResources();
         LayoutInflater layoutInflater = Mockito.mock(LayoutInflater.class);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        ListView listView = new ListView(RuntimeEnvironment.application);
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        ListView listView = new ListView(ApplicationProvider.getApplicationContext());
         listView.setId(R.id.list_view);
         linearLayout.addView(listView);
         Mockito.doReturn(linearLayout).when(layoutInflater).inflate(R.layout.mother_lookup_results, null);
@@ -339,15 +339,15 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
     }
 
     @Test
     public void testGetLabelViewFromTagUpdatesTextViewCorrectly() throws Exception {
         String viewKey = "First_Name";
         String textViewDisplayValue = "Shirley";
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        TextView textView = Mockito.spy(new TextView(RuntimeEnvironment.application));
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        TextView textView = Mockito.spy(new TextView(ApplicationProvider.getApplicationContext()));
         textView.setTag(com.vijay.jsonwizard.R.id.key, viewKey);
         linearLayout.addView(textView);
         Mockito.doReturn(linearLayout).when(formFragment).getMainView();
@@ -369,9 +369,9 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         String fieldName = "Birth_Unknown";
         String fieldValue = "[\"birth_unknown\"]";
 
-        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        ViewGroup viewGroup = new LinearLayout(ApplicationProvider.getApplicationContext());
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(ApplicationProvider.getApplicationContext()));
         checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
         linearLayout.addView(checkBox);
         viewGroup.addView(linearLayout);
@@ -396,9 +396,9 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         String fieldName = "Is_Checked";
         String fieldValue = "[\"not_checked\"]";
 
-        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        ViewGroup viewGroup = new LinearLayout(ApplicationProvider.getApplicationContext());
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(ApplicationProvider.getApplicationContext()));
         checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
         linearLayout.addView(checkBox);
         viewGroup.addView(linearLayout);
@@ -422,7 +422,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
         String fieldName = "Birth_Unknown";
         String fieldValue = "[\"birth_unknown\"]";
-        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(ApplicationProvider.getApplicationContext()));
 
         formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
         Mockito.verify(viewGroup, Mockito.times(2)).getChildCount();
@@ -436,7 +436,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
         String fieldName = null;
         String fieldValue = "[\"birth_unknown\"]";
-        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(ApplicationProvider.getApplicationContext()));
 
         formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
         Mockito.verify(viewGroup, Mockito.never()).getChildCount();
@@ -450,7 +450,7 @@ public class ChildFormFragmentTest extends BaseUnitTest {
 
         String fieldName = "Birth_Unknown";
         String fieldValue = null;
-        ViewGroup viewGroup = Mockito.spy(new LinearLayout(RuntimeEnvironment.application));
+        ViewGroup viewGroup = Mockito.spy(new LinearLayout(ApplicationProvider.getApplicationContext()));
 
         formFragment.setValueOnView(fieldName, fieldValue, viewGroup);
         Mockito.verify(viewGroup, Mockito.never()).getChildCount();
@@ -464,12 +464,12 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         String fieldName = "Is_Consented";
         String fieldValue = "[\"is_consented\"]";
 
-        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        ViewGroup viewGroup = new LinearLayout(ApplicationProvider.getApplicationContext());
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(ApplicationProvider.getApplicationContext()));
         checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
         linearLayout.addView(checkBox);
-        viewGroup.addView(new View(RuntimeEnvironment.application));
+        viewGroup.addView(new View(ApplicationProvider.getApplicationContext()));
         viewGroup.addView(linearLayout);
 
         Mockito.doReturn(linearLayout).when(formFragment).getMainView();
@@ -492,12 +492,12 @@ public class ChildFormFragmentTest extends BaseUnitTest {
         String fieldName = "Is_Consented";
         String fieldValue = "[]";
 
-        ViewGroup viewGroup = new LinearLayout(RuntimeEnvironment.application);
-        LinearLayout linearLayout = new LinearLayout(RuntimeEnvironment.application);
-        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(RuntimeEnvironment.application));
+        ViewGroup viewGroup = new LinearLayout(ApplicationProvider.getApplicationContext());
+        LinearLayout linearLayout = new LinearLayout(ApplicationProvider.getApplicationContext());
+        AppCompatCheckBox checkBox = Mockito.spy(new AppCompatCheckBox(ApplicationProvider.getApplicationContext()));
         checkBox.setTag(com.vijay.jsonwizard.R.id.key, fieldName);
         linearLayout.addView(checkBox);
-        viewGroup.addView(new View(RuntimeEnvironment.application));
+        viewGroup.addView(new View(ApplicationProvider.getApplicationContext()));
         viewGroup.addView(linearLayout);
 
         Mockito.doReturn(linearLayout).when(formFragment).getMainView();

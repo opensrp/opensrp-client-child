@@ -5,6 +5,8 @@ import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 
 import org.json.JSONException;
@@ -17,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -65,7 +66,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         formFragment = Mockito.spy(ChildFormFragment.class);
-        childFormActivityShadow =  Robolectric.buildActivity(ChildFormActivityShadow.class).get();
+        childFormActivityShadow = Robolectric.buildActivity(ChildFormActivityShadow.class).get();
         String formJson = "{\"count\":\"1\",\"encounter_type\":\"Birth Registration\",\"step1\":{\"title\":\"{{child_enrollment.step1.title}}\"," +
                 "\"fields\":[{\"key\":\"first_name\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"person\",\"openmrs_entity_id\":\"first_name\"," +
                 "\"entity_id\":\"mother\",\"look_up\":\"true\",\"type\":\"edit_text\",\"hint\":\"First name\",\"edit_type\":\"name\"}," +
@@ -81,7 +82,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @Test
     public void testAfterTextChangedShouldFillLookUpMapCorrectlyBeforeLookup() {
-        EditText edtFirstName = new EditText(RuntimeEnvironment.application);
+        EditText edtFirstName = new EditText(ApplicationProvider.getApplicationContext());
         edtFirstName.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
         edtFirstName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
 
@@ -91,7 +92,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
         edtFirstName.addTextChangedListener(lookUpTextWatcherSpy);
         edtFirstName.setText("john");
 
-        EditText edtLastName = new EditText(RuntimeEnvironment.application);
+        EditText edtLastName = new EditText(ApplicationProvider.getApplicationContext());
         edtLastName.setTag(com.vijay.jsonwizard.R.id.key, "last_name");
         edtLastName.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
         ReflectionHelpers.setField(lookUpTextWatcherSpy, "mView", edtLastName);
@@ -117,7 +118,7 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @Test
     public void testAfterTextChangedShouldNotLookUpAfterIfAfterLookUpIsTrue() {
-        View view = new View(RuntimeEnvironment.application);
+        View view = new View(ApplicationProvider.getApplicationContext());
         view.setTag(com.vijay.jsonwizard.R.id.key, "first_name");
         view.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
         LookUpTextWatcher lookUpTextWatcher = new LookUpTextWatcher(formFragment, view, "mother");
@@ -136,12 +137,11 @@ public class LookUpTextWatcherTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
         try {
             childFormActivityShadow.finish();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

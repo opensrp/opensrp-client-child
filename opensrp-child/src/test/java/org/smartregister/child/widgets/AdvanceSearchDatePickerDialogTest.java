@@ -46,7 +46,7 @@ public class AdvanceSearchDatePickerDialogTest extends BaseUnitTest {
     @After
     public void tearDown() {
         startActivity.finish();
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
         datePickerDialog = null;
     }
 }

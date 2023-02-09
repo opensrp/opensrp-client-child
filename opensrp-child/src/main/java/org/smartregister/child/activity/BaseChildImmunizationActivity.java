@@ -44,7 +44,6 @@ import org.smartregister.child.contract.ChildImmunizationContract;
 import org.smartregister.child.contract.IChildDetails;
 import org.smartregister.child.contract.IGetSiblings;
 import org.smartregister.child.domain.NamedObject;
-import org.smartregister.child.domain.Observation;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.child.event.ClientDirtyFlagEvent;
 import org.smartregister.child.presenter.BaseChildImmunizationPresenter;
@@ -65,6 +64,7 @@ import org.smartregister.child.view.SiblingPicturesGroup;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
+import org.smartregister.domain.Observation;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
@@ -136,22 +136,21 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, GrowthMonitoringActionListener,
         VaccinationActionListener, ServiceActionListener, View.OnClickListener, IChildDetails, ChildImmunizationContract.View, IGetSiblings {
 
-    private final boolean recurringServiceEnabled = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-            .getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"));
     public static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
     private static Boolean monitorGrowth = false;
     protected LinearLayout floatingActionButton;
+    // Data
+    protected RegisterClickables registerClickables;
+    private boolean recurringServiceEnabled;
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
     // Views
     private LocationSwitcherToolbar toolbar;
-    // Data
-    protected RegisterClickables registerClickables;
     private boolean dialogOpen = false;
     private boolean isGrowthEdit = false;
     private boolean isChildActive = false;
@@ -174,11 +173,53 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     private SiblingPicturesGroup siblingPicturesGroup;
     private ChildImmunizationContract.Presenter presenter;
 
+    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
+        launchActivity(fromContext, childDetails, registerClickables, Utils.metadata().childImmunizationActivity);
+    }
+
+    /**
+     * Helper method to launch the Base Child Immunization Activity from anywhere
+     *
+     * @param fromContext               - current context , 1st parameter to Intent
+     * @param childDetails              - the map with the client details
+     * @param registerClickables        - serializable class with the click handler parameters
+     * @param activityClassToNavigateTo - the activity to navigate to (2nd Parameter to Intent object)
+     */
+    protected static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables, Class<?> activityClassToNavigateTo) {
+        Intent intent = new Intent(fromContext, activityClassToNavigateTo);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
+        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
+
+        // load the child details
+        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE))) {
+            bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
+        }
+
+        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
+                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
+                        registerClickables.getNextAppointmentDate() : "");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtras(bundle);
+
+        fromContext.startActivity(intent);
+    }
+
+    public static Object clone(@NonNull Object object) {
+
+        Gson gson = new Gson();
+        String serializedObject = gson.toJson(object);
+
+        return gson.fromJson(serializedObject, object.getClass());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         monitorGrowth = ChildLibrary.getInstance().getProperties().isTrue(org.smartregister.growthmonitoring.util.AppProperties.KEY.MONITOR_GROWTH);
+        recurringServiceEnabled = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties().getProperty(ChildAppProperties.KEY.FEATURE_RECURRING_SERVICE_ENABLED, "true"));
+
         presenter = new BaseChildImmunizationPresenter(this);
 
         setUpToolbar();
@@ -236,35 +277,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     @VisibleForTesting
     protected CommonPersonObjectClient getChildDetails(String caseId) {
         return ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
-    }
-
-    public static void launchActivity(Context fromContext, CommonPersonObjectClient childDetails,
-                                      RegisterClickables registerClickables) {
-        Intent intent = new Intent(fromContext, Utils.metadata().childImmunizationActivity);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Constants.INTENT_KEY.BASE_ENTITY_ID, childDetails.getCaseId());
-        bundle.putSerializable(Constants.INTENT_KEY.EXTRA_REGISTER_CLICKABLES, registerClickables);
-
-        // load the child details
-        if (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED) && (childDetails.getColumnmaps().containsKey(Constants.KEY.IS_CHILD_DATA_ON_DEVICE) && childDetails.getColumnmaps().get(Constants.KEY.IS_CHILD_DATA_ON_DEVICE).equalsIgnoreCase(Constants.FALSE))) {
-            bundle.putSerializable(Constants.INTENT_KEY.EXTRA_CHILD_DETAILS, childDetails);
-        }
-
-        bundle.putSerializable(Constants.INTENT_KEY.NEXT_APPOINTMENT_DATE,
-                registerClickables != null && !TextUtils.isEmpty(registerClickables.getNextAppointmentDate()) ?
-                        registerClickables.getNextAppointmentDate() : "");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtras(bundle);
-
-        fromContext.startActivity(intent);
-    }
-
-    public static Object clone(@NonNull Object object) {
-
-        Gson gson = new Gson();
-        String serializedObject = gson.toJson(object);
-
-        return gson.fromJson(serializedObject, object.getClass());
     }
 
     private void setUpViews() {
@@ -426,12 +438,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         }
     }
 
-    @Override
-    public void setChildDetails(Map<String, String> detailsMap) {
-        childDetails.setColumnmaps(detailsMap);
-        childDetails.setDetails(detailsMap);
-    }
-
     @VisibleForTesting
     @Override
     protected boolean isActiveStatus(CommonPersonObjectClient child) {
@@ -505,7 +511,8 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         showChildsStatus(status);
     }
 
-    private void updateGenderViews() {
+    @VisibleForTesting
+    protected void updateGenderViews() {
         Gender gender = isDataOk() ? Utils.getGenderEnum(childDetails.getColumnmaps()) : Gender.UNKNOWN;
 
         int[] colors = updateGenderViews(gender);
@@ -925,7 +932,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setTeam(allSharedPreferences.fetchDefaultTeam(provider));
         vaccine.setTeamId(allSharedPreferences.fetchDefaultTeamId(provider));
         vaccine.setAnmId(provider);
-        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
+        vaccine.setLocationId(getProviderLocationId());
         vaccine.setSyncStatus(syncStatus);
         vaccine.setFormSubmissionId(ChildJsonFormUtils.generateRandomUUIDString());
         vaccine.setUpdatedAt(new Date().getTime());
@@ -939,6 +946,11 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         String outOfCatchment = isDataOk() && childDetails.getColumnmaps() != null && childDetails.getColumnmaps().containsKey(Constants.Client.IS_OUT_OF_CATCHMENT) ? Utils.getValue(childDetails.getColumnmaps(), Constants.Client.IS_OUT_OF_CATCHMENT, false) : "false";
         vaccine.setOutOfCatchment(Constants.BOOLEAN_STRING.TRUE.equals(outOfCatchment) ? 1 : 0);
         return vaccine;
+    }
+
+    @VisibleForTesting
+    protected String getProviderLocationId() {
+        return ChildJsonFormUtils.getProviderLocationId(this);
     }
 
     private void addVaccineGroup(int canvasId,
@@ -1135,9 +1147,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             case Constants.SHOW_BCG_SCAR:
                 ChildDbUtils.updateChildDetailsValue(Constants.SHOW_BCG_SCAR, String.valueOf(DATE), childDetails.entityId());
-                String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-                String locationId = Utils.context().allSharedPreferences().getPreference(AllConstants.CURRENT_LOCATION_ID);
-                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId(), providerId, locationId);
+                ChildJsonFormUtils.createBCGScarEvent(getActivity(), childDetails.entityId());
                 break;
 
             default:
@@ -1704,6 +1714,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
     }
 
     @Override
+    public void setChildDetails(Map<String, String> detailsMap) {
+        childDetails.setColumnmaps(detailsMap);
+        childDetails.setDetails(detailsMap);
+    }
+
+    @Override
     public void showGrowthDialogFragment(Map<String, List> growthMonitoring) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(BaseChildImmunizationActivity.DIALOG_TAG);
@@ -1775,6 +1791,30 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         map.put(alertsNamedObject.name, alertsNamedObject);
 
         return map;
+    }
+
+    public void processNextVaccineDate(String baseEntityId, List<Observation> observationList) {
+        try {
+
+            List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unprocessed, Collections.singletonList(baseEntityId));
+
+            String formSubmissionId = null;
+
+            for (EventClient eventClient : eventClients) {
+                if (Constants.EventType.NEXT_APPOINTMENT.equalsIgnoreCase(eventClient.getEvent().getEventType())) {
+
+                    formSubmissionId = eventClient.getEvent().getFormSubmissionId();
+
+                    break;
+                }
+            }
+
+            Event nextVaccineDateEvent = ChildJsonFormUtils.createNextAppointmentEvent(baseEntityId, observationList, formSubmissionId);
+            ChildJsonFormUtils.convertAndPersistEvent(nextVaccineDateEvent);
+
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
     }
 
     private class UpdateViewTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
@@ -2100,30 +2140,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
             showVaccineNotifications(vaccineList, alertList);
-        }
-    }
-
-    public void processNextVaccineDate(String baseEntityId, List<Observation> observationList) {
-        try {
-
-            List<EventClient> eventClients = ChildLibrary.getInstance().eventClientRepository().getEventsByBaseEntityIdsAndSyncStatus(BaseRepository.TYPE_Unprocessed, Collections.singletonList(baseEntityId));
-
-            String formSubmissionId = null;
-
-            for (EventClient eventClient : eventClients) {
-                if (Constants.EventType.NEXT_APPOINTMENT.equalsIgnoreCase(eventClient.getEvent().getEventType())) {
-
-                    formSubmissionId = eventClient.getEvent().getFormSubmissionId();
-
-                    break;
-                }
-            }
-
-            Event nextVaccineDateEvent = ChildJsonFormUtils.createNextAppointmentEvent(baseEntityId, observationList, formSubmissionId);
-            ChildJsonFormUtils.convertAndPersistEvent(nextVaccineDateEvent);
-
-        } catch (JSONException e) {
-            Timber.e(e);
         }
     }
 }
