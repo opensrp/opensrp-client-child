@@ -851,13 +851,17 @@ public class ChildJsonFormUtils extends JsonFormUtils {
     }
 
     /**
-     * Tag an client with metadata fields LocationId, Database Version and Client App Version
+     * Tag an client with metadata fields LocationId, TeamId, Database Version and Client App Version
      *
      * @param client to tag
      * @return Tagged client
      */
     public static Client tagSyncMetadata(@NonNull Client client) {
+        AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
+        String providerId = allSharedPreferences.fetchRegisteredANM();
+
         client.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        client.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
         client.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         client.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
         client.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
@@ -2113,7 +2117,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (Utils.metadata().childRegister.formName.equals(formName)) {
                 if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() < 2) {
                     Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
-                    Timber.d( "ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
+                    Timber.d("ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
                     return;
                 }
                 if (StringUtils.isBlank(entityId)) {
