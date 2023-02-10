@@ -386,15 +386,15 @@ public class BaseChildImmunizationActivityTest extends BaseUnitTest {
         Mockito.doReturn(true).when(activity).isActiveStatus(anyString());
         activity.updateFloatingActionButtonBasedOnChildStatus();
 
-        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231154, "enroll_caregiver");
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231163, "enroll_caregiver");
 
         childDetails.getColumnmaps().put("mother_compass_relationship_id", "123");
         activity.updateFloatingActionButtonBasedOnChildStatus();
-        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231154, "activate_new_card");
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231163, "activate_new_card");
 
         childDetails.getColumnmaps().put("nfc_card_blacklisted", "false");
         childDetails.getColumnmaps().put("nfc_card_identifier", "0099887711112222");
         activity.updateFloatingActionButtonBasedOnChildStatus();
-        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231152, "write_to_card");
+        Mockito.verify(activity, times(1)).configureFloatingActionBackground(2131231161, "write_to_card");
     }
 }
