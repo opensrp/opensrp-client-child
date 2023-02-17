@@ -227,8 +227,9 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         // Get child details from bundled data
         Bundle extras = this.getIntent().getExtras();
+        String caseId = "";
         if (extras != null) {
-            String caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
+            caseId = extras.getString(Constants.INTENT_KEY.BASE_ENTITY_ID);
             childDetails = getChildDetails(caseId);
 
             CommonPersonObjectClient cardChildDetails = null;
@@ -270,6 +271,12 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
         setLastModified(false);
 
+        if (getChildDetails() == null) {
+            Timber.e("Unable to fetch child details with case id: %s", caseId);
+            Utils.showToast(this, getString(R.string.error_child_details));
+            getActivity().finish();
+            return;
+        }
         setUpFloatingActionButton();
         Utils.refreshDataCaptureStrategyBanner(this, getOpenSRPContext().allSharedPreferences().fetchCurrentLocality());
     }
@@ -461,7 +468,6 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             } else {
                 Timber.e("fetchCommonPersonObjectClientByBaseEntityId is null, child record is not n the database.");
             }
-
         }
 
         isChildActive = isActiveStatus(childDetails);
@@ -479,6 +485,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         updateNextAppointmentDateView();
 
         startUpdateViewTask();
+        updateFloatingActionButtonBasedOnChildStatus();
     }
 
     @VisibleForTesting
@@ -2140,6 +2147,20 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
 
             updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
             showVaccineNotifications(vaccineList, alertList);
+        }
+    }
+
+    protected void updateFloatingActionButtonBasedOnChildStatus() {
+        if (ChildLibrary.getInstance().getProperties().getPropertyBoolean(ChildAppProperties.KEY.FEATURE_NFC_CARD_ENABLED)) {
+            if (!Utils.hasCompassRelationshipId(childDetails.getColumnmaps())) {
+                configureFloatingActionBackground(R.drawable.pill_background_unregistered, getResources().getString(R.string.enroll_caregiver));
+            } else {
+                if (!Utils.isChildHasNFCCard(childDetails.getColumnmaps())) {
+                    configureFloatingActionBackground(R.drawable.pill_background_unregistered, getResources().getString(R.string.activate_new_card));
+                } else {
+                    configureFloatingActionBackground(getGenderButtonColor(childDetails.getColumnmaps().get(Constants.KEY.GENDER)), getResources().getString(R.string.write_to_card));
+                }
+            }
         }
     }
 }

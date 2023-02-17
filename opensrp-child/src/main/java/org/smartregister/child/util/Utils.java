@@ -779,4 +779,8 @@ public class Utils extends org.smartregister.util.Utils {
         return StringUtils.isNotEmpty(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER))
                 && !Constants.TRUE.equalsIgnoreCase(detailsMap.getOrDefault(Constants.KEY.NFC_CARD_BLACKLISTED, Constants.FALSE));
     }
+
+    public static boolean hasCompassRelationshipId(Map<String, String> detailsMap) {
+        return StringUtils.isNotBlank(detailsMap.get(DBConstants.KEY.MOTHER_COMPASS_RELATIONSHIP_ID));
+    }
 }

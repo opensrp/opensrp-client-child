@@ -651,6 +651,8 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
                         public void run() {
                             clientAdapter.setTotalcount(totalCount);
                             Timber.i("Total Register Count %d", clientAdapter.getTotalcount());
+                            updateMatchingResults(totalCount);
+
                             clientAdapter.setCurrentlimit(getPageLimit());
                             clientAdapter.setCurrentoffset(0);
                         }
@@ -663,7 +665,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
             Timber.e(e);
         }
 
-        updateMatchingResults(clientAdapter.getTotalcount());
     }
 
     @Override
