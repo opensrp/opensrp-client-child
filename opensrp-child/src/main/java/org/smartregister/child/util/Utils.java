@@ -414,7 +414,7 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String updateGrowthValue(String value) {
         String growthValue = value;
-        if (NumberUtils.isNumber(value) && Double.parseDouble(value) > 0) {
+        if (NumberUtils.isCreatable(value) && Double.parseDouble(value) > 0) {
             if (!value.contains(".")) {
                 growthValue = value + ".0";
             }
@@ -816,5 +816,9 @@ public class Utils extends org.smartregister.util.Utils {
             }
         }
         return locationId;
+    }
+
+    public static boolean hasCompassRelationshipId(Map<String, String> detailsMap) {
+        return StringUtils.isNotBlank(detailsMap.get(DBConstants.KEY.MOTHER_COMPASS_RELATIONSHIP_ID));
     }
 }

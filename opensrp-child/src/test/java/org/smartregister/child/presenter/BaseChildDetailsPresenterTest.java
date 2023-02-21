@@ -37,7 +37,7 @@ public class BaseChildDetailsPresenterTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
     }
 
     @Test
@@ -64,6 +64,5 @@ public class BaseChildDetailsPresenterTest {
         childDetailsPresenter.reportLostCard(baseEntityId);
 
         Mockito.verify(view, Mockito.atMost(1)).notifyLostCardReported(Mockito.anyString());
-
     }
 }

@@ -240,8 +240,8 @@ public class UtilsTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
         ReflectionHelpers.setStaticField(LocationHelper.class, "instance", null);
     }
 
@@ -371,7 +371,6 @@ public class UtilsTest {
         ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
         String result = Utils.getTranslatedIdentifier("testKey");
         Assert.assertEquals(result, "testValue");
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
     }
 
     @Test
@@ -488,5 +487,45 @@ public class UtilsTest {
         Utils.processExtraVaccinesEventObs(event, vaccineField);
         Assert.assertEquals((obsCount + 1), event.getObs().size());
         Assert.assertEquals(Constants.KEY.SELECTED_VACCINES, event.getObs().get(obsCount - 1).getFieldCode());
+    }
+
+    @Test
+    public void testHasCompassRelationshipIdShouldReturnTrueIfExists() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("mother_compass_relationship_id", "123");
+
+        boolean hasCompassRelationshipId = Utils.hasCompassRelationshipId(childDetails);
+        Assert.assertTrue(hasCompassRelationshipId);
+
+    }
+
+    @Test
+    public void testHasCompassRelationshipIdShouldReturnFalseIfNotExists() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("mother_compass_relationship_id", "");
+
+        boolean hasCompassRelationshipId = Utils.hasCompassRelationshipId(childDetails);
+        Assert.assertFalse(hasCompassRelationshipId);
+
+    }
+
+    @Test
+    public void testIsChildHasNFCCardShouldReturnTrueIfCardIsNotBlacklisted() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("nfc_card_blacklisted", "false");
+        childDetails.put("nfc_card_identifier", "0099887711112222");
+
+        boolean isChildHasNFCCard = Utils.isChildHasNFCCard(childDetails);
+        Assert.assertTrue(isChildHasNFCCard);
+    }
+
+    @Test
+    public void testIsChildHasNFCCardShouldReturnTrueIfCardIsBlacklisted() {
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("nfc_card_blacklisted", "true");
+        childDetails.put("nfc_card_identifier", "0099887711112222");
+
+        boolean isChildHasNFCCard = Utils.isChildHasNFCCard(childDetails);
+        Assert.assertFalse(isChildHasNFCCard);
     }
 }

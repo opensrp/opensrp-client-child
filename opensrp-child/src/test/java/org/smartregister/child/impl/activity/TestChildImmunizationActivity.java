@@ -2,11 +2,11 @@ package org.smartregister.child.impl.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 
 import org.apache.commons.lang3.tuple.Triple;
-import org.mockito.Mockito;
 import org.smartregister.child.activity.BaseChildImmunizationActivity;
 import org.smartregister.child.domain.RegisterClickables;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -14,10 +14,6 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import java.util.Map;
 
 public class TestChildImmunizationActivity extends BaseChildImmunizationActivity {
-    @Override
-    public Resources getResources() {
-        return Mockito.mock(Resources.class);
-    }
 
     @Override
     protected void goToRegisterPage() {
@@ -67,5 +63,21 @@ public class TestChildImmunizationActivity extends BaseChildImmunizationActivity
     @Override
     public void onRegistrationSaved(boolean isEdit) {
         //Do nothing
+    }
+
+    @Override
+    public void onCreate(Bundle state) {
+        //Do nothing
+
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        ///Do nothing
+    }
+
+    @Override
+    public void startActivity(Intent intent, Bundle o) {
+        // Do nothing
     }
 }

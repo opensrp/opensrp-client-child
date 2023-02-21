@@ -36,7 +36,6 @@ import org.smartregister.child.domain.ChildMetadata;
 import org.smartregister.child.domain.FormLocationTree;
 import org.smartregister.child.domain.Identifiers;
 import org.smartregister.child.domain.MoveToCatchmentEvent;
-import org.smartregister.child.domain.Observation;
 import org.smartregister.child.enums.LocationHierarchy;
 import org.smartregister.child.model.ChildMotherDetailModel;
 import org.smartregister.clientandeventmodel.Address;
@@ -46,6 +45,7 @@ import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Observation;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.domain.Response;
@@ -846,7 +846,26 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
         event.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
         event.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
+        event.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
         return event;
+    }
+
+    /**
+     * Tag an client with metadata fields LocationId, TeamId, Database Version and Client App Version
+     *
+     * @param client to tag
+     * @return Tagged client
+     */
+    public static Client tagSyncMetadata(@NonNull Client client) {
+        AllSharedPreferences allSharedPreferences = Utils.getAllSharedPreferences();
+        String providerId = allSharedPreferences.fetchRegisteredANM();
+
+        client.setLocationId(getProviderLocationId(ChildLibrary.getInstance().context().applicationContext()));
+        client.setTeamId(allSharedPreferences.fetchDefaultTeamId(providerId));
+        client.setClientDatabaseVersion(ChildLibrary.getInstance().getDatabaseVersion());
+        client.setClientApplicationVersion(ChildLibrary.getInstance().getApplicationVersion());
+        client.setClientApplicationVersionName(ChildLibrary.getInstance().getApplicationVersionName());
+        return client;
     }
 
     /**
@@ -948,6 +967,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             Client baseClient = ChildJsonFormUtils.createBaseClient(fields, formTag, entityId);
             baseClient.setRelationalBaseEntityId(getString(jsonForm, Constants.KEY.RELATIONAL_ID));//mama
             baseClient.setClientType(Constants.CHILD_TYPE);
+            tagSyncMetadata(baseClient);
 
             Event baseEvent = ChildJsonFormUtils.createEvent(fields, getJSONObject(jsonForm, METADATA),
                     formTag, entityId, jsonForm.getString(ChildJsonFormUtils.ENCOUNTER_TYPE), Constants.CHILD_TYPE);
@@ -1633,6 +1653,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             client.withAddresses(parent.getAddresses());
         }
 
+        tagSyncMetadata(client);
         return client;
     }
 
@@ -1691,7 +1712,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
 
     private static boolean isDateApprox(String approxDate) {
         boolean dateApprox = false;
-        if (!StringUtils.isEmpty(approxDate) && NumberUtils.isNumber(approxDate)) {
+        if (!StringUtils.isEmpty(approxDate) && NumberUtils.isCreatable(approxDate)) {
             int date = 0;
             try {
                 date = Integer.parseInt(approxDate);
@@ -2106,7 +2127,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (Utils.metadata().childRegister.formName.equals(formName)) {
                 if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() < 2) {
                     Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
-                    Timber.d( "ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
+                    Timber.d("ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
                     return;
                 }
                 if (StringUtils.isBlank(entityId)) {
@@ -2342,31 +2363,6 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         return null;
     }
 
-
-    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
-        try {
-            if (jsonObject != null && jsonObject.has(field)) {
-                return jsonObject.getJSONObject(field);
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-        return null;
-
-    }
-
-    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
-        try {
-            if (jsonArray != null && jsonArray.length() > 0) {
-                return jsonArray.getJSONObject(position);
-            }
-        } catch (JSONException e) {
-            Timber.e(e);
-        }
-        return null;
-
-    }
-
     /**
      * Creates the Next Appointment event
      *
@@ -2406,7 +2402,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
      *
      * @param key   The form field key
      * @param value The form field value
-     * @param type  The Enum type of the Observation {@link Observation#TYPE}
+     * @param type  The Enum type of the Observation {@link Observation.TYPE}
      * @param event The Event to add the Observation to
      */
     protected static void addObservation(String key, String value, Observation.TYPE type, Event event) throws JSONException {
@@ -2423,5 +2419,29 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         jsonObject.put(VALUE, value);
         jsonObject.put(OPENMRS_DATA_TYPE, type != null ? type : AllConstants.TEXT);
         addObservation(event, jsonObject);
+    }
+
+    protected JSONObject getJsonObject(JSONObject jsonObject, String field) {
+        try {
+            if (jsonObject != null && jsonObject.has(field)) {
+                return jsonObject.getJSONObject(field);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
+    }
+
+    protected JSONObject getJsonObject(JSONArray jsonArray, int position) {
+        try {
+            if (jsonArray != null && jsonArray.length() > 0) {
+                return jsonArray.getJSONObject(position);
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+        return null;
+
     }
 }
