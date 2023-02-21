@@ -391,4 +391,5 @@
 
     <string name="format_label_colon_text">%1$s: %2$s</string>
     <string name="format_label_space_text">%1$s %2$s</string>
+    <string name="error_child_details">Error fetching child details</string>
 </resources>

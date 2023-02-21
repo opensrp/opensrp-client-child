@@ -16,13 +16,10 @@ import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.BaseProfileActivity;
 import org.smartregister.view.activity.DrishtiApplication;
 
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.crashlytics.android.Crashlytics;
 
 public class TestChildApp extends DrishtiApplication {
 
@@ -32,10 +29,9 @@ public class TestChildApp extends DrishtiApplication {
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
-        Fabric.with(this, new Crashlytics());
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
-        ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
+        ChildLibrary.init(context, getRepository(), getMetadata(), 1,  "1.0.0",1);
         GrowthMonitoringLibrary.init(context, repository, 1, 1);
         CommonFtsObject commonFtsObject = mock(CommonFtsObject.class);
         ImmunizationLibrary.init(context, repository, commonFtsObject, 1, 1);

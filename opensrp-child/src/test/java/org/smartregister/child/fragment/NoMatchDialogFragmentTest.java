@@ -1,5 +1,12 @@
 package org.smartregister.child.fragment;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -22,17 +30,9 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.view.activity.BaseRegisterActivity;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class NoMatchDialogFragmentTest extends BaseUnitTest {
 
@@ -71,14 +71,14 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
         MockitoAnnotations.initMocks(this);
 
         fragment = new NoMatchDialogFragment(baseRegisterActivity, "123");
-        context = RuntimeEnvironment.application;
+        context = ApplicationProvider.getApplicationContext();
 
         activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
         activity.getSupportFragmentManager().beginTransaction().add(fragment, "Tasks").commit();
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         try {
             activity.finish();
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class NoMatchDialogFragmentTest extends BaseUnitTest {
 
     @Test
     public void testInstantiation() {
-        assertNotNull(Whitebox.getInternalState(fragment,"uniqueId"));
+        assertNotNull(Whitebox.getInternalState(fragment, "uniqueId"));
     }
 
     @Test

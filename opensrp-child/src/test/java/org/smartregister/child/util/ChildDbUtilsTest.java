@@ -86,7 +86,6 @@ public class ChildDbUtilsTest extends BaseUnitTest {
         HashMap<String, String> result = ChildDbUtils.fetchChildFirstGrowthAndMonitoring(baseEntityId);
         Assert.assertEquals("20", result.get("birth_weight"));
         Assert.assertEquals("30", result.get("birth_height"));
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
     }
 
     @Test
@@ -194,6 +193,7 @@ public class ChildDbUtilsTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 }

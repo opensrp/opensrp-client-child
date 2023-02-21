@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -30,7 +29,6 @@ import java.util.HashMap;
  */
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 27)
 public class UtilsRobolectricTest {
 
     @Rule

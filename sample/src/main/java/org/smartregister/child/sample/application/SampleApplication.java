@@ -132,7 +132,6 @@ public class SampleApplication extends DrishtiApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
@@ -140,10 +139,10 @@ public class SampleApplication extends DrishtiApplication {
 
         //Initialize Modules
         CoreLibrary.init(context, new SampleSyncConfiguration());
-        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION, null);
-        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(context.applicationContext()), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        GrowthMonitoringLibrary.init(context, getRepository(), BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, BuildConfig.DATABASE_VERSION, null);
+        ImmunizationLibrary.init(context, getRepository(), createCommonFtsObject(context.applicationContext()), BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, BuildConfig.DATABASE_VERSION);
         ConfigurableViewsLibrary.init(context);
-        ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.DATABASE_VERSION);
+        ChildLibrary.init(context, getRepository(), getMetadata(), BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, BuildConfig.DATABASE_VERSION);
 
         initRepositories();
 
