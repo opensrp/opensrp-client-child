@@ -794,7 +794,7 @@ public class Utils extends org.smartregister.util.Utils {
     public static boolean isChildTemporaryOOC(@NotNull Map<String, String> childDetails) {
         return !childBelongsToCurrentFacility(childDetails) && (ChildLibrary.getInstance()
                 .getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)
-                && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false)));
+                && Boolean.parseBoolean(org.smartregister.util.Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false)));
     }
 
     public static String getLocationIdFromChildTempOOCEvent(String baseEntityId) {
