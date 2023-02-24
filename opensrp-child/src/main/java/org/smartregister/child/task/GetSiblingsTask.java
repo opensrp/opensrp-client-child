@@ -36,11 +36,11 @@ public class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
         String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), Constants.KEY.RELATIONAL_ID, false);
         if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
 
+            String whereClause = constructWhereClause(motherBaseEntityId);
             List<HashMap<String, String>> childList = ChildLibrary.getInstance()
                     .eventClientRepository()
                     .rawQuery(ChildLibrary.getInstance().getRepository().getReadableDatabase(),
-                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery()
-                                    + " WHERE " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "')");
+                            Utils.metadata().getRegisterQueryProvider().mainRegisterQuery() + whereClause);
 
 
             List<CommonPersonObject> children = new ArrayList<>();
@@ -62,6 +62,13 @@ public class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
             }
         }
         return null;
+    }
+
+    private String constructWhereClause(String motherBaseEntityId) {
+        return " WHERE " + Utils.metadata().getRegisterQueryProvider().getChildDetailsTable() + ".relational_id IN ('" + motherBaseEntityId + "') AND " +
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".date_removed IS NULL  AND " +
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".dod IS NULL AND " +
+                Utils.metadata().getRegisterQueryProvider().getDemographicTable() + ".is_closed = 0";
     }
 
     @Override
