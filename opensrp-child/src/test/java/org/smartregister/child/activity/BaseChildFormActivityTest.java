@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.domain.ChildMetadata;
@@ -29,20 +28,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
 public class BaseChildFormActivityTest {
-
-    private ChildFormActivityShadow childFormActivity;
-
-    @Mock
-    private ChildLibrary childLibrary;
-
-    @Spy
-    private AppProperties appProperties;
 
     private static final String outOfAreaForm = "{\"count\":\"1\",\"encounter_type\":\"Out of Catchment Service\",\"entity_id\":\"\",\"step1\":{\"title\":\"Record out of catchment area service\",\"fields\":[]}}";
     private static final String outOfAreaFormWithWeight = "{\"count\":\"1\",\"encounter_type\":\"Out of Catchment Service\",\"entity_id\":\"\",\"metadata\":{},\"step1\":{\"title\":\"Record out of catchment area service\",\"fields\":[{\"key\":\"Weight_Kg\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"concept\",\"openmrs_entity_id\":\"5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"openmrs_data_type\":\"text\",\"type\":\"edit_text\",\"hint\":\"Child's weight (kg)\",\"value\":3.7,\"v_min\":{\"value\":\"0.1\",\"err\":\"Weight must be greater than 0\"},\"v_numeric\":{\"value\":\"true\",\"err\":\"Enter a valid weight\"}}]},\"invisible_required_fields\":\"[]\",\"details\":{\"appVersionName\":\"1.14.5.0-SNAPSHOT\",\"formVersion\":\"\"}}";
     private static final String outOfAreaFormWithVaccines = "{\"count\":\"1\",\"encounter_type\":\"Out of Catchment Service\",\"entity_id\":\"\",\"metadata\":{},\"step1\":{\"title\":\"Record out of catchment area service\",\"fields\":[{\"key\":\"opensrp_id\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"\",\"openmrs_entity_id\":\"\",\"type\":\"edit_text\",\"hint\":\"OpenSRP ID \",\"value\":\"3274343E\",\"v_regex\":{\"value\":\"^$|([0-9]{16})\",\"err\":\"The number must have a total of 16 digits\"},\"v_required\":{\"value\":\"true\",\"err\":\"Enter the card Id\"}},{\"key\":\"OA_Service_Date\",\"openmrs_entity_parent\":\"\",\"openmrs_entity\":\"encounter\",\"openmrs_entity_id\":\"encounter_date\",\"type\":\"date_picker\",\"hint\":\"Date of Service\",\"expanded\":false,\"max_date\":\"today\",\"v_required\":{\"value\":\"true\",\"err\":\"Enter the date of service\"},\"value\":\"10-10-2019\"},{\"key\":\"Vaccines_Provided_Label\",\"type\":\"label\",\"text\":\"Which vaccinations were provided?\",\"openmrs_entity_parent\":\"-\",\"openmrs_entity\":\"-\",\"openmrs_entity_id\":\"-\"},{\"key\":\"Birth\",\"type\":\"check_box\",\"is_vaccine_group\":true,\"label\":\"Birth\",\"openmrs_entity_parent\":\"-\",\"openmrs_entity\":\"-\",\"openmrs_entity_id\":\"-\",\"options\":[{\"key\":\"OPV 0\",\"text\":\"OPV 0\",\"value\":true,\"constraints\":[{\"type\":\"array\",\"ex\":\"notEqualTo(step1:Six_Wks, \\\"[\\\"OPV 1\\\"]\\\")\",\"err\":\"Cannot be given with the other OPV dose\"},{\"type\":\"array\",\"ex\":\"notEqualTo(step1:Ten_Wks, \\\"[\\\"OPV 2\\\"]\\\")\",\"err\":\"Cannot be given with the other OPV dose\"},{\"type\":\"array\",\"ex\":\"notEqualTo(step1:Fourteen_Weeks, \\\"[\\\"OPV 3\\\"]\\\")\",\"err\":\"Cannot be given with the other OPV dose\"}]},{\"key\":\"BCG\",\"text\":\"BCG\",\"value\":\"false\"},{\"key\":\"HepB\",\"text\":\"HepB\",\"value\":true}],\"value\":[\"OPV 0\",\"HepB\"]}]},\"invisible_required_fields\":\"[]\",\"details\":{\"appVersionName\":\"1.14.5.0-SNAPSHOT\",\"formVersion\":\"\"}}";
+    private ChildFormActivityShadow childFormActivity;
+    @Mock
+    private ChildLibrary childLibrary;
+    @Spy
+    private AppProperties appProperties;
 
     @Before
     public void setUp() {
@@ -63,14 +58,13 @@ public class BaseChildFormActivityTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
 
         try {
             childFormActivity.finish();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Test

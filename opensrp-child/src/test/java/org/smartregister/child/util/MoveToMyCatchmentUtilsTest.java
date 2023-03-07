@@ -21,7 +21,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -41,38 +40,28 @@ import org.smartregister.service.UserService;
 import org.smartregister.sync.helper.ECSyncHelper;
 import org.smartregister.util.AppProperties;
 
+import java.util.Arrays;
 import java.util.List;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
 public class MoveToMyCatchmentUtilsTest {
 
+    private static final String TEST_BASE_URL = "http://test-smartregister.com/";
     @Mock
     private Context context;
-
     @Mock
     private ChildLibrary childLibrary;
-
     private ECSyncHelper ecSyncHelper;
-
     @Mock
     private DristhiConfiguration configuration;
-
     @Mock
     private HTTPAgent httpAgent;
-
     @Mock
     private UserService userService;
-
     @Mock
     private AllSharedPreferences allSharedPreferences;
-
     @Spy
     private AppProperties appProperties;
-
-    private static final String TEST_BASE_URL = "http://test-smartregister.com/";
 
     @Before
     public void setUp() throws JSONException {
@@ -111,7 +100,7 @@ public class MoveToMyCatchmentUtilsTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
     }
 
     @Test

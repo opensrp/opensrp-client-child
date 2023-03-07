@@ -1,6 +1,6 @@
 package org.smartregister.child;
 
-import android.os.Build;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -15,8 +15,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.child.domain.ChildMetadata;
@@ -29,7 +27,6 @@ import id.zelory.compressor.Compressor;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
 @PrepareForTest({ChildLibrary.class})
-@Config(sdk = Build.VERSION_CODES.O_MR1)
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "javax.management.*", "org.xmlpull.v1.*",})
 public class ChildLibraryTest {
 
@@ -48,6 +45,8 @@ public class ChildLibraryTest {
     @Mock
     private ChildMetadata metadata;
 
+    private final String versionName = "1.0.0";
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -65,8 +64,7 @@ public class ChildLibraryTest {
 
     @Test
     public void testChildLibraryInitsCorrectly() {
-
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4, versionName, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Assert.assertNotNull(childLibrary);
@@ -80,21 +78,20 @@ public class ChildLibraryTest {
     @Test
     public void testGetCompressorCreatesAndReturnsNonNullIninstance() {
 
-        Mockito.doReturn(RuntimeEnvironment.application).when(context).applicationContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4, versionName, 1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Compressor compressor = childLibrary.getCompressor();
         Assert.assertNotNull(compressor);
-
     }
 
     @Test
     public void testGetEventClientRepositoryNotNull() {
-        Mockito.doReturn(RuntimeEnvironment.application).when(context).applicationContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(context).applicationContext();
 
-        ChildLibrary.init(context, repository, metadata, 4, 1);
+        ChildLibrary.init(context, repository, metadata, 4,  versionName,1);
         ChildLibrary childLibrary = ChildLibrary.getInstance();
 
         Assert.assertNotNull(childLibrary);
@@ -103,7 +100,6 @@ public class ChildLibraryTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
     }
-
 }

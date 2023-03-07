@@ -61,8 +61,8 @@ import timber.log.Timber;
 public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         implements ChildRegisterFragmentContract.View, SyncStatusBroadcastReceiver.SyncStatusListener, View.OnClickListener, LocationPickerView.OnLocationChangeListener {
 
-    private View filterSection;
     protected LocationPickerView clinicSelection;
+    private View filterSection;
     private TextView overdueCountTV;
     private int overDueCount = 0;
     private AppExecutors executors = new AppExecutors();
@@ -320,16 +320,12 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
                                 clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(clinicSelection.getSelectedItem()));
                             }
                         });
-
                     }
                 });
-
-
             }
         } catch (Exception e) {
             Timber.e(e);
         }
-
     }
 
     @VisibleForTesting
@@ -476,6 +472,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         return query;
     }
 
+    @VisibleForTesting
+    protected AppExecutors getAppExecutors() {
+        return new AppExecutors();
+    }
+
     @Override
     public void countExecute() {
         executors.diskIO().execute(new Runnable() {
@@ -562,11 +563,11 @@ public abstract class BaseChildRegisterFragment extends BaseRegisterFragment
         Utils.refreshDataCaptureStrategyBanner(getActivity(), newLocation);
     }
 
-    public void setOverDueCount(int overDueCount) {
-        this.overDueCount = overDueCount;
-    }
-
     public int getOverDueCount() {
         return overDueCount;
+    }
+
+    public void setOverDueCount(int overDueCount) {
+        this.overDueCount = overDueCount;
     }
 }

@@ -83,7 +83,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | NullPointerException e) {
             Timber.e(e);
         }
         Form form = getForm();
@@ -284,8 +284,7 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
                 }
                 break;
             case JsonFormConstants.SPINNER:
-                boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties()
-                        .getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
+                boolean useNewMLSApproach = Boolean.parseBoolean(ChildLibrary.getInstance().getProperties().getProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "false"));
                 if (useNewMLSApproach && field.getOptions() != null && !field.getOptions().isEmpty() && StringUtils.isNotBlank(raw)) {
                     for (Map<String, String> option : field.getOptions()) {
                         if (option.containsKey(JsonFormConstants.KEY) && raw.equalsIgnoreCase(option.get(JsonFormConstants.KEY))) {

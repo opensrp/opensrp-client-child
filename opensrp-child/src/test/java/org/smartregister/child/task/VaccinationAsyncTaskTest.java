@@ -1,9 +1,16 @@
 package org.smartregister.child.task;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.test.core.app.ApplicationProvider;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -16,7 +23,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
@@ -52,11 +58,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 2019-09-06
@@ -164,19 +165,20 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
                 , commonRepository
                 , vaccineRepository
                 , alertService
-                , RuntimeEnvironment.application);
+                , ApplicationProvider.getApplicationContext());
     }
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", null);
+        ChildLibrary.destroyInstance();
+
         ReflectionHelpers.setStaticField(ImmunizationLibrary.class, "instance", null);
     }
 
     @Test
     public void localizeStateKeyShouldReturn6weeksWhenGivenMixedCase6WeeksStateKey() {
 
-        String localizedStateKey = Utils.localizeStateKey(RuntimeEnvironment.application,"6 WEEKS");
+        String localizedStateKey = Utils.localizeStateKey(ApplicationProvider.getApplicationContext(), "6 WEEKS");
 
         assertEquals("6 Weeks", localizedStateKey);
 
@@ -359,7 +361,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -534,7 +536,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -565,7 +567,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
         verify(textView).setText("Upcoming\n");
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -598,13 +600,13 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
 
         ArgumentCaptor<Integer> argument = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Object> argument2 = ArgumentCaptor.forClass(Object.class);
         verify(view).setTag(argument.capture(), argument2.capture());
 
-        assertEquals(R.id.next_appointment_date, (long)argument.getValue());
+        assertEquals(R.id.next_appointment_date, (long) argument.getValue());
     }
 
     @Test
@@ -676,8 +678,8 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
-        verify(view).setBackgroundColor(RuntimeEnvironment.application.getResources().getColor(R.color.white));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
+        verify(view).setBackgroundColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.white));
 
         alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
         nv.clear();
@@ -686,7 +688,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView, times(2)).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.client_list_grey));
+        verify(textView, times(2)).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.client_list_grey));
     }
 
     @Test
@@ -717,7 +719,7 @@ public class VaccinationAsyncTaskTest extends BaseUnitTest {
 
         updateRecordVaccination.invoke(vaccinationAsyncTask, vaccineViewRecordUpdateWrapper);
 
-        verify(textView).setTextColor(RuntimeEnvironment.application.getResources().getColor(R.color.status_bar_text_almost_white));
+        verify(textView).setTextColor(ApplicationProvider.getApplicationContext().getResources().getColor(R.color.status_bar_text_almost_white));
 
         alert = new Alert("caseID", "scheduleName", "visitCode", AlertStatus.normal, "startDate", "expiryDate", true);
         nv.clear();

@@ -1,5 +1,7 @@
 package org.smartregister.child.presenter;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -9,8 +11,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RuntimeEnvironment;
+import org.mockito.Spy;
 import org.robolectric.util.ReflectionHelpers;
+import org.smartregister.Context;
+import org.smartregister.CoreLibrary;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.contract.ChildRegisterContract;
@@ -22,6 +26,9 @@ import org.smartregister.child.model.BaseChildRegisterModel;
 import org.smartregister.clientandeventmodel.Client;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.service.UserService;
+import org.smartregister.util.AppProperties;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -34,7 +41,6 @@ import java.util.Map;
  */
 public class BaseChildRegisterPresenterTest extends BaseUnitTest {
 
-    @Mock
     protected WeakReference<ChildRegisterContract.View> viewReference;
 
     @Mock
@@ -43,12 +49,32 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
     @Mock
     private ChildRegisterContract.View view;
 
+    @Mock
+    private Context opensrpContext;
+
+    @Mock
+    private AllSharedPreferences allSharedPreferences;
+
+    @Mock
+    private UserService userService;
+
+    @Spy
+    private AppProperties appProperties;
+
     private BaseChildRegisterPresenter baseChildRegisterPresenter;
 
     @Before
     public void setUp() {
 
         MockitoAnnotations.initMocks(this);
+
+        viewReference = Mockito.spy(new WeakReference<>(view));
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(opensrpContext).applicationContext();
+        Mockito.doReturn(appProperties).when(opensrpContext).getAppProperties();
+        Mockito.doReturn(allSharedPreferences).when(opensrpContext).allSharedPreferences();
+        Mockito.doReturn(userService).when(opensrpContext).userService();
+        Mockito.doReturn(allSharedPreferences).when(userService).getAllSharedPreferences();
+        Mockito.doReturn("testuser").when(allSharedPreferences).fetchRegisteredANM();
 
         baseChildRegisterPresenter = new BaseChildRegisterPresenter(viewReference.get(), model);
     }
@@ -194,12 +220,14 @@ public class BaseChildRegisterPresenterTest extends BaseUnitTest {
     public void testCloseChildRecordShouldCallRemoveChildFromRegisterMethod() {
         String jsonString = new JSONObject().toString();
         ChildRegisterContract.View view = Mockito.spy(new TestBaseChildRegisterActivity());
-        Mockito.doReturn(RuntimeEnvironment.application).when(view).getContext();
+        Mockito.doReturn(ApplicationProvider.getApplicationContext()).when(view).getContext();
         Mockito.doReturn(view).when(viewReference).get();
         ReflectionHelpers.setField(baseChildRegisterPresenter, "viewReference", viewReference);
 
         ChildRegisterContract.Interactor interactorSpy = Mockito.spy(new ChildRegisterInteractor());
         ReflectionHelpers.setField(baseChildRegisterPresenter, "interactor", interactorSpy);
+
+        CoreLibrary.init(opensrpContext);
 
         baseChildRegisterPresenter.closeChildRecord(jsonString);
 

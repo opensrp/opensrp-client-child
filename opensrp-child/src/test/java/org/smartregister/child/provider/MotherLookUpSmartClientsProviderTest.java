@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RuntimeEnvironment;
 import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.R;
 import org.smartregister.child.util.Constants;
@@ -53,10 +54,10 @@ public class MotherLookUpSmartClientsProviderTest extends BaseUnitTest {
         List<CommonPersonObject> children = new ArrayList<>();
         children.add(commonPersonObjectChild);
 
-        LinearLayout view = new LinearLayout(RuntimeEnvironment.application);
-        TextView textViewName = new TextView(RuntimeEnvironment.application);
+        LinearLayout view = new LinearLayout(ApplicationProvider.getApplicationContext());
+        TextView textViewName = new TextView(ApplicationProvider.getApplicationContext());
         textViewName.setId(R.id.name);
-        TextView textViewDetails = new TextView(RuntimeEnvironment.application);
+        TextView textViewDetails = new TextView(ApplicationProvider.getApplicationContext());
         textViewDetails.setId(R.id.details);
         view.addView(textViewName);
         view.addView(textViewDetails);

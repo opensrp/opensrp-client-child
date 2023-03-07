@@ -12,22 +12,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.common.collect.ImmutableMap;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
-import org.smartregister.child.BasePowerMockUnitTest;
+import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.activity.BaseChildDetailTabbedActivity;
@@ -54,8 +52,7 @@ import java.util.Map;
 /**
  * Created by ndegwamartin on 04/08/2020.
  */
-@PrepareForTest({CoreLibrary.class, ChildLibrary.class})
-public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest {
+public class BaseChildRegistrationDataFragmentTest extends BaseUnitTest {
 
     private BaseChildRegistrationDataFragment baseChildRegistrationDataFragment;
 
@@ -125,10 +122,17 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
         Whitebox.setInternalState(baseChildRegistrationDataFragment, "unformattedNumberFields", unformattedNumberFields);
         Mockito.doReturn(fields).when(step).getFields();
 
-        PowerMockito.mockStatic(ChildLibrary.class);
-        PowerMockito.when(ChildLibrary.getInstance()).thenReturn(childLibrary);
         ChildAppProperties appProperties = new ChildAppProperties();
-        PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
+        Mockito.doReturn(appProperties).when(childLibrary).getProperties();
+
+        appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
+    }
+
+    @After
+    public void tearDown() {
+        CoreLibrary.destroyInstance();
+        ChildLibrary.destroyInstance();
     }
 
     @Test
@@ -168,7 +172,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
 
     @Test
     public void testOnCreateInitsCorrectly() {
-
         Mockito.doReturn(form).when(baseChildRegistrationDataFragment).getForm();
         baseChildRegistrationDataFragment.onCreate(bundle);
 
@@ -187,7 +190,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
     }
 
     @Test
-    @Ignore("Fix powermock robolectric conflicts first")
     public void onCreateViewInflatesCorrectView() {
 
         Mockito.doReturn(fragmentView).when(inflater).inflate(R.layout.child_registration_data_fragment, container, false);
@@ -228,7 +230,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
     }
 
     @Test
-    @Ignore("Fix powermock robolectric conflicts first")
     public void testLoadDataSetsAdapterWithCorrectly() {
 
         Mockito.doReturn(activity).when(baseChildRegistrationDataFragment).getActivity();
@@ -241,7 +242,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
     }
 
     @Test
-    @Ignore("Fix powermock robolectric conflicts first")
     public void testLoadDataInitsRecyclerViewCorrectly() {
 
         Mockito.doNothing().when(baseChildRegistrationDataFragment).resetAdapterData(childDetais);
@@ -299,7 +299,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
     }
 
     @Test
-    @Ignore("Fix powermock robolectric conflicts first")
     public void testRefreshRecyclerViewDataResetsAdapter() {
         Mockito.doNothing().when(baseChildRegistrationDataFragment).resetAdapterData(childDetais);
 
@@ -329,11 +328,6 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
 
     @Test
     public void testCleanValueRetrievesValueForSpinnerUsingNewMLSApproach() {
-
-        ChildAppProperties appProperties = new ChildAppProperties();
-        appProperties.setProperty(ChildAppProperties.KEY.MULTI_LANGUAGE_SUPPORT, "true");
-
-        PowerMockito.doReturn(appProperties).when(childLibrary).getProperties();
 
         String rawValue = "Fr";
 
@@ -412,6 +406,8 @@ public class BaseChildRegistrationDataFragmentTest extends BasePowerMockUnitTest
         Map<String, String> detailsMap = new HashMap<>();
         detailsMap.put("key4", "key4");
         detailsMap.put("key5", "key5");
+
+        ReflectionHelpers.setStaticField(ChildLibrary.class, "instance", childLibrary);
 
         baseChildRegistrationDataFragment.resetAdapterData(detailsMap);
 

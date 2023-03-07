@@ -41,7 +41,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
@@ -134,7 +133,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
 
     @After
     public void tearDown() {
-        ReflectionHelpers.setStaticField(CoreLibrary.class, "instance", null);
+        CoreLibrary.destroyInstance();
         baseChildDetailTabbedActivity = null;
     }
 
@@ -157,7 +156,7 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         weightList.add(weight);
         weightList.add(weight2);
 
-        Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+        Menu menu = new MenuBuilder(ApplicationProvider.getApplicationContext());
         menu.add(0, R.id.immunization_data, 1, "title1");
         menu.add(0, R.id.recurring_services_data, 1, "title2");
         menu.add(0, R.id.weight_data, 1, "title3");
@@ -167,35 +166,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Assert.assertTrue(menu.findItem(R.id.immunization_data).isEnabled());
         Assert.assertTrue(menu.findItem(R.id.recurring_services_data).isEnabled());
         Assert.assertTrue(menu.findItem(R.id.weight_data).isEnabled());
-    }
-
-
-    private static class TestBaseChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
-
-        @Override
-        protected BaseChildRegistrationDataFragment getChildRegistrationDataFragment() {
-            return null;
-        }
-
-        @Override
-        protected void navigateToRegisterActivity() {
-            Timber.e("navigateToRegisterActivity");
-        }
-
-        @Override
-        public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
-            Timber.e("onUniqueIdFetched");
-        }
-
-        @Override
-        public void onNoUniqueId() {
-            Timber.e("onNoUniqueId");
-        }
-
-        @Override
-        public void updateViews() {
-            // do nothing
-        }
     }
 
     @Test
@@ -528,7 +498,6 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         verify(lostCardDialogFragment, Mockito.atMost(1)).dismiss();
     }
 
-
     @Test
     public void testThatBoosterVaccinesFormIsLaunched() {
         doReturn(ApplicationProvider.getApplicationContext()).when(baseChildDetailTabbedActivity).getContext();
@@ -579,5 +548,33 @@ public class BaseChildDetailTabbedActivityTest extends BaseUnitTest {
         Assert.assertEquals(getChildDetails().entityId(), jsonObject.getString(Constants.KEY.ENTITY_ID));
         verify(baseChildDetailTabbedActivity, Mockito.atMostOnce()).startFormActivity(jsonObject.toString());
         Assert.assertEquals(locationId, jsonObject.getJSONObject(ChildJsonFormUtils.METADATA).getString(ChildJsonFormUtils.ENCOUNTER_LOCATION));
+    }
+
+    private static class TestBaseChildDetailTabbedActivity extends BaseChildDetailTabbedActivity {
+
+        @Override
+        protected BaseChildRegistrationDataFragment getChildRegistrationDataFragment() {
+            return null;
+        }
+
+        @Override
+        protected void navigateToRegisterActivity() {
+            Timber.e("navigateToRegisterActivity");
+        }
+
+        @Override
+        public void onUniqueIdFetched(Triple<String, Map<String, String>, String> triple, String entityId) {
+            Timber.e("onUniqueIdFetched");
+        }
+
+        @Override
+        public void onNoUniqueId() {
+            Timber.e("onNoUniqueId");
+        }
+
+        @Override
+        public void updateViews() {
+            // do nothing
+        }
     }
 }
