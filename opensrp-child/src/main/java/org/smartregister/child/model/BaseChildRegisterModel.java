@@ -88,7 +88,6 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
                 return null;
             }
 
-
             childEventClientList.add(childEventClient);
             Client childClient = childEventClient.getClient();
 
@@ -149,11 +148,17 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
     private void updateMotherDetails(ChildEventClient childHeadEventClient, Client childClient) {
         //Update details
         //To Do temp find out why some details not updating normally
-
         String dob = null;
         try {
-            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())));
-
+            dob = Utils.reverseHyphenatedString(
+                    Utils.convertDateFormat(
+                            childHeadEventClient.getClient().getBirthdate(),
+                            new SimpleDateFormat(
+                                    "dd-MM-yyyy",
+                                    Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()
+                            )
+                    )
+            );
         } catch (Exception e) {
             Timber.e(e);
         }

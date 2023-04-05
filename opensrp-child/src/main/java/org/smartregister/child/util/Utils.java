@@ -741,7 +741,6 @@ public class Utils extends org.smartregister.util.Utils {
         return isDone;
     }
 
-
     private static boolean vaccineProvidedWithin(Map<String, Object> schedule, DateTime dob, int days) {
         boolean providedWithin = false;
         DateTime date = (DateTime) schedule.get(Constants.DATE);
@@ -792,22 +791,22 @@ public class Utils extends org.smartregister.util.Utils {
     }
 
     public static boolean isChildTemporaryOOC(@NotNull Map<String, String> childDetails) {
-        return !childBelongsToCurrentFacility(childDetails) && (ChildLibrary.getInstance()
-                .getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)
+        return !childBelongsToCurrentFacility(childDetails)
+                && (ChildLibrary.getInstance().getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)
                 && Boolean.valueOf(org.smartregister.util.Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false)));
     }
 
     public static String getLocationIdFromChildTempOOCEvent(String baseEntityId) {
         EventClientRepository eventClientRepository = ChildLibrary.getInstance().eventClientRepository();
-        String query = "SELECT "+ EventClientRepository.event_column.json.name() +" FROM "
-                + EventClientRepository.Table.event.name()
-                + " WHERE "
-                + "eventType = '"+ MOVE_TO_CATCHMENT_SYNC_EVENT +"' "
-                + "AND baseEntityId = '"+ baseEntityId +"' "
-                + "ORDER BY "+EventClientRepository.event_column.dateCreated.name()+" DESC LIMIT 1";
+        String query = "SELECT " + EventClientRepository.event_column.json.name() + " " +
+                "FROM " + EventClientRepository.Table.event.name() + " " +
+                "WHERE eventType = '" + MOVE_TO_CATCHMENT_SYNC_EVENT + "' " +
+                "  AND baseEntityId = '" + baseEntityId + "' " +
+                "ORDER BY " + EventClientRepository.event_column.dateCreated.name() + " " +
+                "DESC LIMIT 1";
         List<EventClient> moveToCatchmentSyncEventClient = eventClientRepository.fetchEventClientsCore(query, null);
         org.smartregister.domain.Event moveToCatchmentSyncEvent = moveToCatchmentSyncEventClient.get(0).getEvent();
-        String locationId  = "";
+        String locationId = "";
         for (int i = moveToCatchmentSyncEvent.getObs().size() - 1; i > -1; i--) {
             org.smartregister.domain.Obs obs = moveToCatchmentSyncEvent.getObs().get(i);
 

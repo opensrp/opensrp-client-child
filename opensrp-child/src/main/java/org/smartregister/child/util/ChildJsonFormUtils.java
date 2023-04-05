@@ -2072,8 +2072,16 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             String formSubmissionField = "From_LocationId";
             List<Object> vall = new ArrayList<>();
             vall.add(fromLocationId);
-            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
-                    formSubmissionField));
+            event.addObs(new Obs(
+                    FORM_SUBMISSION_FIELD,
+                    DATA_TYPE,
+                    formSubmissionField,
+                    "",
+                    vall,
+                    new ArrayList<>(),
+                    null,
+                    formSubmissionField
+            ));
 
             event.setBaseEntityId(clientBaseEntityId);
 
@@ -2106,7 +2114,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             if (Utils.metadata().childRegister.formName.equals(formName)) {
                 if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() < 2) {
                     Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
-                    Timber.d( "ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
+                    Timber.d("ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
                     return;
                 }
                 if (StringUtils.isBlank(entityId)) {

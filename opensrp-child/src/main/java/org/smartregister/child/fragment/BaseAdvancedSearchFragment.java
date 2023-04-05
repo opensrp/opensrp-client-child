@@ -115,14 +115,15 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private ProgressDialog progressDialog;
     private AdvanceSearchDatePickerDialog startDateDatePicker;
     private AdvanceSearchDatePickerDialog endDateDatePicker;
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-            Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat(
+            FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+            Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()
+    );
 
     @Override
     protected void initializePresenter() {
         presenter = getPresenter();
         initProgressDialog();
-
     }
 
     private void initProgressDialog() {

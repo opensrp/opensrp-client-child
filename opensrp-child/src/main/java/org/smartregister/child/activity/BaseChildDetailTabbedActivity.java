@@ -1202,8 +1202,12 @@ public abstract class BaseChildDetailTabbedActivity extends BaseChildActivity
 
                 if (!vaccineIsExcluded) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-                    String name = String.format(Locale.getDefault(), getString(R.string.adverse_effect_reporting_vaccine_format),
-                            VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()), dateFormat.format(curVaccine.getDate()));
+                    String name = String.format(
+                            Locale.getDefault(),
+                            getString(R.string.adverse_effect_reporting_vaccine_format),
+                            VaccinatorUtils.getTranslatedVaccineName(this, curVaccine.getName()),
+                            dateFormat.format(curVaccine.getDate())
+                    );
 
                     Pair<String, String> vaccineGroupConceptPair = getVaccineGroupConceptID(omrsChoicesTemplate, curVaccine);
 
