@@ -14,8 +14,8 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     private RegisterQueryProvider queryProvider;
 
-    private String expectedQuery = "SELECT ec_child_details.id FROM ec_child_details ec_child_details " +
-            "LEFT JOIN ec_client ON ec_child_details.id = ec_client.base_entity_id ";
+    private String expectedQuery = "SELECT ec_client.id FROM ec_client ec_client LEFT JOIN ec_child_details " +
+            "ON ec_client.id = ec_child_details.base_entity_id ";
 
     private String registerQuery = "SELECT %s FROM ec_child_details " +
             "JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id " +
