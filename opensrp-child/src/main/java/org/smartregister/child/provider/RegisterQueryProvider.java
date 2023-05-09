@@ -17,9 +17,9 @@ public class RegisterQueryProvider {
             strFilters = String.format(" WHERE (" + getDemographicTable() + ".first_name LIKE '%%%s%%' OR "+getDemographicTable()+ ".last_name LIKE '%%%s%%')", filters, filters);
         }
 
-        return "SELECT " + getChildDetailsTable() + ".id " +
-                "FROM " + getChildDetailsTable() + " " + getChildDetailsTable() + " " +
-                "LEFT JOIN " + getDemographicTable() + " ON " + getChildDetailsTable() + ".id = " + getDemographicTable() + ".base_entity_id " +
+        return "SELECT " + getDemographicTable() + ".id " +
+                "FROM " + getDemographicTable() + " " + getDemographicTable() + " " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".id = " + getChildDetailsTable() + ".base_entity_id " +
                 strMainCondition + strFilters;
     }
 
