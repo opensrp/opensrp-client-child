@@ -70,7 +70,7 @@ public class ChildRegisterInteractor implements ChildRegisterContract.Interactor
 
     @Override
     public void getNextUniqueId(final Triple<String, Map<String, String>, String> triple, final ChildRegisterContract.InteractorCallBack callBack) {
-        if (getUniqueIdRepository().countUnUsedIds() < 2) {
+        if (getUniqueIdRepository().countUnUsedIds() <= 2) {
             callBack.onNoUniqueId();
             Timber.d( "ChildRegisterInteractor --> getNextUniqueId: Unique ids are less than 2 required to register mother and child");
             return;
