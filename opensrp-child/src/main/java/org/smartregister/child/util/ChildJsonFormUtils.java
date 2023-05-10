@@ -2104,7 +2104,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         if (form != null) {
             form.getJSONObject(METADATA).put(ENCOUNTER_LOCATION, currentLocationId);
             if (Utils.metadata().childRegister.formName.equals(formName)) {
-                if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() < 2) {
+                if (CoreLibrary.getInstance().context().getUniqueIdRepository().countUnUsedIds() <= 2) {
                     Utils.showShortToast(context, context.getString(R.string.no_openmrs_id));
                     Timber.d( "ChildJsonFormUtils --> startForm: Unique ids are less than 2 required to register mother and child");
                     return;

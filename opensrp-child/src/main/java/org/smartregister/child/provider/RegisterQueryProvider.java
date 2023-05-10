@@ -14,19 +14,18 @@ public class RegisterQueryProvider {
         String strFilters = getFilter(filters);
 
         if (StringUtils.isNotBlank(strFilters) && StringUtils.isBlank(strMainCondition)) {
-            strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" WHERE (" + getDemographicTable() + ".first_name LIKE '%%%s%%' OR "+getDemographicTable()+ ".last_name LIKE '%%%s%%')", filters, filters);
         }
 
-        return "SELECT " + getDemographicTable() + ".object_id " +
-                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
-                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
-                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
+        return "SELECT " + getDemographicTable() + ".id " +
+                "FROM " + getDemographicTable() + " " + getDemographicTable() + " " +
+                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".id = " + getChildDetailsTable() + ".base_entity_id " +
                 strMainCondition + strFilters;
     }
 
     private String getFilter(String filters) {
         if (StringUtils.isNotBlank(filters)) {
-            return String.format(" AND " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            return String.format(" AND (" + getDemographicTable() + ".first_name LIKE '%%%s%%' OR "+getDemographicTable()+ ".last_name LIKE '%%%s%%')", filters, filters);
         }
         return "";
     }
@@ -44,13 +43,12 @@ public class RegisterQueryProvider {
         String strFilters = getFilter(filters);
 
         if (StringUtils.isNotBlank(strFilters) && StringUtils.isBlank(strMainCondition)) {
-            strFilters = String.format(" WHERE " + getDemographicTable() + ".phrase MATCH '*%s*'", filters);
+            strFilters = String.format(" WHERE (" + getDemographicTable() + ".first_name LIKE '%%%s%%' OR "+getDemographicTable()+ ".last_name LIKE '%%%s%%')", filters, filters);
         }
 
-        return "SELECT count(" + getDemographicTable() + ".object_id) " +
-                "FROM " + CommonFtsObject.searchTableName(getDemographicTable()) + " " + getDemographicTable() + " " +
-                "LEFT JOIN " + getChildDetailsTable() + " ON " + getDemographicTable() + ".object_id = " + getChildDetailsTable() + ".id " +
-                "LEFT JOIN " + CommonFtsObject.searchTableName(getChildDetailsTable()) + " ON " + getDemographicTable() + ".object_id = " + CommonFtsObject.searchTableName(getChildDetailsTable()) + ".object_id " +
+        return "SELECT count(" + getChildDetailsTable() + ".id) " +
+                "FROM " + getChildDetailsTable() + " " + getChildDetailsTable() + " " +
+                "LEFT JOIN " + getDemographicTable() + " ON " + getChildDetailsTable() + ".id = " + getDemographicTable() + ".base_entity_id " +
                 strMainCondition + strFilters;
     }
 
