@@ -14,9 +14,8 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     private RegisterQueryProvider queryProvider;
 
-    private String expectedQuery = "SELECT ec_client.object_id FROM ec_client_search ec_client " +
-            "LEFT JOIN ec_child_details ON ec_client.object_id = ec_child_details.id " +
-            "LEFT JOIN ec_child_details_search ON ec_client.object_id = ec_child_details_search.object_id ";
+    private String expectedQuery = "SELECT ec_client.id FROM ec_client ec_client LEFT JOIN ec_child_details " +
+            "ON ec_client.id = ec_child_details.base_entity_id ";
 
     private String registerQuery = "SELECT %s FROM ec_child_details " +
             "JOIN ec_mother_details ON ec_child_details.relational_id = ec_mother_details.base_entity_id " +
@@ -31,9 +30,8 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
             "ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive," +
             "ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1";
 
-    private String countQuery = "SELECT count(ec_client.object_id) FROM ec_client_search ec_client " +
-            "LEFT JOIN ec_child_details ON ec_client.object_id = ec_child_details.id " +
-            "LEFT JOIN ec_child_details_search ON ec_client.object_id = ec_child_details_search.object_id ";
+    private String countQuery = "SELECT count(ec_client.id) FROM ec_client ec_client LEFT JOIN ec_child_details " +
+            "ON ec_client.id = ec_child_details.base_entity_id ";
 
     private final String activeChildrenIdsQuery = "SELECT ec_child_details.id FROM ec_child_details " +
             "INNER JOIN ec_client ON ec_child_details.id = ec_client.id " +
@@ -71,7 +69,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
         RegisterQueryProvider provider = Mockito.spy(queryProvider);
 
         String filters = "something";
-        Assert.assertEquals(" AND ec_client.phrase MATCH '*something*'", method.invoke(provider, filters));
+        Assert.assertEquals(" AND (ec_client.first_name LIKE '%something%' OR ec_client.last_name LIKE '%something%')", method.invoke(provider, filters));
     }
 
     @Test
@@ -114,7 +112,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetObjectIdsQueryWithEmptyConditionAndNonEmptyFilterReturnsQueryWithWhereClause() {
-        expectedQuery += " WHERE ec_client.phrase MATCH '*123*'";
+        expectedQuery += " WHERE (ec_client.first_name LIKE '%123%' OR ec_client.last_name LIKE '%123%')";
 
         String query = queryProvider.getObjectIdsQuery("", "123");
 
@@ -167,7 +165,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetCountExecuteQueryWithEmptyConditionAndNonEmptyFiltersReturnsCountQueryWithWhereClause() {
-        countQuery += " WHERE ec_client.phrase MATCH '*4567*'";
+        countQuery += " WHERE (ec_client.first_name LIKE '%4567%' OR ec_client.last_name LIKE '%4567%')";
 
         String query = queryProvider.getCountExecuteQuery("", "4567");
 
@@ -176,7 +174,7 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
 
     @Test
     public void testGetCountExecuteQueryWithNonEmptyConditionAndFiltersReturnsCountQueryWithWhereClause() {
-        countQuery += " WHERE condition = 'condition_value' AND ec_client.phrase MATCH '*98765*'";
+        countQuery += " WHERE condition = 'condition_value' AND (ec_client.first_name LIKE '%98765%' OR ec_client.last_name LIKE '%98765%')";
 
         String query = queryProvider.getCountExecuteQuery("condition = 'condition_value'", "98765");
 
