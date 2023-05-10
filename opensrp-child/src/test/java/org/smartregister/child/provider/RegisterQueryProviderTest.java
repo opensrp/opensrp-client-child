@@ -30,8 +30,8 @@ public class RegisterQueryProviderTest extends BaseUnitTest {
             "ec_child_details.pmtct_status,ec_client.last_interacted_with,ec_child_details.inactive," +
             "ec_child_details.lost_to_follow_up,ec_child_details.mother_guardian_phone_number,ec_client.address1";
 
-    private String countQuery = "SELECT count(ec_child_details.id) FROM ec_child_details ec_child_details " +
-            "LEFT JOIN ec_client ON ec_child_details.id = ec_client.base_entity_id ";
+    private String countQuery = "SELECT count(ec_client.id) FROM ec_client ec_client LEFT JOIN ec_child_details " +
+            "ON ec_client.id = ec_child_details.base_entity_id ";
 
     private final String activeChildrenIdsQuery = "SELECT ec_child_details.id FROM ec_child_details " +
             "INNER JOIN ec_client ON ec_child_details.id = ec_client.id " +
