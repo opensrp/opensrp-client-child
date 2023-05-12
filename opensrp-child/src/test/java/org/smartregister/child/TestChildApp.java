@@ -28,11 +28,11 @@ public class TestChildApp extends DrishtiApplication {
 
     @Override
     public void onCreate() {
+        Fabric.with(this, new Crashlytics());
         super.onCreate();
         mInstance = this;
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
-        Fabric.with(this, new Crashlytics());
         CoreLibrary.init(context);
         ConfigurableViewsLibrary.init(context);
         ChildLibrary.init(context, getRepository(), getMetadata(), 1, 1);
