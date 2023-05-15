@@ -1,5 +1,6 @@
 package org.smartregister.child.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -75,21 +77,6 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
         implements ChildAdvancedSearchContract.View, ChildRegisterFragmentContract.View, View.OnClickListener {
     public static final String START_DATE = "start_date";
     public static final String END_DATE = "end_date";
-    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = moveToCatchmentEvent -> {
-        if (moveToCatchmentEvent != null) {
-            if (ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvent)) {
-                clientAdapter.notifyDataSetChanged();
-                ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
-                ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
-
-                Utils.showToast(requireActivity(), requireActivity().getString(R.string.move_to_catchment_success_message));
-            } else {
-                Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
-            }
-        } else {
-            Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.unable_to_move_to_my_catchment));
-        }
-    };
     protected AdvancedSearchTextWatcher advancedSearchTextwatcher = new AdvancedSearchTextWatcher();
     protected HashMap<String, String> searchFormData = new HashMap<>();
     protected CheckBox active;
@@ -117,17 +104,51 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private AdvanceSearchDatePickerDialog endDateDatePicker;
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
             Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
+    @SuppressLint("StaticFieldLeak")
+    private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = moveToCatchmentEvent -> {
+        if (moveToCatchmentEvent != null) {
+            org.smartregister.util.Utils.startAsyncTask(new AsyncTask<MoveToCatchmentEvent, Void, Boolean>() {
+
+                @Override
+                protected Boolean doInBackground(MoveToCatchmentEvent... moveToCatchmentEvents) {
+                    return ChildJsonFormUtils.processMoveToCatchment(context(), moveToCatchmentEvents[0]);
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    super.onPostExecute(result);
+                    hideProgressDialog();
+                    if (result) {
+                        clientAdapter.notifyDataSetChanged();
+                        ((BaseRegisterActivity) requireActivity()).refreshList(FetchStatus.fetched);
+                        ((BaseRegisterActivity) requireActivity()).switchToBaseFragment();
+
+                        Utils.showToast(requireActivity(), requireActivity().getString(R.string.move_to_catchment_success_message));
+                    } else {
+                        Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.an_error_occured));
+                    }
+                }
+            }, new MoveToCatchmentEvent[]{moveToCatchmentEvent});
+        } else {
+            hideProgressDialog();
+            Utils.showShortToast(requireActivity(), requireActivity().getString(R.string.unable_to_move_to_my_catchment));
+        }
+    };
 
     @Override
     protected void initializePresenter() {
         presenter = getPresenter();
         initProgressDialog();
-
     }
 
     private void initProgressDialog() {
         progressDialog = new ProgressDialog(requireActivity());
         progressDialog.setCancelable(false);
+    }
+
+    private void hideProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 
     protected abstract BaseChildAdvancedSearchPresenter getPresenter();
