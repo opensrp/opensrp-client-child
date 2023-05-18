@@ -1,5 +1,9 @@
 package org.smartregister.child.utils;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.view.View;
@@ -10,6 +14,8 @@ import android.widget.TextView;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableMap;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -33,8 +39,11 @@ import org.smartregister.child.BaseUnitTest;
 import org.smartregister.child.ChildLibrary;
 import org.smartregister.child.R;
 import org.smartregister.child.domain.ChildMetadata;
+import org.smartregister.child.provider.RegisterQueryProvider;
+import org.smartregister.child.util.ChildAppProperties;
 import org.smartregister.child.util.Constants;
 import org.smartregister.child.util.Utils;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -46,6 +55,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.util.AppProperties;
 
@@ -53,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @PrepareForTest({VaccineRepo.class, ImmunizationLibrary.class})
@@ -521,5 +532,73 @@ public class UtilsTest extends BaseUnitTest {
 
         int weeksDue = Utils.getWeeksDue(date);
         Assert.assertEquals(0, weeksDue);
+    }
+
+    @Test
+    public void testChildBelongsToCurrentFacilityShouldReturnTrueWhenChildExistsInDB() {
+        HashMap<String, String> childDetails = new HashMap<>();
+        childDetails.put("base_entity_id", "case_id");
+        childDetails.put("is_out_of_catchment", "false");
+        ArrayList<HashMap<String, String>> childDetailsList = new ArrayList<>();
+        childDetailsList.add(childDetails);
+
+        EventClientRepository eventClientRepository = Mockito.mock(EventClientRepository.class);
+        Repository repository = Mockito.mock(Repository.class);
+        Mockito.doReturn(eventClientRepository).when(childLibrary).eventClientRepository();
+        Mockito.doReturn(repository).when(childLibrary).getRepository();
+        Mockito.when(repository.getReadableDatabase()).thenReturn(Mockito.mock(SQLiteDatabase.class));
+        Mockito.doReturn(childDetailsList).when(eventClientRepository).rawQuery(any(SQLiteDatabase.class), anyString());
+        ChildMetadata metadata = Mockito.mock(ChildMetadata.class);
+        RegisterQueryProvider registerQueryProvider = Mockito.mock(RegisterQueryProvider.class);
+        Mockito.doReturn(metadata).when(childLibrary).metadata();
+        Mockito.doReturn(registerQueryProvider).when(metadata).getRegisterQueryProvider();
+        Mockito.doReturn("").when(registerQueryProvider).mainRegisterQuery();
+        Mockito.doReturn("").when(registerQueryProvider).getDemographicTable();
+
+        Assert.assertTrue(Utils.childBelongsToCurrentFacility(childDetails));
+    }
+
+    @Test
+    public void testIsChildTemporaryOOCShouldReturnTrueWhenOOCEvent() {
+        EventClientRepository eventClientRepository = Mockito.mock(EventClientRepository.class);
+        Repository repository = Mockito.mock(Repository.class);
+        Mockito.doReturn(eventClientRepository).when(childLibrary).eventClientRepository();
+        Mockito.doReturn(repository).when(childLibrary).getRepository();
+        Mockito.when(repository.getReadableDatabase()).thenReturn(Mockito.mock(SQLiteDatabase.class));
+        Mockito.doReturn(null).when(eventClientRepository).rawQuery(any(SQLiteDatabase.class), anyString());
+        ChildMetadata metadata = Mockito.mock(ChildMetadata.class);
+        RegisterQueryProvider registerQueryProvider = Mockito.mock(RegisterQueryProvider.class);
+        Mockito.doReturn(metadata).when(childLibrary).metadata();
+        Mockito.doReturn(registerQueryProvider).when(metadata).getRegisterQueryProvider();
+        Mockito.doReturn("").when(registerQueryProvider).mainRegisterQuery();
+        Mockito.doReturn("").when(registerQueryProvider).getDemographicTable();
+        Mockito.doReturn(true).when(appProperties).isTrue(eq(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT));
+
+        Map<String, String> childDetails = new HashMap<>();
+        childDetails.put("base_entity_id", "case_id");
+        childDetails.put("is_out_of_catchment", "true");
+
+        Assert.assertTrue(Utils.isChildTemporaryOOC(childDetails));
+    }
+
+    @Test
+    public void testGetLocationIdFromChildTempOOCEventRetursCorrectLocation() {
+        EventClientRepository repository = Mockito.mock(EventClientRepository.class);
+        Mockito.when(childLibrary.eventClientRepository()).thenReturn(repository);
+
+        List<EventClient> eventClientList = new ArrayList<>();
+        org.smartregister.domain.Event event = new org.smartregister.domain.Event();
+        event.setBaseEntityId("case_id");
+        org.smartregister.domain.Obs obs = new org.smartregister.domain.Obs();
+        obs.setFormSubmissionField("From_LocationId");
+        obs.addToValueList("location_123");
+        event.addObs(obs);
+        EventClient eventClient = new EventClient(event);
+        eventClientList.add(eventClient);
+
+        Mockito.doReturn(eventClientList).when(repository).fetchEventClientsCore(anyString(), any());
+
+        String locationId = Utils.getLocationIdFromChildTempOOCEvent("case_id");
+        Assert.assertEquals("location_123", locationId);
     }
 }

@@ -1,5 +1,6 @@
 package org.smartregister.child.util;
 
+import static org.smartregister.child.util.MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_SYNC_EVENT;
 import static org.smartregister.immunization.util.VaccinatorUtils.translate;
 
 import android.app.Activity;
@@ -53,6 +54,7 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.domain.tag.FormTag;
 import org.smartregister.growthmonitoring.domain.Height;
 import org.smartregister.growthmonitoring.domain.HeightWrapper;
@@ -69,6 +71,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.UniqueIdRepository;
 
 import java.text.DateFormat;
@@ -778,6 +781,41 @@ public class Utils extends org.smartregister.util.Utils {
     public static boolean isChildHasNFCCard(Map<String, String> detailsMap) {
         return StringUtils.isNotEmpty(detailsMap.get(Constants.KEY.NFC_CARD_IDENTIFIER))
                 && !Constants.TRUE.equalsIgnoreCase(detailsMap.getOrDefault(Constants.KEY.NFC_CARD_BLACKLISTED, Constants.FALSE));
+    }
+
+    public static boolean childBelongsToCurrentFacility(@NotNull Map<String, String> childDetails) {
+        String caseId = childDetails.get(DBConstants.KEY.BASE_ENTITY_ID);
+        CommonPersonObjectClient client = ChildDbUtils.fetchCommonPersonObjectClientByBaseEntityId(caseId);
+
+        String outOfArea = getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false);
+        return client != null && (Constants.FALSE.equalsIgnoreCase(outOfArea) || StringUtils.isEmpty(outOfArea));
+    }
+
+    public static boolean isChildTemporaryOOC(@NotNull Map<String, String> childDetails) {
+        return !childBelongsToCurrentFacility(childDetails) && (ChildLibrary.getInstance()
+                .getProperties().isTrue(ChildAppProperties.KEY.NOVEL.OUT_OF_CATCHMENT)
+                && Boolean.parseBoolean(org.smartregister.util.Utils.getValue(childDetails, Constants.Client.IS_OUT_OF_CATCHMENT, false)));
+    }
+
+    public static String getLocationIdFromChildTempOOCEvent(String baseEntityId) {
+        EventClientRepository eventClientRepository = ChildLibrary.getInstance().eventClientRepository();
+        String query = "SELECT "+ EventClientRepository.event_column.json.name() +" FROM "
+                + EventClientRepository.Table.event.name()
+                + " WHERE "
+                + "eventType = '"+ MOVE_TO_CATCHMENT_SYNC_EVENT +"' "
+                + "AND baseEntityId = '"+ baseEntityId +"' "
+                + "ORDER BY "+EventClientRepository.event_column.dateCreated.name()+" DESC LIMIT 1";
+        List<EventClient> moveToCatchmentSyncEventClient = eventClientRepository.fetchEventClientsCore(query, null);
+        org.smartregister.domain.Event moveToCatchmentSyncEvent = moveToCatchmentSyncEventClient.get(0).getEvent();
+        String locationId  = "";
+        for (int i = moveToCatchmentSyncEvent.getObs().size() - 1; i > -1; i--) {
+            org.smartregister.domain.Obs obs = moveToCatchmentSyncEvent.getObs().get(i);
+
+            if (obs != null && "From_LocationId".equals(obs.getFormSubmissionField())) {
+                locationId = (String) obs.getValues().get(0);
+            }
+        }
+        return locationId;
     }
 
     public static boolean hasCompassRelationshipId(Map<String, String> detailsMap) {
