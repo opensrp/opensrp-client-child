@@ -54,7 +54,6 @@ public class MoveToMyCatchmentUtils {
             @Override
             protected void onPostExecute(MoveToCatchmentEvent result) {
                 listener.onEvent(result);
-                progressDialog.dismiss();
             }
         }, null);
     }

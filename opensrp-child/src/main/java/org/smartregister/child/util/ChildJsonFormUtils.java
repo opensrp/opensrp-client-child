@@ -1777,6 +1777,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             String teamId = allSharedPreferences.fetchDefaultTeamId(providerId);
             String locationId = allSharedPreferences.fetchUserLocalityId(providerId);
 
+            String fromLocationId = ""; // SAve Child's origin location
             for (int i = 0; i < clients.length(); i++) {
                 JSONObject client = clients.getJSONObject(i);
 
@@ -1787,6 +1788,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 }
 
                 client.put("teamId", teamId);
+                fromLocationId = client.getString("locationId");
                 client.put("locationId", locationId);
             }
 
@@ -1802,7 +1804,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
                 processMoveToCatchmentPermanent(openSRPContext.applicationContext(), openSRPContext.allSharedPreferences(), eventPairList);
                 processTriggerClientProcessorAndUpdateFTS(openSRPContext, clients);
             } else {
-                processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent());
+                processMoveToCatchmentTemporary(openSRPContext, events, clients, moveToCatchmentEvent.isCreateEvent(), fromLocationId);
             }
 
             return true;
@@ -1827,9 +1829,9 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         Timber.i("Moved %s  client(s) to new catchment area.", clientIds.size());
     }
 
-    public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent) throws Exception {
+    public static void processMoveToCatchmentTemporary(org.smartregister.Context opensrpContext, JSONArray events, JSONArray clients, boolean createEvent, String fromLocationId) throws Exception {
         if (createEvent) {
-            Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients);
+            Event moveToCatchmentSyncEvent = createMoveToCatchmentSyncEvent(opensrpContext, clients, fromLocationId);
 
             convertAndPersistEvent(moveToCatchmentSyncEvent);
         }
@@ -2042,7 +2044,7 @@ public class ChildJsonFormUtils extends JsonFormUtils {
         }
     }
 
-    public static Event createMoveToCatchmentSyncEvent(org.smartregister.Context opensrpContext, JSONArray clientList) {
+    public static Event createMoveToCatchmentSyncEvent(org.smartregister.Context opensrpContext, JSONArray clientList, String fromLocationId) {
         try {
 
             if (clientList == null) {
@@ -2065,6 +2067,14 @@ public class ChildJsonFormUtils extends JsonFormUtils {
             }
 
             event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD, "", val, new ArrayList<>(), null, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_IDENTIFIERS_FORM_FIELD));
+
+            // Add info for origin's location Id
+            String formSubmissionField = "From_LocationId";
+            List<Object> vall = new ArrayList<>();
+            vall.add(fromLocationId);
+            event.addObs(new Obs(FORM_SUBMISSION_FIELD, DATA_TYPE, formSubmissionField, "", vall, new ArrayList<>(), null,
+                    formSubmissionField));
+
             event.setBaseEntityId(clientBaseEntityId);
 
             addMetaData(opensrpContext.applicationContext(), event, new Date());

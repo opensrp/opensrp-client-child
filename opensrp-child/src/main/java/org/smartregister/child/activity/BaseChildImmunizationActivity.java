@@ -1523,7 +1523,22 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
+
+        // Assign Location Id as per the child's home facility
+        if (Utils.childBelongsToCurrentFacility(getChildDetails().getColumnmaps())) {
+            vaccine.setLocationId(ChildJsonFormUtils.getProviderLocationId(this));
+        } else if (Utils.isChildTemporaryOOC(childDetails.getColumnmaps())) {
+            String locationId = Utils.getLocationIdFromChildTempOOCEvent(vaccine.getBaseEntityId());
+            if (StringUtils.isEmpty(locationId)) // Pickup current faciilty id
+                locationId = ChildJsonFormUtils.getProviderLocationId(this);
+            vaccine.setLocationId(locationId);
+        } else {
+            String locationId = childDetails.getColumnmaps().get(AllConstants.LOCATION_ID);
+            if (StringUtils.isEmpty(locationId))
+                locationId = ChildJsonFormUtils.getProviderLocationId(this);
+            vaccine.setLocationId(locationId);
+        }
+
         vaccine.setChildLocationId(ChildJsonFormUtils.getChildLocationId(getOpenSRPContext().allSharedPreferences().fetchDefaultLocalityId(vaccine.getAnmId()), getOpenSRPContext().allSharedPreferences()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
