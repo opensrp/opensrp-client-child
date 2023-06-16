@@ -1903,6 +1903,21 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
 
+            // PRint Vaccine Schedule For logging
+            StringBuilder vaccineGiven = new StringBuilder();
+            for (Vaccine vaccine : vaccineList) {
+                vaccineGiven.append(vaccine.getName()).append("|").append(vaccine.getDate()).append("\n");
+            }
+            vaccineGiven.append("Current Device Time: " + DateTime.now().toString("yyyy-MM-dd'T'HH:mm:ssZ") + "\n");
+            Timber.e("Vaccines given for " + childDetails.name() + " with id " + childDetails.entityId() + " is: \n" + vaccineGiven);
+
+            String vaccineAlerts = "";
+            for (Alert vaccine : alertList) {
+                vaccineAlerts += vaccine.scheduleName() + "|" + vaccine.status() + "|" + vaccine.startDate() + "|" + vaccine.expiryDate() + "\n";
+            }
+            vaccineAlerts += "Current Device Time: " + DateTime.now().toString("yyyy-MM-dd'T'HH:mm:ssZ") + "\n";
+            Timber.e("Vaccine Schedule for " + childDetails.name() + " with id " + childDetails.entityId() + " is: \n" + vaccineAlerts);
+
             hideProgressDialog();
         }
     }
