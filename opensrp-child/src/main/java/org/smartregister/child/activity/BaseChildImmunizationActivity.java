@@ -403,7 +403,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             identifier = getString(R.string.male_sex_id);
         }
 
-        if (Locale.getDefault().toString().equalsIgnoreCase("ar") || Locale.getDefault().toString().equalsIgnoreCase("fr")) {
+        if (Locale.getDefault().toString().startsWith("ar") || Locale.getDefault().toString().equalsIgnoreCase("fr")) {
             identifier = "";
         }
         toolbar.updateSeparatorView(toolbarResource);

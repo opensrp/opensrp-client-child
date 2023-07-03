@@ -103,7 +103,7 @@ public abstract class BaseAdvancedSearchFragment extends BaseChildRegisterFragme
     private AdvanceSearchDatePickerDialog startDateDatePicker;
     private AdvanceSearchDatePickerDialog endDateDatePicker;
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-            Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault());
+            Utils.getDefaultLocale());
     @SuppressLint("StaticFieldLeak")
     private final Listener<MoveToCatchmentEvent> moveToMyCatchmentListener = moveToCatchmentEvent -> {
         if (moveToCatchmentEvent != null) {
