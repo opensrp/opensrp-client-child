@@ -403,7 +403,7 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             identifier = getString(R.string.male_sex_id);
         }
 
-        if (Locale.getDefault().toString().equalsIgnoreCase("ar") || Locale.getDefault().toString().equalsIgnoreCase("fr")) {
+        if (Locale.getDefault().toString().startsWith("ar") || Locale.getDefault().toString().equalsIgnoreCase("fr")) {
             identifier = "";
         }
         toolbar.updateSeparatorView(toolbarResource);
@@ -1902,6 +1902,21 @@ public abstract class BaseChildImmunizationActivity extends BaseChildActivity
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
+
+            // PRint Vaccine Schedule For logging
+            StringBuilder vaccineGiven = new StringBuilder();
+            for (Vaccine vaccine : vaccineList) {
+                vaccineGiven.append(vaccine.getName()).append("|").append(vaccine.getDate()).append("\n");
+            }
+            vaccineGiven.append("Current Device Time: " + DateTime.now().toString("yyyy-MM-dd'T'HH:mm:ssZ") + "\n");
+            Timber.e("Vaccines given for " + childDetails.name() + " with id " + childDetails.entityId() + " is: \n" + vaccineGiven);
+
+            String vaccineAlerts = "";
+            for (Alert vaccine : alertList) {
+                vaccineAlerts += vaccine.scheduleName() + "|" + vaccine.status() + "|" + vaccine.startDate() + "|" + vaccine.expiryDate() + "\n";
+            }
+            vaccineAlerts += "Current Device Time: " + DateTime.now().toString("yyyy-MM-dd'T'HH:mm:ssZ") + "\n";
+            Timber.e("Vaccine Schedule for " + childDetails.name() + " with id " + childDetails.entityId() + " is: \n" + vaccineAlerts);
 
             hideProgressDialog();
         }
