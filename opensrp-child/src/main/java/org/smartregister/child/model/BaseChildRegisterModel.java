@@ -152,8 +152,7 @@ public class BaseChildRegisterModel implements ChildRegisterContract.Model {
 
         String dob = null;
         try {
-            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())));
-
+            dob = Utils.reverseHyphenatedString(Utils.convertDateFormat(childHeadEventClient.getClient().getBirthdate(), new SimpleDateFormat("dd-MM-yyyy", Utils.getDefaultLocale)));
         } catch (Exception e) {
             Timber.e(e);
         }

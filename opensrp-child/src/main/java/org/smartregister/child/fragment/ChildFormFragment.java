@@ -407,8 +407,7 @@ public class ChildFormFragment extends JsonWizardFormFragment {
         String value = getValue(columnMaps, fieldName, !getNonHumanizedFields().contains(fieldName));
         if (getActivity() != null) {
             Locale locale = getActivity().getResources().getConfiguration().locale;
-            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-                    locale.getLanguage().equals("ar") ? Locale.ENGLISH : locale);
+            SimpleDateFormat mlsLookupDateFormatter = new SimpleDateFormat(FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN, Utils.getDefaultLocale());
             if (fieldName.equalsIgnoreCase(Constants.KEY.DOB)) {
                 String dobString = getValue(columnMaps, Constants.KEY.DOB, false);
                 Date motherDob = Utils.dobStringToDate(dobString);
