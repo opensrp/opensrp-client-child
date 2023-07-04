@@ -95,7 +95,7 @@ import timber.log.Timber;
  * Created by ndegwamartin on 25/02/2019.
  */
 public class Utils extends org.smartregister.util.Utils {
-    public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT);
+    public static final SimpleDateFormat DB_DF = new SimpleDateFormat(Constants.SQLITE_DATE_TIME_FORMAT, Utils.getDefaultLocale());
 
     public static int getProfileImageResourceIDentifier() {
         return R.mipmap.ic_child;
@@ -799,15 +799,15 @@ public class Utils extends org.smartregister.util.Utils {
 
     public static String getLocationIdFromChildTempOOCEvent(String baseEntityId) {
         EventClientRepository eventClientRepository = ChildLibrary.getInstance().eventClientRepository();
-        String query = "SELECT "+ EventClientRepository.event_column.json.name() +" FROM "
+        String query = "SELECT " + EventClientRepository.event_column.json.name() + " FROM "
                 + EventClientRepository.Table.event.name()
                 + " WHERE "
-                + "eventType = '"+ MOVE_TO_CATCHMENT_SYNC_EVENT +"' "
-                + "AND baseEntityId = '"+ baseEntityId +"' "
-                + "ORDER BY "+EventClientRepository.event_column.dateCreated.name()+" DESC LIMIT 1";
+                + "eventType = '" + MOVE_TO_CATCHMENT_SYNC_EVENT + "' "
+                + "AND baseEntityId = '" + baseEntityId + "' "
+                + "ORDER BY " + EventClientRepository.event_column.dateCreated.name() + " DESC LIMIT 1";
         List<EventClient> moveToCatchmentSyncEventClient = eventClientRepository.fetchEventClientsCore(query, null);
         org.smartregister.domain.Event moveToCatchmentSyncEvent = moveToCatchmentSyncEventClient.get(0).getEvent();
-        String locationId  = "";
+        String locationId = "";
         for (int i = moveToCatchmentSyncEvent.getObs().size() - 1; i > -1; i--) {
             org.smartregister.domain.Obs obs = moveToCatchmentSyncEvent.getObs().get(i);
 

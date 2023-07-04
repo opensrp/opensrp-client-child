@@ -279,8 +279,10 @@ public abstract class BaseChildRegistrationDataFragment extends Fragment {
             case JsonFormConstants.DATE_PICKER:
                 Date date = ChildJsonFormUtils.formatDate(raw.contains("T") ? raw.substring(0, raw.indexOf('T')) : raw, false);
                 if (date != null) {
-                    result = new SimpleDateFormat(com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
-                            Locale.getDefault().toString().startsWith("ar") ? Locale.ENGLISH : Locale.getDefault()).format(date);
+                    result = new SimpleDateFormat(
+                            com.vijay.jsonwizard.utils.FormUtils.NATIIVE_FORM_DATE_FORMAT_PATTERN,
+                            Utils.getDefaultLocale()
+                    ).format(date);
                 }
                 break;
             case JsonFormConstants.SPINNER:
